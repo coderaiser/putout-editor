@@ -1,0 +1,21 @@
+const {
+    types,
+} = require('putout');
+
+module.exports.report = (path) => `identifier ${path.node.name} should be reversed`;
+
+module.exports.fix = (path) => {
+    const {name} = path.node;
+    path.node.name = name
+        .split('')
+        .reverse()
+        .join('');
+};
+
+module.exports.traverse = ({push}) => {
+    return {
+        Identifier(path) {
+            push(path)
+        }
+    };
+};

@@ -1,0 +1,21 @@
+{
+    "match": {
+        "src/components/PasteDropTarget.js": {
+            "remove-unused-variables": false
+        },
+        "src/core/ParseResult.js": {
+            "remove-unused-variables": false
+        },
+        "src/parsers/js/recast.js": {
+            "remove-unused-variables": false
+        },
+        ".eslintrc.js": {
+            "remove-console": true
+        }
+    },
+    "rules": {
+        "remove-console": false,
+        "remove-empty/import": false,
+        "strict-mode": false
+    }
+}

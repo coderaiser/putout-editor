@@ -1,0 +1,20 @@
+[Unit]
+Description=ASTExplorer
+ 
+[Service]
+TimeoutStartSec=0
+Restart=always
+User=coderaiser
+
+WorkingDirectory=/home/coderaiser/astexplorer
+
+Environment=NODE_VERSION=node
+#ASTEE
+Environment=PORT=45733
+Environment=STATIC=../out
+ 
+ExecStart=/home/coderaiser/.nvm/nvm-exec /home/coderaiser/astexplorer/bin/astexplorer.js
+ 
+[Install]
+WantedBy=multi-user.target
+
