@@ -29,8 +29,6 @@ const plugins = [
     
     // We don't use these parsers with prettier, so we don't need to include them
     new webpack.IgnorePlugin(/parser-flow/, /\/prettier/),
-    new webpack.IgnorePlugin(/parser-glimmer/, /\/prettier/),
-    new webpack.IgnorePlugin(/parser-markdown/, /\/prettier/),
     new webpack.IgnorePlugin(/parser-parse5/, /\/prettier/),
     new webpack.IgnorePlugin(/parser-postcss/, /\/prettier/),
     new webpack.IgnorePlugin(/parser-typescript/, /\/prettier/),
@@ -140,10 +138,6 @@ module.exports = Object.assign(
                         /\/acorn.es.js$/,
                         /\/acorn.mjs$/,
                         /\/acorn-loose.mjs$/,
-                        path.join(__dirname, 'node_modules', '@glimmer', 'compiler', 'dist'),
-                        path.join(__dirname, 'node_modules', '@glimmer', 'syntax', 'dist'),
-                        path.join(__dirname, 'node_modules', '@glimmer', 'util', 'dist'),
-                        path.join(__dirname, 'node_modules', '@glimmer', 'wire-format', 'dist'),
                         path.join(__dirname, 'node_modules', 'ast-types'),
                         path.join(__dirname, 'node_modules', 'babel-eslint'),
                         path.join(__dirname, 'node_modules', 'babel-eslint8'),
