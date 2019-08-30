@@ -77,151 +77,147 @@ const plugins = [
     new ProgressBarPlugin(),
 ];
 
-module.exports = Object.assign(
-    {
-        optimization: {
-            runtimeChunk: 'single',
-            splitChunks: {
-                cacheGroups: {
-                    parsermeta: {
-                        priority: 10,
-                        test: /\/package\.json$/,
-                        chunks(chunk) {
-                            return chunk.name === 'app';
-                        },
-                        minChunks: 1,
-                        minSize: 1,
+module.exports = {
+    optimization: {
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                parsermeta: {
+                    priority: 10,
+                    test: /\/package\.json$/,
+                    chunks(chunk) {
+                        return chunk.name === 'app';
                     },
-                    vendors: {
-                        test: vendorRegex,
-                        chunks(chunk) {
-                            return chunk.name === 'app';
-                        },
+                    minChunks: 1,
+                    minSize: 1,
+                },
+                vendors: {
+                    test: vendorRegex,
+                    chunks(chunk) {
+                        return chunk.name === 'app';
                     },
                 },
             },
-            minimizer: [
-                new TerserPlugin({
-                    terserOptions: {
-                        keep_fnames: true,
-                    },
-                }),
-            ],
         },
-        
-        module: {
-            rules: [
-                {
-                    test: /\.txt$/,
-                    exclude: /node_modules/,
-                    loader: 'raw-loader',
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    keep_fnames: true,
                 },
-                {
-                    test: /\.(jsx?|mjs)$/,
-                    type: 'javascript/auto',
-                    include: [
-                    // To transpile our version of acorn as well as the one that
-                    // espree uses (somewhere in its dependency tree)
-                        /\/acorn.es.js$/,
-                        /\/acorn.mjs$/,
-                        /\/acorn-loose.mjs$/,
-                        path.join(__dirname, 'node_modules', 'ast-types'),
-                        path.join(__dirname, 'node_modules', 'babel-eslint'),
-                        path.join(__dirname, 'node_modules', 'babel-eslint8'),
-                        path.join(__dirname, 'node_modules', 'jsesc'),
-                        path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
-                        path.join(__dirname, 'node_modules', 'babel7'),
-                        path.join(__dirname, 'node_modules', 'babel-plugin-macros'),
-                        path.join(__dirname, 'node_modules', 'json-parse-better-errors'),
-                        path.join(__dirname, 'node_modules', 'babylon7'),
-                        path.join(__dirname, 'node_modules', 'eslint', 'lib'),
-                        path.join(__dirname, 'node_modules', 'eslint-scope'),
-                        path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
-                        path.join(__dirname, 'node_modules', 'eslint6'),
-                        path.join(__dirname, 'node_modules', 'lodash-es'),
-                        path.join(__dirname, 'node_modules', 'prettier'),
-                        path.join(__dirname, 'node_modules', 'react-redux', 'es'),
-                        path.join(__dirname, 'node_modules', 'recast'),
-                        path.join(__dirname, 'node_modules', 'redux', 'es'),
-                        path.join(__dirname, 'node_modules', 'redux-saga', 'es'),
-                        path.join(__dirname, 'node_modules', 'regexp-tree'),
-                        path.join(__dirname, 'node_modules', 'simple-html-tokenizer'),
-                        path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
-                        path.join(__dirname, 'node_modules', 'typescript-eslint-parser'),
-                        path.join(__dirname, 'node_modules', 'tslint'),
-                        path.join(__dirname, 'node_modules', 'tslib'),
-                        path.join(__dirname, 'src'),
-                    ],
-                    loader: 'babel-loader',
-                    options: {
-                        babelrc: false,
-                        presets: [
-                            [require.resolve('@babel/preset-env'), {
-                                modules: 'commonjs',
-                            }],
-                            require.resolve('@babel/preset-react'),
-                        ],
-                        /*
-                        plugins: [
-                            require.resolve('@babel/plugin-transform-runtime'),
-                        ],
-                        */
-                    },
-                },
-                {
-                    test: /\.css$/,
-                    use: [
-                        DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
-                        {
-                            loader: 'css-loader',
-                            options: { importLoaders: 1 },
-                        },
-                        'postcss-loader',
-                    ],
-                },
-                {
-                    test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                    loader: 'url-loader?limit=10000&mimetype=application/font-woff',
-                },
-                {
-                    test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                    loader: 'file-loader',
-                },
-            ],
-            
-            noParse: [
-                /typescript\/lib/,
-                /acorn\/dist\/acorn\.js/,
-                /acorn\/dist\/acorn\.mjs/,
-                /esprima\/dist\/esprima\.js/,
-                /esprima-fb\/esprima\.js/,
-            ],
-        },
-        
-        node: {
-            child_process: 'empty',
-            fs: 'empty',
-            module: 'empty',
-            net: 'empty',
-            readline: 'empty',
-        },
-        
-        plugins,
-        
-        entry: {
-            app: './src/app.js',
-        },
-        
-        output: {
-            path: path.resolve(__dirname, '../out-build'),
-            filename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
-            chunkFilename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
-        },
+            }),
+        ],
     },
     
-    DEV ?
-        {
-            devtool: 'eval',
-        } :
-        {}
-);
+    module: {
+        rules: [
+            {
+                test: /\.txt$/,
+                exclude: /node_modules/,
+                loader: 'raw-loader',
+            },
+            {
+                test: /\.(jsx?|mjs)$/,
+                type: 'javascript/auto',
+                include: [
+                // To transpile our version of acorn as well as the one that
+                // espree uses (somewhere in its dependency tree)
+                    /\/acorn.es.js$/,
+                    /\/acorn.mjs$/,
+                    /\/acorn-loose.mjs$/,
+                    path.join(__dirname, 'node_modules', 'ast-types'),
+                    path.join(__dirname, 'node_modules', 'babel-eslint'),
+                    path.join(__dirname, 'node_modules', 'babel-eslint8'),
+                    path.join(__dirname, 'node_modules', 'jsesc'),
+                    path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
+                    path.join(__dirname, 'node_modules', 'babel7'),
+                    path.join(__dirname, 'node_modules', 'babel-plugin-macros'),
+                    path.join(__dirname, 'node_modules', 'json-parse-better-errors'),
+                    path.join(__dirname, 'node_modules', 'babylon7'),
+                    path.join(__dirname, 'node_modules', 'eslint', 'lib'),
+                    path.join(__dirname, 'node_modules', 'eslint-scope'),
+                    path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
+                    path.join(__dirname, 'node_modules', 'eslint6'),
+                    path.join(__dirname, 'node_modules', 'lodash-es'),
+                    path.join(__dirname, 'node_modules', 'prettier'),
+                    path.join(__dirname, 'node_modules', 'react-redux', 'es'),
+                    path.join(__dirname, 'node_modules', 'recast'),
+                    path.join(__dirname, 'node_modules', 'redux', 'es'),
+                    path.join(__dirname, 'node_modules', 'redux-saga', 'es'),
+                    path.join(__dirname, 'node_modules', 'regexp-tree'),
+                    path.join(__dirname, 'node_modules', 'simple-html-tokenizer'),
+                    path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
+                    path.join(__dirname, 'node_modules', 'typescript-eslint-parser'),
+                    path.join(__dirname, 'node_modules', 'tslint'),
+                    path.join(__dirname, 'node_modules', 'tslib'),
+                    path.join(__dirname, 'src'),
+                ],
+                loader: 'babel-loader',
+                options: {
+                    babelrc: false,
+                    presets: [
+                        [require.resolve('@babel/preset-env'), {
+                            modules: 'commonjs',
+                        }],
+                        require.resolve('@babel/preset-react'),
+                    ],
+                    /*
+                    plugins: [
+                        require.resolve('@babel/plugin-transform-runtime'),
+                    ],
+                    */
+                },
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: { importLoaders: 1 },
+                    },
+                    'postcss-loader',
+                ],
+            },
+            {
+                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: 'url-loader?limit=10000&mimetype=application/font-woff',
+            },
+            {
+                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: 'file-loader',
+            },
+        ],
+        
+        noParse: [
+            /typescript\/lib/,
+            /acorn\/dist\/acorn\.js/,
+            /acorn\/dist\/acorn\.mjs/,
+            /esprima\/dist\/esprima\.js/,
+            /esprima-fb\/esprima\.js/,
+        ],
+    },
+    
+    node: {
+        child_process: 'empty',
+        fs: 'empty',
+        module: 'empty',
+        net: 'empty',
+        readline: 'empty',
+    },
+    
+    plugins,
+    
+    entry: {
+        app: './src/app.js',
+    },
+    
+    output: {
+        path: path.resolve(__dirname, '../out-build'),
+        filename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
+        chunkFilename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
+    },
+    
+    ...DEV ? {
+        devtool: 'eval',
+    } : {},
+};
