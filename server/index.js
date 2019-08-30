@@ -24,11 +24,8 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something went wrong');
 });
 
-console.log(process.env.STATIC);
-if (process.env.STATIC) {
-  console.log('xxx', path.join(__dirname, process.env.STATIC));
+if (process.env.STATIC)
   app.use(express.static(path.join(__dirname, process.env.STATIC)));
-}
 
 const PORT = process.env.PORT || 8080;
 app.listen(
