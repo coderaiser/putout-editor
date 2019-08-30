@@ -190,17 +190,11 @@ module.exports = Object.assign(
             ],
             
             noParse: [
-                /traceur\/bin/,
                 /typescript\/lib/,
                 /acorn\/dist\/acorn\.js/,
                 /acorn\/dist\/acorn\.mjs/,
                 /esprima\/dist\/esprima\.js/,
                 /esprima-fb\/esprima\.js/,
-                // This is necessary because flow is trying to load the 'fs' module, but
-                // dynamically. Without this webpack will throw an error at runtime.
-                // I assume the `require(...)` call "succeeds" because 'fs' is shimmed to
-                // be empty below.
-                /flow-parser\/flow_parser\.js/,
             ],
         },
         
