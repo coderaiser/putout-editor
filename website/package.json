@@ -94,7 +94,7 @@
     "prop-type": "^0.0.1",
     "prop-types": "^15.5.10",
     "pubsub-js": "^1.4.2",
-    "query-string": "5",
+    "query-string": "^6.8.2",
     "react": "16",
     "react-dom": "^16.0.1",
     "react-redux": "^5.0.1",
