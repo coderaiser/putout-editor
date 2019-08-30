@@ -39,7 +39,7 @@
     "putout": "^5.10.0",
     "raw-loader": "^1.0.0",
     "rimraf": "^3.0.0",
-    "style-loader": "^0.23.0",
+    "style-loader": "^1.0.0",
     "terser-webpack-plugin": "^1.2.3",
     "url-loader": "^1.1.1",
     "webpack": "^4.17.2",
