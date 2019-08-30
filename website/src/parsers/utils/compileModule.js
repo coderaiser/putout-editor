@@ -1,4 +1,4 @@
-import {parse} from 'putout/slim/putout';
+import {parse} from 'putout/dist/putout';
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
