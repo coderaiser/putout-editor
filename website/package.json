@@ -98,7 +98,7 @@
     "redux-saga": "^0.15.3",
     "regexp-tree": "^0.1.5",
     "reselect": "^4.0.0",
-    "source-map": "^0.6.1",
+    "source-map": "^0.7.3",
     "sqlite-parser": "^1.0.0-rc3",
     "traceur": "0.0.111",
     "tslint": "^5.13.1",
