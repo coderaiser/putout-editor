@@ -105,7 +105,6 @@
     "redux-saga": "^0.15.3",
     "regexp-tree": "^0.1.5",
     "reselect": "^4.0.0",
-    "scalameta-parsers": "^2.0.0-RC3",
     "source-map": "^0.6.1",
     "sqlite-parser": "^1.0.0-rc3",
     "traceur": "0.0.111",
