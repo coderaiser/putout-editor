@@ -80,7 +80,6 @@ const store = createStore(
     enableBatching(astexplorer),
     revive(LocalStorage.readState()),
     composeEnhancers(applyMiddleware(sagaMiddleware, parserMiddleware)),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
 );
 store.subscribe(debounce(() => {
     const state = store.getState();
