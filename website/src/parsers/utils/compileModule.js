@@ -1,4 +1,5 @@
 import {parse} from 'putout/slim/putout';
+import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
     const exports = {};
@@ -7,7 +8,8 @@ export default function compileModule(code, globals = {}) {
     const keys = ['module', 'exports', ...globalNames];
     const values = [module, exports, ...globalNames.map((key) => globals[key])];
     
-    parse(code);
+    const safeCode = protect(code);
+    parse(safeCode);
     
     new Function(keys.join(), code).apply(exports, values);
     return module.exports;
