@@ -6,14 +6,14 @@ TimeoutStartSec=0
 Restart=always
 User=coderaiser
 
-WorkingDirectory=/home/coderaiser/astexplorer
+WorkingDirectory=/home/coderaiser/putout-editor
 
 Environment=NODE_VERSION=node
 #ASTEE
 Environment=PORT=45733
 Environment=STATIC=../out
  
-ExecStart=/home/coderaiser/.nvm/nvm-exec /home/coderaiser/astexplorer/bin/astexplorer.js
+ExecStart=/home/coderaiser/.nvm/nvm-exec /home/coderaiser/putout-editor/bin/putout-editor.js
  
 [Install]
 WantedBy=multi-user.target
