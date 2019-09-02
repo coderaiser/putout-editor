@@ -66,7 +66,7 @@
     "font-awesome": "^4.5.0",
     "glsl-parser": "^2.0.0",
     "glsl-tokenizer": "^2.1.2",
-    "halting-problem": "^1.0.2",
+    "halting-problem": "https://github.com/coderaiser/halting-problem/archive/1.0.4-update.tar.gz",
     "handlebars": "^4.0.6",
     "isomorphic-fetch": "^2.2.1",
     "json-stringify-safe": "^5.0.1",
