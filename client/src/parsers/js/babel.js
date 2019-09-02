@@ -96,7 +96,7 @@ export default {
     locationProps: new Set(['range', 'loc', 'start', 'end']),
     
     loadParser(callback) {
-        require(['babylon7'], callback);
+        require(['@babel/parser'], callback);
     },
     
     parse(babylon, code, options) {

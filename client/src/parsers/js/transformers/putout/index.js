@@ -13,15 +13,32 @@ export default {
     defaultParserID: 'babel',
     
     loadTransformer(callback) {
-        require(
-            ['putout/dist/putout.js'],
-            (putout) => callback({ putout })
+        require([
+            'putout/slim/putout.js',
+            'putout/lib/parsers/acorn',
+            'putout/lib/parsers/babel',
+            'putout/lib/parsers/espree',
+            'putout/lib/parsers/esprima',
+            ], (putout, acorn, babel, espree, esprima) => callback({
+                putout,
+                acorn,
+                babel,
+                espree,
+                esprima,
+            })
         );
     },
     
-    transform({ putout }, transformCode, source, parser) {
+    transform({putout, acorn, babel, espree, esprima}, transformCode, source, parserName) {
         const plugin = compileModule(transformCode, {
             require: () => putout,
+        });
+        
+        const parser = chooseParser(parserName, {
+            acorn,
+            babel,
+            espree,
+            esprima,
         });
         
         const { code } = putout(source, {
@@ -36,3 +53,17 @@ export default {
         return code;
     },
 };
+
+function chooseParser(parserName, {acorn, babel, espree, esprima}) {
+    switch (parserName) {
+    case 'acorn':
+        return acorn;
+    case 'espree':
+        return espree;
+    case 'esprima':
+        return esprima
+    default:
+        return babel;
+    };
+}
+
