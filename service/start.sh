@@ -1,6 +1,6 @@
-sudo cp astexplorer.service /etc/systemd/system/
+sudo cp putout-editor.service /etc/systemd/system/
 
-sudo systemctl enable astexplorer
-sudo systemctl start astexplorer
-sudo systemctl status astexplorer
+sudo systemctl enable putout-editor
+sudo systemctl start putout-editor
+sudo systemctl status putout-editor
 

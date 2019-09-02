@@ -1,2 +1,2 @@
-sudo journalctl -ru astexplorer
+sudo journalctl -ru putout-editor
 

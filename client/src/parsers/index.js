@@ -23,10 +23,9 @@ export const categories =
           
           categoryByID[category.id] = category;
           
-          category.codeExample = localRequire(`./${catName}/codeExample.txt`);
+          category.codeExample = localRequire(`./${catName}/codeExample.txt`).default;
           
-          const catFiles =
-      files
+          const catFiles = files
           .filter(([curCatName]) => curCatName === catName)
           .map((name) => name.slice(1));
           
@@ -49,7 +48,7 @@ export const categories =
               let transformer = localRequire(`${transformerDir}/index.js`);
               transformer = transformer.__esModule ? transformer.default : transformer;
               transformerByID[transformer.id] = transformer;
-              transformer.defaultTransform = localRequire(`${transformerDir}/codeExample.txt`);
+              transformer.defaultTransform = localRequire(`${transformerDir}/codeExample.txt`).default;
               return transformer;
           });
           

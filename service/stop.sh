@@ -1,2 +1,2 @@
-sudo systemctl stop astexplorer
+sudo systemctl stop putout-editor
 
