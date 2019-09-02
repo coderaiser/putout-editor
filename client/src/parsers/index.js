@@ -26,8 +26,8 @@ export const categories =
           category.codeExample = localRequire(`./${catName}/codeExample.txt`).default;
           
           const catFiles = files
-          .filter(([curCatName]) => curCatName === catName)
-          .map((name) => name.slice(1));
+              .filter(([curCatName]) => curCatName === catName)
+              .map((name) => name.slice(1));
           
           category.parsers =
       catFiles

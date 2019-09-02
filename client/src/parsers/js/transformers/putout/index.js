@@ -19,14 +19,13 @@ export default {
             'putout/lib/parsers/babel',
             'putout/lib/parsers/espree',
             'putout/lib/parsers/esprima',
-            ], (putout, acorn, babel, espree, esprima) => callback({
-                putout,
-                acorn,
-                babel,
-                espree,
-                esprima,
-            })
-        );
+        ], (putout, acorn, babel, espree, esprima) => callback({
+            putout,
+            acorn,
+            babel,
+            espree,
+            esprima,
+        }));
     },
     
     transform({putout, acorn, babel, espree, esprima}, transformCode, source, parserName) {
@@ -55,15 +54,15 @@ export default {
 };
 
 function chooseParser(parserName, {acorn, babel, espree, esprima}) {
-    switch (parserName) {
+    switch(parserName) {
     case 'acorn':
         return acorn;
     case 'espree':
         return espree;
     case 'esprima':
-        return esprima
+        return esprima;
     default:
         return babel;
-    };
+    }
 }
 
