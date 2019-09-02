@@ -114,6 +114,7 @@
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint",
     "fontcustom": "madrun fontcustom",
+    "eslint:hotfix": "madrun eslint:hotfix",
     "init": "madrun init"
   }
 }

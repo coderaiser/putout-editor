@@ -13,13 +13,13 @@ module.exports = {
     'lint': () => run('putout'),
     'fix:lint': () => run('putout', '--fix'),
     'fontcustom': () => 'fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml',
+    'eslint:hotfix': () => 'rm -rf node_modules/eslint/node_modules/acorn',
     'init': () => {
-        const eslint = 'rm -rf node_modules/eslint/node_modules/acorn';
         const rmPutout = 'rm -rf node_modules/putout';
         const lnPutout = 'ln -s ~/putout/packages/putout node_modules/putout';
         
         const cmd = [
-            eslint,
+            run('eslint:hotfix'),
             rmPutout,
             lnPutout,
         ].join('&&');

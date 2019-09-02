@@ -1,21 +1,15 @@
-sudo: false
 language: node_js
 node_js:
   - node
-cache:
-  yarn: true
-  directories:
-    - website/node_modules
-before_install:
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
-  - export PATH=$HOME/.yarn/bin:$PATH
+
+cache: false
+sudo: false
+
 install:
-  - cd website
-  - yarn install --production=false
-before_script:
-  - yarn lint
+  - cd client
+  - npm install
+
 script:
-  - yarn watch -- --no-watch
-env:
-  - NODE_ENV=development
-  - NODE_ENV=production
+  - npm run eslint:hotfix
+  - npm run lint
+
