@@ -14,15 +14,16 @@ module.exports = {
     'fix:lint': () => run('putout', '--fix'),
     'fontcustom': () => 'fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml',
     'eslint:hotfix': () => 'rm -rf node_modules/eslint/node_modules/acorn',
+    'halting-problem:hotfix': () => 'rm -rf node_modules/halting-problem/node_modules/acorn',
     'init': () => {
         const rmPutout = 'rm -rf node_modules/putout';
         const lnPutout = 'ln -s ~/putout/packages/putout node_modules/putout';
         
         const cmd = [
-            run('eslint:hotfix'),
+            run('*:hotfix'),
             rmPutout,
             lnPutout,
-        ].join('&&');
+        ].join(' && ');
         
         return cmd;
     },
