@@ -1,4 +1,5 @@
 import compileModule from '../../../utils/compileModule';
+import template from '@babel/template';
 import pkg from 'putout/package.json';
 
 const ID = 'putout';
@@ -9,9 +10,9 @@ export default {
     displayName: name,
     version: pkg.version,
     homepage: pkg.homepage,
-    
+
     defaultParserID: 'babel',
-    
+
     loadTransformer(callback) {
         require([
             'putout/slim/putout.js',
@@ -27,28 +28,27 @@ export default {
             esprima,
         }));
     },
-    
+
     transform({putout, acorn, babel, espree, esprima}, transformCode, source, parserName) {
-        const plugin = compileModule(transformCode, {
-            require: () => putout,
-        });
-        
         const parser = chooseParser(parserName, {
             acorn,
             babel,
             espree,
             esprima,
         });
-        
+
+        putout.template = template;
+
+        compileModule(transformCode, {
+            require: () => putout,
+        });
+
         const { code } = putout(source, {
             parser,
             cache: false,
             fixCount: 1,
-            plugins: [{
-                plugin,
-            }],
         });
-        
+
         return code;
     },
 };
@@ -65,4 +65,3 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
         return babel;
     }
 }
-
