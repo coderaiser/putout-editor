@@ -39,7 +39,7 @@ export default {
 
         putout.template = template;
 
-        compileModule(transformCode, {
+        const plugin = compileModule(transformCode, {
             require: () => putout,
         });
 
@@ -47,6 +47,9 @@ export default {
             parser,
             cache: false,
             fixCount: 1,
+            plugins: [{
+                plugin,
+            }],
         });
 
         return code;
