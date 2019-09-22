@@ -1,5 +1,5 @@
-import {parse} from 'putout/slim/putout';
-import parser from 'putout/lib/parsers/babel';
+import {parse} from '@putout/engine-parser';
+import parser from '@putout/engine-parser/lib/parsers/babel';
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {

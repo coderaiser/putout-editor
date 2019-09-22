@@ -16,10 +16,10 @@ export default {
     loadTransformer(callback) {
         require([
             'putout/slim/putout.js',
-            'putout/lib/parsers/acorn',
-            'putout/lib/parsers/babel',
-            'putout/lib/parsers/espree',
-            'putout/lib/parsers/esprima',
+            '@putout/engine-parser/lib/parsers/acorn',
+            '@putout/engine-parser/lib/parsers/babel',
+            '@putout/engine-parser/lib/parsers/espree',
+            '@putout/engine-parser/lib/parsers/esprima',
         ], (putout, acorn, babel, espree, esprima) => callback({
             putout,
             acorn,
