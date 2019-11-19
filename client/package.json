@@ -32,7 +32,7 @@
     "inline-manifest-webpack-plugin": "^4.0.1",
     "js-yaml": "^3.5.2",
     "json-loader": "^0.5.3",
-    "madrun": "^4.1.4",
+    "madrun": "^5.0.0",
     "mini-css-extract-plugin": "^0.8.0",
     "postcss-loader": "^3.0.0",
     "progress-bar-webpack-plugin": "^1.9.3",
