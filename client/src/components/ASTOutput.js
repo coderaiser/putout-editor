@@ -38,7 +38,7 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
     } else if (ast) {
         output = React.createElement(
             visualizations[selectedOutput],
-            {parseResult, focusPath}
+            {parseResult, focusPath},
         );
     }
     

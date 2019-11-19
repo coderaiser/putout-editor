@@ -96,7 +96,7 @@ render(
     <Provider store={store}>
         <AppContainer />
     </Provider>,
-    document.getElementById('container')
+    document.getElementById('container'),
 );
 
 global.onhashchange = () => {

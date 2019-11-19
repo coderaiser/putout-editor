@@ -42,13 +42,6 @@ module.exports = {
             'avoid-escape',
         ],
         'strict': 'off',
-        'import/no-unresolved': [
-            'error',
-            {
-                commonjs: true,
-                amd: true,
-            },
-        ],
         'import/named': 'error',
         'import/default': 'error',
         'import/namespace': 'error',

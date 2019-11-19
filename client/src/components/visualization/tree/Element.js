@@ -127,7 +127,7 @@ let Element = class extends React.Component {
         const {value} = this.state;
         PubSub.publish(
             'HIGHLIGHT',
-            {node: value, range: this.props.treeAdapter.getRange(value)}
+            {node: value, range: this.props.treeAdapter.getRange(value)},
         );
     }
     
@@ -135,7 +135,7 @@ let Element = class extends React.Component {
         const {value} = this.state;
         PubSub.publish(
             'CLEAR_HIGHLIGHT',
-            {node: value, range: this.props.treeAdapter.getRange(value)}
+            {node: value, range: this.props.treeAdapter.getRange(value)},
         );
     }
     
@@ -149,7 +149,7 @@ let Element = class extends React.Component {
         const state = {error: null};
         try {
             state.value = this.state.value.call(this.props.parent);
-        } catch (err) {
+        } catch(err) {
             state.error = err;
         }
         this.setState(state);
@@ -215,13 +215,13 @@ let Element = class extends React.Component {
                 if (value.length > 0 && open) {
                     prefix = '[';
                     suffix = ']';
-                    const elements = [...treeAdapter.walkNode(value)]
+                    const elements = Array.from(treeAdapter.walkNode(value))
                         .filter(({key}) => key !== 'length')
                         .map(({key, value, computed}) => this._createSubElement(
                             key,
                             value,
                             Number.isInteger(+key) ? undefined : key,
-                            computed
+                            computed,
                         ));
                     content = <ul className="value-body">{elements}</ul>;
                 } else {
@@ -239,17 +239,17 @@ let Element = class extends React.Component {
                 if (open) {
                     prefix = '{';
                     suffix = '}';
-                    const elements = [...treeAdapter.walkNode(value)]
+                    const elements = Array.from(treeAdapter.walkNode(value))
                         .map(({key, value, computed}) => this._createSubElement(
                             key,
                             value,
                             key,
-                            computed
+                            computed,
                         ));
                     content = <ul className="value-body">{elements}</ul>;
                     showToggler = elements.length > 0;
                 } else {
-                    const keys = [...treeAdapter.walkNode(value)]
+                    const keys = Array.from(treeAdapter.walkNode(value))
                         .map(({key}) => key);
                     valueOutput =
             <span>

@@ -27,7 +27,7 @@ export function updateURI(data) {
         ...params
     } = Object.assign(
         currentParams,
-        data
+        data,
     );
     
     let hash = '';

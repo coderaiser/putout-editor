@@ -53,7 +53,7 @@ export function persist(state) {
             state,
             'showTransformPanel',
             'parserSettings',
-            'parserPerCategory'
+            'parserPerCategory',
         ),
         workbench: {
             ...pick(state.workbench, 'parser', 'code', 'keyMap'),
@@ -200,7 +200,7 @@ function workbench(state = initialState.workbench, action, fullState) {
     {
         const {revision} = action;
         
-        const transformerID = revision.getTransformerID();
+        const transformer = revision.getTransformerID();
         const parserID = revision.getParserID();
         
         return {
@@ -211,7 +211,7 @@ function workbench(state = initialState.workbench, action, fullState) {
             initialCode: revision.getCode(),
             transform: {
                 ...state.transform,
-                transformer: transformerID,
+                transformer,
                 code: revision.getTransformCode(),
                 initialCode: revision.getTransformCode(),
             },
@@ -392,6 +392,6 @@ function pick(obj, ...properties) {
             result[prop] = obj[prop];
             return result;
         },
-        {}
+        {},
     );
 }

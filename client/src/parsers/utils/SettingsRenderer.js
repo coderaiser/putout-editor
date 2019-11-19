@@ -9,7 +9,7 @@ function valuesFromArray(settings) {
             obj[name] = settings.indexOf(name) > -1;
             return obj;
         },
-        {}
+        {},
     );
 }
 
@@ -90,7 +90,7 @@ export default function SettingsRenderer(props) {
                                             ({target}) => onChange(update(
                                                 parserSettings,
                                                 fieldName,
-                                                converter(target.value)
+                                                converter(target.value),
                                             ))
                                         }
                                         value={values[fieldName]}>

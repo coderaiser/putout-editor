@@ -3,16 +3,16 @@ import template from '@babel/template';
 import pkg from 'putout/package.json';
 
 const ID = 'putout';
-const name = 'putout';
+const displayName = 'putout';
 
 export default {
     id: ID,
-    displayName: name,
+    displayName,
     version: pkg.version,
     homepage: pkg.homepage,
-
+    
     defaultParserID: 'babel',
-
+    
     loadTransformer(callback) {
         require([
             'putout/slim/putout.js',
@@ -28,7 +28,7 @@ export default {
             esprima,
         }));
     },
-
+    
     transform({putout, acorn, babel, espree, esprima}, transformCode, source, parserName) {
         const parser = chooseParser(parserName, {
             acorn,
@@ -36,14 +36,14 @@ export default {
             espree,
             esprima,
         });
-
+        
         putout.template = template;
-
+        
         const plugin = compileModule(transformCode, {
             require: () => putout,
         });
-
-        const { code } = putout(source, {
+        
+        const {code} = putout(source, {
             parser,
             cache: false,
             fixCount: 1,
@@ -51,7 +51,7 @@ export default {
                 plugin,
             }],
         });
-
+        
         return code;
     },
 };

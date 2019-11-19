@@ -80,7 +80,7 @@ export const parserSettingsConfiguration = {
                     obj[name] = plugins.indexOf(name) > -1;
                     return obj;
                 },
-                {}
+                {},
             ),
         },
     ],

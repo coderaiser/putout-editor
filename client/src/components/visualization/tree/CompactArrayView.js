@@ -33,7 +33,7 @@ CompactArrayView.propTypes = {
    */
     array: PropTypes.oneOfType([
         PropTypes.array,
-        PropTypes.shape({ length: PropTypes.number }),
+        PropTypes.shape({length: PropTypes.number}),
     ]).isRequired,
     onClick: PropTypes.func,
 };

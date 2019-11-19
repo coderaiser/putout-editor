@@ -34,7 +34,7 @@ function reducer(state, element) {
     logEvent(
         'tree_view_settings',
         element.checked ? 'enabled' : 'disabled',
-        element.name
+        element.name,
     );
     
     return newState;

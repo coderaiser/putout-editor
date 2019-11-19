@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import protect from '../utils/protectFromLoops';
 
-const compilerOptions = { module: ts.ModuleKind.System };
+const compilerOptions = {module: ts.ModuleKind.System};
 
 export default function transpile(code) {
     let es5Code = ts.transpileModule(code, compilerOptions).outputText;

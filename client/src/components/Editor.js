@@ -30,7 +30,7 @@ export default class Editor extends React.Component {
         if (nextProps.value !== this.state.value) {
             this.setState(
                 {value: nextProps.value},
-                () => this.codeMirror.setValue(nextProps.value)
+                () => this.codeMirror.setValue(nextProps.value),
             );
         }
         
@@ -95,7 +95,7 @@ export default class Editor extends React.Component {
                 lineNumbers: this.props.lineNumbers,
                 readOnly: this.props.readOnly,
                 indentUnit: 4,
-            }
+            },
         );
         
         this._bindCMHandler('blur', (instance) => {
@@ -152,7 +152,7 @@ export default class Editor extends React.Component {
                     this._mark = this.codeMirror.markText(
                         start,
                         end,
-                        {className: 'marked'}
+                        {className: 'marked'},
                     );
                 }),
                 
@@ -169,7 +169,7 @@ export default class Editor extends React.Component {
                             this._mark = null;
                         }
                     }
-                })
+                }),
             );
         }
         
@@ -209,7 +209,7 @@ export default class Editor extends React.Component {
         };
         this.setState(
             {value: args.value},
-            () => this.props.onContentChange(args)
+            () => this.props.onContentChange(args),
         );
     }
     

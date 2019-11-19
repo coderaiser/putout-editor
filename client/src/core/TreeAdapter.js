@@ -236,6 +236,6 @@ export function treeAdapterFromParseResult({treeAdapter}, filterValues) {
     return createTreeAdapter(
         treeAdapter.type,
         treeAdapter.options,
-        filterValues
+        filterValues,
     );
 }

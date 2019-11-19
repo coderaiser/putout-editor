@@ -176,7 +176,7 @@ export default {
    */
     renderSettings(settings, onChange) {
         const defaultOptions = this.getDefaultOptions();
-        const settingsConfiguration = this._getSettingsConfiguration(defaultOptions,);
+        const settingsConfiguration = this._getSettingsConfiguration(defaultOptions);
         
         if (!settingsConfiguration) {
             return null;

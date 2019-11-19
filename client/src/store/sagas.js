@@ -81,7 +81,7 @@ function* save(fork, storageAdapter) {
         if (newRevision) {
             storageAdapter.updateHash(newRevision);
         }
-    } catch (error) {
+    } catch(error) {
         logError(error.message);
         yield put(actions.setError(error));
     }
@@ -125,7 +125,7 @@ function* watchSnippetURI(storageAdapter) {
     let revision;
     try {
         revision = yield call(storageAdapter.fetchFromURL.bind(storageAdapter));
-    } catch (error) {
+    } catch(error) {
         const errorMessage = 'Failed to fetch revision: ' + error.message;
         logError(errorMessage);
         

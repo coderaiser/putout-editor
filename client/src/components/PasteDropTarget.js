@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { categories } from '../parsers';
+import {categories} from '../parsers';
 
 function importEscodegen() {
     return new Promise((resolve) => require(['escodegen'], resolve));
@@ -11,7 +11,7 @@ const acceptedFileTypes = new Map([
     ['text/plain', 'TEXT'],
 ]);
 
-for (const { id, mimeTypes } of categories) {
+for (const {id, mimeTypes} of categories) {
     for (const mimeType of mimeTypes) {
         acceptedFileTypes.set(mimeType, id);
     }
@@ -29,7 +29,7 @@ export default class PasteDropTarget extends React.Component {
         this.props.onError(
             type,
             event,
-            `Cannot process pasted AST: ${ex.message}`
+            `Cannot process pasted AST: ${ex.message}`,
         );
         throw ex;
     }
@@ -58,7 +58,7 @@ export default class PasteDropTarget extends React.Component {
                     if (event.target.nodeName !== 'TEXTAREA') {
                         this._onASTError('paste', event, ex);
                     }
-                }
+                },
             );
         }, true);
         
@@ -104,7 +104,7 @@ export default class PasteDropTarget extends React.Component {
                                 categoryId = undefined;
                                 return text;
                             }
-                        }
+                        },
                     );
                 }
                 Promise.resolve(text).then((text) => {
@@ -132,7 +132,7 @@ export default class PasteDropTarget extends React.Component {
         try {
             ast = JSON.parse(json);
         }
-        catch (err) {
+        catch(err) {
             return Promise.resolve(json);
         }
         return importEscodegen().then((escodegen) => {
@@ -143,7 +143,7 @@ export default class PasteDropTarget extends React.Component {
     _bindListener(elem, event, listener, capture) {
         for (const e of event.split(/\s+/)) {
             elem.addEventListener(e, listener, capture);
-            this._listeners.push(() => elem.removeEventListener(e, listener, capture),);
+            this._listeners.push(() => elem.removeEventListener(e, listener, capture));
         }
     }
     

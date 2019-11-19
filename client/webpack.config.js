@@ -13,7 +13,7 @@ const DEV = process.env.NODE_ENV !== 'production';
 const CACHE_BREAKER = Number(fs.readFileSync(path.join(__dirname, 'CACHE_BREAKER')));
 
 const packages = fs.readdirSync(path.join(__dirname, 'packages'));
-const vendorRegex = new RegExp(`/node_modules/(?!${packages.join('|')}/)`);
+const test = new RegExp(`/node_modules/(?!${packages.join('|')}/)`);
 
 const plugins = [
     new webpack.DefinePlugin({
@@ -40,7 +40,7 @@ const plugins = [
     // Shim ESLint stuff that's only relevant for Node.js
     new webpack.NormalModuleReplacementPlugin(
         /(cli-engine|testers\/rule-tester)/,
-        'node-libs-browser/mock/empty'
+        'node-libs-browser/mock/empty',
     ),
     
     // More shims
@@ -48,7 +48,7 @@ const plugins = [
     // Doesn't look like jest-validate is useful in our case (prettier uses it)
     new webpack.NormalModuleReplacementPlugin(
         /jest-validate/,
-        __dirname + '/src/shims/jest-validate.js'
+        __dirname + '/src/shims/jest-validate.js',
     ),
     
     // Hack to disable Webpack dynamic requires in ESLint, so we don't end up
@@ -92,7 +92,7 @@ module.exports = {
                     minSize: 1,
                 },
                 vendors: {
-                    test: vendorRegex,
+                    test,
                     chunks(chunk) {
                         return chunk.name === 'app';
                     },
@@ -173,7 +173,7 @@ module.exports = {
                     DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 1 },
+                        options: {importLoaders: 1},
                     },
                     'postcss-loader',
                 ],

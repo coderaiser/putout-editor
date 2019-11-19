@@ -28,7 +28,7 @@ function transform(transformer, transformCode, code, parser) {
                 }
                 result = result.code;
             }
-            return { result, map };
+            return {result, map};
         });
     });
 }
@@ -48,10 +48,10 @@ export default class TransformOutput extends React.Component {
         transform(
             this.props.transformer,
             this.props.transformCode,
-            this.props.code
+            this.props.code,
         ).then(
-            ({ result, map }) => this.setState({ result, map }),
-            (error) => this.setState({ error })
+            ({result, map}) => this.setState({result, map}),
+            (error) => this.setState({error}),
         );
     }
     
@@ -68,10 +68,10 @@ export default class TransformOutput extends React.Component {
                 nextProps.code,
                 nextProps.parser,
             ).then(
-                ({ result, map }) => ({ result, map, error: null }),
+                ({result, map}) => ({result, map, error: null}),
                 (error) => {
-                    return { error };
-                }
+                    return {error};
+                },
             ).then((state) => this.setState(state));
         }
     }
@@ -90,7 +90,7 @@ export default class TransformOutput extends React.Component {
         const [src] = map.sourcesContent;
         
         if (index === 0) {
-            return { line: 0, ch: 0 };
+            return {line: 0, ch: 0};
         }
         let lineStart = src.lastIndexOf('\n', index - 1);
         let column = index - lineStart - 1;
@@ -103,7 +103,7 @@ export default class TransformOutput extends React.Component {
         if (lineStart === 0) {
             line++;
         }
-        ({ line, column } = map.generatedPositionFor({
+        ({line, column} = map.generatedPositionFor({
             line,
             column,
             source: map.sources[0],
@@ -112,7 +112,7 @@ export default class TransformOutput extends React.Component {
         if (line === null || column === null) {
             return;
         }
-        return { line: line - 1, ch: column };
+        return {line: line - 1, ch: column};
     }
     
     render() {
