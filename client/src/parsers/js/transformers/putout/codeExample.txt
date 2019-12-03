@@ -1,21 +1,6 @@
-const {
-    types,
-} = require('putout');
+module.exports.report = () => `Identifiers should be swapped`;
 
-module.exports.report = (path) => `identifier ${path.node.name} should be reversed`;
+module.exports.replace = () => ({
+    'let __a = __b': 'const __b = __a'
+});
 
-module.exports.fix = (path) => {
-    const {name} = path.node;
-    path.node.name = name
-        .split('')
-        .reverse()
-        .join('');
-};
-
-module.exports.traverse = ({push}) => {
-    return {
-        Identifier(path) {
-            push(path)
-        }
-    };
-};
