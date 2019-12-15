@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 function shouldAutoFocus({value, settings, focusPath}) {
-    return !!settings.autofocus && focusPath.indexOf(value) > -1;
+    return settings.autofocus && focusPath.indexOf(value) > -1;
 }
 
 /**

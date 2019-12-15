@@ -39,7 +39,7 @@ let Element = class extends React.Component {
       props.open ||
       props.level === 0 ||
       deepOpen ||
-      !!value && treeAdapter.opensByDefault(value, name);
+      value && treeAdapter.opensByDefault(value, name);
         
         this.state = {
             open,

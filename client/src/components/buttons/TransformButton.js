@@ -49,7 +49,7 @@ export default class TransformButton extends React.Component {
                     />
           &nbsp;Transform
                 </button>
-                {!!this.props.category.transformers.length && <ul>
+                {this.props.category.transformers.length && <ul>
                     {this.props.category.transformers.map((transformer) => <li
                         key={transformer.id}
                         className={cx({
