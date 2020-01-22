@@ -111,12 +111,11 @@
     "build:dev": "madrun build:dev",
     "watch": "madrun watch",
     "fix:eslint": "madrun fix:eslint",
-    "putout": "madrun putout",
-    "fix:putout": "madrun fix:putout",
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint",
     "fontcustom": "madrun fontcustom",
     "eslint:hotfix": "madrun eslint:hotfix",
+    "halting-problem:hotfix": "madrun halting-problem:hotfix",
     "init": "madrun init"
   }
 }

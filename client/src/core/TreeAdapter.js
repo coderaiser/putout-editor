@@ -2,7 +2,6 @@
  * Configurable base class for all tree traversal.
  */
 class TreeAdapter {
-    
     constructor(adapterOptions, filterValues) {
         this._ranges = new WeakMap();
         this._filterValues = filterValues;
@@ -125,7 +124,6 @@ class TreeAdapter {
     *_walkNode(node) {
         yield* this._adapterOptions.walkNode(node);
     }
-
 }
 
 const TreeAdapterConfigs = {

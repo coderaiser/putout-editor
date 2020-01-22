@@ -6,7 +6,7 @@ export const writeState = storage ?
     (state) => {
         try {
             storage.setItem(key, JSON.stringify(state));
-        } catch(e) {
+        } catch {
             // eslint-disable-next-line no-console
             console.warn('Unable to write to local storage.');
         }
@@ -21,7 +21,7 @@ export const readState = storage ?
             if (state) {
                 return JSON.parse(state);
             }
-        } catch(e) {
+        } catch {
             // eslint-disable-next-line no-console
             console.warn('Unable to read from local storage.');
         }

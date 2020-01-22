@@ -18,7 +18,6 @@ export default function CompactObjectView({keys, onClick}) {
             <span className="p">{'}'}</span>
         </span>
     );
-
 }
 
 CompactObjectView.propTypes = {

@@ -137,7 +137,7 @@ class Revision {
             return null;
         }
         const parserSettings = settings[this.getParserID()];
-        return !!parserSettings && JSON.parse(parserSettings);
+        return parserSettings && JSON.parse(parserSettings);
     }
     
     getShareInfo() {

@@ -92,5 +92,4 @@ export default function RecursiveTreeElement(Element) {
     };
     
     return RecursiveElement;
-
 }

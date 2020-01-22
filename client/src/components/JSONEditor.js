@@ -8,7 +8,6 @@ import PubSub from 'pubsub-js';
 import React from 'react';
 
 export default class Editor extends React.Component {
-    
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.value !== this.codeMirror.getValue()) {
             // preserve scroll position

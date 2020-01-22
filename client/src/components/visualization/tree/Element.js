@@ -119,7 +119,6 @@ let Element = class extends React.Component {
         }
         lastClickedElement = open ? this : null;
         update();
-    
     }
     
     _onMouseOver(e) {

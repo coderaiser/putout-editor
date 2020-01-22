@@ -117,7 +117,6 @@ const didParserSettingsChange = createSelector(
     (parserSettings, revision, parser) => {
         const savedParserSettings = revision && revision.getParserSettings();
         return revision && (parser.id !== revision.getParserID() || savedParserSettings && !isEqual(parserSettings, savedParserSettings));
-    
     },
 );
 

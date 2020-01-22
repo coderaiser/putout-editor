@@ -9,7 +9,7 @@ export default {
     
     id: ID,
     displayName: ID,
-    version: `${pkg.version}`,
+    version: pkg.version,
     homepage: pkg.homepage,
     locationProps: new Set(['range', 'loc', 'start', 'end']),
     

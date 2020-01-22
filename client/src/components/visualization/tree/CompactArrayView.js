@@ -23,7 +23,6 @@ export default class CompactArrayView extends React.Component {
                 <span className="p">{']'}</span>
             </span>
         );
-    
     }
 }
 
