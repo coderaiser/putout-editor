@@ -99,7 +99,7 @@
     "source-map": "^0.7.3",
     "sqlite-parser": "^1.0.0-rc3",
     "traceur": "0.0.111",
-    "tslint": "^5.13.1",
+    "tslint": "^6.0.0",
     "typescript": "^3.2.2",
     "typescript-eslint-parser": "^22.0.0",
     "yaml": "^1.0.3",
