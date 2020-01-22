@@ -1,3 +1,5 @@
+'use strict';
+
 /*
 if (!process.env.AUTH_TOKEN) {
   console.error(
@@ -9,6 +11,6 @@ if (!process.env.AUTH_TOKEN) {
 */
 
 module.exports = {
-  AUTH_TOKEN: process.env.AUTH_TOKEN,
-  SETTINGS_FORMAT: 2,
+    AUTH_TOKEN: process.env.AUTH_TOKEN,
+    SETTINGS_FORMAT: 2,
 };

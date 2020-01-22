@@ -1,4 +1,10 @@
 {
+    "overrides": [{
+        "files": [".madrun.js"],
+        "rules": {
+            "node/no-unpublished-require": "off"
+        }
+    }],
     "extends": [
         "plugin:putout/recommended",
         "plugin:node/recommended"

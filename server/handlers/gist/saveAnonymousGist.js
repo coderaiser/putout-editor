@@ -17,7 +17,7 @@ function makeFiles(files) {
             obj[filename] = content ? {content} : content;
             return obj;
         },
-        {}
+        {},
     );
 }
 
@@ -35,7 +35,7 @@ function getDataFromBody(body, additionalData = {}) {
                     ...additionalData,
                 },
                 null,
-                2
+                2,
             ),
         ],
         [body.filename, body.code],

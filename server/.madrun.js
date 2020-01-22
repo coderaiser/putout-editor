@@ -1,14 +1,10 @@
 'use strict';
 
-const {
-    run,
-    series,
-    parallel,
-} = require('madrun');
+const {run} = require('madrun');
 
 module.exports = {
-    "start": () => 'STATIC=../out node index.js',
-    "lint": () => 'putout handlers lib constants',
-    "fix:lint": () => run('lint', '--fix'),
+    'start': () => 'STATIC=../out node index.js',
+    'lint': () => 'putout handlers *.js .madrun.js',
+    'fix:lint': () => run('lint', '--fix'),
 };
 

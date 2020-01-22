@@ -14,6 +14,9 @@
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint"
   },
+  "engines": {
+    "node": ">=8.3"
+  },
   "devDependencies": {
     "eslint": "^6.2.2",
     "eslint-plugin-node": "^11.0.0",
