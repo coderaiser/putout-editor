@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Describes the result of a parse process. Only exists here for documentation
  * purposes.

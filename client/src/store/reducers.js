@@ -100,7 +100,7 @@ export function astexplorer(state = initialState, action) {
         parserPerCategory: parserPerCategory(state.parserPerCategory, action),
         parserSettings: parserSettings(state.parserSettings, action, state),
         workbench: workbench(state.workbench, action, state),
-        enableFormatting: format(state.enableFormatting, action, state),
+        enableFormatting: format(state.enableFormatting, action),
     };
 }
 

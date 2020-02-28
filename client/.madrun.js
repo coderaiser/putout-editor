@@ -8,7 +8,7 @@ module.exports = {
     'build:dev': () => build('development'),
     'watch': () => 'webpack -dw --mode=development',
     'fix:eslint': () => 'eslint --fix src',
-    'lint': () => 'putout src *.js .*.js .madrun.js',
+    'lint': () => 'putout src *.js .*.js .madrun.js -f progress --cache',
     'fix:lint': () => run('lint', '--fix'),
     'fontcustom': () => 'fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml',
     'eslint:hotfix': () => 'rm -rf node_modules/eslint/node_modules/acorn',

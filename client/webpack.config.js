@@ -147,7 +147,6 @@ module.exports = {
                     path.join(__dirname, 'node_modules', 'simple-html-tokenizer'),
                     path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
                     path.join(__dirname, 'node_modules', 'typescript-eslint-parser'),
-                    path.join(__dirname, 'node_modules', 'tslint'),
                     path.join(__dirname, 'node_modules', 'tslib'),
                     path.join(__dirname, 'src'),
                 ],

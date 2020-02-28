@@ -16,6 +16,6 @@
     "rules": {
         "remove-console": false,
         "remove-empty/import": false,
-        "strict-mode": false
+        "apply-optional-chaining": true
     }
 }

@@ -48,10 +48,10 @@ class TreeAdapter {
             let next = iterator.next();
             
             if (!next.done) {
-                first = last = next.value && next.value.value;
+                first = last = next.value?.value;
             }
             while (!(next = iterator.next()).done) {
-                last = next.value && next.value.value;
+                last = next.value?.value;
             }
             const rangeFirst = first && nodeToRange(first);
             const rangeLast = last && nodeToRange(last);

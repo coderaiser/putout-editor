@@ -6,8 +6,9 @@ module.exports = {
         'plugin:import/warnings',
         'plugin:putout/recommended',
     ],
+    parser: 'babel-eslint',
     parserOptions: {
-        ecmaVersion: 2019,
+        ecmaVersion: 2020,
         sourceType: 'module',
         ecmaFeatures: {
             jsx: true,

@@ -23,8 +23,8 @@ export default class SettingsDialog extends React.Component {
         }
     }
     
-    _onChange(newSettings) {
-        this.setState({parserSettings: newSettings});
+    _onChange(parserSettings) {
+        this.setState({parserSettings});
     }
     
     _saveAndClose() {
