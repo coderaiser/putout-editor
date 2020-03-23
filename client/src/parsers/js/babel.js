@@ -35,6 +35,7 @@ const availablePlugins = [
     'optionalChaining',
     'pipelineOperator',
     'throwExpressions',
+    'recordAndTuple',
 ];
 
 const ID = 'babel';
@@ -60,6 +61,7 @@ export const defaultOptions = {
         'numericSeparator',
         'optionalChaining',
         'optionalCatchBinding',
+        'recordAndTuple',
     ],
 };
 
@@ -106,9 +108,20 @@ export default {
         options.plugins = options.plugins.map((plugin) => {
             switch(plugin) {
             case 'decorators':
-                return ['decorators', {decoratorsBeforeExport: false}];
+                return ['decorators', {
+                    decoratorsBeforeExport: false,
+                }];
+            
             case 'pipelineOperator':
-                return ['pipelineOperator', {proposal: 'minimal'}];
+                return ['pipelineOperator', {
+                    proposal: 'minimal',
+                }];
+            
+            case 'recordAndTuple':
+                return ['recordAndTuple', {
+                    syntaxType: 'hash',
+                }];
+            
             default:
                 return plugin;
             }
