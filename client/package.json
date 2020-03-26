@@ -31,7 +31,6 @@
     "html-webpack-plugin": "^3.2.0",
     "http-server": "^0.12.0",
     "inline-manifest-webpack-plugin": "^4.0.1",
-    "js-yaml": "^3.5.2",
     "json-loader": "^0.5.3",
     "madrun": "^5.0.0",
     "mini-css-extract-plugin": "^0.9.0",
@@ -96,11 +95,7 @@
     "regexp-tree": "^0.1.5",
     "reselect": "^4.0.0",
     "source-map": "^0.7.3",
-    "sqlite-parser": "^1.0.0-rc3",
-    "traceur": "0.0.111",
-    "typescript": "^3.2.2",
-    "yaml": "^1.0.3",
-    "yaml-ast-parser": "^0.0.43"
+    "typescript": "^3.2.2"
   },
   "scripts": {
     "start": "madrun start",

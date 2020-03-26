@@ -5,17 +5,6 @@ import {getCategoryByID, categories} from '../../parsers';
 
 const categoryIcon = {
     'javascript': 'fa-jsfiddle',
-    'css': 'fa-css3',
-    'handlebars': 'icon-handlebars',
-    'htmlmixed': 'fa-html5',
-    'icu': 'icon-icu',
-    'ocaml': 'icon-ocaml',
-    'reason': 'icon-reason',
-    'rust': 'icon-rust',
-    'sql': 'fa-database',
-    'text/x-scala': 'icon-scala',
-    'webidl': 'fa-th-list',
-    'yaml': 'fa-yc',
 };
 
 export default class CategoryButton extends React.Component {
