@@ -1,5 +1,5 @@
 [Unit]
-Description=ASTExplorer
+Description=Putout Editor
  
 [Service]
 TimeoutStartSec=0
