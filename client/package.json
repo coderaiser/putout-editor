@@ -100,7 +100,6 @@
     "sqlite-parser": "^1.0.0-rc3",
     "traceur": "0.0.111",
     "typescript": "^3.2.2",
-    "typescript-eslint-parser": "^22.0.0",
     "yaml": "^1.0.3",
     "yaml-ast-parser": "^0.0.43"
   },
