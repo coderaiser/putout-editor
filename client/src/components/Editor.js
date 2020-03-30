@@ -12,7 +12,7 @@ const defaultPrettierOptions = {
     singleQuote: true,
     bracketSpacing: false,
     jsxBracketSameLine: false,
-    parser: 'babylon',
+    parser: 'babel',
     trailingComma: 'es5',
     arrowParens: 'always',
 };
