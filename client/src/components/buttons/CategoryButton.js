@@ -4,7 +4,7 @@ import cx from 'classnames';
 import {getCategoryByID, categories} from '../../parsers';
 
 const categoryIcon = {
-    'javascript': 'fa-jsfiddle',
+    javascript: 'fa-jsfiddle',
 };
 
 export default class CategoryButton extends React.Component {
