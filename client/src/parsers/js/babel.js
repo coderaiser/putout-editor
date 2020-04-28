@@ -70,6 +70,7 @@ export const parserSettingsConfiguration = {
         ['sourceType', ['module', 'script']],
         'allowReturnOutsideFunction',
         'allowImportExportEverywhere',
+        'allowAwaitOutsideFunction',
         'ranges',
         'tokens',
         {
