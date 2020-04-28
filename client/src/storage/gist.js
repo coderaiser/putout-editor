@@ -147,6 +147,7 @@ class Revision {
     getSnippetID() {
         return this._gist.id;
     }
+    
     getRevisionID() {
         return this._gist.history[0].version;
     }

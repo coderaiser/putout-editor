@@ -63,7 +63,7 @@ export function getInitialCode(state) {
     return state.workbench.initialCode;
 }
 
-export function getKeyMap (state) {
+export function getKeyMap(state) {
     return state.workbench.keyMap;
 }
 
