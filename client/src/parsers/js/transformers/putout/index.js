@@ -15,7 +15,7 @@ export default {
     
     loadTransformer(callback) {
         require([
-            'putout/slim/putout.js',
+            'putout',
             '@putout/engine-parser/lib/parsers/acorn',
             '@putout/engine-parser/lib/parsers/babel',
             '@putout/engine-parser/lib/parsers/espree',
