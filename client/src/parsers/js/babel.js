@@ -1,6 +1,11 @@
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'babylon7/babylon-package';
 
+import plugins from '@putout/engine-parser/lib/parsers/babel/plugins';
+import options from '@putout/engine-parser/lib/parsers/babel/options';
+
+const {keys} = Object;
+
 const availablePlugins = [
     // From https://babeljs.io/docs/en/next/babel-parser.html
     
@@ -40,37 +45,17 @@ const availablePlugins = [
 
 const ID = 'babel';
 export const defaultOptions = {
+    ...options,
     sourceType: 'module',
-    allowImportExportEverywhere: true,
-    allowReturnOutsideFunction: true,
-    allowAwaitOutsideFunction: true,
     ranges: false,
     tokens: false,
-    plugins: [
-        'asyncGenerators',
-        'classProperties',
-        'decorators',
-        'doExpressions',
-        'exportExtensions',
-        'flow',
-        'functionSent',
-        'functionBind',
-        'jsx',
-        'objectRestSpread',
-        'dynamicImport',
-        'numericSeparator',
-        'optionalChaining',
-        'optionalCatchBinding',
-        'recordAndTuple',
-    ],
+    plugins,
 };
 
 export const parserSettingsConfiguration = {
     fields: [
         ['sourceType', ['module', 'script']],
-        'allowReturnOutsideFunction',
-        'allowImportExportEverywhere',
-        'allowAwaitOutsideFunction',
+        ...keys(options),
         'ranges',
         'tokens',
         {
