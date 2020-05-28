@@ -124,7 +124,7 @@ export default class TransformOutput extends React.Component {
                         key="error"
                         lineNumbers={false}
                         readOnly={true}
-                        value={this.state.error.message}
+                        value={this.state.error.stack}
                     /> :
                     typeof this.state.result === 'string' ?
                         <Editor
