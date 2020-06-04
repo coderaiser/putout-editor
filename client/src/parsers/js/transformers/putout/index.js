@@ -5,6 +5,8 @@ import pkg from 'putout/package.json';
 const ID = 'putout';
 const displayName = 'putout';
 
+const noop = () => {};
+
 export default {
     id: ID,
     displayName,
@@ -42,6 +44,8 @@ export default {
         const plugin = compileModule(transformCode, {
             require: () => putout,
         });
+        
+        plugin.report = plugin.report || noop;
         
         const {code} = putout(source, {
             parser,
