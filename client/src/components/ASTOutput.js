@@ -47,7 +47,7 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
         value={index}
         onClick={(event) => setSelectedOutput(event.target.value)}
         className={cx({
-            active: selectedOutput == index,
+            active: selectedOutput === index,
         })}>
         {cls.name}
     </button>);

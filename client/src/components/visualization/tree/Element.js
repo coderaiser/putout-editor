@@ -89,7 +89,7 @@ let Element = class extends React.Component {
         const {focusPath, value} = this.props;
         
         if (focusPath.length > 0 && focusPath[focusPath.length - 1] === value) {
-            setTimeout(() => this.container && this.container.scrollIntoView(), 0);
+            setTimeout(() => this.container?.scrollIntoView(), 0);
         }
     }
     
@@ -219,7 +219,7 @@ let Element = class extends React.Component {
                         .map(({key, value, computed}) => this._createSubElement(
                             key,
                             value,
-                            Number.isInteger(+key) ? undefined : key,
+                            Number.isInteger(Number(key)) ? undefined : key,
                             computed,
                         ));
                     content = <ul className="value-body">{elements}</ul>;

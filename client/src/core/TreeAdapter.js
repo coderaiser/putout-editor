@@ -130,8 +130,12 @@ const TreeAdapterConfigs = {
     default: {
         openByDefault: () => false,
         nodeToRange: () => null,
-        nodeToName: () => { throw new Error('nodeToName must be passed');},
-        walkNode: () => { throw new Error('walkNode must be passed');},
+        nodeToName: () => {
+            throw new Error('nodeToName must be passed');
+        },
+        walkNode: () => {
+            throw new Error('walkNode must be passed');
+        },
     },
     
     estree: {
@@ -181,7 +185,9 @@ export function ignoreKeysFilter(keys = new Set(), key, label) {
     return {
         key,
         label,
-        test(_, key) { return keys.has(key); },
+        test(_, key) {
+            return keys.has(key);
+        },
     };
 }
 
@@ -197,7 +203,9 @@ export function functionFilter() {
     return {
         key: 'hideFunctions',
         label: 'Hide methods',
-        test(value) { return typeof value === 'function'; },
+        test(value) {
+            return typeof value === 'function';
+        },
     };
 }
 
@@ -205,7 +213,9 @@ export function emptyKeysFilter() {
     return {
         key: 'hideEmptyKeys',
         label: 'Hide empty keys',
-        test(value) { return value == null; },
+        test(value) {
+            return value == null;
+        },
     };
 }
 

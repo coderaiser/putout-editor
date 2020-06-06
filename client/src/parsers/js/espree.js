@@ -51,7 +51,7 @@ export default {
         
         return {
             fields: [
-                ['ecmaVersion', [3, 5, 6, 7, 8, 9], (value) => Number(value)],
+                ['ecmaVersion', [3, 5, 6, 7, 8, 9], Number],
                 ['sourceType', ['script', 'module']],
                 'range',
                 'loc',
@@ -64,7 +64,7 @@ export default {
                     title: 'ecmaFeatures',
                     fields: Object.keys(defaultOptions.ecmaFeatures),
                     settings:
-          (settings) => settings.ecmaFeatures || {...defaultOptions.ecmaFeatures},
+          (settings) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
                 },
             ],
         };

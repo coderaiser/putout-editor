@@ -131,8 +131,7 @@ export default class PasteDropTarget extends React.Component {
         let ast;
         try {
             ast = JSON.parse(json);
-        }
-        catch(err) {
+        } catch(err) {
             return Promise.resolve(json);
         }
         return importEscodegen().then((escodegen) => {

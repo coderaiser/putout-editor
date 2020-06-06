@@ -72,7 +72,7 @@ export default {
     _getSettingsConfiguration() {
         return {
             fields: [
-                ['ecmaVersion', [3, 5, 6, 7, 8, 9, 10], (x) => Number(x)],
+                ['ecmaVersion', [3, 5, 6, 7, 8, 9, 10], Number],
                 ['sourceType', ['script', 'module']],
                 'allowReserved',
                 'allowReturnOutsideFunction',

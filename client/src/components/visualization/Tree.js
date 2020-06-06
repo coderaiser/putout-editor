@@ -74,7 +74,9 @@ export default function Tree({focusPath, parseResult}) {
             &#8203;
                 </span>)}
             </div>
-            <ul onMouseLeave={() => {PubSub.publish('CLEAR_HIGHLIGHT');}}>
+            <ul onMouseLeave={() => {
+                PubSub.publish('CLEAR_HIGHLIGHT');
+            }}>
                 <Element
                     focusPath={focusPath}
                     value={parseResult.ast}

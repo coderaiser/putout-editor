@@ -71,7 +71,7 @@ App.propTypes = {
 
 const AppContainer = connect((state) => ({
     showTransformer: state.showTransformPanel,
-    hasError: !!state.error,
+    hasError: Boolean(state.error),
 }))(App);
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

@@ -49,7 +49,7 @@ export default class Editor extends React.Component {
     }
     
     getValue() {
-        return this.codeMirror && this.codeMirror.getValue();
+        return this.codeMirror?.getValue();
     }
     
     _getErrorLine(error) {

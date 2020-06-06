@@ -163,7 +163,7 @@ function workbench(state = initialState.workbench, action, fullState) {
             return state;
         }
         
-        const newState = {...state};
+        const newState = state;
         
         if (differentParser) {
             newState.parser = action.transformer.defaultParserID;
@@ -228,7 +228,7 @@ function workbench(state = initialState.workbench, action, fullState) {
             initialCode: getParserByID(state.parser).category.codeExample,
         };
         
-        if (fullState.activeRevision && fullState.activeRevision.getTransformerID() || reset && state.transform.transformer) {
+        if (fullState.activeRevision?.getTransformerID() || reset && state.transform.transformer) {
             // Clear transform as well
             const transformer = getTransformerByID(state.transform.transformer);
             newState.transform = {
