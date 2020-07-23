@@ -1,7 +1,6 @@
 'use strict';
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -68,8 +67,6 @@ const plugins = [
         chunksSortMode: 'id',
     }),
     
-    // Inline runtime and manifest into the HTML. It's small and changes after every build.
-    new InlineManifestWebpackPlugin(),
     DEV ?
         new webpack.NamedModulesPlugin() :
         new webpack.HashedModuleIdsPlugin(),
