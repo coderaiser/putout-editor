@@ -22,7 +22,7 @@
     "eslint": "^7.0.0",
     "eslint-import-resolver-webpack": "^0.12.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-putout": "^4.0.1",
+    "eslint-plugin-putout": "^5.0.1",
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-require-in-package": "^1.0.3",
     "estree-to-babel": "^3.0.0",
