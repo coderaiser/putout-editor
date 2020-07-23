@@ -6,6 +6,7 @@ function parse(parser, code, parserSettings) {
     if (!parser._promise) {
         parser._promise = new Promise(parser.loadParser);
     }
+    
     return parser._promise.then((realParser) => parser.parse(
         realParser,
         code,

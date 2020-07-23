@@ -107,6 +107,7 @@ export function astexplorer(state = initialState, action) {
 function format(state = initialState.enableFormatting, action) {
     if (action.type === actions.TOGGLE_FORMATTING)
         return !state;
+    
     return state;
 }
 
@@ -148,6 +149,7 @@ function workbench(state = initialState.workbench, action, fullState) {
             newState.parserSettings =
             fullState.parserSettings[action.parser.id] || null;
         }
+        
         return newState;
     }
     case actions.SET_CODE:
@@ -237,6 +239,7 @@ function workbench(state = initialState.workbench, action, fullState) {
                 initialCode: transformer.defaultTransform,
             };
         }
+        
         return newState;
     }
     case actions.SET_KEY_MAP:
@@ -254,6 +257,7 @@ function parserSettings(state = initialState.parserSettings, action, fullState) 
         // settings in our local copy
             return state;
         }
+        
         return {
             ...state,
             [fullState.workbench.parser]: action.settings,
@@ -337,6 +341,7 @@ function cursor(state = initialState.cursor, action) {
         if (action.cursor != null && action.cursor !== 0) {
             return action.cursor;
         }
+        
         return state;
     case actions.RESET:
     case actions.SET_SNIPPET:

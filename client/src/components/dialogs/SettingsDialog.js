@@ -60,6 +60,7 @@ export default class SettingsDialog extends React.Component {
                 </div>
             );
         }
+        
         return null;
     }
 }

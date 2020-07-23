@@ -11,6 +11,7 @@ function getIDAndRevisionFromHash() {
             rev: match[2] || 0,
         };
     }
+    
     return null;
 }
 
@@ -50,6 +51,7 @@ export function fetchFromURL() {
     if (urlParameters) {
         return fetchSnippet(urlParameters.id, urlParameters.rev);
     }
+    
     return Promise.resolve(null);
 }
 
@@ -112,6 +114,7 @@ class Revision {
             // Default transforms where never stored
             return getTransformerByID(this._data.toolID).defaultTransform;
         }
+        
         return '';
     }
     
@@ -121,6 +124,7 @@ class Revision {
         if (transformerID) {
             return getTransformerByID(transformerID).defaultParserID;
         }
+        
         return this._data.parserID;
     }
     

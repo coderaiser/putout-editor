@@ -9,6 +9,7 @@ export default function CompactObjectView({keys, onClick}) {
     if (keys.length > 5) {
         keys = keys.slice(0, 5).concat([`... +${keys.length - 5}`]);
     }
+    
     return (
         <span>
             <span className="p">{'{'}</span>

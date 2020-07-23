@@ -14,6 +14,7 @@ function formatTime(time) {
     if (time < 1000) {
         return `${time}ms`;
     }
+    
     return `${(time / 1000).toFixed(2)}s`;
 }
 

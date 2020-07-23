@@ -14,8 +14,10 @@ export function getDataFromURI() {
         if (match[3]) {
             Object.assign(params, queryString.parse(match[3]));
         }
+        
         return params;
     }
+    
     return {};
 }
 

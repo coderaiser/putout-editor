@@ -97,7 +97,7 @@ const isTransformDirty = createSelector(
 
 export const canFork = createSelector(
     [getRevision],
-    (revision) => Boolean(revision),
+    Boolean,
 );
 
 const canSaveCode = createSelector(

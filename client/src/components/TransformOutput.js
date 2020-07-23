@@ -11,6 +11,7 @@ function transform(transformer, transformCode, code, parser) {
     if (!transformer._promise) {
         transformer._promise = new Promise(transformer.loadTransformer);
     }
+    
     // Use Promise.resolve(null) to return all errors as rejected promises
     return transformer._promise.then((realTransformer) => {
         const result = transformer.transform(
@@ -28,6 +29,7 @@ function transform(transformer, transformCode, code, parser) {
                 }
                 result = result.code;
             }
+            
             return {result, map};
         });
     });
@@ -112,6 +114,7 @@ export default class TransformOutput extends React.Component {
         if (line === null || column === null) {
             return;
         }
+        
         return {line: line - 1, ch: column};
     }
     

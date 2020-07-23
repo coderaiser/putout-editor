@@ -70,6 +70,7 @@ class TreeAdapter {
         if (!range) {
             return false;
         }
+        
         return range[0] <= position && position <= range[1];
     }
     
@@ -112,6 +113,7 @@ class TreeAdapter {
                     if (filter.key && !this._filterValues[filter.key]) {
                         return false;
                     }
+                    
                     return filter.test(result.value, result.key);
                 })
             ) {
@@ -164,6 +166,7 @@ const TreeAdapterConfigs = {
             if (typeof node.start === 'number' && typeof node.end === 'number') {
                 return [node.start, node.end];
             }
+            
             return null;
         },
         nodeToName(node) {
@@ -231,6 +234,7 @@ function createTreeAdapter(type, adapterOptions, filterValues) {
     if (TreeAdapterConfigs[type] == null) {
         throw new Error(`Unknown tree adapter type "${type}"`);
     }
+    
     return new TreeAdapter(
         {
             ...TreeAdapterConfigs[type],

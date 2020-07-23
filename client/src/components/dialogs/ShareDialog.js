@@ -28,6 +28,7 @@ export default class ShareDialog extends React.Component {
                 </div>
             );
         }
+        
         return null;
     }
 }

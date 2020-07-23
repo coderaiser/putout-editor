@@ -11,6 +11,7 @@ function getIDAndRevisionFromHash() {
             rev: match[2],
         };
     }
+    
     return null;
 }
 
@@ -49,6 +50,7 @@ export function fetchFromURL() {
     if (!data) {
         return Promise.resolve(null);
     }
+    
     return fetchSnippet(data.id, data.rev);
 }
 
@@ -87,6 +89,7 @@ export function update(revision, data) {
                 // to signal the server to delete the transform.js file
                 data.transform = null;
             }
+            
             return api(
                 `/gist/${revision.getSnippetID()}`,
                 {
@@ -169,6 +172,7 @@ class Revision {
         if (this._code == null) {
             this._code = getSource(this._config, this._gist) || '';
         }
+        
         return this._code;
     }
     

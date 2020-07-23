@@ -17,6 +17,7 @@ function getValuesFromSettings(settings) {
     if (Array.isArray(settings)) {
         return valuesFromArray(settings);
     }
+    
     return settings;
 }
 
@@ -32,6 +33,7 @@ function arrayUpdater(settings, name, value) {
     } else {
         settings.delete(name);
     }
+    
     return Array.from(settings);
 }
 
@@ -39,6 +41,7 @@ function getUpdateStrategy(settings) {
     if (Array.isArray(settings)) {
         return arrayUpdater;
     }
+    
     return defaultUpdater;
 }
 
