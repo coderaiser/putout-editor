@@ -35,7 +35,7 @@
     "mini-css-extract-plugin": "^0.10.0",
     "postcss-loader": "^3.0.0",
     "progress-bar-webpack-plugin": "^2.1.0",
-    "putout": "^9.7.1",
+    "putout": "^10.0.6",
     "raw-loader": "^4.0.0",
     "rimraf": "^3.0.0",
     "style-loader": "^1.0.0",
