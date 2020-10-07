@@ -89,8 +89,7 @@
     "redux-saga": "^1.0.5",
     "regexp-tree": "^0.1.5",
     "reselect": "^4.0.0",
-    "source-map": "^0.7.3",
-    "typescript": "^3.2.2"
+    "source-map": "^0.7.3"
   },
   "scripts": {
     "start": "madrun start",

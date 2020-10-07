@@ -183,7 +183,6 @@ module.exports = {
         ],
         
         noParse: [
-            /typescript\/lib/,
             /acorn\/dist\/acorn\.js/,
             /acorn\/dist\/acorn\.mjs/,
             /esprima\/dist\/esprima\.js/,
