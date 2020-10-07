@@ -33,7 +33,7 @@
     "json-loader": "^0.5.3",
     "madrun": "^7.0.0",
     "mini-css-extract-plugin": "^0.10.0",
-    "postcss-loader": "^3.0.0",
+    "postcss-loader": "^4.0.3",
     "progress-bar-webpack-plugin": "^2.1.0",
     "putout": "^10.0.6",
     "raw-loader": "^4.0.0",
