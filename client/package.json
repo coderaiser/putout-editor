@@ -67,7 +67,7 @@
     "glsl-tokenizer": "^2.1.2",
     "halting-problem": "^1.1.0",
     "handlebars": "^4.0.6",
-    "isomorphic-fetch": "^2.2.1",
+    "isomorphic-fetch": "^3.0.0",
     "json-stringify-safe": "^5.0.1",
     "json-to-ast": "^2.1.0",
     "lodash.isequal": "^4.5.0",
