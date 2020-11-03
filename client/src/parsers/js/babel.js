@@ -32,6 +32,7 @@ const availablePlugins = [
     'functionBind',
     'functionSent',
     'importMeta',
+    'importAssertions',
     'logicalAssignment',
     'nullishCoalescingOperator',
     'numericSeparator',
@@ -65,7 +66,7 @@ export const parserSettingsConfiguration = {
             settings: (settings) => settings.plugins || defaultOptions.plugins,
             values: (plugins) => availablePlugins.reduce(
                 (obj, name) => {
-                    obj[name] = plugins.indexOf(name) > -1;
+                    obj[name] = plugins.includes(name);
                     return obj;
                 },
                 {},
@@ -119,7 +120,9 @@ export default {
         switch(typeof node.type) {
         case 'string':
             return node.type;
-        case 'object': return `Token (${node.type.label})`;
+        
+        case 'object':
+            return `Token (${node.type.label})`;
         }
     },
     
