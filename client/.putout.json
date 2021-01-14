@@ -1,21 +1,21 @@
 {
     "match": {
         "src/components/PasteDropTarget.js": {
-            "remove-unused-variables": false
+            "remove-unused-variables": "off"
         },
         "src/core/ParseResult.js": {
-            "remove-unused-variables": false
+            "remove-unused-variables": "off"
         },
         "src/parsers/js/recast.js": {
-            "remove-unused-variables": false
+            "remove-unused-variables": "off"
         },
         ".eslintrc.js": {
-            "remove-console": true
+            "remove-console": "on"
         }
     },
     "rules": {
-        "remove-console": false,
-        "remove-empty/import": false,
-        "apply-optional-chaining": true
+        "remove-console": "off",
+        "remove-empty/import": "off",
+        "apply-optional-chaining": "on"
     }
 }

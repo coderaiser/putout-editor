@@ -1,24 +1,25 @@
-'use strict';
+import {run} from 'madrun';
 
-const {run} = require('madrun');
-
-module.exports = {
+export default {
     'start': () => 'http-server ../out',
     'build': () => build('production'),
     'build:dev': () => build('development'),
     'watch': () => 'webpack -dw --mode=development',
     'fix:eslint': () => 'eslint --fix src',
-    'lint': () => 'putout src *.js .*.js .madrun.js --cache',
+    'lint': () => 'putout .',
+    'fresh:lint': () => run('lint', '--fresh'),
+    'lint:fresh': () => run('lint', '--fresh'),
     'fix:lint': () => run('lint', '--fix'),
     'fontcustom': () => 'fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml',
     'eslint:hotfix': () => 'rm -rf node_modules/eslint/node_modules/acorn',
     'halting-problem:hotfix': () => 'rm -rf node_modules/halting-problem/node_modules/acorn',
-    'init': () => {
+    
+    'init': async () => {
         const rmPutout = 'rm -rf node_modules/putout';
         const lnPutout = 'ln -s ~/putout/packages/putout node_modules/putout';
         
         const cmd = [
-            run('*:hotfix'),
+            await run('*:hotfix'),
             rmPutout,
             lnPutout,
         ].join(' && ');

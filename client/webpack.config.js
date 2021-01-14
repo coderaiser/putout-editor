@@ -20,9 +20,6 @@ const plugins = [
     }),
     new webpack.IgnorePlugin(/\.md$/),
     new webpack.IgnorePlugin(/node\/nodeLoader.js/),
-    // Usually babel-eslint tries to patch eslint, but we are using "parseNoPatch",
-    // so that code patch will never be executed.
-    new webpack.IgnorePlugin(/^eslint$/, /babel-eslint/),
     
     // Prettier //
     
@@ -121,8 +118,6 @@ module.exports = {
                     /\/acorn.mjs$/,
                     /\/acorn-loose.mjs$/,
                     path.join(__dirname, 'node_modules', 'ast-types'),
-                    path.join(__dirname, 'node_modules', 'babel-eslint'),
-                    path.join(__dirname, 'node_modules', 'babel-eslint8'),
                     path.join(__dirname, 'node_modules', 'jsesc'),
                     path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
                     path.join(__dirname, 'node_modules', 'babel7'),
@@ -155,7 +150,7 @@ module.exports = {
                         require.resolve('@babel/preset-react'),
                     ],
                     plugins: [
-                        "@babel/plugin-proposal-optional-chaining",
+                        '@babel/plugin-proposal-optional-chaining',
                         require.resolve('@babel/plugin-transform-runtime'),
                     ],
                 },
@@ -172,7 +167,7 @@ module.exports = {
                 ],
             },
             {
-                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                test: /\.woff(2)?(\?v=\d\.\d\.\d)?$/,
                 use: [{
                     loader: 'url-loader',
                     
@@ -183,7 +178,7 @@ module.exports = {
                 }],
             },
             {
-                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                test: /\.(ttf|eot|svg)(\?v=\d\.\d\.\d)?$/,
                 loader: 'file-loader',
             },
         ],

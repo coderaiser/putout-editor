@@ -1,33 +1,22 @@
 'use strict';
 
+const {join} = require('path');
+
 module.exports = {
-    extends: [
-        'plugin:react/recommended',
-        'plugin:import/warnings',
-        'plugin:putout/recommended',
-    ],
-    parser: 'babel-eslint',
+    parser: '@babel/eslint-parser',
     parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: 2021,
         sourceType: 'module',
         ecmaFeatures: {
             jsx: true,
         },
+        babelOptions: {
+            configFile: join(__dirname, '.babelrc.json'),
+        },
     },
-    plugins: [
-        'react',
-        'import',
-        'require-in-package',
-        'putout',
-    ],
     rules: {
-        'comma-dangle': [
-            'error',
-            'always-multiline',
-        ],
         'new-cap': 'off',
         'no-path-concat': 'off',
-        'no-undef': 'error',
         'no-underscore-dangle': 'off',
         'no-unused-vars': [
             'warn',
@@ -37,11 +26,6 @@ module.exports = {
             },
         ],
         'no-use-before-define': 'off',
-        'quotes': [
-            'error',
-            'single',
-            'avoid-escape',
-        ],
         'strict': 'off',
         'import/named': 'error',
         'import/default': 'error',
@@ -70,4 +54,15 @@ module.exports = {
         Set: true,
         WeakMap: true,
     },
+    extends: [
+        'plugin:react/recommended',
+        'plugin:import/warnings',
+        'plugin:putout/recommended',
+    ],
+    plugins: [
+        'react',
+        'import',
+        'require-in-package',
+        'putout',
+    ],
 };
