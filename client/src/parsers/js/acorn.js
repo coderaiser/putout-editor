@@ -3,6 +3,7 @@ import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'acorn/package.json';
 
 const ID = 'acorn';
+const parseModule = (a) => a.default || a;
 
 export default {
     ...defaultParserInterface,
@@ -14,12 +15,11 @@ export default {
     locationProps: new Set(['range', 'loc', 'start', 'end']),
     
     loadParser(callback) {
-        require(['acorn', 'acorn-loose', 'acorn-jsx', 'acorn-stage3'], (acorn, acornLoose, acornJsx, acornStage3) => {
+        require(['acorn', 'acorn-loose', 'acorn-jsx'], (acorn, acornLoose, acornJsx) => {
             callback({
                 acorn,
                 acornLoose,
                 acornJsx,
-                acornStage3,
             });
         });
     },
@@ -28,11 +28,6 @@ export default {
         let parser;
         
         const {acorn} = parsers;
-        
-        // that's right, hot fix
-        acorn.version = '6.3.0';
-        
-        parsers.acorn.Parser.extend(parsers.acornStage3);
         
         if (options['plugins.jsx'] && !options.loose) {
             const cls = parsers.acorn.Parser.extend(parsers.acornJsx());
@@ -105,4 +100,4 @@ export default {
             </div>
         );
     },
-};
+}

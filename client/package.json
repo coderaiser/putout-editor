@@ -54,7 +54,6 @@
     "acorn": "^8.0.1",
     "acorn-jsx": "^5.0.1",
     "acorn-loose": "^8.0.0",
-    "acorn-stage3": "^4.0.0",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel7": "file:packages/babel7",
     "babylon7": "file:packages/babylon7",
