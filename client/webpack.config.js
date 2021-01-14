@@ -126,7 +126,6 @@ module.exports = {
                     path.join(__dirname, 'node_modules', 'jsesc'),
                     path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
                     path.join(__dirname, 'node_modules', 'babel7'),
-                    path.join(__dirname, 'node_modules', 'babel-plugin-macros'),
                     path.join(__dirname, 'node_modules', 'json-parse-better-errors'),
                     path.join(__dirname, 'node_modules', 'babylon7'),
                     path.join(__dirname, 'node_modules', 'eslint', 'lib'),
