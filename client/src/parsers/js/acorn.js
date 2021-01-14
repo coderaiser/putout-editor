@@ -3,7 +3,6 @@ import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'acorn/package.json';
 
 const ID = 'acorn';
-const parseModule = (a) => a.default || a;
 
 export default {
     ...defaultParserInterface,
@@ -26,8 +25,6 @@ export default {
     
     parse(parsers, code, options = {}) {
         let parser;
-        
-        const {acorn} = parsers;
         
         if (options['plugins.jsx'] && !options.loose) {
             const cls = parsers.acorn.Parser.extend(parsers.acornJsx());
@@ -100,4 +97,4 @@ export default {
             </div>
         );
     },
-}
+};

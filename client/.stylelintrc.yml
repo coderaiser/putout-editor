@@ -5,17 +5,4 @@ rules:
     no-descending-specificity: null
     function-url-quotes: null
     property-no-unknown: null
-    
-    indentation: 4
-    declaration-block-trailing-semicolon: always
-    declaration-colon-space-before: null
-    selector-list-comma-newline-after: null
-    comment-empty-line-before: null
-    number-leading-zero: null
-    number-no-trailing-zeros: null
-    string-quotes: single
-    no-eol-whitespace: null
-    font-family-no-missing-generic-family-keyword: null
-    rule-empty-line-before: null
-    max-empty-lines: 2
 
