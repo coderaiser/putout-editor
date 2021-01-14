@@ -144,21 +144,21 @@ module.exports = {
                     path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
                     path.join(__dirname, 'node_modules', 'tslib'),
                     path.join(__dirname, 'src'),
+                    path.join(__dirname, 'node_modules', 'putout'),
+                    path.join(__dirname, 'node_modules', '@putout'),
                 ],
                 loader: 'babel-loader',
                 options: {
-                    babelrc: false,
                     presets: [
                         [require.resolve('@babel/preset-env'), {
                             modules: 'commonjs',
                         }],
                         require.resolve('@babel/preset-react'),
                     ],
-                    /*
                     plugins: [
+                        "@babel/plugin-proposal-optional-chaining",
                         require.resolve('@babel/plugin-transform-runtime'),
                     ],
-                    */
                 },
             },
             {
