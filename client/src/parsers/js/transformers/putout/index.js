@@ -1,5 +1,4 @@
 import compileModule from '../../../utils/compileModule';
-import template from '@babel/template';
 import pkg from 'putout/package.json';
 
 const ID = 'putout';
@@ -38,8 +37,6 @@ export default {
             espree,
             esprima,
         });
-        
-        putout.template = template;
         
         const plugin = compileModule(transformCode, {
             require: () => putout,
