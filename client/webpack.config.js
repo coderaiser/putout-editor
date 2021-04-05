@@ -140,6 +140,7 @@ module.exports = {
                     path.join(__dirname, 'src'),
                     path.join(__dirname, 'node_modules', 'putout'),
                     path.join(__dirname, 'node_modules', '@putout'),
+                    path.join(__dirname, 'node_modules', 'estree-to-babel'),
                 ],
                 loader: 'babel-loader',
                 options: {
