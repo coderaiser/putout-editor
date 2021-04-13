@@ -1,6 +1,9 @@
 import {connect} from 'react-redux';
 import PasteDropTarget from '../components/PasteDropTarget';
-import {setError, dropText} from '../store/actions';
+import {
+    setError,
+    dropText,
+} from '../store/actions';
 
 function mapDispatchToProps(dispatch) {
     return {

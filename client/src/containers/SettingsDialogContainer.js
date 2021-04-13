@@ -1,6 +1,13 @@
 import {connect} from 'react-redux';
-import {closeSettingsDialog, setParserSettings} from '../store/actions';
-import {showSettingsDialog, getParser, getParserSettings} from '../store/selectors';
+import {
+    closeSettingsDialog,
+    setParserSettings,
+} from '../store/actions';
+import {
+    showSettingsDialog,
+    getParser,
+    getParserSettings,
+} from '../store/selectors';
 import SettingsDialog from '../components/dialogs/SettingsDialog';
 
 function mapStateToProps(state) {

@@ -1,5 +1,15 @@
-import {getParser, getParserSettings, getCode} from './selectors';
-import {ignoreKeysFilter, locationInformationFilter, functionFilter, emptyKeysFilter, typeKeysFilter} from '../core/TreeAdapter.js';
+import {
+    getParser,
+    getParserSettings,
+    getCode,
+} from './selectors';
+import {
+    ignoreKeysFilter,
+    locationInformationFilter,
+    functionFilter,
+    emptyKeysFilter,
+    typeKeysFilter,
+} from '../core/TreeAdapter.js';
 import estreeToBabel from 'estree-to-babel';
 
 function parse(parser, code, parserSettings) {

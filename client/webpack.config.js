@@ -102,87 +102,81 @@ module.exports = {
     },
     
     module: {
-        rules: [
-            {
-                test: /\.txt$/,
-                exclude: /node_modules/,
-                loader: 'raw-loader',
-            },
-            {
-                test: /\.(jsx?|mjs)$/,
-                type: 'javascript/auto',
-                include: [
+        rules: [{
+            test: /\.txt$/,
+            exclude: /node_modules/,
+            loader: 'raw-loader',
+        }, {
+            test: /\.(jsx?|mjs)$/,
+            type: 'javascript/auto',
+            include: [
                 // To transpile our version of acorn as well as the one that
                 // espree uses (somewhere in its dependency tree)
-                    /\/acorn.es.js$/,
-                    /\/acorn.mjs$/,
-                    /\/acorn-loose.mjs$/,
-                    path.join(__dirname, 'node_modules', 'ast-types'),
-                    path.join(__dirname, 'node_modules', 'jsesc'),
-                    path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
-                    path.join(__dirname, 'node_modules', 'babel7'),
-                    path.join(__dirname, 'node_modules', 'json-parse-better-errors'),
-                    path.join(__dirname, 'node_modules', 'babylon7'),
-                    path.join(__dirname, 'node_modules', 'eslint', 'lib'),
-                    path.join(__dirname, 'node_modules', 'eslint-scope'),
-                    path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
-                    path.join(__dirname, 'node_modules', 'eslint6'),
-                    path.join(__dirname, 'node_modules', 'lodash-es'),
-                    path.join(__dirname, 'node_modules', 'prettier'),
-                    path.join(__dirname, 'node_modules', 'react-redux', 'es'),
-                    path.join(__dirname, 'node_modules', 'recast'),
-                    path.join(__dirname, 'node_modules', 'redux', 'es'),
-                    path.join(__dirname, 'node_modules', 'redux-saga', 'es'),
-                    path.join(__dirname, 'node_modules', 'regexp-tree'),
-                    path.join(__dirname, 'node_modules', 'simple-html-tokenizer'),
-                    path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
-                    path.join(__dirname, 'node_modules', 'tslib'),
-                    path.join(__dirname, 'src'),
-                    path.join(__dirname, 'node_modules', 'putout'),
-                    path.join(__dirname, 'node_modules', '@putout'),
-                    path.join(__dirname, 'node_modules', 'estree-to-babel'),
+                /\/acorn.es.js$/,
+                /\/acorn.mjs$/,
+                /\/acorn-loose.mjs$/,
+                path.join(__dirname, 'node_modules', 'ast-types'),
+                path.join(__dirname, 'node_modules', 'jsesc'),
+                path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
+                path.join(__dirname, 'node_modules', 'babel7'),
+                path.join(__dirname, 'node_modules', 'json-parse-better-errors'),
+                path.join(__dirname, 'node_modules', 'babylon7'),
+                path.join(__dirname, 'node_modules', 'eslint', 'lib'),
+                path.join(__dirname, 'node_modules', 'eslint-scope'),
+                path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
+                path.join(__dirname, 'node_modules', 'eslint6'),
+                path.join(__dirname, 'node_modules', 'lodash-es'),
+                path.join(__dirname, 'node_modules', 'prettier'),
+                path.join(__dirname, 'node_modules', 'react-redux', 'es'),
+                path.join(__dirname, 'node_modules', 'recast'),
+                path.join(__dirname, 'node_modules', 'redux', 'es'),
+                path.join(__dirname, 'node_modules', 'redux-saga', 'es'),
+                path.join(__dirname, 'node_modules', 'regexp-tree'),
+                path.join(__dirname, 'node_modules', 'simple-html-tokenizer'),
+                path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
+                path.join(__dirname, 'node_modules', 'tslib'),
+                path.join(__dirname, 'src'),
+                path.join(__dirname, 'node_modules', 'putout'),
+                path.join(__dirname, 'node_modules', '@putout'),
+                path.join(__dirname, 'node_modules', 'estree-to-babel'),
+            ],
+            loader: 'babel-loader',
+            options: {
+                presets: [
+                    [require.resolve('@babel/preset-env'), {
+                        modules: 'commonjs',
+                    }],
+                    require.resolve('@babel/preset-react'),
                 ],
-                loader: 'babel-loader',
-                options: {
-                    presets: [
-                        [require.resolve('@babel/preset-env'), {
-                            modules: 'commonjs',
-                        }],
-                        require.resolve('@babel/preset-react'),
-                    ],
-                    plugins: [
-                        '@babel/plugin-proposal-optional-chaining',
-                        require.resolve('@babel/plugin-transform-runtime'),
-                    ],
+                plugins: [
+                    '@babel/plugin-proposal-optional-chaining',
+                    require.resolve('@babel/plugin-transform-runtime'),
+                ],
+            },
+        }, {
+            test: /\.css$/,
+            use: [
+                DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
+                {
+                    loader: 'css-loader',
+                    options: {importLoaders: 1},
                 },
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {importLoaders: 1},
-                    },
-                    'postcss-loader',
-                ],
-            },
-            {
-                test: /\.woff(2)?(\?v=\d\.\d\.\d)?$/,
-                use: [{
-                    loader: 'url-loader',
-                    
-                    options: {
-                        limit: 10_000,
-                        mimetype: 'application/font-woff',
-                    },
-                }],
-            },
-            {
-                test: /\.(ttf|eot|svg)(\?v=\d\.\d\.\d)?$/,
-                loader: 'file-loader',
-            },
-        ],
+                'postcss-loader',
+            ],
+        }, {
+            test: /\.woff(2)?(\?v=\d\.\d\.\d)?$/,
+            use: [{
+                loader: 'url-loader',
+                
+                options: {
+                    limit: 10_000,
+                    mimetype: 'application/font-woff',
+                },
+            }],
+        }, {
+            test: /\.(ttf|eot|svg)(\?v=\d\.\d\.\d)?$/,
+            loader: 'file-loader',
+        }],
         
         noParse: [
             /acorn\/dist\/acorn\.js/,

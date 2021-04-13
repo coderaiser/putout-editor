@@ -1,3 +1,5 @@
 .*
 .*.js
 
+yarn-error.log
+coverage

@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import {getCategoryByID, categories} from '../../parsers';
+import {
+    getCategoryByID,
+    categories,
+} from '../../parsers';
 
 const categoryIcon = {
     javascript: 'fa-jsfiddle',

@@ -1,5 +1,10 @@
 import * as actions from './actions';
-import {getCategoryByID, getDefaultParser, getParserByID, getTransformerByID} from '../parsers';
+import {
+    getCategoryByID,
+    getDefaultParser,
+    getParserByID,
+    getTransformerByID,
+} from '../parsers';
 
 const defaultParser = getDefaultParser(getCategoryByID('javascript'));
 

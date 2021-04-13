@@ -1,6 +1,9 @@
 import {connect} from 'react-redux';
 import Transformer from '../components/Transformer';
-import {setTransformState, toggleFormatting} from '../store/actions';
+import {
+    setTransformState,
+    toggleFormatting,
+} from '../store/actions';
 import * as selectors from '../store/selectors';
 
 function mapStateToProps(state) {

@@ -1,6 +1,9 @@
 import {createSelector} from 'reselect';
 import isEqual from 'lodash.isequal';
-import {getParserByID, getTransformerByID} from '../parsers';
+import {
+    getParserByID,
+    getTransformerByID,
+} from '../parsers';
 
 // UI related
 

@@ -10,7 +10,10 @@ import {
     call,
 } from 'redux-saga/effects';
 import {batchActions} from 'redux-batched-actions';
-import {logEvent, logError} from '../utils/logger';
+import {
+    logEvent,
+    logError,
+} from '../utils/logger';
 import {
     getParser,
     getParserSettings,

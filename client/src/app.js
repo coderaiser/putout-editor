@@ -16,10 +16,24 @@ import TransformerContainer from './containers/TransformerContainer';
 import createSagaMiddleware from 'redux-saga';
 import debounce from './utils/debounce';
 import saga from './store/sagas';
-import {Provider, connect} from 'react-redux';
-import {astexplorer, persist, revive} from './store/reducers';
-import {createStore, applyMiddleware, compose} from 'redux';
-import {canSaveTransform, getRevision} from './store/selectors';
+import {
+    Provider,
+    connect,
+} from 'react-redux';
+import {
+    astexplorer,
+    persist,
+    revive,
+} from './store/reducers';
+import {
+    createStore,
+    applyMiddleware,
+    compose,
+} from 'redux';
+import {
+    canSaveTransform,
+    getRevision,
+} from './store/selectors';
 import {enableBatching} from 'redux-batched-actions';
 import {loadSnippet} from './store/actions';
 import {render} from 'react-dom';
