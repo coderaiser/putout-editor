@@ -145,7 +145,9 @@ let Element = class extends React.Component {
     }
     
     _execFunction() {
-        const state = {error: null};
+        const state = {
+            error: null,
+        };
         try {
             state.value = this.state.value.call(this.props.parent);
         } catch(err) {

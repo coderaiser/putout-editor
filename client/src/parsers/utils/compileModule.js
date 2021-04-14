@@ -4,7 +4,9 @@ import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
     const exports = {};
-    const module = {exports};
+    const module = {
+        exports,
+    };
     const keys = ['module', 'exports', Object.keys(globals)];
     const values = [module, exports, ...Object.values(globals)];
     

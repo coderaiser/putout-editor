@@ -28,7 +28,10 @@ function initSettings() {
 }
 
 function reducer(state, element) {
-    const newState = {...state, [element.name]: element.checked};
+    const newState = {
+        ...state,
+        [element.name]: element.checked,
+    };
     
     global.localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
     logEvent(

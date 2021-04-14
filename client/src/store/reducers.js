@@ -147,7 +147,10 @@ function workbench(state = initialState.workbench, action, fullState) {
         return {...state, parserSettings: action.settings};
     case actions.SET_PARSER:
     {
-        const newState = {...state, parser: action.parser.id};
+        const newState = {
+            ...state,
+            parser: action.parser.id,
+        };
         
         if (action.parser !== state.parser) {
             // Update parser settings
