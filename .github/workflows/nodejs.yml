@@ -1,0 +1,32 @@
+name: Node CI
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    working-directory: client
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 15.x]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    
+    - name: Install
+      run:
+        npm install
+    
+    - name: Lint
+      run:
+        npm run lint
+
