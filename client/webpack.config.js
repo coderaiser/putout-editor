@@ -18,17 +18,17 @@ const plugins = [
     new webpack.DefinePlugin({
         'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
     }),
+    
+    new webpack.ProvidePlugin({
+        process: 'process/browser',
+    }),
+    
+    new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+    }),
+    
     new webpack.IgnorePlugin(/\.md$/),
     new webpack.IgnorePlugin(/node\/nodeLoader.js/),
-    
-    // Prettier //
-    
-    // We don't use these parsers with prettier, so we don't need to include them
-    new webpack.IgnorePlugin(/parser-flow/, /\/prettier/),
-    new webpack.IgnorePlugin(/parser-postcss/, /\/prettier/),
-    new webpack.IgnorePlugin(/parser-typescript/, /\/prettier/),
-    new webpack.IgnorePlugin(/parser-vue/, /\/prettier/),
-    new webpack.IgnorePlugin(/parser-yaml/, /\/prettier/),
     
     // eslint //
     
@@ -49,11 +49,10 @@ const plugins = [
     // Hack to disable Webpack dynamic requires in ESLint, so we don't end up
     // bundling the entire ESLint directory including files we don't even need.
     // https://github.com/webpack/webpack/issues/198
-    new webpack.ContextReplacementPlugin(/eslint/, /NEVER_MATCH^/),
+    new webpack.ContextReplacementPlugin(/eslint|putout/, /NEVER_MATCH^/),
     
     new MiniCssExtractPlugin({
         filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
-        allChunks: true,
     }),
     
     new HtmlWebpackPlugin({
@@ -61,12 +60,9 @@ const plugins = [
         inject: 'body',
         filename: 'index.html',
         template: './index.ejs',
-        chunksSortMode: 'id',
     }),
     
-    DEV ?
-        new webpack.NamedModulesPlugin() :
-        new webpack.HashedModuleIdsPlugin(),
+    new webpack.ids.HashedModuleIdsPlugin(),
     new ProgressBarPlugin(),
 ];
 
@@ -186,15 +182,20 @@ module.exports = {
         ],
     },
     
-    node: {
-        child_process: 'empty',
-        fs: 'empty',
-        module: 'empty',
-        net: 'empty',
-        readline: 'empty',
-    },
-    
     plugins,
+    resolve: {
+        fallback: {
+            path: false,
+            child_process: false,
+            fs: false,
+            module: false,
+            net: false,
+            readline: false,
+            os: false,
+            constants: false,
+            jscodeshift: false,
+        },
+    },
     
     entry: {
         app: './src/app.js',

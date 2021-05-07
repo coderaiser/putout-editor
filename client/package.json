@@ -34,6 +34,7 @@
     "madrun": "^8.6.0",
     "mini-css-extract-plugin": "^1.6.0",
     "postcss-loader": "^5.2.0",
+    "process": "^0.11.10",
     "progress-bar-webpack-plugin": "^2.1.0",
     "putout": "^17.0.0",
     "raw-loader": "^4.0.0",
