@@ -49,7 +49,7 @@ const plugins = [
     // Hack to disable Webpack dynamic requires in ESLint, so we don't end up
     // bundling the entire ESLint directory including files we don't even need.
     // https://github.com/webpack/webpack/issues/198
-    new webpack.ContextReplacementPlugin(/eslint|putout/, /NEVER_MATCH^/),
+    new webpack.ContextReplacementPlugin(/eslint|@putout\/engine-loader/, /NEVER_MATCH^/),
     
     new MiniCssExtractPlugin({
         filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
