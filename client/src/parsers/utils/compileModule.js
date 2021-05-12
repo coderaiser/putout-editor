@@ -13,6 +13,8 @@ export default function compileModule(code, globals = {}) {
     const safeCode = protect(code);
     parse(safeCode, {
         parser,
+        isTS: true,
+        isJSX: true,
     });
     
     new Function(keys.join(), code).apply(exports, values);
