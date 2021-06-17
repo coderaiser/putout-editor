@@ -1,5 +1,6 @@
 import {parse} from '@putout/engine-parser';
-import parser from '@putout/engine-parser/lib/parsers/babel';
+import putout from 'putout';
+import convertEsmToCommonjs from '@putout/plugin-convert-esm-to-commmonjs';
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
@@ -17,6 +18,12 @@ export default function compileModule(code, globals = {}) {
         isJSX: true,
     });
     
-    new Function(keys.join(), code).apply(exports, values);
+    const result = putout(safeCode, {
+        plugins: [
+            ['convert-esm-to-commonjs', convertEsmToCommonjs],
+        ]
+    });
+    
+    new Function(keys.join(), result.code).apply(exports, values);
     return module.exports;
 }

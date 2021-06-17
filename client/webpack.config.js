@@ -114,7 +114,6 @@ module.exports = {
                 path.join(__dirname, 'node_modules', 'ast-types'),
                 path.join(__dirname, 'node_modules', 'jsesc'),
                 path.join(__dirname, 'node_modules', 'eslint-visitor-keys'),
-                path.join(__dirname, 'node_modules', 'babel7'),
                 path.join(__dirname, 'node_modules', 'json-parse-better-errors'),
                 path.join(__dirname, 'node_modules', 'babylon7'),
                 path.join(__dirname, 'node_modules', 'eslint', 'lib'),
@@ -133,6 +132,7 @@ module.exports = {
                 path.join(__dirname, 'node_modules', 'tslib'),
                 path.join(__dirname, 'src'),
                 path.join(__dirname, 'node_modules', 'putout'),
+                path.join(__dirname, 'node_modules', '@putout/plugin-convert-esm-to-commmonjs'),
                 path.join(__dirname, 'node_modules', '@putout'),
                 path.join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
@@ -185,6 +185,8 @@ module.exports = {
     plugins,
     resolve: {
         fallback: {
+            assert: require.resolve('assert'),
+            buffer: require.resolve("buffer/"),
             path: false,
             child_process: false,
             fs: false,

@@ -1,9 +1,13 @@
 import {run} from 'madrun';
 
+const env = {
+    NODE_OPTIONS: '--max_old_space_size=2048',
+};
+
 export default {
     'start': () => 'http-server ../out',
     'build': () => build('production'),
-    'build:dev': () => build('development'),
+    'build:dev': () => [env, build('development')],
     'watch': () => 'webpack -dw --mode=development',
     'fix:eslint': () => 'eslint --fix src',
     'lint': () => 'putout .',
