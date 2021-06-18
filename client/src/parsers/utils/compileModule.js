@@ -1,6 +1,8 @@
 import {parse} from '@putout/engine-parser';
 import putout from 'putout';
 import convertEsmToCommonjs from '@putout/plugin-convert-esm-to-commonjs';
+import parser from '@putout/engine-parser/lib/parsers/babel';
+
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {

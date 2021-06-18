@@ -2,6 +2,8 @@ import halts, {
     loopProtect,
 } from 'halting-problem';
 
+const TIMEOUT = 10 * 1000;
+
 export default function protect(jsCode) {
     // assert that there are no obvious infinite loops
     halts(jsCode);
@@ -13,7 +15,7 @@ export default function protect(jsCode) {
             // this function gets called in all possible loops
             // it gets passed the line number as its only argument
             '(function (line) {',
-            'if (Date.now() > ' + (start + 5000) + ') {',
+            'if (Date.now() > ' + (start + TIMEOUT) + ') {',
             '  throw new Error("Infinite loop detected on line " + line);',
             '}',
             '})',
