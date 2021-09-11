@@ -6,7 +6,7 @@ const env = {
 
 export default {
     'start': () => 'http-server ../out',
-    'build': () => build('production'),
+    'build': () => [env, build('production')],
     'build:dev': () => [env, build('development')],
     'watch': () => 'webpack -dw --mode=development',
     'fix:eslint': () => 'eslint --fix src',
