@@ -27,9 +27,6 @@ const plugins = [
         Buffer: ['buffer', 'Buffer'],
     }),
     
-    new webpack.IgnorePlugin(/\.md$/),
-    new webpack.IgnorePlugin(/node\/nodeLoader.js/),
-    
     // eslint //
     
     // Shim ESLint stuff that's only relevant for Node.js
