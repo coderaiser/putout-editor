@@ -89,7 +89,9 @@ export default {
     },
     
     parse(babylon, code, options) {
-        options = {...options};
+        options = {
+            ...options,
+        };
         // TODO: Make decoratorsBeforeExport settable through settings somhow
         // TODO: Make pipelineOperator.proposal settable through settings somhow
         options.plugins = options.plugins.map((plugin) => {

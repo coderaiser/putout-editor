@@ -28,9 +28,9 @@ function fetchSnippet(snippetID, revisionID = 'latest') {
             }
             switch(response.status) {
             case 404:
-                throw new Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
+                throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
             default:
-                throw new Error('Unknown error.');
+                throw Error('Unknown error.');
             }
         })
         .then((response) => new Revision(response));
@@ -72,7 +72,7 @@ export function create(data) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error('Unable to create snippet.');
+            throw Error('Unable to create snippet.');
         })
         .then((data) => new Revision(data));
 }
@@ -104,7 +104,7 @@ export function update(revision, data) {
                     if (response.ok) {
                         return response.json();
                     }
-                    throw new Error('Unable to update snippet.');
+                    throw Error('Unable to update snippet.');
                 })
                 .then((data) => new Revision(data));
         });
@@ -128,7 +128,7 @@ export function fork(revision, data) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error('Unable to fork snippet.');
+            throw Error('Unable to fork snippet.');
         })
         .then((data) => new Revision(data));
 }

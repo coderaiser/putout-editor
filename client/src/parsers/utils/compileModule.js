@@ -23,7 +23,7 @@ export default function compileModule(code, globals = {}) {
     const result = putout(safeCode, {
         plugins: [
             ['convert-esm-to-commonjs', convertEsmToCommonjs],
-        ]
+        ],
     });
     
     new Function(keys.join(), result.code).apply(exports, values);

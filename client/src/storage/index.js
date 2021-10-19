@@ -29,7 +29,7 @@ export default class StorageHandler {
                 return backend.fetchFromURL();
             }
         }
-        return Promise.reject(new Error('Unknown URL format.'));
+        return Promise.reject(Error('Unknown URL format.'));
     }
     
     /**

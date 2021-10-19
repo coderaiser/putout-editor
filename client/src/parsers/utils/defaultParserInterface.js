@@ -89,6 +89,7 @@ export default {
             if (this._ignoredProperties.has(prop)) {
                 continue;
             }
+            
             yield {
                 value: node[prop],
                 key: prop,

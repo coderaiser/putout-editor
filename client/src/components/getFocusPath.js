@@ -40,7 +40,9 @@ export default function getFocusPath(node, pos, parser, seen = new Set()) {
             
             if (childPath.length > 0) {
                 // if current wasn't added, add it now
-                childPath = range ? childPath : [node].concat(childPath);
+                if (!range)
+                    childPath = [node].concat(childPath);
+                
                 path = path.concat(childPath);
                 break;
             }

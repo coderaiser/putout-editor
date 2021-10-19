@@ -117,6 +117,7 @@ let Element = class extends React.Component {
             element.forceUpdate(update);
             return;
         }
+        
         lastClickedElement = open ? this : null;
         update();
     }
@@ -207,6 +208,7 @@ let Element = class extends React.Component {
                 }
             </span>;
                 }
+                
                 enableHighlight = treeAdapter.getRange(value) && level !== 0;
             } else {
                 enableHighlight = true;
@@ -235,6 +237,7 @@ let Element = class extends React.Component {
                 />
             </span>;
                 }
+                
                 showToggler = value.length > 0;
             } else {
                 if (open) {

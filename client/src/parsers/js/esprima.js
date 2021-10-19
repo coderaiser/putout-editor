@@ -25,6 +25,7 @@ export default {
             if (typeof node[prop] === 'function') {
                 continue;
             }
+            
             yield {
                 value: node[prop],
                 key: prop,

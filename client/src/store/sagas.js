@@ -133,7 +133,7 @@ function* watchSnippetURI(storageAdapter) {
         logError(errorMessage);
         
         yield put(batchActions([
-            actions.setError(new Error(errorMessage)),
+            actions.setError(Error(errorMessage)),
             actions.doneLoadingSnippet(),
         ]));
         

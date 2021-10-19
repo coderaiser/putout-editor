@@ -42,6 +42,7 @@ export default (store) => (next) => (action) => {
         if (!newParser || newCode == null) {
             return;
         }
+        
         const start = Date.now();
         return parse(newParser, newCode, newParserSettings).then(
             (ast) => {
@@ -53,6 +54,7 @@ export default (store) => (next) => (action) => {
                 ) {
                     return;
                 }
+                
                 // Temporary adapter for parsers that haven't been migrated yet.
                 const treeAdapter = {
                     type: 'default',

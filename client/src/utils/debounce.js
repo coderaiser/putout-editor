@@ -10,6 +10,7 @@ export default function debounce(f, timeout = 100) {
         if (timer) {
             return;
         }
+        
         timer = setTimeout(() => {
             timer = null;
             f.apply(lastThis, lastArgs);

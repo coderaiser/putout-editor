@@ -26,9 +26,9 @@ function fetchSnippet(snippetID, revisionID = 'latest') {
             }
             switch(response.status) {
             case 404:
-                throw new Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
+                throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
             default:
-                throw new Error('Unknown error.');
+                throw Error('Unknown error.');
             }
         })
         .then((response) => new Revision(response));
@@ -62,21 +62,21 @@ export function fetchFromURL() {
  * Create a new snippet.
  */
 export function create() {
-    return Promise.reject(new Error('Saving Parse snippets is not supported anymore.'));
+    return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
 }
 
 /**
  * Update an existing snippet.
  */
 export function update() {
-    return Promise.reject(new Error('Saving Parse snippets is not supported anymore.'));
+    return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
 }
 
 /**
  * Fork existing snippet.
  */
 export function fork() {
-    return Promise.reject(new Error('Saving Parse snippets is not supported anymore.'));
+    return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
 }
 
 class Revision {
@@ -143,6 +143,7 @@ class Revision {
         if (!settings) {
             return null;
         }
+        
         const parserSettings = settings[this.getParserID()];
         return parserSettings && JSON.parse(parserSettings);
     }

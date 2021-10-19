@@ -18,6 +18,7 @@ export default class TransformButton extends React.Component {
         } else {
             transformID = target.value;
         }
+        
         this.props.onTransformChange(getTransformerByID(transformID));
     }
     

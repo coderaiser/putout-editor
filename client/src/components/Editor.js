@@ -136,6 +136,7 @@ export default class Editor extends React.Component {
                     if (!range) {
                         return;
                     }
+                    
                     const doc = this.codeMirror.getDoc();
                     this._markerRange = range;
                     
@@ -143,12 +144,14 @@ export default class Editor extends React.Component {
                     if (this._mark) {
                         this._mark.clear();
                     }
+                    
                     const [start, end] = range.map((index) => this._posFromIndex(doc, index));
                     
                     if (!start || !end) {
                         this._markerRange = this._mark = null;
                         return;
                     }
+                    
                     this._mark = this.codeMirror.markText(
                         start,
                         end,

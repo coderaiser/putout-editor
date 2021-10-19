@@ -82,7 +82,9 @@ export default function SettingsRenderer(props) {
                                 </label>
                             </li>
                         );
-                    } else if (Array.isArray(setting)) {
+                    }
+                    
+                    if (Array.isArray(setting)) {
                         const [fieldName, options, converter = identity] = setting;
                         return (
                             <li key={fieldName}>
@@ -105,7 +107,9 @@ export default function SettingsRenderer(props) {
                                 </label>
                             </li>
                         );
-                    } else if (setting && typeof setting === 'object') {
+                    }
+                    
+                    if (setting && typeof setting === 'object') {
                         return (
                             <SettingsRenderer
                                 key={setting.key}

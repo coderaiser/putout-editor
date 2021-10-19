@@ -44,12 +44,14 @@ export default class PasteDropTarget extends React.Component {
                 // No browser support? :(
                 return;
             }
+            
             const cbdata = event.clipboardData;
             
             // Plain text
             if (!cbdata.types.indexOf || !cbdata.types.indexOf('text/plain') > -1) {
                 return;
             }
+            
             event.stopPropagation();
             event.preventDefault();
             this._jsonToCode(cbdata.getData('text/plain')).then(
@@ -85,6 +87,7 @@ export default class PasteDropTarget extends React.Component {
             if (!categoryId || !this.props.onText) {
                 return;
             }
+            
             event.preventDefault();
             event.stopPropagation();
             const reader = new FileReader();
@@ -107,6 +110,7 @@ export default class PasteDropTarget extends React.Component {
                         },
                     );
                 }
+                
                 Promise.resolve(text).then((text) => {
                     this.props.onText('drop', readerEvent, text, categoryId);
                 });

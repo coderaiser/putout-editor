@@ -37,6 +37,7 @@ export default function Toolbar(props) {
             transformerInfo =
         <a href={transformer.homepage} target="_blank" rel="noopener noreferrer">{transformerInfo}</a>;
         }
+        
         transformerInfo = <span>Transformer: {transformerInfo}</span>;
     }
     

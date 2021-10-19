@@ -35,6 +35,7 @@ class TreeAdapter {
         if (this._ranges.has(node)) {
             return this._ranges.get(node);
         }
+        
         const {nodeToRange} = this._adapterOptions;
         let range = nodeToRange(node);
         
@@ -60,6 +61,7 @@ class TreeAdapter {
                 range = [rangeFirst[0], rangeLast[1]];
             }
         }
+        
         this._ranges.set(node, range);
         return range;
     }
@@ -119,6 +121,7 @@ class TreeAdapter {
             ) {
                 continue;
             }
+            
             yield result;
         }
     }
@@ -133,10 +136,10 @@ const TreeAdapterConfigs = {
         openByDefault: () => false,
         nodeToRange: () => null,
         nodeToName: () => {
-            throw new Error('nodeToName must be passed');
+            throw Error('nodeToName must be passed');
         },
         walkNode: () => {
-            throw new Error('walkNode must be passed');
+            throw Error('walkNode must be passed');
         },
     },
     
@@ -232,7 +235,7 @@ export function typeKeysFilter(keys) {
 
 function createTreeAdapter(type, adapterOptions, filterValues) {
     if (TreeAdapterConfigs[type] == null) {
-        throw new Error(`Unknown tree adapter type "${type}"`);
+        throw Error(`Unknown tree adapter type "${type}"`);
     }
     
     return new TreeAdapter(

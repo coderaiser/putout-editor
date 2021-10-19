@@ -27,6 +27,7 @@ function transform(transformer, transformCode, code, parser) {
                 if (result.map) {
                     map = new SourceMapConsumer(result.map);
                 }
+                
                 result = result.code;
             }
             
@@ -64,6 +65,7 @@ export default class TransformOutput extends React.Component {
             if (console.clear) { // eslint-disable-line no-console
                 console.clear(); // eslint-disable-line no-console
             }
+            
             transform(
                 nextProps.transformer,
                 nextProps.transformCode,
@@ -71,9 +73,9 @@ export default class TransformOutput extends React.Component {
                 nextProps.parser,
             ).then(
                 ({result, map}) => ({result, map, error: null}),
-                (error) => {
-                    return {error};
-                },
+                (error) => ({
+                    error,
+                }),
             ).then((state) => this.setState(state));
         }
     }
@@ -89,6 +91,7 @@ export default class TransformOutput extends React.Component {
         if (!map) {
             return;
         }
+        
         const [src] = map.sourcesContent;
         
         if (index === 0) {
@@ -105,6 +108,7 @@ export default class TransformOutput extends React.Component {
         if (lineStart === 0) {
             line++;
         }
+        
         ({line, column} = map.generatedPositionFor({
             line,
             column,

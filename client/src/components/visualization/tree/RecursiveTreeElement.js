@@ -41,9 +41,14 @@ export default function RecursiveTreeElement(Element) {
                     deepOpen = false;
                     open = false;
                 }
+                
                 addValue(props.value);
             }
-            this.state = {deepOpen, open};
+            
+            this.state = {
+                deepOpen,
+                open,
+            };
         }
         
         componentWillUnmount() {
@@ -68,9 +73,11 @@ export default function RecursiveTreeElement(Element) {
                         deepOpen = false;
                         open = false;
                     }
+                    
                     addValue(props.value);
                 }
             }
+            
             this.setState({deepOpen, open});
         }
         
