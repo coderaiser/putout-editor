@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "Putout editor",
   "private": true,
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/coderaiser/putout-editor.git"

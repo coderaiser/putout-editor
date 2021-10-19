@@ -32,6 +32,7 @@ module.exports = {
         'import/namespace': 'error',
         'import/export': 'error',
         'require-in-package/require-in-package': 'error',
+        'putout/no-unresolved': 'off',
     },
     settings: {
         'react': {
