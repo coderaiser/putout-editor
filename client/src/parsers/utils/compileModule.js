@@ -1,10 +1,10 @@
 import {parse} from '@putout/engine-parser';
+import babelParser from '@putout/engine-parser/babel';
 import putout from 'putout';
+
 import pluginConvertEsmToCommonjs from '@putout/plugin-convert-esm-to-commonjs';
 import pluginPutout from '@putout/plugin-putout';
 import pluginDeclareUndefinedVariables from '@putout/plugin-declare-undefined-variables';
-
-import parser from '@putout/engine-parser/lib/parsers/babel';
 
 import protect from '../utils/protectFromLoops';
 
@@ -18,7 +18,7 @@ export default function compileModule(code, globals = {}) {
     
     const safeCode = protect(code);
     parse(safeCode, {
-        parser,
+        parser: babelParser,
         isTS: true,
         isJSX: true,
     });
@@ -34,3 +34,4 @@ export default function compileModule(code, globals = {}) {
     new Function(keys.join(), result.code).apply(exports, values);
     return module.exports;
 }
+
