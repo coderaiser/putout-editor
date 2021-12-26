@@ -9,7 +9,6 @@ import {
 const defaultParser = getDefaultParser(getCategoryByID('javascript'));
 
 const initialState = {
-    
     // UI related state
     showSettingsDialog: false,
     showShareDialog: false,
@@ -46,7 +45,6 @@ const initialState = {
     },
     
     enableFormatting: false,
-
 };
 
 /**

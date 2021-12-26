@@ -4,6 +4,8 @@ import pkg from 'espree/package.json';
 
 const ID = 'espree';
 
+const isNumber = (a) => typeof a === 'number';
+
 export default {
     ...defaultParserInterface,
     
@@ -22,7 +24,7 @@ export default {
     },
     
     nodeToRange(node) {
-        if (typeof node.start === 'number') {
+        if (isNumber(node.start)) {
             return [node.start, node.end];
         }
     },

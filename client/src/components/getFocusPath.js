@@ -48,5 +48,6 @@ export default function getFocusPath(node, pos, parser, seen = new Set()) {
             }
         }
     }
+    
     return path;
 }

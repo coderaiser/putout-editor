@@ -44,7 +44,9 @@ export default class Editor extends React.Component {
     
     componentWillUnmount() {
         this._unbindHandlers();
+        
         const {container} = this;
+        
         container.removeChild(container.children[0]);
         this.codeMirror = null;
     }

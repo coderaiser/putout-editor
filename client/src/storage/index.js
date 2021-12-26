@@ -13,6 +13,7 @@ export default class StorageHandler {
                 return backend;
             }
         }
+        
         return null;
     }
     
@@ -29,6 +30,7 @@ export default class StorageHandler {
                 return backend.fetchFromURL();
             }
         }
+        
         return Promise.reject(Error('Unknown URL format.'));
     }
     

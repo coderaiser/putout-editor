@@ -7,6 +7,8 @@ import {SourceMapConsumer} from 'source-map/lib/source-map-consumer';
 
 import stringify from 'json-stringify-safe';
 
+const isString = (a) => typeof a === 'string';
+
 function transform(transformer, transformCode, code, parser) {
     if (!transformer._promise) {
         transformer._promise = new Promise(transformer.loadTransformer);
@@ -100,6 +102,7 @@ export default class TransformOutput extends React.Component {
         let lineStart = src.lastIndexOf('\n', index - 1);
         let column = index - lineStart - 1;
         let line = 1;
+        
         while (lineStart > 0) {
             lineStart = src.lastIndexOf('\n', lineStart - 1);
             line++;
@@ -133,7 +136,7 @@ export default class TransformOutput extends React.Component {
                         readOnly={true}
                         value={this.state.error.stack}
                     /> :
-                    typeof this.state.result === 'string' ?
+                    isString(this.state.result) ?
                         <Editor
                             posFromIndex={this._posFromIndex}
                             mode={this.props.mode}

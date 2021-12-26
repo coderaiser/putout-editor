@@ -8,6 +8,9 @@ import RecursiveTreeElement from './RecursiveTreeElement';
 import cx from 'classnames';
 import stringify from '../../../utils/stringify';
 
+const isNumber = (a) => typeof a === 'number';
+const isFn = (a) => typeof a === 'function';
+
 /*
 // For debugging
 function log(f) {
@@ -124,7 +127,9 @@ let Element = class extends React.Component {
     
     _onMouseOver(e) {
         e.stopPropagation();
+        
         const {value} = this.state;
+        
         PubSub.publish(
             'HIGHLIGHT',
             {node: value, range: this.props.treeAdapter.getRange(value)},
@@ -214,7 +219,7 @@ let Element = class extends React.Component {
                 enableHighlight = true;
             }
             
-            if (typeof value.length === 'number') {
+            if (isNumber(value.length)) {
                 if (value.length > 0 && open) {
                     prefix = '[';
                     suffix = ']';
@@ -266,7 +271,7 @@ let Element = class extends React.Component {
                     showToggler = keys.length > 0;
                 }
             }
-        } else if (typeof value === 'function') {
+        } else if (isFn(value)) {
             valueOutput =
         <span
             className="ge invokeable"
@@ -331,6 +336,8 @@ let Element = class extends React.Component {
         );
     }
 };
+
+Element.displayName = 'Element';
 
 Element.propTypes = {
     name: PropTypes.string,

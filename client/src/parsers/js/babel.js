@@ -1,8 +1,8 @@
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'babylon7/babylon-package';
 
-import plugins from '@putout/engine-parser/lib/parsers/babel/plugins';
-import options from '@putout/engine-parser/lib/parsers/babel/options';
+import plugins from '@putout/engine-parser/babel/plugins';
+import options from '@putout/engine-parser/babel/options';
 
 const {keys} = Object;
 

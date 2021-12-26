@@ -3,6 +3,8 @@ import pkg from 'esprima/package.json';
 
 const ID = 'esprima';
 
+const isFn = (a) => typeof a === 'function';
+
 export default {
     ...defaultParserInterface,
     
@@ -22,7 +24,7 @@ export default {
     
     *forEachProperty(node) {
         for (const prop in node) {
-            if (typeof node[prop] === 'function') {
+            if (isFn(node[prop])) {
                 continue;
             }
             
@@ -61,5 +63,4 @@ export default {
             required: new Set(['range']),
         };
     },
-
 };

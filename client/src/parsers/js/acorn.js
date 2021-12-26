@@ -4,6 +4,8 @@ import pkg from 'acorn/package.json';
 
 const ID = 'acorn';
 
+const isNumber = (a) => typeof a === 'number';
+
 export default {
     ...defaultParserInterface,
     
@@ -39,7 +41,7 @@ export default {
     },
     
     nodeToRange(node) {
-        if (typeof node.start === 'number') {
+        if (isNumber(node.start)) {
             return [node.start, node.end];
         }
     },

@@ -5,4 +5,7 @@ rules:
     no-descending-specificity: null
     function-url-quotes: null
     property-no-unknown: null
+    selector-id-pattern: null
+    selector-class-pattern: null
+    media-feature-name-no-unknown: null
 

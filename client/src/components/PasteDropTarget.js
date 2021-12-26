@@ -81,6 +81,7 @@ export default class PasteDropTarget extends React.Component {
         
         this._bindListener(target, 'drop', (event) => {
             this.setState({dragging: false});
+            
             const [file] = event.dataTransfer.files;
             let categoryId = acceptedFileTypes.get(file.type);
             
@@ -90,6 +91,7 @@ export default class PasteDropTarget extends React.Component {
             
             event.preventDefault();
             event.stopPropagation();
+            
             const reader = new FileReader();
             reader.onload = (readerEvent) => {
                 let text = readerEvent.target.result;

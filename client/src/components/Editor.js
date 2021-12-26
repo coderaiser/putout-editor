@@ -187,6 +187,7 @@ export default class Editor extends React.Component {
         this._markerRange = null;
         this._mark = null;
         const {container} = this;
+        
         container.removeChild(container.children[0]);
         this.codeMirror = null;
     }
@@ -210,6 +211,7 @@ export default class Editor extends React.Component {
             value: doc.getValue(),
             cursor: doc.indexFromPos(doc.getCursor()),
         };
+        
         this.setState(
             {value: args.value},
             () => this.props.onContentChange(args),

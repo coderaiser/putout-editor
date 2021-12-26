@@ -17,7 +17,7 @@ html {
     left: 0;
     right: 0;
     z-index: 200;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgb(255 255 255 / 70%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,7 +47,7 @@ html {
     left: 0;
     right: 0;
     z-index: 200;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgb(255 255 255 / 70%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -182,18 +182,18 @@ html {
 }
 
 #Toolbar .menuButton li.selected {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgb(0 0 0 / 5%);
 }
 
 #Toolbar > a:hover,
 #Toolbar > .button:hover,
 #Toolbar ul button:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgb(0 0 0 / 10%);
 }
 
 #Toolbar > a:active,
 #Toolbar button:active {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgb(0 0 0 / 30%);
 }
 
 #info {
@@ -345,7 +345,7 @@ li.entry {
 .CodeMirror .marked,
 .entry.focused {
     border-radius: 2px;
-    background-color: rgba(255, 240, 6, 0.4);
+    background-color: rgb(255 240 6 / 40%);
 }
 
 .entry > .value .s {
@@ -417,7 +417,7 @@ li.entry {
 /* Dialog */
 .dialog {
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgb(255 255 255 / 70%);
     bottom: 0;
     color: #333;
     display: flex;
@@ -441,7 +441,7 @@ li.entry {
 
 .dialog .header {
     flex-shrink: 0;
-    padding: 10px 10px 0 10px;
+    padding: 10px 10px 0;
 }
 
 .dialog .body {
@@ -451,12 +451,12 @@ li.entry {
 
 .dialog .footer {
     flex-shrink: 0;
-    padding: 0 10px 10px 10px;
+    padding: 0 10px 10px;
     text-align: right;
 }
 
 .dialog .inner h3 {
-    margin: 0 0 10px 0;
+    margin: 0 0 10px;
     padding: 0;
 }
 

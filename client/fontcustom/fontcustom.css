@@ -15,7 +15,7 @@
     font-style: normal;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
+@media screen and (min-device-pixel-ratio: 0) {
     @font-face {
         font-family: 'fontcustom';
         src: url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.svg#fontcustom') format('svg');

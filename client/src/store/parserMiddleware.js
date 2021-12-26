@@ -72,6 +72,7 @@ export default (store) => (next) => (action) => {
                         ],
                     },
                 };
+                
                 next({
                     type: 'SET_PARSE_RESULT',
                     result: {

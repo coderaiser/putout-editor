@@ -1,3 +1,5 @@
+const isNumber = (a) => typeof a === 'number';
+const isFn = (a) => typeof a === 'function';
 /**
  * Configurable base class for all tree traversal.
  */
@@ -51,6 +53,7 @@ class TreeAdapter {
             if (!next.done) {
                 first = last = next.value?.value;
             }
+            
             while (!(next = iterator.next()).done) {
                 last = next.value?.value;
             }
@@ -85,6 +88,7 @@ class TreeAdapter {
                 return true;
             }
         }
+        
         return false;
     }
     
@@ -166,7 +170,7 @@ const TreeAdapterConfigs = {
                 return node.range;
             }
             
-            if (typeof node.start === 'number' && typeof node.end === 'number') {
+            if (isNumber(node.start) && isNumber(node.end)) {
                 return [node.start, node.end];
             }
             
@@ -210,7 +214,7 @@ export function functionFilter() {
         key: 'hideFunctions',
         label: 'Hide methods',
         test(value) {
-            return typeof value === 'function';
+            return isFn(value);
         },
     };
 }

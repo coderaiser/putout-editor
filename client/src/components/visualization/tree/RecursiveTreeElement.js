@@ -33,6 +33,7 @@ export default function RecursiveTreeElement(Element) {
     class RecursiveElement extends React.Component {
         constructor(props) {
             super(props);
+            
             let {deepOpen} = props;
             let open = shouldAutoFocus(props);
             

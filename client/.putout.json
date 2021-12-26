@@ -17,6 +17,7 @@
         "remove-console": "off",
         "remove-empty/import": "off",
         "apply-optional-chaining": "on",
-        "convert-commonjs-to-esm/commons": "off"
+        "convert-commonjs-to-esm/commons": "off",
+        "convert-esm-to-commonjs": "off"
     }
 }

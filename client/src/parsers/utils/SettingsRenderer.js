@@ -3,6 +3,8 @@ import React from 'react';
 
 const identity = (v) => v;
 
+const isString = (a) => typeof a === 'string';
+
 function valuesFromArray(settings) {
     return settings.reduce(
         (obj, name) => {
@@ -65,7 +67,7 @@ export default function SettingsRenderer(props) {
             {title ? <h4>{title}</h4> : null}
             <ul className="settings">
                 {fields.map((setting) => {
-                    if (typeof setting === 'string') {
+                    if (isString(setting)) {
                         return (
                             <li key={setting}>
                                 <label>
