@@ -9,7 +9,6 @@ User=coderaiser
 WorkingDirectory=/home/coderaiser/putout-editor
 
 Environment=NODE_VERSION=node
-#ASTEE
 Environment=PORT=45733
 Environment=STATIC=../out
  
