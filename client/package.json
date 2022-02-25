@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "@putout/plugin-declare-undefined-variables": "^6.3.0",
+    "@putout/plugin-declare-undefined-variables": "^7.0.0",
     "@putout/plugin-putout": "^10.1.0",
     "@putout/recast": "^1.1.2",
     "@webassemblyjs/wast-parser": "^1.5.6",
