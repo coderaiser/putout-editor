@@ -15,6 +15,8 @@ const packages = fs.readdirSync(path.join(__dirname, 'packages'));
 const test = new RegExp(`/node_modules/(?!${packages.join('|')}/)`);
 
 const plugins = [
+    new webpack.IgnorePlugin({ resourceRegExp: /hermes-parser/}),
+
     new webpack.DefinePlugin({
         'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
     }),
