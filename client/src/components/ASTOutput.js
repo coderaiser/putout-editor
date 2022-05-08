@@ -23,19 +23,18 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
     const {ast = null} = parseResult;
     
     const focusPath = useMemo(
-        () => ast && cursor != null ?
-            getFocusPath(parseResult.ast, cursor, parser) :
-            [],
+        () => ast && cursor != null
+            ? getFocusPath(parseResult.ast, cursor, parser)
+            : [],
         [ast, cursor, parser],
     );
     
     let output;
     
     if (parseResult.error) {
-        output =
-      <div style={{padding: 20}}>
-          {parseResult.error.message}
-      </div>;
+        output = <div style={{padding: 20}}>
+            {parseResult.error.message}
+        </div>;
     } else if (ast) {
         output = React.createElement(
             visualizations[selectedOutput],

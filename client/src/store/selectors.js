@@ -105,8 +105,8 @@ export const canFork = createSelector(
 
 const canSaveCode = createSelector(
     [getRevision, isCodeDirty],
-    (revision, dirty) => !revision || // can always save if there is no revision
-    dirty,
+    (revision, dirty) => !revision // can always save if there is no revision
+    || dirty,
 
 );
 

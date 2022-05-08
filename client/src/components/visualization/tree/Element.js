@@ -38,11 +38,10 @@ let Element = class extends React.Component {
             treeAdapter,
         } = props;
         // Some elements should be open by default
-        const open =
-      props.open ||
-      props.level === 0 ||
-      deepOpen ||
-      value && treeAdapter.opensByDefault(value, name);
+        const open = props.open
+      || props.level === 0
+      || deepOpen
+      || value && treeAdapter.opensByDefault(value, name);
         
         this.state = {
             open,
@@ -91,13 +90,12 @@ let Element = class extends React.Component {
     _scrollIntoView() {
         const {focusPath, value} = this.props;
         
-        if (focusPath.length > 0 && focusPath[focusPath.length - 1] === value) {
+        if (focusPath.length > 0 && focusPath.at(-1) === value) {
             setTimeout(() => this.container?.scrollIntoView(), 0);
         }
     }
     
-    _toggleClick(event) {
-        const {shiftKey} = event;
+    _toggleClick({shiftKey}) {
         const open = shiftKey || !this.state.open;
         
         const update = () => {
@@ -109,8 +107,7 @@ let Element = class extends React.Component {
             }
             
             this.setState({
-                open,
-                deepOpen: shiftKey,
+                open, deepOpen: shiftKey,
             });
         };
         
@@ -147,7 +144,7 @@ let Element = class extends React.Component {
     _isFocused(level, path, value, open) {
         return level !== 0 &&
       path.indexOf(value) > -1 &&
-      (!open || path[path.length - 1] === value);
+      (!open || path.at(-1) === value);
     }
     
     _execFunction() {
@@ -202,16 +199,15 @@ let Element = class extends React.Component {
                 const nodeName = treeAdapter.getNodeName(value);
                 
                 if (nodeName) {
-                    valueOutput =
-            <span className="tokenName nc" onClick={this._toggleClick}>
-                {nodeName}{' '}
-                {lastClickedElement === this ?
-                    <span className="ge" style={{fontSize: '0.8em'}}>
-                        {' = $node'}
-                    </span> :
-                    null
-                }
-            </span>;
+                    valueOutput = <span className="tokenName nc" onClick={this._toggleClick}>
+                        {nodeName}{' '}
+                        {lastClickedElement === this
+                            ? <span className="ge" style={{fontSize: '0.8em'}}>
+                                {' = $node'}
+                            </span>
+                            : null
+                        }
+                    </span>;
                 }
                 
                 enableHighlight = treeAdapter.getRange(value) && level !== 0;
@@ -231,16 +227,16 @@ let Element = class extends React.Component {
                             Number.isInteger(Number(key)) ? undefined : key,
                             computed,
                         ));
+                    
                     content = <ul className="value-body">{elements}</ul>;
                 } else {
-                    valueOutput =
-            <span>
-                {valueOutput}
-                <CompactArrayView
-                    array={value}
-                    onClick={this._toggleClick}
-                />
-            </span>;
+                    valueOutput = <span>
+                        {valueOutput}
+                        <CompactArrayView
+                            array={value}
+                            onClick={this._toggleClick}
+                        />
+                    </span>;
                 }
                 
                 showToggler = value.length > 0;
@@ -255,53 +251,52 @@ let Element = class extends React.Component {
                             key,
                             computed,
                         ));
+                    
                     content = <ul className="value-body">{elements}</ul>;
                     showToggler = elements.length > 0;
                 } else {
                     const keys = Array.from(treeAdapter.walkNode(value))
                         .map(({key}) => key);
-                    valueOutput =
-            <span>
-                {valueOutput}
-                <CompactObjectView
-                    onClick={this._toggleClick}
-                    keys={keys}
-                />
-            </span>;
+                    valueOutput = <span>
+                        {valueOutput}
+                        <CompactObjectView
+                            onClick={this._toggleClick}
+                            keys={keys}
+                        />
+                    </span>;
                     showToggler = keys.length > 0;
                 }
             }
         } else if (isFn(value)) {
-            valueOutput =
-        <span
-            className="ge invokeable"
-            title="Click to invoke function"
-            onClick={this._execFunction}>
+            valueOutput = <span
+                className="ge invokeable"
+                title="Click to invoke function"
+                onClick={this._execFunction}>
           (...)
-        </span>;
+            </span>;
             showToggler = false;
         } else {
             valueOutput = <span className="s">{stringify(value)}</span>;
             showToggler = false;
         }
         
-        const name = this.props.name ?
-            <span
+        const name = this.props.name
+            ? <span
                 className="key"
                 onClick={
-                    showToggler ?
-                        this._toggleClick :
-                        null
+                    showToggler
+                        ? this._toggleClick
+                        : null
                 }>
                 <span className="name nb">
-                    {this.props.computed ?
-                        <span title="computed">*{this.props.name}</span> :
-                        this.props.name
+                    {this.props.computed
+                        ? <span title="computed">*{this.props.name}</span>
+                        : this.props.name
                     }
                 </span>
                 <span className="p">:&nbsp;</span>
-            </span> :
-            null;
+            </span>
+            : null;
         
         const classNames = cx({
             entry: true,
@@ -322,15 +317,15 @@ let Element = class extends React.Component {
                 {prefix ? <span className="prefix p">&nbsp;{prefix}</span> : null}
                 {content}
                 {suffix ? <div className="suffix p">{suffix}</div> : null}
-                {this.state.error ?
-                    <span>
+                {this.state.error
+                    ? <span>
                         {' '}
                         <i
                             title={this.state.error.message}
                             className="fa fa-exclamation-triangle"
                         />
-                    </span> :
-                    null
+                    </span>
+                    : null
                 }
             </li>
         );

@@ -2,19 +2,19 @@ const storage = global.localStorage;
 const key = 'explorerSettingsV1';
 const noop = () => {};
 
-export const writeState = storage ?
-    (state) => {
+export const writeState = storage
+    ? (state) => {
         try {
             storage.setItem(key, JSON.stringify(state));
         } catch {
             // eslint-disable-next-line no-console
             console.warn('Unable to write to local storage.');
         }
-    } :
-    noop;
+    }
+    : noop;
 
-export const readState = storage ?
-    () => {
+export const readState = storage
+    ? () => {
         try {
             const state = storage.getItem(key);
             
@@ -25,5 +25,5 @@ export const readState = storage ?
             // eslint-disable-next-line no-console
             console.warn('Unable to read from local storage.');
         }
-    } :
-    noop;
+    }
+    : noop;

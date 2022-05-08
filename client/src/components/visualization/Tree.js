@@ -4,7 +4,6 @@ import React from 'react';
 import PubSub from 'pubsub-js';
 import {logEvent} from '../../utils/logger';
 import {treeAdapterFromParseResult} from '../../core/TreeAdapter.js';
-
 import './css/tree.css';
 
 const {
@@ -16,9 +15,9 @@ const STORAGE_KEY = 'tree_settings';
 
 function initSettings() {
     const storedSettings = global.localStorage.getItem(STORAGE_KEY);
-    return storedSettings ?
-        JSON.parse(storedSettings) :
-        {
+    return storedSettings
+        ? JSON.parse(storedSettings)
+        : {
             autofocus: true,
             hideFunctions: true,
             hideEmptyKeys: false,

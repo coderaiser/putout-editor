@@ -150,9 +150,9 @@ function* watchSnippetURI(storageAdapter) {
     }
     
     yield put(batchActions([
-        revision ?
-            actions.setSnippet(revision) :
-            actions.clearSnippet(),
+        revision
+            ? actions.setSnippet(revision)
+            : actions.clearSnippet(),
         actions.doneLoadingSnippet(),
     ]));
 }

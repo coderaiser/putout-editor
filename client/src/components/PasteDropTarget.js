@@ -130,6 +130,7 @@ export default class PasteDropTarget extends React.Component {
         for (const removeListener of this._listeners) {
             removeListener();
         }
+        
         this._listeners = null;
     }
     
@@ -158,11 +159,11 @@ export default class PasteDropTarget extends React.Component {
             onText: _onText,
             ...props
         } = this.props;
-        const dropindicator = this.state.dragging ?
-            <div className="dropIndicator">
+        const dropindicator = this.state.dragging
+            ? <div className="dropIndicator">
                 <div>Drop the code or (JSON-encoded) AST file here</div>
-            </div> :
-            null;
+            </div>
+            : null;
         
         return (
             <div

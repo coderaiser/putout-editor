@@ -12,11 +12,11 @@ const DEV = process.env.NODE_ENV !== 'production';
 const CACHE_BREAKER = Number(fs.readFileSync(path.join(__dirname, 'CACHE_BREAKER')));
 
 const packages = fs.readdirSync(path.join(__dirname, 'packages'));
-const test = new RegExp(`/node_modules/(?!${packages.join('|')}/)`);
+const test = RegExp(`/node_modules/(?!${packages.join('|')}/)`);
 
 const plugins = [
-    new webpack.IgnorePlugin({ resourceRegExp: /hermes-parser/}),
-
+    new webpack.IgnorePlugin({resourceRegExp: /hermes-parser/}),
+    
     new webpack.DefinePlugin({
         'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
     }),

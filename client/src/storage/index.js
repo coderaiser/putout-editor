@@ -25,6 +25,7 @@ export default class StorageHandler {
         if (/^#?\/?$/.test(global.location.hash)) {
             return Promise.resolve(null);
         }
+        
         for (const backend of this._backends) {
             if (backend.matchesURL()) {
                 return backend.fetchFromURL();

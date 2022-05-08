@@ -160,8 +160,8 @@ export default class Editor extends React.Component {
                 }),
                 
                 PubSub.subscribe('CLEAR_HIGHLIGHT', (_, {range} = {}) => {
-                    if (!range ||
-            this._markerRange &&
+                    if (!range
+            || this._markerRange &&
             range[0] === this._markerRange[0] &&
             range[1] === this._markerRange[1]
                     ) {
@@ -199,9 +199,11 @@ export default class Editor extends React.Component {
     
     _unbindHandlers() {
         const cmHandlers = this._CMHandlers;
+        
         for (let i = 0; i < cmHandlers.length; i += 2) {
             this.codeMirror.off(cmHandlers[i], cmHandlers[i + 1]);
         }
+        
         this._subscriptions.forEach(PubSub.unsubscribe);
     }
     

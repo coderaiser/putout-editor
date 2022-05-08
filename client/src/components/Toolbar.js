@@ -21,8 +21,7 @@ export default function Toolbar(props) {
         }
         
         if (parser.homepage) {
-            parserInfo =
-        <a href={parser.homepage} target="_blank" rel="noopener noreferrer">{parserInfo}</a>;
+            parserInfo = <a href={parser.homepage} target="_blank" rel="noopener noreferrer">{parserInfo}</a>;
         }
     }
     
@@ -34,8 +33,7 @@ export default function Toolbar(props) {
         }
         
         if (transformer.homepage) {
-            transformerInfo =
-        <a href={transformer.homepage} target="_blank" rel="noopener noreferrer">{transformerInfo}</a>;
+            transformerInfo = <a href={transformer.homepage} target="_blank" rel="noopener noreferrer">{transformerInfo}</a>;
         }
         
         transformerInfo = <span>Transformer: {transformerInfo}</span>;

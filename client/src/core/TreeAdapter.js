@@ -83,6 +83,7 @@ class TreeAdapter {
         if (!this.isInRange(node)) {
             return false;
         }
+        
         for (const {value: child} of this.walkNode(node)) {
             if (this.isInRange(child)) {
                 return true;
@@ -162,8 +163,8 @@ const TreeAdapterConfigs = {
             'expression', // expression statements
         ]),
         openByDefault(node, key) {
-            return node && this.openByDefaultNodes.has(node.type) ||
-        this.openByDefaultKeys.has(key);
+            return node && this.openByDefaultNodes.has(node.type)
+        || this.openByDefaultKeys.has(key);
         },
         nodeToRange(node) {
             if (node.range) {

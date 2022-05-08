@@ -1,6 +1,7 @@
 {
   "name": "babel7",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "Wrapper for Babel v7",
   "main": "index.js",
   "dependencies": {

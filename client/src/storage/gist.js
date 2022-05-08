@@ -72,6 +72,7 @@ export function create(data) {
             if (response.ok) {
                 return response.json();
             }
+            
             throw Error('Unable to create snippet.');
         })
         .then((data) => new Revision(data));
@@ -104,6 +105,7 @@ export function update(revision, data) {
                     if (response.ok) {
                         return response.json();
                     }
+                    
                     throw Error('Unable to update snippet.');
                 })
                 .then((data) => new Revision(data));
@@ -128,6 +130,7 @@ export function fork(revision, data) {
             if (response.ok) {
                 return response.json();
             }
+            
             throw Error('Unable to fork snippet.');
         })
         .then((data) => new Revision(data));

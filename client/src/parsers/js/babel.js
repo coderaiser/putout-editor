@@ -45,6 +45,7 @@ const availablePlugins = [
 ];
 
 const ID = 'babel';
+
 export const defaultOptions = {
     ...options,
     sourceType: 'module',

@@ -3,8 +3,8 @@ import React from 'react';
 
 export default class ErrorMessage extends React.Component {
     render() {
-        return this.props.error ?
-            <div className="cover">
+        return this.props.error
+            ? <div className="cover">
                 <div className="errorMessage">
                     <h3>
                         <i className="fa fa-exclamation-triangle"></i>
@@ -20,8 +20,8 @@ export default class ErrorMessage extends React.Component {
                         </button>
                     </div>
                 </div>
-            </div> :
-            null;
+            </div>
+            : null;
     }
 }
 

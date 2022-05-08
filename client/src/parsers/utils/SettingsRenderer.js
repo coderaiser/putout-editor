@@ -59,8 +59,7 @@ export default function SettingsRenderer(props) {
         required = new Set(),
         update = getUpdateStrategy(parserSettings),
     } = settingsConfiguration;
-    const values =
-    (settingsConfiguration.values || getValuesFromSettings)(parserSettings);
+    const values = (settingsConfiguration.values || getValuesFromSettings)(parserSettings);
     
     return (
         <div>
@@ -101,9 +100,9 @@ export default function SettingsRenderer(props) {
                                             ))
                                         }
                                         value={values[fieldName]}>
-                                        {Array.isArray(options) ?
-                                            options.map((o) => <option key={o} value={o}>{o}</option>) :
-                                            Object.keys(options).map((key) => <option key={key} value={options[key]}>{key}</option>)
+                                        {Array.isArray(options)
+                                            ? options.map((o) => <option key={o} value={o}>{o}</option>)
+                                            : Object.keys(options).map((key) => <option key={key} value={options[key]}>{key}</option>)
                                         }
                                     </select>
                                 </label>

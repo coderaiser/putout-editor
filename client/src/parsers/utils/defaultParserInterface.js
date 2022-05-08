@@ -141,11 +141,11 @@ export default {
    */
     _getSettingsConfiguration(defaultOptions) {
         const keys = Object.keys(defaultOptions);
-        return keys.length > 0 ?
-            {
+        return keys.length > 0
+            ? {
                 fields: keys,
-            } :
-            null;
+            }
+            : null;
     },
     
     hasSettings() {
@@ -183,9 +183,9 @@ export default {
             return null;
         }
         
-        settings = settings == null ?
-            defaultOptions :
-            this._mergeDefaultOptions(settings, defaultOptions);
+        settings = settings == null
+            ? defaultOptions
+            : this._mergeDefaultOptions(settings, defaultOptions);
         
         return (
             <SettingsRenderer

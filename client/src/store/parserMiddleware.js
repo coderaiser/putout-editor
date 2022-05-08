@@ -34,10 +34,10 @@ export default (store) => (next) => (action) => {
     const newCode = getCode(newState);
     
     if (
-        action.type === 'INIT' ||
-    getParser(oldState) !== newParser ||
-    getParserSettings(oldState) !== newParserSettings ||
-    getCode(oldState) !== newCode
+        action.type === 'INIT'
+    || getParser(oldState) !== newParser
+    || getParserSettings(oldState) !== newParserSettings
+    || getCode(oldState) !== newCode
     ) {
         if (!newParser || newCode == null) {
             return;
@@ -48,9 +48,9 @@ export default (store) => (next) => (action) => {
             (ast) => {
                 // Did anything change in the meantime?
                 if (
-                    newParser !== getParser(store.getState()) ||
-          newParserSettings !== getParserSettings(store.getState()) ||
-          newCode !== getCode(store.getState())
+                    newParser !== getParser(store.getState())
+          || newParserSettings !== getParserSettings(store.getState())
+          || newCode !== getCode(store.getState())
                 ) {
                     return;
                 }

@@ -61,9 +61,9 @@ export default class TransformOutput extends React.Component {
     }
     
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if (this.props.transformCode !== nextProps.transformCode ||
-        this.props.code !== nextProps.code ||
-        this.props.transformer !== nextProps.transformer) {
+        if (this.props.transformCode !== nextProps.transformCode
+        || this.props.code !== nextProps.code
+        || this.props.transformer !== nextProps.transformer) {
             if (console.clear) { // eslint-disable-line no-console
                 console.clear(); // eslint-disable-line no-console
             }
@@ -78,13 +78,14 @@ export default class TransformOutput extends React.Component {
                 (error) => ({
                     error,
                 }),
-            ).then((state) => this.setState(state));
+            )
+                .then((state) => this.setState(state));
         }
     }
     
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.result !== nextState.result ||
-      this.state.error !== nextState.error;
+        return this.state.result !== nextState.result
+      || this.state.error !== nextState.error;
     }
     
     _posFromIndex(index) {
@@ -128,23 +129,23 @@ export default class TransformOutput extends React.Component {
     render() {
         return (
             <div className="output highlight">
-                {this.state.error ?
-                    <Editor
+                {this.state.error
+                    ? <Editor
                         highlight={false}
                         key="error"
                         lineNumbers={false}
                         readOnly={true}
                         value={this.state.error.stack}
-                    /> :
-                    isString(this.state.result) ?
-                        <Editor
+                    />
+                    : isString(this.state.result)
+                        ? <Editor
                             posFromIndex={this._posFromIndex}
                             mode={this.props.mode}
                             key="output"
                             readOnly={true}
                             value={this.state.result}
-                        /> :
-                        <JSONEditor
+                        />
+                        : <JSONEditor
                             className="container no-toolbar"
                             value={stringify(this.state.result, null, 2)}
                         />

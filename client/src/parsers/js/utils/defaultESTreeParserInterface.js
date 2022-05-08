@@ -5,11 +5,12 @@ export default {
     
     opensByDefault(node, key) {
         return (
-            Boolean(node) && node.type === 'Program' ||
-      key === 'body' ||
-      key === 'elements' || // array literals
-      key === 'declarations' || // variable declaration
-      key === 'expression' // expression statements
+            // expression statements
+            // variable declaration
+            Boolean(node) && node.type === 'Program'
+      || key === 'body'
+      || key === 'elements' // array literals
+      || key === 'declarations' || key === 'expression'
         );
     },
 };

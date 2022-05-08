@@ -32,9 +32,9 @@ export default {
             const cls = parsers.acorn.Parser.extend(parsers.acornJsx());
             parser = cls.parse.bind(cls);
         } else {
-            parser = options.loose ?
-                parsers.acornLoose.parse :
-                parsers.acorn.parse;
+            parser = options.loose
+                ? parsers.acornLoose.parse
+                : parsers.acorn.parse;
         }
         
         return parser(code, options);
