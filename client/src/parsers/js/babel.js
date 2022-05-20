@@ -26,6 +26,7 @@ const availablePlugins = [
     'classPrivateMethods',
     'decorators',
     'doExpressions',
+    'destructuringPrivate',
     'dynamicImport',
     'exportDefaultFrom',
     'exportNamespaceFrom',
