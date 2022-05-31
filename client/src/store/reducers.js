@@ -7,6 +7,7 @@ import {
 } from '../parsers';
 
 const defaultParser = getDefaultParser(getCategoryByID('javascript'));
+const defaultTransformer = getTransformerByID('putout');
 
 const initialState = {
     // UI related state
@@ -17,7 +18,7 @@ const initialState = {
     saving: false,
     cursor: null,
     error: null,
-    showTransformPanel: false,
+    showTransformPanel: true,
     
     // Snippet related state
     selectedRevision: null,
@@ -38,9 +39,9 @@ const initialState = {
         keyMap: 'default',
         initialCode: defaultParser.category.codeExample,
         transform: {
-            code: '',
-            initialCode: '',
-            transformer: null,
+            code: defaultTransformer.defaultTransform,
+            initialCode: defaultParser.category.codeExample,
+            transformer: defaultTransformer,
         },
     },
     

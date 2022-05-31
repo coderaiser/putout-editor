@@ -1,15 +1,16 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import CategoryButton from './buttons/CategoryButton';
 import ParserButton from './buttons/ParserButton';
 import SnippetButton from './buttons/SnippetButton';
 import TransformButton from './buttons/TransformButton';
 import KeyMapButton from './buttons/KeyMapButton';
 
+import {getTransformerByID} from '../parsers';
+const transformer = getTransformerByID('putout');
+
 export default function Toolbar(props) {
     const {
         parser,
-        transformer,
         showTransformer,
     } = props;
     let parserInfo = parser.displayName;
@@ -26,6 +27,9 @@ export default function Toolbar(props) {
     }
     
     if (showTransformer) {
+        // use 🐊Putout transformer only, but after enabled
+        const transformer = props.transformer || getTransformerByID('putout');
+        
         transformerInfo = transformer.displayName;
         
         if (transformer.version) {

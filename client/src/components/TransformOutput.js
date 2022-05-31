@@ -1,12 +1,12 @@
 /*eslint no-new-func: 0*/
-import Editor from './Editor';
-import JSONEditor from './JSONEditor';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {SourceMapConsumer} from 'source-map/lib/source-map-consumer';
 
 import stringify from 'json-stringify-safe';
 
+import Editor from './Editor';
+import JSONEditor from './JSONEditor';
 const isString = (a) => typeof a === 'string';
 
 function transform(transformer, transformCode, code, parser) {

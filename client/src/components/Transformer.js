@@ -2,15 +2,20 @@ import Editor from './Editor';
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
+
 import SplitPane from './SplitPane';
 import TransformOutput from './TransformOutput';
 import PrettierButton from './buttons/PrettierButton';
+import {getTransformerByID} from '../parsers';
 
 function resize() {
     PubSub.publish('PANEL_RESIZE');
 }
 
 export default function Transformer(props) {
+    // 🐊Putout transfomer only have
+    const transformer = props.transformer || getTransformerByID('putout');
+    
     const plainEditor = React.createElement(
         Editor,
         {
@@ -33,7 +38,7 @@ export default function Transformer(props) {
             onResize={resize}>
             {formattingEditor}
             <TransformOutput
-                transformer={props.transformer}
+                transformer={transformer}
                 transformCode={props.transformCode}
                 code={props.code}
                 mode={props.mode}
