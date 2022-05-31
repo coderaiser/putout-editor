@@ -1,11 +1,14 @@
 /**
  * Paste or drop some JavaScript here and explore
- * the syntax tree created by chosen parser.
+ * the syntax tree created by chosen parser 🎁.
+ *
  * You can use all the cool new features from ES6
- * and even more. Enjoy!
+ * and even more. Enjoy 🎈!
+ *
+ * Choose "Transform -> 🐊Putout"
  */
 
-// choose "Transform -> 🐊Putout"
-// and observe changes
 
-let hello = world;
+'🐊 + 📼 = ❓'.replace('❓', '❤️');
+// returns
+'🐊 + 📼 = ❤️';

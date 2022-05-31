@@ -43,7 +43,6 @@ export default function Toolbar(props) {
         <div id="Toolbar">
             <h1>🐊Putout Editor</h1>
             <SnippetButton {...props} />
-            <CategoryButton {...props} />
             <ParserButton {...props} />
             <TransformButton {...props} />
             <KeyMapButton {...props} />
@@ -51,7 +50,7 @@ export default function Toolbar(props) {
                 style={{minWidth: 0}}
                 target="_blank" rel="noopener noreferrer"
                 title="Help"
-                href="https://github.com/fkling/astexplorer/blob/master/README.md">
+                href="https://github.com/coderaiser/putout#-plugins-api">
                 <i className="fa fa-lg fa-question fa-fw" />
             </a>
             <div id="info" className={transformerInfo ? 'small' : ''}>

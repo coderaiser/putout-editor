@@ -1,6 +1,11 @@
+// https://git.io/JqcMn
+
 module.exports.report = () => `Identifiers should be swapped`;
 
 module.exports.replace = () => ({
-    'let __a = __b': 'const __b = __a'
+    '__a.replace(__b, __c)': ({__a, __b, __c}) => {
+        return `'${__a.value.replace(__b.value, __c.value)}'`;
+    },
 });
+
 
