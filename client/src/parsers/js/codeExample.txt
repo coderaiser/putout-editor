@@ -5,7 +5,7 @@
  * and even more. Enjoy!
  */
 
-// choose "transform -> putout"
+// choose "Transform -> 🐊Putout"
 // and observe changes
 
 let hello = world;

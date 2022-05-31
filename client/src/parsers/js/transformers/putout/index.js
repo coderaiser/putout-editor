@@ -2,7 +2,7 @@ import compileModule from '../../../utils/compileModule';
 import pkg from 'putout/package.json';
 
 const ID = 'putout';
-const displayName = 'putout';
+const displayName = '🐊Putout';
 
 const noop = () => {};
 

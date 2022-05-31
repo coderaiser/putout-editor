@@ -175,7 +175,7 @@ module.exports = {
         
         noParse: [
             /acorn\/dist\/acorn\.js/,
-            /acorn\/dist\/acorn\.mjs/,
+            ///acorn\/dist\/acorn\.mjs/,
             /esprima\/dist\/esprima\.js/,
             /esprima-fb\/esprima\.js/,
         ],
@@ -183,6 +183,9 @@ module.exports = {
     
     plugins,
     resolve: {
+        alias: {
+            'acorn-private-methods': require.resolve('acorn-private-methods'),
+        },
         fallback: {
             assert: require.resolve('assert'),
             buffer: require.resolve('buffer/'),
