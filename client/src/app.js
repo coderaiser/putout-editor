@@ -36,7 +36,8 @@ import {
 } from './store/selectors';
 import {enableBatching} from 'redux-batched-actions';
 import {loadSnippet} from './store/actions';
-import {render} from 'react-dom';
+import {createRoot} from 'react-dom/client';
+
 import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
@@ -106,11 +107,12 @@ store.subscribe(debounce(() => {
 sagaMiddleware.run(saga, new StorageHandler([gist, parse]));
 store.dispatch({type: 'INIT'});
 
-render(
+const root = createRoot(container);
+
+root.render(
     <Provider store={store}>
         <AppContainer />
     </Provider>,
-    document.getElementById('container'),
 );
 
 global.onhashchange = () => {
