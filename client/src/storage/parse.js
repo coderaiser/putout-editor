@@ -160,7 +160,7 @@ class Revision {
                         <input
                             readOnly={true}
                             onFocus={(e) => e.target.select()}
-                            value={`https://astexplorer.net/#/gist/${snippetID}/${revisionID}`}
+                            value={`https://putout.cloudcmd.io/#/gist/${snippetID}/${revisionID}`}
                         />
                     </dd>
                     <dt>Latest Revision</dt>
@@ -168,7 +168,7 @@ class Revision {
                         <input
                             readOnly={true}
                             onFocus={(e) => e.target.select()}
-                            value={`https://astexplorer.net/#/gist/${snippetID}/latest`}
+                            value={`https://putout.cloudcmd.io//#/gist/${snippetID}/latest`}
                         />
                     </dd>
                 </dl>
