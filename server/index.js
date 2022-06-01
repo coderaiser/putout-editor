@@ -1,7 +1,5 @@
 'use strict';
 
-debugger;
-
 const bodyParser = require('body-parser');
 const express = require('express');
 const path = require('path');
@@ -17,12 +15,13 @@ if (process.env.SNIPPET_FILE && process.env.REVISION_FILE) {
 }
 
 console.log(process.env.STATIC);
+
 if (process.env.STATIC)
     app.use(express.static(path.join(__dirname, process.env.STATIC)));
 
 // `next` is needed here to mark this as an error handler
 // eslint-disable-next-line no-unused-vars
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     console.error(new Date().toLocaleString(), err);
     
     if (err.response) {
