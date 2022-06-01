@@ -4,11 +4,7 @@
  *
  * You can use all the cool new features from ES6
  * and even more. Enjoy 🎈!
- *
- * Choose "Transform -> 🐊Putout"
  */
 
 
 '🐊 + 📼 = ❓'.replace('❓', '❤️');
-// returns
-'🐊 + 📼 = ❤️';
