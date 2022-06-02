@@ -2,6 +2,11 @@ name: Node CI
 on:
   - push
   - pull_request
+
+defaults:
+  run:
+    working-directory: client
+
 jobs:
   build:
     runs-on: ubuntu-latest
