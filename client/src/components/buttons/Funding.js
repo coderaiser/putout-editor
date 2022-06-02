@@ -1,10 +1,9 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
 
-const fundings = ['Patreon', 'Opencollective', 'Ko-fi'];
+const fundings = ['patreon', 'opencollective', 'ko-fi'];
 
-class Fundings extends React.Component {
+class Funding extends React.Component {
     render() {
         return (
             <div className={cx({
@@ -20,14 +19,14 @@ class Fundings extends React.Component {
                             'fa-gratipay': true,
                         })}
                     />
-          &nbsp;Fundings
+          &nbsp;Funding
                 </button>
                 {<ul>
                     {fundings.map((funding) => <li
                         key={funding}>
                         <button
                             onClick ={() => window.open(`https://${funding}.com/coderaiser`, '_blank')}
-                        >{funding}</button>
+                        >{funding}.com/coderaiser</button>
                     </li>)}
                 </ul>}
             </div>
@@ -35,4 +34,4 @@ class Fundings extends React.Component {
     }
 }
 
-export default Fundings;
+export default Funding;

@@ -107,6 +107,7 @@ store.subscribe(debounce(() => {
 sagaMiddleware.run(saga, new StorageHandler([gist, parse]));
 store.dispatch({type: 'INIT'});
 
+const container = document.getElementById('container');
 const root = createRoot(container);
 
 root.render(

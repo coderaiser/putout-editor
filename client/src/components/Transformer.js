@@ -14,7 +14,9 @@ function resize() {
 
 export default function Transformer(props) {
     // 🐊Putout transfomer only have
-    const transformer = props.transformer || getTransformerByID('putout');
+    const {
+        transformer = getTransformerByID('putout'),
+    } = props;
     
     const plainEditor = React.createElement(
         Editor,

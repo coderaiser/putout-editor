@@ -36,12 +36,12 @@ const initialState = {
         parserSettings: null,
         parseError: null,
         code: defaultParser.category.codeExample,
-        keyMap: 'default',
+        keyMap: 'vim',
         initialCode: defaultParser.category.codeExample,
         transform: {
             code: defaultTransformer.defaultTransform,
             initialCode: defaultParser.category.codeExample,
-            transformer: defaultTransformer,
+            transformer: defaultTransformer.id,
         },
     },
     
@@ -231,15 +231,16 @@ function workbench(state = initialState.workbench, action, fullState) {
             parserSettings: fullState.parserSettings[state.parser] || null,
             code: getParserByID(state.parser).category.codeExample,
             initialCode: getParserByID(state.parser).category.codeExample,
+            showTransformPanel: true,
         };
         
         if (fullState.activeRevision?.getTransformerID() || reset && state.transform.transformer) {
-            // Clear transform as well
-            const transformer = getTransformerByID(state.transform.transformer);
+            // set default transformer, we only have one
             newState.transform = {
                 ...state.transform,
-                code: transformer.defaultTransform,
-                initialCode: transformer.defaultTransform,
+                code: defaultTransformer.defaultTransform,
+                initialCode: defaultParser.category.codeExample,
+                transformer: defaultTransformer.id,
             };
         }
         
@@ -373,7 +374,7 @@ function showTransformPanel(state = initialState.showTransformPanel, action) {
     case actions.HIDE_TRANSFORMER:
     case actions.SELECT_CATEGORY:
     case actions.CLEAR_SNIPPET:
-        return false;
+        return true;
     case actions.SET_SNIPPET:
         return Boolean(action.revision.getTransformerID());
     default:

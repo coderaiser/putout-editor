@@ -211,7 +211,7 @@ module.exports = {
         chunkFilename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
     },
     
-    ...DEV ? {
-        devtool: 'eval',
-    } : {},
+    ...DEV && {
+        devtool: 'eval-source-map',
+    },
 };

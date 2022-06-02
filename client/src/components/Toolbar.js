@@ -5,9 +5,7 @@ import SnippetButton from './buttons/SnippetButton';
 import TransformButton from './buttons/TransformButton';
 import KeyMapButton from './buttons/KeyMapButton';
 import Funding from './buttons/Funding';
-
 import {getTransformerByID} from '../parsers';
-const transformer = getTransformerByID('putout');
 
 export default function Toolbar(props) {
     const {
@@ -29,7 +27,9 @@ export default function Toolbar(props) {
     
     if (showTransformer) {
         // use 🐊Putout transformer only, but after enabled
-        const transformer = props.transformer || getTransformerByID('putout');
+        const {
+            transformer = getTransformerByID('putout'),
+        } = props;
         
         transformerInfo = transformer.displayName;
         

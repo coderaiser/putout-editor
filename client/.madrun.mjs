@@ -8,7 +8,7 @@ export default {
     'start': () => 'http-server ../out',
     'build': () => [env, build('production')],
     'build:dev': () => [env, build('development')],
-    'watch': () => 'webpack -dw --mode=development',
+    'watch': () => [env, 'webpack -w --mode=development -o ../out'],
     'fix:eslint': () => 'eslint --fix src',
     'lint': () => 'putout .',
     'fresh:lint': () => run('lint', '--fresh'),
