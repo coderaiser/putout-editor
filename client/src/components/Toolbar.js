@@ -4,6 +4,7 @@ import ParserButton from './buttons/ParserButton';
 import SnippetButton from './buttons/SnippetButton';
 import TransformButton from './buttons/TransformButton';
 import KeyMapButton from './buttons/KeyMapButton';
+import Funding from './buttons/Funding';
 
 import {getTransformerByID} from '../parsers';
 const transformer = getTransformerByID('putout');
@@ -57,6 +58,7 @@ export default function Toolbar(props) {
                 href="https://github.com/coderaiser/putout#-plugins-api">
                 <i className="fa fa-lg fa-question fa-fw" />
             </a>
+            <Funding {...props} />
             <div id="info" className={transformerInfo ? 'small' : ''}>
         Parser: {parserInfo}<br />
                 {transformerInfo}
