@@ -23,12 +23,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install Redrun, Lerna
-        run: npm i redrun lerna -g
-      - name: Bootstrap
-        run: lerna bootstrap
+        
       - name: Lint
-        run: redrun fix:lint
+        run: npm run fix:lint
     
       - uses: actions-rs/toolchain@v1
         with:
@@ -54,9 +51,9 @@ jobs:
         uses: EndBug/add-and-commit@v7
         with:
           message: 'chore: ${{ env.NAME }}: actions: lint ☘️'
-      - name: Coverage
-        run: redrun coverage:ci report
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+#     - name: Coverage
+#        run: npm run coverage
+#      - name: Coveralls
+#        uses: coverallsapp/github-action@master
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
