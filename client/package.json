@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
+    "@putout/plugin-declare-before-reference": "^1.1.0",
     "@putout/plugin-declare-undefined-variables": "^7.0.0",
     "@putout/plugin-putout": "^11.0.1",
     "@putout/recast": "^1.1.2",
