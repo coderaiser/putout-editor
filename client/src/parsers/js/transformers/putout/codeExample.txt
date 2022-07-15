@@ -1,11 +1,8 @@
 // https://git.io/JqcMn
 
-module.exports.report = () => `Identifiers should be swapped`;
+export const report = () => `Use 'if condition' instead of 'ternary expression'`;
 
-module.exports.replace = () => ({
-    '__a.replace(__b, __c)': ({__a, __b, __c}) => {
-        return `'${__a.value.replace(__b.value, __c.value)}'`;
-    },
+export const replace = () => ({
+    '__a ? __b : __c': 'if (__a) __b; else __c;'
 });
-
 
