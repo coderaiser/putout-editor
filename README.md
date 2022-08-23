@@ -2,6 +2,8 @@
 
 Web editor for the simplest declarative plugins for 🐊[**Putout**](https://github.com/coderaiser/putout), pluggable code transformer of your dreams 🤫.
 
+📱When on mobile use [Mobile Putout Editor](https://github.com/putoutjs/mobile-putout-editor).
+
 ## Reasoning
 
 🐊**Putout** wasn't invited to [parser's party](https://github.com/fkling/astexplorer/pull/414), so he made it's own party 🎉 with the most friendly and mainable **parsers**:
