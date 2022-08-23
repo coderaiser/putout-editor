@@ -10,7 +10,7 @@ Web editor for the simplest declarative plugins for 🐊[**Putout**](https://git
 - ✅ [estree](https://github.com/eslint/espree)
 - ✅ [esprima](https://github.com/jquery/esprima)
 
-And ofcource 🐊[**Putout Runner**](https://github.com/coderaiser/putout/tree/master/packages/engine-runner#readme) with:
+And of course 🐊[**Putout Runner**](https://github.com/coderaiser/putout/tree/master/packages/engine-runner#readme) with:
 
 - ✅ [@putout/plugin-putout](https://github.com/coderaiser/putout/tree/master/packages/plugin-putout#readme)
 - ✅ [@putout/convert-esm-to-commonjs](https://github.com/coderaiser/putout/tree/master/packages/plugin-convert-esm-to-commonjs#readme)
