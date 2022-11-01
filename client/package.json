@@ -57,7 +57,6 @@
     "@putout/plugin-declare-undefined-variables": "^7.0.0",
     "@putout/plugin-putout": "^11.0.1",
     "@putout/recast": "^1.1.2",
-    "@webassemblyjs/wast-parser": "^1.5.6",
     "acorn": "^8.0.1",
     "acorn-jsx": "^5.0.1",
     "acorn-loose": "^8.0.0",
