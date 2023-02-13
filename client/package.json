@@ -9,6 +9,7 @@
     "url": "https://github.com/coderaiser/putout-editor.git"
   },
   "author": "coderaiser",
+  "commitType": "colon",
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/eslint-parser": "^7.12.1",
