@@ -33,7 +33,6 @@ const availablePlugins = [
     'functionBind',
     'functionSent',
     'importMeta',
-    'importAssertions',
     'logicalAssignment',
     'nullishCoalescingOperator',
     'numericSeparator',
@@ -43,6 +42,7 @@ const availablePlugins = [
     'pipelineOperator',
     'throwExpressions',
     'recordAndTuple',
+    'importAttributes',
 ];
 
 const ID = 'babel';
@@ -112,6 +112,11 @@ export default {
                 return ['recordAndTuple', {
                     syntaxType: 'hash',
                 }];
+            
+            case 'importAttributes':
+                return ['importAttributes', {
+                    deprecatedAssertSyntax: true
+                }]
             
             default:
                 return plugin;
