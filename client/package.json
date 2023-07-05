@@ -80,7 +80,7 @@
     "postcss": "^8.1.1",
     "postcss-less": "^5.0.0",
     "postcss-scss": "^4.0.2",
-    "prettier": "^2.0.2",
+    "prettier": "^3.0.0",
     "prop-type": "^0.0.1",
     "prop-types": "^15.5.10",
     "pubsub-js": "^1.4.2",
