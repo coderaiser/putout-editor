@@ -30,6 +30,7 @@ const availablePlugins = [
     'dynamicImport',
     'exportDefaultFrom',
     'exportNamespaceFrom',
+    'explicitResourceManagement',
     'functionBind',
     'functionSent',
     'importMeta',
