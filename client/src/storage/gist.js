@@ -16,19 +16,18 @@ function getIDAndRevisionFromHash() {
 }
 
 function fetchSnippet(snippetID, revisionID = 'latest') {
-    return api(
-        `/gist/${snippetID}` + (revisionID ? `/${revisionID}` : ''),
-        {
-            method: 'GET',
-        },
-    )
+    return api(`/gist/${snippetID}` + (revisionID ? `/${revisionID}` : ''), {
+        method: 'GET',
+    })
         .then((response) => {
             if (response.ok) {
                 return response.json();
             }
+            
             switch(response.status) {
             case 404:
                 throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
+            
             default:
                 throw Error('Unknown error.');
             }
@@ -58,16 +57,13 @@ export function fetchFromURL() {
  * Create a new snippet.
  */
 export function create(data) {
-    return api(
-        '/gist',
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
+    return api('/gist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
         },
-    )
+        body: JSON.stringify(data),
+    })
         .then((response) => {
             if (response.ok) {
                 return response.json();
@@ -83,49 +79,42 @@ export function create(data) {
  */
 export function update(revision, data) {
     // Fetch latest version of snippet
-    return fetchSnippet(revision.getSnippetID())
-        .then((latestRevision) => {
-            if (latestRevision.getTransformerID() && !data.toolID) {
-                // Revision was updated to *remove* the transformer, hence we have
-                // to signal the server to delete the transform.js file
-                data.transform = null;
-            }
-            
-            return api(
-                `/gist/${revision.getSnippetID()}`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                },
-            )
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    
-                    throw Error('Unable to update snippet.');
-                })
-                .then((data) => new Revision(data));
-        });
+    return fetchSnippet(revision.getSnippetID()).then((latestRevision) => {
+        if (latestRevision.getTransformerID() && !data.toolID) {
+            // Revision was updated to *remove* the transformer, hence we have
+            // to signal the server to delete the transform.js file
+            data.transform = null;
+        }
+        
+        return api(`/gist/${revision.getSnippetID()}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                
+                throw Error('Unable to update snippet.');
+            })
+            .then((data) => new Revision(data));
+    });
 }
 
 /**
  * Fork existing snippet.
  */
 export function fork(revision, data) {
-    return api(
-        `/gist/${revision.getSnippetID()}/${revision.getRevisionID()}`,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
+    return api(`/gist/${revision.getSnippetID()}/${revision.getRevisionID()}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
         },
-    )
+        body: JSON.stringify(data),
+    })
         .then((response) => {
             if (response.ok) {
                 return response.json();
@@ -186,6 +175,7 @@ class Revision {
     getShareInfo() {
         const snippetID = this.getSnippetID();
         const revisionID = this.getRevisionID();
+        
         return (
             <div className="shareInfo">
                 <dl>
@@ -223,6 +213,7 @@ function getSource(config, gist) {
     switch(config.v) {
     case 1:
         return gist.files['code.js'].content;
+    
     case 2: {
         const ext = getParserByID(config.parserID).category.fileExtension;
         return gist.files[`source.${ext}`].content;

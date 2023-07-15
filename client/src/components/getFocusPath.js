@@ -10,13 +10,15 @@ export function nodeToRange(parser, node) {
     }
     
     if (node.length > 0) {
-    // check first and last child
+        // check first and last child
         const rangeFirst = node[0] && parser.nodeToRange(node[0]);
-        const rangeLast = node.at(-1) &&
-      parser.nodeToRange(node.at(-1));
+        const rangeLast = node.at(-1) && parser.nodeToRange(node.at(-1));
         
         if (rangeFirst && rangeLast) {
-            return [rangeFirst[0], rangeLast[1]];
+            return [
+                rangeFirst[0],
+                rangeLast[1],
+            ];
         }
     }
 }
@@ -52,3 +54,4 @@ export default function getFocusPath(node, pos, parser, seen = new Set()) {
     
     return path;
 }
+

@@ -8,12 +8,16 @@ const isNumber = (a) => typeof a === 'number';
 
 export default {
     ...defaultParserInterface,
-    
     id: ID,
     displayName: ID,
     version: pkg.version,
     homepage: pkg.homepage,
-    locationProps: new Set(['range', 'loc', 'start', 'end']),
+    locationProps: new Set([
+        'range',
+        'loc',
+        'start',
+        'end',
+    ]),
     
     loadParser(callback) {
         require(['espree'], callback);
@@ -25,7 +29,10 @@ export default {
     
     nodeToRange(node) {
         if (isNumber(node.start)) {
-            return [node.start, node.end];
+            return [
+                node.start,
+                node.end,
+            ];
         }
     },
     
@@ -53,22 +60,29 @@ export default {
         
         return {
             fields: [
-                ['ecmaVersion', [3, 5, 6, 7, 8, 9], Number],
-                ['sourceType', ['script', 'module']],
+                ['ecmaVersion', [
+                    3,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                ], Number],
+                ['sourceType', [
+                    'script',
+                    'module',
+                ]],
                 'range',
                 'loc',
                 'comment',
                 'attachComment',
                 'tokens',
-                'tolerant',
-                {
+                'tolerant', {
                     key: 'ecmaFeatures',
                     title: 'ecmaFeatures',
                     fields: Object.keys(defaultOptions.ecmaFeatures),
-                    settings:
-          (settings) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
-                },
-            ],
+                    settings: (settings) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
+                }],
         };
     },
     
@@ -78,15 +92,13 @@ export default {
                 <p>
                     <a
                         href="https://github.com/eslint/espree#usage"
-                        target="_blank" rel="noopener noreferrer">
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
             Option descriptions
                     </a>
                 </p>
-                {defaultParserInterface.renderSettings.call(
-                    this,
-                    parserSettings,
-                    onChange,
-                )}
+                {defaultParserInterface.renderSettings.call(this, parserSettings, onChange)}
             </div>
         );
     },

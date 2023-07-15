@@ -15,16 +15,14 @@ module.exports = {
         },
     },
     rules: {
+        'no-irregular-whitespace': 'off',
         'new-cap': 'off',
         'no-path-concat': 'off',
         'no-underscore-dangle': 'off',
-        'no-unused-vars': [
-            'warn',
-            {
-                varsIgnorePattern: '^_',
-                argsIgnorePattern: '^_',
-            },
-        ],
+        'no-unused-vars': ['warn', {
+            varsIgnorePattern: '^_',
+            argsIgnorePattern: '^_',
+        }],
         'no-use-before-define': 'off',
         'strict': 'off',
         'import/named': 'error',

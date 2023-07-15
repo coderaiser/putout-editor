@@ -9,7 +9,6 @@
     "url": "https://github.com/coderaiser/putout-editor.git"
   },
   "author": "coderaiser",
-  "commitType": "colon",
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/eslint-parser": "^7.12.1",
@@ -94,7 +93,8 @@
     "redux-saga": "^0.15.0",
     "regexp-tree": "^0.1.5",
     "reselect": "^4.0.0",
-    "source-map": "^0.7.3"
+    "source-map": "^0.7.3",
+    "try-catch": "^3.0.1"
   },
   "scripts": {
     "start": "madrun start",

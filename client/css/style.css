@@ -1,8 +1,8 @@
-@import '~codemirror/lib/codemirror.css';
-@import '~codemirror/addon/fold/foldgutter.css';
-@import './highlight.css';
-@import '~font-awesome/css/font-awesome.css';
-@import '../fontcustom/fontcustom.css';
+@import url('~codemirror/lib/codemirror.css');
+@import url('~codemirror/addon/fold/foldgutter.css');
+@import url('./highlight.css');
+@import url('~font-awesome/css/font-awesome.css');
+@import url('../fontcustom/fontcustom.css');
 
 html {
     font-size: 14px;
@@ -12,10 +12,7 @@ html {
 
 .cover {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
     z-index: 200;
     background-color: rgb(255 255 255 / 70%);
     display: flex;
@@ -34,18 +31,12 @@ html {
 
 .dropTarget {
     position: absolute;
-    top: 0;
-    bottom: 26px;
-    left: 0;
-    right: 0;
+    inset: 0 0 26px;
 }
 
 .dropIndicator {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
     z-index: 200;
     background-color: rgb(255 255 255 / 70%);
     display: flex;
@@ -241,10 +232,7 @@ html {
 
 .splitpane {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
 }
 
 .splitpane-divider {
@@ -263,10 +251,7 @@ html {
 .output {
     box-sizing: border-box;
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
     padding: 0;
     border: none;
 }
@@ -308,10 +293,7 @@ html {
 .output > .container {
     overflow: auto;
     position: absolute;
-    top: 25px;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 25px 0 0;
 }
 
 .output > .no-toolbar {
@@ -329,10 +311,7 @@ html {
 
 .editor {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
+    inset: 0;
 }
 
 li.entry {
@@ -418,14 +397,11 @@ li.entry {
 .dialog {
     align-items: center;
     background-color: rgb(255 255 255 / 70%);
-    bottom: 0;
+    inset: 0;
     color: #333;
     display: flex;
     justify-content: center;
-    left: 0;
     position: absolute;
-    right: 0;
-    top: 0;
     z-index: 1000;
 }
 

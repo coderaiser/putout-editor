@@ -1,6 +1,5 @@
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'babylon7/babylon-package';
-
 import plugins from '@putout/engine-parser/babel/plugins';
 import options from '@putout/engine-parser/babel/options';
 
@@ -8,16 +7,13 @@ const {keys} = Object;
 
 const availablePlugins = [
     // From https://babeljs.io/docs/en/next/babel-parser.html
-    
     // Miscellaneous
     'estree',
-    
     // Language extensions
     'flow',
     'flowComments',
     'jsx',
     'typescript',
-    
     // ECMAScript Proposals
     'asyncGenerators',
     'bigInt',
@@ -58,34 +54,36 @@ export const defaultOptions = {
 
 export const parserSettingsConfiguration = {
     fields: [
-        ['sourceType', ['module', 'script']],
+        ['sourceType', [
+            'module',
+            'script',
+        ]],
         ...keys(options),
         'ranges',
-        'tokens',
-        {
+        'tokens', {
             key: 'plugins',
             title: 'Plugins',
             fields: availablePlugins,
             settings: (settings) => settings.plugins || defaultOptions.plugins,
-            values: (plugins) => availablePlugins.reduce(
-                (obj, name) => {
-                    obj[name] = plugins.includes(name);
-                    return obj;
-                },
-                {},
-            ),
-        },
-    ],
+            values: (plugins) => availablePlugins.reduce((obj, name) => {
+                obj[name] = plugins.includes(name);
+                return obj;
+            }, {}),
+        }],
 };
 
 export default {
     ...defaultParserInterface,
-    
     id: ID,
     displayName: ID,
     version: pkg.version,
     homepage: pkg.homepage,
-    locationProps: new Set(['range', 'loc', 'start', 'end']),
+    locationProps: new Set([
+        'range',
+        'loc',
+        'start',
+        'end',
+    ]),
     
     loadParser(callback) {
         require(['@babel/parser'], callback);
@@ -95,6 +93,7 @@ export default {
         options = {
             ...options,
         };
+        
         // TODO: Make decoratorsBeforeExport settable through settings somhow
         // TODO: Make pipelineOperator.proposal settable through settings somhow
         options.plugins = options.plugins.map((plugin) => {
@@ -116,13 +115,14 @@ export default {
             
             case 'importAttributes':
                 return ['importAttributes', {
-                    deprecatedAssertSyntax: true
-                }]
+                    deprecatedAssertSyntax: true,
+                }];
             
             default:
                 return plugin;
             }
         });
+        
         return babylon.parse(code, options);
     },
     
@@ -138,7 +138,10 @@ export default {
     
     nodeToRange(node) {
         if (typeof node.start !== 'undefined') {
-            return [node.start, node.end];
+            return [
+                node.start,
+                node.end,
+            ];
         }
     },
     

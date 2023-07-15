@@ -14,7 +14,9 @@ export default class SettingsDialog extends React.Component {
     }
     
     UNSAFE_componentWillReceiveProps(nextProps) {
-        this.setState({parserSettings: nextProps.parserSettings});
+        this.setState({
+            parserSettings: nextProps.parserSettings,
+        });
     }
     
     _outerClick(event) {
@@ -24,7 +26,9 @@ export default class SettingsDialog extends React.Component {
     }
     
     _onChange(parserSettings) {
-        this.setState({parserSettings});
+        this.setState({
+            parserSettings,
+        });
     }
     
     _saveAndClose() {
@@ -33,7 +37,9 @@ export default class SettingsDialog extends React.Component {
     }
     
     _reset() {
-        this.setState({parserSettings: {}});
+        this.setState({
+            parserSettings: {},
+        });
     }
     
     render() {
@@ -45,13 +51,12 @@ export default class SettingsDialog extends React.Component {
                             <h3>{this.props.parser.displayName} Settings</h3>
                         </div>
                         <div className="body">
-                            {this.props.parser.renderSettings(
-                                this.state.parserSettings,
-                                this._onChange,
-                            )}
+                            {this.props.parser.renderSettings(this.state.parserSettings, this._onChange)}
                         </div>
                         <div className="footer">
-                            <button style={{marginRight: 10}} onClick={this._reset}>
+                            <button style={{
+                                marginRight: 10,
+                            }} onClick={this._reset}>
                 Reset
                             </button>
                             <button onClick={this._saveAndClose}>Close</button>
@@ -63,9 +68,7 @@ export default class SettingsDialog extends React.Component {
         
         return null;
     }
-}
-
-SettingsDialog.propTypes = {
+}SettingsDialog.propTypes = {
     onSave: PropTypes.func,
     onWantToClose: PropTypes.func,
     visible: PropTypes.bool,

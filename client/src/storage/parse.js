@@ -24,9 +24,11 @@ function fetchSnippet(snippetID, revisionID = 'latest') {
             if (response.ok) {
                 return response.json();
             }
+            
             switch(response.status) {
             case 404:
                 throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
+            
             default:
                 throw Error('Unknown error.');
             }
@@ -44,7 +46,7 @@ export function matchesURL() {
 
 export function updateHash(revision) {
     const rev = revision.getRevisionID();
-    const newHash = '/' + revision.getSnippetID() + (rev && rev !== 0 ? '/' + rev : '');
+    const newHash = '/' + revision.getSnippetID() + (rev ? `/${rev}` : '');
     
     global.location.hash = newHash;
 }
@@ -91,7 +93,7 @@ class Revision {
     
     getPath() {
         const rev = this.getRevisionID();
-        return '/' + this.getSnippetID() + (rev && rev !== 0 ? '/' + rev : '');
+        return '/' + this.getSnippetID() + (rev ? `/${rev}` : '');
     }
     
     getSnippetID() {
@@ -134,6 +136,7 @@ class Revision {
     
     getCode() {
         const parserID = this.getParserID();
+        
         // Code examples where never stored
         return this._data.code || getParserByID(parserID).category.codeExample;
     }
@@ -146,12 +149,14 @@ class Revision {
         }
         
         const parserSettings = settings[this.getParserID()];
+        
         return parserSettings && JSON.parse(parserSettings);
     }
     
     getShareInfo() {
         const snippetID = this.getSnippetID();
         const revisionID = this.getRevisionID();
+        
         return (
             <div className="shareInfo">
                 <dl>

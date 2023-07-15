@@ -10,19 +10,17 @@ const ParseResult = {
    * The generated AST
    */
     ast: 'any',
-    
     /**
    * An error object, if parsing resulted in an error
    */
     error: 'Object',
-    
     /**
    * How long it took to generate the AST
    */
     time: 'number',
     
     treeAdapter: {
-    /**
+        /**
      * The type of the adapter to use, as defined in TreeAdapters.js
      */
         type: 'string',

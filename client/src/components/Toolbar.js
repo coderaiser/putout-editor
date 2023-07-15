@@ -12,6 +12,7 @@ export default function Toolbar(props) {
         parser,
         showTransformer,
     } = props;
+    
     let parserInfo = parser.displayName;
     let transformerInfo = '';
     
@@ -27,9 +28,7 @@ export default function Toolbar(props) {
     
     if (showTransformer) {
         // use 🐊Putout transformer only, but after enabled
-        const {
-            transformer = getTransformerByID('putout'),
-        } = props;
+        const {transformer = getTransformerByID('putout')} = props;
         
         transformerInfo = transformer.displayName;
         
@@ -47,20 +46,24 @@ export default function Toolbar(props) {
     return (
         <div id="Toolbar">
             <h1>🐊Putout Editor</h1>
-            <SnippetButton {...props} />
-            <ParserButton {...props} />
-            <TransformButton {...props} />
-            <KeyMapButton {...props} />
+            <SnippetButton {...props}/>
+            <ParserButton {...props}/>
+            <TransformButton {...props}/>
+            <KeyMapButton {...props}/>
             <a
-                style={{minWidth: 0}}
-                target="_blank" rel="noopener noreferrer"
+                style={{
+                    minWidth: 0,
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
                 title="Help"
-                href="https://github.com/coderaiser/putout#-plugins-api">
-                <i className="fa fa-lg fa-question fa-fw" />
+                href="https://github.com/coderaiser/putout#-plugins-api"
+            >
+                <i className="fa fa-lg fa-question fa-fw"/>
             </a>
-            <Funding {...props} />
+            <Funding {...props}/>
             <div id="info" className={transformerInfo ? 'small' : ''}>
-        Parser: {parserInfo}<br />
+        Parser: {parserInfo}<br/>
                 {transformerInfo}
             </div>
         </div>

@@ -6,13 +6,10 @@ const identity = (v) => v;
 const isString = (a) => typeof a === 'string';
 
 function valuesFromArray(settings) {
-    return settings.reduce(
-        (obj, name) => {
-            obj[name] = settings.indexOf(name) > -1;
-            return obj;
-        },
-        {},
-    );
+    return settings.reduce((obj, name) => {
+        obj[name] = settings.indexOf(name) > -1;
+        return obj;
+    }, {});
 }
 
 function getValuesFromSettings(settings) {
@@ -24,7 +21,10 @@ function getValuesFromSettings(settings) {
 }
 
 function defaultUpdater(settings, name, value) {
-    return {...settings, [name]: value};
+    return {
+        ...settings,
+        [name]: value,
+    };
 }
 
 function arrayUpdater(settings, name, value) {
@@ -53,12 +53,14 @@ export default function SettingsRenderer(props) {
         parserSettings,
         onChange,
     } = props;
+    
     const {
         title,
         fields,
         required = new Set(),
         update = getUpdateStrategy(parserSettings),
     } = settingsConfiguration;
+    
     const values = (settingsConfiguration.values || getValuesFromSettings)(parserSettings);
     
     return (
@@ -75,11 +77,13 @@ export default function SettingsRenderer(props) {
                                         readOnly={required.has(setting)}
                                         disabled={required.has(setting)}
                                         checked={values[setting]}
-                                        onChange={
-                                            ({target}) => onChange(update(parserSettings, setting, target.checked))
-                                        }
+                                        onChange={({target}) => onChange(update(
+                                            parserSettings,
+                                            setting,
+                                            target.checked,
+                                        ))}
                                     />
-                  &nbsp;{setting}
+                                    {setting}
                                 </label>
                             </li>
                         );
@@ -87,23 +91,22 @@ export default function SettingsRenderer(props) {
                     
                     if (Array.isArray(setting)) {
                         const [fieldName, options, converter = identity] = setting;
+                        
                         return (
                             <li key={fieldName}>
                                 <label>
-                                    {fieldName}:&nbsp;
+                                    {fieldName}:
                                     <select
-                                        onChange={
-                                            ({target}) => onChange(update(
-                                                parserSettings,
-                                                fieldName,
-                                                converter(target.value),
-                                            ))
-                                        }
-                                        value={values[fieldName]}>
-                                        {Array.isArray(options)
-                                            ? options.map((o) => <option key={o} value={o}>{o}</option>)
-                                            : Object.keys(options).map((key) => <option key={key} value={options[key]}>{key}</option>)
-                                        }
+                                        onChange={({target}) => onChange(update(
+                                            parserSettings,
+                                            fieldName,
+                                            converter(target.value),
+                                        ))}
+                                        value={values[fieldName]}
+                                    >
+                                        {Array.isArray(options) ? options.map((o) => <option key={o} value={o}>{o}</option>) : Object
+                                            .keys(options)
+                                            .map((key) => <option key={key} value={options[key]}>{key}</option>)}
                                     </select>
                                 </label>
                             </li>
@@ -116,9 +119,10 @@ export default function SettingsRenderer(props) {
                                 key={setting.key}
                                 settingsConfiguration={setting}
                                 parserSettings={setting.settings(parserSettings)}
-                                onChange={
-                                    (settings) => onChange({...parserSettings, [setting.key]: settings})
-                                }
+                                onChange={(settings) => onChange({
+                                    ...parserSettings,
+                                    [setting.key]: settings,
+                                })}
                             />
                         );
                     }

@@ -10,13 +10,13 @@ export default class ForkButton extends React.Component {
             forking,
             onFork,
         } = this.props;
+        
         return (
             <button
                 type="button"
-                disabled={
-                    !canFork || saving || forking
-                }
-                onClick={onFork}>
+                disabled={!canFork || saving || forking}
+                onClick={onFork}
+            >
                 <i
                     className={cx({
                         'fa': true,
@@ -25,13 +25,11 @@ export default class ForkButton extends React.Component {
                         'fa-code-fork': !forking,
                         'fa-fw': true,
                     })}
-                />&nbsp;Fork
+                /> Fork
             </button>
         );
     }
-}
-
-ForkButton.propTypes = {
+}ForkButton.propTypes = {
     canFork: PropTypes.bool,
     saving: PropTypes.bool,
     forking: PropTypes.bool,

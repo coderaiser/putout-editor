@@ -14,4 +14,7 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(null, mapDispatchToProps)(PasteDropTarget);
+export default connect(
+    null,
+    mapDispatchToProps,
+)(PasteDropTarget);

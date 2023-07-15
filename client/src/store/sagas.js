@@ -26,7 +26,7 @@ import {
     showTransformer,
 } from './selectors';
 
-function* save(fork, storageAdapter) {
+function *save(fork, storageAdapter) {
     let action = 'new_revision';
     const [
         revision,
@@ -90,7 +90,7 @@ function* save(fork, storageAdapter) {
     }
 }
 
-function* watchSave(storageAdapter, {fork}) {
+function *watchSave(storageAdapter, {fork}) {
     yield put(actions.startSave(fork));
     yield* save(fork, storageAdapter);
     yield put(actions.endSave(fork));
@@ -107,7 +107,7 @@ function *goBack() {
     }
 }
 
-function* watchSnippetURI(storageAdapter) {
+function *watchSnippetURI(storageAdapter) {
     if (goBackTask) {
         yield cancel(goBackTask);
     }
@@ -126,6 +126,7 @@ function* watchSnippetURI(storageAdapter) {
         actions.startLoadingSnippet(),
     ]));
     let revision;
+    
     try {
         revision = yield call(storageAdapter.fetchFromURL.bind(storageAdapter));
     } catch(error) {
@@ -150,14 +151,13 @@ function* watchSnippetURI(storageAdapter) {
     }
     
     yield put(batchActions([
-        revision
-            ? actions.setSnippet(revision)
-            : actions.clearSnippet(),
+        revision ? actions.setSnippet(revision) : actions.clearSnippet(),
         actions.doneLoadingSnippet(),
     ]));
 }
 
-export default function*(storageAdapter) {
+export default function *(storageAdapter) {
     yield takeEvery(actions.LOAD_SNIPPET, watchSnippetURI, storageAdapter);
     yield takeEvery(actions.SAVE, watchSave, storageAdapter);
 }
+

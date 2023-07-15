@@ -9,15 +9,12 @@ import * as selectors from '../store/selectors';
 function mapStateToProps(state) {
     return {
         parser: state.workbench.parser,
-        transformer: selectors.getTransformer(state),
-        // Either the transform example or the transform code from the current
+        transformer: selectors.getTransformer(state), // Either the transform example or the transform code from the current
         // revision. This is what we compare against to determine whether something
         // changed and we can save.
         defaultTransformCode: selectors.getInitialTransformCode(state),
         transformCode: selectors.getTransformCode(state),
-        mode:
-      selectors.getParser(state).category.editorMode
-      || selectors.getParser(state).category.id,
+        mode: selectors.getParser(state).category.editorMode || selectors.getParser(state).category.id,
         code: selectors.getCode(state),
         enableFormatting: selectors.getFormattingState(state),
         keyMap: selectors.getKeyMap(state),
@@ -27,7 +24,10 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         onContentChange: ({value, cursor}) => {
-            dispatch(setTransformState({code: value, cursor}));
+            dispatch(setTransformState({
+                code: value,
+                cursor,
+            }));
         },
         toggleFormatting: () => {
             dispatch(toggleFormatting());
@@ -35,4 +35,7 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Transformer);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Transformer);

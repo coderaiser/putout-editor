@@ -19,4 +19,7 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShareDialog);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(ShareDialog);

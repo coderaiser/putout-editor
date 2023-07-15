@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
 
+const noop = () => {};
+
 const defaultPrettierOptions = {
     printWidth: 80,
     tabWidth: 4,
@@ -27,10 +29,7 @@ export default class Editor extends React.Component {
     
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.value !== this.state.value) {
-            this.setState(
-                {value: nextProps.value},
-                () => this.codeMirror.setValue(nextProps.value),
-            );
+            this.setState({value: nextProps.value}, () => this.codeMirror.setValue(nextProps.value));
         }
         
         if (nextProps.mode !== this.props.mode) {
@@ -85,17 +84,14 @@ export default class Editor extends React.Component {
     componentDidMount() {
         this._CMHandlers = [];
         this._subscriptions = [];
-        this.codeMirror = CodeMirror( // eslint-disable-line new-cap
-            this.container,
-            {
-                keyMap: this.props.keyMap,
-                value: this.state.value,
-                mode: this.props.mode,
-                lineNumbers: this.props.lineNumbers,
-                readOnly: this.props.readOnly,
-                indentUnit: 4,
-            },
-        );
+        this.codeMirror = CodeMirror(this.container, {
+            keyMap: this.props.keyMap,
+            value: this.state.value,
+            mode: this.props.mode,
+            lineNumbers: this.props.lineNumbers,
+            readOnly: this.props.readOnly,
+            indentUnit: 4,
+        });
         
         this._bindCMHandler('blur', (instance) => {
             if (!this.props.enableFormatting)
@@ -131,49 +127,40 @@ export default class Editor extends React.Component {
         if (this.props.highlight) {
             this._markerRange = null;
             this._mark = null;
-            this._subscriptions.push(
-                PubSub.subscribe('HIGHLIGHT', (_, {range}) => {
-                    if (!range) {
-                        return;
-                    }
+            this._subscriptions.push(PubSub.subscribe('HIGHLIGHT', (_, {range}) => {
+                if (!range) {
+                    return;
+                }
+                
+                const doc = this.codeMirror.getDoc();
+                
+                this._markerRange = range;
+                
+                // We only want one mark at a time.
+                if (this._mark) {
+                    this._mark.clear();
+                }
+                
+                const [start, end] = range.map((index) => this._posFromIndex(doc, index));
+                
+                if (!start || !end) {
+                    this._markerRange = this._mark = null;
+                    return;
+                }
+                
+                this._mark = this.codeMirror.markText(start, end, {
+                    className: 'marked',
+                });
+            }), PubSub.subscribe('CLEAR_HIGHLIGHT', (_, {range} = {}) => {
+                if (!range || this._markerRange && range[0] === this._markerRange[0] && range[1] === this._markerRange[1]) {
+                    this._markerRange = null;
                     
-                    const doc = this.codeMirror.getDoc();
-                    this._markerRange = range;
-                    
-                    // We only want one mark at a time.
                     if (this._mark) {
                         this._mark.clear();
+                        this._mark = null;
                     }
-                    
-                    const [start, end] = range.map((index) => this._posFromIndex(doc, index));
-                    
-                    if (!start || !end) {
-                        this._markerRange = this._mark = null;
-                        return;
-                    }
-                    
-                    this._mark = this.codeMirror.markText(
-                        start,
-                        end,
-                        {className: 'marked'},
-                    );
-                }),
-                
-                PubSub.subscribe('CLEAR_HIGHLIGHT', (_, {range} = {}) => {
-                    if (!range
-            || this._markerRange &&
-            range[0] === this._markerRange[0] &&
-            range[1] === this._markerRange[1]
-                    ) {
-                        this._markerRange = null;
-                        
-                        if (this._mark) {
-                            this._mark.clear();
-                            this._mark = null;
-                        }
-                    }
-                }),
-            );
+                }
+            }));
         }
         
         if (this.props.error) {
@@ -214,14 +201,14 @@ export default class Editor extends React.Component {
             cursor: doc.indexFromPos(doc.getCursor()),
         };
         
-        this.setState(
-            {value: args.value},
-            () => this.props.onContentChange(args),
-        );
+        this.setState({value: args.value}, () => this.props.onContentChange(args));
     }
     
     _onActivity() {
-        this.props.onActivity(this.codeMirror.getDoc().indexFromPos(this.codeMirror.getCursor()));
+        this.props.onActivity(this
+            .codeMirror
+            .getDoc()
+            .indexFromPos(this.codeMirror.getCursor()));
     }
     
     render() {
@@ -229,9 +216,7 @@ export default class Editor extends React.Component {
             <div className="editor" ref={(c) => this.container = c}/>
         );
     }
-}
-
-Editor.propTypes = {
+}Editor.propTypes = {
     value: PropTypes.string,
     highlight: PropTypes.bool,
     lineNumbers: PropTypes.bool,
@@ -252,6 +237,6 @@ Editor.defaultProps = {
     readOnly: false,
     mode: 'javascript',
     keyMap: 'default',
-    onContentChange: () => {},
-    onActivity: () => {},
+    onContentChange: noop,
+    onActivity: noop,
 };

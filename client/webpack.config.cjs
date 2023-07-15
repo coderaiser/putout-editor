@@ -15,52 +15,37 @@ const packages = fs.readdirSync(path.join(__dirname, 'packages'));
 const test = RegExp(`/node_modules/(?!${packages.join('|')}/)`);
 
 const plugins = [
-    new webpack.IgnorePlugin({resourceRegExp: /hermes-parser/}),
-    
+    new webpack.IgnorePlugin({
+        resourceRegExp: /hermes-parser/,
+    }),
     new webpack.DefinePlugin({
         'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
     }),
-    
     new webpack.ProvidePlugin({
         process: 'process/browser',
     }),
-    
     new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
     }),
-    
     // eslint //
-    
     // Shim ESLint stuff that's only relevant for Node.js
-    new webpack.NormalModuleReplacementPlugin(
-        /(cli-engine|testers\/rule-tester)/,
-        'node-libs-browser/mock/empty',
-    ),
-    
+    new webpack.NormalModuleReplacementPlugin(/(cli-engine|testers\/rule-tester)/, 'node-libs-browser/mock/empty'),
     // More shims
-    
     // Doesn't look like jest-validate is useful in our case (prettier uses it)
-    new webpack.NormalModuleReplacementPlugin(
-        /jest-validate/,
-        __dirname + '/src/shims/jest-validate.js',
-    ),
-    
+    new webpack.NormalModuleReplacementPlugin(/jest-validate/, `${__dirname}/src/shims/jest-validate.js`),
     // Hack to disable Webpack dynamic requires in ESLint, so we don't end up
     // bundling the entire ESLint directory including files we don't even need.
     // https://github.com/webpack/webpack/issues/198
     new webpack.ContextReplacementPlugin(/eslint|@putout\/engine-loader/, /NEVER_MATCH^/),
-    
     new MiniCssExtractPlugin({
         filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
     }),
-    
     new HtmlWebpackPlugin({
         favicon: './favicon.png',
         inject: 'body',
         filename: 'index.html',
         template: './index.ejs',
     }),
-    
     new webpack.ids.HashedModuleIdsPlugin(),
     new ProgressBarPlugin(),
 ];
@@ -138,25 +123,23 @@ module.exports = {
             loader: 'babel-loader',
             options: {
                 presets: [
-                    [require.resolve('@babel/preset-env'), {
-                        modules: 'commonjs',
-                    }],
+                    [
+                        require.resolve('@babel/preset-env'), {
+                            modules: 'commonjs',
+                        }],
                     require.resolve('@babel/preset-react'),
                 ],
-                plugins: [
-                    '@babel/plugin-proposal-optional-chaining',
-                    require.resolve('@babel/plugin-transform-runtime'),
-                ],
+                plugins: ['@babel/plugin-proposal-optional-chaining', require.resolve('@babel/plugin-transform-runtime')],
             },
         }, {
             test: /\.css$/,
             use: [
-                DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
-                {
+                DEV ? 'style-loader' : MiniCssExtractPlugin.loader, {
                     loader: 'css-loader',
-                    options: {importLoaders: 1},
-                },
-                'postcss-loader',
+                    options: {
+                        importLoaders: 1,
+                    },
+                }, 'postcss-loader',
             ],
         }, {
             test: /\.woff(2)?(\?v=\d\.\d\.\d)?$/,

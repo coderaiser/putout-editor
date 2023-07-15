@@ -2,7 +2,6 @@ import Editor from './Editor';
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
-
 import SplitPane from './SplitPane';
 import TransformOutput from './TransformOutput';
 import PrettierButton from './buttons/PrettierButton';
@@ -14,30 +13,27 @@ function resize() {
 
 export default function Transformer(props) {
     // 🐊Putout transfomer only have
-    const {
-        transformer = getTransformerByID('putout'),
-    } = props;
+    const {transformer = getTransformerByID('putout')} = props;
     
-    const plainEditor = React.createElement(
-        Editor,
-        {
-            highlight: false,
-            value: props.transformCode,
-            onContentChange: props.onContentChange,
-            enableFormatting: props.enableFormatting,
-            keyMap: props.keyMap,
-        },
-    );
+    const plainEditor = React.createElement(Editor, {
+        highlight: false,
+        value: props.transformCode,
+        onContentChange: props.onContentChange,
+        enableFormatting: props.enableFormatting,
+        keyMap: props.keyMap,
+    });
     
     const formattingEditor = <div>
         <PrettierButton toggleFormatting={props.toggleFormatting} enableFormatting={props.enableFormatting}/>
         {plainEditor}
-    </div>;
+    </div>
+    ;
     
     return (
         <SplitPane
             className="splitpane"
-            onResize={resize}>
+            onResize={resize}
+        >
             {formattingEditor}
             <TransformOutput
                 transformer={transformer}

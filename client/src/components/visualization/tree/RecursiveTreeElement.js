@@ -23,7 +23,7 @@ export default function RecursiveTreeElement(Element) {
     function removeValue(value) {
         const n = openValues.get(value) - 1;
         
-        if (n === 0) {
+        if (!n) {
             openValues.delete(value);
         } else {
             openValues.set(value, n);
@@ -64,7 +64,7 @@ export default function RecursiveTreeElement(Element) {
             let {deepOpen} = props;
             let open = shouldAutoFocus(props);
             
-            if (!this.props.value !== props.value) {
+            if (props.value !== !this.props.value) {
                 if (this.props.value && typeof this.props.value === 'object') {
                     removeValue(this.props.value);
                 }
@@ -79,11 +79,15 @@ export default function RecursiveTreeElement(Element) {
                 }
             }
             
-            this.setState({deepOpen, open});
+            this.setState({
+                deepOpen,
+                open,
+            });
         }
         
         render() {
             const {props} = this;
+            
             return (
                 <Element
                     {...props}
@@ -101,3 +105,4 @@ export default function RecursiveTreeElement(Element) {
     
     return RecursiveElement;
 }
+

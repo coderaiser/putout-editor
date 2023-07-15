@@ -75,5 +75,7 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Toolbar);
-
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Toolbar);

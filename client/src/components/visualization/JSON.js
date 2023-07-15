@@ -1,7 +1,6 @@
 import JSONEditor from '../JSONEditor';
 import PropTypes from 'prop-types';
 import React from 'react';
-
 import stringify from 'json-stringify-safe';
 
 export default function JSON({parseResult}) {

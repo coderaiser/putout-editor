@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
 import RecursiveTreeElement from './RecursiveTreeElement';
-
 import cx from 'classnames';
 import stringify from '../../../utils/stringify';
 
@@ -21,7 +20,6 @@ function log(f) {
   };
 }
 */
-
 let lastClickedElement;
 
 let Element = class extends React.Component {
@@ -37,11 +35,9 @@ let Element = class extends React.Component {
             deepOpen,
             treeAdapter,
         } = props;
+        
         // Some elements should be open by default
-        const open = props.open
-      || props.level === 0
-      || deepOpen
-      || value && treeAdapter.opensByDefault(value, name);
+        const open = props.open || !props.level || deepOpen || value && treeAdapter.opensByDefault(value, name);
         
         this.state = {
             open,
@@ -68,11 +64,7 @@ let Element = class extends React.Component {
         const {focusPath: thisFocusPath} = thisProps;
         const {settings: nextSettings, focusPath: nextFocusPath} = nextProps;
         
-        return (
-            thisFocusPath !== nextFocusPath &&
-      nextFocusPath.indexOf(nextProps.value) > -1 &&
-      nextSettings.autofocus
-        );
+        return thisFocusPath !== nextFocusPath && nextFocusPath.indexOf(nextProps.value) > -1 && nextSettings.autofocus;
     }
     
     componentDidMount() {
@@ -107,14 +99,17 @@ let Element = class extends React.Component {
             }
             
             this.setState({
-                open, deepOpen: shiftKey,
+                open,
+                deepOpen: shiftKey,
             });
         };
         
         if (lastClickedElement && lastClickedElement !== this) {
             const element = lastClickedElement;
+            
             lastClickedElement = open ? this : null;
             element.forceUpdate(update);
+            
             return;
         }
         
@@ -127,35 +122,36 @@ let Element = class extends React.Component {
         
         const {value} = this.state;
         
-        PubSub.publish(
-            'HIGHLIGHT',
-            {node: value, range: this.props.treeAdapter.getRange(value)},
-        );
+        PubSub.publish('HIGHLIGHT', {
+            node: value,
+            range: this.props.treeAdapter.getRange(value),
+        });
     }
     
     _onMouseLeave() {
         const {value} = this.state;
-        PubSub.publish(
-            'CLEAR_HIGHLIGHT',
-            {node: value, range: this.props.treeAdapter.getRange(value)},
-        );
+        
+        PubSub.publish('CLEAR_HIGHLIGHT', {
+            node: value,
+            range: this.props.treeAdapter.getRange(value),
+        });
     }
     
     _isFocused(level, path, value, open) {
-        return level !== 0 &&
-      path.indexOf(value) > -1 &&
-      (!open || path.at(-1) === value);
+        return level && path.indexOf(value) > -1 && (!open || path.at(-1) === value);
     }
     
     _execFunction() {
         const state = {
             error: null,
         };
+        
         try {
             state.value = this.state.value.call(this.props.parent);
         } catch(err) {
             state.error = err;
         }
+        
         this.setState(state);
     }
     
@@ -182,10 +178,9 @@ let Element = class extends React.Component {
             treeAdapter,
             level,
         } = this.props;
-        const {
-            open,
-            value,
-        } = this.state;
+        
+        const {open, value} = this.state;
+        
         const focused = this._isFocused(level, focusPath, value, open);
         let valueOutput = null;
         let content = null;
@@ -201,16 +196,18 @@ let Element = class extends React.Component {
                 if (nodeName) {
                     valueOutput = <span className="tokenName nc" onClick={this._toggleClick}>
                         {nodeName}{' '}
-                        {lastClickedElement === this
-                            ? <span className="ge" style={{fontSize: '0.8em'}}>
-                                {' = $node'}
-                            </span>
-                            : null
-                        }
+                        {lastClickedElement === this ? <span
+                            className="ge"
+                            style={{
+                                fontSize: '0.8em',
+                            }}
+                        >
+                            {' = $node'}
+                        </span> : null}
                     </span>;
                 }
                 
-                enableHighlight = treeAdapter.getRange(value) && level !== 0;
+                enableHighlight = treeAdapter.getRange(value) && level;
             } else {
                 enableHighlight = true;
             }
@@ -219,14 +216,10 @@ let Element = class extends React.Component {
                 if (value.length > 0 && open) {
                     prefix = '[';
                     suffix = ']';
-                    const elements = Array.from(treeAdapter.walkNode(value))
+                    const elements = Array
+                        .from(treeAdapter.walkNode(value))
                         .filter(({key}) => key !== 'length')
-                        .map(({key, value, computed}) => this._createSubElement(
-                            key,
-                            value,
-                            Number.isInteger(Number(key)) ? undefined : key,
-                            computed,
-                        ));
+                        .map(({key, value, computed}) => this._createSubElement(key, value, Number.isInteger(Number(key)) ? undefined : key, computed));
                     
                     content = <ul className="value-body">{elements}</ul>;
                 } else {
@@ -244,19 +237,17 @@ let Element = class extends React.Component {
                 if (open) {
                     prefix = '{';
                     suffix = '}';
-                    const elements = Array.from(treeAdapter.walkNode(value))
-                        .map(({key, value, computed}) => this._createSubElement(
-                            key,
-                            value,
-                            key,
-                            computed,
-                        ));
+                    const elements = Array
+                        .from(treeAdapter.walkNode(value))
+                        .map(({key, value, computed}) => this._createSubElement(key, value, key, computed));
                     
                     content = <ul className="value-body">{elements}</ul>;
                     showToggler = elements.length > 0;
                 } else {
-                    const keys = Array.from(treeAdapter.walkNode(value))
+                    const keys = Array
+                        .from(treeAdapter.walkNode(value))
                         .map(({key}) => key);
+                    
                     valueOutput = <span>
                         {valueOutput}
                         <CompactObjectView
@@ -271,7 +262,8 @@ let Element = class extends React.Component {
             valueOutput = <span
                 className="ge invokeable"
                 title="Click to invoke function"
-                onClick={this._execFunction}>
+                onClick={this._execFunction}
+            >
           (...)
             </span>;
             showToggler = false;
@@ -280,23 +272,15 @@ let Element = class extends React.Component {
             showToggler = false;
         }
         
-        const name = this.props.name
-            ? <span
-                className="key"
-                onClick={
-                    showToggler
-                        ? this._toggleClick
-                        : null
-                }>
-                <span className="name nb">
-                    {this.props.computed
-                        ? <span title="computed">*{this.props.name}</span>
-                        : this.props.name
-                    }
-                </span>
-                <span className="p">:&nbsp;</span>
+        const name = this.props.name ? <span
+            className="key"
+            onClick={showToggler ? this._toggleClick : null}
+        >
+            <span className="name nb">
+                {this.props.computed ? <span title="computed">*{this.props.name}</span> : this.props.name}
             </span>
-            : null;
+            <span className="p">: </span>
+        </span> : null;
         
         const classNames = cx({
             entry: true,
@@ -304,29 +288,29 @@ let Element = class extends React.Component {
             toggable: showToggler,
             open,
         });
+        
         return (
             <li
                 ref={(c) => this.container = c}
                 className={classNames}
                 onMouseOver={enableHighlight ? this._onMouseOver : null}
-                onMouseLeave={enableHighlight ? this._onMouseLeave : null}>
+                onMouseLeave={enableHighlight ? this._onMouseLeave : null}
+            >
                 {name}
                 <span className="value">
                     {valueOutput}
                 </span>
-                {prefix ? <span className="prefix p">&nbsp;{prefix}</span> : null}
+                {prefix ? <span className="prefix p">
+                    {prefix}</span> : null}
                 {content}
                 {suffix ? <div className="suffix p">{suffix}</div> : null}
-                {this.state.error
-                    ? <span>
-                        {' '}
-                        <i
-                            title={this.state.error.message}
-                            className="fa fa-exclamation-triangle"
-                        />
-                    </span>
-                    : null
-                }
+                {this.state.error ? <span>
+                    {' '}
+                    <i
+                        title={this.state.error.message}
+                        className="fa fa-exclamation-triangle"
+                    />
+                </span> : null}
             </li>
         );
     }

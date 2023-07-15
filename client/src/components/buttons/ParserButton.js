@@ -15,15 +15,16 @@ export default class ParserButton extends React.Component {
     
     render() {
         const parsers = this.props.category.parsers.filter((p) => p.showInMenu);
+        
         return (
             <div className="button menuButton">
                 <span>
-                    <i className='fa fa-lg fa-code fa-fw' />
-          &nbsp;{this.props.parser.displayName}
+                    <i className='fa fa-lg fa-code fa-fw'/>
+                    {this.props.parser.displayName}
                 </span>
                 <ul>
                     {parsers.map((parser) => <li key={parser.id} onClick={this._onClick} data-id={parser.id}>
-                        <button type="button" >
+                        <button type="button">
                             {parser.displayName}
                         </button>
                     </li>)}
@@ -31,17 +32,18 @@ export default class ParserButton extends React.Component {
                 <button
                     type="button"
                     title="Parser Settings"
-                    style={{minWidth: 0}}
+                    style={{
+                        minWidth: 0,
+                    }}
                     disabled={!this.props.parser.hasSettings()}
-                    onClick={this.props.onParserSettingsButtonClick}>
-                    <i className="fa fa-cog fa-fw" />
+                    onClick={this.props.onParserSettingsButtonClick}
+                >
+                    <i className="fa fa-cog fa-fw"/>
                 </button>
             </div>
         );
     }
-}
-
-ParserButton.propTypes = {
+}ParserButton.propTypes = {
     onParserChange: PropTypes.func,
     onParserSettingsButtonClick: PropTypes.func,
     parser: PropTypes.object,

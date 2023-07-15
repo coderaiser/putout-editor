@@ -10,8 +10,10 @@ export default class CompactArrayView extends React.Component {
         const {array} = this.props;
         const count = array.length;
         
-        if (count === 0) {
-            return <span className="p">{'[ ]'}</span>;
+        if (!count) {
+            return (
+                <span className="p">{'[ ]'}</span>
+            );
         }
         
         return (
@@ -24,15 +26,12 @@ export default class CompactArrayView extends React.Component {
             </span>
         );
     }
-}
-
-CompactArrayView.propTypes = {
+}CompactArrayView.propTypes = {
     /**
    * The array of elements to represent.
    */
-    array: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.shape({length: PropTypes.number}),
-    ]).isRequired,
+    array: PropTypes.oneOfType([PropTypes.array, PropTypes.shape({
+        length: PropTypes.number,
+    })]).isRequired,
     onClick: PropTypes.func,
 };

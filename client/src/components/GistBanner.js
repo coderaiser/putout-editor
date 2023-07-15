@@ -2,7 +2,6 @@
  * Data storage is moved from Parse to Gists. It won't be possible anymore to
  * save new revisions of existing Parse snippets. We let the visitor know.
  */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import {connect} from 'react-redux';
@@ -32,14 +31,17 @@ class GistBanner extends React.Component {
         const newRevision = newProps.revision;
         const oldRevision = this.props.revision;
         
-        if (newRevision &&
-      (!oldRevision || newRevision.getSnippetID() !== oldRevision.getSnippetID())) {
-            this.setState({visible: true});
+        if (newRevision && (!oldRevision || newRevision.getSnippetID() !== oldRevision.getSnippetID())) {
+            this.setState({
+                visible: true,
+            });
         }
     }
     
     _hide() {
-        this.setState({visible: false});
+        this.setState({
+            visible: false,
+        });
     }
     
     render() {
@@ -67,4 +69,6 @@ GistBanner.propTypes = {
     revision: PropTypes.object,
 };
 
-export default connect((state) => ({revision: getRevision(state)}))(GistBanner);
+export default connect((state) => ({
+    revision: getRevision(state),
+}))(GistBanner);

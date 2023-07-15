@@ -39,20 +39,26 @@ export default class StorageHandler {
    * Create a new snippet.
    */
     create(data) {
-        return this._first().create(data);
+        return this
+            ._first()
+            .create(data);
     }
     
     /**
    * Update an existing snippet.
    */
     update(revision, data) {
-        return this._first().update(revision, data);
+        return this
+            ._first()
+            .update(revision, data);
     }
     
     /**
    * Fork existing snippet.
    */
     fork(revision, data) {
-        return this._first().fork(revision, data);
+        return this
+            ._first()
+            .fork(revision, data);
     }
 }

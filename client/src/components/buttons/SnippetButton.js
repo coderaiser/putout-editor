@@ -13,23 +13,24 @@ export default function SnippetButton(props) {
     return (
         <div className="button menuButton">
             <span>
-                <i className='fa fa-lg fa-file-code-o fa-fw' />
-        &nbsp;Snippet
+                <i className='fa fa-lg fa-file-code-o fa-fw'/>
+         Snippet
             </span>
             <ul>
-                <li><NewButton {...props} /></li>
-                <li><SaveButton {...props} /></li>
-                <li><ForkButton {...props} /></li>
+                <li><NewButton {...props}/></li>
+                <li><SaveButton {...props}/></li>
+                <li><ForkButton {...props}/></li>
                 <li><ShareButton {...props}/></li>
             </ul>
             <button
                 type="button"
                 title={canForkAndNotSave ? 'Fork' : 'Save'}
-                style={{minWidth: 0}}
-                disabled={
-                    savingOrForking || !(props.canSave || props.canFork)
-                }
-                onClick={canForkAndNotSave ? props.onFork : props.onSave}>
+                style={{
+                    minWidth: 0,
+                }}
+                disabled={savingOrForking || !(props.canSave || props.canFork)}
+                onClick={canForkAndNotSave ? props.onFork : props.onSave}
+            >
                 <i
                     className={cx({
                         'fa': true,

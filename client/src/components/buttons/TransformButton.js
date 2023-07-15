@@ -30,15 +30,18 @@ export default class TransformButton extends React.Component {
     
     render() {
         return (
-            <div className={cx({
-                button: true,
-                menuButton: true,
-                disabled: !this.props.category.transformers.length,
-            })}>
+            <div
+                className={cx({
+                    button: true,
+                    menuButton: true,
+                    disabled: !this.props.category.transformers.length,
+                })}
+            >
                 <button
                     type="button"
                     onClick={this._onToggle}
-                    disabled={!this.props.category.transformers.length}>
+                    disabled={!this.props.category.transformers.length}
+                >
                     <i
                         className={cx({
                             'fa': true,
@@ -48,17 +51,17 @@ export default class TransformButton extends React.Component {
                             'fa-fw': true,
                         })}
                     />
-          &nbsp;Transform
+           Transform
                 </button>
                 {this.props.category.transformers.length && <ul>
                     {this.props.category.transformers.map((transformer) => <li
                         key={transformer.id}
                         className={cx({
-                            selected: this.props.showTransformer &&
-                  this.props.transformer === transformer,
+                            selected: this.props.showTransformer && this.props.transformer === transformer,
                         })}
-                        onClick={this._onClick}>
-                        <button value={transformer.id} type="button" >
+                        onClick={this._onClick}
+                    >
+                        <button value={transformer.id} type="button">
                             {transformer.displayName}
                         </button>
                     </li>)}
@@ -66,9 +69,7 @@ export default class TransformButton extends React.Component {
             </div>
         );
     }
-}
-
-TransformButton.propTypes = {
+}TransformButton.propTypes = {
     category: PropTypes.object,
     transformer: PropTypes.object,
     showTransformer: PropTypes.bool,

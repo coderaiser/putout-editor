@@ -30,7 +30,6 @@ export default {
    * npm package.
    */
     // homepage (?string)
-    
     // loadParser
     // parse
     
@@ -38,28 +37,22 @@ export default {
    * Whether or not to surface this parser in the UI.
    */
     showInMenu: true,
-    
     /**
    * Used by `forEachProperty` to skip properties.
    */
     _ignoredProperties: new Set(),
-    
     /**
    * Those properties of an AST node (object) that provide location information
    * so that they can be hidden in the UI if the option is selected.
    */
     locationProps: new Set(),
-    
     /**
    * Those properties of an AST node (object) that provide node name
    * so that they can be hidden in the UI if the option is selected.
    */
-    typeProps: new Set(['type']),
-    
-    /**
+    typeProps: new Set(['type']), /**
    * Whether or not the provided node should be automatically expanded.
-   */
-    opensByDefault() {
+   */opensByDefault() {
         return false;
     },
     
@@ -67,15 +60,13 @@ export default {
    * The start and end indicies of the node in the source text. The return value
    * is an array of form `[start, end]`. This is used for highlighting source
    * text and focusing nodes in the tree.
-   */
-    nodeToRange(node) {
+   */nodeToRange(node) {
         return node.range;
     },
     
     /**
    * A more or less human readable name of the node.
-   */
-    getNodeName(node) {
+   */getNodeName(node) {
         return node.type;
     },
     
@@ -83,8 +74,7 @@ export default {
    * A generator to iterate over each "property" of the node. Overwriting this
    * function allows a parser to expose information from a node if the node
    * is not implemnted as plain JavaScript object.
-   */
-    *forEachProperty(node) {
+   */*forEachProperty(node) {
         for (const prop in node) {
             if (this._ignoredProperties.has(prop)) {
                 continue;
@@ -138,14 +128,12 @@ export default {
    *   - a settings configuration object: Same structured as described above,
    *                                      used to describe nested options.
    *
-   */
-    _getSettingsConfiguration(defaultOptions) {
+   */_getSettingsConfiguration(defaultOptions) {
         const keys = Object.keys(defaultOptions);
-        return keys.length > 0
-            ? {
-                fields: keys,
-            }
-            : null;
+        
+        return keys.length > 0 ? {
+            fields: keys,
+        } : null;
     },
     
     hasSettings() {
@@ -155,8 +143,7 @@ export default {
     /**
    * A complete settings object passed to the parser that defines the default
    * value for each option.
-   */
-    getDefaultOptions() {
+   */getDefaultOptions() {
         return {};
     },
     
@@ -165,17 +152,18 @@ export default {
    * not seem necessary, we don't know which version of the options are stored
    * in a snippet or the client browser, so this function is called to ensure
    * that all options are set.
-   */
-    _mergeDefaultOptions(currentOptions, defaultOptions) {
-        return {...defaultOptions, ...currentOptions};
+   */_mergeDefaultOptions(currentOptions, defaultOptions) {
+        return {
+            ...defaultOptions,
+            ...currentOptions,
+        };
     },
     
     /**
    * This method is called when the settingds UI is rendered. It is passed the
    * current parser settings and a callback that should be called with the
    * updated settings object.
-   */
-    renderSettings(settings, onChange) {
+   */renderSettings(settings, onChange) {
         const defaultOptions = this.getDefaultOptions();
         const settingsConfiguration = this._getSettingsConfiguration(defaultOptions);
         
@@ -183,9 +171,7 @@ export default {
             return null;
         }
         
-        settings = settings == null
-            ? defaultOptions
-            : this._mergeDefaultOptions(settings, defaultOptions);
+        settings = settings == null ? defaultOptions : this._mergeDefaultOptions(settings, defaultOptions);
         
         return (
             <SettingsRenderer

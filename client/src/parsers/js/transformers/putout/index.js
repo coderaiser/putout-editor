@@ -64,10 +64,13 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
     switch(parserName) {
     case 'acorn':
         return acorn;
+    
     case 'espree':
         return espree;
+    
     case 'esprima':
         return esprima;
+    
     default:
         return babel;
     }

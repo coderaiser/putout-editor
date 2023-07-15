@@ -1,5 +1,6 @@
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
+
 /**
  * Configurable base class for all tree traversal.
  */
@@ -57,11 +58,15 @@ class TreeAdapter {
             while (!(next = iterator.next()).done) {
                 last = next.value?.value;
             }
+            
             const rangeFirst = first && nodeToRange(first);
             const rangeLast = last && nodeToRange(last);
             
             if (rangeFirst && rangeLast) {
-                range = [rangeFirst[0], rangeLast[1]];
+                range = [
+                    rangeFirst[0],
+                    rangeLast[1],
+                ];
             }
         }
         
@@ -105,7 +110,7 @@ class TreeAdapter {
     }
     
     isObject(node) {
-        return Boolean(node) && typeof node === 'object' && !this.isArray(node);
+        return node && typeof node === 'object' && !this.isArray(node);
     }
     
     /**
@@ -115,15 +120,13 @@ class TreeAdapter {
    */
     *walkNode(node) {
         for (const result of this._walkNode(node)) {
-            if (
-                (this._adapterOptions.filters || []).some((filter) => {
-                    if (filter.key && !this._filterValues[filter.key]) {
-                        return false;
-                    }
-                    
-                    return filter.test(result.value, result.key);
-                })
-            ) {
+            if ((this._adapterOptions.filters || []).some((filter) => {
+                if (filter.key && !this._filterValues[filter.key]) {
+                    return false;
+                }
+                
+                return filter.test(result.value, result.key);
+            })) {
                 continue;
             }
             
@@ -152,19 +155,26 @@ const TreeAdapterConfigs = {
         filters: [
             functionFilter(),
             emptyKeysFilter(),
-            locationInformationFilter(new Set(['range', 'loc', 'start', 'end'])),
+            locationInformationFilter(new Set([
+                'range',
+                'loc',
+                'start',
+                'end',
+            ])),
             typeKeysFilter(),
         ],
         openByDefaultNodes: new Set(['Program']),
         openByDefaultKeys: new Set([
             'body',
-            'elements', // array literals
-            'declarations', // variable declaration
-            'expression', // expression statements
+            'elements',
+            // array literals
+            'declarations',
+            // variable declaration
+            'expression' // expression statements
+            ,
         ]),
         openByDefault(node, key) {
-            return node && this.openByDefaultNodes.has(node.type)
-        || this.openByDefaultKeys.has(key);
+            return node && this.openByDefaultNodes.has(node.type) || this.openByDefaultKeys.has(key);
         },
         nodeToRange(node) {
             if (node.range) {
@@ -203,11 +213,7 @@ export function ignoreKeysFilter(keys = new Set(), key, label) {
 }
 
 export function locationInformationFilter(keys) {
-    return ignoreKeysFilter(
-        keys,
-        'hideLocationData',
-        'Hide location data',
-    );
+    return ignoreKeysFilter(keys, 'hideLocationData', 'Hide location data');
 }
 
 export function functionFilter() {
@@ -231,11 +237,7 @@ export function emptyKeysFilter() {
 }
 
 export function typeKeysFilter(keys) {
-    return ignoreKeysFilter(
-        keys,
-        'hideTypeKeys',
-        'Hide type keys',
-    );
+    return ignoreKeysFilter(keys, 'hideTypeKeys', 'Hide type keys');
 }
 
 function createTreeAdapter(type, adapterOptions, filterValues) {
@@ -243,19 +245,13 @@ function createTreeAdapter(type, adapterOptions, filterValues) {
         throw Error(`Unknown tree adapter type "${type}"`);
     }
     
-    return new TreeAdapter(
-        {
-            ...TreeAdapterConfigs[type],
-            ...adapterOptions,
-        },
-        filterValues,
-    );
+    return new TreeAdapter({
+        ...TreeAdapterConfigs[type],
+        ...adapterOptions,
+    }, filterValues);
 }
 
 export function treeAdapterFromParseResult({treeAdapter}, filterValues) {
-    return createTreeAdapter(
-        treeAdapter.type,
-        treeAdapter.options,
-        filterValues,
-    );
+    return createTreeAdapter(treeAdapter.type, treeAdapter.options, filterValues);
 }
+

@@ -6,10 +6,9 @@ export default function SaveButton({canSave, saving, forking, onSave}) {
     return (
         <button
             type="button"
-            disabled={
-                !canSave || saving || forking
-            }
-            onClick={onSave}>
+            disabled={!canSave || saving || forking}
+            onClick={onSave}
+        >
             <i
                 className={cx({
                     'fa': true,
@@ -18,7 +17,7 @@ export default function SaveButton({canSave, saving, forking, onSave}) {
                     'fa-floppy-o': !saving,
                     'fa-fw': true,
                 })}
-            />&nbsp;Save
+            /> Save
         </button>
     );
 }

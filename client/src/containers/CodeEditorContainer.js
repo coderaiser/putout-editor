@@ -23,10 +23,16 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         onContentChange: ({value, cursor}) => {
-            dispatch(setCode({code: value, cursor}));
+            dispatch(setCode({
+                code: value,
+                cursor,
+            }));
         },
         onActivity: (cursor) => dispatch(setCursor(cursor)),
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Editor);

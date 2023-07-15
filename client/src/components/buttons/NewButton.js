@@ -6,8 +6,9 @@ export default function SaveButton({saving, forking, onNew}) {
         <button
             type="button"
             disabled={saving || forking}
-            onClick={onNew}>
-            <i className="fa fa-file-o fa-fw" />&nbsp;New
+            onClick={onNew}
+        >
+            <i className="fa fa-file-o fa-fw"/> New
         </button>
     );
 }
@@ -17,4 +18,3 @@ SaveButton.propTypes = {
     forking: PropTypes.bool,
     onNew: PropTypes.func,
 };
-

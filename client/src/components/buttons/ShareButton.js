@@ -6,8 +6,9 @@ export default function ShareButton({onShareButtonClick, snippet}) {
         <button
             type="button"
             disabled={!snippet}
-            onClick={onShareButtonClick}>
-            <i className="fa fa-share fa-fw" />&nbsp;Share...
+            onClick={onShareButtonClick}
+        >
+            <i className="fa fa-share fa-fw"/> Share...
         </button>
     );
 }

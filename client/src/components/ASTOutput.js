@@ -22,24 +22,21 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
     const [selectedOutput, setSelectedOutput] = useState(0);
     const {ast = null} = parseResult;
     
-    const focusPath = useMemo(
-        () => ast && cursor != null
-            ? getFocusPath(parseResult.ast, cursor, parser)
-            : [],
-        [ast, cursor, parser],
-    );
+    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(parseResult.ast, cursor, parser) : [], [ast, cursor, parser]);
     
     let output;
     
     if (parseResult.error) {
-        output = <div style={{padding: 20}}>
+        output = <div style={{
+            padding: 20,
+        }}>
             {parseResult.error.message}
         </div>;
     } else if (ast) {
-        output = React.createElement(
-            visualizations[selectedOutput],
-            {parseResult, focusPath},
-        );
+        output = React.createElement(visualizations[selectedOutput], {
+            parseResult,
+            focusPath,
+        });
     }
     
     const buttons = visualizations.map((cls, index) => <button
@@ -48,7 +45,8 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
         onClick={(event) => setSelectedOutput(event.target.value)}
         className={cx({
             active: selectedOutput === index,
-        })}>
+        })}
+    >
         {cls.name}
     </button>);
     
@@ -70,4 +68,3 @@ ASTOutput.propTypes = {
     parseResult: PropTypes.object,
     cursor: PropTypes.any,
 };
-

@@ -23,17 +23,17 @@ export default class Editor extends React.Component {
     
     componentDidMount() {
         this._subscriptions = [];
-        this.codeMirror = CodeMirror( // eslint-disable-line new-cap
-            this.container,
-            {
-                value: this.props.value,
-                mode: {name: 'javascript', json: true},
-                readOnly: true,
-                lineNumbers: true,
-                foldGutter: true,
-                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+        this.codeMirror = CodeMirror(this.container, {
+            value: this.props.value,
+            mode: {
+                name: 'javascript',
+                json: true,
             },
-        );
+            readOnly: true,
+            lineNumbers: true,
+            foldGutter: true,
+            gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+        });
         
         this._subscriptions.push(PubSub.subscribe('PANEL_RESIZE', () => {
             if (this.codeMirror) {
@@ -60,9 +60,7 @@ export default class Editor extends React.Component {
             <div id="JSONEditor" className={this.props.className} ref={(c) => this.container = c}/>
         );
     }
-}
-
-Editor.propTypes = {
+}Editor.propTypes = {
     value: PropTypes.string,
     className: PropTypes.string,
 };

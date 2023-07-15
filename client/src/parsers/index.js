@@ -1,6 +1,7 @@
 const localRequire = require.context('./', true, /^\.\/(?!utils|transpilers)[^/]+\/(transformers\/([^/]+)\/)?(codeExample\.txt|[^/]+?\.js)$/);
 
-const files = localRequire.keys()
+const files = localRequire
+    .keys()
     .map((name) => name.split('/').slice(1));
 
 const categoryByID = {};
@@ -37,6 +38,7 @@ export const categories = files
                 
                 parserByID[parser.id] = parser;
                 parser.category = category;
+                
                 return parser;
             });
         
@@ -51,6 +53,7 @@ export const categories = files
                 
                 transformerByID[transformer.id] = transformer;
                 transformer.defaultTransform = localRequire(`${transformerDir}/codeExample.txt`).default;
+                
                 return transformer;
             });
         
@@ -76,3 +79,4 @@ export function getParserByID(id) {
 export function getTransformerByID(id) {
     return transformerByID[id];
 }
+

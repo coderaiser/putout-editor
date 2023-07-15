@@ -35,10 +35,10 @@ export function updateURI(data) {
     let hash = '';
     
     if (id) {
-        hash += '/' + id;
+        hash += `/${id}`;
         
         if (rev) {
-            hash += '/' + rev;
+            hash += `/${rev}`;
         }
     }
     
@@ -48,3 +48,4 @@ export function updateURI(data) {
     
     global.location.hash = hash;
 }
+

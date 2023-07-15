@@ -39,4 +39,3 @@ function build(env) {
     
     return `${webpack} && ${rm} && ${mv}`;
 }
-

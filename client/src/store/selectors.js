@@ -6,7 +6,6 @@ import {
 } from '../parsers';
 
 // UI related
-
 export function getFormattingState(state) {
     return state.enableFormatting;
 }
@@ -40,7 +39,6 @@ export function isSaving(state) {
 }
 
 // Parser related
-
 export function getParser(state) {
     return getParserByID(state.workbench.parser);
 }
@@ -70,13 +68,9 @@ export function getKeyMap(state) {
     return state.workbench.keyMap;
 }
 
-const isCodeDirty = createSelector(
-    [getCode, getInitialCode],
-    (code, initialCode) => code !== initialCode,
-);
+const isCodeDirty = createSelector([getCode, getInitialCode], (code, initialCode) => code !== initialCode);
 
 // Transform related
-
 export function getTransformCode(state) {
     return state.workbench.transform.code;
 }
@@ -93,39 +87,23 @@ export function showTransformer(state) {
     return state.showTransformPanel;
 }
 
-const isTransformDirty = createSelector(
-    [getTransformCode, getInitialTransformCode],
-    (code, initialCode) => code !== initialCode,
-);
+const isTransformDirty = createSelector([getTransformCode, getInitialTransformCode], (code, initialCode) => code !== initialCode);
 
-export const canFork = createSelector(
-    [getRevision],
-    Boolean,
-);
+export const canFork = createSelector([getRevision], Boolean);
 
-const canSaveCode = createSelector(
-    [getRevision, isCodeDirty],
-    (revision, dirty) => !revision // can always save if there is no revision
-    || dirty,
+const canSaveCode = createSelector([getRevision, isCodeDirty], (revision, dirty) => !revision // can always save if there is no revision
+ || dirty);
 
-);
+export const canSaveTransform = createSelector([showTransformer, isTransformDirty], (showTransformer, dirty) => showTransformer && dirty);
 
-export const canSaveTransform = createSelector(
-    [showTransformer, isTransformDirty],
-    (showTransformer, dirty) => showTransformer && dirty,
-);
+const didParserSettingsChange = createSelector([getParserSettings, getRevision, getParser], (parserSettings, revision, parser) => {
+    const savedParserSettings = revision?.getParserSettings();
+    return revision && (parser.id !== revision.getParserID() || savedParserSettings && !isEqual(parserSettings, savedParserSettings));
+});
 
-const didParserSettingsChange = createSelector(
-    [getParserSettings, getRevision, getParser],
-    (parserSettings, revision, parser) => {
-        const savedParserSettings = revision?.getParserSettings();
-        return revision && (parser.id !== revision.getParserID() || savedParserSettings && !isEqual(parserSettings, savedParserSettings));
-    },
-);
-
-export const canSave = createSelector(
-    [getRevision, canSaveCode, canSaveTransform, didParserSettingsChange],
-    (revision, canSaveCode, canSaveTransform, didParserSettingsChange) => (canSaveCode || canSaveTransform || didParserSettingsChange) &&
-    (!revision || revision.canSave()),
-
-);
+export const canSave = createSelector([
+    getRevision,
+    canSaveCode,
+    canSaveTransform,
+    didParserSettingsChange,
+], (revision, canSaveCode, canSaveTransform, didParserSettingsChange) => (canSaveCode || canSaveTransform || didParserSettingsChange) && (!revision || revision.canSave()));

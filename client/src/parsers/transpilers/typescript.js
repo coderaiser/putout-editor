@@ -7,6 +7,8 @@ const compilerOptions = {
 
 export default function transpile(code) {
     let es5Code = ts.transpileModule(code, compilerOptions).outputText;
+    
     es5Code = protect(es5Code);
     return es5Code;
 }
+

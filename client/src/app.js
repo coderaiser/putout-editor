@@ -37,7 +37,6 @@ import {
 import {enableBatching} from 'redux-batched-actions';
 import {loadSnippet} from './store/actions';
 import {createRoot} from 'react-dom/client';
-
 import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
@@ -51,26 +50,28 @@ function resize() {
 function App(props) {
     return (
         <div>
-            <ErrorMessageContainer />
+            <ErrorMessageContainer/>
             <div className={'dropTarget' + (props.hasError ? ' hasError' : '')}>
                 <PasteDropTargetContainer>
-                    <LoadingIndicatorContainer />
-                    <SettingsDialogContainer />
-                    <ShareDialogContainer />
+                    <LoadingIndicatorContainer/>
+                    <SettingsDialogContainer/>
+                    <ShareDialogContainer/>
                     <div id="root">
-                        <ToolbarContainer />
-                        <GistBanner />
+                        <ToolbarContainer/>
+                        <GistBanner/>
                         <SplitPane
                             className="splitpane-content"
                             vertical={true}
-                            onResize={resize}>
+                            onResize={resize}
+                        >
                             <SplitPane
                                 className="splitpane"
-                                onResize={resize}>
-                                <CodeEditorContainer />
-                                <ASTOutputContainer />
+                                onResize={resize}
+                            >
+                                <CodeEditorContainer/>
+                                <ASTOutputContainer/>
                             </SplitPane>
-                            {props.showTransformer ? <TransformerContainer /> : null}
+                            {props.showTransformer ? <TransformerContainer/> : null}
                         </SplitPane>
                     </div>
                 </PasteDropTargetContainer>
@@ -91,11 +92,16 @@ const AppContainer = connect((state) => ({
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const sagaMiddleware = createSagaMiddleware();
+
 const store = createStore(
     enableBatching(astexplorer),
     revive(LocalStorage.readState()),
-    composeEnhancers(applyMiddleware(sagaMiddleware, parserMiddleware)),
+    composeEnhancers(applyMiddleware(
+        sagaMiddleware,
+        parserMiddleware,
+    )),
 );
+
 store.subscribe(debounce(() => {
     const state = store.getState();
     
@@ -105,16 +111,16 @@ store.subscribe(debounce(() => {
     }
 }));
 sagaMiddleware.run(saga, new StorageHandler([gist, parse]));
-store.dispatch({type: 'INIT'});
+store.dispatch({
+    type: 'INIT',
+});
 
 const container = document.getElementById('container');
 const root = createRoot(container);
 
-root.render(
-    <Provider store={store}>
-        <AppContainer />
-    </Provider>,
-);
+root.render(<Provider store={store}>
+    <AppContainer/>
+</Provider>);
 
 global.onhashchange = () => {
     store.dispatch(loadSnippet());
@@ -131,4 +137,3 @@ global.onbeforeunload = () => {
         return 'You have unsaved transform code. Do you really want to leave?';
     }
 };
-

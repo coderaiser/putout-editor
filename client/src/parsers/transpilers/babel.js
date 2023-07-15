@@ -13,6 +13,8 @@ const options = {
 
 export default function transpile(code) {
     let es5Code = babel.transform(code, options).code;
+    
     es5Code = protect(es5Code);
     return es5Code;
 }
+

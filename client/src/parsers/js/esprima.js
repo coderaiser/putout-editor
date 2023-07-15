@@ -7,12 +7,14 @@ const isFn = (a) => typeof a === 'function';
 
 export default {
     ...defaultParserInterface,
-    
     id: ID,
     displayName: ID,
     version: pkg.version,
     homepage: pkg.homepage,
-    locationProps: new Set(['range', 'loc']),
+    locationProps: new Set([
+        'range',
+        'loc',
+    ]),
     
     loadParser(callback) {
         require(['esprima'], callback);
@@ -51,7 +53,10 @@ export default {
     _getSettingsConfiguration() {
         return {
             fields: [
-                ['sourceType', ['script', 'module']],
+                ['sourceType', [
+                    'script',
+                    'module',
+                ]],
                 'range',
                 'loc',
                 'attachComment',

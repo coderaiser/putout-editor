@@ -36,8 +36,10 @@ export default class SplitPane extends React.Component {
         const moveHandler = (event) => {
             event.preventDefault();
             this.setState({
-                dividerPosition: (vertical ? event.pageY : event.pageX) / max * 100});
+                dividerPosition: (vertical ? event.pageY : event.pageX) / max * 100,
+            });
         };
+        
         const upHandler = () => {
             document.removeEventListener('mousemove', moveHandler);
             document.removeEventListener('mouseup', upHandler);
@@ -62,7 +64,13 @@ export default class SplitPane extends React.Component {
         if (!Array.isArray(children) || children.filter(Boolean).length !== 2) {
             return (
                 <div className={this.props.className}>
-                    <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}}>
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                    }}>
                         {this.props.children}
                     </div>
                 </div>
@@ -74,9 +82,10 @@ export default class SplitPane extends React.Component {
             styleA = {
                 ...baseStyleVertical,
                 top: 0,
-                height: dividerPos + '%',
+                height: `${dividerPos}%`,
                 paddingBottom: 3,
             };
+            
             // bottom
             styleB = {
                 ...baseStyleVertical,
@@ -86,7 +95,7 @@ export default class SplitPane extends React.Component {
             };
             dividerStyle = {
                 ...baseStyleVertical,
-                top: dividerPos + '%',
+                top: `${dividerPos}%`,
                 height: 5,
                 marginTop: -2.5,
                 zIndex: 100,
@@ -96,9 +105,10 @@ export default class SplitPane extends React.Component {
             styleA = {
                 ...baseStyleHorizontal,
                 left: 0,
-                width: dividerPos + '%',
+                width: `${dividerPos}%`,
                 paddingRight: 3,
             };
+            
             // right
             styleB = {
                 ...baseStyleHorizontal,
@@ -108,7 +118,7 @@ export default class SplitPane extends React.Component {
             };
             dividerStyle = {
                 ...baseStyleHorizontal,
-                left: dividerPos + '%',
+                left: `${dividerPos}%`,
                 width: 5,
                 marginLeft: -2.5,
                 zIndex: 100,
@@ -121,9 +131,7 @@ export default class SplitPane extends React.Component {
                     {this.props.children[0]}
                 </div>
                 <div
-                    className={
-                        'splitpane-divider' + (this.props.vertical ? ' vertical' : '')
-                    }
+                    className={'splitpane-divider' + (this.props.vertical ? ' vertical' : '')}
                     onMouseDown={this._onMouseDown}
                     style={dividerStyle}
                 />
@@ -133,9 +141,7 @@ export default class SplitPane extends React.Component {
             </div>
         );
     }
-}
-
-SplitPane.propTypes = {
+}SplitPane.propTypes = {
     vertical: PropTypes.bool,
     className: PropTypes.string,
     children: PropTypes.node,
