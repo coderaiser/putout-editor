@@ -14,7 +14,7 @@ export default {
     // id (string)
     
     /**
-   * The name of the parser as diplayed in the UI.
+   * The name of the parser as displayed in the UI.
    */
     // displayName (string)
     
@@ -57,7 +57,7 @@ export default {
     },
     
     /**
-   * The start and end indicies of the node in the source text. The return value
+   * The start and end indices of the node in the source text. The return value
    * is an array of form `[start, end]`. This is used for highlighting source
    * text and focusing nodes in the tree.
    */nodeToRange(node) {

@@ -22,7 +22,7 @@ function transform(transformer, transformCode, code, parser) {
             .then((result) => {
                 let map = null;
                 
-                if (typeof result !== 'string') {
+                if (!isString(result)) {
                     if (result.map) {
                         map = new SourceMapConsumer(result.map);
                     }

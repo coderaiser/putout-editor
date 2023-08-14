@@ -12,7 +12,7 @@ function resize() {
 }
 
 export default function Transformer(props) {
-    // 🐊Putout transfomer only have
+    // 🐊Putout transformer only have
     const {transformer = getTransformerByID('putout')} = props;
     
     const plainEditor = React.createElement(Editor, {

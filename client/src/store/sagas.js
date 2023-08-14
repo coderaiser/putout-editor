@@ -26,7 +26,7 @@ import {
     showTransformer,
 } from './selectors';
 
-function *save(fork, storageAdapter) {
+function* save(fork, storageAdapter) {
     let action = 'new_revision';
     const [
         revision,
@@ -90,7 +90,7 @@ function *save(fork, storageAdapter) {
     }
 }
 
-function *watchSave(storageAdapter, {fork}) {
+function* watchSave(storageAdapter, {fork}) {
     yield put(actions.startSave(fork));
     yield* save(fork, storageAdapter);
     yield put(actions.endSave(fork));
@@ -98,7 +98,7 @@ function *watchSave(storageAdapter, {fork}) {
 
 let goBackTask = null;
 
-function *goBack() {
+function* goBack() {
     try {
         yield take(actions.CLEAR_ERROR);
         global.location.hash = '';
@@ -107,7 +107,7 @@ function *goBack() {
     }
 }
 
-function *watchSnippetURI(storageAdapter) {
+function* watchSnippetURI(storageAdapter) {
     if (goBackTask) {
         yield cancel(goBackTask);
     }
@@ -156,7 +156,7 @@ function *watchSnippetURI(storageAdapter) {
     ]));
 }
 
-export default function *(storageAdapter) {
+export default function* (storageAdapter) {
     yield takeEvery(actions.LOAD_SNIPPET, watchSnippetURI, storageAdapter);
     yield takeEvery(actions.SAVE, watchSave, storageAdapter);
 }

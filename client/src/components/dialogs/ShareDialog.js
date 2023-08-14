@@ -17,10 +17,13 @@ export default class ShareDialog extends React.Component {
         if (this.props.visible) {
             return (
                 <div id="ShareDialog" className="dialog" onClick={this._outerClick}>
-                    <div className="inner" style={{
-                        maxWidth: '80%',
-                        width: 600,
-                    }}>
+                    <div
+                        className="inner"
+                        style={{
+                            maxWidth: '80%',
+                            width: 600,
+                        }}
+                    >
                         <div className="body">
                             {this.props.snippet.getShareInfo()}
                         </div>

@@ -27,9 +27,11 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
     let output;
     
     if (parseResult.error) {
-        output = <div style={{
-            padding: 20,
-        }}>
+        output = <div
+            style={{
+                padding: 20,
+            }}
+        >
             {parseResult.error.message}
         </div>;
     } else if (ast) {

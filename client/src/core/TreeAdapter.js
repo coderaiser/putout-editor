@@ -26,7 +26,7 @@ class TreeAdapter {
     }
     
     /**
-   * The start and end indicies of the node in the source text. The return value
+   * The start and end indices of the node in the source text. The return value
    * is an array of form `[start, end]`. This is used for highlighting source
    * text and focusing nodes in the tree.
    */

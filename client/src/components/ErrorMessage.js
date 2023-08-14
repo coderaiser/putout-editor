@@ -11,9 +11,11 @@ export default class ErrorMessage extends React.Component {
             Error
                 </h3>
                 <div>{this.props.error.message}</div>
-                <div style={{
-                    marginTop: 15,
-                }}>
+                <div
+                    style={{
+                        marginTop: 15,
+                    }}
+                >
                     <button
                         type="button"
                         onClick={this.props.onWantToClose}

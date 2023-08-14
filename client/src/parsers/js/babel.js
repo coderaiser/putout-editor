@@ -3,6 +3,7 @@ import pkg from 'babylon7/babylon-package';
 import plugins from '@putout/engine-parser/babel/plugins';
 import options from '@putout/engine-parser/babel/options';
 
+const isUndefined = (a) => typeof a === 'undefined';
 const {keys} = Object;
 
 const availablePlugins = [
@@ -137,7 +138,7 @@ export default {
     },
     
     nodeToRange(node) {
-        if (typeof node.start !== 'undefined') {
+        if (!isUndefined(node.start)) {
             return [
                 node.start,
                 node.end,

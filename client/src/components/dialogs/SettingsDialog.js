@@ -54,9 +54,12 @@ export default class SettingsDialog extends React.Component {
                             {this.props.parser.renderSettings(this.state.parserSettings, this._onChange)}
                         </div>
                         <div className="footer">
-                            <button style={{
-                                marginRight: 10,
-                            }} onClick={this._reset}>
+                            <button
+                                style={{
+                                    marginRight: 10,
+                                }}
+                                onClick={this._reset}
+                            >
                 Reset
                             </button>
                             <button onClick={this._saveAndClose}>Close</button>

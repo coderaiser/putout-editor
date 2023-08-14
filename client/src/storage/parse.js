@@ -105,8 +105,7 @@ class Revision {
     }
     
     getTransformerID() {
-        const transformerID = this._data.toolID;
-        return transformerID;
+        return this._data.toolID;
     }
     
     getTransformCode() {

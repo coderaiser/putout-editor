@@ -6,6 +6,7 @@ const noop = () => {};
 
 export const writeState = storage ? (state) => {
     const [error] = tryCatch(storage.setItem.bind(storage), key, JSON.stringify(state));
+    
     // eslint-disable-next-line no-console
     error && console.warn('Unable to write to local storage.');
 } : noop;

@@ -64,13 +64,15 @@ export default class SplitPane extends React.Component {
         if (!Array.isArray(children) || children.filter(Boolean).length !== 2) {
             return (
                 <div className={this.props.className}>
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                    }}>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                        }}
+                    >
                         {this.props.children}
                     </div>
                 </div>

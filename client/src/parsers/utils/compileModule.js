@@ -18,6 +18,7 @@ export default function compileModule(code, globals = {}) {
         'exports',
         Object.keys(globals),
     ];
+    
     const values = [
         module,
         exports,
@@ -25,6 +26,7 @@ export default function compileModule(code, globals = {}) {
     ];
     
     const safeCode = protect(code);
+    
     parse(safeCode, {
         parser: babelParser,
         isTS: true,
