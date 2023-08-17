@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "body-parser": "^1.15.2",
+    "cors": "^2.8.5",
     "express": "^4.14.0",
     "github-api": "https://github.com/fkling/github.git"
   },
@@ -14,10 +15,10 @@
     "fix:lint": "madrun fix:lint"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "devDependencies": {
-    "eslint": "^7.25.0",
+    "eslint": "^8.47.0",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-putout": "^7.5.0",
     "madrun": "^8.8.3"
