@@ -31,7 +31,6 @@ app.use((err, req, res, next) => {
         res.status(err.response.status).send(err.response.statusText);
         return;
     }
-    // eslint-disable-next-line no-console
     res.status(500).send('Something went wrong');
 });
 
