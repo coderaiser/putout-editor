@@ -4,6 +4,7 @@ import putout from 'putout';
 import pluginConvertEsmToCommonjs from '@putout/plugin-convert-esm-to-commonjs';
 import pluginPutout from '@putout/plugin-putout';
 import pluginDeclare from '@putout/plugin-declare';
+import pluginTypes from '@putout/plugin-types';
 import pluginDeclareBeforeReference from '@putout/plugin-declare-before-reference';
 import protect from '../utils/protectFromLoops';
 
@@ -37,6 +38,7 @@ export default function compileModule(code, globals = {}) {
         plugins: [
             ['putout', pluginPutout],
             ['declare', pluginDeclare],
+            ['types', pluginTypes],
             ['declare-declare-before-reference', pluginDeclareBeforeReference],
             ['convert-esm-to-commonjs', pluginConvertEsmToCommonjs],
         ],
