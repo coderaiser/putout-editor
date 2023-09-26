@@ -1,3 +1,10 @@
+2023.09.26, v2.2.0
+
+feature:
+- c0caa9f add sourcePhaseImports, deferredImportEvaluation, optionalChainingAssign
+- c777ea5 decoratorAutoAccessors
+- 62ff58f package: putout v32.0.1
+
 2023.08.26, v2.1.0
 
 feature:
