@@ -42,6 +42,9 @@ const availablePlugins = [
     'throwExpressions',
     'recordAndTuple',
     'importAttributes',
+    'sourcePhaseImports',
+    'deferredImportEvaluation',
+    'optionalChainingAssign',
 ];
 
 const ID = 'babel';
@@ -118,6 +121,11 @@ export default {
             case 'importAttributes':
                 return ['importAttributes', {
                     deprecatedAssertSyntax: true,
+                }];
+            
+            case 'optionalChainingAssign':
+                return ['optionalChainingAssign', {
+                    version: '2023-07',
                 }];
             
             default:
