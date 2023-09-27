@@ -1,7 +1,7 @@
 import {parse} from '@putout/engine-parser';
-import babelParser from '@putout/engine-parser/babel';
 import putout from 'putout';
 import pluginConvertEsmToCommonjs from '@putout/plugin-convert-esm-to-commonjs';
+import pluginConvertOptionalToLogical from '@putout/plugin-convert-optional-to-logical';
 import pluginPutout from '@putout/plugin-putout';
 import pluginDeclare from '@putout/plugin-declare';
 import pluginTypes from '@putout/plugin-types';
@@ -26,25 +26,19 @@ export default function compileModule(code, globals = {}) {
         ...Object.values(globals),
     ];
     
-    const safeCode = protect(code);
-    
-    parse(safeCode, {
-        parser: babelParser,
-        isTS: true,
-        isJSX: true,
-    });
-    
-    const result = putout(safeCode, {
+    const result = putout(code, {
         plugins: [
             ['putout', pluginPutout],
             ['declare', pluginDeclare],
             ['types', pluginTypes],
             ['declare-declare-before-reference', pluginDeclareBeforeReference],
             ['convert-esm-to-commonjs', pluginConvertEsmToCommonjs],
+            ['convert-optional-to-logical', pluginConvertOptionalToLogical],
         ],
     });
+    const safeCode = protect(result.code);
     
-    new Function(keys.join(), result.code).apply(exports, values);
+    new Function(keys.join(), safeCode).apply(exports, values);
     return module.exports;
 }
 
