@@ -37,7 +37,6 @@ const availablePlugins = [
     'numericSeparator',
     'objectRestSpread',
     'optionalCatchBinding',
-    'optionalChaining',
     'pipelineOperator',
     'throwExpressions',
     'recordAndTuple',
