@@ -1,4 +1,9 @@
 {
+    "env": {
+      "development" : {
+        "compact": true
+      }
+    },
     "presets": [
         "@babel/preset-env",
         "@babel/preset-react"

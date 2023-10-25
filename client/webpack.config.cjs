@@ -181,6 +181,7 @@ module.exports = {
             os: false,
             constants: false,
             jscodeshift: false,
+            tty: require.resolve("tty-browserify"),
         },
     },
     
