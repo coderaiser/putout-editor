@@ -58,7 +58,7 @@
   "dependencies": {
     "@babel/runtime": "^7.1.5",
     "@putout/plugin-declare": "^2.0.1",
-    "@putout/plugin-declare-before-reference": "^2.0.0",
+    "@putout/plugin-declare-before-reference": "^3.0.0",
     "@putout/plugin-putout": "^15.2.0",
     "@putout/recast": "^1.1.2",
     "acorn": "^8.0.1",
