@@ -116,12 +116,13 @@ module.exports = {
                 path.join(__dirname, 'node_modules', 'tslib'),
                 path.join(__dirname, 'src'),
                 path.join(__dirname, 'node_modules', 'putout'),
-                path.join(__dirname, 'node_modules', '@putout/plugin-convert-esm-to-commmonjs'),
+                path.join(__dirname, 'node_modules', '@putout/plugin-nodejs'),
                 path.join(__dirname, 'node_modules', '@putout'),
                 path.join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
             loader: 'babel-loader',
             options: {
+                compact: true,
                 presets: [
                     [
                         require.resolve('@babel/preset-env'), {
