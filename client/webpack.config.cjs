@@ -173,7 +173,7 @@ module.exports = {
         fallback: {
             assert: require.resolve('assert'),
             buffer: require.resolve('buffer/'),
-            path: false,
+            path: require.resolve("path-browserify"),
             child_process: false,
             fs: false,
             module: false,

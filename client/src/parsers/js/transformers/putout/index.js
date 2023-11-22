@@ -39,7 +39,12 @@ export default {
         });
         
         const plugin = compileModule(transformCode, {
-            require: () => putout,
+            require: (name) => {
+                if (name === 'path' || name === 'node:path')
+                    return require('path');
+                
+                return putout
+            }
         });
         
         plugin.report = plugin.report || noop;
