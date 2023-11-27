@@ -1,5 +1,8 @@
 'use strict';
 
+const {join} = require('node:path');
+const process = require('node:process');
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
@@ -9,12 +12,15 @@ const path = require('path');
 const webpack = require('webpack');
 
 const DEV = process.env.NODE_ENV !== 'production';
-const CACHE_BREAKER = Number(fs.readFileSync(path.join(__dirname, 'CACHE_BREAKER')));
+const CACHE_BREAKER = Number(fs.readFileSync(join(__dirname, 'CACHE_BREAKER')));
 
-const packages = fs.readdirSync(path.join(__dirname, 'packages'));
+const packages = fs.readdirSync(join(__dirname, 'packages'));
 const test = RegExp(`/node_modules/(?!${packages.join('|')}/)`);
 
 const plugins = [
+    new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+        resource.request = resource.request.replace(/^node:/, '');
+    }),
     new webpack.IgnorePlugin({
         resourceRegExp: /hermes-parser/,
     }),
@@ -114,7 +120,7 @@ module.exports = {
                 path.join(__dirname, 'node_modules', 'simple-html-tokenizer'),
                 path.join(__dirname, 'node_modules', 'symbol-observable', 'es'),
                 path.join(__dirname, 'node_modules', 'tslib'),
-                path.join(__dirname, 'src'),
+                join(__dirname, 'src'),
                 path.join(__dirname, 'node_modules', 'putout'),
                 path.join(__dirname, 'node_modules', '@putout/plugin-nodejs'),
                 path.join(__dirname, 'node_modules', '@putout'),
@@ -173,7 +179,7 @@ module.exports = {
         fallback: {
             assert: require.resolve('assert'),
             buffer: require.resolve('buffer/'),
-            path: require.resolve("path-browserify"),
+            path: require.resolve('path-browserify'),
             child_process: false,
             fs: false,
             module: false,
@@ -182,7 +188,7 @@ module.exports = {
             os: false,
             constants: false,
             jscodeshift: false,
-            tty: require.resolve("tty-browserify"),
+            tty: require.resolve('tty-browserify'),
         },
     },
     

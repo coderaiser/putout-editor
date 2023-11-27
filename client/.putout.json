@@ -11,13 +11,15 @@
         },
         ".eslintrc.js": {
             "remove-console": "on"
+        },
+        "*.cjs": {
+            "nodejs/convert-esm-to-commonjs": "on"
         }
     },
     "rules": {
         "remove-console": "off",
         "remove-empty/import": "off",
         "apply-optional-chaining": "on",
-        "nodejs/convert-commonjs-to-esm/commons": "off",
-        "nodejs/convert-esm-to-commonjs": "off"
+        "nodejs/convert-commonjs-to-esm/commons": "off"
     }
 }
