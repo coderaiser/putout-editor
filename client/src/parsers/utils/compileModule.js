@@ -8,6 +8,7 @@ import pluginTypes from '@putout/plugin-types';
 import pluginDeclareBeforeReference from '@putout/plugin-declare-before-reference';
 import pluginNodejs from '@putout/plugin-nodejs';
 import pluginMergeDestructuringProperties from '@putout/plugin-merge-destructuring-properties';
+import pluginMaybe from '@putout/plugin-maybe';
 
 import protect from '../utils/protectFromLoops';
 
@@ -34,6 +35,7 @@ export default function compileModule(code, globals = {}) {
         plugins: [
             ['putout', pluginPutout],
             ['declare', pluginDeclare],
+            ['maybe', pluginMaybe],
             ['types', pluginTypes],
             ['merge-destructuring-properties', pluginMergeDestructuringProperties],
             ['declare-declare-before-reference', pluginDeclareBeforeReference],
