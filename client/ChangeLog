@@ -1,3 +1,33 @@
+2024.01.29, v2.3.1
+
+feature:
+- 55d2423 package: espree v10.0.0
+- 60cbbd3 package: putout v35.0.0
+- 9084e79 package: estree-to-babel v9.0.0
+- cbf22a0 package: @putout/plugin-putout v18.5.0
+- 0dff806 package: eslint-plugin-putout v22.0.0
+- 236f646 package: @putout/plugin-nodejs v10.0.0
+- 030045f package: @putout/engine-parser v10.0.2
+- 1dc7727 package: madrun v10.0.0
+- e5889b7 package: putout v34.0.1
+- 451cc18 package: @putout/plugin-maybe v2.0.1
+- d228659 package: @putout/plugin-putout v17.0.0
+- 7335491 add support of path
+- d75f8eb package: rimraf v5.0.5
+- 6ea51f1 package: @putout/plugin-putout v16.3.0
+- 9a93d2a update
+- 13efc58 package: estree-to-babel v8.1.1
+- 38dd470 package: eslint-plugin-putout v21.0.2
+- 305a252 package: @putout/plugin-declare-before-reference v3.0.0
+- 38a38f4 package: @putout/plugin-declare v2.0.1
+- 04ae5b9 package: @putout/plugin-nodejs v9.0.1
+- 1cc93f6 package: putout v33.0.0
+- 144ca36 package: @putout/plugin-putout v15.2.0
+- 67a89e7 client: build
+- 684a2f8 package: tty-browserify v0.0.1
+- 4f60baf package: eslint-plugin-putout v20.0.0
+- 6d07293 babel: drop optionalChaining: enabled by default
+
 2023.09.27, v2.3.0
 
 feature:
