@@ -136,7 +136,7 @@ module.exports = {
                         }],
                     require.resolve('@babel/preset-react'),
                 ],
-                plugins: ['@babel/plugin-proposal-optional-chaining', require.resolve('@babel/plugin-transform-runtime')],
+                plugins: ['@babel/plugin-transform-optional-chaining', require.resolve('@babel/plugin-transform-runtime')],
             },
         }, {
             test: /\.css$/,

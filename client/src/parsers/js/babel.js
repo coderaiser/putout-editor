@@ -54,6 +54,7 @@ export const defaultOptions = {
     ranges: false,
     tokens: false,
     plugins,
+    errorRecovery: false,
 };
 
 export const parserSettingsConfiguration = {
@@ -64,6 +65,7 @@ export const parserSettingsConfiguration = {
         ]],
         ...keys(options),
         'ranges',
+        'errorRecovery',
         'tokens', {
             key: 'plugins',
             title: 'Plugins',
