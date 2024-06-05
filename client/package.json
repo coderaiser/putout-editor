@@ -60,7 +60,7 @@
     "@babel/runtime": "^7.1.5",
     "@putout/plugin-declare": "^4.0.0",
     "@putout/plugin-declare-before-reference": "^4.0.0",
-    "@putout/plugin-putout": "^19.0.0",
+    "@putout/plugin-putout": "^20.4.0",
     "@putout/recast": "^1.1.2",
     "acorn": "^8.0.1",
     "acorn-jsx": "^5.0.1",
