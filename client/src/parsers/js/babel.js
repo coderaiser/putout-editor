@@ -115,9 +115,7 @@ export default {
                 }];
             
             case 'recordAndTuple':
-                return ['recordAndTuple', {
-                    syntaxType: 'hash',
-                }];
+                return 'recordAndTuple';
             
             case 'importAttributes':
                 return ['importAttributes', {
