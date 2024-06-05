@@ -114,9 +114,6 @@ export default {
                     proposal: 'minimal',
                 }];
             
-            case 'recordAndTuple':
-                return 'recordAndTuple';
-            
             case 'importAttributes':
                 return ['importAttributes', {
                     deprecatedAssertSyntax: true,
@@ -128,6 +125,9 @@ export default {
                 }];
             
             default:
+                if (plugin[0] === 'recordAndTuple')
+                    return 'recordAndTuple';
+                
                 return plugin;
             }
         });
