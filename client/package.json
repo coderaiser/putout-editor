@@ -20,7 +20,7 @@
     "@putout/plugin-convert-optional-to-logical": "^3.0.0",
     "@putout/plugin-maybe": "^2.0.1",
     "@putout/plugin-nodejs": "^11.0.0",
-    "@putout/plugin-types": "^3.0.0",
+    "@putout/plugin-types": "^4.1.0",
     "acorn-stage3": "^4.0.0",
     "assert": "^2.0.0",
     "autoprefixer": "^10.0.1",
