@@ -17,6 +17,7 @@
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-react": "^7.0.0",
     "@putout/engine-parser": "^10.0.2",
+    "@putout/plugin-convert-assignment-to-declaration": "^1.0.0",
     "@putout/plugin-convert-optional-to-logical": "^3.0.0",
     "@putout/plugin-maybe": "^2.0.1",
     "@putout/plugin-nodejs": "^11.0.0",
