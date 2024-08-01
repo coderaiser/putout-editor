@@ -1,3 +1,19 @@
+2024.08.01, v2.4.0
+
+feature:
+- 16a6fb0 package: putout v36.0.0
+- fa51215 package: @putout/plugin-convert-assignment-to-declaration v1.0.0
+- 9374bec recordAndTuple never has options
+- 67ea908 package: @putout/plugin-types v4.1.0
+- 8ba66f6 package: @putout/plugin-putout v20.4.0
+- f2eba10 package: @putout/plugin-declare-before-reference v4.0.0
+- 4317a3a package: @putout/plugin-declare v4.0.0
+- 8e48a15 syntax not required in recordAndTuple
+- a59ddc0 client: add errorRecovery
+- 51849fd package: @putout/plugin-putout v19.0.0
+- f2fa8c4 package: @putout/plugin-nodejs v11.0.0
+- 7c84156 package: @putout/plugin-declare v3.0.0
+
 2024.01.29, v2.3.1
 
 feature:
