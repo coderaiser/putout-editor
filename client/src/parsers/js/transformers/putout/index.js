@@ -77,6 +77,13 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
         return esprima;
     
     default:
-        return babel;
+        return {
+            parse: (source, options) => {
+                return babel.parse(source, {
+                    ...options,
+                    isRecovery: true,
+                });
+            }
+        }
     }
 }
