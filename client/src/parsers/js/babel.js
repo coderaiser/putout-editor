@@ -40,7 +40,7 @@ const availablePlugins = [
     'pipelineOperator',
     'throwExpressions',
     'recordAndTuple',
-    'importAttributes',
+    'deprecatedImportAssert',
     'sourcePhaseImports',
     'deferredImportEvaluation',
     'optionalChainingAssign',
@@ -114,10 +114,8 @@ export default {
                     proposal: 'minimal',
                 }];
             
-            case 'importAttributes':
-                return ['importAttributes', {
-                    deprecatedAssertSyntax: true,
-                }];
+            case 'deprecatedImportAssert':
+                return 'deprecatedImportAssert';
             
             case 'optionalChainingAssign':
                 return ['optionalChainingAssign', {
