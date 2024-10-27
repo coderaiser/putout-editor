@@ -34,7 +34,7 @@
     "eslint-plugin-putout": "^23.0.0",
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-require-in-package": "^1.0.3",
-    "estree-to-babel": "^9.0.0",
+    "estree-to-babel": "^10.0.0",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^5.3.1",
     "http-server": "^0.12.0",
