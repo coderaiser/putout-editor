@@ -39,6 +39,13 @@ export default (store) => (next) => (action) => {
         
         const start = Date.now();
         
+        const {plugins} = newParserSettings;
+        
+        newParserSettings.plugins = plugins.filter((a) => {
+            return a !== 'importAssertions';
+        });
+
+        
         return parse(newParser, newCode, newParserSettings).then((ast) => {
             // Did anything change in the meantime?
             if (newParser !== getParser(store.getState()) || newParserSettings !== getParserSettings(store.getState()) || newCode !== getCode(store.getState())) {
