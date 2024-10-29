@@ -39,11 +39,13 @@ export default (store) => (next) => (action) => {
         
         const start = Date.now();
         
-        const {plugins} = newParserSettings;
-        
-        newParserSettings.plugins = plugins.filter((a) => {
-            return a !== 'importAssertions';
-        });
+        if (newParserSettings) {
+            const {plugins} = newParserSettings;
+            
+            newParserSettings.plugins = plugins.filter((a) => {
+                return a !== 'importAttributes' && a[0] !== 'importAttributes';
+            });
+        }
 
         
         return parse(newParser, newCode, newParserSettings).then((ast) => {
