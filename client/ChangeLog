@@ -1,3 +1,25 @@
+2024.12.31, v2.4.1
+
+fix:
+- 970edf5 putout-editor: importAssertions -> importAttributes
+- 23e77f2 disable importAssertions
+
+feature:
+- 0169f4a package: @putout/plugin-putout v22.2.0
+- 5a8e028 package: @putout/plugin-nodejs v13.1.1
+- 746bc1b package: @putout/plugin-declare-before-reference v5.1.0
+- 3df69b8 convert-optional-to-logical -> optional-chaining
+- 3b42625 package: putout v37.0.1
+- a7d7713 package: @putout/plugin-nodejs v12.0.1
+- c1ee83d package: estree-to-babel v10.0.0
+- f8c2049 importAttributes -> deprecatedImportAssert
+- 41f92be package: @putout/engine-parser v11.0.1
+- ccefb7b package: @putout/plugin-types v5.0.0
+- 1f230b1 package: @putout/plugin-putout v21.0.0
+- c0d4217 package: eslint-plugin-putout v23.0.0
+- 80afd28 putout-editor: transformers: putout: parse: isRecovery
+- 91e31ba package: @putout/plugin-convert-optional-to-logical v4.0.0
+
 2024.08.01, v2.4.0
 
 feature:
