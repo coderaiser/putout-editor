@@ -9,6 +9,7 @@ import pluginDeclareBeforeReference from '@putout/plugin-declare-before-referenc
 import pluginNodejs from '@putout/plugin-nodejs';
 import pluginMergeDestructuringProperties from '@putout/plugin-merge-destructuring-properties';
 import pluginMaybe from '@putout/plugin-maybe';
+import pluginConvertConstToLet from '@putout/plugin-convert-const-to-let';
 
 import protect from '../utils/protectFromLoops';
 
@@ -33,8 +34,9 @@ export default function compileModule(code, globals = {}) {
     const result = putout(code, {
         fixCount: 10,
         plugins: [
-            ['putout', pluginPutout],
+            ['convert-const-to-let', pluginConvertConstToLet],
             ['declare', pluginDeclare],
+            ['putout', pluginPutout],
             ['maybe', pluginMaybe],
             ['types', pluginTypes],
             ['merge-destructuring-properties', pluginMergeDestructuringProperties],
