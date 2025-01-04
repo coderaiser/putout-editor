@@ -1,3 +1,8 @@
+2025.01.04, v2.4.2
+
+feature:
+- 35f2b9e @putout/plugin-convert-const-to-let: add
+
 2024.12.31, v2.4.1
 
 fix:
