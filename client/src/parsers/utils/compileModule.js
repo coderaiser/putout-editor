@@ -10,6 +10,7 @@ import pluginNodejs from '@putout/plugin-nodejs';
 import pluginMergeDestructuringProperties from '@putout/plugin-merge-destructuring-properties';
 import pluginMaybe from '@putout/plugin-maybe';
 import pluginConvertConstToLet from '@putout/plugin-convert-const-to-let';
+import pluginExtractKeywordsFromVariables from '@putout/plugin-extract-keywords-from-variables';
 
 import protect from '../utils/protectFromLoops';
 
@@ -36,11 +37,12 @@ export default function compileModule(code, globals = {}) {
         plugins: [
             ['convert-const-to-let', pluginConvertConstToLet],
             ['declare', pluginDeclare],
+            ['declare-before-reference', pluginDeclareBeforeReference],
+            ['extract-keywords-from-variables', pluginExtractKeywordsFromVariables],
             ['putout', pluginPutout],
             ['maybe', pluginMaybe],
             ['types', pluginTypes],
             ['merge-destructuring-properties', pluginMergeDestructuringProperties],
-            ['declare-declare-before-reference', pluginDeclareBeforeReference],
             ['convert-esm-to-commonjs', pluginConvertEsmToCommonjs],
             ['optional-chaining', pluginOptionalChaining],
             ['nodejs/declare-after-require', pluginNodejs.rules['declare-after-require']],
