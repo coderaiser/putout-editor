@@ -20,7 +20,7 @@
     "@putout/plugin-convert-assignment-to-declaration": "^1.0.0",
     "@putout/plugin-maybe": "^2.0.1",
     "@putout/plugin-nodejs": "^13.1.1",
-    "@putout/plugin-types": "^5.0.0",
+    "@putout/plugin-types": "^6.2.0",
     "acorn-stage3": "^4.0.0",
     "assert": "^2.0.0",
     "autoprefixer": "^10.0.1",
