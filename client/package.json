@@ -60,7 +60,7 @@
     "@babel/runtime": "^7.1.5",
     "@putout/plugin-convert-const-to-let": "^4.2.0",
     "@putout/plugin-declare": "^5.0.0",
-    "@putout/plugin-declare-before-reference": "^5.1.0",
+    "@putout/plugin-declare-before-reference": "^6.2.0",
     "@putout/plugin-optional-chaining": "^1.0.4",
     "@putout/plugin-putout": "^23.0.1",
     "acorn": "^8.0.1",
