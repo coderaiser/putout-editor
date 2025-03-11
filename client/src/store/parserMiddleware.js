@@ -43,6 +43,9 @@ export default (store) => (next) => (action) => {
             const {plugins} = newParserSettings;
             
             newParserSettings.plugins = plugins.filter((a) => {
+                if (a === 'importAssertions')
+                    return false;
+                
                 return a !== 'importAttributes' && a[0] !== 'importAttributes';
             });
         }
