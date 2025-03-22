@@ -2,7 +2,7 @@ import {parse} from '@putout/engine-parser';
 import putout from 'putout';
 import pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
 import pluginOptionalChaining from '@putout/plugin-optional-chaining';
-import pluginPutout from '@putout/plugin-putout';
+import * as pluginPutout from '@putout/plugin-putout';
 import pluginDeclare from '@putout/plugin-declare';
 import pluginTypes from '@putout/plugin-types';
 import pluginDeclareBeforeReference from '@putout/plugin-declare-before-reference';
