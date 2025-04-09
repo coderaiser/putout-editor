@@ -1,16 +1,16 @@
 import {parse} from '@putout/engine-parser';
 import putout from 'putout';
-import pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
-import pluginOptionalChaining from '@putout/plugin-optional-chaining';
+import * as pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
+import * as pluginOptionalChaining from '@putout/plugin-optional-chaining';
 import * as pluginPutout from '@putout/plugin-putout';
-import pluginDeclare from '@putout/plugin-declare';
-import pluginTypes from '@putout/plugin-types';
-import pluginDeclareBeforeReference from '@putout/plugin-declare-before-reference';
-import pluginNodejs from '@putout/plugin-nodejs';
-import pluginMergeDestructuringProperties from '@putout/plugin-merge-destructuring-properties';
-import pluginMaybe from '@putout/plugin-maybe';
-import pluginConvertConstToLet from '@putout/plugin-convert-const-to-let';
-import pluginExtractKeywordsFromVariables from '@putout/plugin-extract-keywords-from-variables';
+import * as pluginDeclare from '@putout/plugin-declare';
+import * as pluginTypes from '@putout/plugin-types';
+import * as pluginDeclareBeforeReference from '@putout/plugin-declare-before-reference';
+import * as pluginNodejs from '@putout/plugin-nodejs';
+import * as pluginMergeDestructuringProperties from '@putout/plugin-merge-destructuring-properties';
+import * as pluginMaybe from '@putout/plugin-maybe';
+import * as pluginConvertConstToLet from '@putout/plugin-convert-const-to-let';
+import * as pluginExtractKeywordsFromVariables from '@putout/plugin-extract-keywords-from-variables';
 
 import protect from '../utils/protectFromLoops';
 
