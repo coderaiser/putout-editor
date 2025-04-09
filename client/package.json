@@ -18,7 +18,7 @@
     "@babel/preset-react": "^7.0.0",
     "@putout/engine-parser": "^13.0.1",
     "@putout/plugin-convert-assignment-to-declaration": "^2.0.0",
-    "@putout/plugin-maybe": "^3.0.0",
+    "@putout/plugin-maybe": "^4.0.0",
     "@putout/plugin-nodejs": "^15.0.0",
     "@putout/plugin-types": "^7.0.0",
     "acorn-stage3": "^4.0.0",
