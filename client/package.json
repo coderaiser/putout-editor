@@ -73,7 +73,7 @@
     "escodegen": "^2.0.0",
     "espree": "^10.0.0",
     "esprima": "^4.0.1",
-    "flatlint": "^2.1.7",
+    "flatlint": "^3.0.0",
     "font-awesome": "^4.5.0",
     "glsl-parser": "^2.0.0",
     "glsl-tokenizer": "^2.1.2",
