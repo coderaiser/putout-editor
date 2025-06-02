@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "@putout/plugin-convert-const-to-let": "^4.2.0",
+    "@putout/plugin-convert-const-to-let": "^5.0.0",
     "@putout/plugin-declare": "^5.0.0",
     "@putout/plugin-declare-before-reference": "^8.1.0",
     "@putout/plugin-optional-chaining": "^2.0.0",
