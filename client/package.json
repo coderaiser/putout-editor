@@ -62,7 +62,7 @@
     "@putout/plugin-declare": "^5.0.0",
     "@putout/plugin-declare-before-reference": "^8.1.0",
     "@putout/plugin-optional-chaining": "^2.0.0",
-    "@putout/plugin-putout": "^25.0.0",
+    "@putout/plugin-putout": "^26.2.0",
     "acorn": "^8.0.1",
     "acorn-jsx": "^5.0.1",
     "acorn-loose": "^8.0.0",
