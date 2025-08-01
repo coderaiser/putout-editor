@@ -50,7 +50,6 @@ export default {
         plugin.report = plugin.report || noop;
         
         const {code} = putout(source, {
-            printer: 'putout',
             parser,
             cache: false,
             isJSX: true,

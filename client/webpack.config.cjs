@@ -177,6 +177,7 @@ module.exports = {
             'acorn-private-methods': require.resolve('acorn-private-methods'),
         },
         fallback: {
+            "url": require.resolve("url/"),
             assert: require.resolve('assert'),
             buffer: require.resolve('buffer/'),
             path: require.resolve('path-browserify'),

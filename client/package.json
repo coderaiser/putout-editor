@@ -101,7 +101,8 @@
     "regexp-tree": "^0.1.5",
     "reselect": "^4.0.0",
     "source-map": "^0.7.3",
-    "try-catch": "^3.0.1"
+    "try-catch": "^3.0.1",
+    "url": "^0.11.4"
   },
   "scripts": {
     "start": "madrun start",

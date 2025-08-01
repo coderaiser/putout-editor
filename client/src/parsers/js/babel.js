@@ -39,7 +39,6 @@ const availablePlugins = [
     'optionalCatchBinding',
     'pipelineOperator',
     'throwExpressions',
-    'recordAndTuple',
     'deprecatedImportAssert',
     'sourcePhaseImports',
     'deferredImportEvaluation',
@@ -128,6 +127,11 @@ export default {
                 
                 return plugin;
             }
+        }).filter((name) => {
+            if (name === 'recordAndTuple')
+                return false;
+            
+            return true;
         });
         
         return babylon.parse(code, options);
