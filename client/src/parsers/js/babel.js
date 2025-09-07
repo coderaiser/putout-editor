@@ -25,6 +25,7 @@ const availablePlugins = [
     'decoratorAutoAccessors',
     'doExpressions',
     'destructuringPrivate',
+    'discardBinding',
     'dynamicImport',
     'exportDefaultFrom',
     'exportNamespaceFrom',
@@ -106,6 +107,11 @@ export default {
             case 'decorators':
                 return ['decorators', {
                     decoratorsBeforeExport: false,
+                }];
+            
+            case 'discardBinding':
+                return ['discardBinding', {
+                    syntaxType: 'void',
                 }];
             
             case 'pipelineOperator':
