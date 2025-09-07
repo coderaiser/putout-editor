@@ -1,3 +1,50 @@
+2025.09.07, v2.4.3
+
+fix:
+- 8f0265e client: parserMiddleware: exclude improtAssertinos
+
+feature:
+- 5544737 client: discard-binding: add
+- 35cbcb0 putout-editor: rimraf v6.0.1
+- c94ac32 putout-editor: eslint-plugin-putout v28.0.1
+- 2b52d29 putout-editor: @putout/plugin-putout v26.2.0
+- 8e4f637 putout-editor: @putout/plugin-nodejs v17.0.0
+- 5093b6e putout-editor: eslint-plugin-putout v27.1.0
+- 6d14e29 putout-editor: @putout/plugin-convert-const-to-let v5.0.0
+- 9089541 putout-editor: @putout/engine-parser v14.0.1
+- 3d80807 putout-editor: @putout/plugin-declare-before-reference v8.1.0
+- a4d1738 putout-editor: @putout/plugin-declare-before-reference v7.0.0
+- 57115d1 putout-editor: @putout/plugin-nodejs v16.0.0
+- 7b9ee52 putout-editor: estree-to-babel v11.0.2
+- 78008c6 putout-editor: @putout/plugin-types v8.0.0
+- 903a42e compileModule: import -> import * as
+- cd7d082 putout-editor: @putout/plugin-putout v25.0.0
+- 3cda3c6 putout-editor: @putout/plugin-optional-chaining v2.0.0
+- 6693670 putout-editor: @putout/plugin-maybe v4.0.0
+- 34ab4b5 putout-editor: flatlint v3.0.0
+- 811fd8e putout-editor: putout v40.0.1
+- 58281f4 package: @putout/plugin-nodejs v15.0.0
+- 81d4d08 package: eslint v9.23.0
+- 763df76 package: madrun v11.0.0
+- 66f02ec package: putout v39.0.9
+- 0a93b41 package: eslint-plugin-putout v26.1.0
+- ecf98e3 package: @putout/plugin-putout v24.2.0
+- 58b8072 package: @putout/engine-parser v13.0.1
+- 7fa2e29 package: @putout/plugin-declare-before-reference v6.2.0
+- 3d602d0 package: flatlint v2.1.7
+- 9470609 package: @putout/plugin-maybe v3.0.0
+- c55531c package: @putout/plugin-types v7.0.0
+- 04e9083 package: @putout/plugin-declare v5.0.0
+- d42a8d9 package: @putout/engine-parser v12.0.0
+- 09cea99 package: @putout/plugin-convert-const-to-let v4.2.0
+- fa1ca94 package: @putout/plugin-putout v23.0.1
+- ee07d0a package: @putout/plugin-convert-assignment-to-declaration v2.0.0
+- da7c8ca package: @putout/plugin-nodejs v14.0.0
+- f409cd8 package: @putout/plugin-types v6.2.0
+- 01e9e1b package: eslint-plugin-putout v24.0.0
+- 47dcd61 package: putout v38.0.2
+- 3ddd595 add plugins
+
 2025.01.04, v2.4.2
 
 feature:
