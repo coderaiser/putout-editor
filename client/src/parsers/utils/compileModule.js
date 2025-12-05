@@ -7,10 +7,9 @@ import * as pluginDeclare from '@putout/plugin-declare';
 import * as pluginTypes from '@putout/plugin-types';
 import * as pluginDeclareBeforeReference from '@putout/plugin-declare-before-reference';
 import * as pluginNodejs from '@putout/plugin-nodejs';
-import * as pluginMergeDestructuringProperties from '@putout/plugin-merge-destructuring-properties';
+import * as pluginDestructuring from '@putout/plugin-destructuring';
 import * as pluginMaybe from '@putout/plugin-maybe';
-import * as pluginConvertConstToLet from '@putout/plugin-convert-const-to-let';
-import * as pluginExtractKeywordsFromVariables from '@putout/plugin-extract-keywords-from-variables';
+import * as pluginVariables from '@putout/plugin-variables';
 
 import protect from '../utils/protectFromLoops';
 
@@ -30,22 +29,20 @@ export default function compileModule(code, globals = {}) {
         module,
         exports,
         ...Object.values(globals),
-    ];
-    
-    const result = putout(code, {
+    ]; const result = putout(code, {
         fixCount: 10,
         plugins: [
-            ['convert-const-to-let', pluginConvertConstToLet],
             ['declare', pluginDeclare],
             ['declare-before-reference', pluginDeclareBeforeReference],
-            ['extract-keywords-from-variables', pluginExtractKeywordsFromVariables],
+            ['destructuring/merge-properties', pluginDestructuring.rules['merge-properties']],
+            ['variables/extract-keywords', pluginVariables.rules['extract-keywords']],
             ['putout', pluginPutout],
             ['maybe', pluginMaybe],
             ['types', pluginTypes],
-            ['merge-destructuring-properties', pluginMergeDestructuringProperties],
-            ['convert-esm-to-commonjs', pluginConvertEsmToCommonjs],
+            ['variables/convert-const-to-let', pluginVariables.rules['convert-const-to-let']],
             ['optional-chaining', pluginOptionalChaining],
             ['nodejs/declare-after-require', pluginNodejs.rules['declare-after-require']],
+            ['nodejs/convert-esm-to-commonjs', pluginConvertEsmToCommonjs],
         ],
     });
     const safeCode = protect(result.code);

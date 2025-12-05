@@ -1,7 +1,7 @@
 import {run} from 'madrun';
 
 const env = {
-    NODE_OPTIONS: '--max_old_space_size=4048',
+    NODE_OPTIONS: '--max_old_space_size=5048',
 };
 
 export default {
