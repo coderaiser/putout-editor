@@ -15,9 +15,8 @@ export const readState = storage ? () => {
     try {
         const state = storage.getItem(key);
         
-        if (state) {
+        if (state)
             return JSON.parse(state);
-        }
     } catch {
         // eslint-disable-next-line no-console
         console.warn('Unable to read from local storage.');

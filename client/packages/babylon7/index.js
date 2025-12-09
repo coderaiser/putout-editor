@@ -1,3 +1,6 @@
 'use strict';
 
-module.exports = require('@babel/parser');
+const {parse} = require('@putout/babel');
+module.exports = {
+    parse,
+};
