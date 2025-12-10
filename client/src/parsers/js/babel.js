@@ -11,8 +11,6 @@ const availablePlugins = [
     // Miscellaneous
     'estree',
     // Language extensions
-    'flow',
-    'flowComments',
     'jsx',
     'typescript',
     // ECMAScript Proposals
