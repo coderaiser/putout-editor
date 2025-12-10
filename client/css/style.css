@@ -1,13 +1,13 @@
-@import url('~codemirror/lib/codemirror.css');
-@import url('~codemirror/addon/fold/foldgutter.css');
-@import url('./highlight.css');
-@import url('~font-awesome/css/font-awesome.css');
-@import url('../fontcustom/fontcustom.css');
+@import url(~codemirror/lib/codemirror.css);
+@import url(~codemirror/addon/fold/foldgutter.css);
+@import url(./highlight.css);
+@import url(~font-awesome/css/font-awesome.css);
+@import url(../fontcustom/fontcustom.css);
 
 html {
     font-size: 14px;
     box-sizing: border-box;
-    font-family: Verdana, non-serif;
+    font-family: 'Verdana', 'non-serif';
 }
 
 .cover {
@@ -201,7 +201,7 @@ html {
 }
 
 .errorMessage {
-    font-family: Verdana, non-serif;
+    font-family: 'Verdana', 'non-serif';
     font-size: 1.2em;
 }
 

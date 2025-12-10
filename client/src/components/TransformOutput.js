@@ -62,9 +62,8 @@ export default class TransformOutput extends React.Component {
     
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.props.transformCode !== nextProps.transformCode || this.props.code !== nextProps.code || this.props.transformer !== nextProps.transformer) {
-            if (console.clear) {
+            if (console.clear)
                 console.clear();
-            }
             
             transform(
                 nextProps.transformer,

@@ -4,13 +4,13 @@
 
 @font-face {
     font-family: 'fontcustom';
-    src: url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.eot');
+    src: url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.eot);
     src:
-        url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.eot?#iefix') format('embedded-opentype'),
-        url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.woff2') format('woff2'),
-        url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.woff') format('woff'),
-        url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.ttf') format('truetype'),
-        url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.svg#fontcustom') format('svg');
+        url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.eot?#iefix) format('embedded-opentype'),
+        url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.woff2) format('woff2'),
+        url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.woff) format('woff'),
+        url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.ttf) format('truetype'),
+        url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.svg#fontcustom) format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -18,7 +18,7 @@
 @media screen and (min-device-pixel-ratio: 0) {
     @font-face {
         font-family: 'fontcustom';
-        src: url('./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.svg#fontcustom') format('svg');
+        src: url(./fontcustom_16162f150d3b19ba44cc2e51f284fbcd.svg#fontcustom) format('svg');
     }
 }
 

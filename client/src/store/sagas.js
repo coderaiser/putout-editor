@@ -130,9 +130,8 @@ function* watchSnippetURI(storageAdapter) {
             actions.doneLoadingSnippet(),
         ]));
         
-        if (global.history) {
+        if (global.history)
             goBackTask = yield fork(goBack);
-        }
         
         return;
     }
