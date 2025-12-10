@@ -10,34 +10,29 @@ class TreeAdapter {
         this._filterValues = filterValues;
         this._adapterOptions = adapterOptions;
     }
-    
     /**
    * Used by UI components to render an appropriate input for each filter.
    */
     getConfigurableFilters() {
         return (this._adapterOptions.filters || []).filter((filter) => Boolean(filter.key));
     }
-    
     /**
    * A more or less human readable name of the node.
    */
     getNodeName(node) {
         return this._adapterOptions.nodeToName(node);
     }
-    
     /**
    * The start and end indices of the node in the source text. The return value
    * is an array of form `[start, end]`. This is used for highlighting source
    * text and focusing nodes in the tree.
    */
     getRange(node) {
-        if (!(node && typeof node === 'object')) {
+        if (!(node && typeof node === 'object'))
             return null;
-        }
         
-        if (this._ranges.has(node)) {
+        if (this._ranges.has(node))
             return this._ranges.get(node);
-        }
         
         const {nodeToRange} = this._adapterOptions;
         let range = nodeToRange(node);
@@ -52,7 +47,8 @@ class TreeAdapter {
             let next = iterator.next();
             
             if (!next.done) {
-                first = last = next.value?.value;
+                first = next.value?.value;
+                last = first;
             }
             
             while (!(next = iterator.next()).done) {
@@ -62,12 +58,11 @@ class TreeAdapter {
             const rangeFirst = first && nodeToRange(first);
             const rangeLast = last && nodeToRange(last);
             
-            if (rangeFirst && rangeLast) {
+            if (rangeFirst && rangeLast)
                 range = [
                     rangeFirst[0],
                     rangeLast[1],
                 ];
-            }
         }
         
         this._ranges.set(node, range);
@@ -77,27 +72,23 @@ class TreeAdapter {
     isInRange(node, position) {
         const range = this.getRange(node);
         
-        if (!range) {
+        if (!range)
             return false;
-        }
         
         return range[0] <= position && position <= range[1];
     }
     
     hasChildrenInRange(node) {
-        if (!this.isInRange(node)) {
+        if (!this.isInRange(node))
             return false;
-        }
         
         for (const {value: child} of this.walkNode(node)) {
-            if (this.isInRange(child)) {
+            if (this.isInRange(child))
                 return true;
-            }
         }
         
         return false;
     }
-    
     /**
    * Whether or not the provided node should be automatically expanded.
    */
@@ -112,7 +103,6 @@ class TreeAdapter {
     isObject(node) {
         return node && typeof node === 'object' && !this.isArray(node);
     }
-    
     /**
    * A generator to iterate over each "property" of the node.
    * Overwriting _walkNode allows a parser to expose information from a node if
@@ -121,14 +111,12 @@ class TreeAdapter {
     *walkNode(node) {
         for (const result of this._walkNode(node)) {
             if ((this._adapterOptions.filters || []).some((filter) => {
-                if (filter.key && !this._filterValues[filter.key]) {
+                if (filter.key && !this._filterValues[filter.key])
                     return false;
-                }
                 
                 return filter.test(result.value, result.key);
-            })) {
+            }))
                 continue;
-            }
             
             yield result;
         }
@@ -177,13 +165,11 @@ const TreeAdapterConfigs = {
             return node && this.openByDefaultNodes.has(node.type) || this.openByDefaultKeys.has(key);
         },
         nodeToRange(node) {
-            if (node.range) {
+            if (node.range)
                 return node.range;
-            }
             
-            if (isNumber(node.start) && isNumber(node.end)) {
+            if (isNumber(node.start) && isNumber(node.end))
                 return [node.start, node.end];
-            }
             
             return null;
         },
@@ -241,9 +227,8 @@ export function typeKeysFilter(keys) {
 }
 
 function createTreeAdapter(type, adapterOptions, filterValues) {
-    if (TreeAdapterConfigs[type] == null) {
+    if (TreeAdapterConfigs[type] == null)
         throw Error(`Unknown tree adapter type "${type}"`);
-    }
     
     return new TreeAdapter({
         ...TreeAdapterConfigs[type],
@@ -254,4 +239,3 @@ function createTreeAdapter(type, adapterOptions, filterValues) {
 export function treeAdapterFromParseResult({treeAdapter}, filterValues) {
     return createTreeAdapter(treeAdapter.type, treeAdapter.options, filterValues);
 }
-
