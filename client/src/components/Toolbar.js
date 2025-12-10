@@ -17,13 +17,11 @@ export default function Toolbar(props) {
     let transformerInfo = '';
     
     if (parser) {
-        if (parser.version) {
+        if (parser.version)
             parserInfo += '-' + parser.version;
-        }
         
-        if (parser.homepage) {
+        if (parser.homepage)
             parserInfo = <a href={parser.homepage} target="_blank" rel="noopener noreferrer">{parserInfo}</a>;
-        }
     }
     
     if (showTransformer) {
@@ -32,13 +30,11 @@ export default function Toolbar(props) {
         
         transformerInfo = transformer.displayName;
         
-        if (transformer.version) {
+        if (transformer.version)
             transformerInfo += '-' + transformer.version;
-        }
         
-        if (transformer.homepage) {
+        if (transformer.homepage)
             transformerInfo = <a href={transformer.homepage} target="_blank" rel="noopener noreferrer">{transformerInfo}</a>;
-        }
         
         transformerInfo = <span>Transformer: {transformerInfo}</span>;
     }
@@ -63,7 +59,7 @@ export default function Toolbar(props) {
             </a>
             <Funding {...props}/>
             <div id="info" className={transformerInfo ? 'small' : ''}>
-        Parser: {parserInfo}<br/>
+                Parser: {parserInfo}<br/>
                 {transformerInfo}
             </div>
         </div>

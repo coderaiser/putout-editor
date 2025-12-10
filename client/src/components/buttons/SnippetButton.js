@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import cx from 'classnames';
 import ForkButton from './ForkButton';
 import NewButton from './NewButton';
 import SaveButton from './SaveButton';
 import ShareButton from './ShareButton';
-import cx from 'classnames';
 
 export default function SnippetButton(props) {
     const canForkAndNotSave = props.canFork && !props.canSave;
@@ -13,7 +13,7 @@ export default function SnippetButton(props) {
     return (
         <div className="button menuButton">
             <span>
-                <i className='fa fa-lg fa-file-code-o fa-fw'/>
+                <i className="fa fa-lg fa-file-code-o fa-fw"/>
          Snippet
             </span>
             <ul>
@@ -28,7 +28,7 @@ export default function SnippetButton(props) {
                 style={{
                     minWidth: 0,
                 }}
-                disabled={savingOrForking || !(props.canSave || props.canFork)}
+                disabled={savingOrForking || !props.canSave && !props.canFork}
                 onClick={canForkAndNotSave ? props.onFork : props.onSave}
             >
                 <i

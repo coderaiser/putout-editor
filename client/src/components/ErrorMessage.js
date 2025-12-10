@@ -8,7 +8,7 @@ export default class ErrorMessage extends React.Component {
                 <h3>
                     <i className="fa fa-exclamation-triangle"></i>
                     {' '}
-            Error
+                    Error
                 </h3>
                 <div>{this.props.error.message}</div>
                 <div
@@ -20,13 +20,15 @@ export default class ErrorMessage extends React.Component {
                         type="button"
                         onClick={this.props.onWantToClose}
                     >
-              OK
+                        OK
                     </button>
                 </div>
             </div>
         </div> : null;
     }
-}ErrorMessage.propTypes = {
+}
+
+ErrorMessage.propTypes = {
     error: PropTypes.object,
     onWantToClose: PropTypes.func,
 };

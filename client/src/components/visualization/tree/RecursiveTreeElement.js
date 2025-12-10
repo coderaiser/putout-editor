@@ -13,21 +13,19 @@ export default function RecursiveTreeElement(Element) {
     const openValues = new WeakMap();
     
     function addValue(value) {
-        if (openValues.has(value)) {
+        if (openValues.has(value))
             openValues.set(value, openValues.get(value) + 1);
-        } else {
+        else
             openValues.set(value, 1);
-        }
     }
     
     function removeValue(value) {
         const n = openValues.get(value) - 1;
         
-        if (!n) {
+        if (!n)
             openValues.delete(value);
-        } else {
+        else
             openValues.set(value, n);
-        }
     }
     
     class RecursiveElement extends React.Component {
@@ -55,9 +53,8 @@ export default function RecursiveTreeElement(Element) {
         componentWillUnmount() {
             const {value} = this.props;
             
-            if (value && typeof value === 'object') {
+            if (value && typeof value === 'object')
                 removeValue(value);
-            }
         }
         
         UNSAFE_componentWillReceiveProps(props) {
@@ -65,9 +62,8 @@ export default function RecursiveTreeElement(Element) {
             let open = shouldAutoFocus(props);
             
             if (props.value !== !this.props.value) {
-                if (this.props.value && typeof this.props.value === 'object') {
+                if (this.props.value && typeof this.props.value === 'object')
                     removeValue(this.props.value);
-                }
                 
                 if (props.value && typeof props.value === 'object') {
                     if (openValues.has(props.value)) {
@@ -97,7 +93,6 @@ export default function RecursiveTreeElement(Element) {
             );
         }
     }
-    
     RecursiveElement.propTypes = {
         deepOpen: PropTypes.bool,
         value: PropTypes.any,
@@ -105,4 +100,3 @@ export default function RecursiveTreeElement(Element) {
     
     return RecursiveElement;
 }
-

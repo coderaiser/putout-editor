@@ -13,19 +13,17 @@ export default class TransformButton extends React.Component {
     _onClick({target}) {
         let transformID;
         
-        if (target.nodeName.toLowerCase() === 'li') {
+        if (target.nodeName.toLowerCase() === 'li')
             transformID = target.children[0].value;
-        } else {
+        else
             transformID = target.value;
-        }
         
         this.props.onTransformChange(getTransformerByID(transformID));
     }
     
     _onToggle() {
-        if (this.props.transformer) {
+        if (this.props.transformer)
             this.props.onTransformChange(null);
-        }
     }
     
     render() {
@@ -69,7 +67,9 @@ export default class TransformButton extends React.Component {
             </div>
         );
     }
-}TransformButton.propTypes = {
+}
+
+TransformButton.propTypes = {
     category: PropTypes.object,
     transformer: PropTypes.object,
     showTransformer: PropTypes.bool,

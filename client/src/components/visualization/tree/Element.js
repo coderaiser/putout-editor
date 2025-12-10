@@ -1,10 +1,10 @@
-import CompactArrayView from './CompactArrayView';
-import CompactObjectView from './CompactObjectView';
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
-import RecursiveTreeElement from './RecursiveTreeElement';
 import cx from 'classnames';
+import CompactArrayView from './CompactArrayView';
+import CompactObjectView from './CompactObjectView';
+import RecursiveTreeElement from './RecursiveTreeElement';
 import stringify from '../../../utils/stringify';
 
 const isNumber = (a) => typeof a === 'number';
@@ -37,7 +37,10 @@ let Element = class extends React.Component {
         } = props;
         
         // Some elements should be open by default
-        const open = props.open || !props.level || deepOpen || value && treeAdapter.opensByDefault(value, name);
+        const open = props.open
+            || !props.level
+            || deepOpen
+            || value && treeAdapter.opensByDefault(value, name);
         
         this.state = {
             open,
@@ -55,9 +58,8 @@ let Element = class extends React.Component {
     }
     
     componentWillUnmount() {
-        if (lastClickedElement === this) {
+        if (lastClickedElement === this)
             lastClickedElement = null;
-        }
     }
     
     _shouldAutoFocus(thisProps, nextProps) {
@@ -68,23 +70,20 @@ let Element = class extends React.Component {
     }
     
     componentDidMount() {
-        if (this.props.settings.autofocus) {
+        if (this.props.settings.autofocus)
             this._scrollIntoView();
-        }
     }
     
     componentDidUpdate(prevProps) {
-        if (this._shouldAutoFocus(prevProps, this.props)) {
+        if (this._shouldAutoFocus(prevProps, this.props))
             this._scrollIntoView();
-        }
     }
     
     _scrollIntoView() {
         const {focusPath, value} = this.props;
         
-        if (focusPath.length > 0 && focusPath.at(-1) === value) {
+        if (focusPath.length > 0 && focusPath.at(-1) === value)
             setTimeout(() => this.container?.scrollIntoView(), 0);
-        }
     }
     
     _toggleClick({shiftKey}) {
@@ -92,11 +91,10 @@ let Element = class extends React.Component {
         
         const update = () => {
             // Make AST node accessible
-            if (open) {
+            if (open)
                 global.$node = this.state.value;
-            } else {
+            else
                 delete global.$node;
-            }
             
             this.setState({
                 open,
@@ -138,7 +136,8 @@ let Element = class extends React.Component {
     }
     
     _isFocused(level, path, value, open) {
-        return level && path.indexOf(value) > -1 && (!open || path.at(-1) === value);
+        return level && path.indexOf(value) > -1
+            && (!open || path.at(-1) === value);
     }
     
     _execFunction() {
@@ -193,7 +192,7 @@ let Element = class extends React.Component {
             if (!Array.isArray(value)) {
                 const nodeName = treeAdapter.getNodeName(value);
                 
-                if (nodeName) {
+                if (nodeName)
                     valueOutput = <span className="tokenName nc" onClick={this._toggleClick}>
                         {nodeName}{' '}
                         {lastClickedElement === this ? <span
@@ -205,7 +204,6 @@ let Element = class extends React.Component {
                             {' = $node'}
                         </span> : null}
                     </span>;
-                }
                 
                 enableHighlight = treeAdapter.getRange(value) && level;
             } else {
@@ -264,7 +262,7 @@ let Element = class extends React.Component {
                 title="Click to invoke function"
                 onClick={this._execFunction}
             >
-          (...)
+                (...)
             </span>;
             showToggler = false;
         } else {

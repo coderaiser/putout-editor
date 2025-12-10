@@ -8,13 +8,12 @@ export default class ShareDialog extends React.Component {
     }
     
     _outerClick(event) {
-        if (event.target === document.getElementById('ShareDialog')) {
+        if (event.target === document.getElementById('ShareDialog'))
             this.props.onWantToClose();
-        }
     }
     
     render() {
-        if (this.props.visible) {
+        if (this.props.visible)
             return (
                 <div id="ShareDialog" className="dialog" onClick={this._outerClick}>
                     <div
@@ -33,11 +32,12 @@ export default class ShareDialog extends React.Component {
                     </div>
                 </div>
             );
-        }
         
         return null;
     }
-}ShareDialog.propTypes = {
+}
+
+ShareDialog.propTypes = {
     onWantToClose: PropTypes.func.isRequired,
     visible: PropTypes.bool.isRequired,
     snippet: PropTypes.object,

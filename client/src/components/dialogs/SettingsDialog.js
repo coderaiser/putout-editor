@@ -20,9 +20,8 @@ export default class SettingsDialog extends React.Component {
     }
     
     _outerClick(event) {
-        if (event.target === document.getElementById('SettingsDialog')) {
+        if (event.target === document.getElementById('SettingsDialog'))
             this._saveAndClose();
-        }
     }
     
     _onChange(parserSettings) {
@@ -43,7 +42,7 @@ export default class SettingsDialog extends React.Component {
     }
     
     render() {
-        if (this.props.visible && this.props.parser.renderSettings) {
+        if (this.props.visible && this.props.parser.renderSettings)
             return (
                 <div id="SettingsDialog" className="dialog" onClick={this._outerClick}>
                     <div className="inner">
@@ -60,18 +59,19 @@ export default class SettingsDialog extends React.Component {
                                 }}
                                 onClick={this._reset}
                             >
-                Reset
+                                Reset
                             </button>
                             <button onClick={this._saveAndClose}>Close</button>
                         </div>
                     </div>
                 </div>
             );
-        }
         
         return null;
     }
-}SettingsDialog.propTypes = {
+}
+
+SettingsDialog.propTypes = {
     onSave: PropTypes.func,
     onWantToClose: PropTypes.func,
     visible: PropTypes.bool,

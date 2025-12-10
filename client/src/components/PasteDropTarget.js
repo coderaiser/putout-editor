@@ -44,18 +44,16 @@ export default class PasteDropTarget extends React.Component {
             const cbdata = event.clipboardData;
             
             // Plain text
-            if (!cbdata.types.indexOf || !cbdata.types.indexOf('text/plain') > -1) {
+            if (!cbdata.types.indexOf || !cbdata.types.indexOf('text/plain') > -1)
                 return;
-            }
             
             event.stopPropagation();
             event.preventDefault();
             this
                 ._jsonToCode(cbdata.getData('text/plain'))
                 .then((code) => this.props.onText('paste', event, code), (ex) => {
-                    if (event.target.nodeName !== 'TEXTAREA') {
+                    if (event.target.nodeName !== 'TEXTAREA')
                         this._onASTError('paste', event, ex);
-                    }
                 });
         }, true);
         
@@ -84,9 +82,8 @@ export default class PasteDropTarget extends React.Component {
             const [file] = event.dataTransfer.files;
             let categoryId = acceptedFileTypes.get(file.type);
             
-            if (!categoryId || !this.props.onText) {
+            if (!categoryId || !this.props.onText)
                 return;
-            }
             
             event.preventDefault();
             event.stopPropagation();
@@ -96,7 +93,7 @@ export default class PasteDropTarget extends React.Component {
             reader.onload = (readerEvent) => {
                 let text = readerEvent.target.result;
                 
-                if (categoryId === 'JSON' || categoryId === 'TEXT') {
+                if (categoryId === 'JSON' || categoryId === 'TEXT')
                     text = this
                         ._jsonToCode(text)
                         .then((text) => {
@@ -110,7 +107,6 @@ export default class PasteDropTarget extends React.Component {
                                 return text;
                             }
                         });
-                }
                 
                 Promise
                     .resolve(text)
@@ -185,7 +181,9 @@ export default class PasteDropTarget extends React.Component {
             </div>
         );
     }
-}PasteDropTarget.propTypes = {
+}
+
+PasteDropTarget.propTypes = {
     onText: PropTypes.func,
     onError: PropTypes.func,
     children: PropTypes.node,

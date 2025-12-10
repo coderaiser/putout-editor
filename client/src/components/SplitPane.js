@@ -45,9 +45,8 @@ export default class SplitPane extends React.Component {
             document.removeEventListener('mouseup', upHandler);
             global.document.body.style.cursor = '';
             
-            if (this.props.onResize) {
+            if (this.props.onResize)
                 this.props.onResize();
-            }
         };
         
         document.addEventListener('mousemove', moveHandler);
@@ -61,7 +60,7 @@ export default class SplitPane extends React.Component {
         let styleB;
         let dividerStyle;
         
-        if (!Array.isArray(children) || children.filter(Boolean).length !== 2) {
+        if (!Array.isArray(children) || children.filter(Boolean).length !== 2)
             return (
                 <div className={this.props.className}>
                     <div
@@ -77,7 +76,6 @@ export default class SplitPane extends React.Component {
                     </div>
                 </div>
             );
-        }
         
         if (this.props.vertical) {
             // top
@@ -143,7 +141,9 @@ export default class SplitPane extends React.Component {
             </div>
         );
     }
-}SplitPane.propTypes = {
+}
+
+SplitPane.propTypes = {
     vertical: PropTypes.bool,
     className: PropTypes.string,
     children: PropTypes.node,

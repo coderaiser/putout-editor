@@ -19,7 +19,7 @@ export default class ParserButton extends React.Component {
         return (
             <div className="button menuButton">
                 <span>
-                    <i className='fa fa-lg fa-code fa-fw'/>
+                    <i className="fa fa-lg fa-code fa-fw"/>
                     {this.props.parser.displayName}
                 </span>
                 <ul>
@@ -43,7 +43,9 @@ export default class ParserButton extends React.Component {
             </div>
         );
     }
-}ParserButton.propTypes = {
+}
+
+ParserButton.propTypes = {
     onParserChange: PropTypes.func,
     onParserSettingsButtonClick: PropTypes.func,
     parser: PropTypes.object,

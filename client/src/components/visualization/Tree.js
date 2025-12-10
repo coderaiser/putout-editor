@@ -1,7 +1,7 @@
-import Element from './tree/Element';
 import PropTypes from 'prop-types';
 import React from 'react';
 import PubSub from 'pubsub-js';
+import Element from './tree/Element';
 import {logEvent} from '../../utils/logger';
 import {treeAdapterFromParseResult} from '../../core/TreeAdapter.js';
 import './css/tree.css';
@@ -54,9 +54,9 @@ export default function Tree({focusPath, parseResult}) {
             <div className="toolbar">
                 <label title="Auto open the node at the cursor in the source code">
                     {makeCheckbox('autofocus', settings, updateSettings)}
-          Autofocus
+                    Autofocus
                 </label>
-        ​
+                ​
                 {treeAdapter
                     .getConfigurableFilters()
                     .map((filter) => <span key={filter.key}>
@@ -64,7 +64,7 @@ export default function Tree({focusPath, parseResult}) {
                             {makeCheckbox(filter.key, settings, updateSettings)}
                             {filter.label}
                         </label>
-            ​
+                        ​
                     </span>)}
             </div>
             <ul

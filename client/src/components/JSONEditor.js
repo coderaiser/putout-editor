@@ -36,9 +36,8 @@ export default class Editor extends React.Component {
         });
         
         this._subscriptions.push(PubSub.subscribe('PANEL_RESIZE', () => {
-            if (this.codeMirror) {
+            if (this.codeMirror)
                 this.codeMirror.refresh();
-            }
         }));
     }
     
@@ -60,7 +59,9 @@ export default class Editor extends React.Component {
             <div id="JSONEditor" className={this.props.className} ref={(c) => this.container = c}/>
         );
     }
-}Editor.propTypes = {
+}
+
+Editor.propTypes = {
     value: PropTypes.string,
     className: PropTypes.string,
 };

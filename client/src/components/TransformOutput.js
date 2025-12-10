@@ -9,9 +9,8 @@ import JSONEditor from './JSONEditor';
 const isString = (a) => typeof a === 'string';
 
 function transform(transformer, transformCode, code, parser) {
-    if (!transformer._promise) {
+    if (!transformer._promise)
         transformer._promise = new Promise(transformer.loadTransformer);
-    }
     
     // Use Promise.resolve(null) to return all errors as rejected promises
     return transformer._promise.then((realTransformer) => {
@@ -23,9 +22,8 @@ function transform(transformer, transformCode, code, parser) {
                 let map = null;
                 
                 if (!isString(result)) {
-                    if (result.map) {
+                    if (result.map)
                         map = new SourceMapConsumer(result.map);
-                    }
                     
                     result = result.code;
                 }
@@ -65,8 +63,7 @@ export default class TransformOutput extends React.Component {
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.props.transformCode !== nextProps.transformCode || this.props.code !== nextProps.code || this.props.transformer !== nextProps.transformer) {
             if (console.clear) {
-                // eslint-disable-line no-console
-                console.clear(); // eslint-disable-line no-console
+                console.clear();
             }
             
             transform(
@@ -96,18 +93,16 @@ export default class TransformOutput extends React.Component {
     _posFromIndex(index) {
         const {map} = this.state;
         
-        if (!map) {
+        if (!map)
             return;
-        }
         
         const [src] = map.sourcesContent;
         
-        if (!index) {
+        if (!index)
             return {
                 line: 0,
                 ch: 0,
             };
-        }
         
         let lineStart = src.lastIndexOf('\n', index - 1);
         let column = index - lineStart - 1;
@@ -118,19 +113,20 @@ export default class TransformOutput extends React.Component {
             line++;
         }
         
-        if (!lineStart) {
+        if (!lineStart)
             line++;
-        }
         
-        ({line, column} = map.generatedPositionFor({
+        ({
+            line,
+            column,
+        } = map.generatedPositionFor({
             line,
             column,
             source: map.sources[0],
         }));
         
-        if (line === null || column === null) {
+        if (line === null || column === null)
             return;
-        }
         
         return {
             line: line - 1,
@@ -160,7 +156,9 @@ export default class TransformOutput extends React.Component {
             </div>
         );
     }
-}TransformOutput.propTypes = {
+}
+
+TransformOutput.propTypes = {
     transformer: PropTypes.object,
     transformCode: PropTypes.string,
     mode: PropTypes.string,

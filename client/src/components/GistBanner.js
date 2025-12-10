@@ -31,11 +31,10 @@ class GistBanner extends React.Component {
         const newRevision = newProps.revision;
         const oldRevision = this.props.revision;
         
-        if (newRevision && (!oldRevision || newRevision.getSnippetID() !== oldRevision.getSnippetID())) {
+        if (newRevision && (!oldRevision || newRevision.getSnippetID() !== oldRevision.getSnippetID()))
             this.setState({
                 visible: true,
             });
-        }
     }
     
     _hide() {
@@ -45,18 +44,16 @@ class GistBanner extends React.Component {
     }
     
     render() {
-        if (!this.state.visible) {
+        if (!this.state.visible)
             return null;
-        }
         
-        if (!this.props.revision || this.props.revision.canSave()) {
+        if (!this.props.revision || this.props.revision.canSave())
             return null;
-        }
         
         return (
             <div className="banner">
-        This snippet is <strong>read-only</strong>. You can still save changes
-        by forking it.
+                This snippet is <strong>read-only</strong>. You can still save changes
+                by forking it.
                 <button style={buttonStyle} onClick={this._hide}>
                     <i className="fa fa-times" aria-hidden="true"></i>
                 </button>

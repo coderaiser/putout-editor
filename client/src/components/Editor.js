@@ -28,17 +28,14 @@ export default class Editor extends React.Component {
     }
     
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if (nextProps.value !== this.state.value) {
+        if (nextProps.value !== this.state.value)
             this.setState({value: nextProps.value}, () => this.codeMirror.setValue(nextProps.value));
-        }
         
-        if (nextProps.mode !== this.props.mode) {
+        if (nextProps.mode !== this.props.mode)
             this.codeMirror.setOption('mode', nextProps.mode);
-        }
         
-        if (nextProps.keyMap !== this.props.keyMap) {
+        if (nextProps.keyMap !== this.props.keyMap)
             this.codeMirror.setOption('keyMap', nextProps.keyMap);
-        }
         
         this._setError(nextProps.error);
     }
@@ -62,17 +59,15 @@ export default class Editor extends React.Component {
             if (oldError) {
                 const lineNumber = this._getErrorLine(oldError);
                 
-                if (lineNumber) {
+                if (lineNumber)
                     this.codeMirror.removeLineClass(lineNumber - 1, 'text', 'errorMarker');
-                }
             }
             
             if (error) {
                 const lineNumber = this._getErrorLine(error);
                 
-                if (lineNumber) {
+                if (lineNumber)
                     this.codeMirror.addLineClass(lineNumber - 1, 'text', 'errorMarker');
-                }
             }
         }
     }
@@ -119,32 +114,31 @@ export default class Editor extends React.Component {
         });
         
         this._subscriptions.push(PubSub.subscribe('PANEL_RESIZE', () => {
-            if (this.codeMirror) {
+            if (this.codeMirror)
                 this.codeMirror.refresh();
-            }
         }));
         
         if (this.props.highlight) {
             this._markerRange = null;
             this._mark = null;
             this._subscriptions.push(PubSub.subscribe('HIGHLIGHT', (_, {range}) => {
-                if (!range) {
+                if (!range)
                     return;
-                }
                 
                 const doc = this.codeMirror.getDoc();
                 
                 this._markerRange = range;
                 
                 // We only want one mark at a time.
-                if (this._mark) {
+                if (this._mark)
                     this._mark.clear();
-                }
                 
                 const [start, end] = range.map((index) => this._posFromIndex(doc, index));
                 
                 if (!start || !end) {
-                    this._markerRange = this._mark = null;
+                    this._markerRange = null;
+                    this._mark = this._markerRange;
+                    
                     return;
                 }
                 
@@ -163,9 +157,8 @@ export default class Editor extends React.Component {
             }));
         }
         
-        if (this.props.error) {
+        if (this.props.error)
             this._setError(this.props.error);
-        }
     }
     
     componentWillUnmount() {
@@ -216,7 +209,9 @@ export default class Editor extends React.Component {
             <div className="editor" ref={(c) => this.container = c}/>
         );
     }
-}Editor.propTypes = {
+}
+
+Editor.propTypes = {
     value: PropTypes.string,
     highlight: PropTypes.bool,
     lineNumbers: PropTypes.bool,
