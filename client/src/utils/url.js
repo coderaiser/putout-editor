@@ -11,9 +11,8 @@ export function getDataFromURI() {
             rev: Number(match[2]) || 0,
         };
         
-        if (match[3]) {
+        if (match[3])
             Object.assign(params, queryString.parse(match[3]));
-        }
         
         return params;
     }
@@ -37,15 +36,12 @@ export function updateURI(data) {
     if (id) {
         hash += `/${id}`;
         
-        if (rev) {
+        if (rev)
             hash += `/${rev}`;
-        }
     }
     
-    if (Object.keys(params).length > 0) {
+    if (Object.keys(params).length > 0)
         hash += '?' + queryString.stringify(params);
-    }
     
     global.location.hash = hash;
 }
-

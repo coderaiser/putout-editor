@@ -7,9 +7,8 @@ export default function debounce(f, timeout = 100) {
         lastThis = this;
         lastArgs = args;
         
-        if (timer) {
+        if (timer)
             return;
-        }
         
         timer = setTimeout(() => {
             timer = null;
@@ -17,4 +16,3 @@ export default function debounce(f, timeout = 100) {
         }, timeout);
     };
 }
-

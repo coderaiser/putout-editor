@@ -9,9 +9,8 @@ export default class StorageHandler {
     
     _owns(revision) {
         for (const backend of this._backends) {
-            if (backend.owns(revision)) {
+            if (backend.owns(revision))
                 return backend;
-            }
         }
         
         return null;
@@ -22,19 +21,16 @@ export default class StorageHandler {
     }
     
     fetchFromURL() {
-        if (/^#?\/?$/.test(global.location.hash)) {
+        if (/^#?\/?$/.test(global.location.hash))
             return Promise.resolve(null);
-        }
         
         for (const backend of this._backends) {
-            if (backend.matchesURL()) {
+            if (backend.matchesURL())
                 return backend.fetchFromURL();
-            }
         }
         
         return Promise.reject(Error('Unknown URL format.'));
     }
-    
     /**
    * Create a new snippet.
    */
@@ -43,7 +39,6 @@ export default class StorageHandler {
             ._first()
             .create(data);
     }
-    
     /**
    * Update an existing snippet.
    */
@@ -52,7 +47,6 @@ export default class StorageHandler {
             ._first()
             .update(revision, data);
     }
-    
     /**
    * Fork existing snippet.
    */

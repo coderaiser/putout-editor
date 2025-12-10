@@ -1,3 +1,15 @@
+import PropTypes from 'prop-types';
+import PubSub from 'pubsub-js';
+import React from 'react';
+import createSagaMiddleware from 'redux-saga';
+import {Provider, connect} from 'react-redux';
+import {
+    createStore,
+    applyMiddleware,
+    compose,
+} from 'redux';
+import {enableBatching} from 'redux-batched-actions';
+import {createRoot} from 'react-dom/client';
 import * as LocalStorage from './components/LocalStorage';
 import ASTOutputContainer from './containers/ASTOutputContainer';
 import CodeEditorContainer from './containers/CodeEditorContainer';
@@ -5,38 +17,23 @@ import ErrorMessageContainer from './containers/ErrorMessageContainer';
 import GistBanner from './components/GistBanner';
 import LoadingIndicatorContainer from './containers/LoadingIndicatorContainer';
 import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
-import PropTypes from 'prop-types';
-import PubSub from 'pubsub-js';
-import React from 'react';
 import SettingsDialogContainer from './containers/SettingsDialogContainer';
 import ShareDialogContainer from './containers/ShareDialogContainer';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './containers/TransformerContainer';
-import createSagaMiddleware from 'redux-saga';
 import debounce from './utils/debounce';
 import saga from './store/sagas';
-import {
-    Provider,
-    connect,
-} from 'react-redux';
 import {
     astexplorer,
     persist,
     revive,
 } from './store/reducers';
 import {
-    createStore,
-    applyMiddleware,
-    compose,
-} from 'redux';
-import {
     canSaveTransform,
     getRevision,
 } from './store/selectors';
-import {enableBatching} from 'redux-batched-actions';
 import {loadSnippet} from './store/actions';
-import {createRoot} from 'react-dom/client';
 import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
@@ -106,9 +103,8 @@ store.subscribe(debounce(() => {
     const state = store.getState();
     
     // We are not persisting the state while looking at an existing revision
-    if (!getRevision(state)) {
+    if (!getRevision(state))
         LocalStorage.writeState(persist(state));
-    }
 }));
 sagaMiddleware.run(saga, new StorageHandler([gist, parse]));
 store.dispatch({
@@ -126,14 +122,12 @@ global.onhashchange = () => {
     store.dispatch(loadSnippet());
 };
 
-if (location.hash.length > 1) {
+if (location.hash.length > 1)
     store.dispatch(loadSnippet());
-}
 
 global.onbeforeunload = () => {
     const state = store.getState();
     
-    if (canSaveTransform(state)) {
+    if (canSaveTransform(state))
         return 'You have unsaved transform code. Do you really want to leave?';
-    }
 };

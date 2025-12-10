@@ -1,4 +1,7 @@
 import {connect} from 'react-redux';
+import Toolbar from '../components/Toolbar';
+import * as selectors from '../store/selectors';
+import {logEvent} from '../utils/logger';
 import {
     save,
     selectCategory,
@@ -10,9 +13,6 @@ import {
     reset,
     setKeyMap,
 } from '../store/actions';
-import Toolbar from '../components/Toolbar';
-import * as selectors from '../store/selectors';
-import {logEvent} from '../utils/logger';
 
 function mapStateToProps(state) {
     const parser = selectors.getParser(state);
@@ -52,25 +52,22 @@ function mapDispatchToProps(dispatch) {
         onTransformChange: (transformer) => {
             dispatch(transformer ? selectTransformer(transformer) : hideTransformer());
             
-            if (transformer) {
+            if (transformer)
                 logEvent('tool', 'select', transformer.id);
-            }
         },
         onKeyMapChange: (keyMap) => {
             dispatch(setKeyMap(keyMap));
             
-            if (keyMap) {
+            if (keyMap)
                 logEvent('keyMap', keyMap);
-            }
         },
         onSave: () => dispatch(save(false)),
         onFork: () => dispatch(save(true)),
         onNew: () => {
-            if (global.location.hash) {
+            if (global.location.hash)
                 global.location.hash = '';
-            } else {
+            else
                 dispatch(reset());
-            }
         },
     };
 }
