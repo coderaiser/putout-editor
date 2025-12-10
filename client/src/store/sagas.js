@@ -1,4 +1,4 @@
-import * as actions from './actions';
+import {batchActions} from 'redux-batched-actions';
 import {
     takeEvery,
     take,
@@ -9,11 +9,8 @@ import {
     select,
     call,
 } from 'redux-saga/effects';
-import {batchActions} from 'redux-batched-actions';
-import {
-    logEvent,
-    logError,
-} from '../utils/logger';
+import * as actions from './actions';
+import {logEvent, logError} from '../utils/logger';
 import {
     getParser,
     getParserSettings,
@@ -46,9 +43,8 @@ function* save(fork, storageAdapter) {
         select(showTransformer),
     ];
     
-    if (fork || !revision) {
+    if (fork || !revision)
         action = fork ? 'fork' : 'create';
-    }
     
     const data = {
         parserID: parser.id,
@@ -73,17 +69,15 @@ function* save(fork, storageAdapter) {
     try {
         let newRevision;
         
-        if (fork) {
+        if (fork)
             newRevision = yield storageAdapter.fork(revision, data);
-        } else if (revision) {
+        else if (revision)
             newRevision = yield storageAdapter.update(revision, data);
-        } else {
+        else
             newRevision = yield storageAdapter.create(data);
-        }
         
-        if (newRevision) {
+        if (newRevision)
             storageAdapter.updateHash(newRevision);
-        }
     } catch(error) {
         logError(error.message);
         yield put(actions.setError(error));
@@ -108,18 +102,16 @@ function* goBack() {
 }
 
 function* watchSnippetURI(storageAdapter) {
-    if (goBackTask) {
+    if (goBackTask)
         yield cancel(goBackTask);
-    }
     
     const [saving, forking] = yield [
         select(isSaving),
         select(isForking),
     ];
     
-    if (saving || forking) {
+    if (saving || forking)
         return;
-    }
     
     yield put(batchActions([
         actions.setError(null),
@@ -139,16 +131,14 @@ function* watchSnippetURI(storageAdapter) {
         ]));
         
         if (global.history) {
-            // eslint-disable-next-line require-atomic-updates
             goBackTask = yield fork(goBack);
         }
         
         return;
     }
     
-    if (revision) {
+    if (revision)
         logEvent('snippet', 'load');
-    }
     
     yield put(batchActions([
         revision ? actions.setSnippet(revision) : actions.clearSnippet(),
@@ -160,4 +150,3 @@ export default function* (storageAdapter) {
     yield takeEvery(actions.LOAD_SNIPPET, watchSnippetURI, storageAdapter);
     yield takeEvery(actions.SAVE, watchSave, storageAdapter);
 }
-

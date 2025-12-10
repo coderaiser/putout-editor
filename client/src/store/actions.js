@@ -26,174 +26,121 @@ export const RESET = 'RESET';
 export const TOGGLE_FORMATTING = 'TOGGLE_FORMATTING';
 export const SET_KEY_MAP = 'SET_KEY_MAP';
 
-export function setParser(parser) {
-    return {
-        type: SET_PARSER,
-        parser,
-    };
-}
+export const setParser = (parser) => ({
+    type: SET_PARSER,
+    parser,
+});
 
-export function setParserSettings(settings) {
-    return {
-        type: SET_PARSER_SETTINGS,
-        settings,
-    };
-}
+export const setParserSettings = (settings) => ({
+    type: SET_PARSER_SETTINGS,
+    settings,
+});
 
-export function save(fork = false) {
-    return {
-        type: SAVE,
-        fork,
-    };
-}
+export const save = (fork = false) => ({
+    type: SAVE,
+    fork,
+});
 
-export function startSave(fork) {
-    return {
-        type: START_SAVE,
-        fork,
-    };
-}
+export const startSave = (fork) => ({
+    type: START_SAVE,
+    fork,
+});
 
-export function endSave(fork) {
-    return {
-        type: END_SAVE,
-        fork,
-    };
-}
+export const endSave = (fork) => ({
+    type: END_SAVE,
+    fork,
+});
 
-export function setSnippet(revision) {
-    return {
-        type: SET_SNIPPET,
-        revision,
-    };
-}
+export const setSnippet = (revision) => ({
+    type: SET_SNIPPET,
+    revision,
+});
 
-export function selectCategory(category) {
-    return {
-        type: SELECT_CATEGORY,
-        category,
-    };
-}
+export const selectCategory = (category) => ({
+    type: SELECT_CATEGORY,
+    category,
+});
 
-export function clearSnippet() {
-    return {
-        type: CLEAR_SNIPPET,
-    };
-}
+export const clearSnippet = () => ({
+    type: CLEAR_SNIPPET,
+});
 
-export function startLoadingSnippet() {
-    return {
-        type: START_LOADING_SNIPPET,
-    };
-}
+export const startLoadingSnippet = () => ({
+    type: START_LOADING_SNIPPET,
+});
 
-export function doneLoadingSnippet() {
-    return {
-        type: DONE_LOADING_SNIPPET,
-    };
-}
+export const doneLoadingSnippet = () => ({
+    type: DONE_LOADING_SNIPPET,
+});
 
-export function loadSnippet() {
-    return {
-        type: LOAD_SNIPPET,
-    };
-}
+export const loadSnippet = () => ({
+    type: LOAD_SNIPPET,
+});
 
-export function openSettingsDialog() {
-    return {
-        type: OPEN_SETTINGS_DIALOG,
-    };
-}
+export const openSettingsDialog = () => ({
+    type: OPEN_SETTINGS_DIALOG,
+});
 
-export function closeSettingsDialog() {
-    return {
-        type: CLOSE_SETTINGS_DIALOG,
-    };
-}
+export const closeSettingsDialog = () => ({
+    type: CLOSE_SETTINGS_DIALOG,
+});
 
-export function openShareDialog() {
-    return {
-        type: OPEN_SHARE_DIALOG,
-    };
-}
+export const openShareDialog = () => ({
+    type: OPEN_SHARE_DIALOG,
+});
 
-export function closeShareDialog() {
-    return {
-        type: CLOSE_SHARE_DIALOG,
-    };
-}
+export const closeShareDialog = () => ({
+    type: CLOSE_SHARE_DIALOG,
+});
 
-export function setError(error) {
-    return {
-        type: SET_ERROR,
-        error,
-    };
-}
+export const setError = (error) => ({
+    type: SET_ERROR,
+    error,
+});
 
-export function clearError() {
-    return {
-        type: CLEAR_ERROR,
-    };
-}
+export const clearError = () => ({
+    type: CLEAR_ERROR,
+});
 
-export function selectTransformer(transformer) {
-    return {
-        type: SELECT_TRANSFORMER,
-        transformer,
-    };
-}
+export const selectTransformer = (transformer) => ({
+    type: SELECT_TRANSFORMER,
+    transformer,
+});
 
-export function hideTransformer() {
-    return {
-        type: HIDE_TRANSFORMER,
-    };
-}
+export const hideTransformer = () => ({
+    type: HIDE_TRANSFORMER,
+});
 
-export function setTransformState(state) {
-    return {
-        type: SET_TRANSFORM,
-        ...state,
-    };
-}
+export const setTransformState = (state) => ({
+    type: SET_TRANSFORM,
+    ...state,
+});
 
-export function setCode(state) {
-    return {
-        type: SET_CODE,
-        ...state,
-    };
-}
+export const setCode = (state) => ({
+    type: SET_CODE,
+    ...state,
+});
 
-export function setCursor(cursor) {
-    return {
-        type: SET_CURSOR,
-        cursor,
-    };
-}
+export const setCursor = (cursor) => ({
+    type: SET_CURSOR,
+    cursor,
+});
 
-export function dropText(text, categoryId) {
-    return {
-        type: DROP_TEXT,
-        text,
-        categoryId,
-    };
-}
+export const dropText = (text, categoryId) => ({
+    type: DROP_TEXT,
+    text,
+    categoryId,
+});
 
-export function reset() {
-    return {
-        type: RESET,
-    };
-}
+export const reset = () => ({
+    type: RESET,
+});
 
-export function toggleFormatting() {
-    return {
-        type: TOGGLE_FORMATTING,
-    };
-}
+export const toggleFormatting = () => ({
+    type: TOGGLE_FORMATTING,
+});
 
-export function setKeyMap(keyMap) {
-    return {
-        type: SET_KEY_MAP,
-        keyMap,
-    };
-}
-
+export const setKeyMap = (keyMap) => ({
+    type: SET_KEY_MAP,
+    keyMap,
+});

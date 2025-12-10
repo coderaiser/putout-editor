@@ -44,53 +44,47 @@ const initialState = {
 /**
  * Returns the subset of the data that makes sense to persist between visits.
  */
-export function persist(state) {
-    return {
-        ...pick(state, 'showTransformPanel', 'parserSettings', 'parserPerCategory'),
-        workbench: {
-            ...pick(state.workbench, 'parser', 'code', 'keyMap'),
-            transform: pick(state.workbench.transform, 'code', 'transformer'),
-        },
-    };
-}
+export const persist = (state) => ({
+    ...pick(state, 'showTransformPanel', 'parserSettings', 'parserPerCategory'),
+    workbench: {
+        ...pick(state.workbench, 'parser', 'code', 'keyMap'),
+        transform: pick(state.workbench.transform, 'code', 'transformer'),
+    },
+});
 
 /**
  * When read from persistent storage, set the last stored code as initial version.
  * This is necessary because we use CodeMirror as an uncontrolled component.
  */
-export function revive(state = initialState) {
-    return {
-        ...state,
-        workbench: {
-            ...state.workbench,
-            initialCode: state.workbench.code,
-            parserSettings: state.parserSettings[state.workbench.parser] || null,
-            transform: {
-                ...state.workbench.transform,
-                initialCode: state.workbench.transform.code,
-            },
+export const revive = (state = initialState) => ({
+    ...state,
+    workbench: {
+        ...state.workbench,
+        initialCode: state.workbench.code,
+        parserSettings: state.parserSettings[state.workbench.parser] || null,
+        transform: {
+            ...state.workbench.transform,
+            initialCode: state.workbench.transform.code,
         },
-    };
-}
+    },
+});
 
-export function astexplorer(state = initialState, action) {
-    return {
-        // UI related state
-        showSettingsDialog: showSettingsDialog(state.showSettingsDialog, action),
-        showShareDialog: showShareDialog(state.showShareDialog, action),
-        loadingSnippet: loadSnippet(state.loadingSnippet, action),
-        saving: saving(state.saving, action),
-        forking: forking(state.forking, action),
-        cursor: cursor(state.cursor, action),
-        error: error(state.error, action),
-        showTransformPanel: showTransformPanel(state.showTransformPanel, action), // Snippet related state
-        activeRevision: activeRevision(state.activeRevision, action), // Workbench settings
-        parserPerCategory: parserPerCategory(state.parserPerCategory, action),
-        parserSettings: parserSettings(state.parserSettings, action, state),
-        workbench: workbench(state.workbench, action, state),
-        enableFormatting: format(state.enableFormatting, action),
-    };
-}
+export const astexplorer = (state = initialState, action) => ({
+    // UI related state
+    showSettingsDialog: showSettingsDialog(state.showSettingsDialog, action),
+    showShareDialog: showShareDialog(state.showShareDialog, action),
+    loadingSnippet: loadSnippet(state.loadingSnippet, action),
+    saving: saving(state.saving, action),
+    forking: forking(state.forking, action),
+    cursor: cursor(state.cursor, action),
+    error: error(state.error, action),
+    showTransformPanel: showTransformPanel(state.showTransformPanel, action), // Snippet related state
+    activeRevision: activeRevision(state.activeRevision, action), // Workbench settings
+    parserPerCategory: parserPerCategory(state.parserPerCategory, action),
+    parserSettings: parserSettings(state.parserSettings, action, state),
+    workbench: workbench(state.workbench, action, state),
+    enableFormatting: format(state.enableFormatting, action),
+});
 
 function format(state = initialState.enableFormatting, action) {
     if (action.type === actions.TOGGLE_FORMATTING)
@@ -162,9 +156,8 @@ function workbench(state = initialState.workbench, action, fullState) {
         const differentParser = action.transformer.defaultParserID !== state.parser;
         const differentTransformer = action.transformer.id !== state.transform.transformer;
         
-        if (!(differentParser || differentTransformer)) {
+        if (!differentParser && !differentTransformer)
             return state;
-        }
         
         const newState = state;
         
@@ -357,9 +350,8 @@ function cursor(state = initialState.cursor, action) {
     case actions.SET_CODE:
         // If this action is triggered and the cursor = 0, then the code must be
         // loaded
-        if (action.cursor != null && action.cursor) {
+        if (action.cursor != null && action.cursor)
             return action.cursor;
-        }
         
         return state;
     

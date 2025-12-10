@@ -1,3 +1,4 @@
+import estreeToBabel from 'estree-to-babel';
 import {
     getParser,
     getParserSettings,
@@ -10,15 +11,12 @@ import {
     emptyKeysFilter,
     typeKeysFilter,
 } from '../core/TreeAdapter.js';
-import estreeToBabel from 'estree-to-babel';
 
 function parse(parser, code, parserSettings) {
-    if (!parser._promise) {
+    if (!parser._promise)
         parser._promise = new Promise(parser.loadParser);
-    }
     
-    return parser
-        ._promise
+    return parser._promise
         .then((realParser) => parser.parse(realParser, code, parserSettings || parser.getDefaultOptions()))
         .then(estreeToBabel);
 }
@@ -33,9 +31,8 @@ export default (store) => (next) => (action) => {
     const newCode = getCode(newState);
     
     if (action.type === 'INIT' || getParser(oldState) !== newParser || getParserSettings(oldState) !== newParserSettings || getCode(oldState) !== newCode) {
-        if (!newParser || newCode == null) {
+        if (!newParser || newCode == null)
             return;
-        }
         
         const start = Date.now();
         
@@ -49,13 +46,11 @@ export default (store) => (next) => (action) => {
                 return a !== 'importAttributes' && a[0] !== 'importAttributes';
             });
         }
-
         
         return parse(newParser, newCode, newParserSettings).then((ast) => {
             // Did anything change in the meantime?
-            if (newParser !== getParser(store.getState()) || newParserSettings !== getParserSettings(store.getState()) || newCode !== getCode(store.getState())) {
+            if (newParser !== getParser(store.getState()) || newParserSettings !== getParserSettings(store.getState()) || newCode !== getCode(store.getState()))
                 return;
-            }
             
             // Temporary adapter for parsers that haven't been migrated yet.
             const treeAdapter = {
