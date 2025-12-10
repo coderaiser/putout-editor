@@ -21,7 +21,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-putout": "^19.1.0",
-    "madrun": "^9.3.1",
+    "madrun": "^11.0.4",
     "putout": "^41.0.2"
   }
 }
