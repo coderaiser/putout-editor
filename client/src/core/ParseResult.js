@@ -1,11 +1,8 @@
-'use strict';
-
 /**
  * Describes the result of a parse process. Only exists here for documentation
  * purposes.
  */
-// eslint-disable-next-line no-unused-vars
-const ParseResult = {
+export const ParseResult = {
     /**
    * The generated AST
    */
@@ -30,3 +27,4 @@ const ParseResult = {
         options: 'Object',
     },
 };
+

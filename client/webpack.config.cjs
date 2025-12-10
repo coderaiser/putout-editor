@@ -3,12 +3,13 @@
 const {join} = require('node:path');
 const process = require('node:process');
 
+const fs = require('node:fs');
+const path = require('node:path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const fs = require('fs');
-const path = require('path');
+
 const webpack = require('webpack');
 
 const DEV = process.env.NODE_ENV !== 'production';
@@ -95,8 +96,7 @@ module.exports = {
         }, {
             test: /\.(jsx?|mjs)$/,
             type: 'javascript/auto',
-            include: [
-                // To transpile our version of acorn as well as the one that
+            include: [ // To transpile our version of acorn as well as the one that
                 // espree uses (somewhere in its dependency tree)
                 /\/acorn.es.js$/,
                 /\/acorn.mjs$/,
@@ -177,20 +177,20 @@ module.exports = {
             'acorn-private-methods': require.resolve('acorn-private-methods'),
         },
         fallback: {
-            "url": require.resolve("url/"),
-            assert: require.resolve('assert'),
-            buffer: require.resolve('buffer/'),
-            path: require.resolve('path-browserify'),
-            child_process: false,
-            fs: false,
-            module: false,
-            net: false,
-            readline: false,
-            os: false,
-            constants: false,
-            jscodeshift: false,
+            'url': require.resolve('url/'),
+            'assert': require.resolve('assert'),
+            'buffer': require.resolve('buffer/'),
+            'path': require.resolve('path-browserify'),
+            'child_process': false,
+            'fs': false,
+            'module': false,
+            'net': false,
+            'readline': false,
+            'os': false,
+            'constants': false,
+            'jscodeshift': false,
             'process/browser': require.resolve('process/browser'),
-            tty: require.resolve('tty-browserify'),
+            'tty': require.resolve('tty-browserify'),
         },
     },
     

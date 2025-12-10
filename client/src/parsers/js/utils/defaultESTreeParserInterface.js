@@ -1,9 +1,8 @@
-import defaultParserInterface from '../../utils/defaultParserInterface';
+import defaultParserInterface from '../../utils/defaultParserInterface.js';
 
 export default {
     ...defaultParserInterface,
     opensByDefault(node, key) {
-        return node && node.type === 'Program' || key === 'body' || key === 'elements' // array literals
- || key === 'declarations' || key === 'expression';
+        return node && node.type === 'Program' || key === 'body' || key === 'elements' || key === 'declarations' || key === 'expression';
     },
 };

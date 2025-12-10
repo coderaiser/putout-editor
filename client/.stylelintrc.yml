@@ -1,4 +1,3 @@
-extends: stylelint-config-standard
 rules:
   declaration-block-single-line-max-declarations: null
   font-family-name-quotes: null
