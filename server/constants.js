@@ -1,5 +1,7 @@
 'use strict';
 
+const process = require('node:process');
+
 /*
 if (!process.env.AUTH_TOKEN) {
   console.error(
@@ -9,7 +11,6 @@ if (!process.env.AUTH_TOKEN) {
   process.exit(1);
 }
 */
-
 module.exports = {
     AUTH_TOKEN: process.env.AUTH_TOKEN,
     SETTINGS_FORMAT: 2,

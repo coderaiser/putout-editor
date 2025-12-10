@@ -4,7 +4,6 @@ const {run} = require('madrun');
 
 module.exports = {
     'start': () => 'STATIC=../out node index.js',
-    'lint': () => 'putout handlers *.js .madrun.js',
+    'lint': () => 'putout .',
     'fix:lint': () => run('lint', '--fix'),
 };
-

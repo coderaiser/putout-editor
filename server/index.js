@@ -1,8 +1,10 @@
 'use strict';
 
+const {join} = require('node:path');
+const process = require('node:process');
 const bodyParser = require('body-parser');
 const express = require('express');
-const path = require('path');
+
 const cors = require('cors');
 
 const app = express();
@@ -20,25 +22,27 @@ if (process.env.SNIPPET_FILE && process.env.REVISION_FILE) {
 console.log(process.env.STATIC);
 
 if (process.env.STATIC)
-    app.use(express.static(path.join(__dirname, process.env.STATIC)));
+    app.use(express.static(join(__dirname, process.env.STATIC)));
 
 // `next` is needed here to mark this as an error handler
 // eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     console.error(new Date().toLocaleString(), err);
     
     if (err.response) {
-        res.status(err.response.status).send(err.response.statusText);
+        res
+            .status(err.response.status)
+            .send(err.response.statusText);
         return;
     }
-    res.status(500).send('Something went wrong');
+    
+    res
+        .status(500)
+        .send('Something went wrong');
 });
 
-const {
-    PORT = 8080,
-} = process.env;
+const {PORT = 8080} = process.env;
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server listening on port ${PORT}!`);
 });
-
