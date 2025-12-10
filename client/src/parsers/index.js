@@ -1,8 +1,12 @@
 const localRequire = require.context('./', true, /^\.\/(?!utils|transpilers)[^/]+\/(transformers\/([^/]+)\/)?(codeExample\.txt|[^/]+?\.js)$/);
 
+const cutFirstSlash = (name) => name
+    .split('/')
+    .slice(1);
+
 const files = localRequire
     .keys()
-    .map((name) => name.split('/').slice(1));
+    .map(cutFirstSlash);
 
 const categoryByID = {};
 const parserByID = {};
@@ -68,15 +72,8 @@ export function getDefaultParser(category = getDefaultCategory()) {
     return category.parsers.filter((p) => p.showInMenu)[0];
 }
 
-export function getCategoryByID(id) {
-    return categoryByID[id];
-}
+export const getCategoryByID = (id) => categoryByID[id];
 
-export function getParserByID(id) {
-    return parserByID[id];
-}
+export const getParserByID = (id) => parserByID[id];
 
-export function getTransformerByID(id) {
-    return transformerByID[id];
-}
-
+export const getTransformerByID = (id) => transformerByID[id];

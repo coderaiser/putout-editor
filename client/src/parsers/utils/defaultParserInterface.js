@@ -76,9 +76,8 @@ export default {
    * is not implemnted as plain JavaScript object.
    */*forEachProperty(node) {
         for (const prop in node) {
-            if (this._ignoredProperties.has(prop)) {
+            if (this._ignoredProperties.has(prop))
                 continue;
-            }
             
             yield {
                 value: node[prop],
@@ -167,9 +166,8 @@ export default {
         const defaultOptions = this.getDefaultOptions();
         const settingsConfiguration = this._getSettingsConfiguration(defaultOptions);
         
-        if (!settingsConfiguration) {
+        if (!settingsConfiguration)
             return null;
-        }
         
         settings = settings == null ? defaultOptions : this._mergeDefaultOptions(settings, defaultOptions);
         

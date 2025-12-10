@@ -20,4 +20,3 @@ export default function protect(jsCode) {
     
     return jsCode;
 }
-

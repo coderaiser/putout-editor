@@ -1,5 +1,5 @@
-import compileModule from '../../../utils/compileModule';
 import pkg from 'putout/package.json';
+import compileModule from '../../../utils/compileModule';
 
 const ID = 'putout';
 const displayName = '🐊Putout';
@@ -41,10 +41,10 @@ export default {
         const plugin = compileModule(transformCode, {
             require: (name) => {
                 if (name === 'path' || name === 'node:path')
-                    return require('path');
+                    return require('node:path');
                 
-                return putout
-            }
+                return putout;
+            },
         });
         
         plugin.report = plugin.report || noop;
@@ -82,7 +82,7 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
                     ...options,
                     isRecovery: true,
                 });
-            }
-        }
+            },
+        };
     }
 }

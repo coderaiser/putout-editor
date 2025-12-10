@@ -1,4 +1,3 @@
-import {parse} from '@putout/engine-parser';
 import putout from 'putout';
 import * as pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
 import * as pluginOptionalChaining from '@putout/plugin-optional-chaining';
@@ -10,7 +9,6 @@ import * as pluginNodejs from '@putout/plugin-nodejs';
 import * as pluginDestructuring from '@putout/plugin-destructuring';
 import * as pluginMaybe from '@putout/plugin-maybe';
 import * as pluginVariables from '@putout/plugin-variables';
-
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
@@ -29,7 +27,9 @@ export default function compileModule(code, globals = {}) {
         module,
         exports,
         ...Object.values(globals),
-    ]; const result = putout(code, {
+    ];
+    
+    const result = putout(code, {
         fixCount: 10,
         plugins: [
             ['declare', pluginDeclare],
@@ -45,9 +45,9 @@ export default function compileModule(code, globals = {}) {
             ['nodejs/convert-esm-to-commonjs', pluginConvertEsmToCommonjs],
         ],
     });
+    
     const safeCode = protect(result.code);
     
     new Function(keys.join(), safeCode).apply(exports, values);
     return module.exports;
 }
-

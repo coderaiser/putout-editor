@@ -1,6 +1,6 @@
 import React from 'react';
-import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'espree/package.json';
+import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const ID = 'espree';
 
@@ -28,12 +28,11 @@ export default {
     },
     
     nodeToRange(node) {
-        if (isNumber(node.start)) {
+        if (isNumber(node.start))
             return [
                 node.start,
                 node.end,
             ];
-        }
     },
     
     getDefaultOptions() {
@@ -82,7 +81,8 @@ export default {
                     title: 'ecmaFeatures',
                     fields: Object.keys(defaultOptions.ecmaFeatures),
                     settings: (settings) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
-                }],
+                },
+            ],
         };
     },
     
@@ -95,7 +95,7 @@ export default {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-            Option descriptions
+                        Option descriptions
                     </a>
                 </p>
                 {defaultParserInterface.renderSettings.call(this, parserSettings, onChange)}

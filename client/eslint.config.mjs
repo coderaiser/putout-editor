@@ -6,6 +6,7 @@ export default defineConfig([
         rules: {
             'no-irregular-whitespace': 'off',
             'n/no-unsupported-features/node-builtins': 'off',
+            'putout/no-unresolved': 'off',
         },
     },
 ]);

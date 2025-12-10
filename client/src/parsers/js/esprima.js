@@ -1,5 +1,5 @@
-import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'esprima/package.json';
+import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const ID = 'esprima';
 
@@ -26,9 +26,8 @@ export default {
     
     *forEachProperty(node) {
         for (const prop in node) {
-            if (isFn(node[prop])) {
+            if (isFn(node[prop]))
                 continue;
-            }
             
             yield {
                 value: node[prop],

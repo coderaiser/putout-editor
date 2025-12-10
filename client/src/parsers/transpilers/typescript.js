@@ -11,4 +11,3 @@ export default function transpile(code) {
     es5Code = protect(es5Code);
     return es5Code;
 }
-

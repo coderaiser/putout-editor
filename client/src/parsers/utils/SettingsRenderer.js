@@ -13,36 +13,31 @@ function valuesFromArray(settings) {
 }
 
 function getValuesFromSettings(settings) {
-    if (Array.isArray(settings)) {
+    if (Array.isArray(settings))
         return valuesFromArray(settings);
-    }
     
     return settings;
 }
 
-function defaultUpdater(settings, name, value) {
-    return {
-        ...settings,
-        [name]: value,
-    };
-}
+const defaultUpdater = (settings, name, value) => ({
+    ...settings,
+    [name]: value,
+});
 
 function arrayUpdater(settings, name, value) {
     settings = new Set(settings);
     
-    if (value) {
+    if (value)
         settings.add(name);
-    } else {
+    else
         settings.delete(name);
-    }
     
     return Array.from(settings);
 }
 
 function getUpdateStrategy(settings) {
-    if (Array.isArray(settings)) {
+    if (Array.isArray(settings))
         return arrayUpdater;
-    }
     
     return defaultUpdater;
 }
@@ -68,7 +63,7 @@ export default function SettingsRenderer(props) {
             {title ? <h4>{title}</h4> : null}
             <ul className="settings">
                 {fields.map((setting) => {
-                    if (isString(setting)) {
+                    if (isString(setting))
                         return (
                             <li key={setting}>
                                 <label>
@@ -87,7 +82,6 @@ export default function SettingsRenderer(props) {
                                 </label>
                             </li>
                         );
-                    }
                     
                     if (Array.isArray(setting)) {
                         const [fieldName, options, converter = identity] = setting;
@@ -113,7 +107,7 @@ export default function SettingsRenderer(props) {
                         );
                     }
                     
-                    if (setting && typeof setting === 'object') {
+                    if (setting && typeof setting === 'object')
                         return (
                             <SettingsRenderer
                                 key={setting.key}
@@ -125,7 +119,6 @@ export default function SettingsRenderer(props) {
                                 })}
                             />
                         );
-                    }
                 })}
             </ul>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
-import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'acorn/package.json';
+import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const ID = 'acorn';
 
@@ -43,12 +43,11 @@ export default {
     },
     
     nodeToRange(node) {
-        if (isNumber(node.start)) {
+        if (isNumber(node.start))
             return [
                 node.start,
                 node.end,
             ];
-        }
     },
     
     getDefaultOptions() {
@@ -106,7 +105,7 @@ export default {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-            Option descriptions
+                        Option descriptions
                     </a>
                 </p>
                 {defaultParserInterface.renderSettings.call(this, parserSettings, onChange)}

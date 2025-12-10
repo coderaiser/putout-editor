@@ -1,7 +1,7 @@
-import defaultParserInterface from './utils/defaultESTreeParserInterface';
 import pkg from 'babylon7/babylon-package';
 import plugins from '@putout/engine-parser/babel/plugins';
 import options from '@putout/engine-parser/babel/options';
+import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const isUndefined = (a) => typeof a === 'undefined';
 const {keys} = Object;
@@ -75,7 +75,8 @@ export const parserSettingsConfiguration = {
                 obj[name] = plugins.includes(name);
                 return obj;
             }, {}),
-        }],
+        },
+    ],
 };
 
 export default {
@@ -102,43 +103,40 @@ export default {
         
         // TODO: Make decoratorsBeforeExport settable through settings somhow
         // TODO: Make pipelineOperator.proposal settable through settings somhow
-        options.plugins = options.plugins.map((plugin) => {
-            switch(plugin) {
-            case 'decorators':
-                return ['decorators', {
-                    decoratorsBeforeExport: false,
-                }];
-            
-            case 'discardBinding':
-                return ['discardBinding', {
-                    syntaxType: 'void',
-                }];
-            
-            case 'pipelineOperator':
-                return ['pipelineOperator', {
-                    proposal: 'minimal',
-                }];
-            
-            case 'deprecatedImportAssert':
-                return 'deprecatedImportAssert';
-            
-            case 'optionalChainingAssign':
-                return ['optionalChainingAssign', {
-                    version: '2023-07',
-                }];
-            
-            default:
-                if (plugin[0] === 'recordAndTuple')
-                    return 'recordAndTuple';
+        options.plugins = options.plugins
+            .map((plugin) => {
+                switch(plugin) {
+                case 'decorators':
+                    return ['decorators', {
+                        decoratorsBeforeExport: false,
+                    }];
                 
-                return plugin;
-            }
-        }).filter((name) => {
-            if (name === 'recordAndTuple')
-                return false;
-            
-            return true;
-        });
+                case 'discardBinding':
+                    return ['discardBinding', {
+                        syntaxType: 'void',
+                    }];
+                
+                case 'pipelineOperator':
+                    return ['pipelineOperator', {
+                        proposal: 'minimal',
+                    }];
+                
+                case 'deprecatedImportAssert':
+                    return 'deprecatedImportAssert';
+                
+                case 'optionalChainingAssign':
+                    return ['optionalChainingAssign', {
+                        version: '2023-07',
+                    }];
+                
+                default:
+                    if (plugin[0] === 'recordAndTuple')
+                        return 'recordAndTuple';
+                    
+                    return plugin;
+                }
+            })
+            .filter((name) => name !== 'recordAndTuple');
         
         return babylon.parse(code, options);
     },
@@ -154,12 +152,11 @@ export default {
     },
     
     nodeToRange(node) {
-        if (!isUndefined(node.start)) {
+        if (!isUndefined(node.start))
             return [
                 node.start,
                 node.end,
             ];
-        }
     },
     
     getDefaultOptions() {
