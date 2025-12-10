@@ -99,8 +99,6 @@ export default {
             ...options,
         };
         
-        // TODO: Make decoratorsBeforeExport settable through settings somhow
-        // TODO: Make pipelineOperator.proposal settable through settings somhow
         options.plugins = options.plugins
             .map((plugin) => {
                 switch(plugin) {
