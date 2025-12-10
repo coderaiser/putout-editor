@@ -25,8 +25,7 @@ if (process.env.STATIC)
     app.use(express.static(join(__dirname, process.env.STATIC)));
 
 // `next` is needed here to mark this as an error handler
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     console.error(new Date().toLocaleString(), err);
     
     if (err.response) {
