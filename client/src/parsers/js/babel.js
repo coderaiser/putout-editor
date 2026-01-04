@@ -1,6 +1,6 @@
 import pkg from 'babylon7/babylon-package';
 import plugins from '@putout/engine-parser/babel/plugins';
-import options from '@putout/engine-parser/babel/options';
+import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const isUndefined = (a) => typeof a === 'undefined';
