@@ -38,7 +38,6 @@ const availablePlugins = [
     'optionalCatchBinding',
     'pipelineOperator',
     'throwExpressions',
-    'deprecatedImportAssert',
     'sourcePhaseImports',
     'deferredImportEvaluation',
     'optionalChainingAssign',
@@ -116,9 +115,6 @@ export default {
                     return ['pipelineOperator', {
                         proposal: 'minimal',
                     }];
-                
-                case 'deprecatedImportAssert':
-                    return 'deprecatedImportAssert';
                 
                 case 'optionalChainingAssign':
                     return ['optionalChainingAssign', {
