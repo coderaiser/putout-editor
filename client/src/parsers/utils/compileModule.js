@@ -1,4 +1,4 @@
-import putout from 'putout';
+import {putout} from 'putout';
 import * as pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
 import * as pluginOptionalChaining from '@putout/plugin-optional-chaining';
 import * as pluginPutout from '@putout/plugin-putout';

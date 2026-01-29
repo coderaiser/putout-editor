@@ -21,7 +21,7 @@ export default {
             '@putout/engine-parser/babel',
             '@putout/engine-parser/espree',
             '@putout/engine-parser/esprima',
-        ], (putout, acorn, babel, espree, esprima) => callback({
+        ], ({putout}, acorn, babel, espree, esprima) => callback({
             putout,
             acorn,
             babel,

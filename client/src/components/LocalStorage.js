@@ -1,6 +1,6 @@
-import tryCatch from 'try-catch';
+import {tryCatch} from 'try-catch';
 
-const storage = global.localStorage;
+const storage = globalThis.localStorage;
 const key = 'explorerSettingsV1';
 const noop = () => {};
 
