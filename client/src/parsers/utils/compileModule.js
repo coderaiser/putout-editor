@@ -1,4 +1,5 @@
 import {putout} from 'putout';
+
 import * as pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
 import * as pluginOptionalChaining from '@putout/plugin-optional-chaining';
 import * as pluginPutout from '@putout/plugin-putout';
@@ -9,6 +10,8 @@ import * as pluginNodejs from '@putout/plugin-nodejs';
 import * as pluginDestructuring from '@putout/plugin-destructuring';
 import * as pluginMaybe from '@putout/plugin-maybe';
 import * as pluginVariables from '@putout/plugin-variables';
+import * as pluginConditions from '@putout/plugin-conditions';
+
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
@@ -39,6 +42,7 @@ export default function compileModule(code, globals = {}) {
             ['putout', pluginPutout],
             ['maybe', pluginMaybe],
             ['types', pluginTypes],
+            ['conditions', pluginConditions],
             ['variables/convert-const-to-let', pluginVariables.rules['convert-const-to-let']],
             ['optional-chaining', pluginOptionalChaining],
             ['nodejs/declare-after-require', pluginNodejs.rules['declare-after-require']],
