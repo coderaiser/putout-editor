@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "@putout/plugin-conditions": "^8.7.0",
+    "@putout/plugin-conditions": "^9.0.2",
     "@putout/plugin-declare": "^8.0.0",
     "@putout/plugin-declare-before-reference": "^10.0.0",
     "@putout/plugin-optional-chaining": "^2.0.0",
