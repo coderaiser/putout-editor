@@ -1,7 +1,9 @@
-'use strict';
+import process from 'node:process';
+import express from 'express';
+import {createRequire} from 'node:module';
 
-const process = require('node:process');
-const express = require('express');
+const require = createRequire(import.meta.url);
+
 const snippets = prepareData(require(process.env.SNIPPET_FILE));
 const snippetRevisions = prepareData(require(process.env.REVISION_FILE));
 
@@ -10,8 +12,8 @@ function notFound(req, res) {
     res.sendStatus(404);
 }
 
-module.exports = express
-    .Router()// Load snippet
+export default express
+    .Router() // Load snippet
     .get('/:snippetid/:revisionid', load);
 
 function prepareData(data) {

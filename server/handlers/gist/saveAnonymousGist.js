@@ -1,10 +1,8 @@
-'use strict';
-
-const GitHub = require('github-api');
-const {
+import GitHub from 'github-api';
+import {
     AUTH_TOKEN,
     SETTINGS_FORMAT,
-} = require('../../constants');
+} from '../../constants.js';
 
 const gh = new GitHub({
     token: AUTH_TOKEN,
@@ -46,7 +44,7 @@ function getDataFromBody(body, additionalData = {}) {
     };
 }
 
-module.exports.create = (req, res, next) => {
+export const create = (req, res, next) => {
     gh
         .getGist()
         .create(getDataFromBody(req.body))
@@ -54,7 +52,7 @@ module.exports.create = (req, res, next) => {
         .catch(next);
 };
 
-module.exports.update = (req, res, next) => {
+export const update = (req, res, next) => {
     gh
         .getGist(req.params.snippetid)
         .update(getDataFromBody(req.body))
@@ -62,7 +60,7 @@ module.exports.update = (req, res, next) => {
         .catch(next);
 };
 
-module.exports.fork = (req, res, next) => {
+export const fork = (req, res, next) => {
     // We cannot really "fork" an "anonymous" snippet because a user (astexplorer)
     // cannot fork it's own gist.
     const data = getDataFromBody(req.body);
