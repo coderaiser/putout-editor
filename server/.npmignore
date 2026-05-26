@@ -1,6 +1,9 @@
-madrun.js
+*.config.*
+*.log
+*.lock
 
 .*
-yarn-error.log
+
+madrun.js
+
 coverage
-*.config.*

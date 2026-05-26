@@ -11,8 +11,7 @@ function notFound(req, res) {
 }
 
 module.exports = express
-    .Router()
-    // Load snippet
+    .Router()// Load snippet
     .get('/:snippetid/:revisionid', load);
 
 function prepareData(data) {
@@ -50,7 +49,7 @@ function load(req, res) {
     };
     
     delete copy._id;
-        // The data will never change but we don't want to keep it in caches
+    // The data will never change but we don't want to keep it in caches
     // unnecessarily
     // res.append('Cache-Control', 'max-age=86400, public'); // 24h
     res.json(copy);
