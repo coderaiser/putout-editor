@@ -61,7 +61,7 @@
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.1.5",
+    "@babel/runtime": "^8.0.0",
     "@putout/plugin-conditions": "^9.0.2",
     "@putout/plugin-declare": "^8.0.0",
     "@putout/plugin-declare-before-reference": "^10.0.0",
