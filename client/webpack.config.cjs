@@ -96,6 +96,9 @@ module.exports = {
         }, {
             test: /\.(jsx?|mjs)$/,
             type: 'javascript/auto',
+            exclude: [
+                path.join(__dirname, 'node_modules', '@putout/engine-loader'),
+            ],
             include: [ // To transpile our version of acorn as well as the one that
                 // espree uses (somewhere in its dependency tree)
                 /\/acorn.es.js$/,
