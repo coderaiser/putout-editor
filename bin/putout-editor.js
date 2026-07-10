@@ -2,5 +2,5 @@
 
 'use strict';
 
-require('../server');
+import '../server/index.js';
 
