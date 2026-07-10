@@ -1,14 +1,12 @@
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
-import createSagaMiddleware from 'redux-saga';
 import {Provider, connect} from 'react-redux';
 import {
     createStore,
     applyMiddleware,
     compose,
 } from 'redux';
-import {enableBatching} from 'redux-batched-actions';
 import {createRoot} from 'react-dom/client';
 import * as LocalStorage from './components/LocalStorage';
 import ASTOutputContainer from './containers/ASTOutputContainer';
@@ -23,7 +21,6 @@ import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './containers/TransformerContainer';
 import debounce from './utils/debounce';
-import saga from './store/sagas';
 import {
     astexplorer,
     persist,
@@ -39,6 +36,7 @@ import * as parse from './storage/parse';
 import StorageHandler from './storage';
 import '../css/style.css';
 import parserMiddleware from './store/parserMiddleware';
+import snippetMiddleware from './store/snippetMiddleware';
 
 function resize() {
     PubSub.publish('PANEL_RESIZE');
@@ -88,13 +86,12 @@ const AppContainer = connect((state) => ({
 }))(App);
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(
-    enableBatching(astexplorer),
+    astexplorer,
     revive(LocalStorage.readState()),
     composeEnhancers(applyMiddleware(
-        sagaMiddleware,
+        snippetMiddleware(new StorageHandler([gist, parse])),
         parserMiddleware,
     )),
 );
@@ -106,7 +103,6 @@ store.subscribe(debounce(() => {
     if (!getRevision(state))
         LocalStorage.writeState(persist(state));
 }));
-sagaMiddleware.run(saga, new StorageHandler([gist, parse]));
 store.dispatch({
     type: 'INIT',
 });
