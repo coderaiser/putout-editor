@@ -35,8 +35,8 @@ app.use((err, req, res, next) => {
     
     if (err.response) {
         res
-            .status(err.response.status)
-            .send(err.response.statusText);
+            .status(err.status || err.response.status)
+            .send(err.message);
         return;
     }
     

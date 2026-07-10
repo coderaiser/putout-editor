@@ -1,11 +1,11 @@
-import GitHub from 'github-api';
+import {Octokit} from '@octokit/rest';
 import {
     AUTH_TOKEN,
     SETTINGS_FORMAT,
 } from '../../constants.js';
 
-const gh = new GitHub({
-    token: AUTH_TOKEN,
+const octokit = new Octokit({
+    auth: AUTH_TOKEN,
 });
 
 /**
@@ -45,17 +45,16 @@ function getDataFromBody(body, additionalData = {}) {
 }
 
 export const create = (req, res, next) => {
-    gh
-        .getGist()
-        .create(getDataFromBody(req.body))
+    octokit.rest.gists.create(getDataFromBody(req.body))
         .then((response) => res.json(response.data))
         .catch(next);
 };
 
 export const update = (req, res, next) => {
-    gh
-        .getGist(req.params.snippetid)
-        .update(getDataFromBody(req.body))
+    octokit.rest.gists.update({
+        gist_id: req.params.snippetid,
+        ...getDataFromBody(req.body),
+    })
         .then((response) => res.json(response.data))
         .catch(next);
 };
@@ -65,9 +64,7 @@ export const fork = (req, res, next) => {
     // cannot fork it's own gist.
     const data = getDataFromBody(req.body);
     
-    gh
-        .getGist()
-        .create(data)
+    octokit.rest.gists.create(data)
         .then((response) => res.json(response.data))
         .catch(next);
 };

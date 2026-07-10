@@ -1,15 +1,17 @@
-import GitHub from 'github-api';
+import {Octokit} from '@octokit/rest';
 import {AUTH_TOKEN} from '../../constants.js';
 
 export default function loadGist(req, res, next) {
-    const gh = new GitHub({
-        token: AUTH_TOKEN,
+    const octokit = new Octokit({
+        auth: AUTH_TOKEN,
     });
     
-    const gist = gh.getGist(req.params.snippetid);
     const latest = req.params.revisionid === 'latest';
     
-    (latest ? gist.read() : gist.getRevision(req.params.revisionid))
+    octokit.rest.gists.get({
+        gist_id: req.params.snippetid,
+        ...(!latest && {sha: req.params.revisionid}),
+    })
         .then((response) => res.json(response.data))
         .catch(next);
 }

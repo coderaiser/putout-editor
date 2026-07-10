@@ -8,7 +8,7 @@
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "github-api": "https://github.com/fkling/github.git"
+    "@octokit/rest": "^22.0.0"
   },
   "scripts": {
     "start": "madrun start",
