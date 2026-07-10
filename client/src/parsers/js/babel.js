@@ -1,4 +1,4 @@
-import pkg from 'babylon7/babylon-package';
+import pkg from '@babel/parser/package.json';
 import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
