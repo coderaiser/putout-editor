@@ -6,7 +6,7 @@ Web editor for the simplest declarative plugins for 🐊[**Putout**](https://git
 
 ## Reasoning
 
-🐊**Putout** wasn't invited to [parser's party](https://github.com/fkling/astexplorer/pull/414), so he made it's own party 🎉 with the most friendly and mainable **parsers**:
+🐊**Putout** wasn't invited to [parser's party](https://github.com/fkling/astexplorer/pull/414), so he made it's own party 🎉 with the most friendly and maintainable **parsers**:
 - ✅ [acorn](https://github.com/acornjs/acorn)
 - ✅ [babel](https://babeljs.io/)
 - ✅ [estree](https://github.com/eslint/espree)
