@@ -11,13 +11,64 @@ const __dirname = dirname(__filename);
 const require = createRequire(import.meta.url);
 
 const DEV = process.env.NODE_ENV !== 'production';
+<<<<<<< HEAD
 const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.meta.url).pathname, 'utf8'));
 
 const test = RegExp(`/node_modules/`);
+=======
+const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.meta.url).pathname));
+
+const packages = fs.readdirSync(new URL('packages', import.meta.url).pathname);
+const test = RegExp(`/node_modules/(?!${packages.join('|')}/)`);
+
+const plugins = [
+    new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+        resource.request = resource.request.replace(/^node:/, '');
+    }),
+    new rspack.IgnorePlugin({
+        resourceRegExp: /hermes-parser/,
+    }),
+    new rspack.DefinePlugin({
+        'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
+    }),
+    new rspack.ProvidePlugin({
+        process: 'process/browser',
+    }),
+    new rspack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+    }),
+    // eslint //
+    // Shim ESLint stuff that's only relevant for Node.js
+    new rspack.NormalModuleReplacementPlugin(/(cli-engine|testers\/rule-tester)/, 'node-libs-browser/mock/empty'),
+    // More shims
+    // Doesn't look like jest-validate is useful in our case (prettier uses it)
+    new rspack.NormalModuleReplacementPlugin(/jest-validate/, `${__dirname}/src/shims/jest-validate.js`),
+    // Hack to disable dynamic requires in ESLint, so we don't end up
+    // bundling the entire ESLint directory including files we don't need.
+    // https://github.com/webpack/webpack/issues/198
+    new rspack.ContextReplacementPlugin(/eslint|@putout\/engine-loader/, /NEVER_MATCH^/),
+    // mini-css-extract-plugin is not compatible with rspack, use the native equivalent
+    new rspack.CssExtractRspackPlugin({
+        filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
+    }),
+    // html-webpack-plugin is kept as-is (not swapped for HtmlRspackPlugin):
+    // HtmlRspackPlugin only supports a subset of EJS syntax, and this
+    // project's index.ejs relies on full EJS. Rspack docs confirm full
+    // compatibility with html-webpack-plugin.
+    new HtmlWebpackPlugin({
+        favicon: './favicon.png',
+        inject: 'body',
+        filename: 'index.html',
+        template: './index.ejs',
+    }),
+    new rspack.ProgressPlugin(),
+];
+>>>>>>> chore: putout-editor: replace webpack with rspack
 
 export default {
     mode: DEV ? 'development' : 'production',
     
+<<<<<<< HEAD
     entry: {
         app: './src/app.js',
     },
@@ -82,6 +133,10 @@ export default {
     ],
     
     optimization: {
+=======
+    optimization: {
+        moduleIds: 'deterministic',
+>>>>>>> chore: putout-editor: replace webpack with rspack
         runtimeChunk: 'single',
         splitChunks: {
             cacheGroups: {
@@ -105,6 +160,7 @@ export default {
         minimizer: [
             new rspack.SwcJsMinimizerRspackPlugin({
                 minimizerOptions: {
+<<<<<<< HEAD
                     compress: {
                         keep_fnames: true,
                     },
@@ -115,6 +171,11 @@ export default {
                     format: {
                         ecma: 2022,
                     },
+=======
+                    mangle: {
+                        keep_fnames: true,
+                    },
+>>>>>>> chore: putout-editor: replace webpack with rspack
                 },
             }),
         ],
@@ -132,6 +193,11 @@ export default {
                 join(__dirname, 'node_modules', '@putout/engine-loader'),
             ],
             include: [
+<<<<<<< HEAD
+=======
+                // To transpile our version of acorn as well as the one that
+                // espree uses (somewhere in its dependency tree)
+>>>>>>> chore: putout-editor: replace webpack with rspack
                 /\/acorn.es.js$/,
                 /\/acorn.mjs$/,
                 /\/acorn-loose.mjs$/,
@@ -158,6 +224,10 @@ export default {
                 join(__dirname, 'node_modules', '@putout'),
                 join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
+<<<<<<< HEAD
+=======
+            // babel-loader -> builtin:swc-loader for faster builds
+>>>>>>> chore: putout-editor: replace webpack with rspack
             loader: 'builtin:swc-loader',
             options: {
                 jsc: {
@@ -173,8 +243,13 @@ export default {
                     },
                     externalHelpers: true,
                 },
+<<<<<<< HEAD
                 env: {
                     targets: 'last 2 Chrome versions, last 2 Safari versions, Firefox ESR, not dead',
+=======
+                module: {
+                    type: 'commonjs',
+>>>>>>> chore: putout-editor: replace webpack with rspack
                 },
             },
         }, {
@@ -188,7 +263,11 @@ export default {
                 }, 'postcss-loader',
             ],
         }, {
+<<<<<<< HEAD
             test: /\.woff2?(\?v=\d\.\d\.\d)?$/,
+=======
+            test: /\.woff(2)?(\?v=\d\.\d\.\d)?$/,
+>>>>>>> chore: putout-editor: replace webpack with rspack
             type: 'asset',
             parser: {
                 dataUrlCondition: {
@@ -202,11 +281,52 @@ export default {
         
         noParse: [
             /acorn\/dist\/acorn\.js/,
+<<<<<<< HEAD
+=======
+            /acorn\/dist\/acorn\.mjs/,
+>>>>>>> chore: putout-editor: replace webpack with rspack
             /esprima\/dist\/esprima\.js/,
             /esprima-fb\/esprima\.js/,
         ],
     },
     
+<<<<<<< HEAD
+=======
+    plugins,
+    resolve: {
+        alias: {
+            'acorn-private-methods': require.resolve('acorn-private-methods'),
+        },
+        fallback: {
+            'url': require.resolve('url/'),
+            'assert': require.resolve('assert'),
+            'buffer': require.resolve('buffer/'),
+            'events': require.resolve('events/'),
+            'path': require.resolve('path-browserify'),
+            'child_process': false,
+            'fs': false,
+            'module': false,
+            'net': false,
+            'readline': false,
+            'os': false,
+            'constants': false,
+            'jscodeshift': false,
+            'process/browser': require.resolve('process/browser'),
+            'tty': require.resolve('tty-browserify'),
+        },
+    },
+    
+    entry: {
+        app: './src/app.js',
+    },
+    
+    output: {
+        path: new URL('../out-build', import.meta.url).pathname,
+        filename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
+        chunkFilename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
+    },
+    
+>>>>>>> chore: putout-editor: replace webpack with rspack
     ...DEV && {
         devtool: 'eval-source-map',
     },
