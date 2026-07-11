@@ -1,4 +1,4 @@
-import {GlobalExceptionFilter} from '../src/exception.filter.js';
+import {GlobalExceptionFilter} from './exception.filter.js';
 import {test, stub} from 'supertape';
 
 test('error filter: returns 500 for unknown errors', async (t) => {

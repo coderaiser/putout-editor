@@ -1,8 +1,8 @@
 import {Test} from '@nestjs/testing';
 import {test} from 'supertape';
-import {AppModule} from '../src/app.module.js';
-import {AppController} from '../src/app.controller.js';
-import {AppService} from '../src/app.service.js';
+import {AppModule} from './app.module.js';
+import {AppController} from './app.controller.js';
+import {AppService} from './app.service.js';
 
 test('application module: can compile', async (t) => {
     const module = await Test

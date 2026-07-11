@@ -1,6 +1,6 @@
 import {Test} from '@nestjs/testing';
-import {ParseController} from '../src/parse/parse.controller.js';
-import {ParseService} from '../src/parse/parse.service.js';
+import {ParseController} from './parse.controller.js';
+import {ParseService} from './parse.service.js';
 import {test, stub} from 'supertape';
 
 test('parse controller: GET /api/v1/parse/:snippetid/:revisionid returns snippet', async (t) => {

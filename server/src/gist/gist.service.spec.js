@@ -1,6 +1,6 @@
 import {Test} from '@nestjs/testing';
-import {GistService} from '../src/gist/gist.service.js';
-import {GithubService} from '../src/gist/github.service.js';
+import {GistService} from './gist.service.js';
+import {GithubService} from './github.service.js';
 import {test, stub} from 'supertape';
 
 test('gist service: load', async (t) => {

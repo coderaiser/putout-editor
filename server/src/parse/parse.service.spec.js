@@ -1,5 +1,5 @@
 import {Test} from '@nestjs/testing';
-import {ParseService} from '../src/parse/parse.service.js';
+import {ParseService} from './parse.service.js';
 import {test, stub} from 'supertape';
 
 test('parse service: returns latest revision', async (t) => {

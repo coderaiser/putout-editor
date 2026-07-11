@@ -1,6 +1,6 @@
 import {Test} from '@nestjs/testing';
-import {GistController} from '../src/gist/gist.controller.js';
-import {GistService} from '../src/gist/gist.service.js';
+import {GistController} from './gist.controller.js';
+import {GistService} from './gist.service.js';
 import {test, stub} from 'supertape';
 
 test('gist controller: POST /api/v1/gist (create)', async (t) => {
@@ -118,4 +118,3 @@ test('gist controller: GET /api/v1/gist/:id/:revision (load)', async (t) => {
     t.calledWith(mockGistService.load, ['gist123', 'rev1']);
     t.end();
 });
-

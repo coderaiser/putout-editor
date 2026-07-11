@@ -1,5 +1,5 @@
 import {Test} from '@nestjs/testing';
-import {GithubService} from '../src/gist/github.service.js';
+import {GithubService} from './github.service.js';
 import {test, stub} from 'supertape';
 
 test('github.service: exists and wraps GitHub client', async (t) => {
