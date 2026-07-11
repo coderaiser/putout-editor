@@ -33,10 +33,10 @@ export default {
                 esprimaMod,
             ]) => callback({
                 putout: putoutMod.putout,
-                acorn: acornMod.default || acornMod,
-                babel: babelMod.default || babelMod,
-                espree: espreeMod.default || espreeMod,
-                esprima: esprimaMod.default || esprimaMod,
+                acorn: acornMod,
+                babel: babelMod,
+                espree: espreeMod,
+                esprima: esprimaMod,
             }));
     },
     
