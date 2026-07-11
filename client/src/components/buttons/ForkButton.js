@@ -29,7 +29,9 @@ export default class ForkButton extends React.Component {
             </button>
         );
     }
-}ForkButton.propTypes = {
+}
+
+ForkButton.propTypes = {
     canFork: PropTypes.bool,
     saving: PropTypes.bool,
     forking: PropTypes.bool,

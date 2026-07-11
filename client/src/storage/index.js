@@ -17,11 +17,11 @@ export default class StorageHandler {
     }
     
     updateHash(revision) {
-        global.location.hash = revision.getPath();
+        globalThis.location.hash = revision.getPath();
     }
     
     fetchFromURL() {
-        if (/^#?\/?$/.test(global.location.hash))
+        if (/^#?\/?$/.test(globalThis.location.hash))
             return Promise.resolve(null);
         
         for (const backend of this._backends) {

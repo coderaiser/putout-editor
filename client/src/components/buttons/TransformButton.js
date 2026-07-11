@@ -52,17 +52,19 @@ export default class TransformButton extends React.Component {
            Transform
                 </button>
                 {this.props.category.transformers.length && <ul>
-                    {this.props.category.transformers.map((transformer) => <li
-                        key={transformer.id}
-                        className={cx({
-                            selected: this.props.showTransformer && this.props.transformer === transformer,
-                        })}
-                        onClick={this._onClick}
-                    >
-                        <button value={transformer.id} type="button">
-                            {transformer.displayName}
-                        </button>
-                    </li>)}
+                    {this.props.category.transformers.map((transformer) => (
+                        <li
+                            key={transformer.id}
+                            className={cx({
+                                selected: this.props.showTransformer && this.props.transformer === transformer,
+                            })}
+                            onClick={this._onClick}
+                        >
+                            <button value={transformer.id} type="button">
+                                {transformer.displayName}
+                            </button>
+                        </li>
+                    ))}
                 </ul>}
             </div>
         );

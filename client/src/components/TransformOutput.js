@@ -71,8 +71,7 @@ export default class TransformOutput extends React.Component {
                     .transformCode,
                 nextProps
                     .code,
-                nextProps
-                    .parser,
+                nextProps.parser,
             )
                 .then(({result, map}) => ({
                     result,

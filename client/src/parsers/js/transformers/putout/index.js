@@ -1,4 +1,6 @@
-import pkg from 'putout/package.json';
+import pkg from 'putout/package.json' with {
+    type: 'json',
+};
 import compileModule from '../../../utils/compileModule';
 
 const ID = 'putout';
@@ -15,19 +17,27 @@ export default {
     defaultParserID: 'babel',
     
     loadTransformer(callback) {
-        Promise.all([
-            import('putout'),
-            import('@putout/engine-parser/acorn'),
-            import('@putout/engine-parser/babel'),
-            import('@putout/engine-parser/espree'),
-            import('@putout/engine-parser/esprima'),
-        ]).then(([putoutMod, acornMod, babelMod, espreeMod, esprimaMod]) => callback({
-            putout: putoutMod.putout,
-            acorn: acornMod.default || acornMod,
-            babel: babelMod.default || babelMod,
-            espree: espreeMod.default || espreeMod,
-            esprima: esprimaMod.default || esprimaMod,
-        }));
+        Promise
+            .all([
+                import('putout'),
+                import('@putout/engine-parser/acorn'),
+                import('@putout/engine-parser/babel'),
+                import('@putout/engine-parser/espree'),
+                import('@putout/engine-parser/esprima'),
+            ])
+            .then(([
+                putoutMod,
+                acornMod,
+                babelMod,
+                espreeMod,
+                esprimaMod,
+            ]) => callback({
+                putout: putoutMod.putout,
+                acorn: acornMod.default || acornMod,
+                babel: babelMod.default || babelMod,
+                espree: espreeMod.default || espreeMod,
+                esprima: esprimaMod.default || esprimaMod,
+            }));
     },
     
     transform({putout, acorn, babel, espree, esprima}, transformCode, source, parserName) {

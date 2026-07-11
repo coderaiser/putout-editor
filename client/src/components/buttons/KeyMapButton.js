@@ -31,15 +31,17 @@ class KeyMapButton extends React.Component {
                     {this.props.keyMap}
                 </button>
                 {<ul>
-                    {keyMappings.map((keyMap) => <li
-                        key={keyMap}
-                        disabled={this.props.keyMap === keyMap}
-                        onClick={() => this.props.onKeyMapChange(keyMap)}
-                    >
-                        <button type="button">
-                            {keyMap}
-                        </button>
-                    </li>)}
+                    {keyMappings.map((keyMap) => (
+                        <li
+                            key={keyMap}
+                            disabled={this.props.keyMap === keyMap}
+                            onClick={() => this.props.onKeyMapChange(keyMap)}
+                        >
+                            <button type="button">
+                                {keyMap}
+                            </button>
+                        </li>
+                    ))}
                 </ul>}
             </div>
         );

@@ -1,17 +1,17 @@
+import './css/tree.css';
 import PropTypes from 'prop-types';
 import React from 'react';
 import PubSub from 'pubsub-js';
 import Element from './tree/Element';
 import {logEvent} from '../../utils/logger';
 import {treeAdapterFromParseResult} from '../../core/TreeAdapter.js';
-import './css/tree.css';
 
 const {useReducer, useMemo} = React;
 
 const STORAGE_KEY = 'tree_settings';
 
 function initSettings() {
-    const storedSettings = global.localStorage.getItem(STORAGE_KEY);
+    const storedSettings = globalThis.localStorage.getItem(STORAGE_KEY);
     
     return storedSettings ? JSON.parse(storedSettings) : {
         autofocus: true,
@@ -28,7 +28,7 @@ function reducer(state, element) {
         [element.name]: element.checked,
     };
     
-    global.localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+    globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
     logEvent('tree_view_settings', element.checked ? 'enabled' : 'disabled', element.name);
     
     return newState;
@@ -59,13 +59,15 @@ export default function Tree({focusPath, parseResult}) {
                 ​
                 {treeAdapter
                     .getConfigurableFilters()
-                    .map((filter) => <span key={filter.key}>
-                        <label>
-                            {makeCheckbox(filter.key, settings, updateSettings)}
-                            {filter.label}
-                        </label>
-                        ​
-                    </span>)}
+                    .map((filter) => (
+                        <span key={filter.key}>
+                            <label>
+                                {makeCheckbox(filter.key, settings, updateSettings)}
+                                {filter.label}
+                            </label>
+                            ​
+                        </span>
+                    ))}
             </div>
             <ul
                 onMouseLeave={() => {

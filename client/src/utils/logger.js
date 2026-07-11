@@ -5,4 +5,3 @@ export function logEvent(category, action, label) {
 export function logError(exDescription, exFatal) {
     console.log(exDescription, exFatal);
 }
-

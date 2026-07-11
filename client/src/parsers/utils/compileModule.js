@@ -1,5 +1,4 @@
 import {putout} from 'putout';
-
 import * as pluginConvertEsmToCommonjs from '@putout/plugin-nodejs/convert-esm-to-commonjs';
 import * as pluginOptionalChaining from '@putout/plugin-optional-chaining';
 import * as pluginPutout from '@putout/plugin-putout';
@@ -11,7 +10,6 @@ import * as pluginDestructuring from '@putout/plugin-destructuring';
 import * as pluginMaybe from '@putout/plugin-maybe';
 import * as pluginVariables from '@putout/plugin-variables';
 import * as pluginConditions from '@putout/plugin-conditions';
-
 import protect from '../utils/protectFromLoops';
 
 export default function compileModule(code, globals = {}) {
@@ -53,5 +51,6 @@ export default function compileModule(code, globals = {}) {
     const safeCode = protect(result.code);
     
     new Function(keys.join(), safeCode).apply(exports, values);
+    
     return module.exports;
 }

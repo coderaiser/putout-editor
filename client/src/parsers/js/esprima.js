@@ -1,4 +1,6 @@
-import pkg from 'esprima/package.json';
+import pkg from 'esprima/package.json' with {
+    type: 'json',
+};
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const ID = 'esprima';
@@ -52,10 +54,10 @@ export default {
     _getSettingsConfiguration() {
         return {
             fields: [
-                ['sourceType', [
-                    'script',
-                    'module',
-                ]],
+                [
+                    'sourceType',
+                    ['script', 'module'],
+                ],
                 'range',
                 'loc',
                 'attachComment',

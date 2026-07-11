@@ -1,8 +1,5 @@
 import {connect} from 'react-redux';
-import {
-    setCode,
-    setCursor,
-} from '../store/actions';
+import {setCode, setCursor} from '../store/actions';
 import Editor from '../components/Editor';
 import {
     getCode,

@@ -1,9 +1,8 @@
-import React from 'react';
 import api from './api';
 import {getParserByID} from '../parsers';
 
 function getIDAndRevisionFromHash() {
-    const match = global.location.hash.match(/^#\/gist\/([^/]+)(?:\/[^/]+)?/);
+    const match = globalThis.location.hash.match(/^#\/gist\/([^/]+)(?:\/[^/]+)?/);
     
     if (match)
         return {

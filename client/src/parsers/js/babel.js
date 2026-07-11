@@ -1,4 +1,6 @@
-import pkg from '@babel/parser/package.json';
+import pkg from '@babel/parser/package.json' with {
+    type: 'json',
+};
 import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
@@ -56,10 +58,10 @@ export const defaultOptions = {
 
 export const parserSettingsConfiguration = {
     fields: [
-        ['sourceType', [
-            'module',
-            'script',
-        ]],
+        [
+            'sourceType',
+            ['module', 'script'],
+        ],
         ...keys(options),
         'ranges',
         'errorRecovery',

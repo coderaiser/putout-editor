@@ -3,7 +3,7 @@ import queryString from 'query-string';
 const DATA_PATTERN = /^#(?:\/([^/?]+)(?:\/(\d*))?\/?)?(?:\?(.+))?/;
 
 export function getDataFromURI() {
-    const match = global.location.hash.match(DATA_PATTERN);
+    const match = globalThis.location.hash.match(DATA_PATTERN);
     
     if (match) {
         const params = {
@@ -43,5 +43,5 @@ export function updateURI(data) {
     if (Object.keys(params).length > 0)
         hash += '?' + queryString.stringify(params);
     
-    global.location.hash = hash;
+    globalThis.location.hash = hash;
 }

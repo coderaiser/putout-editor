@@ -1,6 +1,6 @@
+import '../css/style.css';
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
-import React from 'react';
 import {Provider, connect} from 'react-redux';
 import {
     createStore,
@@ -34,7 +34,6 @@ import {loadSnippet} from './store/actions';
 import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
-import '../css/style.css';
 import parserMiddleware from './store/parserMiddleware';
 import snippetMiddleware from './store/snippetMiddleware';
 
@@ -85,13 +84,14 @@ const AppContainer = connect((state) => ({
     hasError: Boolean(state.error),
 }))(App);
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers = globalThis.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
     astexplorer,
     revive(LocalStorage.readState()),
     composeEnhancers(applyMiddleware(
-        snippetMiddleware(new StorageHandler([gist, parse])),
+        snippetMiddleware(new StorageHandler([gist,
+            parse])),
         parserMiddleware,
     )),
 );
@@ -114,14 +114,14 @@ root.render(<Provider store={store}>
     <AppContainer/>
 </Provider>);
 
-global.onhashchange = () => {
+globalThis.onhashchange = () => {
     store.dispatch(loadSnippet());
 };
 
 if (location.hash.length > 1)
     store.dispatch(loadSnippet());
 
-global.onbeforeunload = () => {
+globalThis.onbeforeunload = () => {
     const state = store.getState();
     
     if (canSaveTransform(state))

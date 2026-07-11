@@ -66,6 +66,7 @@ class TreeAdapter {
         }
         
         this._ranges.set(node, range);
+        
         return range;
     }
     

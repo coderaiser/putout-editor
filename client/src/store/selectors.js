@@ -67,7 +67,10 @@ export function showTransformer(state) {
     return state.showTransformPanel;
 }
 
-const isTransformDirty = createSelector([getTransformCode, getInitialTransformCode], (code, initialCode) => code !== initialCode);
+const isTransformDirty = createSelector([
+    getTransformCode,
+    getInitialTransformCode,
+], (code, initialCode) => code !== initialCode);
 
 export const canFork = createSelector([getRevision], Boolean);
 
@@ -76,8 +79,13 @@ const canSaveCode = createSelector([getRevision, isCodeDirty], (revision, dirty)
 
 export const canSaveTransform = createSelector([showTransformer, isTransformDirty], (showTransformer, dirty) => showTransformer && dirty);
 
-const didParserSettingsChange = createSelector([getParserSettings, getRevision, getParser], (parserSettings, revision, parser) => {
+const didParserSettingsChange = createSelector([
+    getParserSettings,
+    getRevision,
+    getParser,
+], (parserSettings, revision, parser) => {
     const savedParserSettings = revision?.getParserSettings();
+    
     return revision
         && (parser.id !== revision.getParserID()
         || savedParserSettings

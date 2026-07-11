@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import React from 'react';
 
 const identity = (v) => v;
 
@@ -98,9 +97,13 @@ export default function SettingsRenderer(props) {
                                         ))}
                                         value={values[fieldName]}
                                     >
-                                        {Array.isArray(options) ? options.map((o) => <option key={o} value={o}>{o}</option>) : Object
+                                        {Array.isArray(options) ? options.map((o) => (
+                                            <option key={o} value={o}>{o}</option>
+                                        )) : Object
                                             .keys(options)
-                                            .map((key) => <option key={key} value={options[key]}>{key}</option>)}
+                                            .map((key) => (
+                                                <option key={key} value={options[key]}>{key}</option>
+                                            ))}
                                     </select>
                                 </label>
                             </li>

@@ -1,4 +1,3 @@
-import React from 'react';
 import SettingsRenderer from '../utils/SettingsRenderer';
 
 /**

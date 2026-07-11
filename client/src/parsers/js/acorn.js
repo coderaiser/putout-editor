@@ -1,5 +1,6 @@
-import React from 'react';
-import pkg from 'acorn/package.json';
+import pkg from 'acorn/package.json' with {
+    type: 'json',
+};
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const ID = 'acorn';
@@ -20,17 +21,19 @@ export default {
     ]),
     
     loadParser(callback) {
-        Promise.all([
-            import('acorn'),
-            import('acorn-loose'),
-            import('acorn-jsx'),
-        ]).then(([acornMod, acornLooseMod, acornJsxMod]) => {
-            callback({
-                acorn: acornMod.default || acornMod,
-                acornLoose: acornLooseMod.default || acornLooseMod,
-                acornJsx: acornJsxMod.default || acornJsxMod,
+        Promise
+            .all([
+                import('acorn'),
+                import('acorn-loose'),
+                import('acorn-jsx'),
+            ])
+            .then(([acornMod, acornLooseMod, acornJsxMod]) => {
+                callback({
+                    acorn: acornMod.default || acornMod,
+                    acornLoose: acornLooseMod.default || acornLooseMod,
+                    acornJsx: acornJsxMod.default || acornJsxMod,
+                });
             });
-        });
     },
     
     parse(parsers, code, options = {}) {
@@ -83,10 +86,10 @@ export default {
                     9,
                     10,
                 ], Number],
-                ['sourceType', [
-                    'script',
-                    'module',
-                ]],
+                [
+                    'sourceType',
+                    ['script', 'module'],
+                ],
                 'allowReserved',
                 'allowReturnOutsideFunction',
                 'allowImportExportEverywhere',

@@ -30,9 +30,9 @@ export default class SplitPane extends React.Component {
     
     _onMouseDown() {
         const {vertical} = this.props;
-        const max = vertical ? global.innerHeight : global.innerWidth;
+        const max = vertical ? globalThis.innerHeight : globalThis.innerWidth;
         
-        global.document.body.style.cursor = vertical ? 'row-resize' : 'col-resize';
+        globalThis.document.body.style.cursor = vertical ? 'row-resize' : 'col-resize';
         const moveHandler = (event) => {
             event.preventDefault();
             this.setState({
@@ -43,7 +43,7 @@ export default class SplitPane extends React.Component {
         const upHandler = () => {
             document.removeEventListener('mousemove', moveHandler);
             document.removeEventListener('mouseup', upHandler);
-            global.document.body.style.cursor = '';
+            globalThis.document.body.style.cursor = '';
             
             if (this.props.onResize)
                 this.props.onResize();

@@ -64,10 +64,12 @@ function mapDispatchToProps(dispatch) {
         onSave: () => dispatch(save(false)),
         onFork: () => dispatch(save(true)),
         onNew: () => {
-            if (global.location.hash)
-                global.location.hash = '';
-            else
-                dispatch(reset());
+            if (globalThis.location.hash) {
+                globalThis.location.hash = '';
+                return;
+            }
+            
+            dispatch(reset());
         },
     };
 }

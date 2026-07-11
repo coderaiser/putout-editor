@@ -1,4 +1,3 @@
-import React from 'react';
 import api from './api';
 import {
     getTransformerByID,
@@ -6,7 +5,7 @@ import {
 } from '../parsers';
 
 function getIDAndRevisionFromHash() {
-    const match = global.location.hash.match(/^#\/(?!gist\/)([^/]+)(?:\/(latest|\d*))?/);
+    const match = globalThis.location.hash.match(/^#\/(?!gist\/)([^/]+)(?:\/(latest|\d*))?/);
     
     if (match)
         return {
@@ -43,7 +42,7 @@ export function matchesURL() {
 export function updateHash(revision) {
     const rev = revision.getRevisionID();
     
-    global.location.hash = '/' + revision.getSnippetID() + (rev ? `/${rev}` : '');
+    globalThis.location.hash = '/' + revision.getSnippetID() + (rev ? `/${rev}` : '');
 }
 
 export function fetchFromURL() {

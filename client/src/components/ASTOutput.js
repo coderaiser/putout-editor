@@ -38,16 +38,18 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
             focusPath,
         });
     
-    const buttons = visualizations.map((cls, index) => <button
-        key={index}
-        value={index}
-        onClick={(event) => setSelectedOutput(event.target.value)}
-        className={cx({
-            active: selectedOutput === index,
-        })}
-    >
-        {cls.name}
-    </button>);
+    const buttons = visualizations.map((cls, index) => (
+        <button
+            key={index}
+            value={index}
+            onClick={(event) => setSelectedOutput(event.target.value)}
+            className={cx({
+                active: selectedOutput === index,
+            })}
+        >
+            {cls.name}
+        </button>
+    ));
     
     return (
         <div className="output highlight">

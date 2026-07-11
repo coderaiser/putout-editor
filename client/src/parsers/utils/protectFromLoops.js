@@ -5,6 +5,7 @@ const TIMEOUT = 10 * 1000;
 export default function protect(jsCode) {
     // assert that there are no obvious infinite loops
     halts(jsCode);
+    
     // guard against non-obvious loops with a timeout of 5 seconds
     const start = Date.now();
     

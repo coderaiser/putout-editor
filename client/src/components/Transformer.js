@@ -23,11 +23,12 @@ export default function Transformer(props) {
         keyMap: props.keyMap,
     });
     
-    const formattingEditor = <div>
-        <PrettierButton toggleFormatting={props.toggleFormatting} enableFormatting={props.enableFormatting}/>
-        {plainEditor}
-    </div>
-    ;
+    const formattingEditor = (
+        <div>
+            <PrettierButton toggleFormatting={props.toggleFormatting} enableFormatting={props.enableFormatting}/>
+            {plainEditor}
+        </div>
+    );
     
     return (
         <SplitPane

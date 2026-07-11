@@ -29,13 +29,15 @@ class Funding extends React.Component {
            Funding
                 </button>
                 {<ul>
-                    {fundings.map((funding) => <li
-                        key={funding}
-                    >
-                        <button
-                            onClick={() => window.open(`https://${funding}.com/coderaiser`, '_blank')}
-                        >{funding}.com/coderaiser</button>
-                    </li>)}
+                    {fundings.map((funding) => (
+                        <li
+                            key={funding}
+                        >
+                            <button
+                                onClick={() => globalThis.open(`https://${funding}.com/coderaiser`, '_blank')}
+                            >{funding}.com/coderaiser</button>
+                        </li>
+                    ))}
                 </ul>}
             </div>
         );

@@ -1,5 +1,6 @@
-import React from 'react';
-import pkg from 'espree/package.json';
+import pkg from 'espree/package.json' with {
+    type: 'json',
+};
 import defaultParserInterface from './utils/defaultESTreeParserInterface';
 
 const ID = 'espree';
@@ -67,10 +68,10 @@ export default {
                     8,
                     9,
                 ], Number],
-                ['sourceType', [
-                    'script',
-                    'module',
-                ]],
+                [
+                    'sourceType',
+                    ['script', 'module'],
+                ],
                 'range',
                 'loc',
                 'comment',

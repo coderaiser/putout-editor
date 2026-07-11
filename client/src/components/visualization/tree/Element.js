@@ -92,9 +92,9 @@ let Element = class extends React.Component {
         const update = () => {
             // Make AST node accessible
             if (open)
-                global.$node = this.state.value;
+                globalThis.$node = this.state.value;
             else
-                delete global.$node;
+                delete globalThis.$node;
             
             this.setState({
                 open,

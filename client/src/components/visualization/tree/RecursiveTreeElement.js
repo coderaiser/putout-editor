@@ -13,19 +13,23 @@ export default function RecursiveTreeElement(Element) {
     const openValues = new WeakMap();
     
     function addValue(value) {
-        if (openValues.has(value))
+        if (openValues.has(value)) {
             openValues.set(value, openValues.get(value) + 1);
-        else
-            openValues.set(value, 1);
+            return;
+        }
+        
+        openValues.set(value, 1);
     }
     
     function removeValue(value) {
         const n = openValues.get(value) - 1;
         
-        if (!n)
+        if (!n) {
             openValues.delete(value);
-        else
-            openValues.set(value, n);
+            return;
+        }
+        
+        openValues.set(value, n);
     }
     
     class RecursiveElement extends React.Component {

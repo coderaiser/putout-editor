@@ -15,10 +15,9 @@ export default function stringify(value) {
         return 'undefined';
     
     case 'number':
-        return global.isNaN(value) ? 'NaN' : value;
+        return globalThis.isNaN(value) ? 'NaN' : value;
     
     default:
         return JSON.stringify(value);
     }
 }
-
