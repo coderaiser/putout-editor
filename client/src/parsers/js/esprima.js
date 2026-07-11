@@ -17,7 +17,7 @@ export default {
     ]),
     
     loadParser(callback) {
-        require(['esprima'], callback);
+        import('esprima').then((mod) => callback(mod.default || mod));
     },
     
     parse(esprima, code, options) {

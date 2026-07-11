@@ -3,7 +3,7 @@ import React from 'react';
 import {categories} from '../parsers';
 
 function importEscodegen() {
-    return new Promise((resolve) => require(['escodegen'], resolve));
+    return import('escodegen').then((mod) => mod.default || mod);
 }
 
 const acceptedFileTypes = new Map([

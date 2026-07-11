@@ -15,18 +15,18 @@ export default {
     defaultParserID: 'babel',
     
     loadTransformer(callback) {
-        require([
-            'putout',
-            '@putout/engine-parser/acorn',
-            '@putout/engine-parser/babel',
-            '@putout/engine-parser/espree',
-            '@putout/engine-parser/esprima',
-        ], ({putout}, acorn, babel, espree, esprima) => callback({
-            putout,
-            acorn,
-            babel,
-            espree,
-            esprima,
+        Promise.all([
+            import('putout'),
+            import('@putout/engine-parser/acorn'),
+            import('@putout/engine-parser/babel'),
+            import('@putout/engine-parser/espree'),
+            import('@putout/engine-parser/esprima'),
+        ]).then(([putoutMod, acornMod, babelMod, espreeMod, esprimaMod]) => callback({
+            putout: putoutMod.putout,
+            acorn: acornMod.default || acornMod,
+            babel: babelMod.default || babelMod,
+            espree: espreeMod.default || espreeMod,
+            esprima: esprimaMod.default || esprimaMod,
         }));
     },
     
