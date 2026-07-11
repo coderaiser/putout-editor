@@ -3,10 +3,6 @@ import {defineEnv} from 'supertape/env';
 
 const env = defineEnv({
     ts: true,
-}, {
-    env: {
-        NODE_OPTIONS: '--enable-source-maps',
-    },
 });
 
 export default {
