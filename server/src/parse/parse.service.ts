@@ -8,9 +8,12 @@ import type {
     SnippetRevision,
 } from './parse.types.ts';
 
-export @Injectable()
-class ParseService {
-    constructor(@Inject('SNIPPETS') private readonly snippets: Map, @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map) {}
+@Injectable()
+export class ParseService {
+    constructor(
+        @Inject('SNIPPETS') private readonly snippets: Map,
+        @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map,
+    ) {}
     
     load(snippetId: string, revisionId: string) {
         const snippet = this.snippets.get(snippetId);
