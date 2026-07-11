@@ -61,7 +61,7 @@ export default class TransformButton extends React.Component {
                             onClick={this._onClick}
                         >
                             <button value={transformer.id} type="button">
-                                hello{transformer.displayName}
+                                {transformer.displayName}
                             </button>
                         </li>
                     ))}
