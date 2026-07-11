@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import cx from 'classnames';
 import visualizations from './visualization';
 import getFocusPath from './getFocusPath';
+import {Button} from './visualization/Button';
+
+const getName = (a) => a.name;
 
 const {useState, useMemo} = React;
 
@@ -15,6 +17,8 @@ function formatTime(time) {
     
     return `${(time / 1000).toFixed(2)}s`;
 }
+
+const clearName = (a) => a.split('_').pop();
 
 export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
     const [selectedOutput, setSelectedOutput] = useState(0);
@@ -38,18 +42,11 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
             focusPath,
         });
     
-    const buttons = visualizations.map((cls, index) => (
-        <button
-            key={index}
-            value={index}
-            onClick={(event) => setSelectedOutput(event.target.value)}
-            className={cx({
-                active: selectedOutput === index,
-            })}
-        >
-            {cls.name}
-        </button>
-    ));
+    const names = visualizations.map(getName).map(clearName);
+    const buttons = names.map(Button({
+        selectedOutput,
+        setSelectedOutput,
+    }));
     
     return (
         <div className="output highlight">
