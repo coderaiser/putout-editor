@@ -226,7 +226,7 @@ export default {
     ...DEV && {
         devtool: 'eval-source-map',
     },
-     performance: {
+    performance: {
         maxEntrypointSize: THREE_MB,
         maxAssetSize: THREE_MB,
     },
