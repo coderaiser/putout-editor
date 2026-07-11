@@ -12,13 +12,16 @@ import {
     typeKeysFilter,
 } from '../core/TreeAdapter.js';
 
-function parse(parser, code, parserSettings) {
+async function parse(parser, code, parserSettings) {
+    const settings = parserSettings || parser.getDefaultOptions();
+    
     if (!parser._promise)
         parser._promise = new Promise(parser.loadParser);
     
-    return parser._promise
-        .then((realParser) => parser.parse(realParser, code, parserSettings || parser.getDefaultOptions()))
-        .then(estreeToBabel);
+    const realParser = await parser._promise;
+    const ast = parser.parse(realParser, code, settings);
+    
+    return estreeToBabel(ast);
 }
 
 export default (store) => (next) => (action) => {
