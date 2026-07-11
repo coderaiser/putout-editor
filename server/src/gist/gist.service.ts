@@ -48,8 +48,8 @@ function toGistPayload(body: GistBody): GistPayload {
     };
 }
 
-export @Injectable()
-class GistService {
+@Injectable()
+export class GistService {
     constructor(private readonly githubService: GithubService) {}
     
     async load(gistId: string, revisionId?: string) {

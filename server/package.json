@@ -11,6 +11,7 @@
     "@nestjs/platform-express": "^11.1.28",
     "@nestjs/serve-static": "^5.0.5",
     "@octokit/rest": "^22.0.0",
+    "@types/try-to-catch": "^3.0.3",
     "express": "^5.2.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
@@ -19,6 +20,7 @@
     "build": "madrun build",
     "start": "madrun start",
     "test": "madrun test",
+    "coverage": "madrun coverage",
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint"
   },
@@ -27,14 +29,16 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.1.28",
+    "@supertape/loader-ts": "^1.0.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
-    "@supertape/loader-ts": "^1.0.0",
+    "escover": "^6.5.2",
     "eslint": "^10.7.0",
     "eslint-plugin-putout": "^31.2.0",
     "madrun": "^13.0.2",
     "putout": "^42.8.0",
     "redrun": "^13.0.4",
+    "superc8": "^12.7.0",
     "supertape": "^13.3.0",
     "typescript": "^6.0.0"
   }

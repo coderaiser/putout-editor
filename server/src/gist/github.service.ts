@@ -2,8 +2,8 @@ import {Inject, Injectable} from '@nestjs/common';
 import {Octokit} from '@octokit/rest';
 import type {GistPayload} from './gist.types.ts';
 
-export @Injectable()
-class GithubService {
+@Injectable()
+export class GithubService {
     constructor(@Inject('OCTOKIT') private readonly octokit: Octokit) {}
     
     async load(gistId: string, revisionId?: string) {

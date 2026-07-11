@@ -3,10 +3,14 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import type {Snippet, SnippetRevision} from './parse.types.ts';
 
-export @Injectable()
-class ParseService {
+import type {
+    Snippet,
+    SnippetRevision,
+} from './parse.types.ts';
+
+@Injectable()
+export class ParseService {
     constructor(@Inject('SNIPPETS') private readonly snippets: Map<string, Snippet>, @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map<string, SnippetRevision>) {}
     
     async load(snippetId: string, revisionId: string) {

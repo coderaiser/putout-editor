@@ -22,7 +22,7 @@ test('parse controller: GET /api/v1/parse/:snippetid/:revisionid returns snippet
         .compile();
     
     const controller = module.get(ParseController);
-    const result = await controller.load('snippet1', 'latest');
+    await controller.load('snippet1', 'latest');
     
     t.calledWith(mockParseService.load, ['snippet1', 'latest']);
     t.end();
