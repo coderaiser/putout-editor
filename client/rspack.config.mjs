@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 const DEV = process.env.NODE_ENV !== 'production';
 const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.meta.url).pathname, 'utf8'));
 
-const test = RegExp('/node_modules/');
+const test = /\/node_modules\//;
 
 const plugins = [
     new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
@@ -60,69 +60,6 @@ const plugins = [
 
 export default {
     mode: DEV ? 'development' : 'production',
-    
-    entry: {
-        app: './src/app.js',
-    },
-    output: {
-        path: new URL('../out-build', import.meta.url).pathname,
-        filename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
-        chunkFilename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
-    },
-    
-    resolve: {
-        alias: {
-            'acorn-private-methods': require.resolve('acorn-private-methods'),
-        },
-        fallback: {
-            'url': require.resolve('url/'),
-            'assert': require.resolve('assert'),
-            'buffer': require.resolve('buffer/'),
-            'path': require.resolve('path-browserify'),
-            'child_process': false,
-            'fs': false,
-            'module': false,
-            'net': false,
-            'readline': false,
-            'os': false,
-            'constants': false,
-            'jscodeshift': false,
-            'process/browser': require.resolve('process/browser'),
-            'tty': require.resolve('tty-browserify'),
-        },
-    },
-    
-    plugins: [
-        new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
-            resource.request = resource.request.replace(/^node:/, '');
-        }),
-        new rspack.IgnorePlugin({
-            resourceRegExp: /hermes-parser/,
-        }),
-        new rspack.DefinePlugin({
-            'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
-        }),
-        new rspack.ProvidePlugin({
-            process: 'process/browser',
-        }),
-        new rspack.ProvidePlugin({
-            Buffer: ['buffer', 'Buffer'],
-        }),
-        new rspack.NormalModuleReplacementPlugin(/(cli-engine|testers\/rule-tester)/, 'node-libs-browser/mock/empty'),
-        new rspack.NormalModuleReplacementPlugin(/jest-validate/, `${__dirname}/src/shims/jest-validate.js`),
-        new rspack.ContextReplacementPlugin(/eslint|@putout\/engine-loader/, /NEVER_MATCH^/),
-        new rspack.CssExtractRspackPlugin({
-            filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
-        }),
-        new HtmlWebpackPlugin({
-            favicon: './favicon.png',
-            inject: 'body',
-            filename: 'index.html',
-            template: './index.ejs',
-        }),
-        new rspack.ids.HashedModuleIdsPlugin(),
-        new rspack.ProgressPlugin(),
-    ],
     
     optimization: {
         moduleIds: 'deterministic',
