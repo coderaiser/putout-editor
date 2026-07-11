@@ -1,6 +1,4 @@
 #!/usr/bin/env node
 
-'use strict';
-
-import '../server/index.js';
+await import('../server/dist/main.js');
 

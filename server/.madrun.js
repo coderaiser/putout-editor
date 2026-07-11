@@ -1,7 +1,9 @@
 import {run} from 'madrun';
 
 export default {
-    'start': () => 'STATIC=../out node index.js',
+    'build': () => 'nest build',
+    'start': () => 'STATIC=../out node dist/main.js',
+    'test': () => 'tape test/app.test.js',
     'lint': () => 'putout .',
     'fix:lint': () => run('lint', '--fix'),
 };

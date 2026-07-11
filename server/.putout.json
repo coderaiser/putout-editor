@@ -2,5 +2,12 @@
     "rules": {
         "remove-console": "off",
         "variables/remove-unused": "off"
-    }
+    },
+    "ignore": [
+        "*.json",
+        "*.md",
+        "*.yml",
+        "node_modules",
+        "dist"
+    ]
 }
