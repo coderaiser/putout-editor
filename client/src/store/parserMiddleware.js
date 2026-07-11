@@ -1,4 +1,4 @@
-import estreeToBabel from 'estree-to-babel';
+import {estreeToBabel} from 'estree-to-babel';
 import {
     getParser,
     getParserSettings,

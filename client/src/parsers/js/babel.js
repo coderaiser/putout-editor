@@ -90,7 +90,7 @@ export default {
     ]),
     
     loadParser(callback) {
-        require(['@babel/parser'], callback);
+        import('@babel/parser').then((mod) => callback(mod.default || mod));
     },
     
     parse(babylon, code, options) {

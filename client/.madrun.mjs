@@ -8,7 +8,7 @@ export default {
     'start': () => 'http-server ../out',
     'build': () => [env, build('production')],
     'build:dev': () => [env, build('development')],
-    'watch': () => [env, 'webpack -w --mode=development -o ../out'],
+    'watch': () => [env, 'rspack build -w --mode=development --config rspack.config.mjs -o ../out'],
     'fix:eslint': () => 'eslint --fix src',
     'lint': () => 'putout .',
     'fresh:lint': () => run('lint', '--fresh'),
@@ -35,7 +35,7 @@ export default {
 function build(env) {
     const rm = 'rimraf ../out';
     const mv = 'mv ../out-build ../out';
-    const webpack = `NODE_ENV=${env} webpack --mode=${env}`;
+    const rspack = `NODE_ENV=${env} rspack build --mode=${env} --config rspack.config.mjs`;
     
-    return `${webpack} && ${rm} && ${mv}`;
+    return `${rspack} && ${rm} && ${mv}`;
 }

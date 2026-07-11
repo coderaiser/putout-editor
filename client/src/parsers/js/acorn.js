@@ -20,11 +20,15 @@ export default {
     ]),
     
     loadParser(callback) {
-        require(['acorn', 'acorn-loose', 'acorn-jsx'], (acorn, acornLoose, acornJsx) => {
+        Promise.all([
+            import('acorn'),
+            import('acorn-loose'),
+            import('acorn-jsx'),
+        ]).then(([acornMod, acornLooseMod, acornJsxMod]) => {
             callback({
-                acorn,
-                acornLoose,
-                acornJsx,
+                acorn: acornMod.default || acornMod,
+                acornLoose: acornLooseMod.default || acornLooseMod,
+                acornJsx: acornJsxMod.default || acornJsxMod,
             });
         });
     },

@@ -92,7 +92,12 @@ export default class Editor extends React.Component {
             if (!this.props.enableFormatting)
                 return;
             
-            require(['prettier/standalone', 'prettier/parser-babel'], (prettier, babel) => {
+            Promise.all([
+                import('prettier/standalone'),
+                import('prettier/parser-babel'),
+            ]).then(([prettierMod, babelMod]) => {
+                const prettier = prettierMod.default || prettierMod;
+                const babel = babelMod.default || babelMod;
                 const currValue = instance.doc.getValue();
                 const options = {
                     ...defaultPrettierOptions,

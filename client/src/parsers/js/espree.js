@@ -20,7 +20,7 @@ export default {
     ]),
     
     loadParser(callback) {
-        require(['espree'], callback);
+        import('espree').then((mod) => callback(mod.default || mod));
     },
     
     parse(espree, code, options) {
