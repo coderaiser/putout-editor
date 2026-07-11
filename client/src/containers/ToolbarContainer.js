@@ -37,10 +37,6 @@ function mapDispatchToProps(dispatch) {
             dispatch(setParser(parser));
             logEvent('parser', 'select', parser.id);
         },
-        onCategoryChange: (category) => {
-            dispatch(selectCategory(category));
-            logEvent('category', 'select', category.id);
-        },
         onParserSettingsButtonClick: () => {
             dispatch(openSettingsDialog());
             logEvent('parser', 'open_settings');
