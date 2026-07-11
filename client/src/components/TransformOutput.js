@@ -1,4 +1,3 @@
-/*eslint no-new-func: 0*/
 import PropTypes from 'prop-types';
 import React from 'react';
 import {SourceMapConsumer} from 'source-map/lib/source-map-consumer';
@@ -8,32 +7,26 @@ import JSONEditor from './JSONEditor';
 
 const isString = (a) => typeof a === 'string';
 
-function transform(transformer, transformCode, code, parser) {
+async function transform(transformer, transformCode, code, parser) {
     if (!transformer._promise)
         transformer._promise = new Promise(transformer.loadTransformer);
     
-    // Use Promise.resolve(null) to return all errors as rejected promises
-    return transformer._promise.then((realTransformer) => {
-        const result = transformer.transform(realTransformer, transformCode, code, parser);
+    const realTransformer = await transformer._promise;
+    let result = transformer.transform(realTransformer, transformCode, code, parser);
+    
+    let map = null;
+    
+    if (!isString(result)) {
+        if (result.map)
+            map = new SourceMapConsumer(result.map);
         
-        return Promise
-            .resolve(result)
-            .then((result) => {
-                let map = null;
-                
-                if (!isString(result)) {
-                    if (result.map)
-                        map = new SourceMapConsumer(result.map);
-                    
-                    result = result.code;
-                }
-                
-                return {
-                    result,
-                    map,
-                };
-            });
-    });
+        result = result.code;
+    }
+    
+    return {
+        result,
+        map,
+    };
 }
 
 export default class TransformOutput extends React.Component {
@@ -162,3 +155,4 @@ TransformOutput.propTypes = {
     mode: PropTypes.string,
     code: PropTypes.string,
 };
+
