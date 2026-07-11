@@ -4,7 +4,6 @@ import * as selectors from '../store/selectors';
 import {logEvent} from '../utils/logger';
 import {
     save,
-    selectCategory,
     openSettingsDialog,
     openShareDialog,
     selectTransformer,

@@ -56,11 +56,6 @@ export const setSnippet = (revision) => ({
     revision,
 });
 
-export const selectCategory = (category) => ({
-    type: SELECT_CATEGORY,
-    category,
-});
-
 export const clearSnippet = () => ({
     type: CLEAR_SNIPPET,
 });
