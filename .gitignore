@@ -6,3 +6,4 @@ production
 *.swp
 
 /dist
+**/coverage
