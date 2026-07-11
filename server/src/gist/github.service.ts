@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@nestjs/common';
 import {Octokit} from '@octokit/rest';
-import {GistPayload} from './gist.types.ts';
+import type {GistPayload} from './gist.types.ts';
 
 export @Injectable()
 class GithubService {

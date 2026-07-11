@@ -3,6 +3,36 @@ import {test, stub} from 'supertape';
 import {GistService} from './gist.service.ts';
 import {GithubService} from './github.service.ts';
 
+const body = {
+    parserID: 'babel',
+    toolID: 'putout',
+    settings: {
+        babel: {},
+    },
+    versions: {
+        babel: '1.0.0',
+    },
+    filename: 'source.js',
+    code: 'const a = 1;',
+    description: 'a snippet',
+    public: true,
+};
+
+async function createService(mockGithub: Record<string, unknown>) {
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GistService, {
+                    provide: GithubService,
+                    useValue: mockGithub,
+                },
+            ],
+        })
+        .compile();
+    
+    return module.get(GistService);
+}
+
 test('gist service: load', async (t) => {
     const mockGithub = {
         load: stub().resolves({
@@ -11,111 +41,110 @@ test('gist service: load', async (t) => {
         }),
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GistService, {
-                    provide: GithubService,
-                    useValue: mockGithub,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GistService);
-    const result = await service.load('gist123', 'rev1');
+    const service = await createService(mockGithub);
+    await service.load('gist123', 'rev1');
     
     t.calledWith(mockGithub.load, ['gist123', 'rev1']);
     t.end();
 });
 
-test('gist service: create', async (t) => {
+test('gist service: create() writes the source file under its filename', async (t) => {
     const mockGithub = {
         create: stub().resolves({
             id: 'gist456',
         }),
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GistService, {
-                    provide: GithubService,
-                    useValue: mockGithub,
-                },
-            ],
-        })
-        .compile();
+    const service = await createService(mockGithub);
+    await service.create(body);
     
-    const service = module.get(GistService);
-    const result = await service.create({
-        files: [],
-    });
-    const args = [{
-        files: [],
-    }];
+    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
     
-    t.calledWith(mockGithub.create, args);
+    t.equal(payload.files['source.js'].content, 'const a = 1;');
     t.end();
 });
 
-test('gist service: update', async (t) => {
+test('gist service: create() embeds parserID/toolID in astexplorer.json', async (t) => {
+    const mockGithub = {
+        create: stub().resolves({
+            id: 'gist456',
+        }),
+    };
+    
+    const service = await createService(mockGithub);
+    await service.create(body);
+    
+    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    const meta = JSON.parse(payload.files['astexplorer.json'].content);
+    
+    t.equal(meta.parserID, 'babel');
+    t.end();
+});
+
+test('gist service: create() omits transform.js when no transform is set', async (t) => {
+    const mockGithub = {
+        create: stub().resolves({
+            id: 'gist456',
+        }),
+    };
+    
+    const service = await createService(mockGithub);
+    await service.create(body);
+    
+    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    
+    t.notOk('transform.js' in payload.files);
+    t.end();
+});
+
+test('gist service: create() includes transform.js when a transform is set', async (t) => {
+    const mockGithub = {
+        create: stub().resolves({
+            id: 'gist456',
+        }),
+    };
+    
+    const service = await createService(mockGithub);
+    await service.create({
+        ...body,
+        transform: 'module.exports = () => {};',
+    });
+    
+    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    
+    t.equal(payload.files['transform.js'].content, 'module.exports = () => {};');
+    t.end();
+});
+
+test('gist service: update() deletes transform.js via empty content, not null', async (t) => {
     const mockGithub = {
         update: stub().resolves({
             id: 'gist789',
         }),
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GistService, {
-                    provide: GithubService,
-                    useValue: mockGithub,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GistService);
-    const result = await service.update('gist789', {
-        files: [],
+    const service = await createService(mockGithub);
+    await service.update('gist789', {
+        ...body,
+        transform: null,
     });
-    const args = ['gist789', {
-        files: [],
-    }];
     
-    t.calledWith(mockGithub.update, args);
+    const [, payload] = mockGithub.update.args[0] as [string, {files: Record<string, {content: string}>}];
+    
+    t.equal(payload.files['transform.js'].content, '');
     t.end();
 });
 
-test('gist service: fork', async (t) => {
+test('gist service: fork() creates a new gist via githubService.create', async (t) => {
     const mockGithub = {
         create: stub().resolves({
             id: 'forked123',
         }),
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GistService, {
-                    provide: GithubService,
-                    useValue: mockGithub,
-                },
-            ],
-        })
-        .compile();
+    const service = await createService(mockGithub);
+    await service.fork(body);
     
-    const service = module.get(GistService);
-    const result = await service.fork({
-        files: [],
-    });
-    const args = [{
-        files: [],
-    }];
-    
-    t.calledWith(mockGithub.create, args);
+    t.ok(mockGithub.create.called);
     t.end();
 });
-
