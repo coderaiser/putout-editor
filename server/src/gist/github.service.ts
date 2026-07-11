@@ -4,7 +4,9 @@ import type {GistPayload} from './gist.types.ts';
 
 @Injectable()
 export class GithubService {
-    constructor(@Inject('OCTOKIT') private readonly octokit: Octokit) {}
+    constructor(
+        @Inject('OCTOKIT') private readonly octokit: Octokit,
+    ) {}
     
     async load(gistId: string, revisionId?: string) {
         const latest = !revisionId || revisionId === 'latest';

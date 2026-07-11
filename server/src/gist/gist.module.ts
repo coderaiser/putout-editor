@@ -5,7 +5,7 @@ import {GistService} from './gist.service.ts';
 import {GithubService} from './github.service.ts';
 import {AUTH_TOKEN} from '../constants.ts';
 
-@Module({
+export @Module({
     controllers: [GistController],
     providers: [
         GistService,
@@ -18,4 +18,4 @@ import {AUTH_TOKEN} from '../constants.ts';
     ],
     exports: [],
 })
-export class GistModule {}
+class GistModule {}

@@ -15,7 +15,7 @@ const staticModules = process.env.STATIC ? [
     }),
 ] : [];
 
-export @Module({
+@Module({
     imports: [GistModule, ParseModule, ...staticModules],
 })
-class AppModule {}
+export class AppModule {}

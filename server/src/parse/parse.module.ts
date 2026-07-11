@@ -20,7 +20,7 @@ function prepareData<T extends {
     return map;
 }
 
-export @Module({
+@Module({
     controllers: [ParseController],
     providers: [
         ParseService, {
@@ -33,4 +33,4 @@ export @Module({
     ],
     exports: [],
 })
-class ParseModule {}
+export class ParseModule {}
