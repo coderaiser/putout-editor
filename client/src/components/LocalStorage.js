@@ -4,12 +4,12 @@ const storage = globalThis.localStorage;
 const key = 'explorerSettingsV1';
 const noop = () => {};
 
-export const writeState = storage ? (state) => {
+export const writeState = !storage ? noop : (state) => {
     const setItem = storage.setItem.bind(storage);
     const [error] = tryCatch(setItem, key, JSON.stringify(state));
     
     error && console.warn('Unable to write to local storage.');
-} : noop;
+};
 
 export const readState = !storage ? noop : () => {
     const getItem = storage.getItem.bind(storage);
