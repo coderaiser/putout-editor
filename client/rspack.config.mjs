@@ -31,16 +31,18 @@ const plugins = [
     new rspack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
     }),
-    // eslint //
-    // Shim ESLint stuff that's only relevant for Node.js
-    new rspack.NormalModuleReplacementPlugin(/(cli-engine|testers\/rule-tester)/, 'node-libs-browser/mock/empty'),
     // More shims
     // Doesn't look like jest-validate is useful in our case (prettier uses it)
     new rspack.NormalModuleReplacementPlugin(/jest-validate/, `${__dirname}/src/shims/jest-validate.js`),
-    // Hack to disable dynamic requires in ESLint, so we don't end up
-    // bundling the entire ESLint directory including files we don't need.
+    // Hack to disable dynamic requires so we don't end up
+    // bundling the entire directory including files we don't need.
     // https://github.com/webpack/webpack/issues/198
-    new rspack.ContextReplacementPlugin(/eslint|@putout\/engine-loader/, /NEVER_MATCH^/),
+    // ESLint is only used as a CLI/dev tool, never imported at runtime in
+    // the client, so it's ignored outright instead of shimmed.
+    new rspack.IgnorePlugin({
+        resourceRegExp: /^eslint6?$/,
+    }),
+    new rspack.ContextReplacementPlugin(/@putout\/engine-loader/, /NEVER_MATCH^/),
     // mini-css-extract-plugin is not compatible with rspack, use the native equivalent
     new rspack.CssExtractRspackPlugin({
         filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
@@ -122,14 +124,9 @@ export default {
                 join(__dirname, 'node_modules', 'jsesc'),
                 join(__dirname, 'node_modules', 'eslint-visitor-keys'),
                 join(__dirname, 'node_modules', 'json-parse-better-errors'),
-                join(__dirname, 'node_modules', 'babylon7'),
-                join(__dirname, 'node_modules', 'eslint', 'lib'),
-                join(__dirname, 'node_modules', 'eslint-scope'),
-                join(__dirname, 'node_modules', 'eslint6'),
                 join(__dirname, 'node_modules', 'lodash-es'),
                 join(__dirname, 'node_modules', 'prettier'),
                 join(__dirname, 'node_modules', 'react-redux', 'es'),
-                join(__dirname, 'node_modules', 'recast'),
                 join(__dirname, 'node_modules', 'redux', 'es'),
                 join(__dirname, 'node_modules', 'regexp-tree'),
                 join(__dirname, 'node_modules', 'simple-html-tokenizer'),
