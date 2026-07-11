@@ -129,4 +129,3 @@ test('gist controller: GET /api/v1/gist/:id/:revision (load)', async (t) => {
     t.calledWith(mockGistService.load, ['gist123', 'rev1']);
     t.end();
 });
-

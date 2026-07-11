@@ -17,7 +17,9 @@ export type GistBody = {
     versions?: Record<string, string>;
     filename: string;
     code: string;
+    
     // null explicitly means "delete the transform file", per the client's
+    
     // storage contract (see client/src/storage/gist.js)
     transform?: string | null;
     description?: string;

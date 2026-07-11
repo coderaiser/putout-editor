@@ -35,10 +35,10 @@ function toGistPayload(body: GistBody): GistPayload {
         [body.filename, body.code],
     ];
     
-    // GitHub's Gist API deletes a file by sending empty content for its
+    if ( // GitHub's Gist API deletes a file by sending empty content for its
     // name, not by sending a null value -- a null file value is rejected
     // by the API outright (see octokit/rest.js#19).
-    if (body.transform || body.transform === null)
+        body.transform || body.transform === null)
         entries.push(['transform.js', body.transform || '']);
     
     return {
@@ -48,23 +48,23 @@ function toGistPayload(body: GistBody): GistPayload {
     };
 }
 
-@Injectable()
-export class GistService {
+export @Injectable()
+class GistService {
     constructor(private readonly githubService: GithubService) {}
     
-    async load(gistId: string, revisionId?: string) {
+    load(gistId: string, revisionId?: string) {
         return this.githubService.load(gistId, revisionId);
     }
     
-    async create(body: GistBody) {
+    create(body: GistBody) {
         return this.githubService.create(toGistPayload(body));
     }
     
-    async update(gistId: string, body: GistBody) {
+    update(gistId: string, body: GistBody) {
         return this.githubService.update(gistId, toGistPayload(body));
     }
     
-    async fork(body: GistBody) {
+    fork(body: GistBody) {
         // We cannot really "fork" an "anonymous" gist because a user
         // (the app's own token) cannot fork its own gist, so a fork is
         // implemented as creating a fresh gist with the same content.

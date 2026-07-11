@@ -8,9 +8,9 @@ import {
 
 export @Catch()
 class GlobalExceptionFilter implements ExceptionFilter {
-    async catch(exception: any, host: ArgumentsHost) {
+    catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
+        const response = ctx.getResponse();
         
         let status = 500;
         let message = 'Something went wrong';

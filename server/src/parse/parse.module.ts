@@ -9,7 +9,7 @@ import type {
 } from './parse.types.ts';
 
 function prepareData<T extends {
-    _id: string
+    _id: string;
 }>(filePath: string): Map<string, T> {
     const data: T[] = JSON.parse(readFileSync(filePath, 'utf8'));
     const map = new Map<string, T>();
@@ -20,7 +20,7 @@ function prepareData<T extends {
     return map;
 }
 
-@Module({
+export @Module({
     controllers: [ParseController],
     providers: [
         ParseService, {
@@ -33,4 +33,4 @@ function prepareData<T extends {
     ],
     exports: [],
 })
-export class ParseModule {}
+class ParseModule {}

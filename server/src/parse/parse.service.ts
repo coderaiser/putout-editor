@@ -3,25 +3,22 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-
 import type {
     Snippet,
     SnippetRevision,
 } from './parse.types.ts';
 
-@Injectable()
-export class ParseService {
-    constructor(@Inject('SNIPPETS') private readonly snippets: Map<string, Snippet>, @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map<string, SnippetRevision>) {}
+export @Injectable()
+class ParseService {
+    constructor(@Inject('SNIPPETS') private readonly snippets: Map, @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map) {}
     
-    async load(snippetId: string, revisionId: string) {
+    load(snippetId: string, revisionId: string) {
         const snippet = this.snippets.get(snippetId);
         
         if (!snippet)
             throw new NotFoundException('Not found');
         
-        const revisionIndex = revisionId === 'latest'
-            ? snippet.revisions.length - 1
-            : Number(revisionId);
+        const revisionIndex = revisionId === 'latest' ? snippet.revisions.length - 1 : Number(revisionId);
         
         if (Number.isNaN(revisionIndex) || revisionIndex >= snippet.revisions.length)
             throw new NotFoundException('Not found');

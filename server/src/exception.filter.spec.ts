@@ -4,9 +4,11 @@ import {GlobalExceptionFilter} from './exception.filter.ts';
 test('error filter: returns 500 for unknown errors', async (t) => {
     const filter = new GlobalExceptionFilter();
     const json = stub();
+    
     const status = stub().returns({
         json,
     });
+    
     const res = {
         status,
     };
@@ -25,9 +27,11 @@ test('error filter: returns 500 for unknown errors', async (t) => {
 test('error filter: returns upstream status for HttpException', async (t) => {
     const filter = new GlobalExceptionFilter();
     const json = stub();
+    
     const status = stub().returns({
         json,
     });
+    
     const res = {
         status,
     };
@@ -53,9 +57,11 @@ test('error filter: returns upstream status for HttpException', async (t) => {
 test('error filter: returns upstream message', async (t) => {
     const filter = new GlobalExceptionFilter();
     const json = stub();
+    
     const status = stub().returns({
         json,
     });
+    
     const res = {
         status,
     };
@@ -70,4 +76,3 @@ test('error filter: returns upstream message', async (t) => {
     t.calledWith(json, ['custom error']);
     t.end();
 });
-

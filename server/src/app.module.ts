@@ -9,11 +9,13 @@ import {ParseModule} from './parse/parse.module.ts';
 // how the npm "start" script invokes the app (`cd server && STATIC=../out
 // node dist/main.js`), so the path resolves the same way regardless of
 // whether the entry point lives at src/main.ts or dist/main.js.
-const staticModules = process.env.STATIC ? [ServeStaticModule.forRoot({
-    rootPath: resolve(process.cwd(), process.env.STATIC),
-})] : [];
+const staticModules = process.env.STATIC ? [
+    ServeStaticModule.forRoot({
+        rootPath: resolve(process.cwd(), process.env.STATIC),
+    }),
+] : [];
 
-@Module({
+export @Module({
     imports: [GistModule, ParseModule, ...staticModules],
 })
-export class AppModule {}
+class AppModule {}

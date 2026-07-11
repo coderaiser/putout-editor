@@ -9,8 +9,7 @@ import {AUTH_TOKEN} from '../constants.ts';
     controllers: [GistController],
     providers: [
         GistService,
-        GithubService,
-        {
+        GithubService, {
             provide: 'OCTOKIT',
             useFactory: () => new Octokit({
                 auth: AUTH_TOKEN,
@@ -20,4 +19,3 @@ import {AUTH_TOKEN} from '../constants.ts';
     exports: [],
 })
 export class GistModule {}
-

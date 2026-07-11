@@ -5,11 +5,10 @@ import {
 } from '@nestjs/common';
 import {ParseService} from './parse.service.ts';
 
-@Controller('api/v1/parse')
-export class ParseController {
+export @Controller('api/v1/parse')
+class ParseController {
     constructor(private readonly parseService: ParseService) {}
     
-    @Get(':snippetid/:revisionid')
     load(@Param('snippetid') snippetId: string, @Param('revisionid') revisionId: string) {
         return this.parseService.load(snippetId, revisionId);
     }

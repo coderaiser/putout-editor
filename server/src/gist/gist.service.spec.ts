@@ -42,6 +42,7 @@ test('gist service: load', async (t) => {
     };
     
     const service = await createService(mockGithub);
+    
     await service.load('gist123', 'rev1');
     
     t.calledWith(mockGithub.load, ['gist123', 'rev1']);
@@ -56,9 +57,14 @@ test('gist service: create() writes the source file under its filename', async (
     };
     
     const service = await createService(mockGithub);
+    
     await service.create(body);
     
-    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    const [payload] = mockGithub.create.args[0] as [
+        {
+            files: Record<string, {content: string}>;
+        },
+    ];
     
     t.equal(payload.files['source.js'].content, 'const a = 1;');
     t.end();
@@ -72,9 +78,15 @@ test('gist service: create() embeds parserID/toolID in astexplorer.json', async 
     };
     
     const service = await createService(mockGithub);
+    
     await service.create(body);
     
-    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    const [payload] = mockGithub.create.args[0] as [
+        {
+            files: Record<string, {content: string}>;
+        },
+    ];
+    
     const meta = JSON.parse(payload.files['astexplorer.json'].content);
     
     t.equal(meta.parserID, 'babel');
@@ -89,9 +101,14 @@ test('gist service: create() omits transform.js when no transform is set', async
     };
     
     const service = await createService(mockGithub);
+    
     await service.create(body);
     
-    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    const [payload] = mockGithub.create.args[0] as [
+        {
+            files: Record<string, {content: string}>;
+        },
+    ];
     
     t.notOk('transform.js' in payload.files);
     t.end();
@@ -105,12 +122,17 @@ test('gist service: create() includes transform.js when a transform is set', asy
     };
     
     const service = await createService(mockGithub);
+    
     await service.create({
         ...body,
         transform: 'module.exports = () => {};',
     });
     
-    const [payload] = mockGithub.create.args[0] as [{files: Record<string, {content: string}>}];
+    const [payload] = mockGithub.create.args[0] as [
+        {
+            files: Record<string, {content: string}>;
+        },
+    ];
     
     t.equal(payload.files['transform.js'].content, 'module.exports = () => {};');
     t.end();
@@ -124,12 +146,15 @@ test('gist service: update() deletes transform.js via empty content, not null', 
     };
     
     const service = await createService(mockGithub);
+    
     await service.update('gist789', {
         ...body,
         transform: null,
     });
     
-    const [, payload] = mockGithub.update.args[0] as [string, {files: Record<string, {content: string}>}];
+    const [, payload] = mockGithub.update.args[0] as [string, {
+        files: Record<string, {content: string}>;
+    }];
     
     t.equal(payload.files['transform.js'].content, '');
     t.end();
@@ -143,6 +168,7 @@ test('gist service: fork() creates a new gist via githubService.create', async (
     };
     
     const service = await createService(mockGithub);
+    
     await service.fork(body);
     
     t.ok(mockGithub.create.called);
