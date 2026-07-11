@@ -29,12 +29,13 @@
     "@nestjs/testing": "^11.1.28",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
+    "@supertape/loader-ts": "^1.0.0",
     "eslint": "^10.7.0",
     "eslint-plugin-putout": "^31.2.0",
     "madrun": "^13.0.2",
     "putout": "^42.8.0",
     "redrun": "^13.0.4",
-    "supertape": "^13.2.0",
-    "typescript": "^6.0"
+    "supertape": "^13.3.0",
+    "typescript": "^6.0.0"
   }
 }

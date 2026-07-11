@@ -1,5 +1,9 @@
-import {Controller, Get, Param} from '@nestjs/common';
-import {ParseService} from './parse.service.js';
+import {
+    Controller,
+    Get,
+    Param,
+} from '@nestjs/common';
+import {ParseService} from './parse.service.ts';
 
 @Controller('api/v1/parse')
 export class ParseController {

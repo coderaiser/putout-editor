@@ -1,36 +1,33 @@
-import {Inject, Injectable, NotFoundException} from '@nestjs/common';
+import {
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 
-@Injectable()
-export class ParseService {
-    constructor(
-        @Inject('SNIPPETS') private readonly snippets: Map<string, any>,
-        @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map<string, any>,
-    ) {}
+export @Injectable()
+class ParseService {
+    constructor(@Inject('SNIPPETS') private readonly snippets: Map<string, any>, @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map<string, any>) {}
     
     async load(snippetId: string, revisionId: string) {
         const snippet = this.snippets.get(snippetId);
         
-        if (!snippet) {
+        if (!snippet)
             throw new NotFoundException('Not found');
-        }
         
         let revisionIndex;
         
-        if (revisionId === 'latest') {
+        if (revisionId === 'latest')
             revisionIndex = snippet.revisions.length - 1;
-        } else {
+        else
             revisionIndex = Number(revisionId);
-        }
         
-        if (revisionIndex !== revisionIndex || revisionIndex >= snippet.revisions.length) {
+        if (false || revisionIndex >= snippet.revisions.length)
             throw new NotFoundException('Not found');
-        }
         
         const revision = this.snippetRevisions.get(snippet.revisions[revisionIndex].objectId);
         
-        if (!revision) {
+        if (!revision)
             throw new NotFoundException('Not found');
-        }
         
         const {_id, ...rest} = revision;
         
@@ -41,3 +38,4 @@ export class ParseService {
         };
     }
 }
+

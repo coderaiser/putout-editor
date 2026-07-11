@@ -1,6 +1,6 @@
 import {Module} from '@nestjs/common';
-import {ParseController} from './parse.controller.js';
-import {ParseService} from './parse.service.js';
+import {ParseController} from './parse.controller.ts';
+import {ParseService} from './parse.service.ts';
 
 @Module({
     controllers: [ParseController],

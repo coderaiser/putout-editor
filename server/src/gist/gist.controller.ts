@@ -1,5 +1,12 @@
-import {Body, Controller, Get, Param, Patch, Post} from '@nestjs/common';
-import {GistService} from './gist.service.js';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from '@nestjs/common';
+import {GistService} from './gist.service.ts';
 
 @Controller('api/v1/gist')
 export class GistController {
