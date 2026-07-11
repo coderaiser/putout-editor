@@ -30,6 +30,7 @@
   "devDependencies": {
     "@nestjs/testing": "^11.1.28",
     "@supertape/loader-ts": "^1.0.0",
+    "@putout/eslint-flat": "^4.0.1",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
     "escover": "^6.5.2",
