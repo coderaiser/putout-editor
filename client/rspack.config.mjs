@@ -14,6 +14,7 @@ const DEV = process.env.NODE_ENV !== 'production';
 const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.meta.url).pathname, 'utf8'));
 
 const test = /\/node_modules\//;
+const THREE_MB = 3 * 1024 * 1024;
 
 const plugins = [
     new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
@@ -224,5 +225,9 @@ export default {
     
     ...DEV && {
         devtool: 'eval-source-map',
+    },
+     performance: {
+        maxEntrypointSize: THREE_MB,
+        maxAssetSize: THREE_MB,
     },
 };
