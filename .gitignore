@@ -4,3 +4,8 @@ node_modules
 yarn-error.log
 production
 *.swp
+
+/dist
+**/coverage
+
+*.lock

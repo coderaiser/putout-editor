@@ -1,6 +1,5 @@
 {
     "rules": {
-        "remove-console": "off",
-        "variables/remove-unused": "off"
+        "remove-console": "off"
     }
 }

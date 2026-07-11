@@ -1,7 +1,8 @@
-*.config.*
+*.swp
 *.log
 *.lock
 
-.*
+.idea
 
+dist
 coverage
