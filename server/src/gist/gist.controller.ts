@@ -13,31 +13,23 @@ import type {GistBody} from './gist.types.ts';
 export class GistController {
     constructor(private readonly gistService: GistService) {}
     
-    create(
-        @Body() body: GistBody,
-    ) {
+    @Post()
+    create(@Body() body: GistBody) {
         return this.gistService.create(body);
     }
     
-    update(
-        @Param('id') id: string,
-        @Body() body: GistBody,
-    ) {
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() body: GistBody) {
         return this.gistService.update(id, body);
     }
     
-    fork(
-        @Param('id') id: string,
-        @Param('revision') revision: string,
-        @Body() body: GistBody,
-    ) {
+    @Post(':id/:revision')
+    fork(@Param('id') id: string, @Param('revision') revision: string, @Body() body: GistBody) {
         return this.gistService.fork(body);
     }
     
-    load(
-        @Param('id') id: string,
-        @Param('revision') revision: string,
-    ) {
+    @Get(':id/:revision')
+    load(@Param('id') id: string, @Param('revision') revision: string) {
         return this.gistService.load(id, revision);
     }
 }

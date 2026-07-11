@@ -11,11 +11,11 @@ import type {
 @Injectable()
 export class ParseService {
     constructor(
-        @Inject('SNIPPETS') private readonly snippets: Map,
-        @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map,
+        @Inject('SNIPPETS') private readonly snippets: Map<string, Snippet>,
+        @Inject('SNIPPET_REVISIONS') private readonly snippetRevisions: Map<string, SnippetRevision>,
     ) {}
     
-    load(snippetId: string, revisionId: string) {
+    async load(snippetId: string, revisionId: string) {
         const snippet = this.snippets.get(snippetId);
         
         if (!snippet)

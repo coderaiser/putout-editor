@@ -52,19 +52,19 @@ function toGistPayload(body: GistBody): GistPayload {
 export class GistService {
     constructor(private readonly githubService: GithubService) {}
     
-    load(gistId: string, revisionId?: string) {
+    async load(gistId: string, revisionId?: string) {
         return this.githubService.load(gistId, revisionId);
     }
     
-    create(body: GistBody) {
+    async create(body: GistBody) {
         return this.githubService.create(toGistPayload(body));
     }
     
-    update(gistId: string, body: GistBody) {
+    async update(gistId: string, body: GistBody) {
         return this.githubService.update(gistId, toGistPayload(body));
     }
     
-    fork(body: GistBody) {
+    async fork(body: GistBody) {
         // We cannot really "fork" an "anonymous" gist because a user
         // (the app's own token) cannot fork its own gist, so a fork is
         // implemented as creating a fresh gist with the same content.
