@@ -1,5 +1,5 @@
 import {Test} from '@nestjs/testing';
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
 import {tryToCatch} from 'try-to-catch';
 import {ParseService} from './parse.service.ts';
 
@@ -138,3 +138,34 @@ test('parse service: missing revision', async (t) => {
     t.end();
 });
 
+test('parse service: non-numeric revision id does not throw a raw TypeError', async (t) => {
+    const snippets = new Map();
+    const snippetRevisions = new Map();
+    
+    snippets.set('snippet1', {
+        _id: 'snippet1',
+        revisions: [{
+            objectId: 'rev0',
+        }],
+    });
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                ParseService, {
+                    provide: 'SNIPPETS',
+                    useValue: snippets,
+                }, {
+                    provide: 'SNIPPET_REVISIONS',
+                    useValue: snippetRevisions,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(ParseService);
+    const [e] = await tryToCatch(service.load.bind(service), 'snippet1', 'garbage');
+    
+    t.equal(e.message, 'Not found');
+    t.end();
+});

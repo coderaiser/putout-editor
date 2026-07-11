@@ -1,20 +1,36 @@
+import {readFileSync} from 'node:fs';
+import process from 'node:process';
 import {Module} from '@nestjs/common';
 import {ParseController} from './parse.controller.ts';
 import {ParseService} from './parse.service.ts';
+import type {
+    Snippet,
+    SnippetRevision,
+} from './parse.types.ts';
 
-@Module({
+function prepareData<T extends {
+    _id: string;
+}>(filePath: string): Map<string, T> {
+    const data: T[] = JSON.parse(readFileSync(filePath, 'utf8'));
+    const map = new Map<string, T>();
+    
+    for (const obj of data)
+        map.set(obj._id, obj);
+    
+    return map;
+}
+
+export @Module({
     controllers: [ParseController],
     providers: [
-        ParseService,
-        {
+        ParseService, {
             provide: 'SNIPPETS',
-            useValue: new Map(),
-        },
-        {
+            useFactory: () => process.env.SNIPPET_FILE ? prepareData<Snippet>(process.env.SNIPPET_FILE) : new Map<string, Snippet>(),
+        }, {
             provide: 'SNIPPET_REVISIONS',
-            useValue: new Map(),
+            useFactory: () => process.env.REVISION_FILE ? prepareData<SnippetRevision>(process.env.REVISION_FILE) : new Map<string, SnippetRevision>(),
         },
     ],
     exports: [],
 })
-export class ParseModule {}
+class ParseModule {}
