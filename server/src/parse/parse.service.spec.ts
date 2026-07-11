@@ -100,7 +100,7 @@ test('parse service: missing snippet', async (t) => {
         .compile();
     
     const service = module.get(ParseService);
-    const [e] = await tryToCatch(service.load, 'nonexistent', 'latest');
+    const [e] = await tryToCatch(service.load.bind(service), 'nonexistent', 'latest');
     
     t.equal(e.message, 'Not found');
     t.end();
@@ -132,7 +132,7 @@ test('parse service: missing revision', async (t) => {
         .compile();
     
     const service = module.get(ParseService);
-    const [e] = await tryToCatch(service.load, 'snippet1', '5');
+    const [e] = await tryToCatch(service.load.bind(service), 'snippet1', '5');
     
     t.equal(e.message, 'Not found');
     t.end();
