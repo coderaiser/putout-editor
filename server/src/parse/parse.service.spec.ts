@@ -169,3 +169,36 @@ test('parse service: non-numeric revision id does not throw a raw TypeError', as
     t.equal(e!.message, 'Not found');
     t.end();
 });
+
+test('parse service: revision id valid but revision data missing from map', async (t) => {
+    const snippets = new Map();
+    const snippetRevisions = new Map();
+    
+    snippets.set('snippet1', {
+        _id: 'snippet1',
+        revisions: [{
+            objectId: 'rev0',
+        }],
+    });
+    
+    // rev0 is NOT in snippetRevisions
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                ParseService, {
+                    provide: 'SNIPPETS',
+                    useValue: snippets,
+                }, {
+                    provide: 'SNIPPET_REVISIONS',
+                    useValue: snippetRevisions,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(ParseService);
+    const [e] = await tryToCatch(service.load.bind(service), 'snippet1', '0');
+    
+    t.equal(e!.message, 'Not found');
+    t.end();
+});

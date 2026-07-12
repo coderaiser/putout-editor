@@ -121,3 +121,175 @@ test('github.service: load(): explicit revision passes sha to octokit', async (t
     t.equal(call[0].sha, 'deadbeef');
     t.end();
 });
+
+test('github.service: create() calls octokit with payload', async (t) => {
+    const create = stub().resolves({
+        data: {
+            id: '456',
+        },
+    });
+    
+    const mockOctokit = {
+        rest: {
+            gists: {
+                create,
+            },
+        },
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GithubService, {
+                    provide: 'OCTOKIT',
+                    useValue: mockOctokit,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(GithubService);
+    
+    const payload = {
+        files: {
+            'test.js': {
+                content: 'const a = 1;',
+            },
+        },
+    };
+    
+    const result = await service.create(payload);
+    
+    t.calledWith(create, [payload]);
+    t.end();
+});
+
+test('github.service: create() returns response.data', async (t) => {
+    const create = stub().resolves({
+        data: {
+            id: '456',
+        },
+    });
+    
+    const mockOctokit = {
+        rest: {
+            gists: {
+                create,
+            },
+        },
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GithubService, {
+                    provide: 'OCTOKIT',
+                    useValue: mockOctokit,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(GithubService);
+    
+    const payload = {
+        files: {
+            'test.js': {
+                content: 'const a = 1;',
+            },
+        },
+    };
+    
+    const result = await service.create(payload);
+    
+    t.equal(result.id, '456');
+    t.end();
+});
+
+test('github.service: update() calls octokit with gist_id and payload', async (t) => {
+    const update = stub().resolves({
+        data: {
+            id: '789',
+        },
+    });
+    
+    const mockOctokit = {
+        rest: {
+            gists: {
+                update,
+            },
+        },
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GithubService, {
+                    provide: 'OCTOKIT',
+                    useValue: mockOctokit,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(GithubService);
+    
+    const payload = {
+        files: {
+            'test.js': {
+                content: 'updated',
+            },
+        },
+    };
+    
+    const result = await service.update('gist789', payload);
+    const args = [{
+        gist_id: 'gist789',
+        ...payload,
+    }];
+    
+    t.calledWith(update, args);
+    t.end();
+});
+
+test('github.service: update() returns response.data', async (t) => {
+    const update = stub().resolves({
+        data: {
+            id: '789',
+        },
+    });
+    
+    const mockOctokit = {
+        rest: {
+            gists: {
+                update,
+            },
+        },
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GithubService, {
+                    provide: 'OCTOKIT',
+                    useValue: mockOctokit,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(GithubService);
+    
+    const payload = {
+        files: {
+            'test.js': {
+                content: 'updated',
+            },
+        },
+    };
+    
+    const result = await service.update('gist789', payload);
+    
+    t.equal(result.id, '789');
+    t.end();
+});
