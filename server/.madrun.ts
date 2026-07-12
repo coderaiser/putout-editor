@@ -13,6 +13,7 @@ const allEnv = {
 export default {
     'build': () => 'nest build',
     'start': () => 'STATIC=../out node dist/main.js',
+    'start:bun': () => 'STATIC=../out bun dist/main.js',
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
     'lint': () => 'putout .',

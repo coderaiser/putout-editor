@@ -19,6 +19,7 @@
   "scripts": {
     "build": "madrun build",
     "start": "madrun start",
+    "start:bun": "madrun start:bun",
     "test": "madrun test",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
