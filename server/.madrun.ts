@@ -6,7 +6,7 @@ const startEnv = {
 }
 
 const env = defineEnv({
-    ts: true,
+    nestjs: true,
 });
 
 const allEnv = {
@@ -18,7 +18,7 @@ export default {
     'build': () => 'nest build',
     'start': () => [startEnv, 'node dist/main.js'],
     'start:bun': () => [startEnv, 'bun dist/main.js'],
-    'start:ts': () => [startEnv, 'node --import @supertape/loader-ts src/main.ts'],
+    'start:ts': () => [startEnv, 'node --import @supertape/loader-nestjs src/main.ts'],
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
     'lint': () => 'putout .',
