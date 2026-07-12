@@ -1,17 +1,22 @@
 import {run, cutEnv} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
-const startEnv = {
-    STATIC: '../out',
-}
-
-const env = defineEnv({
+const testEnv = defineEnv({
     nestjs: true,
 });
 
+const {NODE_OPTIONS} = defineEnv({
+    ts: true,
+});
+
+const startEnv = {
+    STATIC: '../out',
+    NODE_OPTIONS,
+}
+
 const allEnv = {
-    ...env,
     AUTH_TOKEN: 'test-token',
+    ...testEnv,
 };
 
 export default {
