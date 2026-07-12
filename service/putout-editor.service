@@ -10,7 +10,7 @@ WorkingDirectory=/home/coderaiser/putout-editor
 
 Environment=NODE_VERSION=node
 Environment=PORT=45733
-Environment=STATIC=../out
+Environment=STATIC=out
  
 ExecStart=/home/coderaiser/.nvm/nvm-exec /home/coderaiser/putout-editor/bin/putout-editor.js
  
