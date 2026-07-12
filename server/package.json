@@ -19,6 +19,7 @@
     "start:bun": "madrun start:bun",
     "start:ts": "madrun start:ts",
     "test": "madrun test",
+    "test:js": "madrun test:js",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
     "types": "madrun types",
@@ -30,8 +31,8 @@
   "devDependencies": {
     "@nestjs/testing": "^11.1.28",
     "@putout/eslint-flat": "^4.0.1",
-    "@supertape/loader-ts": "^1.0.0",
     "@supertape/loader-nestjs": "^1.0.0",
+    "@supertape/loader-ts": "^1.0.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
     "escover": "^6.5.2",

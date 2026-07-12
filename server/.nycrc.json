@@ -10,7 +10,6 @@
         "dist",
         "coverage"
     ],
-    "ignoreClassMethod": ["constructor"],
     "branches": 100,
     "lines": 100,
     "functions": 100,
