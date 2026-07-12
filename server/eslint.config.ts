@@ -5,6 +5,7 @@ import {matchToFlat} from '@putout/eslint-flat';
 export const match = {
     '**/*.ts': {
         '@typescript-eslint/no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-expression': 'off',
     },
 } as const;
 
