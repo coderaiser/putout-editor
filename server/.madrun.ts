@@ -5,11 +5,16 @@ const env = defineEnv({
     ts: true,
 });
 
+const allEnv = {
+    ...env,
+    AUTH_TOKEN: 'test-token',
+};
+
 export default {
     'build': () => 'nest build',
     'start': () => 'STATIC=../out node dist/main.js',
-    'test': () => [env, 'tape "src/**/*.spec.ts"'],
-    'coverage': async () => [env, `c8 ${await cutEnv('test')}`],
+    'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
+    'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
     'lint': () => 'putout .',
     'fix:lint': () => run('lint', '--fix'),
 };
