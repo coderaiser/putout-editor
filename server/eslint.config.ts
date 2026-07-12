@@ -6,7 +6,7 @@ export const match = {
     '**/*.ts': {
         '@typescript-eslint/no-unused-vars': 'off',
     },
-};
+} as const;
 
 export default defineConfig([
     safeAlign,
