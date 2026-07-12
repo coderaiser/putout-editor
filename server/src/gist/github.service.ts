@@ -3,7 +3,6 @@ import type {
     CreateGistPayload,
     UpdateGistPayload,
 } from './gist.types.ts';
-
 import type {GithubClient} from './github.types.ts';
 
 @Injectable()

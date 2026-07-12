@@ -8,6 +8,7 @@ export type UpdateGistFileContent = {
 };
 
 export type CreateGistFiles = Record<string, CreateGistFileContent>;
+
 export type UpdateGistFiles = Record<string, UpdateGistFileContent | null>;
 
 export type CreateGistPayload = {
@@ -30,6 +31,7 @@ export type GistBody = {
     code: string;
     
     // null explicitly means "delete the transform file", per the client's
+    
     // storage contract (see client/src/storage/gist.js)
     transform?: string | null;
     description?: string;

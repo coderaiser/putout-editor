@@ -337,4 +337,3 @@ test('github.service: update() with null file value passes null to octokit', asy
     t.calledWith(update, args);
     t.end();
 });
-
