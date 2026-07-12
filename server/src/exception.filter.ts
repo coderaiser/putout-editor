@@ -29,12 +29,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         
         if (exception instanceof HttpException) {
             status = exception.getStatus();
-            message = exception.message;
+            ({message} = exception);
         } else if (isUpstreamError(exception) && exception.response) {
             status = exception.status ?? exception.response.status;
-            message = exception.message ?? message;
+            ({message = message} = exception);
         } else if (isUpstreamError(exception) && exception.message) {
-            message = exception.message;
+            ({message = message} = exception);
         }
         
         console.error(new Date().toLocaleString(), exception);
