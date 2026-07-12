@@ -87,6 +87,56 @@ test('error filter: handles upstream error with only message', (t) => {
     t.end();
 });
 
+test('putout editor: server: exception: status: returns 500 when upstream error has neither response nor message', (t) => {
+    const filter = new GlobalExceptionFilter();
+    const {status, json} = createResponse();
+    
+    silenceConsoleError(() => filter.catch({}, createHost({status, json} as unknown as MockResponse)));
+    
+    t.calledWith(status, [500]);
+    t.end();
+});
+
+test('error filter: returns 500 when exception is not an object', (t) => {
+    const filter = new GlobalExceptionFilter();
+    const {status, json} = createResponse();
+    
+    silenceConsoleError(() => filter.catch('just a string', createHost({status, json} as unknown as MockResponse)));
+    
+    t.calledWith(status, [500]);
+    t.end();
+});
+
+test('putout editor: server: exception: json: returns 500 when upstream error has neither response nor message', (t) => {
+    const filter = new GlobalExceptionFilter();
+    const {status, json} = createResponse();
+    
+    silenceConsoleError(() => filter.catch({}, createHost({status, json} as unknown as MockResponse)));
+    
+    t.calledWith(json, ['Something went wrong']);
+    t.end();
+});
+
+test('putout-editor: server: exception: filter: status: returns 500 when upstream error has neither response nor message', (t) => {
+    const filter = new GlobalExceptionFilter();
+    const {status, json} = createResponse();
+    
+    silenceConsoleError(() => filter.catch({}, createHost({status, json} as unknown as MockResponse)));
+    
+    t.calledWith(status, [500]);
+    t.end();
+});
+
+test('putout-editor: server: exception: filter: json: returns 500 when upstream error has neither response nor message', (t) => {
+    const filter = new GlobalExceptionFilter();
+    const {status, json} = createResponse();
+    
+    silenceConsoleError(() => filter.catch({}, createHost({status, json} as unknown as MockResponse)));
+    
+    t.calledWith(json, ['Something went wrong']);
+    t.end();
+});
+
 type MockResponse = {
     status(code: number): {
         json(body: unknown): void;
