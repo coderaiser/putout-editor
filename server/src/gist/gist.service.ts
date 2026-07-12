@@ -7,24 +7,25 @@ import type {
 } from './gist.types.ts';
 import {SETTINGS_FORMAT} from '../constants.ts';
 
-function makeFiles(entries: [
-    string,
-    string,
-][]): GistFiles {
-    return entries.reduce((files: GistFiles, [filename, content]) => {
+function makeFiles(entries: [string, string | null][]): GistFiles {
+    const files: GistFiles = {};
+    
+    for (const [filename, content] of entries) {
+        if (content === null) {
+            files[filename] = null;
+            continue;
+        }
+        
         files[filename] = {
             content,
         };
-        
-        return files;
-    }, {});
+    }
+    
+    return files;
 }
 
 function toGistPayload(body: GistBody): GistPayload {
-    const entries: [
-        string,
-        string,
-    ][] = [
+    const entries: [string, string | null][] = [
         ['astexplorer.json', JSON.stringify({
             v: SETTINGS_FORMAT,
             parserID: body.parserID,
@@ -35,11 +36,8 @@ function toGistPayload(body: GistBody): GistPayload {
         [body.filename, body.code],
     ];
     
-    if ( // GitHub's Gist API deletes a file by sending empty content for its
-    // name, not by sending a null value -- a null file value is rejected
-    // by the API outright (see octokit/rest.js#19).
-        body.transform || body.transform === null)
-        entries.push(['transform.js', body.transform || '']);
+    if (body.transform || body.transform === null)
+        entries.push(['transform.js', body.transform]);
     
     return {
         files: makeFiles(entries),

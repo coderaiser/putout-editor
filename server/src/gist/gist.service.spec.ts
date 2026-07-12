@@ -138,7 +138,7 @@ test('gist service: create() includes transform.js when a transform is set', asy
     t.end();
 });
 
-test('gist service: update() deletes transform.js via empty content, not null', async (t) => {
+test('gist service: update() deletes transform.js via null', async (t) => {
     const mockGithub = {
         update: stub().resolves({
             id: 'gist789',
@@ -153,10 +153,10 @@ test('gist service: update() deletes transform.js via empty content, not null', 
     });
     
     const [, payload] = mockGithub.update.args[0] as [string, {
-        files: Record<string, {content: string}>;
+        files: Record<string, unknown>;
     }];
     
-    t.equal(payload.files['transform.js'].content, '');
+    t.notOk(payload.files['transform.js']);
     t.end();
 });
 

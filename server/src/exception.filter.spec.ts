@@ -1,5 +1,5 @@
+import {HttpException, ArgumentsHost} from '@nestjs/common';
 import {test, stub} from 'supertape';
-import type {ArgumentsHost, HttpException} from '@nestjs/common';
 import {GlobalExceptionFilter} from './exception.filter.ts';
 
 function createHost(res: unknown): ArgumentsHost {
@@ -41,21 +41,11 @@ test('error filter: returns upstream status for HttpException', async (t) => {
         status,
     };
     
-    const err: Error & {
-        status?: number;
-        response?: {
-            status: number;
-        };
-    } = Error('Not found');
-    
-    err.status = 404;
-    err.response = {
-        status: 404,
-    };
+    const err = new HttpException('Forbidden', 403);
     
     await filter.catch(err, createHost(res));
     
-    t.calledWith(status, [404]);
+    t.calledWith(status, [403]);
     t.end();
 });
 
@@ -77,27 +67,7 @@ test('error filter: returns upstream message', async (t) => {
     t.end();
 });
 
-test('error filter: uses getStatus and message from HttpException', async (t) => {
-    const filter = new GlobalExceptionFilter();
-    const json = stub();
-    
-    const status = stub().returns({
-        json,
-    });
-    
-    const res = {
-        status,
-    };
-    
-    const err = new HttpException('Forbidden', 403);
-    
-    await filter.catch(err, createHost(res));
-    
-    t.calledWith(status, [403]);
-    t.end();
-});
-
-test('error filter: uses response.status from upstream error when status not directly set', async (t) => {
+test('error filter: uses response.status from upstream error', async (t) => {
     const filter = new GlobalExceptionFilter();
     const json = stub();
     
@@ -119,7 +89,7 @@ test('error filter: uses response.status from upstream error when status not dir
     t.end();
 });
 
-test('error filter: uses exception.status when both are set on upstream error', async (t) => {
+test('error filter: uses exception.status when both set', async (t) => {
     const filter = new GlobalExceptionFilter();
     const json = stub();
     
@@ -142,7 +112,7 @@ test('error filter: uses exception.status when both are set on upstream error', 
     t.end();
 });
 
-test('error filter: handles upstream error with only message and no response', async (t) => {
+test('error filter: handles upstream error with only message', async (t) => {
     const filter = new GlobalExceptionFilter();
     const json = stub();
     

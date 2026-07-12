@@ -18,29 +18,44 @@ function isUpstreamError(exception: unknown): exception is UpstreamError {
     return typeof exception === 'object' && exception !== null;
 }
 
+function sendError(response: Response, status: number, message: string) {
+    console.error(new Date().toLocaleString());
+    
+    response
+        .status(status)
+        .json(message);
+}
+
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         
-        let status = 500;
-        let message = 'Something went wrong';
-        
         if (exception instanceof HttpException) {
-            status = exception.getStatus();
-            ({message} = exception);
-        } else if (isUpstreamError(exception) && exception.response) {
-            status = exception.status ?? exception.response.status;
-            ({message = message} = exception);
-        } else if (isUpstreamError(exception) && exception.message) {
-            ({message = message} = exception);
+            const status = exception.getStatus();
+            
+            sendError(response, status, exception.message);
+            return;
         }
         
-        console.error(new Date().toLocaleString(), exception);
+        if (!isUpstreamError(exception)) {
+            sendError(response, 500, 'Something went wrong');
+            return;
+        }
         
-        response
-            .status(status)
-            .json(message);
+        if (exception.response) {
+            const status = exception.status ?? exception.response.status;
+            
+            sendError(response, status, exception.message ?? 'Something went wrong');
+            return;
+        }
+        
+        if (exception.message) {
+            sendError(response, 500, exception.message);
+            return;
+        }
+        
+        sendError(response, 500, 'Something went wrong');
     }
 }

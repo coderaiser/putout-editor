@@ -22,7 +22,7 @@ export class GithubService {
     }
     
     async create(data: GistPayload) {
-        const response = await this.octokit.rest.gists.create(data);
+        const response = await this.octokit.rest.gists.create(data as any);
         
         return response.data;
     }
@@ -31,7 +31,7 @@ export class GithubService {
         const response = await this.octokit.rest.gists.update({
             gist_id: gistId,
             ...data,
-        });
+        } as any);
         
         return response.data;
     }
