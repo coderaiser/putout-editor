@@ -23,6 +23,7 @@
     "test": "madrun test",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
+    "types": "madrun types",
     "fix:lint": "madrun fix:lint"
   },
   "engines": {

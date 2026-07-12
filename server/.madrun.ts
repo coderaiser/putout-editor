@@ -17,5 +17,6 @@ export default {
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
     'lint': () => 'putout .',
+    'types': () => 'tsc --noEmit',
     'fix:lint': () => run('lint', '--fix'),
 };

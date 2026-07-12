@@ -1,7 +1,7 @@
 import process from 'node:process';
 import {NestFactory} from '@nestjs/core';
-import {AppModule} from './app.module.js';
-import {GlobalExceptionFilter} from './exception.filter.js';
+import {AppModule} from './app.module.ts';
+import {GlobalExceptionFilter} from './exception.filter.ts';
 
 const app = await NestFactory.create(AppModule);
 
