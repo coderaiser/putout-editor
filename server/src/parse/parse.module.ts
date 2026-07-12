@@ -25,10 +25,20 @@ function prepareData<T extends {
     providers: [
         ParseService, {
             provide: 'SNIPPETS',
-            useFactory: () => process.env.SNIPPET_FILE ? prepareData<Snippet>(process.env.SNIPPET_FILE) : new Map<string, Snippet>(),
+            useFactory: () => {
+                if (process.env.SNIPPET_FILE)
+                    return prepareData<Snippet>(process.env.SNIPPET_FILE);
+                
+                return new Map<string, Snippet>();
+            },
         }, {
             provide: 'SNIPPET_REVISIONS',
-            useFactory: () => process.env.REVISION_FILE ? prepareData<SnippetRevision>(process.env.REVISION_FILE) : new Map<string, SnippetRevision>(),
+            useFactory: () => {
+                if (process.env.REVISION_FILE)
+                    return prepareData<SnippetRevision>(process.env.REVISION_FILE);
+                
+                return new Map<string, SnippetRevision>();
+            },
         },
     ],
     exports: [],

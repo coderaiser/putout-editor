@@ -21,7 +21,10 @@ export class ParseService {
         if (!snippet)
             throw new NotFoundException('Not found');
         
-        const revisionIndex = revisionId === 'latest' ? snippet.revisions.length - 1 : Number(revisionId);
+        let revisionIndex = Number(revisionId);
+        
+        if (revisionId === 'latest')
+            revisionIndex = snippet.revisions.length - 1;
         
         if (Number.isNaN(revisionIndex) || revisionIndex >= snippet.revisions.length)
             throw new NotFoundException('Not found');
