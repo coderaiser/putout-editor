@@ -293,3 +293,48 @@ test('github.service: update() returns response.data', async (t) => {
     t.equal(result.id, '789');
     t.end();
 });
+
+test('github.service: update() with null file value passes null to octokit', async (t) => {
+    const update = stub().resolves({
+        data: {
+            id: '789',
+        },
+    });
+    
+    const mockOctokit = {
+        rest: {
+            gists: {
+                update,
+            },
+        },
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GithubService, {
+                    provide: 'OCTOKIT',
+                    useValue: mockOctokit,
+                },
+            ],
+        })
+        .compile();
+    
+    const service = module.get(GithubService);
+    
+    const payload = {
+        files: {
+            'transform.js': null,
+        },
+    };
+    
+    await service.update('gist789', payload);
+    const args = [{
+        gist_id: 'gist789',
+        ...payload,
+    }];
+    
+    t.calledWith(update, args);
+    t.end();
+});
+

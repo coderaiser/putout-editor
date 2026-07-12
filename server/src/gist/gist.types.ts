@@ -1,13 +1,25 @@
-export type GistFileContent = {
+export type CreateGistFileContent = {
     content: string;
 };
 
-export type GistFiles = Record<string, GistFileContent | null>;
+export type UpdateGistFileContent = {
+    content?: string;
+    filename?: string | null;
+};
 
-export type GistPayload = {
-    files: GistFiles;
+export type CreateGistFiles = Record<string, CreateGistFileContent>;
+
+export type UpdateGistFiles = Record<string, UpdateGistFileContent>;
+
+export type CreateGistPayload = {
+    files: CreateGistFiles;
     description?: string;
     public?: boolean;
+};
+
+export type UpdateGistPayload = {
+    files?: UpdateGistFiles;
+    description?: string;
 };
 
 export type GistBody = {

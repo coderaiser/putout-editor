@@ -7,9 +7,6 @@ export const match = {
         '@typescript-eslint/no-unused-vars': 'off',
         '@typescript-eslint/no-explicit-any': 'error',
     },
-    '**/github.service.ts': {
-        '@typescript-eslint/no-explicit-any': 'off',
-    },
 };
 
 export default defineConfig([
