@@ -7,3 +7,5 @@ production
 
 /dist
 **/coverage
+
+*.lock
