@@ -40,7 +40,6 @@ test('parse module: prepares data from SNIPPET_FILE and REVISION_FILE', async (t
         .compile();
     
     const snippets = module.get('SNIPPETS') as Map<string, unknown>;
-    const snippetRevisions = module.get('SNIPPET_REVISIONS') as Map<string, unknown>;
     
     t.equal(snippets.size, 1);
     t.end();
@@ -73,14 +72,13 @@ test('parse module: when env vars are not set, fallbacks to empty Maps', async (
         .compile();
     
     const snippets = module.get('SNIPPETS') as Map<string, unknown>;
-    const snippetRevisions = module.get('SNIPPET_REVISIONS') as Map<string, unknown>;
-    
-    t.equal(snippets.size, 0);
-    t.end();
     
     if (prevSnippet)
         process.env.SNIPPET_FILE = prevSnippet;
     
     if (prevRevision)
         process.env.REVISION_FILE = prevRevision;
+    
+    t.equal(snippets.size, 0);
+    t.end();
 });

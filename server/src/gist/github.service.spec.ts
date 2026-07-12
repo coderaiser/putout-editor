@@ -158,7 +158,7 @@ test('github.service: create() calls octokit with payload', async (t) => {
         },
     };
     
-    const result = await service.create(payload);
+    await service.create(payload);
     
     t.calledWith(create, [payload]);
     t.end();
@@ -242,7 +242,7 @@ test('github.service: update() calls octokit with gist_id and payload', async (t
         },
     };
     
-    const result = await service.update('gist789', payload);
+    await service.update('gist789', payload);
     const args = [{
         gist_id: 'gist789',
         ...payload,

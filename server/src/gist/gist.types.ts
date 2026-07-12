@@ -8,8 +8,7 @@ export type UpdateGistFileContent = {
 };
 
 export type CreateGistFiles = Record<string, CreateGistFileContent>;
-
-export type UpdateGistFiles = Record<string, UpdateGistFileContent>;
+export type UpdateGistFiles = Record<string, UpdateGistFileContent | null>;
 
 export type CreateGistPayload = {
     files: CreateGistFiles;
