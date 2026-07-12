@@ -11,6 +11,7 @@
     "@nestjs/platform-express": "^11.1.28",
     "@nestjs/serve-static": "^5.0.5",
     "@octokit/rest": "^22.0.0",
+    "express": "^5.2.1",
     "reflect-metadata": "^0.2.2"
   },
   "scripts": {
