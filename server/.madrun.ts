@@ -14,6 +14,7 @@ export default {
     'build': () => 'nest build',
     'start': () => 'STATIC=../out node dist/main.js',
     'start:bun': () => 'STATIC=../out bun dist/main.js',
+    'start:ts': () => 'STATIC=../out node --import @supertape/loader-ts src/main.ts',
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
     'lint': () => 'putout .',

@@ -20,6 +20,7 @@
     "build": "madrun build",
     "start": "madrun start",
     "start:bun": "madrun start:bun",
+    "start:ts": "madrun start:ts",
     "test": "madrun test",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
