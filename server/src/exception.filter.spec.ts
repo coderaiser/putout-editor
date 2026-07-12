@@ -2,72 +2,86 @@ import {HttpException, ArgumentsHost} from '@nestjs/common';
 import {test, stub} from 'supertape';
 import {GlobalExceptionFilter} from './exception.filter.ts';
 
-test('error filter: returns 500 for unknown errors', async (t) => {
+const noop = () => {};
+
+function silenceConsoleError(fn: () => void) {
+    const original = console.error;
+    
+    console.error = noop;
+    
+    try {
+        fn();
+    } finally {
+        console.error = original;
+    }
+}
+
+test('error filter: returns 500 for unknown errors', (t) => {
     const filter = new GlobalExceptionFilter();
     const {status, response} = createResponse();
     
-    await filter.catch(Error('something broke'), createHost(response));
+    silenceConsoleError(() => filter.catch(Error('something broke'), createHost(response)));
     
     t.calledWith(status, [500]);
     t.end();
 });
 
-test('error filter: returns upstream status for HttpException', async (t) => {
+test('error filter: returns upstream status for HttpException', (t) => {
     const filter = new GlobalExceptionFilter();
     const {response, status} = createResponse();
     
     const err = new HttpException('Forbidden', 403);
     
-    await filter.catch(err, createHost(response));
+    silenceConsoleError(() => filter.catch(err, createHost(response)));
     
     t.calledWith(status, [403]);
     t.end();
 });
 
-test('error filter: returns upstream message', async (t) => {
+test('error filter: returns upstream message', (t) => {
     const filter = new GlobalExceptionFilter();
     const {response, json} = createResponse();
     
-    await filter.catch(Error('custom error'), createHost(response));
+    silenceConsoleError(() => filter.catch(Error('custom error'), createHost(response)));
     
     t.calledWith(json, ['custom error']);
     t.end();
 });
 
-test('error filter: uses response.status from upstream error', async (t) => {
+test('error filter: uses response.status from upstream error', (t) => {
     const filter = new GlobalExceptionFilter();
     const {response, status} = createResponse();
     
-    await filter.catch({
+    silenceConsoleError(() => filter.catch({
         response: {
             status: 418,
         },
-    }, createHost(response));
+    }, createHost(response)));
     
     t.calledWith(status, [418]);
     t.end();
 });
 
-test('error filter: uses exception.status when both set', async (t) => {
+test('error filter: uses exception.status when both set', (t) => {
     const filter = new GlobalExceptionFilter();
     const {response, status} = createResponse();
     
-    await filter.catch({
+    silenceConsoleError(() => filter.catch({
         status: 503,
         response: {
             status: 502,
         },
-    }, createHost(response));
+    }, createHost(response)));
     
     t.calledWith(status, [503]);
     t.end();
 });
 
-test('error filter: handles upstream error with only message', async (t) => {
+test('error filter: handles upstream error with only message', (t) => {
     const filter = new GlobalExceptionFilter();
     const {response, json} = createResponse();
     
-    await filter.catch({message: 'network error'}, createHost(response));
+    silenceConsoleError(() => filter.catch({message: 'network error'}, createHost(response)));
     
     t.calledWith(json, ['network error']);
     t.end();

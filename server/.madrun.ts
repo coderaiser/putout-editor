@@ -12,7 +12,7 @@ const {NODE_OPTIONS} = defineEnv({
 const startEnv = {
     STATIC: '../out',
     NODE_OPTIONS,
-}
+};
 
 const allEnv = {
     AUTH_TOKEN: 'test-token',
