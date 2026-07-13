@@ -1,5 +1,8 @@
 {
     "rules": {
         "remove-console": "off"
-    }
+    },
+    "plugins":[
+        "nestjs"
+    ]
 }

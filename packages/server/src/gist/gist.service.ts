@@ -9,7 +9,10 @@ import type {
 } from './gist.types.ts';
 import {SETTINGS_FORMAT} from '../constants.ts';
 
-function makeCreateFiles(entries: [string, string][]): CreateGistFiles {
+function makeCreateFiles(entries: [
+    string,
+    string,
+][]): CreateGistFiles {
     const files: CreateGistFiles = {};
     
     for (const [filename, content] of entries)
@@ -36,7 +39,10 @@ function makeUpdateFiles(entries: [string, string | null][]): UpdateGistFiles {
 }
 
 function toCreateGistPayload(body: GistBody): CreateGistPayload {
-    const entries: [string, string][] = [
+    const entries: [
+        string,
+        string,
+    ][] = [
         ['astexplorer.json', JSON.stringify({
             v: SETTINGS_FORMAT,
             parserID: body.parserID,
@@ -101,3 +107,4 @@ export class GistService {
         return this.githubService.create(toCreateGistPayload(body));
     }
 }
+
