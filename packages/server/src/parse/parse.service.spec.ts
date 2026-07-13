@@ -2,10 +2,29 @@ import {Test} from '@nestjs/testing';
 import {test} from 'supertape';
 import {tryToCatch} from 'try-to-catch';
 import {ParseService} from './parse.service.ts';
+import type {Snippet, SnippetRevision} from './parse.types.ts';
+
+async function createService(snippets: Map<string, Snippet>, revisions: Map<string, SnippetRevision>) {
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                ParseService, {
+                    provide: 'SNIPPETS',
+                    useValue: snippets,
+                }, {
+                    provide: 'SNIPPET_REVISIONS',
+                    useValue: revisions,
+                },
+            ],
+        })
+        .compile();
+    
+    return module.get(ParseService);
+}
 
 test('parse service: returns latest revision', async (t) => {
-    const snippets = new Map();
-    const snippetRevisions = new Map();
+    const snippets = new Map<string, Snippet>();
+    const snippetRevisions = new Map<string, SnippetRevision>();
     
     snippets.set('snippet1', {
         _id: 'snippet1',
@@ -21,21 +40,7 @@ test('parse service: returns latest revision', async (t) => {
         content: 'latest content',
     });
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                ParseService, {
-                    provide: 'SNIPPETS',
-                    useValue: snippets,
-                }, {
-                    provide: 'SNIPPET_REVISIONS',
-                    useValue: snippetRevisions,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(ParseService);
+    const service = await createService(snippets, snippetRevisions);
     const result = await service.load('snippet1', 'latest');
     
     t.equal(result.revisionID, 1);
@@ -43,8 +48,8 @@ test('parse service: returns latest revision', async (t) => {
 });
 
 test('parse service: returns selected revision', async (t) => {
-    const snippets = new Map();
-    const snippetRevisions = new Map();
+    const snippets = new Map<string, Snippet>();
+    const snippetRevisions = new Map<string, SnippetRevision>();
     
     snippets.set('snippet1', {
         _id: 'snippet1',
@@ -60,21 +65,7 @@ test('parse service: returns selected revision', async (t) => {
         content: 'selected content',
     });
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                ParseService, {
-                    provide: 'SNIPPETS',
-                    useValue: snippets,
-                }, {
-                    provide: 'SNIPPET_REVISIONS',
-                    useValue: snippetRevisions,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(ParseService);
+    const service = await createService(snippets, snippetRevisions);
     const result = await service.load('snippet1', '1');
     
     t.equal(result.revisionID, 1);
@@ -82,24 +73,10 @@ test('parse service: returns selected revision', async (t) => {
 });
 
 test('parse service: missing snippet', async (t) => {
-    const snippets = new Map();
-    const snippetRevisions = new Map();
+    const snippets = new Map<string, Snippet>();
+    const snippetRevisions = new Map<string, SnippetRevision>();
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                ParseService, {
-                    provide: 'SNIPPETS',
-                    useValue: snippets,
-                }, {
-                    provide: 'SNIPPET_REVISIONS',
-                    useValue: snippetRevisions,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(ParseService);
+    const service = await createService(snippets, snippetRevisions);
     const [e] = await tryToCatch(service.load.bind(service), 'nonexistent', 'latest');
     
     t.equal(e!.message, 'Not found');
@@ -107,8 +84,8 @@ test('parse service: missing snippet', async (t) => {
 });
 
 test('parse service: missing revision', async (t) => {
-    const snippets = new Map();
-    const snippetRevisions = new Map();
+    const snippets = new Map<string, Snippet>();
+    const snippetRevisions = new Map<string, SnippetRevision>();
     
     snippets.set('snippet1', {
         _id: 'snippet1',
@@ -117,21 +94,7 @@ test('parse service: missing revision', async (t) => {
         }],
     });
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                ParseService, {
-                    provide: 'SNIPPETS',
-                    useValue: snippets,
-                }, {
-                    provide: 'SNIPPET_REVISIONS',
-                    useValue: snippetRevisions,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(ParseService);
+    const service = await createService(snippets, snippetRevisions);
     const [e] = await tryToCatch(service.load.bind(service), 'snippet1', '5');
     
     t.equal(e!.message, 'Not found');
@@ -139,8 +102,8 @@ test('parse service: missing revision', async (t) => {
 });
 
 test('parse service: non-numeric revision id does not throw a raw TypeError', async (t) => {
-    const snippets = new Map();
-    const snippetRevisions = new Map();
+    const snippets = new Map<string, Snippet>();
+    const snippetRevisions = new Map<string, SnippetRevision>();
     
     snippets.set('snippet1', {
         _id: 'snippet1',
@@ -149,21 +112,7 @@ test('parse service: non-numeric revision id does not throw a raw TypeError', as
         }],
     });
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                ParseService, {
-                    provide: 'SNIPPETS',
-                    useValue: snippets,
-                }, {
-                    provide: 'SNIPPET_REVISIONS',
-                    useValue: snippetRevisions,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(ParseService);
+    const service = await createService(snippets, snippetRevisions);
     const [e] = await tryToCatch(service.load.bind(service), 'snippet1', 'garbage');
     
     t.equal(e!.message, 'Not found');
@@ -171,8 +120,8 @@ test('parse service: non-numeric revision id does not throw a raw TypeError', as
 });
 
 test('parse service: revision id valid but revision data missing from map', async (t) => {
-    const snippets = new Map();
-    const snippetRevisions = new Map();
+    const snippets = new Map<string, Snippet>();
+    const snippetRevisions = new Map<string, SnippetRevision>();
     
     snippets.set('snippet1', {
         _id: 'snippet1',
@@ -182,21 +131,7 @@ test('parse service: revision id valid but revision data missing from map', asyn
     });
     
     // rev0 is NOT in snippetRevisions
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                ParseService, {
-                    provide: 'SNIPPETS',
-                    useValue: snippets,
-                }, {
-                    provide: 'SNIPPET_REVISIONS',
-                    useValue: snippetRevisions,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(ParseService);
+    const service = await createService(snippets, snippetRevisions);
     const [e] = await tryToCatch(service.load.bind(service), 'snippet1', '0');
     
     t.equal(e!.message, 'Not found');
