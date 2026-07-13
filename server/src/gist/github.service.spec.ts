@@ -1,4 +1,3 @@
-import {Test} from '@nestjs/testing';
 import {test, stub} from 'supertape';
 import {GithubService} from './github.service.ts';
 
@@ -25,18 +24,7 @@ test('github.service: exists and wraps GitHub client', async (t) => {
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     t.ok(service);
     t.end();
@@ -57,18 +45,7 @@ test('github.service: load(): "latest" revision does not pass sha to octokit', a
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     await service.load('123', 'latest');
     
@@ -91,18 +68,7 @@ test('github.service: load(): explicit revision passes sha to octokit', async (t
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     await service.load('123', 'deadbeef');
     
@@ -125,18 +91,7 @@ test('github.service: create() calls octokit with payload', async (t) => {
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     const payload = {
         files: {
@@ -167,18 +122,7 @@ test('github.service: create() returns response.data', async (t) => {
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     const payload = {
         files: {
@@ -209,18 +153,7 @@ test('github.service: update() calls octokit with gist_id and payload', async (t
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     const payload = {
         files: {
@@ -255,18 +188,7 @@ test('github.service: update() returns response.data', async (t) => {
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     const payload = {
         files: {
@@ -297,18 +219,7 @@ test('github.service: update() with null file value passes null to octokit', asy
         },
     };
     
-    const module = await Test
-        .createTestingModule({
-            providers: [
-                GithubService, {
-                    provide: 'OCTOKIT',
-                    useValue: mockOctokit,
-                },
-            ],
-        })
-        .compile();
-    
-    const service = module.get(GithubService);
+    const service = await createGithubService(mockOctokit);
     
     const payload = {
         files: {
@@ -325,3 +236,20 @@ test('github.service: update() with null file value passes null to octokit', asy
     t.calledWith(update, args);
     t.end();
 });
+
+async function createGithubService(mockOctokit: unknown) {
+    const {Test} = await import('@nestjs/testing');
+    
+    const module = await Test
+        .createTestingModule({
+            providers: [
+                GithubService, {
+                    provide: 'OCTOKIT',
+                    useValue: mockOctokit,
+                },
+            ],
+        })
+        .compile();
+    
+    return module.get(GithubService);
+}
