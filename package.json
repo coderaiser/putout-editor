@@ -1,0 +1,42 @@
+{
+  "name": "root",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "madrun build",
+    "fork": "madrun fork",
+    "start": "madrun start",
+    "start:bun": "madrun start:bun",
+    "start:ts": "madrun start:ts",
+    "test": "madrun test",
+    "test:js": "madrun test:js",
+    "coverage": "madrun coverage",
+    "lint": "madrun lint",
+    "test:dts": "madrun test:dts",
+    "fix:lint": "madrun fix:lint"
+  },
+  "devDependencies": {
+    "@putout/eslint-flat": "^4.0.0",
+    "check-dts": "^1.0.0",
+    "eslint": "^10.0.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-putout": "^31.0.0",
+    "husky": "^9.0.11",
+    "madfork": "^1.0.1",
+    "madrun": "^13.0.0",
+    "oxlint": "^1.35.0",
+    "redlint": "^6.0.0",
+    "superc8": "^12.0.0",
+    "supertape": "^13.0.0"
+  },
+  "trustedDependencies": [
+    "husky"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {}
+}

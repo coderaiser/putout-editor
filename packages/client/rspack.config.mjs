@@ -218,7 +218,7 @@ export default {
     },
     
     output: {
-        path: new URL('../out-build', import.meta.url).pathname,
+        path: new URL('../../out-build', import.meta.url).pathname,
         filename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
         chunkFilename: DEV ? '[name].js' : `[name]-[contenthash]-${CACHE_BREAKER}.js`,
     },

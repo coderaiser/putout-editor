@@ -1,12 +1,9 @@
 name: Node CI
+permissions:
+  contents: write
 on:
   - push
   - pull_request
-
-defaults:
-  run:
-    working-directory: client
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,48 +12,39 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 16.x
-          - 18.x
+          - 22.x
+          - 24.x
+          - 26.x
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-
+      - name: Install Redrun
+        run: bun i redrun madrun -g --no-save
       - name: Install
-        run: npm i
-      
+        run: bun i --no-save
+      - name: Init Madrun
+        run: madrun --init
       - name: Lint
-        run: npm run fix:lint
-    
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-        
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        
-      - name: Typos Install
-        run: cargo install typos-cli || echo 'already installed'
-      
+        run: redrun fix:lint
       - name: Typos
-        run: typos --write-changes
-      
-      - name: Commit fixes
-        uses: EndBug/add-and-commit@v7
+        uses: coderaiser/typos.ai@v1.1.8
         with:
-          message: 'chore: ${{ env.NAME }}: actions: lint ☘️'
-#     - name: Coverage
-#        run: npm run coverage
-#      - name: Coveralls
-#        uses: coverallsapp/github-action@master
-#        with:
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
+          key: ${{ secrets.TYPOS_AI_KEY }}
+      - name: Commit fixes
+        uses: EndBug/add-and-commit@v10
+        continue-on-error: true
+        with:
+          message: "chore: ${{ env.NAME }}: actions: lint ☘️"
+      - name: Coverage
+        run: redrun coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

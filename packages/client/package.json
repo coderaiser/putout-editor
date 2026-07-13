@@ -104,18 +104,20 @@
     "url": "^0.11.4"
   },
   "scripts": {
-    "start": "http-server ../out",
-    "build": "NODE_OPTIONS=--max_old_space_size=5048 NODE_ENV=production rspack build --config rspack.config.mjs && rimraf ../out && mv ../out-build ../out",
-    "build:dev": "NODE_OPTIONS=--max_old_space_size=5048 NODE_ENV=development rspack build --config rspack.config.mjs && rimraf ../out && mv ../out-build ../out",
-    "watch": "NODE_OPTIONS=--max_old_space_size=5048 rspack build -w --config rspack.config.mjs -o ../out",
-    "fix:lint": "putout . --fix",
-    "lint": "putout .",
-    "fresh:lint": "putout . --fresh",
-    "lint:fresh": "putout . --fresh",
-    "fix:eslint": "eslint --fix src",
-    "fontcustom": "fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml",
-    "eslint:hotfix": "rm -rf node_modules/eslint/node_modules/acorn",
-    "halting-problem:hotfix": "rm -rf node_modules/halting-problem/node_modules/acorn",
-    "init": "eslint:hotfix && halting-problem:hotfix && rm -rf node_modules/putout && ln -s ~/putout/packages/putout node_modules/putout"
+    "test": "madrun test",
+    "coverage": "madrun coverage",
+    "start": "madrun start",
+    "build": "madrun build",
+    "build:dev": "madrun build:dev",
+    "watch": "madrun watch",
+    "fix:eslint": "madrun fix:eslint",
+    "lint": "madrun lint",
+    "fresh:lint": "madrun fresh:lint",
+    "lint:fresh": "madrun lint:fresh",
+    "fix:lint": "madrun fix:lint",
+    "fontcustom": "madrun fontcustom",
+    "eslint:hotfix": "madrun eslint:hotfix",
+    "halting-problem:hotfix": "madrun halting-problem:hotfix",
+    "init": "madrun init"
   }
 }

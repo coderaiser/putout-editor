@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+debugger;
 
-await import('../server/dist/main.js');
+await import('../packages/server/dist/main.js');
 
