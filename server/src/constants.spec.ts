@@ -9,7 +9,7 @@ import {
     MESSAGE,
 } from './constants.ts';
 
-test('constants: exits with code 1 when AUTH_TOKEN is not set', async (t) => {
+test('constants: does not exit when AUTH_TOKEN is not set', async (t) => {
     const constantsPath = new URL('constants.ts', import.meta.url).pathname;
     
     const child = fork(constantsPath, [], {
