@@ -1,2 +1,2 @@
 [files]
-extend-exclude= ["ChangeLog", "*.woff"]
+extend-exclude= ["ChangeLog", "*.woff", "*.ttf"]
