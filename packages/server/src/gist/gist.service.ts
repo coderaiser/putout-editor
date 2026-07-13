@@ -53,7 +53,7 @@ function toCreateGistPayload(body: GistBody): CreateGistPayload {
         [body.filename, body.code],
     ];
     
-    if (body.transform && body.transform !== null)
+    if (body.transform)
         entries.push(['transform.js', body.transform]);
     
     return {

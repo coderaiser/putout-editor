@@ -2,7 +2,5 @@
     "rules": {
         "remove-console": "off"
     },
-    "plugins":[
-        "nestjs"
-    ]
+    "plugins": ["nestjs"]
 }
