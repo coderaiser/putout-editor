@@ -2,7 +2,7 @@ import {Test} from '@nestjs/testing';
 import {test, stub} from 'supertape';
 import {GistService} from './gist.service.ts';
 import {GithubService} from './github.service.ts';
-import {CreateGistPayload} from './gist.types.ts';
+import {CreateGistPayload, UpdateGistPayload} from './gist.types.ts';
 
 test('gist service: load', async (t) => {
     const mockGithub = {
@@ -48,11 +48,7 @@ test('gist service: create() embeds parserID/toolID in astexplorer.json', async 
     
     await service.create(body);
     
-    const [payload] = mockGithub.create.args[0] as [
-        {
-            files: Record<string, {content: string}>;
-        },
-    ];
+    const [payload] = mockGithub.create.args[0] as CreateGistPayload[];
     
     const meta = JSON.parse(payload.files['astexplorer.json'].content);
     
@@ -111,9 +107,9 @@ test('gist service: update() deletes transform.js via null', async (t) => {
         transform: null,
     });
     
-    const [, payload] = mockGithub.update.args[0] as CreateGistPayload[];
+    const [, payload] = mockGithub.update.args[0] as [string, UpdateGistPayload];
     
-    t.notOk(payload.files['transform.js']);
+    t.notOk(payload.files?.['transform.js']);
     t.end();
 });
 
