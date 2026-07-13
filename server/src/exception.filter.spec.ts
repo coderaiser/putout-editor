@@ -89,10 +89,12 @@ test('error filter: handles upstream error with only message', (t) => {
 
 test('putout editor: server: exception: status: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {status, json} = createResponse();
+    const {status} = createResponse();
     
     const {showLog} = hideLog();
-    filter.catch({}, createHost({status, json} as unknown as MockResponse));
+    filter.catch({}, createHost({
+        status,
+    }));
     showLog();
     
     t.calledWith(status, [500]);
@@ -101,10 +103,10 @@ test('putout editor: server: exception: status: returns 500 when upstream error 
 
 test('error filter: returns 500 when exception is not an object', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {status, json} = createResponse();
+    const {status, response} = createResponse();
     
     const {showLog} = hideLog();
-    filter.catch('just a string', createHost({status, json} as unknown as MockResponse));
+    filter.catch('just a string', createHost(response));
     showLog();
     
     t.calledWith(status, [500]);
@@ -113,10 +115,10 @@ test('error filter: returns 500 when exception is not an object', (t) => {
 
 test('putout editor: server: exception: json: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {status, json} = createResponse();
+    const {json, response} = createResponse();
     
     const {showLog} = hideLog();
-    filter.catch({}, createHost({status, json} as unknown as MockResponse));
+    filter.catch({}, createHost(response));
     showLog();
     
     t.calledWith(json, ['Something went wrong']);
@@ -125,10 +127,10 @@ test('putout editor: server: exception: json: returns 500 when upstream error ha
 
 test('putout-editor: server: exception: filter: status: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {status, json} = createResponse();
+    const {status, response} = createResponse();
     
     const {showLog} = hideLog();
-    filter.catch({}, createHost({status, json} as unknown as MockResponse));
+    filter.catch({}, createHost(response));
     showLog();
     
     t.calledWith(status, [500]);
@@ -137,10 +139,10 @@ test('putout-editor: server: exception: filter: status: returns 500 when upstrea
 
 test('putout-editor: server: exception: filter: json: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {status, json} = createResponse();
+    const {json, response} = createResponse();
     
     const {showLog} = hideLog();
-    filter.catch({}, createHost({status, json} as unknown as MockResponse));
+    filter.catch({}, createHost(response));
     showLog();
     
     t.calledWith(json, ['Something went wrong']);
@@ -153,14 +155,12 @@ type MockResponse = {
     };
 };
 
-function createResponse(): {
-    response: MockResponse;
-    status: ReturnType<typeof stub>;
-    json: ReturnType<typeof stub>;
-} {
+function createResponse() {
     const json = stub();
     
-    const status = stub().returns({
+    const status = stub<[
+        number,
+    ]>().returns({
         json,
     });
     
@@ -221,6 +221,7 @@ const hideLog = () => {
     const original = console.error;
     
     console.error = noop;
+    
     return {
         showLog: () => {
             console.error = original;

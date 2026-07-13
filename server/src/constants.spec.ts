@@ -7,7 +7,6 @@ import {
 import {
     logError,
     MESSAGE,
-    type Log,
 } from './constants.ts';
 
 test('constants: exits with code 1 when AUTH_TOKEN is not set', async (t) => {
@@ -38,7 +37,7 @@ test('constants: exits with code 1 when AUTH_TOKEN is not set', async (t) => {
 
 test('constants: logError', (t) => {
     const log = stub();
-    logError(true, log as unknown as Log);
+    logError(true, log);
     
     t.calledWith(log, [MESSAGE]);
     t.end();
