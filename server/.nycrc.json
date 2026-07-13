@@ -1,6 +1,6 @@
 {
     "skipFull": false,
-    "checkCoverage": false,
+    "checkCoverage": true,
     "all": true,
     "exclude": [
         "**/*.spec.*",
