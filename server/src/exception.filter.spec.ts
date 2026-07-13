@@ -172,9 +172,7 @@ function createResponse() {
 }
 
 function createHost(response: MockResponse): ArgumentsHost {
-    type HttpHost = ReturnType<ArgumentsHost['switchToHttp']>;
-    
-    const http: HttpHost = {
+    const http = {
         getRequest<T = unknown>() {
             return {} as T;
         },
