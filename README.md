@@ -27,7 +27,7 @@ enabled. For other then **JavaScript** languages and other transformations pleas
 
 ```ini
 [Service]
-Environment=AUTH_TOKEN=your-github-token-with-acces-to-gist
+Environment=AUTH_TOKEN=your-github-token-with-access-to-gist
 ```
 
 ## License

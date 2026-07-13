@@ -4,12 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "madrun build",
-    "fork": "madrun fork",
-    "start": "madrun start",
-    "start:bun": "madrun start:bun",
-    "start:ts": "madrun start:ts",
     "test": "madrun test",
-    "test:js": "madrun test:js",
+    "start": "madrun start",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
     "test:dts": "madrun test:dts",
