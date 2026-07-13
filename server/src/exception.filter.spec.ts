@@ -89,12 +89,10 @@ test('error filter: handles upstream error with only message', (t) => {
 
 test('putout editor: server: exception: status: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {status} = createResponse();
+    const {response, status, json} = createResponse();
     
     const {showLog} = hideLog();
-    filter.catch({}, createHost({
-        status,
-    }));
+    filter.catch({}, createHost(response));
     showLog();
     
     t.calledWith(status, [500]);
@@ -128,8 +126,8 @@ test('putout editor: server: exception: json: returns 500 when upstream error ha
 test('putout-editor: server: exception: filter: status: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
     const {status, response} = createResponse();
-    
     const {showLog} = hideLog();
+    
     filter.catch({}, createHost(response));
     showLog();
     
