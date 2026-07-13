@@ -72,13 +72,7 @@ test('github.service: load(): "latest" revision does not pass sha to octokit', a
     
     await service.load('123', 'latest');
     
-    const [call] = get.args as [
-        {
-            sha?: string;
-        },
-    ][];
-    
-    t.notOk('sha' in call[0]);
+    t.calledWith(get, [{gist_id: '123'}]);
     t.end();
 });
 
@@ -112,13 +106,7 @@ test('github.service: load(): explicit revision passes sha to octokit', async (t
     
     await service.load('123', 'deadbeef');
     
-    const [call] = get.args as [
-        {
-            sha?: string;
-        },
-    ][];
-    
-    t.equal(call[0].sha, 'deadbeef');
+    t.calledWith(get, [{gist_id: '123', sha: 'deadbeef'}]);
     t.end();
 });
 
