@@ -48,8 +48,11 @@ test('github.service: load(): "latest" revision does not pass sha to octokit', a
     const service = await createGithubService(mockOctokit);
     
     await service.load('123', 'latest');
+    const args = [{
+        gist_id: '123',
+    }];
     
-    t.calledWith(get, [{gist_id: '123'}]);
+    t.calledWith(get, args);
     t.end();
 });
 
@@ -71,8 +74,12 @@ test('github.service: load(): explicit revision passes sha to octokit', async (t
     const service = await createGithubService(mockOctokit);
     
     await service.load('123', 'deadbeef');
+    const args = [{
+        gist_id: '123',
+        sha: 'deadbeef',
+    }];
     
-    t.calledWith(get, [{gist_id: '123', sha: 'deadbeef'}]);
+    t.calledWith(get, args);
     t.end();
 });
 

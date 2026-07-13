@@ -89,7 +89,7 @@ test('error filter: handles upstream error with only message', (t) => {
 
 test('putout editor: server: exception: status: returns 500 when upstream error has neither response nor message', (t) => {
     const filter = new GlobalExceptionFilter();
-    const {response, status, json} = createResponse();
+    const {response, status} = createResponse();
     
     const {showLog} = hideLog();
     filter.catch({}, createHost(response));

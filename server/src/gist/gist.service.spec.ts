@@ -2,7 +2,10 @@ import {Test} from '@nestjs/testing';
 import {test, stub} from 'supertape';
 import {GistService} from './gist.service.ts';
 import {GithubService} from './github.service.ts';
-import {CreateGistPayload, UpdateGistPayload} from './gist.types.ts';
+import {
+    CreateGistPayload,
+    UpdateGistPayload,
+} from './gist.types.ts';
 
 test('gist service: load', async (t) => {
     const mockGithub = {
