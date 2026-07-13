@@ -25,7 +25,7 @@ export default {
     'start': () => [startEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
     'coverage': async () => 'madfork coverage',
-    'lint': () => 'putout .',
+    'lint': () => 'madfork lint',
     'test:dts': () => 'madfork test:dts',
     'fix:lint': () => run('lint', '--fix'),
 };

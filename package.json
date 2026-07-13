@@ -22,6 +22,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-putout": "^31.0.0",
     "husky": "^9.0.11",
+    "jiti": "^2.7.0",
     "madfork": "^1.0.1",
     "madrun": "^13.0.0",
     "oxlint": "^1.35.0",
