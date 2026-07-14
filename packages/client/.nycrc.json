@@ -3,7 +3,10 @@
     "checkCoverage": true,
     "all": true,
     "include": [
-        "src/components/ErrorMessage.js"
+        "src/components/ErrorMessage.js",
+        "src/components/LoadingIndicator.js",
+        "src/components/LocalStorage.js",
+        "src/components/buttons/ShareButton.js"
     ],
     "branches": 100,
     "lines": 100,
