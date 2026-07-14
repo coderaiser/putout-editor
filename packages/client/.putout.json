@@ -1,5 +1,8 @@
 {
     "match": {
+        ".filesystem.json": {
+            "esm/resolve-imported-file": "off"
+        },
         "src/components/PasteDropTarget.js": {
             "variables/remove-unused": "off"
         },

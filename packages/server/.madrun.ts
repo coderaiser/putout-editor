@@ -30,7 +30,9 @@ export default {
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
     'test:js': () => [allEnv, 'tape "dist/**/*.spec.js"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
+    'prelint': () => 'redlint scan',
     'lint': () => 'putout .',
     'test:dts': () => 'tsc --noEmit',
+    'prefix:lint': () => 'redlint fix',
     'fix:lint': () => run('lint', '--fix'),
 };

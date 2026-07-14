@@ -53,6 +53,7 @@
     "process": "^0.11.10",
     "putout": "^42.0.8",
     "raw-loader": "^4.0.0",
+    "redlint": "^6.9.2",
     "redrun": "^13.0.4",
     "rimraf": "^6.0.1",
     "style-loader": "^4.0.0",
