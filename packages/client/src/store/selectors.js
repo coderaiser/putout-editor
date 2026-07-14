@@ -97,4 +97,9 @@ export const canSave = createSelector([
     canSaveCode,
     canSaveTransform,
     didParserSettingsChange,
-], (revision, canSaveCode, canSaveTransform, didParserSettingsChange) => (canSaveCode || canSaveTransform || didParserSettingsChange) && (!revision || revision.canSave()));
+], (revision, canSaveCode, canSaveTransform, didParserSettingsChange) => {
+    if (revision && !revision.canSave())
+        return false;
+    
+    return canSaveCode || canSaveTransform || didParserSettingsChange;
+});
