@@ -46,10 +46,13 @@ test('actions: save', (t) => {
 });
 
 test('actions: save default', (t) => {
-    t.deepEqual(actions.save(), {
+    const result = actions.save();
+    const expected = {
         type: actions.SAVE,
         fork: false,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -87,58 +90,82 @@ test('actions: setSnippet', (t) => {
 });
 
 test('actions: clearSnippet', (t) => {
-    t.deepEqual(actions.clearSnippet(), {
+    const result = actions.clearSnippet();
+    const expected = {
         type: actions.CLEAR_SNIPPET,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: startLoadingSnippet', (t) => {
-    t.deepEqual(actions.startLoadingSnippet(), {
+    const result = actions.startLoadingSnippet();
+    const expected = {
         type: actions.START_LOADING_SNIPPET,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: doneLoadingSnippet', (t) => {
-    t.deepEqual(actions.doneLoadingSnippet(), {
+    const result = actions.doneLoadingSnippet();
+    const expected = {
         type: actions.DONE_LOADING_SNIPPET,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: loadSnippet', (t) => {
-    t.deepEqual(actions.loadSnippet(), {
+    const result = actions.loadSnippet();
+    const expected = {
         type: actions.LOAD_SNIPPET,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: openSettingsDialog', (t) => {
-    t.deepEqual(actions.openSettingsDialog(), {
+    const result = actions.openSettingsDialog();
+    const expected = {
         type: actions.OPEN_SETTINGS_DIALOG,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: closeSettingsDialog', (t) => {
-    t.deepEqual(actions.closeSettingsDialog(), {
+    const result = actions.closeSettingsDialog();
+    const expected = {
         type: actions.CLOSE_SETTINGS_DIALOG,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: openShareDialog', (t) => {
-    t.deepEqual(actions.openShareDialog(), {
+    const result = actions.openShareDialog();
+    const expected = {
         type: actions.OPEN_SHARE_DIALOG,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: closeShareDialog', (t) => {
-    t.deepEqual(actions.closeShareDialog(), {
+    const result = actions.closeShareDialog();
+    const expected = {
         type: actions.CLOSE_SHARE_DIALOG,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -156,9 +183,12 @@ test('actions: setError', (t) => {
 });
 
 test('actions: clearError', (t) => {
-    t.deepEqual(actions.clearError(), {
+    const result = actions.clearError();
+    const expected = {
         type: actions.CLEAR_ERROR,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -179,9 +209,12 @@ test('actions: selectTransformer', (t) => {
 });
 
 test('actions: hideTransformer', (t) => {
-    t.deepEqual(actions.hideTransformer(), {
+    const result = actions.hideTransformer();
+    const expected = {
         type: actions.HIDE_TRANSFORMER,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -225,25 +258,34 @@ test('actions: setCursor', (t) => {
 });
 
 test('actions: dropText', (t) => {
-    t.deepEqual(actions.dropText('txt', 'cat'), {
+    const result = actions.dropText('txt', 'cat');
+    const expected = {
         type: actions.DROP_TEXT,
         text: 'txt',
         categoryId: 'cat',
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: reset', (t) => {
-    t.deepEqual(actions.reset(), {
+    const result = actions.reset();
+    const expected = {
         type: actions.RESET,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('actions: toggleFormatting', (t) => {
-    t.deepEqual(actions.toggleFormatting(), {
+    const result = actions.toggleFormatting();
+    const expected = {
         type: actions.TOGGLE_FORMATTING,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 

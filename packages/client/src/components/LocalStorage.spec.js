@@ -18,9 +18,12 @@ test('LocalStorage: readState: default storage: reads from real localStorage', (
     localStorage.clear();
     localStorage.setItem('explorerSettingsV1', '{"a":1}');
     
-    t.deepEqual(readState(), {
+    const result = readState();
+    const expected = {
         a: 1,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 

@@ -123,9 +123,11 @@ test('selectors: getParserSettings', (t) => {
         },
     });
     
-    t.deepEqual(result, {
+    const expected = {
         a: 1,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -138,9 +140,11 @@ test('selectors: getParseResult', (t) => {
         },
     });
     
-    t.deepEqual(result, {
+    const expected = {
         ast: null,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -184,9 +188,11 @@ test('selectors: getKeyMap', (t) => {
         },
     });
     
-    t.deepEqual(result, {
+    const expected = {
         k: 1,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
