@@ -6,11 +6,13 @@ test('getFocusPath: finds path length to nested node by position', (t) => {
         _range: [10, 20],
         length: 0,
     };
+    
     const child = {
         _range: [0, 50],
         child: grandchild,
         length: 1,
     };
+    
     const root = {
         _range: [0, 100],
         child,
@@ -46,11 +48,13 @@ test('getFocusPath: path root is first item', (t) => {
         _range: [10, 20],
         length: 0,
     };
+    
     const child = {
         _range: [0, 50],
         child: grandchild,
         length: 1,
     };
+    
     const root = {
         _range: [0, 100],
         child,
@@ -86,11 +90,13 @@ test('getFocusPath: path child is second item', (t) => {
         _range: [10, 20],
         length: 0,
     };
+    
     const child = {
         _range: [0, 50],
         child: grandchild,
         length: 1,
     };
+    
     const root = {
         _range: [0, 100],
         child,
@@ -126,11 +132,13 @@ test('getFocusPath: path grandchild is third item', (t) => {
         _range: [10, 20],
         length: 0,
     };
+    
     const child = {
         _range: [0, 50],
         child: grandchild,
         length: 1,
     };
+    
     const root = {
         _range: [0, 100],
         child,
