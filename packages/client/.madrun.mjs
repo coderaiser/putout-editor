@@ -1,4 +1,4 @@
-import {run, cutEnv} from 'madrun';
+import {run} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
 const testEnv = defineEnv({
@@ -16,7 +16,10 @@ export default {
     'start': () => 'http-server ../../out',
     'build': () => [env, build('production')],
     'build:dev': () => [env, build('development')],
-    'watch': () => [env, 'rspack build -w --mode=development --config rspack.config.mjs -o ../../out'],
+    'watch': () => [
+        env,
+        'rspack build -w --mode=development --config rspack.config.mjs -o ../../out',
+    ],
     'fix:eslint': () => 'eslint --fix src',
     'lint': () => 'putout .',
     'fresh:lint': () => run('lint', '--fresh'),

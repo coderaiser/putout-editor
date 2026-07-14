@@ -25,4 +25,3 @@ export function readState(storage = globalThis.localStorage) {
     if (state)
         return JSON.parse(state);
 }
-

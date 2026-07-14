@@ -18,7 +18,9 @@ function formatTime(time) {
     return `${(time / 1000).toFixed(2)}s`;
 }
 
-const clearName = (a) => a.split('_').pop();
+const clearName = (a) => a
+    .split('_')
+    .pop();
 
 export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
     const [selectedOutput, setSelectedOutput] = useState(0);
@@ -42,7 +44,10 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
             focusPath,
         });
     
-    const names = visualizations.map(getName).map(clearName);
+    const names = visualizations
+        .map(getName)
+        .map(clearName);
+    
     const buttons = names.map(Button({
         selectedOutput,
         setSelectedOutput,

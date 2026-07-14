@@ -27,6 +27,6 @@ export default {
     'coverage': async () => 'madfork coverage',
     'lint': () => 'madfork lint',
     'test:dts': () => 'madfork test:dts',
-    'fix:lint': () => run('lint', '--fix'),
+    'fix:lint': () => 'madfork fix:lint',
 };
 

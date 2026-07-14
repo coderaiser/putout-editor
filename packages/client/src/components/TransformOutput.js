@@ -155,4 +155,3 @@ TransformOutput.propTypes = {
     mode: PropTypes.string,
     code: PropTypes.string,
 };
-

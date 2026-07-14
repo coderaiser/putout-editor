@@ -2,7 +2,10 @@ import {Test} from '@nestjs/testing';
 import {test} from 'supertape';
 import {tryToCatch} from 'try-to-catch';
 import {ParseService} from './parse.service.ts';
-import type {Snippet, SnippetRevision} from './parse.types.ts';
+import type {
+    Snippet,
+    SnippetRevision,
+} from './parse.types.ts';
 
 async function createService(snippets: Map<string, Snippet>, revisions: Map<string, SnippetRevision>) {
     const module = await Test

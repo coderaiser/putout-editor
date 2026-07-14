@@ -1,9 +1,12 @@
 import test from 'supertape';
-import {render, screen, fireEvent, cleanup} from '@testing-library/react';
-import React from 'react';
+import {
+    render,
+    screen,
+    fireEvent,
+    cleanup,
+} from '@testing-library/react';
 import {connect, Provider} from 'react-redux';
 import {createStore} from 'redux';
-
 import ErrorMessage from './ErrorMessage.js';
 
 // A minimal reducer that supports error-related actions
@@ -24,12 +27,18 @@ const initialState = {
 };
 
 function reducer(state = initialState, action) {
-    switch (action.type) {
+    switch(action.type) {
     case SET_ERROR:
-        return {...state, error: action.error};
+        return {
+            ...state,
+            error: action.error,
+        };
     
     case CLEAR_ERROR:
-        return {...state, error: null};
+        return {
+            ...state,
+            error: null,
+        };
     
     default:
         return state;
@@ -82,7 +91,7 @@ test('ErrorMessage: error present renders message', (t) => {
     const errorText = screen.queryByText('something went wrong');
     
     cleanup();
-	  
+    
     t.ok(errorText);
     t.end();
 });
@@ -102,6 +111,7 @@ test('ErrorMessage: click OK dispatches clearError', (t) => {
     
     fireEvent.click(okButton);
     const {error} = store.getState();
+    
     cleanup();
     
     t.notOk(error);
