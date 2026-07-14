@@ -1,12 +1,18 @@
-import {run} from 'madrun';
+import {run, cutEnv} from 'madrun';
+import {defineEnv} from 'supertape/env';
+
+const testEnv = defineEnv({
+    jsx: true,
+    dom: true,
+});
 
 const env = {
     NODE_OPTIONS: '--max_old_space_size=5048',
 };
 
 export default {
-    'test': () => 'echo "no tests"',
-    'coverage': () => 'echo "no coverage"',
+    'test': () => [testEnv, 'tape --no-worker "src/**/*.spec.js"'],
+    'coverage': async () => [testEnv, `escover tape --no-worker "src/**/*.spec.js"`],
     'start': () => 'http-server ../../out',
     'build': () => [env, build('production')],
     'build:dev': () => [env, build('development')],
