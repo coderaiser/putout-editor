@@ -6,7 +6,8 @@
         "src/components/ErrorMessage.js",
         "src/components/LoadingIndicator.js",
         "src/components/LocalStorage.js",
-        "src/components/buttons/ShareButton.js"
+        "src/components/buttons/ShareButton.js",
+        "src/store/selectors.js"
     ],
     "branches": 100,
     "lines": 100,
