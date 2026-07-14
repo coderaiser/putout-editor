@@ -1,7 +1,7 @@
 import {connect} from 'react-redux';
-import Toolbar from '../components/Toolbar';
-import * as selectors from '../store/selectors';
-import * as parserSelectors from '../store/parserSelectors';
+import Toolbar from '../components/Toolbar.js';
+import * as selectors from '../store/selectors.js';
+import * as parserSelectors from '../store/parserSelectors.js';
 import {logEvent} from '../utils/logger';
 import {
     save,
@@ -12,7 +12,7 @@ import {
     setParser,
     reset,
     setKeyMap,
-} from '../store/actions';
+} from '../store/actions.js';
 
 function mapStateToProps(state) {
     const parser = parserSelectors.getParser(state);

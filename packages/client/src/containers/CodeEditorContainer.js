@@ -1,12 +1,12 @@
 import {connect} from 'react-redux';
-import {setCode, setCursor} from '../store/actions';
-import Editor from '../components/Editor';
+import {setCode, setCursor} from '../store/actions.js';
+import Editor from '../components/Editor.js';
 import {
     getCode,
     getParseResult,
     getKeyMap,
-} from '../store/selectors';
-import {getParser} from '../store/parserSelectors';
+} from '../store/selectors.js';
+import {getParser} from '../store/parserSelectors.js';
 
 function mapStateToProps(state) {
     return {

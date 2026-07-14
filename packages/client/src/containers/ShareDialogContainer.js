@@ -1,10 +1,10 @@
 import {connect} from 'react-redux';
-import {closeShareDialog} from '../store/actions';
+import {closeShareDialog} from '../store/actions.js';
 import {
     showShareDialog,
     getRevision,
-} from '../store/selectors';
-import ShareDialog from '../components/dialogs/ShareDialog';
+} from '../store/selectors.js';
+import ShareDialog from '../components/dialogs/ShareDialog.js';
 
 function mapStateToProps(state) {
     return {
