@@ -83,6 +83,7 @@ test('LocalStorage: readState: stored value: returns parsed state', (t) => {
     const result = readState({
         getItem,
     });
+    
     const expected = {
         a: 1,
     };
