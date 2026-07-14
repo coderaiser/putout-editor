@@ -10,8 +10,9 @@ import ShareButton from './ShareButton.js';
 test('ShareButton: no snippet: disabled', (t) => {
     render(<ShareButton onShareButtonClick={stub()} snippet={null}/>);
     
-    cleanup();
     const {disabled} = screen.getByRole('button');
+    
+    cleanup();
     
     t.ok(disabled);
     t.end();
@@ -20,8 +21,9 @@ test('ShareButton: no snippet: disabled', (t) => {
 test('ShareButton: snippet present: enabled', (t) => {
     render(<ShareButton onShareButtonClick={stub()} snippet={{}}/>);
     
-    cleanup();
     const {disabled} = screen.getByRole('button');
+    
+    cleanup();
     
     t.notOk(disabled);
     t.end();
