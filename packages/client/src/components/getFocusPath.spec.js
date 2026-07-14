@@ -1,5 +1,4 @@
 import {test} from 'supertape';
-
 import getFocusPath, {nodeToRange} from './getFocusPath.js';
 
 test('getFocusPath: finds path length to nested node by position', (t) => {
