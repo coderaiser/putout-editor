@@ -45,4 +45,3 @@ export class GistController {
         return this.gistService.load(id, revision);
     }
 }
-

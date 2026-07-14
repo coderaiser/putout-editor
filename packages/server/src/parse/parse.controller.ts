@@ -10,7 +10,10 @@ export class ParseController {
     constructor(private readonly parseService: ParseService) {}
     
     @Get(':snippetid/:revisionid')
-    load(@Param('snippetid') snippetId: string, @Param('revisionid') revisionId: string) {
+    load(
+        @Param('snippetid') snippetId: string,
+        @Param('revisionid') revisionId: string,
+    ) {
         return this.parseService.load(snippetId, revisionId);
     }
 }

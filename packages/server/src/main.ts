@@ -11,4 +11,3 @@ app.useGlobalFilters(new GlobalExceptionFilter());
 const {PORT = 8080} = process.env;
 
 await app.listen(PORT, '0.0.0.0');
-

@@ -14,4 +14,3 @@ export function logError(condition: boolean, log: Log) {
 }
 
 logError(!process.env.AUTH_TOKEN, console.error);
-

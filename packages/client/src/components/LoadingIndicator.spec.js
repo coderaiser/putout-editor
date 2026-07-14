@@ -5,15 +5,17 @@ import LoadingIndicator from './LoadingIndicator.js';
 test('LoadingIndicator: not visible: renders nothing', (t) => {
     render(<LoadingIndicator visible={false}/>);
     cleanup();
+    const result = document.querySelector('.loadingIndicator');
     
-    t.notOk(document.querySelector('.loadingIndicator'));
+    t.notOk(result);
     t.end();
 });
 
 test('LoadingIndicator: visible: renders spinner', (t) => {
     render(<LoadingIndicator visible={true}/>);
     cleanup();
+    const result = document.querySelector('.loadingIndicator');
     
-    t.ok(document.querySelector('.loadingIndicator'));
+    t.ok(result);
     t.end();
 });

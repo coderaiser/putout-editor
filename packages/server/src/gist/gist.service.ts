@@ -107,4 +107,3 @@ export class GistService {
         return this.githubService.create(toCreateGistPayload(body));
     }
 }
-

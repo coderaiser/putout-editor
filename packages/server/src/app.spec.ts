@@ -16,9 +16,10 @@ test('application module: can compile', async (t) => {
     const app = module.createNestApplication();
     
     await app.init();
-    t.ok(app);
     
     await app.close();
+    
+    t.ok(app);
     t.end();
 });
 

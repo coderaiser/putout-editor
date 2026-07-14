@@ -1,13 +1,7 @@
 import {fork} from 'node:child_process';
 import process from 'node:process';
-import {
-    test,
-    stub,
-} from 'supertape';
-import {
-    logError,
-    MESSAGE,
-} from './constants.ts';
+import {test, stub} from 'supertape';
+import {logError, MESSAGE} from './constants.ts';
 
 test('constants: does not exit when AUTH_TOKEN is not set', async (t) => {
     const constantsPath = new URL('constants.ts', import.meta.url).pathname;
@@ -42,4 +36,3 @@ test('constants: logError', (t) => {
     t.calledWith(log, [MESSAGE]);
     t.end();
 });
-

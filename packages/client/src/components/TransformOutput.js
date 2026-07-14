@@ -60,10 +60,8 @@ export default class TransformOutput extends React.Component {
             
             transform(
                 nextProps.transformer,
-                nextProps
-                    .transformCode,
-                nextProps
-                    .code,
+                nextProps.transformCode,
+                nextProps.code,
                 nextProps.parser,
             )
                 .then(({result, map}) => ({

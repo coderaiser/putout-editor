@@ -23,7 +23,10 @@ export default {
     'build': () => 'nest build',
     'start': () => [startEnv, 'node dist/main.js'],
     'start:bun': () => [startEnv, 'bun dist/main.js'],
-    'start:ts': () => [startEnv, 'node --import @supertape/loader-nestjs src/main.ts'],
+    'start:ts': () => [
+        startEnv,
+        'node --import @supertape/loader-nestjs src/main.ts',
+    ],
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
     'test:js': () => [allEnv, 'tape "dist/**/*.spec.js"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
