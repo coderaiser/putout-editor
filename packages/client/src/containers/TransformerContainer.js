@@ -4,17 +4,18 @@ import {
     setTransformState,
     toggleFormatting,
 } from '../store/actions';
+import {getParser, getTransformer} from '../store/parserSelectors';
 import * as selectors from '../store/selectors';
 
 function mapStateToProps(state) {
     return {
-        parser: state.workbench.parser,
-        transformer: selectors.getTransformer(state), // Either the transform example or the transform code from the current
+        parser: getParser(state),
+        transformer: getTransformer(state), // Either the transform example or the transform code from the current
         // revision. This is what we compare against to determine whether something
         // changed and we can save.
         defaultTransformCode: selectors.getInitialTransformCode(state),
         transformCode: selectors.getTransformCode(state),
-        mode: selectors.getParser(state).category.editorMode || selectors.getParser(state).category.id,
+        mode: getParser(state).category.editorMode || getParser(state).category.id,
         code: selectors.getCode(state),
         enableFormatting: selectors.getFormattingState(state),
         keyMap: selectors.getKeyMap(state),

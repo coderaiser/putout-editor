@@ -1,9 +1,9 @@
 import {estreeToBabel} from 'estree-to-babel';
 import {
-    getParser,
     getParserSettings,
     getCode,
 } from './selectors';
+import {getParser} from './parserSelectors';
 import {
     ignoreKeysFilter,
     locationInformationFilter,

@@ -1,16 +1,15 @@
 import * as actions from './actions';
 import {logEvent, logError} from '../utils/logger';
 import {
-    getParser,
     getParserSettings,
     getCode,
     isSaving,
     isForking,
     getRevision,
-    getTransformer,
     getTransformCode,
     showTransformer,
 } from './selectors';
+import {getParser, getTransformer} from './parserSelectors';
 
 let requestId = 0;
 let clearURLOnClearError = false;

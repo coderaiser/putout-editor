@@ -5,9 +5,9 @@ import {
 } from '../store/actions';
 import {
     showSettingsDialog,
-    getParser,
     getParserSettings,
 } from '../store/selectors';
+import {getParser} from '../store/parserSelectors';
 import SettingsDialog from '../components/dialogs/SettingsDialog';
 
 function mapStateToProps(state) {

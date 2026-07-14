@@ -3,10 +3,10 @@ import {setCode, setCursor} from '../store/actions';
 import Editor from '../components/Editor';
 import {
     getCode,
-    getParser,
     getParseResult,
     getKeyMap,
 } from '../store/selectors';
+import {getParser} from '../store/parserSelectors';
 
 function mapStateToProps(state) {
     return {

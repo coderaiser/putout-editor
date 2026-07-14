@@ -1,6 +1,7 @@
 import {connect} from 'react-redux';
 import Toolbar from '../components/Toolbar';
 import * as selectors from '../store/selectors';
+import * as parserSelectors from '../store/parserSelectors';
 import {logEvent} from '../utils/logger';
 import {
     save,
@@ -14,16 +15,16 @@ import {
 } from '../store/actions';
 
 function mapStateToProps(state) {
-    const parser = selectors.getParser(state);
+    const parser = parserSelectors.getParser(state);
     
     return {
         forking: selectors.isForking(state),
         saving: selectors.isSaving(state),
-        canSave: selectors.canSave(state),
+        canSave: parserSelectors.canSave(state),
         canFork: selectors.canFork(state),
         category: parser.category,
         parser,
-        transformer: selectors.getTransformer(state),
+        transformer: parserSelectors.getTransformer(state),
         keyMap: selectors.getKeyMap(state),
         showTransformer: selectors.showTransformer(state),
         snippet: selectors.getRevision(state),

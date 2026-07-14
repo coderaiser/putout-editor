@@ -1,12 +1,13 @@
 import {connect} from 'react-redux';
 import ASTOutput from '../components/ASTOutput';
-import * as selectors from '../store/selectors';
+import {getParser} from '../store/parserSelectors';
+import {getParseResult, getCursor} from '../store/selectors';
 
 function mapStateToProps(state) {
     return {
-        parser: selectors.getParser(state),
-        parseResult: selectors.getParseResult(state),
-        cursor: selectors.getCursor(state),
+        parser: getParser(state),
+        parseResult: getParseResult(state),
+        cursor: getCursor(state),
     };
 }
 
