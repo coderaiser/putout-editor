@@ -27,11 +27,14 @@ export default function getFocusPath(node, pos, parser, seen = new Set()) {
     let path = [];
     const range = nodeToRange(parser, node);
     
-    if (range)
-        if (isInRange(range, pos))
+    if (range) {
+        const inside = isInRange(range, pos);
+        
+        if (inside)
             path.push(node);
         else
             return [];
+    }
     
     for (const {value} of parser.forEachProperty(node)) {
         if (value && typeof value === 'object' && !seen.has(value)) {

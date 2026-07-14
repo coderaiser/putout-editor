@@ -1,5 +1,6 @@
 import {test} from 'supertape';
-import getFocusPath from './getFocusPath.js';
+
+import getFocusPath, {nodeToRange} from './getFocusPath.js';
 
 test('getFocusPath: finds path length to nested node by position', (t) => {
     const grandchild = {
@@ -185,5 +186,194 @@ test('getFocusPath: returns empty when pos not in any range', (t) => {
     const path = getFocusPath(node, 10, parser);
     
     t.equal(path.length, 0);
+    t.end();
+});
+
+test('nodeToRange: falls back to first/last child range when parent has no range', (t) => {
+    const child1 = {
+        _range: [0, 5],
+        length: 0,
+    };
+    
+    const child2 = {
+        _range: [10, 20],
+        length: 0,
+    };
+    
+    // parent is array-like
+    const parent = [child1, child2];
+    
+    parent.length = 2;
+    
+    if (!parent.at)
+        parent.at = function(i) {
+            return i < 0 ? this[this.length + i] : this[i];
+        };
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+    };
+    
+    const range = nodeToRange(parser, parent);
+    
+    t.deepEqual(range, [0, 20]);
+    t.end();
+});
+
+test('getFocusPath: prepends parent when parent has no range but child does', (t) => {
+    const child = {
+        _range: [10, 20],
+        length: 0,
+    };
+    
+    // make parent array-like and also expose child property for parser.forEachProperty
+    const parent = [child];
+    
+    parent.child = child;
+    parent.length = 1;
+    
+    if (!parent.at)
+        parent.at = function(i) {
+            return i < 0 ? this[this.length + i] : this[i];
+        };
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+        *forEachProperty(node) {
+            if (node.child)
+                yield {
+                    value: node.child,
+                };
+        },
+    };
+    
+    const path = getFocusPath(parent, 15, parser);
+    
+    t.equal(path[0], parent);
+    t.end();
+});
+
+test('getFocusPath: handles cycles without infinite recursion', (t) => {
+    const a = {
+        length: 1,
+    };
+    
+    const b = {
+        length: 1,
+    };
+    
+    a.child = b;
+    b.child = a;
+    
+    // cycle
+    a._range = [0, 100];
+    b._range = [10, 20];
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+        *forEachProperty(node) {
+            if (node.child)
+                yield {
+                    value: node.child,
+                };
+        },
+    };
+    
+    const path = getFocusPath(a, 15, parser);
+    
+    t.equal(path.length, 2);
+    t.end();
+});
+
+test('getFocusPath: parent combined range out of pos returns empty', (t) => {
+    const child1 = {
+        _range: [0, 5],
+        length: 0,
+    };
+    
+    const child2 = {
+        _range: [10, 20],
+        length: 0,
+    };
+    
+    const parent = [child1, child2];
+    
+    parent.length = 2;
+    
+    if (!parent.at)
+        parent.at = function(i) {
+            return i < 0 ? this[this.length + i] : this[i];
+        };
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+        *forEachProperty(node) {
+            if (node[0])
+                for (const v of node)
+                    yield {
+                        value: v,
+                    };
+        },
+    };
+    
+    const path = getFocusPath(parent, 25, parser);
+    
+    t.equal(path.length, 0);
+    t.end();
+});
+
+test('getFocusPath: ignores non-object or falsy property values', (t) => {
+    const child = {
+        _range: [10, 20],
+        length: 0,
+    };
+    
+    const parent = [child];
+    
+    parent.child = child;
+    parent.numberProp = 5;
+    parent.nullProp = null;
+    parent.length = 1;
+    
+    if (!parent.at)
+        parent.at = function(i) {
+            return i < 0 ? this[this.length + i] : this[i];
+        };
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+        *forEachProperty(node) {
+            if (node.child)
+                yield {
+                    value: node.child,
+                };
+            
+            if (node.numberProp)
+                yield {
+                    value: node.numberProp,
+                };
+            
+            if ('nullProp' in node)
+                yield {
+                    value: node.nullProp,
+                };
+        },
+    };
+    
+    const path = getFocusPath(parent, 15, parser);
+    const result = path.at(-1);
+    const expected = child;
+    
+    t.equal(result, expected);
     t.end();
 });
