@@ -1,48 +1,38 @@
 name: k8s-e2e
-
+permissions:
+  contents: write
 on:
   push:
     tags:
-      - 'v*'
-
+      - v*
 jobs:
   deploy-test:
     runs-on: ubuntu-latest
-    needs: []
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
-
       - name: Install kubectl via palabra
         run: |
           bun i -g palabra
           palabra i kubectl
-
       - uses: AbsaOSS/k3d-action@v2
         with:
           cluster-name: ci-test
           args: -p "8080:80@loadbalancer"
-
       - name: Wait for image to be published
         run: |
           # docker-release.yml pushes the same tag; give it a head start
           # since both workflows trigger off the same tag push event
           sleep 60
-
       - name: Set image tag
         run: |
           sed -i "s|ghcr.io/coderaiser/putout-editor:.*|ghcr.io/coderaiser/putout-editor:${GITHUB_REF_NAME}|" deploy/k8s/deployment.yaml
-
       - name: Apply manifests
         run: kubectl apply -f deploy/k8s/
-
       - name: Wait for rollout
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
-
       - name: Smoke test
         run: curl --fail --retry 8 --retry-delay 5 http://localhost:8080
-
       - name: Dump state on failure
         if: failure()
         run: |
