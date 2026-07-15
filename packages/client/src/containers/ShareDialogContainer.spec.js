@@ -2,7 +2,10 @@ import {test} from 'supertape';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 import {render, cleanup} from '@testing-library/react';
-import {OPEN_SHARE_DIALOG, CLOSE_SHARE_DIALOG} from '../store/actions.js';
+import {
+    OPEN_SHARE_DIALOG,
+    CLOSE_SHARE_DIALOG,
+} from '../store/actions.js';
 import ShareDialogContainer from './ShareDialogContainer.js';
 
 function reducer(state = {
@@ -20,7 +23,10 @@ function reducer(state = {
         };
     
     case CLOSE_SHARE_DIALOG:
-        return {...state, showShareDialog: false};
+        return {
+            ...state,
+            showShareDialog: false,
+        };
     
     default:
         return state;
@@ -30,11 +36,9 @@ function reducer(state = {
 test('ShareDialogContainer: not visible by default', (t) => {
     const store = createStore(reducer);
     
-    render(
-        <Provider store={store}>
-            <ShareDialogContainer/>
-        </Provider>,
-    );
+    render(<Provider store={store}>
+        <ShareDialogContainer/>
+    </Provider>);
     
     const dialog = document.getElementById('ShareDialog');
     
@@ -47,13 +51,13 @@ test('ShareDialogContainer: not visible by default', (t) => {
 test('ShareDialogContainer: visible after OPEN_SHARE_DIALOG', (t) => {
     const store = createStore(reducer);
     
-    store.dispatch({type: OPEN_SHARE_DIALOG});
+    store.dispatch({
+        type: OPEN_SHARE_DIALOG,
+    });
     
-    render(
-        <Provider store={store}>
-            <ShareDialogContainer/>
-        </Provider>,
-    );
+    render(<Provider store={store}>
+        <ShareDialogContainer/>
+    </Provider>);
     
     const dialog = document.getElementById('ShareDialog');
     
