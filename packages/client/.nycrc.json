@@ -7,7 +7,11 @@
         "src/components/LoadingIndicator.js",
         "src/components/LocalStorage.js",
         "src/components/buttons/ShareButton.js",
-        "src/store/selectors.js"
+        "src/components/buttons/SaveButton.js",
+        "src/components/buttons/ForkButton.js",
+        "src/store/selectors.js",
+        "src/utils/stringify.js",
+        "src/utils/debounce.js"
     ],
     "branches": 100,
     "lines": 100,
