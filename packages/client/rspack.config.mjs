@@ -112,6 +112,10 @@ export default {
         }, {
             test: /\.(jsx?|mjs)$/,
             type: 'javascript/auto',
+            resolve: {
+                fullySpecified: false,
+            },
+
             exclude: [
                 join(__dirname, 'node_modules', '@putout/engine-loader'),
             ],
