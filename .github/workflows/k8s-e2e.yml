@@ -4,7 +4,7 @@ permissions:
 on:
   push:
     tags:
-      - v*
+      - *
 jobs:
   deploy-test:
     runs-on: ubuntu-latest
