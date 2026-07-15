@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {categories} from '../parsers';
+import {categories} from '../parsers/index.js';
 
 function importEscodegen() {
     return import('escodegen').then((mod) => mod.default || mod);

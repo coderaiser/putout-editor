@@ -3,7 +3,7 @@ import isEqual from 'lodash.isequal';
 import {
     getParserByID,
     getTransformerByID,
-} from '../parsers';
+} from '../parsers/index.js';
 import {
     getParserSettings,
     getRevision,

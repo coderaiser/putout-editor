@@ -1,10 +1,10 @@
-import * as actions from './actions';
+import * as actions from './actions.js';
 import {
     getCategoryByID,
     getDefaultParser,
     getParserByID,
     getTransformerByID,
-} from '../parsers';
+} from '../parsers/index.js';
 
 const defaultParser = getDefaultParser(getCategoryByID('javascript'));
 const defaultTransformer = getTransformerByID('putout');

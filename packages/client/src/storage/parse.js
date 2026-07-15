@@ -2,7 +2,7 @@ import api from './api';
 import {
     getTransformerByID,
     getParserByID,
-} from '../parsers';
+} from '../parsers/index.js';
 
 function getIDAndRevisionFromHash() {
     const match = globalThis.location.hash.match(/^#\/(?!gist\/)([^/]+)(?:\/(latest|\d*))?/);

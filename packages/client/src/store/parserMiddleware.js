@@ -3,7 +3,7 @@ import {
     getParserSettings,
     getCode,
 } from './selectors';
-import {getParser} from './parserSelectors';
+import {getParser} from './parserSelectors.js';
 import {
     ignoreKeysFilter,
     locationInformationFilter,

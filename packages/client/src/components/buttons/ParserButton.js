@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {getParserByID} from '../../parsers';
+import {getParserByID} from '../../parsers/index.js';
 
 export default class ParserButton extends React.Component {
     constructor(props) {

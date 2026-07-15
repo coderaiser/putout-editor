@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import visualizations from './visualization';
+import visualizations from './visualization/index.js';
 import getFocusPath from './getFocusPath.js';
 import {Button} from './visualization/Button';
 

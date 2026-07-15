@@ -5,7 +5,7 @@ import Editor from './Editor';
 import SplitPane from './SplitPane';
 import TransformOutput from './TransformOutput';
 import PrettierButton from './buttons/PrettierButton';
-import {getTransformerByID} from '../parsers';
+import {getTransformerByID} from '../parsers/index.js';
 
 function resize() {
     PubSub.publish('PANEL_RESIZE');

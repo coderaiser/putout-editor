@@ -4,7 +4,7 @@ import SnippetButton from './buttons/SnippetButton';
 import TransformButton from './buttons/TransformButton';
 import KeyMapButton from './buttons/KeyMapButton';
 import Funding from './buttons/Funding';
-import {getTransformerByID} from '../parsers';
+import {getTransformerByID} from '../parsers/index.js';
 
 export default function Toolbar(props) {
     const {

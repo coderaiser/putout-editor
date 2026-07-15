@@ -1,5 +1,5 @@
 import api from './api';
-import {getParserByID} from '../parsers';
+import {getParserByID} from '../parsers/index.js';
 
 function getIDAndRevisionFromHash() {
     const match = globalThis.location.hash.match(/^#\/gist\/([^/]+)(?:\/[^/]+)?/);

@@ -1,4 +1,4 @@
-import * as actions from './actions';
+import * as actions from './actions.js';
 import {logEvent, logError} from '../utils/logger';
 import {
     getParserSettings,
