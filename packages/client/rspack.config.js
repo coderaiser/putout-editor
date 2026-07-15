@@ -115,7 +115,7 @@ export default {
             resolve: {
                 fullySpecified: false,
             },
-
+            
             exclude: [
                 join(__dirname, 'node_modules', '@putout/engine-loader'),
             ],

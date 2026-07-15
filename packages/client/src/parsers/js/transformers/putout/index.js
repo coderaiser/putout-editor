@@ -3,6 +3,7 @@ import pkg from 'putout/package.json' with {
 };
 import compileModule from '../../../utils/compileModule';
 
+const require = createRequire(import.meta.url);
 const ID = 'putout';
 const displayName = '🐊Putout';
 
