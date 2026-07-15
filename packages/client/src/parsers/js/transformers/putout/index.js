@@ -1,9 +1,9 @@
+import path from 'node:path';
 import pkg from 'putout/package.json' with {
     type: 'json',
 };
 import compileModule from '../../../utils/compileModule';
 
-const require = createRequire(import.meta.url);
 const ID = 'putout';
 const displayName = '🐊Putout';
 
@@ -52,7 +52,7 @@ export default {
         const plugin = compileModule(transformCode, {
             require: (name) => {
                 if (name === 'path' || name === 'node:path')
-                    return require('node:path');
+                    return path;
                 
                 return putout;
             },
@@ -97,3 +97,4 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
         };
     }
 }
+

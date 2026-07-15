@@ -10,7 +10,7 @@ const {NODE_OPTIONS} = defineEnv({
 });
 
 const startEnv = {
-    STATIC: '../out',
+    STATIC: '../../out',
     NODE_OPTIONS,
 };
 

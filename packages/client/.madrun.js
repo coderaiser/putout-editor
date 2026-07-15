@@ -18,7 +18,7 @@ export default {
     'build:dev': () => [env, build('development')],
     'watch': () => [
         env,
-        'rspack build -w --mode=development --config rspack.config.mjs -o ../../out',
+        'rspack build -w --mode=development -o ../../out',
     ],
     'fix:eslint': () => 'eslint --fix src',
     'prelint': () => 'redlint scan',
@@ -48,7 +48,7 @@ export default {
 function build(env) {
     const rm = 'rimraf ../../out';
     const mv = 'mv ../../out-build ../../out';
-    const rspack = `NODE_ENV=${env} rspack build --mode=${env} --config rspack.config.mjs`;
+    const rspack = `NODE_ENV=${env} rspack build --mode=${env}`;
     
     return `${rspack} && ${rm} && ${mv}`;
 }
