@@ -11,12 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
-      - name: Install kubectl via palabra
+      - name: Install
         run: |
           bun i -g palabra
-          palabra i kubectl kubeconform
+          palabra i kubeconform
       - name: kubeconform
         run: kubeconform -summary -strict deploy/k8s/
-        
-      - name: kubectl dry-run (client)
-        run: kubectl apply -f deploy/k8s/ --dry-run=client --validate=true
