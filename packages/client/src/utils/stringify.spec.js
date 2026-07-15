@@ -1,10 +1,11 @@
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import stringify from './stringify.js';
 
 test('stringify: function returns signature', (t) => {
-    const result = stringify(function example(a, b) {});
+    const fn = stub();
+    const result = stringify(fn);
     
-    t.equal(result, 'function example(a, b)');
+    t.equal(result, 'function anonymous(...a)');
     t.end();
 });
 

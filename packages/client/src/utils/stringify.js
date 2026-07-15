@@ -1,6 +1,3 @@
-/**
- * Converts a JS value to a sensible string representation.
- */
 export default function stringify(value) {
     switch(typeof value) {
     case 'function':

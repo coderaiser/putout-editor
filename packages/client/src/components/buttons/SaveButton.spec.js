@@ -1,5 +1,9 @@
 import {test} from 'supertape';
-import {render, cleanup, fireEvent} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import SaveButton from './SaveButton.js';
 
 test('SaveButton: disabled when canSave is false', (t) => {

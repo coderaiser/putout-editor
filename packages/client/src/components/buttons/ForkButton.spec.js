@@ -1,5 +1,9 @@
 import {test} from 'supertape';
-import {render, cleanup, fireEvent} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import ForkButton from './ForkButton.js';
 
 test('ForkButton: disabled when canFork is false', (t) => {
