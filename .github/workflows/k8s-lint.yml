@@ -1,0 +1,28 @@
+name: k8s-lint
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/k8s/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install kubectl via palabra
+        run: |
+          bun i -g palabra
+          palabra i kubectl
+
+      - name: kubeconform
+        uses: docker://ghcr.io/yannh/kubeconform:latest
+        with:
+          entrypoint: /kubeconform
+          args: -summary -strict deploy/k8s/
+
+      - name: kubectl dry-run (client)
+        run: kubectl apply -f deploy/k8s/ --dry-run=client --validate=true
