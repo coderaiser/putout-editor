@@ -11,7 +11,11 @@
         "src/components/buttons/ForkButton.js",
         "src/store/selectors.js",
         "src/utils/stringify.js",
-        "src/utils/debounce.js"
+        "src/utils/debounce.js",
+        "src/utils/url.js",
+        "src/containers/ASTOutputContainer.js",
+        "src/containers/PasteDropTargetContainer.js",
+        "src/containers/ShareDialogContainer.js"
     ],
     "branches": 100,
     "lines": 100,
