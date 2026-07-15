@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: putout-editor
+  namespace: putout-editor
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: putout-editor.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: putout-editor
+                port:
+                  number: 80
