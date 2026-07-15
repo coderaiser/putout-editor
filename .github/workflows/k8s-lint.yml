@@ -14,11 +14,9 @@ jobs:
       - name: Install kubectl via palabra
         run: |
           bun i -g palabra
-          palabra i kubectl
+          palabra i kubectl kubeconform
       - name: kubeconform
-        uses: docker://ghcr.io/yannh/kubeconform:latest
-        with:
-          entrypoint: /kubeconform
-          args: -summary -strict deploy/k8s/
+        run: kubeconform -summary -strict deploy/k8s/
+        
       - name: kubectl dry-run (client)
         run: kubectl apply -f deploy/k8s/ --dry-run=client --validate=true
