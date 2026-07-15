@@ -27,9 +27,11 @@ test('ErrorMessageContainer: not visible when no error', (t) => {
         error: null,
     });
     
-    render(<Provider store={store}>
-        <ErrorMessageContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
     
     const result = document.querySelector('.errorMessage');
     
@@ -45,9 +47,11 @@ test('ErrorMessageContainer: visible shows error message', (t) => {
         error: err,
     });
     
-    render(<Provider store={store}>
-        <ErrorMessageContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
     
     const message = document.querySelector('.errorMessage div');
     
@@ -63,9 +67,11 @@ test('ErrorMessageContainer: OK button dispatches clearError', (t) => {
         error: err,
     });
     
-    render(<Provider store={store}>
-        <ErrorMessageContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
     
     const okButton = document.querySelector('button');
     

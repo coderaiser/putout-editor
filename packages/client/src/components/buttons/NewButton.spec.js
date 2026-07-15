@@ -7,7 +7,9 @@ import {
 import NewButton from './NewButton.js';
 
 test('NewButton: disabled when saving', (t) => {
-    render(<NewButton saving={true} forking={false}/>);
+    render(
+        <NewButton saving={true} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -18,7 +20,9 @@ test('NewButton: disabled when saving', (t) => {
 });
 
 test('NewButton: disabled when forking', (t) => {
-    render(<NewButton saving={false} forking={true}/>);
+    render(
+        <NewButton saving={false} forking={true}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -29,7 +33,9 @@ test('NewButton: disabled when forking', (t) => {
 });
 
 test('NewButton: enabled when not saving or forking', (t) => {
-    render(<NewButton saving={false} forking={false}/>);
+    render(
+        <NewButton saving={false} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -45,7 +51,9 @@ test('NewButton: onNew called on click', (t) => {
         called = true;
     };
     
-    render(<NewButton saving={false} forking={false} onNew={onNew}/>);
+    render(
+        <NewButton saving={false} forking={false} onNew={onNew}/>,
+    );
     
     const button = document.querySelector('button');
     

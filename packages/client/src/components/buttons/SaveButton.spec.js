@@ -7,7 +7,9 @@ import {
 import SaveButton from './SaveButton.js';
 
 test('SaveButton: disabled when canSave is false', (t) => {
-    render(<SaveButton canSave={false} saving={false} forking={false}/>);
+    render(
+        <SaveButton canSave={false} saving={false} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -18,7 +20,9 @@ test('SaveButton: disabled when canSave is false', (t) => {
 });
 
 test('SaveButton: disabled when saving', (t) => {
-    render(<SaveButton canSave={true} saving={true} forking={false}/>);
+    render(
+        <SaveButton canSave={true} saving={true} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -29,7 +33,9 @@ test('SaveButton: disabled when saving', (t) => {
 });
 
 test('SaveButton: disabled when forking', (t) => {
-    render(<SaveButton canSave={true} saving={false} forking={true}/>);
+    render(
+        <SaveButton canSave={true} saving={false} forking={true}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -40,7 +46,9 @@ test('SaveButton: disabled when forking', (t) => {
 });
 
 test('SaveButton: enabled when canSave true and not busy', (t) => {
-    render(<SaveButton canSave={true} saving={false} forking={false}/>);
+    render(
+        <SaveButton canSave={true} saving={false} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -56,7 +64,9 @@ test('SaveButton: onSave called on click', (t) => {
         called = true;
     };
     
-    render(<SaveButton canSave={true} saving={false} forking={false} onSave={onSave}/>);
+    render(
+        <SaveButton canSave={true} saving={false} forking={false} onSave={onSave}/>,
+    );
     
     fireEvent.click(document.querySelector('button'));
     cleanup();

@@ -65,9 +65,11 @@ const ErrorMessageContainer = connect(
 test('ErrorMessage: no error renders nothing', (t) => {
     const store = createStore(reducer);
     
-    render(<Provider store={store}>
-        <ErrorMessageContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
     
     const errorMessage = screen.queryByText('Error');
     
@@ -84,9 +86,11 @@ test('ErrorMessage: error present renders message', (t) => {
         message: 'something went wrong',
     }));
     
-    render(<Provider store={store}>
-        <ErrorMessageContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
     
     const errorText = screen.queryByText('something went wrong');
     
@@ -103,9 +107,11 @@ test('ErrorMessage: click OK dispatches clearError', (t) => {
         message: 'dismiss me',
     }));
     
-    render(<Provider store={store}>
-        <ErrorMessageContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
     
     const okButton = screen.getByText('OK');
     

@@ -3,7 +3,9 @@ import {render, cleanup} from '@testing-library/react';
 import LoadingIndicator from './LoadingIndicator.js';
 
 test('LoadingIndicator: not visible: renders nothing', (t) => {
-    render(<LoadingIndicator visible={false}/>);
+    render(
+        <LoadingIndicator visible={false}/>,
+    );
     
     const result = document.querySelector('.loadingIndicator');
     
@@ -14,7 +16,9 @@ test('LoadingIndicator: not visible: renders nothing', (t) => {
 });
 
 test('LoadingIndicator: visible: renders spinner', (t) => {
-    render(<LoadingIndicator visible={true}/>);
+    render(
+        <LoadingIndicator visible={true}/>,
+    );
     
     const result = document.querySelector('.loadingIndicator');
     

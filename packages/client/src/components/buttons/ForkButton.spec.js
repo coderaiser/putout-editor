@@ -7,7 +7,9 @@ import {
 import ForkButton from './ForkButton.js';
 
 test('ForkButton: disabled when canFork is false', (t) => {
-    render(<ForkButton canFork={false} saving={false} forking={false}/>);
+    render(
+        <ForkButton canFork={false} saving={false} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -18,7 +20,9 @@ test('ForkButton: disabled when canFork is false', (t) => {
 });
 
 test('ForkButton: disabled when saving', (t) => {
-    render(<ForkButton canFork={true} saving={true} forking={false}/>);
+    render(
+        <ForkButton canFork={true} saving={true} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -29,7 +33,9 @@ test('ForkButton: disabled when saving', (t) => {
 });
 
 test('ForkButton: disabled when forking', (t) => {
-    render(<ForkButton canFork={true} saving={false} forking={true}/>);
+    render(
+        <ForkButton canFork={true} saving={false} forking={true}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -40,7 +46,9 @@ test('ForkButton: disabled when forking', (t) => {
 });
 
 test('ForkButton: enabled when canFork true and not busy', (t) => {
-    render(<ForkButton canFork={true} saving={false} forking={false}/>);
+    render(
+        <ForkButton canFork={true} saving={false} forking={false}/>,
+    );
     
     const button = document.querySelector('button');
     
@@ -56,7 +64,9 @@ test('ForkButton: onFork called on click', (t) => {
         called = true;
     };
     
-    render(<ForkButton canFork={true} saving={false} forking={false} onFork={onFork}/>);
+    render(
+        <ForkButton canFork={true} saving={false} forking={false} onFork={onFork}/>,
+    );
     
     fireEvent.click(document.querySelector('button'));
     cleanup();

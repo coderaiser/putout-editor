@@ -12,7 +12,9 @@ test('PrettierButton: toggleFormatting called on click', (t) => {
         called = true;
     };
     
-    render(<PrettierButton toggleFormatting={toggleFormatting} enableFormatting={false}/>);
+    render(
+        <PrettierButton toggleFormatting={toggleFormatting} enableFormatting={false}/>,
+    );
     
     const button = document.querySelector('button');
     

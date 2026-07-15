@@ -36,9 +36,11 @@ function reducer(state = {
 test('ShareDialogContainer: not visible by default', (t) => {
     const store = createStore(reducer);
     
-    render(<Provider store={store}>
-        <ShareDialogContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ShareDialogContainer/>
+        </Provider>,
+    );
     
     const dialog = document.getElementById('ShareDialog');
     
@@ -55,9 +57,11 @@ test('ShareDialogContainer: visible after OPEN_SHARE_DIALOG', (t) => {
         type: OPEN_SHARE_DIALOG,
     });
     
-    render(<Provider store={store}>
-        <ShareDialogContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <ShareDialogContainer/>
+        </Provider>,
+    );
     
     const dialog = document.getElementById('ShareDialog');
     

@@ -16,9 +16,11 @@ test('LoadingIndicatorContainer: visible when isLoadingSnippet true', (t) => {
         loadingSnippet: true,
     });
     
-    render(<Provider store={store}>
-        <LoadingIndicatorContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <LoadingIndicatorContainer/>
+        </Provider>,
+    );
     
     const result = document.querySelector('.loadingIndicator');
     
@@ -33,9 +35,11 @@ test('LoadingIndicatorContainer: not visible when isLoadingSnippet false', (t) =
         loadingSnippet: false,
     });
     
-    render(<Provider store={store}>
-        <LoadingIndicatorContainer/>
-    </Provider>);
+    render(
+        <Provider store={store}>
+            <LoadingIndicatorContainer/>
+        </Provider>,
+    );
     
     const result = document.querySelector('.loadingIndicator');
     

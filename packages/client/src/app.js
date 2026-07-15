@@ -110,9 +110,11 @@ store.dispatch({
 const container = document.getElementById('container');
 const root = createRoot(container);
 
-root.render(<Provider store={store}>
-    <AppContainer/>
-</Provider>);
+root.render(
+    <Provider store={store}>
+        <AppContainer/>
+    </Provider>,
+);
 
 globalThis.onhashchange = () => {
     store.dispatch(loadSnippet());

@@ -8,7 +8,9 @@ import {
 import ShareButton from './ShareButton.js';
 
 test('ShareButton: no snippet: disabled', (t) => {
-    render(<ShareButton onShareButtonClick={stub()} snippet={null}/>);
+    render(
+        <ShareButton onShareButtonClick={stub()} snippet={null}/>,
+    );
     
     const {disabled} = screen.getByRole('button');
     
@@ -19,7 +21,9 @@ test('ShareButton: no snippet: disabled', (t) => {
 });
 
 test('ShareButton: snippet present: enabled', (t) => {
-    render(<ShareButton onShareButtonClick={stub()} snippet={{}}/>);
+    render(
+        <ShareButton onShareButtonClick={stub()} snippet={{}}/>,
+    );
     
     const {disabled} = screen.getByRole('button');
     
@@ -32,7 +36,9 @@ test('ShareButton: snippet present: enabled', (t) => {
 test('ShareButton: click: calls onShareButtonClick', (t) => {
     const onShareButtonClick = stub();
     
-    render(<ShareButton onShareButtonClick={onShareButtonClick} snippet={{}}/>);
+    render(
+        <ShareButton onShareButtonClick={onShareButtonClick} snippet={{}}/>,
+    );
     fireEvent.click(screen.getByRole('button'));
     
     cleanup();
