@@ -1,6 +1,13 @@
 import {test} from 'supertape';
 import stringify from './stringify.js';
 
+test('stringify: function returns signature', (t) => {
+    const result = stringify(function example(a, b) {});
+    
+    t.equal(result, 'function example(a, b)');
+    t.end();
+});
+
 test('stringify: object', (t) => {
     const result = stringify({
         a: 1,

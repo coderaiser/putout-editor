@@ -3,6 +3,20 @@ import debounce from './debounce.js';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+test('debounce: uses default timeout', async (t) => {
+    let called = false;
+    const fn = debounce(() => {
+        called = true;
+    });
+    
+    fn();
+    
+    await wait(150);
+    
+    t.ok(called);
+    t.end();
+});
+
 test('debounce: calls once after rapid calls', async (t) => {
     let count = 0;
     const fn = debounce(() => {
