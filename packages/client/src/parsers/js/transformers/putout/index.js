@@ -97,4 +97,3 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
         };
     }
 }
-
