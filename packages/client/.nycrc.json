@@ -14,6 +14,8 @@
         "src/utils/debounce.js",
         "src/utils/url.js",
         "src/utils/logger.js",
+        "src/parsers/utils/protectFromLoops.js",
+        "src/core/ParseResult.js",
         "src/containers/ASTOutputContainer.js",
         "src/containers/PasteDropTargetContainer.js",
         "src/containers/ShareDialogContainer.js"
