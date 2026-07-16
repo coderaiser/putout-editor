@@ -1,3 +1,8 @@
+2026.07.16, v3.0.8
+
+fix:
+- 43b177f actions: rm AbsaOSS/k3d-action
+
 2026.07.16, v3.0.7
 
 feature:
