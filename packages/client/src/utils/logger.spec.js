@@ -21,6 +21,9 @@ test('logger: logError: calls console.log with description and fatal flag', (t) 
     logError('Something went wrong', true);
     console.log = original;
     
-    t.calledWith(log, ['Something went wrong', true]);
+    t.calledWith(log, [
+        'Something went wrong',
+        true,
+    ]);
     t.end();
 });

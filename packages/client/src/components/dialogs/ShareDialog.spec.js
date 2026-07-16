@@ -1,5 +1,9 @@
 import {test, stub} from 'supertape';
-import {render, fireEvent, cleanup} from '@testing-library/react';
+import {
+    render,
+    fireEvent,
+    cleanup,
+} from '@testing-library/react';
 import ShareDialog from './ShareDialog.js';
 
 const snippet = {

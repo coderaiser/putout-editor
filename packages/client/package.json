@@ -59,6 +59,7 @@
     "style-loader": "^4.0.0",
     "supertape": "^13.4.2",
     "tenko": "^2.0.1",
+    "try-to-catch": "^4.1.0",
     "tty-browserify": "^0.0.1",
     "typescript": "^6.0.2"
   },
