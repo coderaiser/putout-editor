@@ -1,7 +1,11 @@
 {
   "name": "@putout/editor",
-  "version": "2.4.3",
+  "version": "3.0.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderaiser/putout-editor.git"
+  },
   "type": "module",
   "scripts": {
     "build": "madrun build",
@@ -36,5 +40,8 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {}
+  "dependencies": {},
+  "publishConfig": {
+    "access": "public"
+  }
 }
