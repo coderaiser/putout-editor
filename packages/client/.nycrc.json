@@ -10,6 +10,7 @@
         "src/components/buttons/SaveButton.js",
         "src/components/buttons/ForkButton.js",
         "src/components/dialogs/ShareDialog.js",
+        "src/components/visualization/index.js",
         "src/store/selectors.js",
         "src/utils/stringify.js",
         "src/utils/debounce.js",
