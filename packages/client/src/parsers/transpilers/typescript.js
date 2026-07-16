@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import protect from '../utils/protectFromLoops';
+import protect from '../utils/protectFromLoops.js';
 
 const compilerOptions = {
     module: ts.ModuleKind.System,
