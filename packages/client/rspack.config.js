@@ -8,7 +8,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const require = createRequire(import.meta.url);
+const {resolve} = createRequire(import.meta.url);
 
 const DEV = process.env.NODE_ENV !== 'production';
 const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.meta.url).pathname, 'utf8'));
@@ -196,14 +196,14 @@ export default {
     plugins,
     resolve: {
         alias: {
-            'acorn-private-methods': require.resolve('acorn-private-methods'),
+            'acorn-private-methods': resolve('acorn-private-methods'),
         },
         fallback: {
-            'url': require.resolve('url/'),
-            'assert': require.resolve('assert'),
-            'buffer': require.resolve('buffer/'),
-            'events': require.resolve('events/'),
-            'path': require.resolve('path-browserify'),
+            'url': resolve('url/'),
+            'assert': resolve('assert'),
+            'buffer': resolve('buffer/'),
+            'events': resolve('events/'),
+            'path': resolve('path-browserify'),
             'child_process': false,
             'fs': false,
             'module': false,
@@ -212,8 +212,8 @@ export default {
             'os': false,
             'constants': false,
             'jscodeshift': false,
-            'process/browser': require.resolve('process/browser'),
-            'tty': require.resolve('tty-browserify'),
+            'process/browser': resolve('process/browser'),
+            'tty': resolve('tty-browserify'),
         },
     },
     
