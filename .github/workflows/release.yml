@@ -55,10 +55,11 @@ jobs:
         run: |
           bun i -g palabra
           palabra i kubectl
-      - uses: AbsaOSS/k3d-action@v2
-        with:
-          cluster-name: ci-test
-          args: -p "8080:80@loadbalancer"
+      - name: Create k3d cluster
+        run: |
+          k3d cluster create ci-test \
+            --wait \
+            --port "8080:80@loadbalancer"
       - name: Verify cluster context
         run: |
           kubectl config use-context k3d-ci-test
