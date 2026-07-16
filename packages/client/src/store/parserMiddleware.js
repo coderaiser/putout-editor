@@ -2,7 +2,7 @@ import {estreeToBabel} from 'estree-to-babel';
 import {
     getParserSettings,
     getCode,
-} from './selectors';
+} from './selectors.js';
 import {getParser} from './parserSelectors.js';
 import {
     ignoreKeysFilter,

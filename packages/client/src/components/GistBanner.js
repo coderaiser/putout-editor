@@ -5,7 +5,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import {connect} from 'react-redux';
-import {getRevision} from '../store/selectors';
+import {getRevision} from '../store/selectors.js';
 
 const buttonStyle = {
     backgroundColor: 'transparent',

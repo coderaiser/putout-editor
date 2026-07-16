@@ -1,5 +1,5 @@
 import * as actions from './actions.js';
-import {logEvent, logError} from '../utils/logger';
+import {logEvent, logError} from '../utils/logger.js';
 import {
     getParserSettings,
     getCode,
@@ -8,8 +8,8 @@ import {
     getRevision,
     getTransformCode,
     showTransformer,
-} from './selectors';
-import {getParser, getTransformer} from './parserSelectors';
+} from './selectors.js';
+import {getParser, getTransformer} from './parserSelectors.js';
 
 let requestId = 0;
 let clearURLOnClearError = false;

@@ -376,3 +376,60 @@ test('getFocusPath: ignores non-object or falsy property values', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('getFocusPath: prepends parent when parent has no range or length but child does: path length', (t) => {
+    const child = {
+        _range: [10, 20],
+        length: 0,
+    };
+    
+    const parent = {
+        child,
+    };
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+        *forEachProperty(node) {
+            if (node.child)
+                yield {
+                    value: node.child,
+                };
+        },
+    };
+    
+    const path = getFocusPath(parent, 15, parser);
+    
+    t.equal(path.length, 2);
+    t.end();
+});
+
+test('getFocusPath: prepends parent when parent has no range or length but child does: first item is parent', (t) => {
+    const child = {
+        _range: [10, 20],
+        length: 0,
+    };
+    
+    const parent = {
+        child,
+    };
+    
+    const parser = {
+        nodeToRange(n) {
+            return n._range;
+        },
+        *forEachProperty(node) {
+            if (node.child)
+                yield {
+                    value: node.child,
+                };
+        },
+    };
+    
+    const path = getFocusPath(parent, 15, parser);
+    
+    t.equal(path[0], parent);
+    t.end();
+});
+

@@ -2,7 +2,7 @@ import {connect} from 'react-redux';
 import Toolbar from '../components/Toolbar.js';
 import * as selectors from '../store/selectors.js';
 import * as parserSelectors from '../store/parserSelectors.js';
-import {logEvent} from '../utils/logger';
+import {logEvent} from '../utils/logger.js';
 import {
     save,
     openSettingsDialog,

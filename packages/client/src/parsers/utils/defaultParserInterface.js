@@ -1,4 +1,4 @@
-import SettingsRenderer from '../utils/SettingsRenderer';
+import SettingsRenderer from '../utils/SettingsRenderer.js';
 
 /**
  * The minimal interface that every parser must implement. This object provides

@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.js';
 import {getParserByID} from '../parsers/index.js';
 
 function getIDAndRevisionFromHash() {
