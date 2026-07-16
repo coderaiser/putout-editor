@@ -2,9 +2,8 @@ name: k8s-lint
 permissions:
   contents: write
 on:
-  pull_request:
-    paths:
-      - deploy/k8s/**
+  - push
+  - pull_request
 jobs:
   validate:
     runs-on: ubuntu-latest
