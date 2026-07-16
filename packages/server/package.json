@@ -47,6 +47,7 @@
     "redrun": "^13.0.4",
     "superc8": "^12.7.0",
     "supertape": "^13.3.0",
-    "typescript": "^6.0.0"
+    "typescript": "^6.0.0",
+    "try-to-catch": "^4.1.0"
   }
 }

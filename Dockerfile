@@ -11,7 +11,6 @@ RUN bun install
 FROM deps AS build
 WORKDIR /app
 COPY . .
-RUN cat node_modules/madrun/package.json
 RUN bun run build
 
 FROM oven/bun:1-slim AS prod-deps
