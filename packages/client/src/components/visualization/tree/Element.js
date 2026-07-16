@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
 import cx from 'classnames';
-import CompactArrayView from './CompactArrayView';
-import CompactObjectView from './CompactObjectView';
-import RecursiveTreeElement from './RecursiveTreeElement';
-import stringify from '../../../utils/stringify';
+import CompactArrayView from './CompactArrayView.js';
+import CompactObjectView from './CompactObjectView.js';
+import RecursiveTreeElement from './RecursiveTreeElement.js';
+import stringify from '../../../utils/stringify.js';
 
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';

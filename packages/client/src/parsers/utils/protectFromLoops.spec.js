@@ -10,9 +10,9 @@ test('protectFromLoops: obvious infinite loop: throws', async (t) => {
 });
 
 test('protectFromLoops: code with loop: returns code with guard injected', (t) => {
-    const result = result.includes('Infinite loop detected on line');
+    const result = protect('for(let i=0;i<10;i++){}');
     
-    t.ok(result);
+    t.ok(result.includes('Infinite loop detected on line'));
     t.end();
 });
 

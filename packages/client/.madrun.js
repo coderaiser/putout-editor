@@ -4,6 +4,7 @@ import {defineEnv} from 'supertape/env';
 const testEnv = defineEnv({
     jsx: true,
     dom: true,
+    css: true,
 });
 
 const env = {

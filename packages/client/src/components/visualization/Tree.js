@@ -2,8 +2,8 @@ import './css/tree.css';
 import PropTypes from 'prop-types';
 import React from 'react';
 import PubSub from 'pubsub-js';
-import Element from './tree/Element';
-import {logEvent} from '../../utils/logger';
+import Element from './tree/Element.js';
+import {logEvent} from '../../utils/logger.js';
 import {treeAdapterFromParseResult} from '../../core/TreeAdapter.js';
 
 const {useReducer, useMemo} = React;
