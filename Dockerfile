@@ -11,6 +11,7 @@ RUN bun install
 FROM deps AS build
 WORKDIR /app
 COPY . .
+RUN ls -la
 RUN bun run build
 
 FROM oven/bun:1-slim AS prod-deps
