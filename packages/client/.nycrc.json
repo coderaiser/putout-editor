@@ -13,6 +13,7 @@
         "src/utils/stringify.js",
         "src/utils/debounce.js",
         "src/utils/url.js",
+        "src/utils/logger.js",
         "src/containers/ASTOutputContainer.js",
         "src/containers/PasteDropTargetContainer.js",
         "src/containers/ShareDialogContainer.js"
