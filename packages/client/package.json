@@ -1,5 +1,5 @@
 {
-  "name": "@putout/editor",
+  "name": "@putout/editor-client",
   "version": "2.4.3",
   "type": "module",
   "description": "🐊Putout Editor",
