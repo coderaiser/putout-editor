@@ -1,3 +1,8 @@
+2026.07.16, v3.0.6
+
+fix:
+- 642be36 @putout/editor: docker
+
 2026.07.16, v3.0.5
 
 fix:
