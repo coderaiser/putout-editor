@@ -1,3 +1,8 @@
+2026.07.16, v3.0.1
+
+fix:
+- 7f5e342 actions: docker: rm docker hub
+
 2026.07.16, v3.0.0
 
 fix:
