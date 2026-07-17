@@ -1,3 +1,8 @@
+2026.07.17, v3.0.13
+
+fix:
+- fe8c738 actions: release: kustomize
+
 2026.07.17, v3.0.12
 
 fix:
