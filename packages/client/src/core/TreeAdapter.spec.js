@@ -612,3 +612,110 @@ test('TreeAdapter: getRange handles null nodeToRange and no children', (t) => {
     t.end();
 });
 
+
+test('TreeAdapter: getRange from children fails when first child has no range', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToRange(node) {
+                    if (node.range)
+                        return node.range;
+                    
+                    return null;
+                },
+                *walkNode(node) {
+                    if (node.children) {
+                        for (const child of node.children) {
+                            yield {
+                                value: child,
+                                key: 'child',
+                                computed: false,
+                            };
+                        }
+                    }
+                },
+                nodeToName(node) {
+                    return node.type || 'Node';
+                },
+            },
+        },
+    }, {});
+    
+    const node = {
+        children: [
+            {noRange: true},
+            {range: [8, 10]},
+        ],
+    };
+    
+    const result = adapter.getRange(node);
+    
+    // rangeFirst is falsy since first child has no range
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange from children fails when last child has no range', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToRange(node) {
+                    if (node.range)
+                        return node.range;
+                    
+                    return null;
+                },
+                *walkNode(node) {
+                    if (node.children) {
+                        for (const child of node.children) {
+                            yield {
+                                value: child,
+                                key: 'child',
+                                computed: false,
+                            };
+                        }
+                    }
+                },
+                nodeToName(node) {
+                    return node.type || 'Node';
+                },
+            },
+        },
+    }, {});
+    
+    const node = {
+        children: [
+            {range: [0, 5]},
+            {noRange: true},
+        ],
+    };
+    
+    const result = adapter.getRange(node);
+    
+    // rangeLast is falsy since last child has no range
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: typeKeysFilter with keys set returns key is hideTypeKeys', (t) => {
+    const filter = typeKeysFilter(new Set(['type', 'kind']));
+    
+    t.equal(filter.key, 'hideTypeKeys');
+    t.end();
+});
+
+test('TreeAdapter: typeKeysFilter with keys set filters matching keys', (t) => {
+    const filter = typeKeysFilter(new Set(['type', 'kind']));
+    
+    t.ok(filter.test(null, 'type'));
+    t.end();
+});
+
+test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
+    const filter = typeKeysFilter(new Set(['type', 'kind']));
+    
+    t.notOk(filter.test(null, 'value'));
+    t.end();
+});
