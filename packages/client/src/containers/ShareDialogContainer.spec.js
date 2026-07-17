@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
-import {render, cleanup} from '@testing-library/react';
+import {render, cleanup, fireEvent} from '@testing-library/react';
 import {
     OPEN_SHARE_DIALOG,
     CLOSE_SHARE_DIALOG,
@@ -68,5 +68,30 @@ test('ShareDialogContainer: visible after OPEN_SHARE_DIALOG', (t) => {
     cleanup();
     
     t.ok(dialog);
+    t.end();
+});
+
+test('ShareDialogContainer: close button dispatches CLOSE_SHARE_DIALOG', (t) => {
+    const store = createStore(reducer);
+    
+    store.dispatch({
+        type: OPEN_SHARE_DIALOG,
+    });
+    
+    render(
+        <Provider store={store}>
+            <ShareDialogContainer/>
+        </Provider>,
+    );
+    
+    const closeButton = document.querySelector('.footer button');
+    
+    fireEvent.click(closeButton);
+    
+    const dialog = document.getElementById('ShareDialog');
+    
+    cleanup();
+    
+    t.notOk(dialog);
     t.end();
 });
