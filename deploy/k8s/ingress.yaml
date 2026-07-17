@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: putout-editor.localhost
+    - host: putout-editor.cloudcmd.io
       http:
         paths:
           - path: /

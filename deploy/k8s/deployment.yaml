@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: putout-editor
-          image: ghcr.io/coderaiser/putout-editor:v0.1.0
+          image: ghcr.io/coderaiser/putout-editor
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

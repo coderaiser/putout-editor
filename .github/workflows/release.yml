@@ -79,7 +79,7 @@ jobs:
       - name: Smoke test
         run: |
           curl --fail --retry 8 --retry-delay 5 \
-            -H "Host: putout-editor.localhost" \
+            -H "Host: putout-editor.cloudcmd.io" \
             http://localhost:8080
       - name: Dump state on failure
         if: failure()
