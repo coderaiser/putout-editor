@@ -69,7 +69,8 @@ jobs:
       - name: Set image tag
         working-directory: deploy/k8s
         run: |
-          kustomize edit set image ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${GITHUB_REF_NAME}
+          TAG=${GITHUB_REF_NAME#v}
+          kustomize edit set image ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${TAG}
       - name: Apply manifests
         run: kubectl apply -k deploy/k8s/
       - name: Wait for rollout
