@@ -296,3 +296,28 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
     t.calledOnce(onChange);
     t.end();
 });
+
+test('SettingsRenderer: select with default identity converter', (t) => {
+    const onChange = stub();
+    
+    render(
+        <SettingsRenderer
+            settingsConfiguration={{
+                fields: [
+                    ['mode', ['es', 'js']],
+                ],
+            }}
+            parserSettings={{mode: 'es'}}
+            onChange={onChange}
+        />,
+    );
+    
+    const select = document.querySelector('select');
+    
+    fireEvent.change(select, {target: {value: 'js'}});
+    
+    cleanup();
+    
+    t.calledWith(onChange, [{mode: 'js'}]);
+    t.end();
+});

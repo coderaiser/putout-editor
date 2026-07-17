@@ -213,3 +213,27 @@ test('defaultParserInterface: renderSettings with null settings renders Settings
     t.ok(result);
     t.end();
 });
+
+test('defaultParserInterface: renderSettings with provided settings merges with defaults', (t) => {
+    const obj = {
+        ...defaultParserInterface,
+        _getSettingsConfiguration() {
+            return {
+                fields: ['opt1', 'opt2'],
+            };
+        },
+        getDefaultOptions() {
+            return {
+                opt1: false,
+                opt2: true,
+            };
+        },
+    };
+    
+    const result = obj.renderSettings({
+        opt1: true,
+    });
+    
+    t.ok(result);
+    t.end();
+});

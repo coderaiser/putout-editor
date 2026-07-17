@@ -1,4 +1,5 @@
 import {test, stub} from 'supertape';
+import {tryToCatch} from 'try-to-catch';
 import {
     ignoreKeysFilter,
     locationInformationFilter,
@@ -375,6 +376,239 @@ test('TreeAdapter: treeAdapterFromParseResult: getConfigurableFilters', (t) => {
     }, {});
     
     t.ok(adapter.getConfigurableFilters().length > 0);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: getNodeName returns node type for estree', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'estree',
+            options: {},
+        },
+    }, {});
+    
+    const result = adapter.getNodeName({type: 'Literal'});
+    
+    t.equal(result, 'Literal');
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: isObject returns true for plain object', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'estree',
+            options: {},
+        },
+    }, {});
+    
+    t.ok(adapter.isObject({}));
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: getRange derives range from children', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToRange(node) {
+                    if (node.range)
+                        return node.range;
+                    
+                    return null;
+                },
+                *walkNode(node) {
+                    if (node.children) {
+                        for (const child of node.children) {
+                            yield {
+                                value: child,
+                                key: 'child',
+                                computed: false,
+                            };
+                        }
+                    }
+                },
+                nodeToName(node) {
+                    return node.type || 'Node';
+                },
+            },
+        },
+    }, {});
+    
+    const node = {
+        children: [
+            {range: [0, 5]},
+            {range: [8, 10]},
+        ],
+    };
+    
+    const result = adapter.getRange(node);
+    
+    t.deepEqual(result, [0, 10]);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: isInRange returns true when position inside range', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'estree',
+            options: {},
+        },
+    }, {});
+    
+    t.ok(adapter.isInRange({range: [0, 10]}, 5));
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange without position returns false', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToRange(node) {
+                    if (node.range)
+                        return node.range;
+                    
+                    return null;
+                },
+                *walkNode(node) {
+                    if (node.children) {
+                        for (const child of node.children) {
+                            yield {
+                                value: child,
+                                key: 'child',
+                                computed: false,
+                            };
+                        }
+                    }
+                },
+                nodeToName(node) {
+                    return node.type || 'Node';
+                },
+            },
+        },
+    }, {});
+    
+    const node = {
+        range: [0, 10],
+        children: [
+            {range: [2, 5]},
+        ],
+    };
+    
+    // hasChildrenInRange calls isInRange without position which always returns false
+    t.notOk(adapter.hasChildrenInRange(node));
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: isInRange with null range returns false', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'estree',
+            options: {},
+        },
+    }, {});
+    
+    t.notOk(adapter.isInRange({type: 'Literal'}, 5));
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: getConfigurableFilters filters out filters without key', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'estree',
+            options: {},
+        },
+    }, {});
+    
+    const filters = adapter.getConfigurableFilters();
+    
+    t.ok(filters.every((f) => Boolean(f.key)));
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: createTreeAdapter with unknown type throws', async (t) => {
+    const [error] = await tryToCatch(treeAdapterFromParseResult, {
+        treeAdapter: {
+            type: 'unknown',
+            options: {},
+        },
+    }, {});
+    
+    t.ok(error, 'Unknown tree adapter type');
+    t.end();
+});
+
+test('TreeAdapter: getRange with cached range returns cached', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'estree',
+            options: {},
+        },
+    }, {});
+    
+    const node = {range: [1, 5]};
+    const first = adapter.getRange(node);
+    const second = adapter.getRange(node);
+    
+    t.deepEqual(first, second);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: opensByDefault with default type returns false', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {},
+        },
+    }, {});
+    
+    t.notOk(adapter.opensByDefault({}, 'any'));
+    t.end();
+});
+
+test('TreeAdapter: default adapter throws on nodeToName', async (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {},
+        },
+    }, {});
+    
+    const [error] = await tryToCatch(() => adapter.getNodeName({}));
+    
+    t.match(error.message, /nodeToName must be passed/);
+    t.end();
+});
+
+test('TreeAdapter: default adapter throws on walkNode', async (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {},
+        },
+    }, {});
+    
+    const [error] = await tryToCatch(() => [...adapter.walkNode({})]);
+    
+    t.match(error.message, /walkNode must be passed/);
+    t.end();
+});
+
+test('TreeAdapter: getRange handles null nodeToRange and no children', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToRange: () => null,
+                nodeToName: () => 'Node',
+                walkNode: function*() {},
+            },
+        },
+    }, {});
+    
+    const result = adapter.getRange({some: 'node'});
+    
+    t.notOk(result);
     t.end();
 });
 
