@@ -34,5 +34,5 @@ export default {
     'lint': () => 'putout .',
     'test:dts': () => 'tsc --noEmit',
     'prefix:lint': () => 'redlint fix',
-    'fix:lint': () => run('lint', '--fix'),
+    'fix:lint': () => 'putout . --fix',
 };
