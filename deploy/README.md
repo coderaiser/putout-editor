@@ -44,7 +44,7 @@
 
 6. **Open in browser:**
 
-   http://putout-editor.localhost:8080
+   http://putout-editor.cloudcmd.io:8080
 
    `*.localhost` resolves to `127.0.0.1` in every modern browser/OS,
    no `/etc/hosts` edits needed.
