@@ -1,4 +1,4 @@
-import SettingsRenderer from '../utils/SettingsRenderer.js';
+import SettingsRenderer from './SettingsRenderer.js';
 
 /**
  * The minimal interface that every parser must implement. This object provides
@@ -6,29 +6,30 @@ import SettingsRenderer from '../utils/SettingsRenderer.js';
  * by the parser are mentioned in comments.
  */
 export default {
+    
     /**
    * The unique ID of the parser. This is stored in snippets and used to load
    * the parser, so it should never change.
    */
-    // id (string)
+        // id (string)
     
     /**
    * The name of the parser as displayed in the UI.
    */
-    // displayName (string)
+        // displayName (string)
     
     /**
    * The version of the parser, usually taken from the package.json file of the
    * npm package.
    */
-    // version (string)
+        // version (string)
     
     /**
    * A URL to the parser's homepage, github page, npm package page, etc. (to
    * link to it in the UI). Usually taken from the package.json file in the
    * npm package.
    */
-    // homepage (?string)
+        // homepage (?string)
     // loadParser
     // parse
     
@@ -49,7 +50,7 @@ export default {
    * Those properties of an AST node (object) that provide node name
    * so that they can be hidden in the UI if the option is selected.
    */
-    typeProps: new Set(['type']), /**
+    typeProps: new Set(['type']),    /**
    * Whether or not the provided node should be automatically expanded.
    */opensByDefault() {
         return false;

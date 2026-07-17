@@ -10,7 +10,7 @@ import * as pluginDestructuring from '@putout/plugin-destructuring';
 import * as pluginMaybe from '@putout/plugin-maybe';
 import * as pluginVariables from '@putout/plugin-variables';
 import * as pluginConditions from '@putout/plugin-conditions';
-import protect from '../utils/protectFromLoops.js';
+import protect from './protectFromLoops.js';
 
 export default function compileModule(code, globals = {}) {
     const exports = {};

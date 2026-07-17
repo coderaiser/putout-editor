@@ -18,9 +18,14 @@ test('api: calls fetch with custom options', async (t) => {
     const fetch = stub();
     
     globalThis.fetch = fetch;
-    await api('/gist', {method: 'POST'});
+    await api('/gist', {
+        method: 'POST',
+    });
     globalThis.fetch = originalFetch;
+    const args = ['/api/v1/gist', {
+        method: 'POST',
+    }];
     
-    t.calledWith(fetch, ['/api/v1/gist', {method: 'POST'}]);
+    t.calledWith(fetch, args);
     t.end();
 });
