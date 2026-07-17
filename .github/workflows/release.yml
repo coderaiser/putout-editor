@@ -69,16 +69,11 @@ jobs:
       - name: Set image tag
         working-directory: deploy/k8s
         run: |
-          kustomize edit set image ghcr.io/coderaiser/putout-editor:${GITHUB_REF_NAME}
+          kustomize edit set image ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${GITHUB_REF_NAME}
       - name: Apply manifests
         run: kubectl apply -k deploy/k8s/
       - name: Wait for rollout
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
-      - name: Wait for ingress
-        run: |
-          kubectl -n putout-editor wait ingress/putout-editor \
-            --for=jsonpath='{.status.loadBalancer.ingress}' \
-            --timeout=60s
 
       - name: Smoke test
         run: |
