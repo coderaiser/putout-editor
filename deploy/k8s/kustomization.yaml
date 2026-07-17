@@ -5,6 +5,8 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - cluster-issuer.yaml
 images:
   - name: ghcr.io/coderaiser/putout-editor
+    newName: ghcr.io/coderaiser/putout-editor
     newTag: latest

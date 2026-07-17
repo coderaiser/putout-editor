@@ -3,8 +3,14 @@ kind: Ingress
 metadata:
   name: putout-editor
   namespace: putout-editor
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - putout-editor.cloudcmd.io
+      secretName: putout-editor-tls
   rules:
     - host: putout-editor.cloudcmd.io
       http:
