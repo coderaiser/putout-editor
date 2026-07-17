@@ -59,7 +59,7 @@ jobs:
         run: |
           k3d cluster create ci-test \
             --wait \
-            --port "8080:80@loadbalancer"
+            --port "80:80@loadbalancer"
       - name: Verify cluster context
         run: |
           kubectl config use-context k3d-ci-test
@@ -80,7 +80,7 @@ jobs:
         run: |
           curl --fail --retry 8 --retry-delay 5 \
             -H "Host: putout-editor.cloudcmd.io" \
-            http://localhost:8080
+            http://localhost:80
       - name: Dump state on failure
         if: failure()
         run: |
