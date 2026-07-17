@@ -72,7 +72,7 @@ jobs:
           TAG=${GITHUB_REF_NAME#v}
           kustomize edit set image ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${TAG}
       - name: Apply manifests
-        run: kubectl apply -k deploy/k8s/
+        run: kubectl apply -k deploy/k8s/overlays/ci
       - name: Wait for rollout
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
 
