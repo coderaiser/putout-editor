@@ -54,7 +54,7 @@ jobs:
       - name: Install
         run: |
           bun i -g palabra
-          palabra i k3d kubectl
+          palabra i k3d kubectl kustomize
       - name: Create k3d cluster
         run: |
           k3d cluster create ci-test \
