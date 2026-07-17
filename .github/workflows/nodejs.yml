@@ -35,7 +35,9 @@ jobs:
       - name: Lint
         run: redrun fix:lint
       - name: Lint Kubernetes
-        run: kubeconform -summary -strict deploy/k8s/     
+        run: |
+          kubeconform -summary -strict deploy/k8s/
+          kubectl kustomize ./deploy/k8s/
       - name: Typos
         uses: coderaiser/typos.ai@v1.1.8
         with:
