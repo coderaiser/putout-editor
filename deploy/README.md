@@ -12,6 +12,7 @@
 
    ```sh
    k3d cluster create putout-editor -p "8080:80@loadbalancer"
+   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
    ```
 
    This creates a single-node dev cluster and maps host port `8080` to
