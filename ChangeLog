@@ -1,3 +1,8 @@
+2026.07.17, v3.0.10
+
+feature:
+- 139fe91 actions: release: k8s: kustomization
+
 2026.07.17, v3.0.9
 
 fix:
