@@ -102,4 +102,4 @@ jobs:
         uses: EndBug/add-and-commit@v10
         continue-on-error: true
         with:
-          message: "chore: ${{ env.NAME }}: actions: deploy ${{ GITHUB_REF_NAME }} 🌿"
+          message: "chore: ${{ env.NAME }}: actions: deploy ${{ github.ref_name }} 🌿"
