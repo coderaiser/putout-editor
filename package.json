@@ -9,8 +9,8 @@
   "type": "module",
   "scripts": {
     "build": "madrun build",
-    "test": "madrun test",
     "start": "madrun start",
+    "test": "madrun test",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
     "test:dts": "madrun test:dts",
