@@ -12,7 +12,6 @@ const startEnv = {
 
 export default {
     'build': () => 'madfork build',
-    
     'start': () => [startEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
     'coverage': async () => 'madfork coverage',

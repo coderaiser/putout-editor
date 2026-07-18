@@ -12,7 +12,7 @@ const env = {
 };
 
 export default {
-    'test': () => [testEnv, 'tape --no-worker "src/**/*.spec.js"'],
+    'test': () => [testEnv, 'tape "src/**/*.spec.js"'],
     'coverage': async () => [testEnv, `c8 tape "src/**/*.spec.js"`],
     'start': () => 'http-server ../../out',
     'build': () => [env, build('production')],
