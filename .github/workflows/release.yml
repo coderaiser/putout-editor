@@ -99,6 +99,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: 'master'
 
       - name: Bump image tag in deploy manifests
         working-directory: deploy/k8s/overlays/prod
