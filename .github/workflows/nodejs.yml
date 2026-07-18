@@ -37,7 +37,7 @@ jobs:
       - name: Lint Kubernetes
         run: |
           kubeconform -summary -strict -ignore-missing-schemas deploy/k8s/
-          kubectl kustomize ./deploy/k8s/
+          kubectl kustomize ./deploy/k8s/base
       - name: Typos
         uses: coderaiser/typos.ai@v1.1.8
         with:
