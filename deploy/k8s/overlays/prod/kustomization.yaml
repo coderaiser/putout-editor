@@ -1,5 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../base
-  - cluster-issuer.yaml
+- ../../base
+- cluster-issuer.yaml
+images:
+- name: ghcr.io/coderaiser/putout-editor
+  newName: ghcr.io/coderaiser/putout-editor
+  newTag: 3.0.30
