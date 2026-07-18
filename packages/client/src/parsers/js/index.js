@@ -1,4 +1,4 @@
-import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/javascript/javascript.js';
 
 export const id = 'javascript';
 export const displayName = 'JavaScript';
