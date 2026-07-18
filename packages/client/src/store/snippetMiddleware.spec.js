@@ -1,3 +1,4 @@
+import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import createMiddleware from './snippetMiddleware.js';
 import * as actions from './actions.js';
@@ -156,9 +157,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with SET_SNIPPET', async (t
     const {dispatch, nexted} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     const types = [];
     
     for (const a of nexted) {
@@ -184,9 +183,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with DONE_LOADING', async (
     const {dispatch, nexted} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     const types = [];
     
     for (const a of nexted) {
@@ -209,9 +206,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with null', async (t) => {
     const {dispatch, nexted} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     const types = [];
     
     for (const a of nexted) {
@@ -234,9 +229,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects sets error', async (t) => {
     const {dispatch, nexted} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     const types = [];
     
     for (const a of nexted) {
@@ -259,9 +252,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects done loading', async (t) => 
     const {dispatch, nexted} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     const types = [];
     
     for (const a of nexted) {
@@ -294,9 +285,7 @@ test('snippetMiddleware: LOAD_SNIPPET stale request skip resolve', async (t) => 
     dispatch(actions.loadSnippet());
     dispatch(actions.loadSnippet());
     resolveFirst();
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     // Only the 6 synchronous actions (3 per dispatch), no resolve follow-through
     t.equal(nexted.length, 6);
@@ -323,9 +312,7 @@ test('snippetMiddleware: LOAD_SNIPPET stale request skip error', async (t) => {
     dispatch(actions.loadSnippet());
     dispatch(actions.loadSnippet());
     rejectFirst(Error('stale fail'));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     await Promise.resolve();
 
     // Only the 6 synchronous actions (3 per dispatch), no catch follow-through
@@ -343,9 +330,7 @@ test('snippetMiddleware: CLEAR_ERROR after fetch failure clears hash', async (t)
     const {dispatch, nexted} = apply(storage, store);
 
     dispatch(actions.loadSnippet());
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     await Promise.resolve();
 
     dispatch(actions.clearError());
@@ -380,9 +365,7 @@ test('snippetMiddleware: SAVE no revision calls create', async (t) => {
     const {dispatch} = apply(storage, store);
     
     dispatch(actions.save(false));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     
     t.ok(created);
     t.end();
@@ -410,9 +393,7 @@ test('snippetMiddleware: SAVE with revision calls update', async (t) => {
     const {dispatch} = apply(storage, store);
     
     dispatch(actions.save(false));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     
     t.ok(updated);
     t.end();
@@ -440,9 +421,7 @@ test('snippetMiddleware: SAVE fork=true calls fork', async (t) => {
     const {dispatch} = apply(storage, store);
     
     dispatch(actions.save(true));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     
     t.ok(forked);
     t.end();
@@ -471,9 +450,7 @@ test('snippetMiddleware: SAVE with showTransformPanel adds tool data', async (t)
     const {dispatch} = apply(storage, store);
     
     dispatch(actions.save(false));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     
     t.ok(savedData);
     t.end();
@@ -500,9 +477,7 @@ test('snippetMiddleware: SAVE create with showTransformPanel', async (t) => {
     const {dispatch} = apply(storage, store);
     
     dispatch(actions.save(false));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     
     t.ok(createdData);
     t.end();
@@ -523,9 +498,7 @@ test('snippetMiddleware: SAVE error triggers setError', async (t) => {
     const {dispatch, nexted} = apply(storage, store);
     
     dispatch(actions.save(false));
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
     await Promise.resolve();
     const types = [];
     

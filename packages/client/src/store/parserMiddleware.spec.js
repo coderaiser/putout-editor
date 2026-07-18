@@ -1,3 +1,4 @@
+import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import createMiddleware from './parserMiddleware.js';
 import {getParserByID} from '../parsers/index.js';
@@ -52,9 +53,7 @@ test('parserMiddleware: INIT triggers parse and dispatches SET_PARSE_RESULT with
     const dispatch = createMiddleware(store)((a) => nexted.push(a));
 
     dispatch({type: 'INIT'});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
 
@@ -79,9 +78,7 @@ test('parserMiddleware: code change triggers parse', async (t) => {
     const dispatch = createMiddleware(store)((a) => nexted.push(a));
 
     dispatch({type: 'SET_CODE', code: 'const y = 2'});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
 
@@ -106,9 +103,7 @@ test('parserMiddleware: parse error dispatches SET_PARSE_RESULT with error', asy
     const dispatch = createMiddleware(store)((a) => nexted.push(a));
 
     dispatch({type: 'INIT'});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
     babel.parse = originalParse;
@@ -208,9 +203,7 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
     const dispatch = createMiddleware(store)((a) => nexted.push(a));
 
     dispatch({type: 'INIT'});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
     babel.parse = originalParse;
@@ -246,9 +239,7 @@ test('parserMiddleware: state change between dispatch and resolve discards resul
     });
 
     resolveParse({parse: (code, opts) => makeMockParseResult()});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
 
@@ -275,9 +266,7 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
     babel.loadParser = (cb) => cb({parse: (code, opts) => makeMockParseResult()});
 
     dispatch({type: 'INIT'});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
     babel.parse = originalParse;
@@ -307,9 +296,7 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     babel.opensByDefault = false;
 
     dispatch({type: 'INIT'});
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await setImmediate();
 
     babel._promise = originalPromise;
     babel.parse = originalParse;
