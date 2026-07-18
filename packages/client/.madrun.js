@@ -22,7 +22,7 @@ export default {
         'rspack build -w --mode=development -o ../../out',
     ],
     'fix:eslint': () => 'eslint --fix src',
-    'prelint': () => 'redlint scan',
+    'prelint': () => 'redlint fix',
     'lint': () => 'putout .',
     'fresh:lint': () => run('lint', '--fresh'),
     'lint:fresh': () => run('lint', '--fresh'),
