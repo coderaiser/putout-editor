@@ -72,6 +72,10 @@ jobs:
         run: kubectl apply -k deploy/k8s/overlays/ci
       - name: Wait for rollout
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
+        
+      - name: Wait for Traefik
+        run: kubectl -n kube-system rollout status deployment/traefik --timeout=60s
+      
       - name: Smoke test
         run: |
           curl --fail --retry 8 --retry-delay 5 \
