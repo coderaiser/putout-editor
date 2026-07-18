@@ -14,7 +14,7 @@ spec:
     namespace: putout-editor
   syncPolicy:
     automated:
-      prune: true      # removes resources deleted from git
-      selfHeal: true   # reverts manual kubectl changes on cluster
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
