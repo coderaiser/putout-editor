@@ -78,18 +78,6 @@ class TreeAdapter {
         
         return range[0] <= position && position <= range[1];
     }
-    
-    hasChildrenInRange(node) {
-        if (!this.isInRange(node))
-            return false;
-        
-        for (const {value: child} of this.walkNode(node)) {
-            if (this.isInRange(child))
-                return true;
-        }
-        
-        return false;
-    }
     /**
    * Whether or not the provided node should be automatically expanded.
    */

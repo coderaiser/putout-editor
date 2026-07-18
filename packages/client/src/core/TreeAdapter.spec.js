@@ -202,55 +202,6 @@ test('TreeAdapter: treeAdapterFromParseResult: isInRange no range returns false'
     t.end();
 });
 
-test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange true', (t) => {
-    // Note: hasChildrenInRange internally calls isInRange without position
-    // which always returns false. This is a known limitation.
-    const adapter = treeAdapterFromParseResult({
-        treeAdapter: {
-            type: 'estree',
-            options: {},
-        },
-    }, {});
-    
-    const node = {
-        type: 'BinaryExpression',
-        range: [0, 10],
-        left: {
-            type: 'Literal',
-            value: 1,
-            range: [0, 1],
-        },
-        right: {
-            type: 'Literal',
-            value: 2,
-            range: [8, 9],
-        },
-    };
-    
-    const result = adapter.hasChildrenInRange(node);
-    
-    t.notOk(result);
-    t.end();
-});
-
-test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange false', (t) => {
-    const adapter = treeAdapterFromParseResult({
-        treeAdapter: {
-            type: 'estree',
-            options: {},
-        },
-    }, {});
-    
-    const result = adapter.hasChildrenInRange({
-        type: 'Literal',
-        range: [0, 5],
-        value: 1,
-    });
-    
-    t.notOk(result);
-    t.end();
-});
-
 test('TreeAdapter: treeAdapterFromParseResult: opensByDefault Program', (t) => {
     const adapter = treeAdapterFromParseResult({
         treeAdapter: {
@@ -524,48 +475,6 @@ test('TreeAdapter: treeAdapterFromParseResult: isInRange returns true when posit
     t.end();
 });
 
-test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange without position returns false', (t) => {
-    const adapter = treeAdapterFromParseResult({
-        treeAdapter: {
-            type: 'default',
-            options: {
-                nodeToRange(node) {
-                    if (node.range)
-                        return node.range;
-                    
-                    return null;
-                },
-                *walkNode(node) {
-                    if (node.children)
-                        for (const child of node.children) {
-                            yield {
-                                value: child,
-                                key: 'child',
-                                computed: false,
-                            };
-                        }
-                },
-                nodeToName(node) {
-                    return node.type || 'Node';
-                },
-            },
-        },
-    }, {});
-    
-    const node = {
-        range: [0, 10],
-        children: [{
-            range: [2, 5],
-        }],
-    };
-    
-    // hasChildrenInRange calls isInRange without position which always returns false
-    const result = adapter.hasChildrenInRange(node);
-    
-    t.notOk(result);
-    t.end();
-});
-
 test('TreeAdapter: treeAdapterFromParseResult: isInRange with null range returns false', (t) => {
     const adapter = treeAdapterFromParseResult({
         treeAdapter: {
@@ -633,6 +542,43 @@ test('TreeAdapter: treeAdapterFromParseResult: opensByDefault with default type 
     }, {});
     
     t.notOk(adapter.opensByDefault({}, 'any'));
+    t.end();
+});
+
+test('TreeAdapter: getConfigurableFilters with default adapter returns empty array', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToName: () => 'Node',
+                walkNode: function*() {},
+            },
+        },
+    }, {});
+    
+    const result = adapter.getConfigurableFilters();
+    
+    t.deepEqual(result, []);
+    t.end();
+});
+
+test('TreeAdapter: getRange with default adapter returns null', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToName: () => 'Node',
+                walkNode: function*() {},
+            },
+        },
+    }, {});
+    
+    const result = adapter.getRange({
+        type: 'Literal',
+        value: 1,
+    });
+    
+    t.notOk(result);
     t.end();
 });
 
