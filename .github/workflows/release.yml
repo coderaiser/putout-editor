@@ -74,7 +74,12 @@ jobs:
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
         
       - name: Wait for Traefik
-        run: kubectl -n kube-system rollout status deployment/traefik --timeout=60s
+        run: |
+          kubectl get pods -A | grep traefik
+          kubectl -n kube-system wait pod \
+            -l app.kubernetes.io/name=traefik \
+            --for=condition=Ready \
+            --timeout=60s
       
       - name: Smoke test
         run: |
