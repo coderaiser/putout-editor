@@ -1,3 +1,9 @@
+2026.07.18, v3.0.19
+
+fix:
+- f75fe6b k8s: ci: ingress-patch
+- 3787af8 use redlint fix instead of scan
+
 2026.07.18, v3.0.18
 
 fix:
