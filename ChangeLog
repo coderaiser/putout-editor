@@ -1,3 +1,8 @@
+2026.07.18, v3.0.22
+
+fix:
+- 4c94f11 @putout/editor: deploy: prod
+
 2026.07.18, v3.0.21
 
 feature:
