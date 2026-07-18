@@ -111,4 +111,4 @@ jobs:
         uses: EndBug/add-and-commit@v10
         continue-on-error: true
         with:
-          message: "chore: ${{ env.NAME }}: actions: deploy ${{ github.ref_name }} 🌿"
+          message: "chore: actions: deploy ${{ github.ref_name }} 🌿"
