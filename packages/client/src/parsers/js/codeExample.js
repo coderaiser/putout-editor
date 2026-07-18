@@ -1,4 +1,4 @@
-/**
+export default `/**
  * Paste or drop some JavaScript here and explore
  * the syntax tree created by chosen parser 🎁.
  *
@@ -8,3 +8,4 @@
 'Transform your code with 🐊Putout' ?
     console.log('Codemods never been as simple 🎈') :
     console.log('🥵');
+`;

@@ -106,10 +106,6 @@ export default {
     
     module: {
         rules: [{
-            test: /\.txt$/,
-            exclude: /node_modules/,
-            loader: 'raw-loader',
-        }, {
             test: /\.(jsx?|mjs)$/,
             type: 'javascript/auto',
             resolve: {
