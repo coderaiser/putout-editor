@@ -33,26 +33,27 @@ for (const parser of parsers) {
 
 jsCategory.parsers = parsers;
 
-// Wire up transformer
 putoutTransformer.defaultTransform = putoutDefaultTransform;
 
 const transformers = [putoutTransformer];
 
 jsCategory.transformers = transformers;
 
-// Lookup maps
 const categoryByID = {
     [jsCategory.id]: jsCategory,
 };
 
-const parserByID = Object.fromEntries(parsers.map((p) => [p.id, p]));
-const transformerByID = Object.fromEntries(transformers.map((t) => [t.id, t]));
+const buildTuple = (a) => [a.id, a];
+const isShowInMenu = ({showInMenu}) => showInMenu;
+
+const parserByID = Object.fromEntries(parsers.map(buildTuple));
+const transformerByID = Object.fromEntries(transformers.map(buildTuple));
 
 export const categories = [jsCategory];
 export const getCategoryByID = (id) => categoryByID[id];
 export const getParserByID = (id) => parserByID[id];
 export const getTransformerByID = (id) => transformerByID[id];
-export const getDefaultCategory = () => jsCategory;
 export function getDefaultParser(category = jsCategory) {
-    return category.parsers.filter((p) => p.showInMenu)[0];
+    const [first] = category.parsers.filter(isShowInMenu);
+    return first;
 }
