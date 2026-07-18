@@ -1,3 +1,8 @@
+2026.07.18, v3.0.27
+
+fix:
+- 9293d20 @putout/editor: deploy: prod: rm patch
+
 2026.07.18, v3.0.26
 
 fix:
