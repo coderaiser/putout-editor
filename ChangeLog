@@ -1,3 +1,9 @@
+2026.07.18, v3.0.21
+
+feature:
+- 74fb70c @putout/editor: deploy: argocd
+- beed69e deploy: argocd: add
+
 2026.07.18, v3.0.20
 
 fix:
