@@ -1,8 +1,11 @@
 import {test} from 'supertape';
 import createMiddleware from './snippetMiddleware.js';
 import * as actions from './actions.js';
+import {log} from '../utils/logger.js';
 
 const noop = () => {};
+log.event = noop;
+log.error = noop;
 
 const makeStorage = (overrides = {}) => ({
     fetchFromURL: async () => null,
@@ -268,6 +271,92 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects done loading', async (t) => 
     const result = types.includes('DONE_LOADING_SNIPPET');
     
     t.ok(result);
+    t.end();
+});
+
+test('snippetMiddleware: LOAD_SNIPPET stale request skip resolve', async (t) => {
+    let resolveFirst;
+    const firstPromise = new Promise((r) => { resolveFirst = r; });
+    let callCount = 0;
+    const storage = makeStorage({
+        fetchFromURL: () => {
+            ++callCount;
+            if (callCount === 1)
+                return firstPromise;
+            return new Promise(() => {});
+        },
+    });
+    const store = {
+        getState,
+    };
+    const {dispatch, nexted} = apply(storage, store);
+
+    dispatch(actions.loadSnippet());
+    dispatch(actions.loadSnippet());
+    resolveFirst();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // Only the 6 synchronous actions (3 per dispatch), no resolve follow-through
+    t.equal(nexted.length, 6);
+    t.end();
+});
+
+test('snippetMiddleware: LOAD_SNIPPET stale request skip error', async (t) => {
+    let rejectFirst;
+    const firstPromise = new Promise((_, rej) => { rejectFirst = rej; });
+    let callCount = 0;
+    const storage = makeStorage({
+        fetchFromURL: () => {
+            ++callCount;
+            if (callCount === 1)
+                return firstPromise;
+            return new Promise(() => {});
+        },
+    });
+    const store = {
+        getState,
+    };
+    const {dispatch, nexted} = apply(storage, store);
+
+    dispatch(actions.loadSnippet());
+    dispatch(actions.loadSnippet());
+    rejectFirst(Error('stale fail'));
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // Only the 6 synchronous actions (3 per dispatch), no catch follow-through
+    t.equal(nexted.length, 6);
+    t.end();
+});
+
+test('snippetMiddleware: CLEAR_ERROR after fetch failure clears hash', async (t) => {
+    const storage = makeStorage({
+        fetchFromURL: () => Promise.reject(Error('fetch failed')),
+    });
+    const store = {
+        getState,
+    };
+    const {dispatch, nexted} = apply(storage, store);
+
+    dispatch(actions.loadSnippet());
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    dispatch(actions.clearError());
+
+    const types = [];
+
+    for (const a of nexted) {
+        types.push(a.type);
+    }
+
+    t.ok(types.includes('CLEAR_ERROR'));
     t.end();
 });
 

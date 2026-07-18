@@ -1,7 +1,12 @@
+export const log = {
+    event: console.log.bind(console),
+    error: console.log.bind(console),
+};
+
 export function logEvent(category, action, label) {
-    console.log(category, action, label);
+    log.event(category, action, label);
 }
 
 export function logError(exDescription, exFatal) {
-    console.log(exDescription, exFatal);
+    log.error(exDescription, exFatal);
 }

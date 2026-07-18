@@ -1,29 +1,26 @@
 import {test, stub} from 'supertape';
-import {logEvent, logError} from './logger.js';
+import {log, logEvent, logError} from './logger.js';
 
-test('logger: logEvent: calls console.log with category, action, label', (t) => {
-    const {log: original} = console;
-    const log = stub();
-    
-    console.log = log;
+test('logger: logEvent: calls log.event with category, action, label', (t) => {
+    const {event: original} = log;
+    const event = stub();
+
+    log.event = event;
     logEvent('analytics', 'click', 'button');
-    console.log = original;
-    
-    t.calledWith(log, ['analytics', 'click', 'button']);
+    log.event = original;
+
+    t.calledWith(event, ['analytics', 'click', 'button']);
     t.end();
 });
 
-test('logger: logError: calls console.log with description and fatal flag', (t) => {
-    const {log: original} = console;
-    const log = stub();
-    
-    console.log = log;
+test('logger: logError: calls log.error with description and fatal flag', (t) => {
+    const {error: original} = log;
+    const error = stub();
+
+    log.error = error;
     logError('Something went wrong', true);
-    console.log = original;
-    
-    t.calledWith(log, [
-        'Something went wrong',
-        true,
-    ]);
+    log.error = original;
+
+    t.calledWith(error, ['Something went wrong', true]);
     t.end();
 });
