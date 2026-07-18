@@ -1,3 +1,8 @@
+2026.07.18, v3.0.29
+
+fix:
+- 41522f2 @putout/editor: deploy: wait
+
 2026.07.18, v3.0.28
 
 fix:
