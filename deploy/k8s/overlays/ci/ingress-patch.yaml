@@ -6,3 +6,12 @@ metadata:
 spec:
   rules:
     - host: putout-editor.cloudcmd.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: putout-editor
+                port:
+                  number: 80
