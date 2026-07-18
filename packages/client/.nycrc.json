@@ -30,7 +30,8 @@
         "src/core/TreeAdapter.js",
         "src/storage/index.js",
         "src/parsers/utils/defaultParserInterface.js",
-        "src/parsers/utils/SettingsRenderer.js"
+        "src/parsers/utils/SettingsRenderer.js",
+        "src/store/parserSelectors.js"
     ],
     "branches": 100,
     "lines": 100,
