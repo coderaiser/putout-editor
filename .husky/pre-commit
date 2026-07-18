@@ -1,4 +1,4 @@
 #!/bin/sh
 #. "$(dirname "$0")/_/husky.sh"
 
-./node_modules/.bin/redrun fix:lint coverage
+./node_modules/.bin/putout --staged -f progress
