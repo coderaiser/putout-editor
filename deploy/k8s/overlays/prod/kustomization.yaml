@@ -3,5 +3,3 @@ kind: Kustomization
 resources:
   - ../../base
   - cluster-issuer.yaml
-patches:
-  - path: ingress-patch.yaml
