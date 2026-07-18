@@ -83,3 +83,23 @@ jobs:
           kubectl -n putout-editor get pods
           kubectl -n putout-editor describe pods
           kubectl -n putout-editor logs -l app=putout-editor --all-containers
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: deploy-test
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump image tag in deploy manifests
+        working-directory: deploy/k8s/overlays/prod
+        run: |
+          TAG=${GITHUB_REF_NAME#v}
+          kustomize edit set image \
+            ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${TAG}
+
+      - name: Commit and push tag bump
+        uses: EndBug/add-and-commit@v10
+        continue-on-error: true
+        with:
+          message: "chore: ${{ env.NAME }}: actions: deploy ${{ GITHUB_REF_NAME }} 🌿"
