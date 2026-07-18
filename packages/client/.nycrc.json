@@ -32,7 +32,8 @@
         "src/parsers/utils/defaultParserInterface.js",
         "src/parsers/utils/SettingsRenderer.js",
         "src/store/parserSelectors.js",
-        "src/store/reducers.js"
+        "src/store/reducers.js",
+        "src/store/snippetMiddleware.js"
     ],
     "branches": 100,
     "lines": 100,

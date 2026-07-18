@@ -22,6 +22,7 @@ function getInitState() {
     const state = astexplorer(undefined, {
         type: '@@INIT',
     });
+    
     return JSON.parse(JSON.stringify(state));
 }
 
@@ -49,6 +50,7 @@ test('reducers: persist: strips cursor', (t) => {
         ...getInitState(),
         cursor: 5,
     };
+    
     const result = persist(state);
     
     t.notOk(result.cursor);
@@ -107,6 +109,7 @@ test('reducers: revive: applies parserSettings for current parser', (t) => {
             },
         },
     };
+    
     const result = revive(state);
     
     t.deepEqual(result.workbench.parserSettings, {
@@ -298,6 +301,7 @@ test('reducers: select transformer shows transform panel', (t) => {
         defaultParserID: 'babel',
         defaultTransform: '',
     };
+    
     const state = astexplorer(getInitState(), actions.selectTransformer(transformer));
     
     t.ok(state.showTransformPanel);
@@ -315,6 +319,7 @@ test('reducers: set snippet with transformer shows transform panel', (t) => {
     const rev = makeRevision({
         getTransformerID: () => 'putout',
     });
+    
     const state = astexplorer(getInitState(), actions.setSnippet(rev));
     
     t.ok(state.showTransformPanel);
@@ -325,6 +330,7 @@ test('reducers: set snippet without transformer hides transform panel', (t) => {
     const rev = makeRevision({
         getTransformerID: () => null,
     });
+    
     const state = astexplorer(getInitState(), actions.setSnippet(rev));
     
     t.notOk(state.showTransformPanel);
@@ -360,6 +366,7 @@ test('reducers: reset clears activeRevision', (t) => {
 test('reducers: select category clears activeRevision', (t) => {
     const rev = makeRevision();
     const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    
     const state = astexplorer(withRev, {
         type: actions.SELECT_CATEGORY,
         category: getCategory(),
@@ -385,6 +392,7 @@ test('reducers: set parse result', (t) => {
         },
         error: null,
     };
+    
     const state = astexplorer(getInitState(), {
         type: actions.SET_PARSE_RESULT,
         result,
@@ -398,6 +406,7 @@ test('reducers: set parser settings on workbench', (t) => {
     const state = astexplorer(getInitState(), actions.setParserSettings({
         plugins: ['jsx'],
     }));
+    
     t.deepEqual(state.workbench.parserSettings, {
         plugins: ['jsx'],
     });
@@ -424,6 +433,7 @@ test('reducers: select transformer same as current returns same state workbench'
         defaultParserID: 'babel',
         defaultTransform: '',
     };
+    
     const withTransformer = astexplorer(getInitState(), actions.selectTransformer(transformer));
     const state = astexplorer(withTransformer, actions.selectTransformer(transformer));
     
@@ -437,6 +447,7 @@ test('reducers: select transformer with different parser', (t) => {
         defaultParserID: 'espree',
         defaultTransform: '',
     };
+    
     const state = astexplorer(getInitState(), actions.selectTransformer(transformer));
     
     t.equal(state.workbench.parser, 'espree');
@@ -456,6 +467,7 @@ test('reducers: parserSettings stores per parser', (t) => {
     const state = astexplorer(getInitState(), actions.setParserSettings({
         plugins: ['jsx'],
     }));
+    
     t.deepEqual(state.parserSettings, {
         babel: {
             plugins: ['jsx'],
@@ -467,6 +479,7 @@ test('reducers: parserSettings stores per parser', (t) => {
 test('reducers: parserSettings unchanged with active revision', (t) => {
     const rev = makeRevision();
     const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    
     const state = astexplorer(withRev, actions.setParserSettings({
         plugins: ['jsx'],
     }));
@@ -501,12 +514,15 @@ test('reducers: select transformer with different transformer and active revisio
         getTransformerID: () => 'other',
         getTransformCode: () => 'revision transform',
     });
+    
     const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    
     const transformer = {
         id: 'other',
         defaultParserID: 'babel',
         defaultTransform: 'default transform',
     };
+    
     const state = astexplorer(withRev, actions.selectTransformer(transformer));
     
     t.equal(state.workbench.transform.code, 'revision transform');
@@ -518,12 +534,15 @@ test('reducers: select transformer with different transformer and active revisio
         getTransformerID: () => 'old-id',
         getTransformCode: () => 'revision transform',
     });
+    
     const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    
     const transformer = {
         id: 'other',
         defaultParserID: 'babel',
         defaultTransform: 'default transform',
     };
+    
     const state = astexplorer(withRev, actions.selectTransformer(transformer));
     
     t.equal(state.workbench.transform.code, 'default transform');
@@ -535,13 +554,16 @@ test('reducers: select transformer: snippetHasDifferentTransform uses revision i
         getTransformerID: () => 'putout',
         getTransformCode: () => 'revision code',
     });
+    
     const init = getInitState();
     const withRev = astexplorer(init, actions.setSnippet(rev));
+    
     const diffTrans = astexplorer(withRev, actions.selectTransformer({
         id: 'other',
         defaultParserID: 'babel',
         defaultTransform: 'default',
     }));
+    
     const state = astexplorer(diffTrans, actions.selectTransformer({
         id: 'putout',
         defaultParserID: 'babel',
