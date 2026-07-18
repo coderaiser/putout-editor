@@ -67,7 +67,7 @@ jobs:
           kubectl cluster-info
           kubectl get nodes
       - name: Set image tag
-        working-directory: deploy/k8s
+        working-directory: deploy/k8s/overlays/ci
         run: |
           TAG=${GITHUB_REF_NAME#v}
           kustomize edit set image ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${TAG}

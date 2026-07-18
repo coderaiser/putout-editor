@@ -6,3 +6,8 @@ resources:
 
 patches:
   - path: ingress-patch.yaml
+    
+images:
+  - name: ghcr.io/coderaiser/putout-editor
+    newName: ghcr.io/coderaiser/putout-editor
+    newTag: latest
