@@ -73,18 +73,6 @@ jobs:
       - name: Wait for rollout
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
 
-      - name: Wait for Traefik
-        run: |
-          for i in $(seq 1 24); do
-            COUNT=$(kubectl -n kube-system get pods -l app.kubernetes.io/name=traefik --no-headers 2>/dev/null | wc -l)
-            [ "$COUNT" -gt "0" ] && break
-            echo "Waiting for Traefik pod... attempt $i"
-            sleep 5
-          done
-          kubectl -n kube-system wait pod \
-            -l app.kubernetes.io/name=traefik \
-            --for=condition=Ready \
-            --timeout=120s
       - name: Smoke test
         run: |
           curl --fail --retry 8 --retry-delay 5 \
