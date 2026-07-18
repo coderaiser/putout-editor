@@ -12,4 +12,3 @@ test('visualization: index: includes 2 visualizations', (t) => {
     t.equal(visualizations.length, 2);
     t.end();
 });
-

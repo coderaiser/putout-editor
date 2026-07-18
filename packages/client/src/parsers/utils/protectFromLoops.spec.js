@@ -23,4 +23,3 @@ test('protectFromLoops: code without loops: returns code unchanged', (t) => {
     t.equal(result, input);
     t.end();
 });
-

@@ -1,4 +1,4 @@
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
 import {tryToCatch} from 'try-to-catch';
 import {
     ignoreKeysFilter,
@@ -106,7 +106,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange returns null for non-obj
         },
     }, {});
     
-    t.notOk(adapter.getRange(null));
+    const result = adapter.getRange(null);
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -118,7 +120,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange node.range', (t) => {
         },
     }, {});
     
-    const result = adapter.getRange({range: [0, 10]});
+    const result = adapter.getRange({
+        range: [0, 10],
+    });
     
     t.deepEqual(result, [0, 10]);
     t.end();
@@ -132,7 +136,10 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange start/end', (t) => {
         },
     }, {});
     
-    const result = adapter.getRange({start: 1, end: 5});
+    const result = adapter.getRange({
+        start: 1,
+        end: 5,
+    });
     
     t.deepEqual(result, [1, 5]);
     t.end();
@@ -152,7 +159,10 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange from node.start/node.end
         end: 5,
     };
     
-    t.deepEqual(adapter.getRange(node), [0, 5]);
+    const result = adapter.getRange(node);
+    const expected = [0, 5];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -205,11 +215,21 @@ test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange true', (t) => 
     const node = {
         type: 'BinaryExpression',
         range: [0, 10],
-        left: {type: 'Literal', value: 1, range: [0, 1]},
-        right: {type: 'Literal', value: 2, range: [8, 9]},
+        left: {
+            type: 'Literal',
+            value: 1,
+            range: [0, 1],
+        },
+        right: {
+            type: 'Literal',
+            value: 2,
+            range: [8, 9],
+        },
     };
     
-    t.notOk(adapter.hasChildrenInRange(node));
+    const result = adapter.hasChildrenInRange(node);
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -221,7 +241,13 @@ test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange false', (t) =>
         },
     }, {});
     
-    t.notOk(adapter.hasChildrenInRange({type: 'Literal', range: [0, 5], value: 1}));
+    const result = adapter.hasChildrenInRange({
+        type: 'Literal',
+        range: [0, 5],
+        value: 1,
+    });
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -269,7 +295,9 @@ test('TreeAdapter: treeAdapterFromParseResult: isArray true', (t) => {
         },
     }, {});
     
-    t.ok(adapter.isArray([]));
+    const result = adapter.isArray([]);
+    
+    t.ok(result);
     t.end();
 });
 
@@ -281,7 +309,9 @@ test('TreeAdapter: treeAdapterFromParseResult: isObject false for null', (t) => 
         },
     }, {});
     
-    t.notOk(adapter.isObject(null));
+    const result = adapter.isObject(null);
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -293,7 +323,10 @@ test('TreeAdapter: treeAdapterFromParseResult: walkNode yields properties', (t) 
         },
     }, {});
     
-    const results = [...adapter.walkNode({type: 'Literal', value: 1})];
+    const results = [...adapter.walkNode({
+        type: 'Literal',
+        value: 1,
+    })];
     
     t.equal(results.length, 2);
     t.end();
@@ -305,9 +338,15 @@ test('TreeAdapter: treeAdapterFromParseResult: walkNode filters functions', (t) 
             type: 'estree',
             options: {},
         },
-    }, {hideFunctions: true});
+    }, {
+        hideFunctions: true,
+    });
     
-    const results = [...adapter.walkNode({type: 'Literal', fn: noop, value: 1})];
+    const results = [...adapter.walkNode({
+        type: 'Literal',
+        fn: noop,
+        value: 1,
+    })];
     
     t.equal(results.length, 2);
     t.end();
@@ -319,9 +358,15 @@ test('TreeAdapter: treeAdapterFromParseResult: walkNode filters empty', (t) => {
             type: 'estree',
             options: {},
         },
-    }, {hideEmptyKeys: true});
+    }, {
+        hideEmptyKeys: true,
+    });
     
-    const results = [...adapter.walkNode({type: 'Literal', value: null, extra: 1})];
+    const results = [...adapter.walkNode({
+        type: 'Literal',
+        value: null,
+        extra: 1,
+    })];
     
     t.equal(results.length, 2);
     t.end();
@@ -333,9 +378,15 @@ test('TreeAdapter: treeAdapterFromParseResult: walkNode filters location', (t) =
             type: 'estree',
             options: {},
         },
-    }, {hideLocationData: true});
+    }, {
+        hideLocationData: true,
+    });
     
-    const results = [...adapter.walkNode({type: 'Literal', range: [0, 5], value: 1})];
+    const results = [...adapter.walkNode({
+        type: 'Literal',
+        range: [0, 5],
+        value: 1,
+    })];
     
     t.equal(results.length, 2);
     t.end();
@@ -349,7 +400,12 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange null no range', (t) => {
         },
     }, {});
     
-    t.notOk(adapter.getRange({type: 'Literal', value: 1}));
+    const result = adapter.getRange({
+        type: 'Literal',
+        value: 1,
+    });
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -361,9 +417,14 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange caches result', (t) => {
         },
     }, {});
     
-    const node = {range: [0, 10]};
+    const node = {
+        range: [0, 10],
+    };
     
-    t.deepEqual(adapter.getRange(node), adapter.getRange(node));
+    const result = adapter.getRange(node);
+    const expected = adapter.getRange(node);
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -387,7 +448,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getNodeName returns node type for
         },
     }, {});
     
-    const result = adapter.getNodeName({type: 'Literal'});
+    const result = adapter.getNodeName({
+        type: 'Literal',
+    });
     
     t.equal(result, 'Literal');
     t.end();
@@ -401,7 +464,9 @@ test('TreeAdapter: treeAdapterFromParseResult: isObject returns true for plain o
         },
     }, {});
     
-    t.ok(adapter.isObject({}));
+    const result = adapter.isObject({});
+    
+    t.ok(result);
     t.end();
 });
 
@@ -417,7 +482,7 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange derives range from child
                     return null;
                 },
                 *walkNode(node) {
-                    if (node.children) {
+                    if (node.children)
                         for (const child of node.children) {
                             yield {
                                 value: child,
@@ -425,7 +490,6 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange derives range from child
                                 computed: false,
                             };
                         }
-                    }
                 },
                 nodeToName(node) {
                     return node.type || 'Node';
@@ -435,10 +499,11 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange derives range from child
     }, {});
     
     const node = {
-        children: [
-            {range: [0, 5]},
-            {range: [8, 10]},
-        ],
+        children: [{
+            range: [0, 5],
+        }, {
+            range: [8, 10],
+        }],
     };
     
     const result = adapter.getRange(node);
@@ -471,7 +536,7 @@ test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange without positi
                     return null;
                 },
                 *walkNode(node) {
-                    if (node.children) {
+                    if (node.children)
                         for (const child of node.children) {
                             yield {
                                 value: child,
@@ -479,7 +544,6 @@ test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange without positi
                                 computed: false,
                             };
                         }
-                    }
                 },
                 nodeToName(node) {
                     return node.type || 'Node';
@@ -490,13 +554,15 @@ test('TreeAdapter: treeAdapterFromParseResult: hasChildrenInRange without positi
     
     const node = {
         range: [0, 10],
-        children: [
-            {range: [2, 5]},
-        ],
+        children: [{
+            range: [2, 5],
+        }],
     };
     
     // hasChildrenInRange calls isInRange without position which always returns false
-    t.notOk(adapter.hasChildrenInRange(node));
+    const result = adapter.hasChildrenInRange(node);
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -521,8 +587,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getConfigurableFilters filters ou
     }, {});
     
     const filters = adapter.getConfigurableFilters();
+    const result = filters.every((f) => Boolean(f.key));
     
-    t.ok(filters.every((f) => Boolean(f.key)));
+    t.ok(result);
     t.end();
 });
 
@@ -546,7 +613,10 @@ test('TreeAdapter: getRange with cached range returns cached', (t) => {
         },
     }, {});
     
-    const node = {range: [1, 5]};
+    const node = {
+        range: [1, 5],
+    };
+    
     const first = adapter.getRange(node);
     const second = adapter.getRange(node);
     
@@ -576,7 +646,7 @@ test('TreeAdapter: default adapter throws on nodeToName', async (t) => {
     
     const [error] = await tryToCatch(() => adapter.getNodeName({}));
     
-    t.match(error.message, /nodeToName must be passed/);
+    t.match(error.message, 'nodeToName must be passed');
     t.end();
 });
 
@@ -588,9 +658,11 @@ test('TreeAdapter: default adapter throws on walkNode', async (t) => {
         },
     }, {});
     
-    const [error] = await tryToCatch(() => [...adapter.walkNode({})]);
+    const [error] = await tryToCatch(() => [
+        ...adapter.walkNode({}),
+    ]);
     
-    t.match(error.message, /walkNode must be passed/);
+    t.match(error.message, 'walkNode must be passed');
     t.end();
 });
 
@@ -606,12 +678,13 @@ test('TreeAdapter: getRange handles null nodeToRange and no children', (t) => {
         },
     }, {});
     
-    const result = adapter.getRange({some: 'node'});
+    const result = adapter.getRange({
+        some: 'node',
+    });
     
     t.notOk(result);
     t.end();
 });
-
 
 test('TreeAdapter: getRange from children fails when first child has no range', (t) => {
     const adapter = treeAdapterFromParseResult({
@@ -625,7 +698,7 @@ test('TreeAdapter: getRange from children fails when first child has no range', 
                     return null;
                 },
                 *walkNode(node) {
-                    if (node.children) {
+                    if (node.children)
                         for (const child of node.children) {
                             yield {
                                 value: child,
@@ -633,7 +706,6 @@ test('TreeAdapter: getRange from children fails when first child has no range', 
                                 computed: false,
                             };
                         }
-                    }
                 },
                 nodeToName(node) {
                     return node.type || 'Node';
@@ -643,10 +715,11 @@ test('TreeAdapter: getRange from children fails when first child has no range', 
     }, {});
     
     const node = {
-        children: [
-            {noRange: true},
-            {range: [8, 10]},
-        ],
+        children: [{
+            noRange: true,
+        }, {
+            range: [8, 10],
+        }],
     };
     
     const result = adapter.getRange(node);
@@ -668,7 +741,7 @@ test('TreeAdapter: getRange from children fails when last child has no range', (
                     return null;
                 },
                 *walkNode(node) {
-                    if (node.children) {
+                    if (node.children)
                         for (const child of node.children) {
                             yield {
                                 value: child,
@@ -676,7 +749,6 @@ test('TreeAdapter: getRange from children fails when last child has no range', (
                                 computed: false,
                             };
                         }
-                    }
                 },
                 nodeToName(node) {
                     return node.type || 'Node';
@@ -686,10 +758,11 @@ test('TreeAdapter: getRange from children fails when last child has no range', (
     }, {});
     
     const node = {
-        children: [
-            {range: [0, 5]},
-            {noRange: true},
-        ],
+        children: [{
+            range: [0, 5],
+        }, {
+            noRange: true,
+        }],
     };
     
     const result = adapter.getRange(node);
@@ -700,21 +773,30 @@ test('TreeAdapter: getRange from children fails when last child has no range', (
 });
 
 test('TreeAdapter: typeKeysFilter with keys set returns key is hideTypeKeys', (t) => {
-    const filter = typeKeysFilter(new Set(['type', 'kind']));
+    const filter = typeKeysFilter(new Set([
+        'type',
+        'kind',
+    ]));
     
     t.equal(filter.key, 'hideTypeKeys');
     t.end();
 });
 
 test('TreeAdapter: typeKeysFilter with keys set filters matching keys', (t) => {
-    const filter = typeKeysFilter(new Set(['type', 'kind']));
+    const filter = typeKeysFilter(new Set([
+        'type',
+        'kind',
+    ]));
     
     t.ok(filter.test(null, 'type'));
     t.end();
 });
 
 test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
-    const filter = typeKeysFilter(new Set(['type', 'kind']));
+    const filter = typeKeysFilter(new Set([
+        'type',
+        'kind',
+    ]));
     
     t.notOk(filter.test(null, 'value'));
     t.end();

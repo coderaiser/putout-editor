@@ -8,47 +8,32 @@
 
 ## Quick start
 
-1. **Create a k3d cluster** with port mapping:
+**Create a k3d cluster** with port mapping:
 
-   ```sh
+```sh
    k3d cluster create putout-editor -p "8080:80@loadbalancer"
    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
-   ```
+```
 
-   This creates a single-node dev cluster and maps host port `8080` to
-   the Traefik loadbalancer.
+This creates a single-node dev cluster and maps host port `8080` to the Traefik loadbalancer.
+**Make sure a real GHCR image tag exists.** Push a tag to GitHub (e.g. `v0.1.0`) and wait for the`docker-release.yml` workflow to finish. Check the published packages at:<https://github.com/coderaiser/putout-editor/pkgs/container/putout-editor>
+**Update the image tag** in `deploy/k8s/deployment.yaml`.Change `image:` to the tag you pushed (e.g. `v0.1.0`).
+**Apply all manifests:**
 
-2. **Make sure a real GHCR image tag exists.**
-
-   Push a `v*` tag to GitHub (e.g. `v0.1.0`) and wait for the
-   `docker-release.yml` workflow to finish. Check the published
-   packages at:
-   https://github.com/coderaiser/putout-editor/pkgs/container/putout-editor
-
-3. **Update the image tag** in `deploy/k8s/deployment.yaml`.
-
-   Change `image:` to the tag you pushed (e.g. `v0.1.0`).
-
-4. **Apply all manifests:**
-
-   ```sh
+```sh
    kubectl apply -f deploy/k8s/
-   ```
+```
 
-5. **Confirm the pod is running:**
+**Confirm the pod is running:**
 
-   ```sh
-   kubectl -n putout-editor get pods
-   ```
+```sh
+kubectl -n putout-editor get pods
+```
 
-   Wait until `STATUS` shows `Running`.
+Wait until `STATUS` shows `Running`.
 
-6. **Open in browser:**
-
-   http://putout-editor.cloudcmd.io:8080
-
-   `*.localhost` resolves to `127.0.0.1` in every modern browser/OS,
-   no `/etc/hosts` edits needed.
+**Open in browser:**<http://putout-editor.cloudcmd.io:8080>`*.localhost` resolves to `127.0.0.1` in every modern browser/OS,
+no `/etc/hosts` edits needed.
 
 ## Private GHCR package
 

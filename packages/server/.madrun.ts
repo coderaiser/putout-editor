@@ -1,4 +1,4 @@
-import {run, cutEnv} from 'madrun';
+import {cutEnv} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
 const testEnv = defineEnv({

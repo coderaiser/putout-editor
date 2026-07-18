@@ -1,5 +1,9 @@
 import {test, stub} from 'supertape';
-import {render, cleanup, fireEvent} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import SettingsRenderer from './SettingsRenderer.js';
 
 test('SettingsRenderer: renders checkbox for string field', (t) => {
@@ -27,7 +31,9 @@ test('SettingsRenderer: renders checkbox checked when value is true', (t) => {
             settingsConfiguration={{
                 fields: ['option1'],
             }}
-            parserSettings={{option1: true}}
+            parserSettings={{
+                option1: true,
+            }}
             onChange={stub()}
         />,
     );
@@ -47,7 +53,9 @@ test('SettingsRenderer: checkbox disabled when field is required', (t) => {
                 fields: ['option1'],
                 required: new Set(['option1']),
             }}
-            parserSettings={{option1: true}}
+            parserSettings={{
+                option1: true,
+            }}
             onChange={stub()}
         />,
     );
@@ -85,10 +93,15 @@ test('SettingsRenderer: renders select for array field', (t) => {
         <SettingsRenderer
             settingsConfiguration={{
                 fields: [
-                    ['mode', ['es', 'js']],
+                    [
+                        'mode',
+                        ['es', 'js'],
+                    ],
                 ],
             }}
-            parserSettings={{mode: 'es'}}
+            parserSettings={{
+                mode: 'es',
+            }}
             onChange={stub()}
         />,
     );
@@ -105,13 +118,11 @@ test('SettingsRenderer: renders nested settings for object field', (t) => {
     render(
         <SettingsRenderer
             settingsConfiguration={{
-                fields: [
-                    {
-                        key: 'nested',
-                        fields: ['opt1'],
-                        settings: (settings) => settings.nested,
-                    },
-                ],
+                fields: [{
+                    key: 'nested',
+                    fields: ['opt1'],
+                    settings: (settings) => settings.nested,
+                }],
             }}
             parserSettings={{
                 nested: {
@@ -138,7 +149,9 @@ test('SettingsRenderer: onChange called when checkbox toggled', (t) => {
             settingsConfiguration={{
                 fields: ['option1'],
             }}
-            parserSettings={{option1: false}}
+            parserSettings={{
+                option1: false,
+            }}
             onChange={onChange}
         />,
     );
@@ -159,12 +172,14 @@ test('SettingsRenderer: renders values from map options', (t) => {
             settingsConfiguration={{
                 fields: [
                     ['mode', {
-                        'ECMAScript': 'es',
-                        'JavaScript': 'js',
+                        ECMAScript: 'es',
+                        JavaScript: 'js',
                     }],
                 ],
             }}
-            parserSettings={{mode: 'es'}}
+            parserSettings={{
+                mode: 'es',
+            }}
             onChange={stub()}
         />,
     );
@@ -187,18 +202,28 @@ test('SettingsRenderer: select onChange calls update with converter', (t) => {
                     ['ecmaVersion', [3, 5, 6], Number],
                 ],
             }}
-            parserSettings={{ecmaVersion: 6}}
+            parserSettings={{
+                ecmaVersion: 6,
+            }}
             onChange={onChange}
         />,
     );
     
     const select = document.querySelector('select');
     
-    fireEvent.change(select, {target: {value: '5'}});
+    fireEvent.change(select, {
+        target: {
+            value: '5',
+        },
+    });
     
     cleanup();
     
-    t.calledWith(onChange, [{ecmaVersion: 5}]);
+    const args = [{
+        ecmaVersion: 5,
+    }];
+    
+    t.calledWith(onChange, args);
     t.end();
 });
 
@@ -208,14 +233,12 @@ test('SettingsRenderer: onChange with nested object updates parent settings', (t
     render(
         <SettingsRenderer
             settingsConfiguration={{
-                fields: [
-                    {
-                        key: 'plugins',
-                        title: 'Plugins',
-                        fields: ['jsx', 'typescript'],
-                        settings: (settings) => settings.plugins || {},
-                    },
-                ],
+                fields: [{
+                    key: 'plugins',
+                    title: 'Plugins',
+                    fields: ['jsx', 'typescript'],
+                    settings: (settings) => settings.plugins || {},
+                }],
             }}
             parserSettings={{}}
             onChange={onChange}
@@ -282,7 +305,10 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
             settingsConfiguration={{
                 fields: ['jsx', 'typescript'],
             }}
-            parserSettings={['jsx', 'typescript']}
+            parserSettings={[
+                'jsx',
+                'typescript',
+            ]}
             onChange={onChange}
         />,
     );
@@ -304,20 +330,33 @@ test('SettingsRenderer: select with default identity converter', (t) => {
         <SettingsRenderer
             settingsConfiguration={{
                 fields: [
-                    ['mode', ['es', 'js']],
+                    [
+                        'mode',
+                        ['es', 'js'],
+                    ],
                 ],
             }}
-            parserSettings={{mode: 'es'}}
+            parserSettings={{
+                mode: 'es',
+            }}
             onChange={onChange}
         />,
     );
     
     const select = document.querySelector('select');
     
-    fireEvent.change(select, {target: {value: 'js'}});
+    fireEvent.change(select, {
+        target: {
+            value: 'js',
+        },
+    });
     
     cleanup();
     
-    t.calledWith(onChange, [{mode: 'js'}]);
+    const args = [{
+        mode: 'js',
+    }];
+    
+    t.calledWith(onChange, args);
     t.end();
 });

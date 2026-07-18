@@ -1,6 +1,8 @@
 import {test, stub} from 'supertape';
 import {readState, writeState} from './LocalStorage.js';
 
+const {stringify} = JSON;
+
 test('LocalStorage: writeState: default storage: writes to real localStorage', (t) => {
     localStorage.clear();
     writeState({
@@ -82,7 +84,10 @@ test('LocalStorage: readState: nothing stored: returns undefined', (t) => {
 });
 
 test('LocalStorage: readState: stored value: returns parsed state', (t) => {
-    const getItem = stub().returns('{"a":1}');
+    const getItem = stub().returns(stringify({
+        a: 1,
+    }));
+    
     const result = readState({
         getItem,
     });

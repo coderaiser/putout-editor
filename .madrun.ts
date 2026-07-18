@@ -1,9 +1,5 @@
-import {run, cutEnv} from 'madrun';
+import {run} from 'madrun';
 import {defineEnv} from 'supertape/env';
-
-const testEnv = defineEnv({
-    nestjs: true,
-});
 
 const {NODE_OPTIONS} = defineEnv({
     ts: true,
@@ -14,14 +10,9 @@ const startEnv = {
     NODE_OPTIONS,
 };
 
-const allEnv = {
-    AUTH_TOKEN: 'test-token',
-    ...testEnv,
-};
-
 export default {
     'build': () => 'madfork build',
-    'test': () => 'madfork test',
+    
     'start': () => [startEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
     'coverage': async () => 'madfork coverage',
@@ -31,4 +22,3 @@ export default {
     'prefix:lint': () => run('prelint', '--fix'),
     'fix:lint': () => 'madfork fix:lint',
 };
-

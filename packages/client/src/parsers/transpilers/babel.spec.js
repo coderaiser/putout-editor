@@ -12,7 +12,7 @@ test('babel: transpile: obvious infinite loop: throws', async (t) => {
 test('babel: transpile: code with loop: returns code with guard injected', (t) => {
     const result = transpile('for(let i=0;i<10;i++){}');
     
-    t.ok(result.includes('Infinite loop detected on line'));
+    t.match(result, 'Infinite loop detected on line');
     t.end();
 });
 

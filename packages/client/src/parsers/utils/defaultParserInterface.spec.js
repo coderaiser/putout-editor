@@ -60,22 +60,17 @@ test('defaultParserInterface: forEachProperty yields each non-ignored property',
         body: [],
     };
     
-    const result = [
-        ...defaultParserInterface.forEachProperty(node),
-    ];
+    const result = [...defaultParserInterface.forEachProperty(node)];
     
-    const expected = [
-        {
-            value: 'Program',
-            key: 'type',
-            computed: false,
-        },
-        {
-            value: [],
-            key: 'body',
-            computed: false,
-        },
-    ];
+    const expected = [{
+        value: 'Program',
+        key: 'type',
+        computed: false,
+    }, {
+        value: [],
+        key: 'body',
+        computed: false,
+    }];
     
     t.deepEqual(result, expected);
     t.end();
@@ -87,19 +82,15 @@ test('defaultParserInterface: forEachProperty skips ignored properties', (t) => 
         bar: 2,
     };
     
-    const result = [
-        ...defaultParserInterface.forEachProperty.call({
-            _ignoredProperties: new Set(['foo']),
-        }, node),
-    ];
+    const result = [...defaultParserInterface.forEachProperty.call({
+        _ignoredProperties: new Set(['foo']),
+    }, node)];
     
-    const expected = [
-        {
-            value: 2,
-            key: 'bar',
-            computed: false,
-        },
-    ];
+    const expected = [{
+        value: 2,
+        key: 'bar',
+        computed: false,
+    }];
     
     t.deepEqual(result, expected);
     t.end();
@@ -154,8 +145,9 @@ test('defaultParserInterface: hasSettings returns false when no default options'
 
 test('defaultParserInterface: getDefaultOptions returns empty object', (t) => {
     const result = defaultParserInterface.getDefaultOptions();
+    const expected = {};
     
-    t.deepEqual(result, {});
+    t.deepEqual(result, expected);
     t.end();
 });
 

@@ -1,7 +1,11 @@
 import {test} from 'supertape';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
-import {render, cleanup, fireEvent} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import {
     OPEN_SHARE_DIALOG,
     CLOSE_SHARE_DIALOG,

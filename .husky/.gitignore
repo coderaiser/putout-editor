@@ -1,0 +1,8 @@
+*.swp
+*.log
+*.lock
+
+.idea
+
+_
+coverage

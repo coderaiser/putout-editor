@@ -4,12 +4,10 @@ metadata:
   name: putout-editor
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-
 spec:
   tls:
     - hosts:
         - putout-editor.abc.io
       secretName: putout-editor-tls
-
   rules:
     - host: putout-editor.cloudcmd.io

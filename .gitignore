@@ -1,11 +1,13 @@
-/out
-node_modules
-.idea
-yarn-error.log
-production
-*.swp
-
-/dist
 **/coverage
 
+*.swp
 *.lock
+*.log
+
+.idea
+
+/out
+node_modules
+production
+/dist
+coverage
