@@ -31,7 +31,8 @@
         "src/storage/index.js",
         "src/parsers/utils/defaultParserInterface.js",
         "src/parsers/utils/SettingsRenderer.js",
-        "src/store/parserSelectors.js"
+        "src/store/parserSelectors.js",
+        "src/store/reducers.js"
     ],
     "branches": 100,
     "lines": 100,
