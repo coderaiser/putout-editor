@@ -75,9 +75,10 @@ test('StorageHandler: updateHash: sets location hash', (t) => {
     
     handler.updateHash(revision);
     
+    const {hash} = globalThis.location;
     globalThis.location.hash = originalHash;
     
-    t.equal(globalThis.location.hash, '#/gist/abc123');
+    t.equal(hash, '#/gist/abc123');
     t.end();
 });
 
