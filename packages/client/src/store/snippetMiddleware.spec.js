@@ -36,12 +36,12 @@ const getState = (overrides = {}) => ({
 });
 
 function apply(storageAdapter, store) {
-    const nexted = [];
-    const dispatch = createMiddleware(storageAdapter)(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(storageAdapter)(store)((a) => nextActions.push(a));
     
     return {
         dispatch,
-        nexted,
+        nextActions,
     };
 }
 
@@ -62,7 +62,7 @@ test('snippetMiddleware: default action passed to next', (t) => {
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     const action = {
         type: 'UNKNOWN',
@@ -70,7 +70,7 @@ test('snippetMiddleware: default action passed to next', (t) => {
     
     dispatch(action);
     
-    t.equal(nexted[0], action);
+    t.equal(nextActions[0], action);
     t.end();
 });
 
@@ -80,11 +80,11 @@ test('snippetMiddleware: CLEAR_ERROR passed to next', (t) => {
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.clearError());
     
-    t.equal(nexted[0].type, 'CLEAR_ERROR');
+    t.equal(nextActions[0].type, 'CLEAR_ERROR');
     t.end();
 });
 
@@ -96,11 +96,11 @@ test('snippetMiddleware: LOAD_SNIPPET while saving passes through type', (t) => 
         }),
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     
-    t.equal(nexted[0].type, 'LOAD_SNIPPET');
+    t.equal(nextActions[0].type, 'LOAD_SNIPPET');
     t.end();
 });
 
@@ -112,11 +112,11 @@ test('snippetMiddleware: LOAD_SNIPPET while saving only one action', (t) => {
         }),
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     
-    t.equal(nexted.length, 1);
+    t.equal(nextActions.length, 1);
     t.end();
 });
 
@@ -128,11 +128,11 @@ test('snippetMiddleware: LOAD_SNIPPET while forking passes through', (t) => {
         }),
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     
-    t.equal(nexted[0].type, 'LOAD_SNIPPET');
+    t.equal(nextActions[0].type, 'LOAD_SNIPPET');
     t.end();
 });
 
@@ -144,11 +144,11 @@ test('snippetMiddleware: LOAD_SNIPPET while forking only one action', (t) => {
         }),
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     
-    t.equal(nexted.length, 1);
+    t.equal(nextActions.length, 1);
     t.end();
 });
 
@@ -165,19 +165,17 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with SET_SNIPPET', async (t
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     await setImmediate();
+    
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('SET_SNIPPET');
-    
-    t.ok(result);
+    t.ok(types.includes('SET_SNIPPET'));
     t.end();
 });
 
@@ -194,19 +192,17 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with DONE_LOADING', async (
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     await setImmediate();
+    
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('DONE_LOADING_SNIPPET');
-    
-    t.ok(result);
+    t.ok(types.includes('DONE_LOADING_SNIPPET'));
     t.end();
 });
 
@@ -219,19 +215,17 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with null', async (t) => {
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     await setImmediate();
+    
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('CLEAR_SNIPPET');
-    
-    t.ok(result);
+    t.ok(types.includes('CLEAR_SNIPPET'));
     t.end();
 });
 
@@ -244,19 +238,17 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects sets error', async (t) => {
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     await setImmediate();
+    
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('SET_ERROR');
-    
-    t.ok(result);
+    t.ok(types.includes('SET_ERROR'));
     t.end();
 });
 
@@ -269,19 +261,17 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects done loading', async (t) => 
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     await setImmediate();
+    
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('DONE_LOADING_SNIPPET');
-    
-    t.ok(result);
+    t.ok(types.includes('DONE_LOADING_SNIPPET'));
     t.end();
 });
 
@@ -308,15 +298,14 @@ test('snippetMiddleware: LOAD_SNIPPET stale request skip resolve', async (t) => 
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     dispatch(actions.loadSnippet());
     resolveFirst();
     await setImmediate();
     
-    // Only the 6 synchronous actions (3 per dispatch), no resolve follow-through
-    t.equal(nexted.length, 6);
+    t.equal(nextActions.length, 6);
     t.end();
 });
 
@@ -343,7 +332,7 @@ test('snippetMiddleware: LOAD_SNIPPET stale request skip error', async (t) => {
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     dispatch(actions.loadSnippet());
@@ -351,8 +340,7 @@ test('snippetMiddleware: LOAD_SNIPPET stale request skip error', async (t) => {
     await setImmediate();
     await Promise.resolve();
     
-    // Only the 6 synchronous actions (3 per dispatch), no catch follow-through
-    t.equal(nexted.length, 6);
+    t.equal(nextActions.length, 6);
     t.end();
 });
 
@@ -365,7 +353,7 @@ test('snippetMiddleware: CLEAR_ERROR after fetch failure clears hash', async (t)
         getState,
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.loadSnippet());
     await setImmediate();
@@ -375,18 +363,16 @@ test('snippetMiddleware: CLEAR_ERROR after fetch failure clears hash', async (t)
     
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('CLEAR_ERROR');
-    
-    t.ok(result);
+    t.ok(types.includes('CLEAR_ERROR'));
     t.end();
 });
 
 test('snippetMiddleware: SAVE no revision calls create', async (t) => {
     let created = false;
+    
     const storage = makeStorage({
         create: () => {
             created = true;
@@ -502,6 +488,7 @@ test('snippetMiddleware: SAVE with showTransformPanel adds tool data', async (t)
 
 test('snippetMiddleware: SAVE create with showTransformPanel', async (t) => {
     let createdData = null;
+    
     const storage = makeStorage({
         create: (data) => {
             createdData = data;
@@ -542,19 +529,17 @@ test('snippetMiddleware: SAVE error triggers setError', async (t) => {
         }),
     };
     
-    const {dispatch, nexted} = apply(storage, store);
+    const {dispatch, nextActions} = apply(storage, store);
     
     dispatch(actions.save(false));
     await setImmediate();
     await Promise.resolve();
+    
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions)
         types.push(a.type);
-    }
     
-    const result = types.includes('SET_ERROR');
-    
-    t.ok(result);
+    t.ok(types.includes('SET_ERROR'));
     t.end();
 });
