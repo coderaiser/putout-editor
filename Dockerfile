@@ -14,6 +14,9 @@ WORKDIR /app
 
 COPY . .
 
+ARG VERSION
+ENV VERSION=$VERSION
+
 RUN bun run build
 
 FROM oven/bun:1-slim AS prod-deps
