@@ -325,7 +325,7 @@ test('gist: update: PATCH error response throws', async (t) => {
         ++callCount;
         
         if (callCount === 1)
-            return {
+            return Promise.resolve({
                 ok: true,
                 json: stub().resolves({
                     id: 'gist123',
@@ -348,12 +348,12 @@ test('gist: update: PATCH error response throws', async (t) => {
                         },
                     },
                 }),
-            };
+            });
         
-        return {
+        return Promise.resolve({
             ok: false,
             status: 500,
-        };
+        });
     };
     
     const result = await update(mockRevision, {}).catch((e) => e);
@@ -372,7 +372,7 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
         ++callCount;
         
         if (callCount === 1)
-            return {
+            return Promise.resolve({
                 ok: true,
                 json: stub().resolves({
                     id: 'gist-trans',
@@ -395,9 +395,9 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
                         },
                     },
                 }),
-            };
+            });
         
-        return {
+        return Promise.resolve({
             ok: true,
             json: stub().resolves({
                 id: 'gist-trans',
@@ -420,7 +420,7 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
                     },
                 },
             }),
-        };
+        });
     };
     
     const revWithTransformer = {
