@@ -21,6 +21,7 @@
         "src/utils/url.js",
         "src/utils/logger.js",
         "src/storage/api.js",
+        "src/storage/parse.js",
         "src/parsers/utils/protectFromLoops.js",
         "src/core/ParseResult.js",
         "src/parsers/transpilers/babel.js",

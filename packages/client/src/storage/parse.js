@@ -75,7 +75,7 @@ export function fork() {
     return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
 }
 
-class Revision {
+export class Revision {
     constructor(data) {
         this._data = data;
     }
