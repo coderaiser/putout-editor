@@ -1,5 +1,5 @@
 {
-    "skipFull": false,
+    "skipFull": true,
     "checkCoverage": true,
     "all": true,
     "include": [
