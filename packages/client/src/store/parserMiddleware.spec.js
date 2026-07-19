@@ -79,8 +79,9 @@ test('parserMiddleware: code change triggers parse', async (t) => {
         getState: () => makeBaseState(),
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'SET_CODE',
@@ -90,7 +91,7 @@ test('parserMiddleware: code change triggers parse', async (t) => {
     
     babel._promise = originalPromise;
     
-    t.ok(nexted.length > 0);
+    t.ok(nextActions.length > 0);
     t.end();
 });
 
@@ -108,8 +109,8 @@ test('parserMiddleware: parse error dispatches SET_PARSE_RESULT with error', asy
         getState: makeBaseState,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -120,7 +121,7 @@ test('parserMiddleware: parse error dispatches SET_PARSE_RESULT with error', asy
     babel.parse = originalParse;
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -147,8 +148,8 @@ test('parserMiddleware: no change skips parse', (t) => {
         }),
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'UNKNOWN',
@@ -156,7 +157,7 @@ test('parserMiddleware: no change skips parse', (t) => {
     
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -176,8 +177,8 @@ test('parserMiddleware: null parser skips parse', (t) => {
         }),
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -185,7 +186,7 @@ test('parserMiddleware: null parser skips parse', (t) => {
     
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -205,8 +206,8 @@ test('parserMiddleware: null code skips parse', (t) => {
         }),
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -214,7 +215,7 @@ test('parserMiddleware: null code skips parse', (t) => {
     
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -251,8 +252,8 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
         getState: () => state,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -263,7 +264,7 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
     babel.parse = originalParse;
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -288,8 +289,8 @@ test('parserMiddleware: state change between dispatch and resolve discards resul
         getState: () => state,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -311,7 +312,7 @@ test('parserMiddleware: state change between dispatch and resolve discards resul
     babel._promise = originalPromise;
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -331,8 +332,8 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
         getState: () => state,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     // Clear _promise so parse creates a new one
     babel._promise = undefined;
@@ -350,7 +351,7 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
     babel.parse = originalParse;
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -371,8 +372,8 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
         getState: () => state,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     babel._promise = Promise.resolve({
         parse: () => makeMockParseResult(),
@@ -390,7 +391,7 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     babel.opensByDefault = originalOpensByDefault;
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
@@ -415,8 +416,8 @@ test('parserMiddleware: code change between dispatch and resolve discards result
         getState: () => state,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -435,7 +436,7 @@ test('parserMiddleware: code change between dispatch and resolve discards result
     await setImmediate();
     
     babel._promise = originalPromise;
-    const result = nexted.some(({type}) => type === 'SET_PARSE_RESULT');
+    const result = nextActions.some(({type}) => type === 'SET_PARSE_RESULT');
     
     t.notOk(result);
     t.end();
@@ -456,8 +457,8 @@ test('parserMiddleware: parserSettings change between dispatch and resolve disca
         getState: () => state,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
     
     dispatch({
         type: 'INIT',
@@ -478,7 +479,7 @@ test('parserMiddleware: parserSettings change between dispatch and resolve disca
     await setImmediate();
     
     babel._promise = originalPromise;
-    const result = nexted.some(({type}) => type === 'SET_PARSE_RESULT');
+    const result = nextActions.some(({type}) => type === 'SET_PARSE_RESULT');
     
     t.notOk(result);
     t.end();
