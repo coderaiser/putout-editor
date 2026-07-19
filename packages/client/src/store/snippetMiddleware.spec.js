@@ -37,7 +37,8 @@ const getState = (overrides = {}) => ({
 
 function apply(storageAdapter, store) {
     const nextActions = [];
-    const dispatch = createMiddleware(storageAdapter)(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(storageAdapter)(store)(push);
     
     return {
         dispatch,
