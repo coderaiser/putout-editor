@@ -75,12 +75,13 @@ jobs:
         run: kubectl -n putout-editor rollout status deployment/putout-editor --timeout=120s
       - name: Smoke test
         run: |
-          TAG=${GITHUB_REF_NAME#v}
           curl --fail --retry 20 --retry-delay 5 --retry-all-errors \
             -o /tmp/smoke.html \
             -H "Host: putout-editor.cloudcmd.io" \
             http://localhost:8080
-          grep -q "Putout Editor v${TAG}" /tmp/smoke.html
+          echo ${GITHUB_REF_NAME}
+          cat /tmp/smoke.html
+          grep -q "Putout Editor ${GITHUB_REF_NAME}" /tmp/smoke.html
       - name: Dump state on failure
         if: failure()
         run: |
