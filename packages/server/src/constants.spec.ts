@@ -27,7 +27,9 @@ test('constants: does not exit when AUTH_TOKEN is not set', async (t) => {
     
     t.equal(exitCode, 0);
     t.end();
-}, {timeout: 5000});
+}, {
+    timeout: 5000,
+});
 
 test('constants: logError', (t) => {
     const log = stub();

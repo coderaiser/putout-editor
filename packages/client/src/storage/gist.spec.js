@@ -1079,6 +1079,7 @@ test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
         fireEvent,
         cleanup,
     } = await import('@testing-library/react');
+    
     const info = rev.getShareInfo();
     const {container} = render(info);
     const inputs = container.querySelectorAll('input');
