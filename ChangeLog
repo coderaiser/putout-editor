@@ -1,3 +1,14 @@
+2026.07.19, v3.0.32
+
+fix:
+- db274e6 client: gist spec Promise.resolve mocks; ParserButton spec NodeList.at
+- bc4b0c4 client: ASTOutput import extension; export mapDispatchToProps
+- 9da2f94 client: logger: overrides pattern, silence output in middleware tests
+- af9ec25 client: parsers: add .js extensions for Node.js compatibility
+
+feature:
+- 0e91e12 version in title
+
 2026.07.18, v3.0.31
 
 fix:
