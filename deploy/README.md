@@ -6,7 +6,7 @@ A git tag push triggers a GitHub Actions CI/CD pipeline that builds a multi-arch
 
 To roll back, `git revert` the tag-bump commit and push to `master`. ArgoCD will sync back to the previous image tag.
 
----
+***
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ To roll back, `git revert` the tag-bump commit and push to `master`. ArgoCD will
 - [palabra](https://github.com/coderaiser/palabra) — binary manager (used in CI)
 - [docker](https://docker.com/) — container runtime
 
----
+***
 
 ## Part 1: VPS / production (k3s)
 
@@ -50,9 +50,10 @@ kubectl apply -k deploy/k8s/overlays/prod
 
 - Point a DNS record (e.g. `putout-editor.cloudcmd.io`) to the VPS IP.
 - **During initial certificate issuance**, set the Cloudflare proxy icon to **grey cloud** (DNS only) so Let's Encrypt can validate. Set it back to **orange cloud** (proxied) once the certificate is issued.
----
 
----
+***
+
+***
 
 ## Part 2: ArgoCD
 
@@ -97,7 +98,7 @@ Apply `deploy/k8s/argocd/application.yaml`. This tells ArgoCD to watch the `depl
 3. Under **Events**, enable push events and copy the webhook URL.
 4. Go to the GitHub repository **Settings → Webhooks** and add the URL with `Content-Type: application/json`.
 
----
+***
 
 ## Part 3: CI/CD flow
 
@@ -115,7 +116,7 @@ kustomize edit set image ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/put
 kubectl apply -k .
 ```
 
----
+***
 
 ## Part 4: Local dev cluster (k3d)
 
@@ -143,7 +144,7 @@ curl -H "Host: putout-editor.cloudcmd.io" http://localhost:8080 | grep "Putout E
 k3d cluster delete putout-editor
 ```
 
----
+***
 
 ## Manifest structure
 
@@ -174,7 +175,7 @@ deploy/
 - **overlays/prod/** — production overlay: adds cert-manager ClusterIssuer for Let's Encrypt, references the live image tag
 - **argocd/** — ArgoCD configuration (Application CR and ingress)
 
----
+***
 
 ## Troubleshooting
 
