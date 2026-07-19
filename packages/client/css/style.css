@@ -135,7 +135,8 @@ html {
     position: relative;
 }
 
-#Toolbar .menuButton:hover > ul {
+#Toolbar .menuButton:hover > ul,
+#Toolbar .menuButton.is-open > ul {
     display: block;
 }
 
