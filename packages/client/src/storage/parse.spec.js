@@ -1,4 +1,4 @@
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import {
     render,
     cleanup,
@@ -98,9 +98,9 @@ test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             snippetID: 'abc',
             revisionID: '1',
             parserID: 'babel',
@@ -120,7 +120,7 @@ test('parse: fetchFromURL: 404 returns error message', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 404,
     });
@@ -138,7 +138,7 @@ test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 500,
     });

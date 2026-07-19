@@ -110,7 +110,8 @@ test('parserMiddleware: parse error dispatches SET_PARSE_RESULT with error', asy
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -149,7 +150,8 @@ test('parserMiddleware: no change skips parse', (t) => {
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'UNKNOWN',
@@ -178,7 +180,8 @@ test('parserMiddleware: null parser skips parse', (t) => {
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -207,7 +210,8 @@ test('parserMiddleware: null code skips parse', (t) => {
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -253,7 +257,8 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -290,7 +295,8 @@ test('parserMiddleware: state change between dispatch and resolve discards resul
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -333,7 +339,8 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     // Clear _promise so parse creates a new one
     babel._promise = undefined;
@@ -373,7 +380,8 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     babel._promise = Promise.resolve({
         parse: () => makeMockParseResult(),
@@ -417,7 +425,8 @@ test('parserMiddleware: code change between dispatch and resolve discards result
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -458,7 +467,8 @@ test('parserMiddleware: parserSettings change between dispatch and resolve disca
     };
     
     const nextActions = [];
-    const dispatch = createMiddleware(store)((a) => nextActions.push(a));
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',

@@ -1,5 +1,5 @@
 import {setImmediate} from 'node:timers/promises';
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import createMiddleware from './snippetMiddleware.js';
 import * as actions from './actions.js';
 import {log} from '../utils/logger.js';
@@ -10,10 +10,10 @@ log.event = noop;
 log.error = noop;
 
 const makeStorage = (overrides = {}) => ({
-    fetchFromURL: async () => null,
-    create: async () => null,
-    update: async () => null,
-    fork: async () => null,
+    fetchFromURL: stub().resolves(null),
+    create: stub().resolves(null),
+    update: stub().resolves(null),
+    fork: stub().resolves(null),
     updateHash: noop,
     ...overrides,
 });
@@ -159,7 +159,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with SET_SNIPPET', async (t
     };
     
     const storage = makeStorage({
-        fetchFromURL: async () => revision,
+        fetchFromURL: stub().resolves(revision),
     });
     
     const store = {
@@ -176,7 +176,9 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with SET_SNIPPET', async (t
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('SET_SNIPPET'));
+    const result = types.includes('SET_SNIPPET');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -186,7 +188,7 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with DONE_LOADING', async (
     };
     
     const storage = makeStorage({
-        fetchFromURL: async () => revision,
+        fetchFromURL: stub().resolves(revision),
     });
     
     const store = {
@@ -203,13 +205,15 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with DONE_LOADING', async (
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('DONE_LOADING_SNIPPET'));
+    const result = types.includes('DONE_LOADING_SNIPPET');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippetMiddleware: LOAD_SNIPPET fetch resolves with null', async (t) => {
     const storage = makeStorage({
-        fetchFromURL: async () => null,
+        fetchFromURL: stub().resolves(null),
     });
     
     const store = {
@@ -226,7 +230,9 @@ test('snippetMiddleware: LOAD_SNIPPET fetch resolves with null', async (t) => {
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('CLEAR_SNIPPET'));
+    const result = types.includes('CLEAR_SNIPPET');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -249,7 +255,9 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects sets error', async (t) => {
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('SET_ERROR'));
+    const result = types.includes('SET_ERROR');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -272,7 +280,9 @@ test('snippetMiddleware: LOAD_SNIPPET fetch rejects done loading', async (t) => 
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('DONE_LOADING_SNIPPET'));
+    const result = types.includes('DONE_LOADING_SNIPPET');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -367,7 +377,9 @@ test('snippetMiddleware: CLEAR_ERROR after fetch failure clears hash', async (t)
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('CLEAR_ERROR'));
+    const result = types.includes('CLEAR_ERROR');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -541,6 +553,8 @@ test('snippetMiddleware: SAVE error triggers setError', async (t) => {
     for (const a of nextActions)
         types.push(a.type);
     
-    t.ok(types.includes('SET_ERROR'));
+    const result = types.includes('SET_ERROR');
+    
+    t.ok(result);
     t.end();
 });

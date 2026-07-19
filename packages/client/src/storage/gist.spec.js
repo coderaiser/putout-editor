@@ -1,4 +1,4 @@
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import {
     matchesURL,
     fetchFromURL,
@@ -69,7 +69,7 @@ test('gist: fetchFromURL: 404 throws with snippet id in message', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 404,
     });
@@ -88,7 +88,7 @@ test('gist: fetchFromURL: non-404 error throws Unknown error', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 500,
     });
@@ -106,9 +106,9 @@ test('gist: fetchFromURL: non-404 error throws Unknown error', async (t) => {
 test('gist: create: ok response resolves Revision', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'new-gist',
             history: [{
                 version: 'sha1',
@@ -146,7 +146,7 @@ test('gist: create: ok response resolves Revision', async (t) => {
 test('gist: create: error response throws', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 500,
     });
@@ -162,7 +162,7 @@ test('gist: create: error response throws', async (t) => {
 test('gist: fork: error response throws', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 500,
     });
@@ -183,7 +183,7 @@ test('gist: fork: error response throws', async (t) => {
 test('gist: update: error response on fetch snippet throws', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: false,
         status: 500,
     });
@@ -199,4 +199,3 @@ test('gist: update: error response on fetch snippet throws', async (t) => {
     t.ok(isError(result));
     t.end();
 });
-
