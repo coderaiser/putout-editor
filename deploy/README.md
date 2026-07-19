@@ -20,40 +20,28 @@ To roll back, `git revert` the tag-bump commit and push to `master`. ArgoCD will
 
 ## Part 1: VPS / production (k3s)
 
-### 1. Install k3s on the VPS
+### Install k3s on the VPS
 
 ```sh
-curl -sfL https://get.k3s.io | sh -
+palabra i k3d
 ```
 
-### 2. Copy the kubeconfig locally
-
-```sh
-sudo cat /etc/rancher/k3s/k3s.yaml
-```
-
-Save the output to `~/.kube/config` on your local machine and replace `127.0.0.1` with the VPS IP.
-
-### 3. Install cert-manager
+### Install cert-manager
 
 ```sh
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
 ```
 
-### 4. Deploy the application
+### Deploy the application
 
 ```sh
 kubectl apply -k deploy/k8s/overlays/prod
 ```
 
-### 5. DNS / Cloudflare
+### DNS / Cloudflare
 
 - Point a DNS record (e.g. `putout-editor.cloudcmd.io`) to the VPS IP.
 - **During initial certificate issuance**, set the Cloudflare proxy icon to **grey cloud** (DNS only) so Let's Encrypt can validate. Set it back to **orange cloud** (proxied) once the certificate is issued.
-
-***
-
-***
 
 ## Part 2: ArgoCD
 
