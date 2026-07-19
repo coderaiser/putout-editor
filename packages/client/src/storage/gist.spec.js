@@ -321,7 +321,7 @@ test('gist: update: PATCH error response throws', async (t) => {
     const origFetch = globalThis.fetch;
     let callCount = 0;
     
-    globalThis.fetch = async () => {
+    globalThis.fetch = () => {
         ++callCount;
         
         if (callCount === 1)
@@ -368,7 +368,7 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
     const origFetch = globalThis.fetch;
     let callCount = 0;
     
-    globalThis.fetch = async () => {
+    globalThis.fetch = () => {
         ++callCount;
         
         if (callCount === 1)
@@ -1073,8 +1073,12 @@ test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
-
-    const {render, fireEvent, cleanup} = await import('@testing-library/react');
+    
+    const {
+        render,
+        fireEvent,
+        cleanup,
+    } = await import('@testing-library/react');
     const info = rev.getShareInfo();
     const {container} = render(info);
     const inputs = container.querySelectorAll('input');
