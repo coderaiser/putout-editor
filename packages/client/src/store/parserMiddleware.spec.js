@@ -44,8 +44,9 @@ test('parserMiddleware: INIT triggers parse and dispatches SET_PARSE_RESULT with
         getState: makeBaseState,
     };
     
-    const nexted = [];
-    const dispatch = createMiddleware(store)((a) => nexted.push(a));
+    const nextActions = [];
+    const push = nextActions.push.bind(nextActions);
+    const dispatch = createMiddleware(store)(push);
     
     dispatch({
         type: 'INIT',
@@ -55,7 +56,7 @@ test('parserMiddleware: INIT triggers parse and dispatches SET_PARSE_RESULT with
     babel._promise = originalPromise;
     const types = [];
     
-    for (const a of nexted) {
+    for (const a of nextActions) {
         types.push(a.type);
     }
     
