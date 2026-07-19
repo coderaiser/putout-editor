@@ -1,5 +1,10 @@
 import {test, stub} from 'supertape';
 import {
+    render,
+    fireEvent,
+    cleanup,
+} from '@testing-library/react';
+import {
     matchesURL,
     fetchFromURL,
     owns,
@@ -1039,5 +1044,51 @@ test('gist: Revision: getShareInfo returns JSX element', async (t) => {
     const result = rev.getShareInfo();
     
     t.equal(result.type, 'div');
+    t.end();
+});
+
+test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
+    const origFetch = globalThis.fetch;
+
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-focus',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+
+    const rev = await create({});
+
+    globalThis.fetch = origFetch;
+
+    const info = rev.getShareInfo();
+    const {container} = render(info);
+    const inputs = container.querySelectorAll('input');
+
+    fireEvent.focus(inputs[0]);
+    fireEvent.focus(inputs[1]);
+    fireEvent.focus(inputs[2]);
+
+    cleanup();
+
+    t.equal(inputs.length, 3);
     t.end();
 });

@@ -13,6 +13,10 @@ const {resolve} = createRequire(import.meta.url);
 const DEV = process.env.NODE_ENV !== 'production';
 const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.meta.url).pathname, 'utf8'));
 
+// Read VERSION from environment (Docker build arg) or fall back to root package.json
+const ROOT_PKG = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url).pathname, 'utf8'));
+const VERSION = process.env.VERSION || ROOT_PKG.version;
+
 const test = /\/node_modules\//;
 const THREE_MB = 3 * 1024 * 1024;
 
@@ -57,6 +61,7 @@ const plugins = [
         inject: 'body',
         filename: 'index.html',
         template: './index.ejs',
+        version: VERSION,
     }),
     new rspack.ProgressPlugin(),
 ];
