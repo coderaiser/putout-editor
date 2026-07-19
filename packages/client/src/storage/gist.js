@@ -14,7 +14,7 @@ function getIDAndRevisionFromHash() {
 }
 
 function fetchSnippet(snippetID, revisionID = 'latest') {
-    return api(`/gist/${snippetID}` + (revisionID ? `/${revisionID}` : ''), {
+    return api(`/gist/${snippetID}/${revisionID}`, {
         method: 'GET',
     })
         .then((response) => {

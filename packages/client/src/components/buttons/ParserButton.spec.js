@@ -141,6 +141,28 @@ test('ParserButton: clicking parser item closes menu', (t) => {
     t.end();
 });
 
+test('ParserButton: outside click closes the menu', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const span = document.querySelector('.menuButton span');
+    
+    fireEvent.click(span);
+    
+    const div = document.querySelector('.menuButton');
+    
+    fireEvent.click(document.body);
+    
+    t.notOk(div.className.includes('is-open'));
+    t.end();
+});
+
 test('ParserButton: has is-open class when menu is open', (t) => {
     render(
         <ParserButton

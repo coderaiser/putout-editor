@@ -10,6 +10,11 @@ import {
 
 const isError = (a) => a instanceof Error;
 
+const mockRevision = {
+    getSnippetID: () => 'abc',
+    getRevisionID: () => 'sha1',
+};
+
 test('gist: matchesURL: true for gist hash', (t) => {
     const orig = globalThis.location.hash;
     
@@ -188,14 +193,827 @@ test('gist: update: error response on fetch snippet throws', async (t) => {
         status: 500,
     });
     
-    const fakeRevision = {
-        getSnippetID: () => 'abc',
-    };
-    
-    const result = await update(fakeRevision, {}).catch((e) => e);
+    const result = await update(mockRevision, {}).catch((e) => e);
     
     globalThis.fetch = origFetch;
     
     t.ok(isError(result));
+    t.end();
+});
+
+test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
+    const origHash = globalThis.location.hash;
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist123',
+            history: [{
+                version: 'sha1ver',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    globalThis.location.hash = '#/gist/gist123';
+    
+    const result = await fetchFromURL();
+    
+    globalThis.location.hash = origHash;
+    globalThis.fetch = origFetch;
+    
+    t.equal(result.getSnippetID(), 'gist123');
+    t.end();
+});
+
+test('gist: fork: ok response resolves Revision', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist123',
+            history: [{
+                version: 'sha1ver',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const fakeRevision = {
+        getSnippetID: () => 'abc',
+        getRevisionID: () => 'sha1',
+    };
+    
+    const result = await fork(fakeRevision, {});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(result.getSnippetID(), 'gist123');
+    t.end();
+});
+
+test('gist: update: ok response resolves Revision', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist123',
+            history: [{
+                version: 'sha1ver',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const result = await update(mockRevision, {});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(result.getSnippetID(), 'gist123');
+    t.end();
+});
+
+test('gist: update: PATCH error response throws', async (t) => {
+    const origFetch = globalThis.fetch;
+    let callCount = 0;
+    
+    globalThis.fetch = async () => {
+        ++callCount;
+        
+        if (callCount === 1)
+            return {
+                ok: true,
+                json: async () => ({
+                    id: 'gist123',
+                    history: [{
+                        version: 'sha1ver',
+                    }],
+                    files: {
+                        'astexplorer.json': {
+                            content: JSON.stringify({
+                                parserID: 'babel',
+                                toolID: null,
+                                v: 2,
+                                settings: {
+                                    babel: {},
+                                },
+                            }),
+                        },
+                        'source.js': {
+                            content: 'const a = 1;',
+                        },
+                    },
+                }),
+            };
+        
+        return {
+            ok: false,
+            status: 500,
+        };
+    };
+    
+    const result = await update(mockRevision, {}).catch((e) => e);
+    
+    globalThis.fetch = origFetch;
+    
+    t.match(result.message, 'Unable to update snippet');
+    t.end();
+});
+
+test('gist: update: with transformerID and no toolID clears transform', async (t) => {
+    const origFetch = globalThis.fetch;
+    let callCount = 0;
+    
+    globalThis.fetch = async (url, opts) => {
+        ++callCount;
+        
+		if (callCount === 1)
+            return {
+                ok: true,
+                json: async () => ({
+                    id: 'gist-trans',
+                    history: [{
+                        version: 'v1',
+                    }],
+                    files: {
+                        'astexplorer.json': {
+                            content: JSON.stringify({
+                                parserID: 'babel',
+                                toolID: 'putout',
+                                v: 2,
+                                settings: {
+                                    babel: {},
+                                },
+                            }),
+                        },
+                        'source.js': {
+                            content: 'const x = 1;',
+                        },
+                    },
+                }),
+            };
+        
+        return {
+            ok: true,
+            json: async () => ({
+                id: 'gist-trans',
+                history: [{
+                    version: 'v2',
+                }],
+                files: {
+                    'astexplorer.json': {
+                        content: JSON.stringify({
+                            parserID: 'babel',
+                            toolID: null,
+                            v: 2,
+                            settings: {
+                                babel: {},
+                            },
+                        }),
+                    },
+                    'source.js': {
+                        content: 'const x = 1;',
+                    },
+                },
+            }),
+        };
+    };
+    
+    const revWithTransformer = {
+        getSnippetID: () => 'gist-trans',
+    };
+    
+    const result = await update(revWithTransformer, {toolID: null});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(result.getSnippetID(), 'gist-trans');
+    t.end();
+});
+
+test('gist: owns: returns true for Revision instance', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'owns-test',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.ok(owns(rev));
+    t.end();
+});
+
+test('gist: v1 source format: getCode returns correct content', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-v1',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 1,
+                    }),
+                },
+                'code.js': {
+                    content: 'legacy code',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getCode(), 'legacy code');
+    t.end();
+});
+
+test('gist: Revision: canSave returns true', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-can-save',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.ok(rev.canSave());
+    t.end();
+});
+
+test('gist: Revision: getPath returns correct path', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-path',
+            history: [{
+                version: 'sha1ver',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getPath(), '/gist/gist-path/sha1ver');
+    t.end();
+});
+
+test('gist: Revision: getSnippetID returns correct id', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-sid',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getSnippetID(), 'gist-sid');
+    t.end();
+});
+
+test('gist: Revision: getRevisionID returns correct version', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-revid',
+            history: [{
+                version: 'v42',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getRevisionID(), 'v42');
+    t.end();
+});
+
+test('gist: Revision: getTransformerID returns toolID when set', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-tool',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: 'putout',
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const x = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getTransformerID(), 'putout');
+    t.end();
+});
+
+test('gist: Revision: getTransformerID returns null when not set', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-notool',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getTransformerID(), null);
+    t.end();
+});
+
+test('gist: Revision: getTransformCode returns content when transform file exists', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-tc',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const x = 1;',
+                },
+                'transform.js': {
+                    content: 'module.exports = function() {}',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getTransformCode(), 'module.exports = function() {}');
+    t.end();
+});
+
+test('gist: Revision: getTransformCode returns empty string when no transform file', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-notransform',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getTransformCode(), '');
+    t.end();
+});
+
+test('gist: Revision: getParserID returns correct parserID', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-parserid',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'espree',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            espree: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getParserID(), 'espree');
+    t.end();
+});
+
+test('gist: Revision: getParserSettings returns correct settings', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-parser-settings',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {
+                                sourceType: 'module',
+                            },
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getParserSettings().sourceType, 'module');
+    t.end();
+});
+
+test('gist: Revision: getCode returns content for v2 source format', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-v2',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const b = 2;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getCode(), 'const b = 2;');
+    t.end();
+});
+
+test('gist: Revision: getCode returns empty string for unknown config version', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-unknown-v',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 3,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(rev.getCode(), '');
+    t.end();
+});
+
+test('gist: Revision: getCode caches result', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-cache',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const cached = true;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    rev.getCode();
+    const second = rev.getCode();
+    
+    t.equal(second, 'const cached = true;');
+    t.end();
+});
+
+test('gist: Revision: getShareInfo returns JSX element', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            id: 'gist-share',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    
+    const result = rev.getShareInfo();
+    
+    t.equal(result.type, 'div');
     t.end();
 });
