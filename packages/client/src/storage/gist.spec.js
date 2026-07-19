@@ -1049,10 +1049,10 @@ test('gist: Revision: getShareInfo returns JSX element', async (t) => {
 
 test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
     const origFetch = globalThis.fetch;
-
-    globalThis.fetch = async () => ({
+    
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-focus',
             history: [{
                 version: 'v1',
@@ -1074,21 +1074,21 @@ test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
             },
         }),
     });
-
+    
     const rev = await create({});
-
+    
     globalThis.fetch = origFetch;
-
+    
     const info = rev.getShareInfo();
     const {container} = render(info);
     const inputs = container.querySelectorAll('input');
-
+    
     fireEvent.focus(inputs[0]);
     fireEvent.focus(inputs[1]);
     fireEvent.focus(inputs[2]);
-
+    
     cleanup();
-
+    
     t.equal(inputs.length, 3);
     t.end();
 });
