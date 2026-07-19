@@ -31,7 +31,9 @@ test('parse service: revisionId equal to revisions.length throws Not found', asy
     
     snippets.set('snippet1', {
         _id: 'snippet1',
-        revisions: [{objectId: 'rev0'}],
+        revisions: [{
+            objectId: 'rev0',
+        }],
     });
     
     // revisions.length is 1, so index 1 is out of bounds (>= length)
@@ -48,7 +50,9 @@ test('parse service: load returns snippetID from snippet._id: not include id fro
     
     snippets.set('s1', {
         _id: 's1',
-        revisions: [{objectId: 'r0'}],
+        revisions: [{
+            objectId: 'r0',
+        }],
     });
     
     snippetRevisions.set('r0', {
@@ -69,7 +73,9 @@ test('parse service: load returns snippetID from snippet._id', async (t) => {
     
     snippets.set('s1', {
         _id: 's1',
-        revisions: [{objectId: 'r0'}],
+        revisions: [{
+            objectId: 'r0',
+        }],
     });
     
     snippetRevisions.set('r0', {
