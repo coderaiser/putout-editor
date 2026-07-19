@@ -1,3 +1,14 @@
+2026.07.19, v3.0.33
+
+fix:
+- 00f8395 actions: release
+- 2ed0963 actions: release: pipeline
+- ac89298 client: gist spec Promise.resolve mocks; ParserButton spec NodeList.at
+
+feature:
+- 5300b81 version in title
+- 7f79368 client: parser menu closes on item click and outside click
+
 2026.07.19, v3.0.32
 
 fix:
