@@ -56,7 +56,7 @@ test('ParserButton: settings button disabled when parser has no settings', (t) =
     );
     
     const buttons = document.querySelectorAll('button');
-    const settingsBtn = buttons.at(-1);
+    const settingsBtn = buttons[buttons.length - 1];
     
     cleanup();
     
