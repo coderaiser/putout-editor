@@ -1,4 +1,5 @@
 import {estreeToBabel} from 'estree-to-babel';
+import {tryToCatch} from 'try-to-catch';
 import {
     getParserSettings,
     getCode,
@@ -24,7 +25,7 @@ async function parse(parser, code, parserSettings) {
     return estreeToBabel(ast);
 }
 
-export default (store) => (next) => (action) => {
+export default (store) => (next) => async (action) => {
     const oldState = store.getState();
     next(action);
     const newState = store.getState();
@@ -50,39 +51,9 @@ export default (store) => (next) => (action) => {
             });
         }
         
-        return parse(newParser, newCode, newParserSettings).then((ast) => {
-            // Did anything change in the meantime?
-            if (newParser !== getParser(store.getState()) || newParserSettings !== getParserSettings(store.getState()) || newCode !== getCode(store.getState()))
-                return;
-            
-            // Temporary adapter for parsers that haven't been migrated yet.
-            const treeAdapter = {
-                type: 'default',
-                options: {
-                    openByDefault: (newParser.opensByDefault || (() => false)).bind(newParser),
-                    nodeToRange: newParser.nodeToRange.bind(newParser),
-                    nodeToName: newParser.getNodeName.bind(newParser),
-                    walkNode: newParser.forEachProperty.bind(newParser),
-                    filters: [
-                        ignoreKeysFilter(newParser._ignoredProperties),
-                        functionFilter(),
-                        emptyKeysFilter(),
-                        locationInformationFilter(newParser.locationProps),
-                        typeKeysFilter(newParser.typeProps),
-                    ],
-                },
-            };
-            
-            next({
-                type: 'SET_PARSE_RESULT',
-                result: {
-                    time: Date.now() - start,
-                    ast,
-                    error: null,
-                    treeAdapter,
-                },
-            });
-        }, (error) => {
+        const [error, ast] = await tryToCatch(parse, newParser, newCode, newParserSettings);
+        
+        if (error) {
             next({
                 type: 'SET_PARSE_RESULT',
                 result: {
@@ -92,6 +63,45 @@ export default (store) => (next) => (action) => {
                     error,
                 },
             });
+            return;
+        }
+        
+        if (newParser !== getParser(store.getState()))
+            return;
+        
+        if (newCode !== getCode(store.getState()))
+            return;
+        
+        if (newParserSettings !== getParserSettings(store.getState()))
+            return;
+        
+        // Temporary adapter for parsers that haven't been migrated yet.
+        const treeAdapter = {
+            type: 'default',
+            options: {
+                openByDefault: (newParser.opensByDefault || (() => false)).bind(newParser),
+                nodeToRange: newParser.nodeToRange.bind(newParser),
+                nodeToName: newParser.getNodeName.bind(newParser),
+                walkNode: newParser.forEachProperty.bind(newParser),
+                filters: [
+                    ignoreKeysFilter(newParser._ignoredProperties),
+                    functionFilter(),
+                    emptyKeysFilter(),
+                    locationInformationFilter(newParser.locationProps),
+                    typeKeysFilter(newParser.typeProps),
+                ],
+            },
+        };
+        
+        next({
+            type: 'SET_PARSE_RESULT',
+            result: {
+                time: Date.now() - start,
+                ast,
+                error: null,
+                treeAdapter,
+            },
         });
     }
 };
+
