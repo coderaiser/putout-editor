@@ -13,6 +13,8 @@ import {
     typeKeysFilter,
 } from '../core/TreeAdapter.js';
 
+const returns = (a) => () => a;
+
 async function parse(parser, code, parserSettings) {
     const settings = parserSettings || parser.getDefaultOptions();
     
@@ -79,7 +81,7 @@ export default (store) => (next) => async (action) => {
         const treeAdapter = {
             type: 'default',
             options: {
-                openByDefault: (newParser.opensByDefault || (() => false)).bind(newParser),
+                openByDefault: (newParser.opensByDefault || returns(false)).bind(newParser),
                 nodeToRange: newParser.nodeToRange.bind(newParser),
                 nodeToName: newParser.getNodeName.bind(newParser),
                 walkNode: newParser.forEachProperty.bind(newParser),
