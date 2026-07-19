@@ -205,9 +205,9 @@ test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist123',
             history: [{
                 version: 'sha1ver',
@@ -243,9 +243,9 @@ test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
 test('gist: fork: ok response resolves Revision', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist123',
             history: [{
                 version: 'sha1ver',
@@ -284,9 +284,9 @@ test('gist: fork: ok response resolves Revision', async (t) => {
 test('gist: update: ok response resolves Revision', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist123',
             history: [{
                 version: 'sha1ver',
@@ -321,13 +321,13 @@ test('gist: update: PATCH error response throws', async (t) => {
     const origFetch = globalThis.fetch;
     let callCount = 0;
     
-    globalThis.fetch = async () => {
+    globalThis.fetch = () => {
         ++callCount;
         
         if (callCount === 1)
             return {
                 ok: true,
-                json: async () => ({
+                json: stub().resolves({
                     id: 'gist123',
                     history: [{
                         version: 'sha1ver',
@@ -368,13 +368,13 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
     const origFetch = globalThis.fetch;
     let callCount = 0;
     
-    globalThis.fetch = async (url, opts) => {
+    globalThis.fetch = () => {
         ++callCount;
         
-		if (callCount === 1)
+        if (callCount === 1)
             return {
                 ok: true,
-                json: async () => ({
+                json: stub().resolves({
                     id: 'gist-trans',
                     history: [{
                         version: 'v1',
@@ -399,7 +399,7 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
         
         return {
             ok: true,
-            json: async () => ({
+            json: stub().resolves({
                 id: 'gist-trans',
                 history: [{
                     version: 'v2',
@@ -427,7 +427,9 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
         getSnippetID: () => 'gist-trans',
     };
     
-    const result = await update(revWithTransformer, {toolID: null});
+    const result = await update(revWithTransformer, {
+        toolID: null,
+    });
     
     globalThis.fetch = origFetch;
     
@@ -438,9 +440,9 @@ test('gist: update: with transformerID and no toolID clears transform', async (t
 test('gist: owns: returns true for Revision instance', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'owns-test',
             history: [{
                 version: 'v1',
@@ -466,17 +468,18 @@ test('gist: owns: returns true for Revision instance', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = owns(rev);
     
-    t.ok(owns(rev));
+    t.ok(result);
     t.end();
 });
 
 test('gist: v1 source format: getCode returns correct content', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-v1',
             history: [{
                 version: 'v1',
@@ -499,17 +502,19 @@ test('gist: v1 source format: getCode returns correct content', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getCode();
+    const expected = 'legacy code';
     
-    t.equal(rev.getCode(), 'legacy code');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: canSave returns true', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-can-save',
             history: [{
                 version: 'v1',
@@ -543,9 +548,9 @@ test('gist: Revision: canSave returns true', async (t) => {
 test('gist: Revision: getPath returns correct path', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-path',
             history: [{
                 version: 'sha1ver',
@@ -571,17 +576,19 @@ test('gist: Revision: getPath returns correct path', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getPath();
+    const expected = '/gist/gist-path/sha1ver';
     
-    t.equal(rev.getPath(), '/gist/gist-path/sha1ver');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getSnippetID returns correct id', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-sid',
             history: [{
                 version: 'v1',
@@ -607,17 +614,19 @@ test('gist: Revision: getSnippetID returns correct id', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getSnippetID();
+    const expected = 'gist-sid';
     
-    t.equal(rev.getSnippetID(), 'gist-sid');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getRevisionID returns correct version', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-revid',
             history: [{
                 version: 'v42',
@@ -643,17 +652,19 @@ test('gist: Revision: getRevisionID returns correct version', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getRevisionID();
+    const expected = 'v42';
     
-    t.equal(rev.getRevisionID(), 'v42');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getTransformerID returns toolID when set', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-tool',
             history: [{
                 version: 'v1',
@@ -679,17 +690,19 @@ test('gist: Revision: getTransformerID returns toolID when set', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getTransformerID();
+    const expected = 'putout';
     
-    t.equal(rev.getTransformerID(), 'putout');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getTransformerID returns null when not set', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-notool',
             history: [{
                 version: 'v1',
@@ -715,17 +728,18 @@ test('gist: Revision: getTransformerID returns null when not set', async (t) => 
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getTransformerID();
     
-    t.equal(rev.getTransformerID(), null);
+    t.notOk(result);
     t.end();
 });
 
 test('gist: Revision: getTransformCode returns content when transform file exists', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-tc',
             history: [{
                 version: 'v1',
@@ -754,17 +768,19 @@ test('gist: Revision: getTransformCode returns content when transform file exist
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getTransformCode();
+    const expected = 'module.exports = function() {}';
     
-    t.equal(rev.getTransformCode(), 'module.exports = function() {}');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getTransformCode returns empty string when no transform file', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-notransform',
             history: [{
                 version: 'v1',
@@ -790,17 +806,19 @@ test('gist: Revision: getTransformCode returns empty string when no transform fi
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getTransformCode();
+    const expected = '';
     
-    t.equal(rev.getTransformCode(), '');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getParserID returns correct parserID', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-parserid',
             history: [{
                 version: 'v1',
@@ -826,17 +844,19 @@ test('gist: Revision: getParserID returns correct parserID', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getParserID();
+    const expected = 'espree';
     
-    t.equal(rev.getParserID(), 'espree');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getParserSettings returns correct settings', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-parser-settings',
             history: [{
                 version: 'v1',
@@ -872,9 +892,9 @@ test('gist: Revision: getParserSettings returns correct settings', async (t) => 
 test('gist: Revision: getCode returns content for v2 source format', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-v2',
             history: [{
                 version: 'v1',
@@ -900,17 +920,19 @@ test('gist: Revision: getCode returns content for v2 source format', async (t) =
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getCode();
+    const expected = 'const b = 2;';
     
-    t.equal(rev.getCode(), 'const b = 2;');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getCode returns empty string for unknown config version', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-unknown-v',
             history: [{
                 version: 'v1',
@@ -936,17 +958,19 @@ test('gist: Revision: getCode returns empty string for unknown config version', 
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev.getCode();
+    const expected = '';
     
-    t.equal(rev.getCode(), '');
+    t.equal(result, expected);
     t.end();
 });
 
 test('gist: Revision: getCode caches result', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-cache',
             history: [{
                 version: 'v1',
@@ -983,9 +1007,9 @@ test('gist: Revision: getCode caches result', async (t) => {
 test('gist: Revision: getShareInfo returns JSX element', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = async () => ({
+    globalThis.fetch = stub().resolves({
         ok: true,
-        json: async () => ({
+        json: stub().resolves({
             id: 'gist-share',
             history: [{
                 version: 'v1',

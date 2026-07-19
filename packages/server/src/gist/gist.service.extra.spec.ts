@@ -15,15 +15,19 @@ async function createService(mockGithub: Record<string, unknown>) {
             ],
         })
         .compile();
-
+    
     return module.get(GistService);
 }
 
 const body = {
     parserID: 'babel',
     toolID: 'putout',
-    settings: {babel: {}},
-    versions: {babel: '1.0.0'},
+    settings: {
+        babel: {},
+    },
+    versions: {
+        babel: '1.0.0',
+    },
     filename: 'source.js',
     code: 'const a = 1;',
     description: 'a snippet',
@@ -32,47 +36,54 @@ const body = {
 
 test('gist service: update() includes transform.js when transform is a string', async (t) => {
     const mockGithub = {
-        update: stub().resolves({id: 'gist789'}),
+        update: stub().resolves({
+            id: 'gist789',
+        }),
     };
-
+    
     const service = await createService(mockGithub);
-
+    
     await service.update('gist789', {
         ...body,
         transform: 'module.exports = () => {};',
     });
-
+    
     const [, payload] = mockGithub.update.args[0] as [string, UpdateGistPayload];
-
+    
     t.equal(payload.files?.['transform.js']?.content, 'module.exports = () => {};');
     t.end();
 });
 
 test('gist service: update() omits transform.js when transform is undefined', async (t) => {
     const mockGithub = {
-        update: stub().resolves({id: 'gist789'}),
+        update: stub().resolves({
+            id: 'gist789',
+        }),
     };
-
+    
     const service = await createService(mockGithub);
-
+    
     // body has no transform property — undefined branch
     await service.update('gist789', body);
-
+    
     const [, payload] = mockGithub.update.args[0] as [string, UpdateGistPayload];
-
+    
     t.notOk(payload.files?.['transform.js']);
     t.end();
 });
 
 test('gist service: load() without revisionId', async (t) => {
     const mockGithub = {
-        load: stub().resolves({id: 'gist123', files: {}}),
+        load: stub().resolves({
+            id: 'gist123',
+            files: {},
+        }),
     };
-
+    
     const service = await createService(mockGithub);
-
+    
     await service.load('gist123');
-
+    
     t.calledWith(mockGithub.load, ['gist123', undefined]);
     t.end();
 });

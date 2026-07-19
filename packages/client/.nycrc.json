@@ -4,7 +4,7 @@
     "all": true,
     "exclude": [
         "**/*.spec.js",
-        "**/*.config.js",
+        "**/*.config.*",
         "**/.madrun.js",
         "src/app.js",
         "src/components/ASTOutput.js",
@@ -21,13 +21,13 @@
         "src/components/dialogs/SettingsDialog.js",
         "src/components/visualization/JSON.js",
         "src/components/visualization/Tree.js",
-        "src/components/visualization/tree/**",
         "src/containers/CodeEditorContainer.js",
         "src/containers/SettingsDialogContainer.js",
         "src/containers/ToolbarContainer.js",
         "src/containers/TransformerContainer.js",
-        "src/parsers/js/**",
-        "src/parsers/transpilers/typescript.js"
+        "src/parsers/transpilers/typescript.js",
+        "src/components/visualization/tree/**",
+        "src/parsers/js/**"
     ],
     "branches": 100,
     "lines": 100,

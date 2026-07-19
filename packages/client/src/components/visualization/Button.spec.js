@@ -60,7 +60,7 @@ test('visualization: Button: no active class when index differs from selectedOut
 
 test('visualization: Button: click calls setSelectedOutput with value', (t) => {
     const calls = [];
-    const setSelectedOutput = (v) => calls.push(v);
+    const setSelectedOutput = calls.push.bind(calls);
     
     const Component = Button({
         selectedOutput: 1,
