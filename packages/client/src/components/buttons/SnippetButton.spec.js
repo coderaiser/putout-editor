@@ -171,9 +171,14 @@ test('SnippetButton: quick-save button calls onSave when canSave', (t) => {
     let saved = false;
     
     render(
-        <SnippetButton {...defaultProps} canSave={true} canFork={false} onSave={() => {
-            saved = true;
-        }}/>,
+        <SnippetButton
+            {...defaultProps}
+            canSave={true}
+            canFork={false}
+            onSave={() => {
+                saved = true;
+            }}
+        />,
     );
     
     fireEvent.click(document.querySelector('.menuButton > button'));
@@ -188,9 +193,14 @@ test('SnippetButton: quick-save button calls onFork when canFork and not canSave
     let forked = false;
     
     render(
-        <SnippetButton {...defaultProps} canSave={false} canFork={true} onFork={() => {
-            forked = true;
-        }}/>,
+        <SnippetButton
+            {...defaultProps}
+            canSave={false}
+            canFork={true}
+            onFork={() => {
+                forked = true;
+            }}
+        />,
     );
     
     fireEvent.click(document.querySelector('.menuButton > button'));
