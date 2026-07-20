@@ -12,7 +12,9 @@ const keyMappings = [
 class KeyMapButton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {forceClosed: false};
+        this.state = {
+            forceClosed: false,
+        };
         this._onItemClick = this._onItemClick.bind(this);
         this._onTriggerClick = this._onTriggerClick.bind(this);
         this._onMouseLeave = this._onMouseLeave.bind(this);
@@ -20,23 +22,29 @@ class KeyMapButton extends React.Component {
     
     _onItemClick(keyMap) {
         this.props.onKeyMapChange(keyMap);
-        this.setState({forceClosed: true});
+        this.setState({
+            forceClosed: true,
+        });
     }
     
     _onTriggerClick() {
-        this.setState({forceClosed: true});
+        this.setState({
+            forceClosed: true,
+        });
     }
     
     _onMouseLeave() {
-        this.setState({forceClosed: false});
+        this.setState({
+            forceClosed: false,
+        });
     }
     
     render() {
         return (
             <div
                 className={cx({
-                    button: true,
-                    menuButton: true,
+                    'button': true,
+                    'menuButton': true,
                     'is-closed': this.state.forceClosed,
                 })}
                 onMouseLeave={this._onMouseLeave}

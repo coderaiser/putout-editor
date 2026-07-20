@@ -21,18 +21,23 @@ const defaultProps = {
 };
 
 test('SnippetButton: renders Snippet label in span', (t) => {
-    render(<SnippetButton {...defaultProps}/>);
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
     
     const span = document.querySelector('.menuButton > span');
     
     cleanup();
+    const result = span.textContent.includes('Snippet');
     
-    t.ok(span.textContent.includes('Snippet'));
+    t.ok(result);
     t.end();
 });
 
 test('SnippetButton: renders four list items', (t) => {
-    render(<SnippetButton {...defaultProps}/>);
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
     
     const items = document.querySelectorAll('ul > li');
     
@@ -43,7 +48,9 @@ test('SnippetButton: renders four list items', (t) => {
 });
 
 test('SnippetButton: clicking span sets is-closed class', (t) => {
-    render(<SnippetButton {...defaultProps}/>);
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
     
     const div = document.querySelector('.menuButton');
     const span = document.querySelector('.menuButton > span');
@@ -59,7 +66,9 @@ test('SnippetButton: clicking span sets is-closed class', (t) => {
 });
 
 test('SnippetButton: clicking ul sets is-closed class', (t) => {
-    render(<SnippetButton {...defaultProps}/>);
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
     
     const div = document.querySelector('.menuButton');
     const ul = document.querySelector('ul');
@@ -75,7 +84,9 @@ test('SnippetButton: clicking ul sets is-closed class', (t) => {
 });
 
 test('SnippetButton: mouseleave clears is-closed class', (t) => {
-    render(<SnippetButton {...defaultProps}/>);
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
     
     const div = document.querySelector('.menuButton');
     const span = document.querySelector('.menuButton > span');
@@ -92,7 +103,9 @@ test('SnippetButton: mouseleave clears is-closed class', (t) => {
 });
 
 test('SnippetButton: quick-save button title is Save when canSave and not canFork', (t) => {
-    render(<SnippetButton {...defaultProps} canSave={true} canFork={false}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={true} canFork={false}/>,
+    );
     
     const btn = document.querySelector('.menuButton > button');
     
@@ -103,7 +116,9 @@ test('SnippetButton: quick-save button title is Save when canSave and not canFor
 });
 
 test('SnippetButton: quick-save button title is Fork when canFork and not canSave', (t) => {
-    render(<SnippetButton {...defaultProps} canSave={false} canFork={true}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={false} canFork={true}/>,
+    );
     
     const btn = document.querySelector('.menuButton > button');
     
@@ -114,7 +129,9 @@ test('SnippetButton: quick-save button title is Fork when canFork and not canSav
 });
 
 test('SnippetButton: quick-save button disabled when saving', (t) => {
-    render(<SnippetButton {...defaultProps} saving={true}/>);
+    render(
+        <SnippetButton {...defaultProps} saving={true}/>,
+    );
     
     const btn = document.querySelector('.menuButton > button');
     
@@ -125,7 +142,9 @@ test('SnippetButton: quick-save button disabled when saving', (t) => {
 });
 
 test('SnippetButton: quick-save button disabled when forking', (t) => {
-    render(<SnippetButton {...defaultProps} forking={true}/>);
+    render(
+        <SnippetButton {...defaultProps} forking={true}/>,
+    );
     
     const btn = document.querySelector('.menuButton > button');
     
@@ -136,7 +155,9 @@ test('SnippetButton: quick-save button disabled when forking', (t) => {
 });
 
 test('SnippetButton: quick-save button disabled when neither canSave nor canFork', (t) => {
-    render(<SnippetButton {...defaultProps} canSave={false} canFork={false}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={false} canFork={false}/>,
+    );
     
     const btn = document.querySelector('.menuButton > button');
     
@@ -149,7 +170,11 @@ test('SnippetButton: quick-save button disabled when neither canSave nor canFork
 test('SnippetButton: quick-save button calls onSave when canSave', (t) => {
     let saved = false;
     
-    render(<SnippetButton {...defaultProps} canSave={true} canFork={false} onSave={() => { saved = true; }}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={true} canFork={false} onSave={() => {
+            saved = true;
+        }}/>,
+    );
     
     fireEvent.click(document.querySelector('.menuButton > button'));
     
@@ -162,7 +187,11 @@ test('SnippetButton: quick-save button calls onSave when canSave', (t) => {
 test('SnippetButton: quick-save button calls onFork when canFork and not canSave', (t) => {
     let forked = false;
     
-    render(<SnippetButton {...defaultProps} canSave={false} canFork={true} onFork={() => { forked = true; }}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={false} canFork={true} onFork={() => {
+            forked = true;
+        }}/>,
+    );
     
     fireEvent.click(document.querySelector('.menuButton > button'));
     
@@ -173,7 +202,9 @@ test('SnippetButton: quick-save button calls onFork when canFork and not canSave
 });
 
 test('SnippetButton: fa-spinner icon shown when saving', (t) => {
-    render(<SnippetButton {...defaultProps} saving={true}/>);
+    render(
+        <SnippetButton {...defaultProps} saving={true}/>,
+    );
     
     const icon = document.querySelector('.fa-spinner');
     
@@ -184,7 +215,9 @@ test('SnippetButton: fa-spinner icon shown when saving', (t) => {
 });
 
 test('SnippetButton: fa-code-fork icon shown when canFork and not canSave and not saving/forking', (t) => {
-    render(<SnippetButton {...defaultProps} canSave={false} canFork={true} saving={false} forking={false}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={false} canFork={true} saving={false} forking={false}/>,
+    );
     
     const icon = document.querySelector('.fa-code-fork');
     
@@ -195,7 +228,9 @@ test('SnippetButton: fa-code-fork icon shown when canFork and not canSave and no
 });
 
 test('SnippetButton: fa-floppy-o icon shown when canSave and not saving/forking', (t) => {
-    render(<SnippetButton {...defaultProps} canSave={true} canFork={false} saving={false} forking={false}/>);
+    render(
+        <SnippetButton {...defaultProps} canSave={true} canFork={false} saving={false} forking={false}/>,
+    );
     
     const icon = document.querySelector('.fa-floppy-o');
     

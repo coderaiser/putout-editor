@@ -16,15 +16,21 @@ export default class ParserButton extends React.Component {
     _onItemClick({currentTarget}) {
         const parserID = currentTarget.getAttribute('data-id');
         this.props.onParserChange(getParserByID(parserID));
-        this.setState({forceClosed: true});
+        this.setState({
+            forceClosed: true,
+        });
     }
     
     _onTriggerClick() {
-        this.setState({forceClosed: true});
+        this.setState({
+            forceClosed: true,
+        });
     }
     
     _onMouseLeave() {
-        this.setState({forceClosed: false});
+        this.setState({
+            forceClosed: false,
+        });
     }
     
     render() {

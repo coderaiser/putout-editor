@@ -6,7 +6,9 @@ import {getTransformerByID} from '../../parsers/index.js';
 export default class TransformButton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {forceClosed: false};
+        this.state = {
+            forceClosed: false,
+        };
         this._onClick = this._onClick.bind(this);
         this._onTriggerClick = this._onTriggerClick.bind(this);
         this._onMouseLeave = this._onMouseLeave.bind(this);
@@ -21,27 +23,33 @@ export default class TransformButton extends React.Component {
             transformID = target.value;
         
         this.props.onTransformChange(getTransformerByID(transformID));
-        this.setState({forceClosed: true});
+        this.setState({
+            forceClosed: true,
+        });
     }
     
     _onTriggerClick() {
         if (this.props.transformer)
             this.props.onTransformChange(null);
         
-        this.setState({forceClosed: true});
+        this.setState({
+            forceClosed: true,
+        });
     }
     
     _onMouseLeave() {
-        this.setState({forceClosed: false});
+        this.setState({
+            forceClosed: false,
+        });
     }
     
     render() {
         return (
             <div
                 className={cx({
-                    button: true,
-                    menuButton: true,
-                    disabled: !this.props.category.transformers.length,
+                    'button': true,
+                    'menuButton': true,
+                    'disabled': !this.props.category.transformers.length,
                     'is-closed': this.state.forceClosed,
                 })}
                 onMouseLeave={this._onMouseLeave}
@@ -60,7 +68,7 @@ export default class TransformButton extends React.Component {
                             'fa-fw': true,
                         })}
                     />
-           Transform
+                    Transform
                 </button>
                 {this.props.category.transformers.length && <ul>
                     {this.props.category.transformers.map((transformer) => (

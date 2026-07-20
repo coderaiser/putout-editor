@@ -34,8 +34,9 @@ test('TransformButton: renders Transform label', (t) => {
     const btn = document.querySelector('.menuButton > button');
     
     cleanup();
+    const result = btn.textContent.includes('Transform');
     
-    t.ok(btn.textContent.includes('Transform'));
+    t.ok(result);
     t.end();
 });
 
@@ -71,7 +72,7 @@ test('TransformButton: renders no ul when category has no transformers', (t) => 
     
     cleanup();
     
-    t.equal(ul, null);
+    t.notOk(ul);
     t.end();
 });
 
@@ -106,8 +107,9 @@ test('TransformButton: has disabled class when no transformers', (t) => {
     const div = document.querySelector('.menuButton');
     
     cleanup();
+    const result = div.className.includes('disabled');
     
-    t.ok(div.className.includes('disabled'));
+    t.ok(result);
     t.end();
 });
 
@@ -287,8 +289,9 @@ test('TransformButton: selected class applied to active transformer item', (t) =
     const li = document.querySelector('li');
     
     cleanup();
+    const result = li.className.includes('selected');
     
-    t.ok(li.className.includes('selected'));
+    t.ok(result);
     t.end();
 });
 

@@ -85,8 +85,12 @@ test('ParserButton: menu items always rendered (visible on hover via CSS)', (t) 
 test('ParserButton: only parsers with showInMenu are rendered', (t) => {
     const categoryWithHidden = {
         parsers: [
-            mockParser,
-            {id: 'hidden', displayName: 'Hidden', showInMenu: false, hasSettings: () => false},
+            mockParser, {
+                id: 'hidden',
+                displayName: 'Hidden',
+                showInMenu: false,
+                hasSettings: () => false,
+            },
         ],
     };
     
@@ -206,14 +210,19 @@ test('ParserButton: mouseleave clears is-closed class', (t) => {
 test('ParserButton: settings button calls onParserSettingsButtonClick', (t) => {
     let clicked = false;
     
-    const parserWithSettings = {...mockParser, hasSettings: () => true};
+    const parserWithSettings = {
+        ...mockParser,
+        hasSettings: () => true,
+    };
     
     render(
         <ParserButton
             parser={parserWithSettings}
             category={mockCategory}
             onParserChange={noop}
-            onParserSettingsButtonClick={() => { clicked = true; }}
+            onParserSettingsButtonClick={() => {
+                clicked = true;
+            }}
         />,
     );
     
@@ -229,7 +238,10 @@ test('ParserButton: settings button calls onParserSettingsButtonClick', (t) => {
 });
 
 test('ParserButton: settings button enabled when parser has settings', (t) => {
-    const parserWithSettings = {...mockParser, hasSettings: () => true};
+    const parserWithSettings = {
+        ...mockParser,
+        hasSettings: () => true,
+    };
     
     render(
         <ParserButton
