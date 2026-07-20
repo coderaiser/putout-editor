@@ -1,3 +1,8 @@
+2026.07.20, v3.0.34
+
+feature:
+- 95e05a1 client: close menu on click
+
 2026.07.19, v3.0.33
 
 fix:
