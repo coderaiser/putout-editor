@@ -102,6 +102,8 @@ jobs:
           TAG=${GITHUB_REF_NAME#v}
           kustomize edit set image \
             ghcr.io/coderaiser/putout-editor=ghcr.io/coderaiser/putout-editor:${TAG}
+      - name: Lint
+        run: redrun fix:lint
       - name: Commit and push tag bump
         uses: EndBug/add-and-commit@v10
         continue-on-error: true
