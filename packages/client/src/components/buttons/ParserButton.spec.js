@@ -64,7 +64,7 @@ test('ParserButton: settings button disabled when parser has no settings', (t) =
     t.end();
 });
 
-test('ParserButton: clicking span toggles menu open', (t) => {
+test('ParserButton: menu items always rendered (visible on hover via CSS)', (t) => {
     render(
         <ParserButton
             parser={mockParser}
@@ -74,15 +74,36 @@ test('ParserButton: clicking span toggles menu open', (t) => {
         />,
     );
     
-    const span = document.querySelector('.menuButton span');
-    
-    fireEvent.click(span);
-    
     const items = document.querySelectorAll('li');
     
     cleanup();
     
     t.equal(items.length, 2);
+    t.end();
+});
+
+test('ParserButton: only parsers with showInMenu are rendered', (t) => {
+    const categoryWithHidden = {
+        parsers: [
+            mockParser,
+            {id: 'hidden', displayName: 'Hidden', showInMenu: false, hasSettings: () => false},
+        ],
+    };
+    
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={categoryWithHidden}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const items = document.querySelectorAll('li');
+    
+    cleanup();
+    
+    t.equal(items.length, 1);
     t.end();
 });
 
@@ -102,10 +123,6 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
         />,
     );
     
-    const span = document.querySelector('.menuButton span');
-    
-    fireEvent.click(span);
-    
     const items = document.querySelectorAll('li');
     
     fireEvent.click(items[1]);
@@ -116,32 +133,30 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
     t.end();
 });
 
-test('ParserButton: clicking parser item closes menu', (t) => {
-    const onParserChange = () => {};
-    
+test('ParserButton: clicking parser item sets is-closed class', (t) => {
     render(
         <ParserButton
             parser={mockParser}
             category={mockCategory}
-            onParserChange={onParserChange}
+            onParserChange={noop}
             onParserSettingsButtonClick={noop}
         />,
     );
     
-    const span = document.querySelector('.menuButton span');
+    const div = document.querySelector('.menuButton');
+    const item = document.querySelector('li');
     
-    fireEvent.click(span);
-    fireEvent.click(document.querySelector('li'));
+    fireEvent.click(item);
     
-    const itemsAfter = document.querySelectorAll('li');
+    const result = div.className.includes('is-closed');
     
     cleanup();
     
-    t.equal(itemsAfter.length, 0);
+    t.ok(result);
     t.end();
 });
 
-test('ParserButton: outside click closes the menu', (t) => {
+test('ParserButton: clicking trigger span sets is-closed class', (t) => {
     render(
         <ParserButton
             parser={mockParser}
@@ -152,37 +167,84 @@ test('ParserButton: outside click closes the menu', (t) => {
     );
     
     const span = document.querySelector('.menuButton span');
+    const div = document.querySelector('.menuButton');
     
     fireEvent.click(span);
     
+    const result = div.className.includes('is-closed');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('ParserButton: mouseleave clears is-closed class', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const span = document.querySelector('.menuButton span');
     const div = document.querySelector('.menuButton');
     
-    fireEvent.click(document.body);
-    const result = div.className.includes('is-open');
+    fireEvent.click(span);
+    fireEvent.mouseLeave(div);
+    
+    const result = div.className.includes('is-closed');
+    
+    cleanup();
     
     t.notOk(result);
     t.end();
 });
 
-test('ParserButton: has is-open class when menu is open', (t) => {
+test('ParserButton: settings button calls onParserSettingsButtonClick', (t) => {
+    let clicked = false;
+    
+    const parserWithSettings = {...mockParser, hasSettings: () => true};
+    
     render(
         <ParserButton
-            parser={mockParser}
+            parser={parserWithSettings}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={() => { clicked = true; }}
+        />,
+    );
+    
+    const buttons = document.querySelectorAll('button');
+    const settingsBtn = [...buttons].at(-1);
+    
+    fireEvent.click(settingsBtn);
+    
+    cleanup();
+    
+    t.ok(clicked);
+    t.end();
+});
+
+test('ParserButton: settings button enabled when parser has settings', (t) => {
+    const parserWithSettings = {...mockParser, hasSettings: () => true};
+    
+    render(
+        <ParserButton
+            parser={parserWithSettings}
             category={mockCategory}
             onParserChange={noop}
             onParserSettingsButtonClick={noop}
         />,
     );
     
-    const span = document.querySelector('.menuButton span');
-    
-    fireEvent.click(span);
-    
-    const div = document.querySelector('.menuButton');
+    const buttons = document.querySelectorAll('button');
+    const settingsBtn = [...buttons].at(-1);
     
     cleanup();
-    const result = div.className.includes('is-open');
     
-    t.ok(result);
+    t.notOk(settingsBtn.disabled);
     t.end();
 });

@@ -10,16 +10,40 @@ const keyMappings = [
 ];
 
 class KeyMapButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {forceClosed: false};
+        this._onItemClick = this._onItemClick.bind(this);
+        this._onTriggerClick = this._onTriggerClick.bind(this);
+        this._onMouseLeave = this._onMouseLeave.bind(this);
+    }
+    
+    _onItemClick(keyMap) {
+        this.props.onKeyMapChange(keyMap);
+        this.setState({forceClosed: true});
+    }
+    
+    _onTriggerClick() {
+        this.setState({forceClosed: true});
+    }
+    
+    _onMouseLeave() {
+        this.setState({forceClosed: false});
+    }
+    
     render() {
         return (
             <div
                 className={cx({
                     button: true,
                     menuButton: true,
+                    'is-closed': this.state.forceClosed,
                 })}
+                onMouseLeave={this._onMouseLeave}
             >
                 <button
                     type="button"
+                    onClick={this._onTriggerClick}
                 >
                     <i
                         className={cx({
@@ -30,19 +54,19 @@ class KeyMapButton extends React.Component {
                     />
                     {this.props.keyMap}
                 </button>
-                {<ul>
+                <ul>
                     {keyMappings.map((keyMap) => (
                         <li
                             key={keyMap}
                             disabled={this.props.keyMap === keyMap}
-                            onClick={() => this.props.onKeyMapChange(keyMap)}
+                            onClick={() => this._onItemClick(keyMap)}
                         >
                             <button type="button">
                                 {keyMap}
                             </button>
                         </li>
                     ))}
-                </ul>}
+                </ul>
             </div>
         );
     }

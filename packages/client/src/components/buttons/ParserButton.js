@@ -6,64 +6,50 @@ export default class ParserButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false,
+            forceClosed: false,
         };
-        this._onClick = this._onClick.bind(this);
-        this._toggleOpen = this._toggleOpen.bind(this);
-        this._closeOnOutsideClick = this._closeOnOutsideClick.bind(this);
+        this._onItemClick = this._onItemClick.bind(this);
+        this._onTriggerClick = this._onTriggerClick.bind(this);
+        this._onMouseLeave = this._onMouseLeave.bind(this);
     }
     
-    _onClick({currentTarget}) {
+    _onItemClick({currentTarget}) {
         const parserID = currentTarget.getAttribute('data-id');
         this.props.onParserChange(getParserByID(parserID));
-        this.setState({
-            open: false,
-        });
+        this.setState({forceClosed: true});
     }
     
-    _toggleOpen() {
-        this.setState((prev) => ({
-            open: !prev.open,
-        }));
+    _onTriggerClick() {
+        this.setState({forceClosed: true});
     }
     
-    _closeOnOutsideClick(event) {
-        if (!this._container || !this._container.contains(event.target))
-            this.setState({
-                open: false,
-            });
-    }
-    
-    componentDidMount() {
-        globalThis.document.addEventListener('click', this._closeOnOutsideClick, true);
-    }
-    
-    componentWillUnmount() {
-        globalThis.document.removeEventListener('click', this._closeOnOutsideClick, true);
+    _onMouseLeave() {
+        this.setState({forceClosed: false});
     }
     
     render() {
         const parsers = this.props.category.parsers.filter((p) => p.showInMenu);
-        const className = `button menuButton${this.state.open ? ' is-open' : ''}`;
+        const className = `button menuButton${this.state.forceClosed ? ' is-closed' : ''}`;
         
         return (
             <div
                 className={className}
                 ref={(c) => this._container = c}
+                onMouseLeave={this._onMouseLeave}
             >
-                <span onClick={this._toggleOpen}>
+                <span onClick={this._onTriggerClick}>
                     <i className="fa fa-lg fa-code fa-fw"/>
                     {this.props.parser.displayName}
                 </span>
-                {this.state.open && <ul>
+                <ul>
                     {parsers.map((parser) => (
-                        <li key={parser.id} onClick={this._onClick} data-id={parser.id}>
+                        <li key={parser.id} onClick={this._onItemClick} data-id={parser.id}>
                             <button type="button">
                                 {parser.displayName}
                             </button>
                         </li>
                     ))}
-                </ul>}
+                </ul>
                 <button
                     type="button"
                     title="Parser Settings"

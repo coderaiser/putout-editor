@@ -1,48 +1,79 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 import cx from 'classnames';
-import ForkButton from './ForkButton';
-import NewButton from './NewButton';
-import SaveButton from './SaveButton';
-import ShareButton from './ShareButton';
+import ForkButton from './ForkButton.js';
+import NewButton from './NewButton.js';
+import SaveButton from './SaveButton.js';
+import ShareButton from './ShareButton.js';
 
-export default function SnippetButton(props) {
-    const canForkAndNotSave = props.canFork && !props.canSave;
-    const savingOrForking = props.saving || props.forking;
+export default class SnippetButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {forceClosed: false};
+        this._onTriggerClick = this._onTriggerClick.bind(this);
+        this._onItemClick = this._onItemClick.bind(this);
+        this._onMouseLeave = this._onMouseLeave.bind(this);
+    }
     
-    return (
-        <div className="button menuButton">
-            <span>
-                <i className="fa fa-lg fa-file-code-o fa-fw"/>
-         Snippet
-            </span>
-            <ul>
-                <li><NewButton {...props}/></li>
-                <li><SaveButton {...props}/></li>
-                <li><ForkButton {...props}/></li>
-                <li><ShareButton {...props}/></li>
-            </ul>
-            <button
-                type="button"
-                title={canForkAndNotSave ? 'Fork' : 'Save'}
-                style={{
-                    minWidth: 0,
-                }}
-                disabled={savingOrForking || !props.canSave && !props.canFork}
-                onClick={canForkAndNotSave ? props.onFork : props.onSave}
+    _onTriggerClick() {
+        this.setState({forceClosed: true});
+    }
+    
+    _onItemClick() {
+        this.setState({forceClosed: true});
+    }
+    
+    _onMouseLeave() {
+        this.setState({forceClosed: false});
+    }
+    
+    render() {
+        const props = this.props;
+        const canForkAndNotSave = props.canFork && !props.canSave;
+        const savingOrForking = props.saving || props.forking;
+        
+        return (
+            <div
+                className={cx({
+                    button: true,
+                    menuButton: true,
+                    'is-closed': this.state.forceClosed,
+                })}
+                onMouseLeave={this._onMouseLeave}
             >
-                <i
-                    className={cx({
-                        'fa': true,
-                        'fa-spinner': savingOrForking,
-                        'fa-pulse': savingOrForking,
-                        'fa-floppy-o': !savingOrForking && !canForkAndNotSave,
-                        'fa-code-fork': !savingOrForking && canForkAndNotSave,
-                        'fa-fw': true,
-                    })}
-                />
-            </button>
-        </div>
-    );
+                <span onClick={this._onTriggerClick}>
+                    <i className="fa fa-lg fa-file-code-o fa-fw"/>
+             Snippet
+                </span>
+                <ul onClick={this._onItemClick}>
+                    <li><NewButton {...props}/></li>
+                    <li><SaveButton {...props}/></li>
+                    <li><ForkButton {...props}/></li>
+                    <li><ShareButton {...props}/></li>
+                </ul>
+                <button
+                    type="button"
+                    title={canForkAndNotSave ? 'Fork' : 'Save'}
+                    style={{
+                        minWidth: 0,
+                    }}
+                    disabled={savingOrForking || !props.canSave && !props.canFork}
+                    onClick={canForkAndNotSave ? props.onFork : props.onSave}
+                >
+                    <i
+                        className={cx({
+                            'fa': true,
+                            'fa-spinner': savingOrForking,
+                            'fa-pulse': savingOrForking,
+                            'fa-floppy-o': !savingOrForking && !canForkAndNotSave,
+                            'fa-code-fork': !savingOrForking && canForkAndNotSave,
+                            'fa-fw': true,
+                        })}
+                    />
+                </button>
+            </div>
+        );
+    }
 }
 
 SnippetButton.propTypes = {

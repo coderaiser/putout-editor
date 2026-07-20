@@ -69,3 +69,57 @@ test('KeyMapButton: item with matching keyMap has disabled attribute set', (t) =
     t.ok(result);
     t.end();
 });
+
+test('KeyMapButton: clicking item sets is-closed class', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+    
+    const div = document.querySelector('.menuButton');
+    const item = document.querySelector('li');
+    
+    fireEvent.click(item);
+    
+    const result = div.className.includes('is-closed');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('KeyMapButton: clicking trigger button sets is-closed class', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+    
+    const div = document.querySelector('.menuButton');
+    const trigger = document.querySelector('.menuButton > button');
+    
+    fireEvent.click(trigger);
+    
+    const result = div.className.includes('is-closed');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('KeyMapButton: mouseleave clears is-closed class', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+    
+    const div = document.querySelector('.menuButton');
+    
+    fireEvent.click(document.querySelector('.menuButton > button'));
+    fireEvent.mouseLeave(div);
+    
+    const result = div.className.includes('is-closed');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
