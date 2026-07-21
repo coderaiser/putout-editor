@@ -5,6 +5,10 @@ import process from 'node:process';
 import fs from 'node:fs';
 import {rspack} from '@rspack/core';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import {
+    defineReactCompilerLoaderOption,
+    reactCompilerLoader,
+} from 'react-compiler-webpack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -144,26 +148,30 @@ export default {
                 join(__dirname, 'node_modules', '@putout'),
                 join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
-            // babel-loader -> builtin:swc-loader for faster builds
-            loader: 'builtin:swc-loader',
-            options: {
-                jsc: {
-                    parser: {
-                        syntax: 'ecmascript',
-                        jsx: true,
-                    },
-                    transform: {
-                        react: {
-                            runtime: 'automatic',
-                            development: DEV,
+            use: [{
+                loader: reactCompilerLoader,
+                options: defineReactCompilerLoaderOption({}),
+            }, {
+                loader: 'builtin:swc-loader',
+                options: {
+                    jsc: {
+                        parser: {
+                            syntax: 'ecmascript',
+                            jsx: true,
                         },
+                        transform: {
+                            react: {
+                                runtime: 'automatic',
+                                development: DEV,
+                            },
+                        },
+                        externalHelpers: true,
                     },
-                    externalHelpers: true,
+                    env: {
+                        targets: 'last 2 Chrome versions, last 2 Safari versions, Firefox ESR, not dead',
+                    },
                 },
-                env: {
-                    targets: 'last 2 Chrome versions, last 2 Safari versions, Firefox ESR, not dead',
-                },
-            },
+            }],
         }, {
             test: /\.css$/,
             use: [
