@@ -3,9 +3,10 @@ import {defineConfig} from 'eslint/config';
 import reactCompiler from 'eslint-plugin-react-compiler';
 
 export default defineConfig([
-    safeAlign,
-    {
-        plugins: {'react-compiler': reactCompiler},
+    safeAlign, {
+        plugins: {
+            'react-compiler': reactCompiler,
+        },
         rules: {
             'no-irregular-whitespace': 'off',
             'react-compiler/react-compiler': 'error',

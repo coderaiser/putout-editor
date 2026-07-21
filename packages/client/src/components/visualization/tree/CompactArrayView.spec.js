@@ -67,9 +67,11 @@ test('CompactArrayView: onClick called when placeholder clicked', (t) => {
 
 test('CompactArrayView: array-like object with length works', (t) => {
     render(
-        <CompactArrayView array={{
-            length: 5,
-        }}/>,
+        <CompactArrayView
+            array={{
+                length: 5,
+            }}
+        />,
     );
     
     const placeholder = document.querySelector('.placeholder');
