@@ -7,7 +7,9 @@ import {
 import CompactArrayView from './CompactArrayView.js';
 
 test('CompactArrayView: empty array renders empty brackets', (t) => {
-    render(<CompactArrayView array={[]}/>);
+    render(
+        <CompactArrayView array={[]}/>,
+    );
     
     const el = document.querySelector('.p');
     
@@ -18,7 +20,9 @@ test('CompactArrayView: empty array renders empty brackets', (t) => {
 });
 
 test('CompactArrayView: single element renders count', (t) => {
-    render(<CompactArrayView array={['x']}/>);
+    render(
+        <CompactArrayView array={['x']}/>,
+    );
     
     const placeholder = document.querySelector('.placeholder');
     
@@ -29,7 +33,9 @@ test('CompactArrayView: single element renders count', (t) => {
 });
 
 test('CompactArrayView: multiple elements uses plural', (t) => {
-    render(<CompactArrayView array={['a', 'b', 'c']}/>);
+    render(
+        <CompactArrayView array={['a', 'b', 'c']}/>,
+    );
     
     const placeholder = document.querySelector('.placeholder');
     
@@ -60,7 +66,11 @@ test('CompactArrayView: onClick called when placeholder clicked', (t) => {
 });
 
 test('CompactArrayView: array-like object with length works', (t) => {
-    render(<CompactArrayView array={{length: 5}}/>);
+    render(
+        <CompactArrayView array={{
+            length: 5,
+        }}/>,
+    );
     
     const placeholder = document.querySelector('.placeholder');
     
