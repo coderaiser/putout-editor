@@ -124,7 +124,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange node.range', (t) => {
         range: [0, 10],
     });
     
-    t.deepEqual(result, [0, 10]);
+    const expected = [0, 10];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -141,7 +143,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange start/end', (t) => {
         end: 5,
     });
     
-    t.deepEqual(result, [1, 5]);
+    const expected = [1, 5];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -458,8 +462,9 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange derives range from child
     };
     
     const result = adapter.getRange(node);
+    const expected = [0, 10];
     
-    t.deepEqual(result, [0, 10]);
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -557,8 +562,9 @@ test('TreeAdapter: getConfigurableFilters with default adapter returns empty arr
     }, {});
     
     const result = adapter.getConfigurableFilters();
+    const expected = [];
     
-    t.deepEqual(result, []);
+    t.deepEqual(result, expected);
     t.end();
 });
 

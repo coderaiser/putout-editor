@@ -27,9 +27,10 @@ test('server: nodeToRange fallback combined range', (t) => {
         },
     };
     
-    const range = nodeToRange(parser, parent);
+    const result = nodeToRange(parser, parent);
+    const expected = [0, 20];
     
-    t.deepEqual(range, [0, 20]);
+    t.deepEqual(result, expected);
     t.end();
 });
 
