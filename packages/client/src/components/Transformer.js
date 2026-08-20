@@ -4,7 +4,6 @@ import React from 'react';
 import Editor from './Editor';
 import SplitPane from './SplitPane';
 import TransformOutput from './TransformOutput';
-import PrettierButton from './buttons/PrettierButton';
 import {getTransformerByID} from '../parsers/index.js';
 
 function resize() {
@@ -25,7 +24,6 @@ export default function Transformer(props) {
     
     const formattingEditor = (
         <div>
-            <PrettierButton toggleFormatting={props.toggleFormatting} enableFormatting={props.enableFormatting}/>
             {plainEditor}
         </div>
     );
