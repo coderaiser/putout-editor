@@ -200,13 +200,11 @@ class Revision {
 }
 
 function getSource(config, gist) {
-    switch(config.v) {
-    case 1:
+    if (config.v === 1)
         return gist.files['code.js'].content;
     
-    case 2: {
+    if (config.v === 2) {
         const ext = getParserByID(config.parserID).category.fileExtension;
         return gist.files[`source.${ext}`].content;
-    }
     }
 }

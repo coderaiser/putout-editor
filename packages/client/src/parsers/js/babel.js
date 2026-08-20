@@ -5,6 +5,8 @@ import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './utils/defaultESTreeParserInterface.js';
 
+const isString = (a) => typeof a === 'string';
+
 const isUndefined = (a) => typeof a === 'undefined';
 const {keys} = Object;
 
@@ -136,13 +138,11 @@ export default {
     },
     
     getNodeName(node) {
-        switch(typeof node.type) {
-        case 'string':
+        if (isString(node.type))
             return node.type;
         
-        case 'object':
+        if (typeof node.type === 'object')
             return `Token (${node.type.label})`;
-        }
     },
     
     nodeToRange(node) {
