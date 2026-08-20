@@ -4,6 +4,7 @@
   "type": "module",
   "description": "🐊Putout Editor",
   "private": true,
+  "tag": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/coderaiser/putout-editor.git"

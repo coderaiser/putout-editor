@@ -4,6 +4,7 @@
   "type": "module",
   "main": "index.js",
   "private": true,
+  "tag": false,
   "dependencies": {
     "@nestjs/cli": "^11.0.24",
     "@nestjs/common": "^11.1.28",
