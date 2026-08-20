@@ -1,6 +1,6 @@
 {
   "name": "@putout/editor-client",
-  "version": "2.4.3",
+  "version": "2.5.0",
   "type": "module",
   "description": "🐊Putout Editor",
   "private": true,
@@ -129,5 +129,8 @@
     "eslint:hotfix": "madrun eslint:hotfix",
     "halting-problem:hotfix": "madrun halting-problem:hotfix",
     "init": "madrun init"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

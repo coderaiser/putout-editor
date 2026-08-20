@@ -1,3 +1,152 @@
+2026.08.20, v2.5.0
+
+fix:
+- 2790087 client: version
+- 00f8395 actions: release
+- 2ed0963 actions: release: pipeline
+- ac89298 client: gist spec Promise.resolve mocks; ParserButton spec NodeList.at
+- bc4b0c4 client: ASTOutput import extension; export mapDispatchToProps
+- 9da2f94 client: logger: overrides pattern, silence output in middleware tests
+- af9ec25 client: parsers: add .js extensions for Node.js compatibility
+- 5179f20 increase tries count
+- d0d0b2c @putout/editor: deploy: wait
+- 41522f2 @putout/editor: deploy: wait
+- 8532a2d @putout/editor: deploy: Wait for Traefik
+- 9293d20 @putout/editor: deploy: prod: rm patch
+- 87d5a98 release: deploy: prod: ref
+- b7bdb99 deploy: traefik
+- 0669c6f deploy: Wait for Traefik
+- 2cd496a @putout/editor: deploy: release
+- 4c94f11 @putout/editor: deploy: prod
+- 83e0a39 deploy: argo: port
+- ece4f5a actions: ci: ingress-patch
+- 1dd770c client: TreeAdapter: rm hasChildrenInRange dead code
+- f75fe6b k8s: ci: ingress-patch
+- 3787af8 use redlint fix instead of scan
+- e8117eb actions: Lint Kubernetes: -ignore-missing-schemas
+- 32e0bc2 actions: ci: kustomization
+- 4869104 actions: release: 8080
+- 229bcec release: port 8080 -> 80
+- 8eb4268 client: storage: index spec
+- fe8c738 actions: release: kustomize
+- 725fdf2 actions: kubernetes
+- f5f7dd0 actions: release: -f -> -k
+- 2e7c4be actions: release: k3d
+- 43b177f actions: rm AbsaOSS/k3d-action
+- 642be36 @putout/editor: docker
+- fee0d39 docker: cat
+- a2f4de5 docker: ls
+- 186b006 package: madrun
+- 71386bd docker: lock
+- 7f5e342 actions: docker: rm docker hub
+- aebc0b9 client: build
+- f62790b client: fix test assertions after lint reformat
+- eae363e package: express
+- a117934 @putout/editor-client: JSON_JSON -> JSON
+- bf62caa @putout/editor: token
+- a3b2a61 webpack: @putout/engine-loader
+- 0d2e663 putout-editor: try-catch
+
+feature:
+- c01af19 PrettierButton: rm
+- ba6f560 react compiler: add
+- afbd373 CompactArrayView: migrate to hooks
+- 0c13b62 client: ErrorMessage: migrate to hooks
+- 4b14297 client: GistBanner: migrate to hooks
+- 95e05a1 client: close menu on click
+- 5300b81 version in title
+- 7f79368 client: parser menu closes on item click and outside click
+- 3bb5ff5 @putout/editor: deploy: argocd
+- a08c3d3 deploy: argo: targetRevision
+- beed69e deploy: argocd: add
+- 0d94b85 client: parser: simplify
+- 2b66af9 clinet: require.context: get rid of
+- e64ff5e deploy: add overlays
+- 4a51fc7 k8s: cluster-issuer
+- e632996 actions: release: k8s: kustomization
+- 51184cd actions: merge
+- 216b87b client: LoadingIndicator, ShareButton: add tests
+- 57ec759 server: add createParseService helper to reduce boilerplate
+- 9f2e037 server: @putout/plugin-nestjs: add
+- a20ea8d putout-editor: migrate to monorepo
+- 39164ea putout-editor: server: v3
+- 8405eb7 @putout/editor-server: migrate to nestjs
+- 87e52e2 @putout/editor: css-loader v7.1.4
+- c26b9f5 migrate to rspack
+- 4d7655b @putout/editor-server: github-api -> octokit
+- 5af8440 putout-editor: get rid of saga
+- 030b48a @putout/editor: @babel/runtime v8.0.0
+- e8cffd0 @putout/editor: @babel/preset-react v8.0.1
+- 9b89de9 @putout/editor: @babel/preset-env v8.0.2
+- 426d7d4 @putout/editor: @babel/plugin-transform-runtime v8.0.1
+- 350f134 @putout/editor: @babel/eslint-parser v8.0.1
+- d24aaff @putout/editor: @babel/core v8.0.1
+- c470967 v2
+- e13779d @putout/editor-server: migrate to ESM
+- 652774a putout-editor-server: putout v42.5.1
+- 6690f0a putout-editor-server: madrun v13.0.2
+- 6e78fdc putout-editor-server: eslint-plugin-putout v31.1.3
+- 3c859be putout-editor-server: eslint v10.4.0
+- 745beb8 @putout/editor: typescript v6.0.2
+- 7bac0b4 @putout/editor: webpack-cli v7.0.2
+- 5870575 @putout/editor: @putout/plugin-optional-chaining v3.0.0
+- 91ab1ca @putout/editor: @putout/plugin-conditions v9.0.2
+- aed79f9 @putout/editor: @putout/plugin-variables v2.0.0
+- 83d326f @putout/editor: @putout/plugin-declare-before-reference v10.0.0
+- bf10e30 @putout/editor: @putout/plugin-destructuring v2.0.0
+- 90e5e81 @putout/editor: @putout/plugin-nodejs v21.0.0
+- b4b692e @putout/editor: @putout/plugin-putout v29.0.0
+- 4a45c61 @putout/editor: eslint-plugin-putout v31.0.0
+- d710709 @putout/editor: @putout/plugin-types v10.0.0
+- 8d86f53 @putout/editor: @putout/plugin-maybe v5.0.0
+- 06f8e23 @putout/editor: @putout/plugin-declare v8.0.0
+- 0e6044d @putout/editor: flatlint v5.1.0
+- 96d5b00 @putout/editor: putout v42.0.8
+- 356e463 @putout/editor: madrun v13.0.0
+- 260042b @putout/editor: plugin-conditions: add
+- 5f0d643 @putout/editor: eslint v10.0.0
+- 4c980bb @putout/editor: @putout/plugin-nodejs v20.0.0
+- d030b06 @putout/editor: eslint-plugin-putout v30.0.0
+- fa3da0e @putout/editor: @putout/plugin-types v9.0.0
+- 6e291be @putout/editor: @putout/plugin-nodejs v19.0.0
+- 7616f2f @putout/editor: @putout/plugin-declare v7.1.0
+- 1d1b855 @putout/editor: madrun v12.1.0
+- bbb0469 @putout/editor: estree-to-babel v12.0.0
+- 7d347d1 @putout/editor: babel options
+- 7df41be @putout/editor: flatlint v4.0.7
+- 751f447 @putout/editor: @putout/plugin-nodejs v18.4.0
+- 3aa2641 @putout/editor: @putout/plugin-putout v28.2.1
+- ce8f00f @putout/editor: @putout/plugin-declare-before-reference v9.0.1
+- e13d493 @putout/editor: try-catch v4.0.2
+- 284f5af putout-editor-server: body-parser v2.2.1
+- f6b1dc5 putout-editor-server: express v5.2.1
+- d448bf4 putout-editor-server: eslint-plugin-putout v29.0.2
+- 1ff9a52 putout-editor-server: madrun v11.0.4
+- 9c2ac9b putout-editor-server: eslint v9.39.1
+- c64fd8b putout-editor-server: putout v41.0.2
+- 22e83d3 client: babel: rm flow
+- 12d7752 @putout/editor: react-redux v9.2.0
+- 4bc604f @putout/editor: react-dom v19.2.1
+- 7a54780 @putout/editor: react v19.2.1
+- a34658c @putout/editor: style-loader v4.0.0
+- 1ea1b94 @putout/editor: postcss-less v6.0.0
+- 0d473b1 @putout/editor: postcss-loader v8.2.0
+- 29e8942 @putout/editor: query-string v9.3.1
+- c3044f7 @putout/editor: webpack-cli v6.0.1
+- 6240cf2 @putout/editor: babel-loader v10.0.0
+- 082e470 @putout/editor: http-server v14.1.1
+- 953d44a @putout/editor: reselect v5.1.1
+- c498ea7 @putout/editor: rm transform to es5
+- f5b268e putout-editor: update
+- b170212 putout-editor: @putout/engine-parser v15.0.2
+- 3d9ef72 putout-editor: eslint-plugin-putout v29.0.2
+- 2eeabb0 putout-editor: @putout/plugin-destructuring v1.3.0
+- 66c4045 putout-editor: @putout/plugin-variables v1.3.1
+- c6e4d16 putout-editor: putout v41.0.0
+- 57f1ce1 putout-editor: espree v11.0.0
+- ea0d7c5 putout-editor: @putout/plugin-declare v6.0.0
+- f99a558 putout-editor: @putout/plugin-putout v27.6.0
+
 2025.09.07, v2.4.3
 
 fix:
