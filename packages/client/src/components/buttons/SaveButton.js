@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import cx from 'classnames';
+import {TbDeviceFloppy, TbLoader2} from 'react-icons/tb';
 
 export default function SaveButton({canSave, saving, forking, onSave}) {
     return (
@@ -8,15 +8,9 @@ export default function SaveButton({canSave, saving, forking, onSave}) {
             disabled={!canSave || saving || forking}
             onClick={onSave}
         >
-            <i
-                className={cx({
-                    'fa': true,
-                    'fa-spinner': saving,
-                    'fa-pulse': saving,
-                    'fa-floppy-o': !saving,
-                    'fa-fw': true,
-                })}
-            /> Save
+            {saving
+                ? <TbLoader2 size={18}/>
+                : <TbDeviceFloppy size={18}/>} Save
         </button>
     );
 }

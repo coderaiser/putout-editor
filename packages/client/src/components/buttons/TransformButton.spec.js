@@ -295,7 +295,7 @@ test('TransformButton: selected class applied to active transformer item', (t) =
     t.end();
 });
 
-test('TransformButton: fa-toggle-on icon when showTransformer is true', (t) => {
+test('TransformButton: renders toggle button svg icon', (t) => {
     render(
         <TransformButton
             category={mockCategory}
@@ -305,15 +305,33 @@ test('TransformButton: fa-toggle-on icon when showTransformer is true', (t) => {
         />,
     );
     
-    const icon = document.querySelector('.fa-toggle-on');
+    const svg = document.querySelector('.menuButton > button svg');
     
     cleanup();
     
-    t.ok(icon);
+    t.ok(svg, 'toggle icon svg rendered');
     t.end();
 });
 
-test('TransformButton: fa-toggle-off icon when showTransformer is false', (t) => {
+test('TransformButton: renders toggle icon with showTransformer true', (t) => {
+    render(
+        <TransformButton
+            category={mockCategory}
+            transformer={mockTransformer}
+            showTransformer={true}
+            onTransformChange={noop}
+        />,
+    );
+    
+    const svg = document.querySelector('.menuButton > button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'toggle-on icon svg rendered');
+    t.end();
+});
+
+test('TransformButton: renders toggle icon when showTransformer false', (t) => {
     render(
         <TransformButton
             category={mockCategory}
@@ -323,10 +341,10 @@ test('TransformButton: fa-toggle-off icon when showTransformer is false', (t) =>
         />,
     );
     
-    const icon = document.querySelector('.fa-toggle-off');
+    const svg = document.querySelector('.menuButton > button svg');
     
     cleanup();
     
-    t.ok(icon);
+    t.ok(svg, 'toggle-off icon svg rendered');
     t.end();
 });

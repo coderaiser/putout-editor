@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
-import ParserButton from './buttons/ParserButton';
-import SnippetButton from './buttons/SnippetButton';
-import TransformButton from './buttons/TransformButton';
-import KeyMapButton from './buttons/KeyMapButton';
-import Funding from './buttons/Funding';
+import {TbQuestionMark} from 'react-icons/tb';
+import ParserButton from './buttons/ParserButton.js';
+import SnippetButton from './buttons/SnippetButton.js';
+import TransformButton from './buttons/TransformButton.js';
+import KeyMapButton from './buttons/KeyMapButton.js';
+import Funding from './buttons/Funding.js';
 import {getTransformerByID} from '../parsers/index.js';
 
 export default function Toolbar(props) {
@@ -54,7 +55,7 @@ export default function Toolbar(props) {
                 title="Help"
                 href="https://github.com/coderaiser/putout#-plugins-api"
             >
-                <i className="fa fa-lg fa-question fa-fw"/>
+                <TbQuestionMark size={18}/>
             </a>
             <Funding {...props}/>
             <div id="info" className={transformerInfo ? 'small' : ''}>

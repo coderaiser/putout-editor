@@ -27,3 +27,16 @@ test('LoadingIndicator: visible: renders spinner', (t) => {
     t.ok(result);
     t.end();
 });
+
+test('LoadingIndicator: visible: renders svg spinner icon', (t) => {
+    render(
+        <LoadingIndicator visible={true}/>,
+    );
+    
+    const svg = document.querySelector('.loadingIndicator svg');
+    
+    cleanup();
+    
+    t.ok(svg);
+    t.end();
+});

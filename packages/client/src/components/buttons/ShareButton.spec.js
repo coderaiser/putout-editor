@@ -46,3 +46,16 @@ test('ShareButton: click: calls onShareButtonClick', (t) => {
     t.calledOnce(onShareButtonClick);
     t.end();
 });
+
+test('ShareButton: renders share svg icon', (t) => {
+    render(
+        <ShareButton onShareButtonClick={stub()} snippet={{}}/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'share icon svg rendered');
+    t.end();
+});

@@ -211,41 +211,54 @@ test('SnippetButton: quick-save button calls onFork when canFork and not canSave
     t.end();
 });
 
-test('SnippetButton: fa-spinner icon shown when saving', (t) => {
+test('SnippetButton: renders trigger file svg icon', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    
+    const svg = document.querySelector('.menuButton > span svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'trigger file icon svg rendered');
+    t.end();
+});
+
+test('SnippetButton: renders action svg icon when saving', (t) => {
     render(
         <SnippetButton {...defaultProps} saving={true}/>,
     );
     
-    const icon = document.querySelector('.fa-spinner');
+    const svg = document.querySelector('.menuButton > button svg');
     
     cleanup();
     
-    t.ok(icon);
+    t.ok(svg, 'spinner icon svg rendered');
     t.end();
 });
 
-test('SnippetButton: fa-code-fork icon shown when canFork and not canSave and not saving/forking', (t) => {
+test('SnippetButton: renders fork svg icon when canFork and not canSave and not saving/forking', (t) => {
     render(
         <SnippetButton {...defaultProps} canSave={false} canFork={true} saving={false} forking={false}/>,
     );
     
-    const icon = document.querySelector('.fa-code-fork');
+    const svg = document.querySelector('.menuButton > button svg');
     
     cleanup();
     
-    t.ok(icon);
+    t.ok(svg, 'fork icon svg rendered');
     t.end();
 });
 
-test('SnippetButton: fa-floppy-o icon shown when canSave and not saving/forking', (t) => {
+test('SnippetButton: renders save svg icon when canSave and not saving/forking', (t) => {
     render(
         <SnippetButton {...defaultProps} canSave={true} canFork={false} saving={false} forking={false}/>,
     );
     
-    const icon = document.querySelector('.fa-floppy-o');
+    const svg = document.querySelector('.menuButton > button svg');
     
     cleanup();
     
-    t.ok(icon);
+    t.ok(svg, 'save icon svg rendered');
     t.end();
 });

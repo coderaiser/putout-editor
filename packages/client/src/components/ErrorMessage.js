@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {TbAlertTriangle} from 'react-icons/tb';
 
 export default function ErrorMessage({error, onWantToClose}) {
     if (!error)
@@ -8,7 +9,7 @@ export default function ErrorMessage({error, onWantToClose}) {
         <div className="cover">
             <div className="errorMessage">
                 <h3>
-                    <i className="fa fa-exclamation-triangle"></i>
+                    <TbAlertTriangle size={18}/>
                     {' '}
                     Error
                 </h3>

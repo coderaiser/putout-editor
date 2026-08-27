@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
+import {TbLoader2} from 'react-icons/tb';
 
 export default function LoadingIndicator(props) {
     return props.visible ? <div
         className="loadingIndicator cover"
     >
         <div>
-            <i className="fa fa-lg fa-spinner fa-pulse"></i>
+            <TbLoader2 size={32}/>
         </div>
     </div> : null;
 }

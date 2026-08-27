@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import {TbHeart} from 'react-icons/tb';
 
 const fundings = [
     'patreon',
@@ -19,14 +20,8 @@ class Funding extends React.Component {
                 <button
                     type="button"
                 >
-                    <i
-                        className={cx({
-                            'fa': true,
-                            'fa-lg': true,
-                            'fa-gratipay': true,
-                        })}
-                    />
-           Funding
+                    <TbHeart size={18}/>
+                    &nbsp;Funding
                 </button>
                 {<ul>
                     {fundings.map((funding) => (

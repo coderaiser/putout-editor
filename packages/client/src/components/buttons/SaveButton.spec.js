@@ -74,3 +74,29 @@ test('SaveButton: onSave called on click', (t) => {
     t.ok(called);
     t.end();
 });
+
+test('SaveButton: renders floppy svg icon', (t) => {
+    render(
+        <SaveButton canSave={true} saving={false} forking={false}/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'floppy icon svg rendered');
+    t.end();
+});
+
+test('SaveButton: renders loader svg icon while saving', (t) => {
+    render(
+        <SaveButton canSave={true} saving={true} forking={false}/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'spinner icon svg rendered');
+    t.end();
+});

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import {TbCode, TbSettings} from 'react-icons/tb';
 import {getParserByID} from '../../parsers/index.js';
 
 export default class ParserButton extends React.Component {
@@ -44,7 +45,7 @@ export default class ParserButton extends React.Component {
                 onMouseLeave={this._onMouseLeave}
             >
                 <span onClick={this._onTriggerClick}>
-                    <i className="fa fa-lg fa-code fa-fw"/>
+                    <TbCode size={18}/>
                     {this.props.parser.displayName}
                 </span>
                 <ul>
@@ -65,7 +66,7 @@ export default class ParserButton extends React.Component {
                     disabled={!this.props.parser.hasSettings()}
                     onClick={this.props.onParserSettingsButtonClick}
                 >
-                    <i className="fa fa-cog fa-fw"/>
+                    <TbSettings size={18}/>
                 </button>
             </div>
         );

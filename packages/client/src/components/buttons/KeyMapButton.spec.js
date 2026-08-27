@@ -22,6 +22,19 @@ test('KeyMapButton: renders current keyMap text', (t) => {
     t.end();
 });
 
+test('KeyMapButton: renders keyboard svg icon', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+    
+    const svg = document.querySelector('.menuButton > button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'keyboard icon svg rendered');
+    t.end();
+});
+
 test('KeyMapButton: renders four key map options', (t) => {
     render(
         <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,

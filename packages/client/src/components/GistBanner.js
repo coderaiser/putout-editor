@@ -9,6 +9,7 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
+import {TbX} from 'react-icons/tb';
 import {getRevision} from '../store/selectors.js';
 
 const buttonStyle = {
@@ -46,7 +47,7 @@ function GistBanner({revision}) {
             This snippet is <strong>read-only</strong>. You can still save changes
             by forking it.
             <button style={buttonStyle} onClick={() => setVisible(false)}>
-                <i className="fa fa-times" aria-hidden="true"></i>
+                <TbX size={14}/>
             </button>
         </div>
     );

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {TbFilePlus} from 'react-icons/tb';
 
 export default function SaveButton({saving, forking, onNew}) {
     return (
@@ -7,7 +8,7 @@ export default function SaveButton({saving, forking, onNew}) {
             disabled={saving || forking}
             onClick={onNew}
         >
-            <i className="fa fa-file-o fa-fw"/> New
+            <TbFilePlus size={18}/> New
         </button>
     );
 }

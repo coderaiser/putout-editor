@@ -45,6 +45,42 @@ test('ParserButton: renders parser display name', (t) => {
     t.end();
 });
 
+test('ParserButton: renders code Icon svg', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const svg = document.querySelector('span svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'code icon svg rendered');
+    t.end();
+});
+
+test('ParserButton: renders settings svg', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'settings icon svg rendered');
+    t.end();
+});
+
 test('ParserButton: settings button disabled when parser has no settings', (t) => {
     render(
         <ParserButton

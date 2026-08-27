@@ -122,3 +122,24 @@ test('ErrorMessage: click OK dispatches clearError', (t) => {
     t.notOk(error);
     t.end();
 });
+
+test('ErrorMessage: renders alert svg icon', (t) => {
+    const store = createStore(reducer);
+    
+    store.dispatch(setError({
+        message: 'icon check',
+    }));
+    
+    render(
+        <Provider store={store}>
+            <ErrorMessageContainer/>
+        </Provider>,
+    );
+    
+    const svg = document.querySelector('h3 svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'alert icon svg rendered');
+    t.end();
+});

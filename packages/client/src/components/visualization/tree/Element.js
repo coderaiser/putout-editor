@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
 import cx from 'classnames';
+import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
@@ -304,9 +305,8 @@ let Element = class extends React.Component {
                 {suffix ? <div className="suffix p">{suffix}</div> : null}
                 {this.state.error ? <span>
                     {' '}
-                    <i
+                    <TbAlertTriangle
                         title={this.state.error.message}
-                        className="fa fa-exclamation-triangle"
                     />
                 </span> : null}
             </li>

@@ -64,3 +64,16 @@ test('NewButton: onNew called on click', (t) => {
     t.ok(called, 'onNew called');
     t.end();
 });
+
+test('NewButton: renders new file svg icon', (t) => {
+    render(
+        <NewButton saving={false} forking={false}/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'new file icon svg rendered');
+    t.end();
+});

@@ -47,6 +47,23 @@ test('GistBanner: renders banner for read-only revision', (t) => {
     t.end();
 });
 
+test('GistBanner: renders close svg icon', (t) => {
+    const store = createStore(makeRevision());
+    
+    render(
+        <Provider store={store}>
+            <GistBanner/>
+        </Provider>,
+    );
+    
+    const svg = document.querySelector('.banner button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'close icon svg rendered');
+    t.end();
+});
+
 test('GistBanner: hidden when no revision', (t) => {
     const store = createStore(null);
     

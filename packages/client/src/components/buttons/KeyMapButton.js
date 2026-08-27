@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import {TbKeyboard} from 'react-icons/tb';
 
 const keyMappings = [
     'default',
@@ -53,13 +54,7 @@ class KeyMapButton extends React.Component {
                     type="button"
                     onClick={this._onTriggerClick}
                 >
-                    <i
-                        className={cx({
-                            'fa': true,
-                            'fa-lg': true,
-                            'fa-keyboard-o': true,
-                        })}
-                    />
+                    <TbKeyboard size={18}/>
                     {this.props.keyMap}
                 </button>
                 <ul>

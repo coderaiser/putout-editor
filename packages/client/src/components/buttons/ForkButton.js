@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import cx from 'classnames';
+import {TbGitFork, TbLoader2} from 'react-icons/tb';
 
 export default class ForkButton extends React.Component {
     render() {
@@ -17,15 +17,9 @@ export default class ForkButton extends React.Component {
                 disabled={!canFork || saving || forking}
                 onClick={onFork}
             >
-                <i
-                    className={cx({
-                        'fa': true,
-                        'fa-spinner': forking,
-                        'fa-pulse': forking,
-                        'fa-code-fork': !forking,
-                        'fa-fw': true,
-                    })}
-                /> Fork
+                {forking
+                    ? <TbLoader2 size={18}/>
+                    : <TbGitFork size={18}/>} Fork
             </button>
         );
     }

@@ -74,3 +74,29 @@ test('ForkButton: onFork called on click', (t) => {
     t.ok(called);
     t.end();
 });
+
+test('ForkButton: renders fork svg icon', (t) => {
+    render(
+        <ForkButton canFork={true} saving={false} forking={false}/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'fork icon svg rendered');
+    t.end();
+});
+
+test('ForkButton: renders loader svg icon while forking', (t) => {
+    render(
+        <ForkButton canFork={true} saving={false} forking={true}/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'spinner icon svg rendered');
+    t.end();
+});

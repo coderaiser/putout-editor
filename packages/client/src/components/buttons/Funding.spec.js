@@ -55,3 +55,16 @@ test('Funding: click calls globalThis.open', (t) => {
     t.equal(openedUrl, 'https://patreon.com/coderaiser');
     t.end();
 });
+
+test('Funding: renders heart svg icon', (t) => {
+    render(
+        <Funding/>,
+    );
+    
+    const svg = document.querySelector('button svg');
+    
+    cleanup();
+    
+    t.ok(svg, 'heart icon svg rendered');
+    t.end();
+});

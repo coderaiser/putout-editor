@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import {TbToggleLeft, TbToggleRight} from 'react-icons/tb';
 import {getTransformerByID} from '../../parsers/index.js';
 
 export default class TransformButton extends React.Component {
@@ -59,15 +60,9 @@ export default class TransformButton extends React.Component {
                     onClick={this._onTriggerClick}
                     disabled={!this.props.category.transformers.length}
                 >
-                    <i
-                        className={cx({
-                            'fa': true,
-                            'fa-lg': true,
-                            'fa-toggle-off': !this.props.showTransformer,
-                            'fa-toggle-on': this.props.showTransformer,
-                            'fa-fw': true,
-                        })}
-                    />
+                    {this.props.showTransformer
+                        ? <TbToggleRight size={18}/>
+                        : <TbToggleLeft size={18}/>}
                     Transform
                 </button>
                 {this.props.category.transformers.length && <ul>
