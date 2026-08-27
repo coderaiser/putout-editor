@@ -1,5 +1,6 @@
 import * as actions from './actions.js';
 import {logEvent, logError} from '../utils/logger.js';
+import {loadSnippetFromURL, saveRevision} from './operations.js';
 import {
     getParserSettings,
     getCode,
@@ -38,8 +39,7 @@ export default (storageAdapter) => (store) => (next) => (action) => {
         next(actions.startLoadingSnippet());
         next(action);
         
-        storageAdapter
-            .fetchFromURL()
+        loadSnippetFromURL(storageAdapter)
             .then((revision) => {
                 if (id !== requestId)
                     return;
@@ -73,7 +73,12 @@ export default (storageAdapter) => (store) => (next) => (action) => {
         next(action);
         next(actions.startSave(action.fork));
         
-        save(action.fork, state, storageAdapter)
+        const data = buildSaveData(state);
+        saveRevision(action.fork, data, getRevision(state), storageAdapter)
+            .then((newRevision) => {
+                if (newRevision)
+                    storageAdapter.updateHash(newRevision);
+            })
             .catch((error) => {
                 logError(error.message);
                 next(actions.setError(error));
@@ -88,50 +93,27 @@ export default (storageAdapter) => (store) => (next) => (action) => {
     }
 };
 
-function save(fork, state, storageAdapter) {
-    let saveAction = 'new_revision';
-    const revision = getRevision(state);
-    const parser = getParser(state);
+function buildSaveData(state) {
+    const parser         = getParser(state);
     const parserSettings = getParserSettings(state);
-    const code = getCode(state);
-    const transformCode = getTransformCode(state);
-    const transformer = getTransformer(state);
+    const code           = getCode(state);
+    const transformCode  = getTransformCode(state);
+    const transformer    = getTransformer(state);
     const showTransformPanel = showTransformer(state);
     
-    if (fork || !revision)
-        saveAction = fork ? 'fork' : 'create';
-    
     const data = {
-        parserID: parser.id,
-        settings: {
-            [parser.id]: parserSettings,
-        },
-        versions: {
-            [parser.id]: parser.version,
-        },
-        filename: `source.${parser.category.fileExtension}`,
+        parserID:  parser.id,
+        settings:  { [parser.id]: parserSettings },
+        versions:  { [parser.id]: parser.version },
+        filename:  `source.${parser.category.fileExtension}`,
         code,
     };
     
     if (showTransformPanel && transformer) {
-        data.toolID = transformer.id;
+        data.toolID                   = transformer.id;
         data.versions[transformer.id] = transformer.version;
-        data.transform = transformCode;
+        data.transform                = transformCode;
     }
     
-    logEvent('snippet', saveAction, data.toolID);
-    
-    let promise;
-    
-    if (fork)
-        promise = storageAdapter.fork(revision, data);
-    else if (revision)
-        promise = storageAdapter.update(revision, data);
-    else
-        promise = storageAdapter.create(data);
-    
-    return promise.then((newRevision) => {
-        if (newRevision)
-            storageAdapter.updateHash(newRevision);
-    });
+    return data;
 }

@@ -1,31 +1,10 @@
-import {estreeToBabel} from 'estree-to-babel';
 import {tryToCatch} from 'try-to-catch';
+import {parseCode} from './operations.js';
 import {
     getParserSettings,
     getCode,
 } from './selectors.js';
 import {getParser} from './parserSelectors.js';
-import {
-    ignoreKeysFilter,
-    locationInformationFilter,
-    functionFilter,
-    emptyKeysFilter,
-    typeKeysFilter,
-} from '../core/TreeAdapter.js';
-
-const returns = (a) => () => a;
-
-async function parse(parser, code, parserSettings) {
-    const settings = parserSettings || parser.getDefaultOptions();
-    
-    if (!parser._promise)
-        parser._promise = new Promise(parser.loadParser);
-    
-    const realParser = await parser._promise;
-    const ast = parser.parse(realParser, code, settings);
-    
-    return estreeToBabel(ast);
-}
 
 export default (store) => (next) => async (action) => {
     const oldState = store.getState();
@@ -53,7 +32,7 @@ export default (store) => (next) => async (action) => {
             });
         }
         
-        const [error, ast] = await tryToCatch(parse, newParser, newCode, newParserSettings);
+        const [error, result] = await tryToCatch(parseCode, newParser, newCode, newParserSettings);
         
         if (error) {
             next({
@@ -77,31 +56,12 @@ export default (store) => (next) => async (action) => {
         if (newParserSettings !== getParserSettings(store.getState()))
             return;
         
-        // Temporary adapter for parsers that haven't been migrated yet.
-        const treeAdapter = {
-            type: 'default',
-            options: {
-                openByDefault: (newParser.opensByDefault || returns(false)).bind(newParser),
-                nodeToRange: newParser.nodeToRange.bind(newParser),
-                nodeToName: newParser.getNodeName.bind(newParser),
-                walkNode: newParser.forEachProperty.bind(newParser),
-                filters: [
-                    ignoreKeysFilter(newParser._ignoredProperties),
-                    functionFilter(),
-                    emptyKeysFilter(),
-                    locationInformationFilter(newParser.locationProps),
-                    typeKeysFilter(newParser.typeProps),
-                ],
-            },
-        };
-        
         next({
             type: 'SET_PARSE_RESULT',
             result: {
                 time: Date.now() - start,
-                ast,
+                ...result,
                 error: null,
-                treeAdapter,
             },
         });
     }
