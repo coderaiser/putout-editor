@@ -1,8 +1,5 @@
-import {test, stub} from 'supertape';
-import {
-    render,
-    cleanup,
-} from '@testing-library/react';
+import {test} from 'supertape';
+import {render, cleanup} from '@testing-library/react';
 import Toolbar from './Toolbar.js';
 
 const noop = () => {};

@@ -3,6 +3,84 @@
 @import url(./highlight.css);
 @import url(../fontcustom/fontcustom.css);
 
+:root {
+    --color-bg-page:         #ffffff;
+    --color-bg-toolbar:      #efefef;
+    --color-bg-contribution: #efefef;
+    --color-bg-editor:       #ffffff;
+    --color-bg-dialog:       #ffffff;
+    --color-text:            #454545;
+    --color-text-strong:     #333333;
+    --color-text-muted:      #555555;
+    --color-text-dim:        #888888;
+    --color-text-info:       #898989;
+    --color-accent:          #c00;
+    --color-border:          #dddddd;
+    --color-banner:          #b8dff7;
+    --color-divider:         #dddddd;
+    --color-divider-hover:   #999999;
+    --color-active-bg:       #999999;
+    --color-active-text:     #f5f5f5;
+    --color-error-bg:        #eb9494;
+    --color-overlay:         rgb(255 255 255 / 70%);
+    --color-dialog-shadow:   #555555;
+    --color-hover:           rgb(0 0 0 / 10%);
+    --color-hover-strong:    rgb(0 0 0 / 30%);
+    --color-selected:        rgb(0 0 0 / 5%);
+}
+
+[data-theme="dark"] {
+    --color-bg-page:         #1a1a1a;
+    --color-bg-toolbar:      #1e1e1e;
+    --color-bg-editor:       #1a1a1a;
+    --color-bg-dialog:       #252526;
+    --color-text:            #d4d4d4;
+    --color-text-strong:     #e0e0e0;
+    --color-text-muted:      #b8b8b8;
+    --color-text-dim:        #9e9e9e;
+    --color-text-info:       #9a9a9a;
+    --color-accent:          #e05252;
+    --color-border:          #3c3c3c;
+    --color-banner:          #1f3a5f;
+    --color-divider:         #3c3c3c;
+    --color-divider-hover:   #666666;
+    --color-active-bg:       #444444;
+    --color-active-text:     #eeeeee;
+    --color-error-bg:        #7a3b3b;
+    --color-overlay:         rgb(15 15 15 / 75%);
+    --color-dialog-shadow:   #000000;
+    --color-hover:           rgb(255 255 255 / 12%);
+    --color-hover-strong:    rgb(255 255 255 / 30%);
+    --color-selected:        rgb(255 255 255 / 8%);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]),
+    :root:not([data-theme]) {
+        --color-bg-page:         #1a1a1a;
+        --color-bg-toolbar:      #1e1e1e;
+        --color-bg-editor:       #1a1a1a;
+        --color-bg-dialog:       #252526;
+        --color-text:            #d4d4d4;
+        --color-text-strong:     #e0e0e0;
+        --color-text-muted:      #b8b8b8;
+        --color-text-dim:        #9e9e9e;
+        --color-text-info:       #9a9a9a;
+        --color-accent:          #e05252;
+        --color-border:          #3c3c3c;
+        --color-banner:          #1f3a5f;
+        --color-divider:         #3c3c3c;
+        --color-divider-hover:   #666666;
+        --color-active-bg:       #444444;
+        --color-active-text:     #eeeeee;
+        --color-error-bg:        #7a3b3b;
+        --color-overlay:         rgb(15 15 15 / 75%);
+        --color-dialog-shadow:   #000000;
+        --color-hover:           rgb(255 255 255 / 12%);
+        --color-hover-strong:    rgb(255 255 255 / 30%);
+        --color-selected:        rgb(255 255 255 / 8%);
+    }
+}
 html {
     font-size: 14px;
     box-sizing: border-box;
@@ -13,7 +91,7 @@ html {
     position: fixed;
     inset: 0;
     z-index: 200;
-    background-color: rgb(255 255 255 / 70%);
+    background-color: var(--color-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,7 +103,7 @@ html {
 
 .loadingIndicator {
     font-size: 200%;
-    color: #555;
+    color: var(--color-text-muted);
 }
 
 .dropTarget {
@@ -37,24 +115,24 @@ html {
     position: fixed;
     inset: 0;
     z-index: 200;
-    background-color: rgb(255 255 255 / 70%);
+    background-color: var(--color-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    border: 3px dashed #888;
+    border: 3px dashed var(--color-text-dim);
     border-radius: 10px;
 }
 
 .dropIndicator > div {
     max-width: 90%;
-    color: #888;
+    color: var(--color-text-dim);
     font-size: 32px;
 }
 
 .banner {
-    background-color: #b8dff7;
-    border-right: 1px solid #ddd;
+    background-color: var(--color-banner);
+    border-right: 1px solid var(--color-border);
     padding: 8px;
     text-align: center;
 }
@@ -72,16 +150,16 @@ html {
     font-family: monospace;
     height: 32px;
     line-height: 32px;
-    border-bottom: 1px solid #ddd;
-    color: #454545;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
     padding-left: 10px;
-    background-color: #efefef;
+    background-color: var(--color-bg-toolbar);
     z-index: 200;
 }
 
 #Toolbar,
 #Toolbar .menuButton ul {
-    background-color: #efefef;
+    background-color: var(--color-bg-toolbar);
 }
 
 #Toolbar > *,
@@ -106,7 +184,7 @@ html {
 
 #Toolbar > * {
     height: 32px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border);
     vertical-align: top;
 }
 
@@ -149,7 +227,7 @@ html {
     margin: 0;
     list-style: none;
     display: none;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-top: none;
     min-width: 100%;
 }
@@ -171,27 +249,27 @@ html {
 #Toolbar button:disabled:hover,
 #Toolbar button:disabled:active {
     background-color: transparent;
-    color: #888;
+    color: var(--color-text-dim);
     cursor: default;
 }
 
 #Toolbar .menuButton li.selected {
-    background-color: rgb(0 0 0 / 5%);
+    background-color: var(--color-selected);
 }
 
 #Toolbar > a:hover,
 #Toolbar > .button:hover,
 #Toolbar ul button:hover {
-    background-color: rgb(0 0 0 / 10%);
+    background-color: var(--color-hover);
 }
 
 #Toolbar > a:active,
 #Toolbar button:active {
-    background-color: rgb(0 0 0 / 30%);
+    background-color: var(--color-hover-strong);
 }
 
 #info {
-    color: #898989;
+    color: var(--color-text-info);
     cursor: default;
     float: right;
     padding-right: 20px;
@@ -211,12 +289,12 @@ html {
 .errorMessage h3 {
     padding-top: 0;
     margin-top: 0;
-    color: #c00;
+    color: var(--color-accent);
 }
 
 #contribution {
     font-size: 0.9em;
-    color: #555;
+    color: var(--color-text-muted);
     position: absolute;
     height: 25px;
     bottom: 0;
@@ -224,8 +302,8 @@ html {
     right: 0;
     text-align: center;
     line-height: 25px;
-    background-color: #efefef;
-    border-top: 1px solid #ddd;
+    background-color: var(--color-bg-contribution);
+    border-top: 1px solid var(--color-border);
 }
 
 .splitpane-content {
@@ -239,11 +317,11 @@ html {
 }
 
 .splitpane-divider {
-    background-color: #ddd;
+    background-color: var(--color-divider);
 }
 
 .splitpane-divider:hover {
-    background-color: #999;
+    background-color: var(--color-divider-hover);
     cursor: col-resize;
 }
 
@@ -262,7 +340,7 @@ html {
 .output .toolbar {
     font-size: 14px;
     margin-left: -1px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .output .toolbar > button {
@@ -270,8 +348,8 @@ html {
     height: 100%;
     min-width: 90px;
     border: 1px solid transparent;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
     font-size: 14px;
     background-color: transparent;
     display: inline-block;
@@ -281,9 +359,9 @@ html {
 }
 
 .output .toolbar > button.active {
-    border-color: #999;
-    background-color: #999;
-    color: #f5f5f5;
+    border-color: var(--color-active-bg);
+    background-color: var(--color-active-bg);
+    color: var(--color-active-text);
 }
 
 .output .toolbar .time {
@@ -309,7 +387,7 @@ html {
 
 #JSONEditor .CodeMirror,
 #JSONEditor .CodeMirror-gutters {
-    background-color: #efefef;
+    background-color: var(--color-bg-toolbar);
 }
 
 .editor {
@@ -384,7 +462,7 @@ li.entry {
 }
 
 .editor .CodeMirror-gutters {
-    background-color: white;
+    background-color: var(--color-bg-editor);
     border: none;
 }
 
@@ -393,15 +471,15 @@ li.entry {
 }
 
 .CodeMirror pre.errorMarker {
-    background-color: #eb9494;
+    background-color: var(--color-error-bg);
 }
 
 /* Dialog */
 .dialog {
     align-items: center;
-    background-color: rgb(255 255 255 / 70%);
+    background-color: var(--color-overlay);
     inset: 0;
-    color: #333;
+    color: var(--color-text-strong);
     display: flex;
     justify-content: center;
     position: absolute;
@@ -410,8 +488,8 @@ li.entry {
 
 .dialog .inner {
     max-height: 90vh;
-    background-color: white;
-    box-shadow: 0 0 10px #555;
+    background-color: var(--color-bg-dialog);
+    box-shadow: 0 0 10px var(--color-dialog-shadow);
     border-radius: 3px;
     min-width: 400px;
     display: flex;

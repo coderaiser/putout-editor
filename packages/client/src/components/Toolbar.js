@@ -4,6 +4,7 @@ import ParserButton from './buttons/ParserButton.js';
 import SnippetButton from './buttons/SnippetButton.js';
 import TransformButton from './buttons/TransformButton.js';
 import KeyMapButton from './buttons/KeyMapButton.js';
+import ThemeButton from './buttons/ThemeButton.js';
 import Funding from './buttons/Funding.js';
 import {getTransformerByID} from '../parsers/index.js';
 
@@ -57,6 +58,7 @@ export default function Toolbar(props) {
             >
                 <TbQuestionMark size={18}/>
             </a>
+            <ThemeButton/>
             <Funding {...props}/>
             <div id="info" className={transformerInfo ? 'small' : ''}>
                 Parser: {parserInfo}<br/>
