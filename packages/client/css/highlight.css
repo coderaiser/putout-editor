@@ -7,10 +7,10 @@
     --hl-red: #dc322f;
     --hl-blue: #268bd2;
     --hl-yellow: #b58900;
-    --hl-name: #555555;
+    --hl-name: #555;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
     --hl-comment: #94a58a;
     --hl-base: #a8a4a4;
     --hl-green: #a8c24b;
@@ -23,7 +23,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]),
+    :root:not([data-theme='light']),
     :root:not([data-theme]) {
         --hl-comment: #94a58a;
         --hl-base: #a8a4a4;

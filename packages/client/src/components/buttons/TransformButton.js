@@ -60,9 +60,7 @@ export default class TransformButton extends React.Component {
                     onClick={this._onTriggerClick}
                     disabled={!this.props.category.transformers.length}
                 >
-                    {this.props.showTransformer
-                        ? <TbToggleRight size={18}/>
-                        : <TbToggleLeft size={18}/>}
+                    {this.props.showTransformer ? <TbToggleRight size={18}/> : <TbToggleLeft size={18}/>}
                     Transform
                 </button>
                 {this.props.category.transformers.length && <ul>

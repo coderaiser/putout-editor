@@ -17,9 +17,7 @@ export default class ForkButton extends React.Component {
                 disabled={!canFork || saving || forking}
                 onClick={onFork}
             >
-                {forking
-                    ? <TbLoader2 size={18}/>
-                    : <TbGitFork size={18}/>} Fork
+                {forking ? <TbLoader2 size={18}/> : <TbGitFork size={18}/>} Fork
             </button>
         );
     }

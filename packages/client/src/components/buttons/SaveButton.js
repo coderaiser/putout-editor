@@ -8,9 +8,7 @@ export default function SaveButton({canSave, saving, forking, onSave}) {
             disabled={!canSave || saving || forking}
             onClick={onSave}
         >
-            {saving
-                ? <TbLoader2 size={18}/>
-                : <TbDeviceFloppy size={18}/>} Save
+            {saving ? <TbLoader2 size={18}/> : <TbDeviceFloppy size={18}/>} Save
         </button>
     );
 }

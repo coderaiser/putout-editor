@@ -1,7 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import {TbDeviceFloppy, TbFileCode, TbGitFork, TbLoader2} from 'react-icons/tb';
+import {
+    TbDeviceFloppy,
+    TbFileCode,
+    TbGitFork,
+    TbLoader2,
+} from 'react-icons/tb';
 import ForkButton from './ForkButton.js';
 import NewButton from './NewButton.js';
 import SaveButton from './SaveButton.js';
@@ -69,11 +74,7 @@ export default class SnippetButton extends React.Component {
                     disabled={savingOrForking || !props.canSave && !props.canFork}
                     onClick={canForkAndNotSave ? props.onFork : props.onSave}
                 >
-                    {savingOrForking
-                        ? <TbLoader2 size={18}/>
-                        : canForkAndNotSave
-                            ? <TbGitFork size={18}/>
-                            : <TbDeviceFloppy size={18}/>}
+                    {savingOrForking ? <TbLoader2 size={18}/> : canForkAndNotSave ? <TbGitFork size={18}/> : <TbDeviceFloppy size={18}/>}
                 </button>
             </div>
         );
