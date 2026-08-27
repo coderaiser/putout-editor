@@ -1,7 +1,6 @@
 import '../css/style.css';
 import PubSub from 'pubsub-js';
-import {Provider} from 'react-redux';
-import {useSelector} from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
 import {
     createStore,
     applyMiddleware,

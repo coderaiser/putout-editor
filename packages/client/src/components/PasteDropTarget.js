@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {categories} from '../parsers/index.js';
 
+const noop = () => {};
+
 function importEscodegen() {
     return import('escodegen').then((mod) => mod.default || mod);
 }
@@ -114,7 +116,7 @@ export default class PasteDropTarget extends React.Component {
                         
                         this.props.onText('drop', readerEvent, code, categoryId);
                     })
-                    .catch(() => {});
+                    .catch(noop);
             };
             reader.readAsText(file);
         }, true);

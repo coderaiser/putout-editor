@@ -7,5 +7,8 @@ export default function ASTOutputContainer() {
     const parser = useSelector(getParser);
     const parseResult = useSelector(getParseResult);
     const cursor = useSelector(getCursor);
-    return <ASTOutput parser={parser} parseResult={parseResult} cursor={cursor}/>;
+    
+    return (
+        <ASTOutput parser={parser} parseResult={parseResult} cursor={cursor}/>
+    );
 }

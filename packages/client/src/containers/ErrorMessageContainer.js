@@ -6,5 +6,8 @@ import {getError} from '../store/selectors.js';
 export default function ErrorMessageContainer() {
     const error = useSelector(getError);
     const dispatch = useDispatch();
-    return <ErrorMessage error={error} onWantToClose={() => dispatch(clearError())}/>;
+    
+    return (
+        <ErrorMessage error={error} onWantToClose={() => dispatch(clearError())}/>
+    );
 }

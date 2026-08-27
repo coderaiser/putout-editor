@@ -17,12 +17,13 @@ function makeStore(overrides = {}) {
     const base = astexplorer(undefined, {
         type: '@@INIT',
     });
+    
     const state = {
         ...base,
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...(overrides.workbench || {}),
+            ...overrides.workbench || {},
         },
     };
     
@@ -81,7 +82,8 @@ test('ShareDialogContainer: close button hides dialog', (t) => {
     fireEvent.click(document.querySelector('.footer button'));
     
     cleanup();
+    const {showShareDialog} = store.getState();
     
-    t.equal(store.getState().showShareDialog, false);
+    t.notOk(showShareDialog);
     t.end();
 });

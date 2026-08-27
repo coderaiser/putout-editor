@@ -13,12 +13,13 @@ function renderWithStore(overrides = {}) {
     const base = astexplorer(undefined, {
         type: '@@INIT',
     });
+    
     const state = {
         ...base,
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...(overrides.workbench || {}),
+            ...overrides.workbench || {},
         },
     };
     
@@ -75,7 +76,8 @@ test('ErrorMessageContainer: OK button clears error', (t) => {
     fireEvent.click(document.querySelector('button'));
     
     cleanup();
+    const {error} = store.getState();
     
-    t.equal(store.getState().error, null);
+    t.notOk(error);
     t.end();
 });

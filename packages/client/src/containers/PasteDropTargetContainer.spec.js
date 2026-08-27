@@ -14,12 +14,13 @@ function makeStore(overrides = {}) {
     const base = astexplorer(undefined, {
         type: '@@INIT',
     });
+    
     const state = {
         ...base,
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...(overrides.workbench || {}),
+            ...overrides.workbench || {},
         },
     };
     
@@ -48,6 +49,7 @@ test('PasteDropTargetContainer: renders child content', (t) => {
     t.ok(child);
     t.end();
 });
+
 test('PasteDropTargetContainer: drop of plain text sets code', async (t) => {
     const store = makeStore();
     const OriginalReader = globalThis.FileReader;
@@ -61,7 +63,6 @@ test('PasteDropTargetContainer: drop of plain text sets code', async (t) => {
             });
         }
     }
-    
     globalThis.FileReader = StubReader;
     
     try {
@@ -102,7 +103,6 @@ test('PasteDropTargetContainer: dropped invalid AST shows error', async (t) => {
             });
         }
     }
-    
     globalThis.FileReader = StubReader;
     
     try {
@@ -124,7 +124,8 @@ test('PasteDropTargetContainer: dropped invalid AST shows error', async (t) => {
         globalThis.FileReader = OriginalReader;
         process.removeListener('unhandledRejection', onUnhandledRejection);
     }
+    const {error} = store.getState();
     
-    t.ok(store.getState().error);
+    t.ok(error);
     t.end();
 });

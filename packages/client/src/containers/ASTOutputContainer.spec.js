@@ -9,12 +9,13 @@ function renderWithStore(overrides = {}) {
     const base = astexplorer(undefined, {
         type: '@@INIT',
     });
+    
     const state = {
         ...base,
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...(overrides.workbench || {}),
+            ...overrides.workbench || {},
         },
     };
     

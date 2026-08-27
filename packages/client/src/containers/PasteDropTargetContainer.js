@@ -4,6 +4,7 @@ import {setError, dropText} from '../store/actions.js';
 
 export default function PasteDropTargetContainer({children}) {
     const dispatch = useDispatch();
+    
     return (
         <PasteDropTarget
             onText={(type, event, code, categoryId) => {

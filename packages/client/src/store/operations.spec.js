@@ -106,6 +106,7 @@ test('operations: parseCode: uses provided parserSettings', async (t) => {
         custom: true,
     });
     const result = receivedSettings;
+    
     const expected = {
         custom: true,
     };
@@ -131,6 +132,7 @@ test('operations: parseCode: falls back to getDefaultOptions when no settings', 
     
     await parseCode(parser, 'x', null);
     const result = receivedSettings;
+    
     const expected = {
         default: true,
     };
@@ -161,9 +163,11 @@ test('operations: loadSnippetFromURL: returns revision from storageAdapter', asy
     const mockRevision = {
         getCode: () => 'x',
     };
+    
     const adapter = {
         fetchFromURL: stub().resolves(mockRevision),
     };
+    
     const result = await loadSnippetFromURL(adapter);
     
     t.equal(result, mockRevision);
@@ -174,6 +178,7 @@ test('operations: loadSnippetFromURL: returns null when no snippet at URL', asyn
     const adapter = {
         fetchFromURL: stub().resolves(null),
     };
+    
     const result = await loadSnippetFromURL(adapter);
     
     t.notOk(result);
@@ -184,6 +189,7 @@ test('operations: loadSnippetFromURL: propagates storageAdapter errors', async (
     const adapter = {
         fetchFromURL: stub().rejects(Error('network error')),
     };
+    
     const [error] = await tryToCatch(loadSnippetFromURL, adapter);
     
     t.ok(error);
@@ -269,6 +275,7 @@ test('operations: saveRevision: passes data to create', async (t) => {
     
     await saveRevision(false, {code: 'x'}, null, adapter);
     const result = receivedData;
+    
     const expected = {
         code: 'x',
     };
@@ -299,9 +306,11 @@ test('operations: saveRevision: returns new revision from create', async (t) => 
     const newRevision = {
         id: 'new1',
     };
+    
     const adapter = {
         create: stub().resolves(newRevision),
     };
+    
     const result = await saveRevision(false, {}, null, adapter);
     
     t.equal(result, newRevision);
