@@ -79,7 +79,7 @@ jobs:
             -o /tmp/smoke.html \
             -H "Host: putout-editor.cloudcmd.io" \
             http://localhost:8080
-          echo ${GITHUB_REF_NAME}
+          echo ${GITHUB_REF_NAME#v}
           cat /tmp/smoke.html
           grep -q "Putout Editor ${GITHUB_REF_NAME}" /tmp/smoke.html
       - name: Dump state on failure
