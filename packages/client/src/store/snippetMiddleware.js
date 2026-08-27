@@ -1,6 +1,9 @@
 import * as actions from './actions.js';
 import {logEvent, logError} from '../utils/logger.js';
-import {loadSnippetFromURL, saveRevision} from './operations.js';
+import {
+    loadSnippetFromURL,
+    saveRevision,
+} from './operations.js';
 import {
     getParserSettings,
     getCode,
@@ -94,25 +97,29 @@ export default (storageAdapter) => (store) => (next) => (action) => {
 };
 
 function buildSaveData(state) {
-    const parser         = getParser(state);
+    const parser = getParser(state);
     const parserSettings = getParserSettings(state);
-    const code           = getCode(state);
-    const transformCode  = getTransformCode(state);
-    const transformer    = getTransformer(state);
+    const code = getCode(state);
+    const transformCode = getTransformCode(state);
+    const transformer = getTransformer(state);
     const showTransformPanel = showTransformer(state);
     
     const data = {
-        parserID:  parser.id,
-        settings:  { [parser.id]: parserSettings },
-        versions:  { [parser.id]: parser.version },
-        filename:  `source.${parser.category.fileExtension}`,
+        parserID: parser.id,
+        settings: {
+            [parser.id]: parserSettings,
+        },
+        versions: {
+            [parser.id]: parser.version,
+        },
+        filename: `source.${parser.category.fileExtension}`,
         code,
     };
     
     if (showTransformPanel && transformer) {
-        data.toolID                   = transformer.id;
+        data.toolID = transformer.id;
         data.versions[transformer.id] = transformer.version;
-        data.transform                = transformCode;
+        data.transform = transformCode;
     }
     
     return data;

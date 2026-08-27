@@ -15,13 +15,13 @@ const returns = (a) => () => a;
  */
 export async function parseCode(parser, code, parserSettings) {
     const settings = parserSettings || parser.getDefaultOptions();
-
+    
     if (!parser._promise)
         parser._promise = new Promise(parser.loadParser);
-
+    
     const realParser = await parser._promise;
     const ast = parser.parse(realParser, code, settings);
-
+    
     const treeAdapter = {
         type: 'default',
         options: {
@@ -38,7 +38,7 @@ export async function parseCode(parser, code, parserSettings) {
             ],
         },
     };
-
+    
     return {
         ast: estreeToBabel(ast),
         treeAdapter,
@@ -49,9 +49,7 @@ export async function parseCode(parser, code, parserSettings) {
  * Fetch a snippet revision from the URL hash via storageAdapter.
  * Returns revision object or null.
  */
-export async function loadSnippetFromURL(storageAdapter) {
-    return storageAdapter.fetchFromURL();
-}
+export const loadSnippetFromURL = (storageAdapter) => storageAdapter.fetchFromURL();
 
 /**
  * Save, update, or fork a snippet revision via storageAdapter.
@@ -60,12 +58,12 @@ export async function loadSnippetFromURL(storageAdapter) {
  * fork=false + no revision → storageAdapter.create(data)
  * Returns new revision or undefined.
  */
-export async function saveRevision(fork, data, revision, storageAdapter) {
+export function saveRevision(fork, data, revision, storageAdapter) {
     if (fork)
         return storageAdapter.fork(revision, data);
-
+    
     if (revision)
         return storageAdapter.update(revision, data);
-
+    
     return storageAdapter.create(data);
 }
