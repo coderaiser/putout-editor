@@ -384,6 +384,8 @@ function showTransformPanel(state = initialState.showTransformPanel, action) {
         return true;
     
     case actions.HIDE_TRANSFORMER:
+        return false;
+    
     case actions.SELECT_CATEGORY:
     case actions.CLEAR_SNIPPET:
         return true;

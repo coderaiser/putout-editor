@@ -308,10 +308,10 @@ test('reducers: select transformer shows transform panel', (t) => {
     t.end();
 });
 
-test('reducers: hide transformer returns true', (t) => {
+test('reducers: hide transformer returns false', (t) => {
     const state = astexplorer(getInitState(), actions.hideTransformer());
     
-    t.ok(state.showTransformPanel);
+    t.notOk(state.showTransformPanel);
     t.end();
 });
 
