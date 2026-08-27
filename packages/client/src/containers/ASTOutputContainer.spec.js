@@ -1,20 +1,37 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
+import {createStore} from 'redux';
+import {astexplorer, revive} from '../store/reducers.js';
 import ASTOutputContainer from './ASTOutputContainer.js';
 
-const noop = () => {};
-
-const createStore = (state) => ({
-    getState: () => state,
-    subscribe: () => noop,
-    dispatch: noop,
-});
-
-test('ASTOutputContainer: renders output container', (t) => {
-    const store = createStore({
+function renderWithStore(overrides = {}) {
+    const base = astexplorer(undefined, {
+        type: '@@INIT',
+    });
+    const state = {
+        ...base,
+        ...overrides,
         workbench: {
-            parser: 'babel',
+            ...base.workbench,
+            ...(overrides.workbench || {}),
+        },
+    };
+    
+    const store = createStore(astexplorer, revive(state));
+    
+    render(
+        <Provider store={store}>
+            <ASTOutputContainer/>
+        </Provider>,
+    );
+    
+    return store;
+}
+
+test('ASTOutputContainer: renders output element', (t) => {
+    renderWithStore({
+        workbench: {
             parseResult: {
                 ast: null,
                 error: null,
@@ -25,14 +42,7 @@ test('ASTOutputContainer: renders output container', (t) => {
                 },
             },
         },
-        cursor: null,
     });
-    
-    render(
-        <Provider store={store}>
-            <ASTOutputContainer/>
-        </Provider>,
-    );
     
     const output = document.querySelector('.output');
     
@@ -42,10 +52,9 @@ test('ASTOutputContainer: renders output container', (t) => {
     t.end();
 });
 
-test('ASTOutputContainer: shows error message when parseResult has error', (t) => {
-    const store = createStore({
+test('ASTOutputContainer: rendered without exception on parse error', (t) => {
+    renderWithStore({
         workbench: {
-            parser: 'babel',
             parseResult: {
                 ast: null,
                 error: {
@@ -58,16 +67,7 @@ test('ASTOutputContainer: shows error message when parseResult has error', (t) =
                 },
             },
         },
-        cursor: null,
     });
-    
-    render(
-        <Provider store={store}>
-            <ASTOutputContainer/>
-        </Provider>,
-    );
-    
-    cleanup();
     
     t.pass('rendered without exception');
     t.end();

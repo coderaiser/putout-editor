@@ -5,53 +5,56 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
+import {createStore} from 'redux';
+import {astexplorer, revive} from '../store/reducers.js';
 import ErrorMessageContainer from './ErrorMessageContainer.js';
 
-const noop = () => {};
-
-function createStore(state) {
-    const dispatched = [];
-    
-    return {
-        getState: () => state,
-        subscribe: () => noop,
-        dispatch: (action) => {
-            dispatched.push(action);
+function renderWithStore(overrides = {}) {
+    const base = astexplorer(undefined, {
+        type: '@@INIT',
+    });
+    const state = {
+        ...base,
+        ...overrides,
+        workbench: {
+            ...base.workbench,
+            ...(overrides.workbench || {}),
         },
-        _getDispatched: () => dispatched,
     };
+    
+    return createStore(astexplorer, revive(state));
 }
 
-test('ErrorMessageContainer: not visible when no error', (t) => {
-    const store = createStore({
-        error: null,
-    });
-    
+function renderContainer(store) {
     render(
         <Provider store={store}>
             <ErrorMessageContainer/>
         </Provider>,
     );
+}
+
+test('ErrorMessageContainer: not visible when no error', (t) => {
+    const store = renderWithStore({
+        error: null,
+    });
     
-    const result = document.querySelector('.errorMessage');
+    renderContainer(store);
+    
+    const message = document.querySelector('.errorMessage');
     
     cleanup();
     
-    t.notOk(result);
+    t.notOk(message);
     t.end();
 });
 
 test('ErrorMessageContainer: visible shows error message', (t) => {
     const err = Error('fail');
-    const store = createStore({
+    const store = renderWithStore({
         error: err,
     });
     
-    render(
-        <Provider store={store}>
-            <ErrorMessageContainer/>
-        </Provider>,
-    );
+    renderContainer(store);
     
     const message = document.querySelector('.errorMessage div');
     
@@ -61,26 +64,18 @@ test('ErrorMessageContainer: visible shows error message', (t) => {
     t.end();
 });
 
-test('ErrorMessageContainer: OK button dispatches clearError', (t) => {
+test('ErrorMessageContainer: OK button clears error', (t) => {
     const err = Error('fail');
-    const store = createStore({
+    const store = renderWithStore({
         error: err,
     });
     
-    render(
-        <Provider store={store}>
-            <ErrorMessageContainer/>
-        </Provider>,
-    );
+    renderContainer(store);
     
-    const okButton = document.querySelector('button');
-    
-    fireEvent.click(okButton);
-    
-    const dispatched = store._getDispatched();
+    fireEvent.click(document.querySelector('button'));
     
     cleanup();
     
-    t.ok(dispatched.length > 0);
+    t.equal(store.getState().error, null);
     t.end();
 });

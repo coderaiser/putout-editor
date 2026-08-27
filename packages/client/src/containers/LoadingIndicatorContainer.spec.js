@@ -1,50 +1,54 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
+import {createStore} from 'redux';
+import {astexplorer, revive} from '../store/reducers.js';
 import LoadingIndicatorContainer from './LoadingIndicatorContainer.js';
 
-const noop = () => {};
+function renderWithStore(overrides = {}) {
+    const base = astexplorer(undefined, {
+        type: '@@INIT',
+    });
+    const state = {
+        ...base,
+        ...overrides,
+        workbench: {
+            ...base.workbench,
+            ...(overrides.workbench || {}),
+        },
+    };
+    
+    const store = createStore(astexplorer, revive(state));
+    
+    render(
+        <Provider store={store}>
+            <LoadingIndicatorContainer/>
+        </Provider>,
+    );
+}
 
-const createStore = (state) => ({
-    getState: () => state,
-    subscribe: () => noop,
-    dispatch: noop,
-});
-
-test('LoadingIndicatorContainer: visible when isLoadingSnippet true', (t) => {
-    const store = createStore({
+test('LoadingIndicatorContainer: visible when loadingSnippet true', (t) => {
+    renderWithStore({
         loadingSnippet: true,
     });
     
-    render(
-        <Provider store={store}>
-            <LoadingIndicatorContainer/>
-        </Provider>,
-    );
-    
-    const result = document.querySelector('.loadingIndicator');
+    const indicator = document.querySelector('.loadingIndicator');
     
     cleanup();
     
-    t.ok(result);
+    t.ok(indicator);
     t.end();
 });
 
-test('LoadingIndicatorContainer: not visible when isLoadingSnippet false', (t) => {
-    const store = createStore({
+test('LoadingIndicatorContainer: not visible when loadingSnippet false', (t) => {
+    renderWithStore({
         loadingSnippet: false,
     });
     
-    render(
-        <Provider store={store}>
-            <LoadingIndicatorContainer/>
-        </Provider>,
-    );
-    
-    const result = document.querySelector('.loadingIndicator');
+    const indicator = document.querySelector('.loadingIndicator');
     
     cleanup();
     
-    t.notOk(result);
+    t.notOk(indicator);
     t.end();
 });

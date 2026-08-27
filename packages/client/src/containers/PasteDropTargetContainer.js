@@ -1,17 +1,17 @@
-import {connect} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import PasteDropTarget from '../components/PasteDropTarget.js';
 import {setError, dropText} from '../store/actions.js';
 
-export function mapDispatchToProps(dispatch) {
-    return {
-        onText: (type, event, code, categoryId) => {
-            dispatch(dropText(code, categoryId));
-        },
-        onError: (error) => dispatch(setError(error)),
-    };
+export default function PasteDropTargetContainer({children}) {
+    const dispatch = useDispatch();
+    return (
+        <PasteDropTarget
+            onText={(type, event, code, categoryId) => {
+                dispatch(dropText(code, categoryId));
+            }}
+            onError={(error) => dispatch(setError(error))}
+        >
+            {children}
+        </PasteDropTarget>
+    );
 }
-
-export default connect(
-    null,
-    mapDispatchToProps,
-)(PasteDropTarget);

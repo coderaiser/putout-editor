@@ -1,50 +1,46 @@
 import {test} from 'supertape';
-import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 import {
     render,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import {
-    OPEN_SHARE_DIALOG,
-    CLOSE_SHARE_DIALOG,
-} from '../store/actions.js';
+import {createStore} from 'redux';
+import {astexplorer, revive} from '../store/reducers.js';
 import ShareDialogContainer from './ShareDialogContainer.js';
 
-function reducer(state = {
-    showShareDialog: false,
-    activeRevision: null,
-}, action) {
-    switch(action.type) {
-    case OPEN_SHARE_DIALOG:
-        return {
-            ...state,
-            showShareDialog: true,
-            activeRevision: {
-                getShareInfo: () => 'share info',
-            },
-        };
+const makeSnippet = () => ({
+    getShareInfo: () => 'share info',
+});
+
+function makeStore(overrides = {}) {
+    const base = astexplorer(undefined, {
+        type: '@@INIT',
+    });
+    const state = {
+        ...base,
+        ...overrides,
+        workbench: {
+            ...base.workbench,
+            ...(overrides.workbench || {}),
+        },
+    };
     
-    case CLOSE_SHARE_DIALOG:
-        return {
-            ...state,
-            showShareDialog: false,
-        };
-    
-    default:
-        return state;
-    }
+    return createStore(astexplorer, revive(state));
 }
 
-test('ShareDialogContainer: not visible by default', (t) => {
-    const store = createStore(reducer);
-    
+function renderContainer(store) {
     render(
         <Provider store={store}>
             <ShareDialogContainer/>
         </Provider>,
     );
+}
+
+test('ShareDialogContainer: not visible by default', (t) => {
+    const store = makeStore();
+    
+    renderContainer(store);
     
     const dialog = document.getElementById('ShareDialog');
     
@@ -54,18 +50,13 @@ test('ShareDialogContainer: not visible by default', (t) => {
     t.end();
 });
 
-test('ShareDialogContainer: visible after OPEN_SHARE_DIALOG', (t) => {
-    const store = createStore(reducer);
-    
-    store.dispatch({
-        type: OPEN_SHARE_DIALOG,
+test('ShareDialogContainer: visible when showShareDialog true', (t) => {
+    const store = makeStore({
+        showShareDialog: true,
+        activeRevision: makeSnippet(),
     });
     
-    render(
-        <Provider store={store}>
-            <ShareDialogContainer/>
-        </Provider>,
-    );
+    renderContainer(store);
     
     const dialog = document.getElementById('ShareDialog');
     
@@ -75,11 +66,10 @@ test('ShareDialogContainer: visible after OPEN_SHARE_DIALOG', (t) => {
     t.end();
 });
 
-test('ShareDialogContainer: close button dispatches CLOSE_SHARE_DIALOG', (t) => {
-    const store = createStore(reducer);
-    
-    store.dispatch({
-        type: OPEN_SHARE_DIALOG,
+test('ShareDialogContainer: close button hides dialog', (t) => {
+    const store = makeStore({
+        showShareDialog: true,
+        activeRevision: makeSnippet(),
     });
     
     render(
@@ -88,14 +78,10 @@ test('ShareDialogContainer: close button dispatches CLOSE_SHARE_DIALOG', (t) => 
         </Provider>,
     );
     
-    const closeButton = document.querySelector('.footer button');
-    
-    fireEvent.click(closeButton);
-    
-    const dialog = document.getElementById('ShareDialog');
+    fireEvent.click(document.querySelector('.footer button'));
     
     cleanup();
     
-    t.notOk(dialog);
+    t.equal(store.getState().showShareDialog, false);
     t.end();
 });

@@ -1,11 +1,8 @@
-import {connect} from 'react-redux';
+import {useSelector} from 'react-redux';
 import LoadingIndicator from '../components/LoadingIndicator.js';
 import {isLoadingSnippet} from '../store/selectors.js';
 
-function mapStateToProps(state) {
-    return {
-        visible: isLoadingSnippet(state),
-    };
+export default function LoadingIndicatorContainer() {
+    const visible = useSelector(isLoadingSnippet);
+    return <LoadingIndicator visible={visible}/>;
 }
-
-export default connect(mapStateToProps)(LoadingIndicator);

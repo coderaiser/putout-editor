@@ -27,7 +27,6 @@ export default class PasteDropTarget extends React.Component {
     
     _onASTError(type, event, ex) {
         this.props.onError(type, event, `Cannot process pasted AST: ${ex.message}`);
-        throw ex;
     }
     
     componentDidMount() {
@@ -96,23 +95,26 @@ export default class PasteDropTarget extends React.Component {
                 if (categoryId === 'JSON' || categoryId === 'TEXT')
                     text = this
                         ._jsonToCode(text)
-                        .then((text) => {
+                        .then((code) => {
                             categoryId = 'javascript';
-                            return text;
-                        }, (ex) => {
-                            if (categoryId === 'JSON') {
+                            return code;
+                        })
+                        .catch((ex) => {
+                            if (categoryId === 'JSON')
                                 this._onASTError('drop', readerEvent, ex);
-                            } else {
-                                categoryId = undefined;
-                                return text;
-                            }
+                            
+                            return null;
                         });
                 
                 Promise
                     .resolve(text)
-                    .then((text) => {
-                        this.props.onText('drop', readerEvent, text, categoryId);
-                    });
+                    .then((code) => {
+                        if (!code)
+                            return;
+                        
+                        this.props.onText('drop', readerEvent, code, categoryId);
+                    })
+                    .catch(() => {});
             };
             reader.readAsText(file);
         }, true);

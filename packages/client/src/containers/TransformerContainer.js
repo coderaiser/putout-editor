@@ -1,4 +1,4 @@
-import {connect} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import Transformer from '../components/Transformer.js';
 import {
     setTransformState,
@@ -7,36 +7,36 @@ import {
 import {getParser, getTransformer} from '../store/parserSelectors.js';
 import * as selectors from '../store/selectors.js';
 
-function mapStateToProps(state) {
-    return {
-        parser: getParser(state),
-        transformer: getTransformer(state), // Either the transform example or the transform code from the current
-        // revision. This is what we compare against to determine whether something
-        // changed and we can save.
-        defaultTransformCode: selectors.getInitialTransformCode(state),
-        transformCode: selectors.getTransformCode(state),
-        mode: getParser(state).category.editorMode || getParser(state).category.id,
-        code: selectors.getCode(state),
-        enableFormatting: selectors.getFormattingState(state),
-        keyMap: selectors.getKeyMap(state),
-    };
+export default function TransformerContainer() {
+    const parser = useSelector(getParser);
+    const transformer = useSelector(getTransformer);
+    const defaultTransformCode = useSelector(selectors.getInitialTransformCode);
+    const transformCode = useSelector(selectors.getTransformCode);
+    const code = useSelector(selectors.getCode);
+    const enableFormatting = useSelector(selectors.getFormattingState);
+    const keyMap = useSelector(selectors.getKeyMap);
+    const mode = parser.category.editorMode || parser.category.id;
+    const dispatch = useDispatch();
+    
+    return (
+        <Transformer
+            parser={parser}
+            transformer={transformer}
+            defaultTransformCode={defaultTransformCode}
+            transformCode={transformCode}
+            code={code}
+            mode={mode}
+            enableFormatting={enableFormatting}
+            keyMap={keyMap}
+            onContentChange={({value, cursor}) => {
+                dispatch(setTransformState({
+                    code: value,
+                    cursor,
+                }));
+            }}
+            toggleFormatting={() => {
+                dispatch(toggleFormatting());
+            }}
+        />
+    );
 }
-
-function mapDispatchToProps(dispatch) {
-    return {
-        onContentChange: ({value, cursor}) => {
-            dispatch(setTransformState({
-                code: value,
-                cursor,
-            }));
-        },
-        toggleFormatting: () => {
-            dispatch(toggleFormatting());
-        },
-    };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(Transformer);

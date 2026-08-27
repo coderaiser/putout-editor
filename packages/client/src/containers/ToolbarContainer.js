@@ -1,4 +1,4 @@
-import {connect} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import Toolbar from '../components/Toolbar.js';
 import * as selectors from '../store/selectors.js';
 import * as parserSelectors from '../store/parserSelectors.js';
@@ -14,63 +14,64 @@ import {
     setKeyMap,
 } from '../store/actions.js';
 
-function mapStateToProps(state) {
-    const parser = parserSelectors.getParser(state);
+export default function ToolbarContainer() {
+    const forking = useSelector(selectors.isForking);
+    const saving = useSelector(selectors.isSaving);
+    const canSave = useSelector(parserSelectors.canSave);
+    const canFork = useSelector(selectors.canFork);
+    const parser = useSelector(parserSelectors.getParser);
+    const transformer = useSelector(parserSelectors.getTransformer);
+    const keyMap = useSelector(selectors.getKeyMap);
+    const showTransformerVal = useSelector(selectors.showTransformer);
+    const snippet = useSelector(selectors.getRevision);
+    const dispatch = useDispatch();
     
-    return {
-        forking: selectors.isForking(state),
-        saving: selectors.isSaving(state),
-        canSave: parserSelectors.canSave(state),
-        canFork: selectors.canFork(state),
-        category: parser.category,
-        parser,
-        transformer: parserSelectors.getTransformer(state),
-        keyMap: selectors.getKeyMap(state),
-        showTransformer: selectors.showTransformer(state),
-        snippet: selectors.getRevision(state),
-    };
+    return (
+        <Toolbar
+            forking={forking}
+            saving={saving}
+            canSave={canSave}
+            canFork={canFork}
+            category={parser.category}
+            parser={parser}
+            transformer={transformer}
+            keyMap={keyMap}
+            showTransformer={showTransformerVal}
+            snippet={snippet}
+            onParserChange={(parser) => {
+                dispatch(setParser(parser));
+                logEvent('parser', 'select', parser.id);
+            }}
+            onParserSettingsButtonClick={() => {
+                dispatch(openSettingsDialog());
+                logEvent('parser', 'open_settings');
+            }}
+            onShareButtonClick={() => {
+                dispatch(openShareDialog());
+                logEvent('ui', 'open_share');
+            }}
+            onTransformChange={(transformer) => {
+                dispatch(transformer ? selectTransformer(transformer) : hideTransformer());
+                
+                if (transformer)
+                    logEvent('tool', 'select', transformer.id);
+            }}
+            onKeyMapChange={(keyMap) => {
+                dispatch(setKeyMap(keyMap));
+                
+                if (keyMap)
+                    logEvent('keyMap', keyMap);
+            }}
+            onSave={() => dispatch(save(false))}
+            onFork={() => dispatch(save(true))}
+            onNew={() => {
+                if (globalThis.location.hash) {
+                    globalThis.location.hash = '';
+                    return;
+                }
+                
+                dispatch(reset());
+            }}
+        />
+    );
 }
-
-function mapDispatchToProps(dispatch) {
-    return {
-        onParserChange: (parser) => {
-            dispatch(setParser(parser));
-            logEvent('parser', 'select', parser.id);
-        },
-        onParserSettingsButtonClick: () => {
-            dispatch(openSettingsDialog());
-            logEvent('parser', 'open_settings');
-        },
-        onShareButtonClick: () => {
-            dispatch(openShareDialog());
-            logEvent('ui', 'open_share');
-        },
-        onTransformChange: (transformer) => {
-            dispatch(transformer ? selectTransformer(transformer) : hideTransformer());
-            
-            if (transformer)
-                logEvent('tool', 'select', transformer.id);
-        },
-        onKeyMapChange: (keyMap) => {
-            dispatch(setKeyMap(keyMap));
-            
-            if (keyMap)
-                logEvent('keyMap', keyMap);
-        },
-        onSave: () => dispatch(save(false)),
-        onFork: () => dispatch(save(true)),
-        onNew: () => {
-            if (globalThis.location.hash) {
-                globalThis.location.hash = '';
-                return;
-            }
-            
-            dispatch(reset());
-        },
-    };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(Toolbar);

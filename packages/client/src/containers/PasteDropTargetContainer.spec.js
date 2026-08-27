@@ -1,68 +1,130 @@
+import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {render, cleanup} from '@testing-library/react';
-import PasteDropTargetContainer, {
-    mapDispatchToProps,
-} from './PasteDropTargetContainer.js';
+import {createStore} from 'redux';
+import {astexplorer, revive} from '../store/reducers.js';
+import PasteDropTargetContainer from './PasteDropTargetContainer.js';
 
-const noop = () => {};
-
-function createStore(state) {
-    const dispatched = [];
-    
-    return {
-        getState: () => state,
-        subscribe: () => noop,
-        dispatch: (action) => {
-            dispatched.push(action);
+function makeStore(overrides = {}) {
+    const base = astexplorer(undefined, {
+        type: '@@INIT',
+    });
+    const state = {
+        ...base,
+        ...overrides,
+        workbench: {
+            ...base.workbench,
+            ...(overrides.workbench || {}),
         },
-        _getDispatched: () => dispatched,
     };
+    
+    return createStore(astexplorer, revive(state));
 }
 
-test('PasteDropTargetContainer: mapDispatchToProps onText dispatches dropText', (t) => {
-    const dispatched = [];
-    const dispatch = (action) => {
-        dispatched.push(action);
-    };
-    
-    const mdp = mapDispatchToProps(dispatch);
-    
-    mdp.onText('drop', {}, 'code', 'javascript');
-    
-    t.equal(dispatched.length, 1);
-    t.end();
-});
-
-test('PasteDropTargetContainer: mapDispatchToProps onError dispatches setError', (t) => {
-    const dispatched = [];
-    const dispatch = (action) => {
-        dispatched.push(action);
-    };
-    
-    const mdp = mapDispatchToProps(dispatch);
-    
-    mdp.onError(Error('test'));
-    
-    t.equal(dispatched.length, 1);
-    t.end();
-});
-
-test('PasteDropTargetContainer: renders child content', (t) => {
-    const store = createStore({});
-    
+function renderWithChildren(store) {
     render(
         <Provider store={store}>
             <PasteDropTargetContainer>
-                <div id="child-test">hello</div>
+                <span id="child-test">hello</span>
             </PasteDropTargetContainer>
         </Provider>,
     );
+}
+
+test('PasteDropTargetContainer: renders child content', (t) => {
+    const store = makeStore();
+    
+    renderWithChildren(store);
     
     const child = document.querySelector('#child-test');
     
     cleanup();
     
     t.ok(child);
+    t.end();
+});
+test('PasteDropTargetContainer: drop of plain text sets code', async (t) => {
+    const store = makeStore();
+    const OriginalReader = globalThis.FileReader;
+    
+    class StubReader {
+        readAsText() {
+            this.onload({
+                target: {
+                    result: 'dropped code',
+                },
+            });
+        }
+    }
+    
+    globalThis.FileReader = StubReader;
+    
+    try {
+        renderWithChildren(store);
+        
+        fireEvent.drop(document.querySelector('#child-test').parentNode, {
+            dataTransfer: {
+                files: [{
+                    type: 'text/javascript',
+                }],
+            },
+        });
+        
+        await setImmediate();
+        
+        cleanup();
+    } finally {
+        globalThis.FileReader = OriginalReader;
+    }
+    
+    t.equal(store.getState().workbench.code, 'dropped code');
+    t.end();
+});
+
+test('PasteDropTargetContainer: dropped invalid AST shows error', async (t) => {
+    const store = makeStore();
+    const OriginalReader = globalThis.FileReader;
+    const onUnhandledRejection = () => {};
+    
+    process.on('unhandledRejection', onUnhandledRejection);
+    
+    class StubReader {
+        readAsText() {
+            this.onload({
+                target: {
+                    result: '{"type":"Bogus"}',
+                },
+            });
+        }
+    }
+    
+    globalThis.FileReader = StubReader;
+    
+    try {
+        renderWithChildren(store);
+        
+        fireEvent.drop(document.querySelector('#child-test').parentNode, {
+            dataTransfer: {
+                files: [{
+                    type: 'application/json',
+                }],
+            },
+        });
+        
+        for (let i = 0; i < 50 && !store.getState().error; i++)
+            await setImmediate();
+        
+        cleanup();
+    } finally {
+        globalThis.FileReader = OriginalReader;
+        process.removeListener('unhandledRejection', onUnhandledRejection);
+    }
+    
+    t.ok(store.getState().error);
     t.end();
 });

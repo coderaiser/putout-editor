@@ -1,4 +1,5 @@
-import {connect} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import SettingsDialog from '../components/dialogs/SettingsDialog.js';
 import {
     closeSettingsDialog,
     setParserSettings,
@@ -8,24 +9,20 @@ import {
     getParserSettings,
 } from '../store/selectors.js';
 import {getParser} from '../store/parserSelectors.js';
-import SettingsDialog from '../components/dialogs/SettingsDialog.js';
 
-function mapStateToProps(state) {
-    return {
-        visible: showSettingsDialog(state),
-        parser: getParser(state),
-        parserSettings: getParserSettings(state),
-    };
+export default function SettingsDialogContainer() {
+    const visible = useSelector(showSettingsDialog);
+    const parser = useSelector(getParser);
+    const parserSettings = useSelector(getParserSettings);
+    const dispatch = useDispatch();
+    
+    return (
+        <SettingsDialog
+            visible={visible}
+            parser={parser}
+            parserSettings={parserSettings}
+            onSave={(parser, newSettings) => dispatch(setParserSettings(newSettings))}
+            onWantToClose={() => dispatch(closeSettingsDialog())}
+        />
+    );
 }
-
-function mapDispatchToProps(dispatch) {
-    return {
-        onSave: (parser, newSettings) => dispatch(setParserSettings(newSettings)),
-        onWantToClose: () => dispatch(closeSettingsDialog()),
-    };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(SettingsDialog);

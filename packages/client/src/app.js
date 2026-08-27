@@ -1,7 +1,7 @@
 import '../css/style.css';
-import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
-import {Provider, connect} from 'react-redux';
+import {Provider} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {
     createStore,
     applyMiddleware,
@@ -41,11 +41,14 @@ function resize() {
     PubSub.publish('PANEL_RESIZE');
 }
 
-function App(props) {
+function App() {
+    const showTransformer = useSelector((s) => s.showTransformPanel);
+    const hasError = useSelector((s) => Boolean(s.error));
+    
     return (
         <div>
             <ErrorMessageContainer/>
-            <div className={'dropTarget' + (props.hasError ? ' hasError' : '')}>
+            <div className={'dropTarget' + (hasError ? ' hasError' : '')}>
                 <PasteDropTargetContainer>
                     <LoadingIndicatorContainer/>
                     <SettingsDialogContainer/>
@@ -65,7 +68,7 @@ function App(props) {
                                 <CodeEditorContainer/>
                                 <ASTOutputContainer/>
                             </SplitPane>
-                            {props.showTransformer ? <TransformerContainer/> : null}
+                            {showTransformer ? <TransformerContainer/> : null}
                         </SplitPane>
                     </div>
                 </PasteDropTargetContainer>
@@ -73,16 +76,6 @@ function App(props) {
         </div>
     );
 }
-
-App.propTypes = {
-    hasError: PropTypes.bool,
-    showTransformer: PropTypes.bool,
-};
-
-const AppContainer = connect((state) => ({
-    showTransformer: state.showTransformPanel,
-    hasError: Boolean(state.error),
-}))(App);
 
 const composeEnhancers = globalThis.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -112,7 +105,7 @@ const root = createRoot(container);
 
 root.render(
     <Provider store={store}>
-        <AppContainer/>
+        <App/>
     </Provider>,
 );
 
