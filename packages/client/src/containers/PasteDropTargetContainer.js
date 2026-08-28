@@ -8,7 +8,10 @@ export default function PasteDropTargetContainer({children}) {
     return (
         <PasteDropTarget
             onText={(type, event, code, categoryId) => {
-                dispatch(dropText({text: code, categoryId}));
+                dispatch(dropText({
+                    text: code,
+                    categoryId,
+                }));
             }}
             onError={(error) => dispatch(setError(error))}
         >

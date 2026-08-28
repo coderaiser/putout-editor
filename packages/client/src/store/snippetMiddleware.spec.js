@@ -5,15 +5,17 @@ import {snippetListener} from './snippetMiddleware.js';
 import {putoutEditor, clearError} from './reducers.js';
 import {log} from '../utils/logger.js';
 
-log.event = () => {};
-log.error = () => {};
+const noop = () => {};
+
+log.event = noop;
+log.error = noop;
 
 const makeStorage = (overrides = {}) => ({
     fetchFromURL: stub().resolves(null),
     create: stub().resolves(null),
     update: stub().resolves(null),
     fork: stub().resolves(null),
-    updateHash: () => {},
+    updateHash: noop,
     ...overrides,
 });
 
@@ -31,7 +33,7 @@ function makeStore(overrides = {}, storage = makeStorage()) {
             ...overrides,
             workbench: {
                 ...state.workbench,
-                ...(overrides.workbench || {}),
+                ...overrides.workbench || {},
             },
         },
         middleware: (getDefault) => getDefault({
@@ -58,7 +60,6 @@ const makeRevision = () => ({
 });
 
 // --- snippet/load ---
-
 test('snippetMiddleware: load while saving passes through without loading', async (t) => {
     const storage = makeStorage();
     const store = makeStore({
@@ -70,8 +71,9 @@ test('snippetMiddleware: load while saving passes through without loading', asyn
     });
     await setImmediate();
     await setImmediate();
+    const {loadingSnippet} = store.getState();
     
-    t.notOk(store.getState().loadingSnippet);
+    t.notOk(loadingSnippet);
     t.end();
 });
 
@@ -86,8 +88,9 @@ test('snippetMiddleware: load while forking passes through without loading', asy
     });
     await setImmediate();
     await setImmediate();
+    const {loadingSnippet} = store.getState();
     
-    t.notOk(store.getState().loadingSnippet);
+    t.notOk(loadingSnippet);
     t.end();
 });
 
@@ -96,6 +99,7 @@ test('snippetMiddleware: load fetch resolves with revision sets activeRevision',
     const storage = makeStorage({
         fetchFromURL: stub().resolves(revision),
     });
+    
     const store = makeStore({}, storage);
     
     store.dispatch({
@@ -112,6 +116,7 @@ test('snippetMiddleware: load fetch resolves with null clears activeRevision', a
     const storage = makeStorage({
         fetchFromURL: stub().resolves(null),
     });
+    
     const store = makeStore({}, storage);
     
     store.dispatch({
@@ -119,8 +124,9 @@ test('snippetMiddleware: load fetch resolves with null clears activeRevision', a
     });
     await setImmediate();
     await setImmediate();
+    const {error} = store.getState();
     
-    t.notOk(store.getState().error);
+    t.notOk(error);
     t.end();
 });
 
@@ -128,6 +134,7 @@ test('snippetMiddleware: load fetch rejects sets error', async (t) => {
     const storage = makeStorage({
         fetchFromURL: () => Promise.reject(Error('fetch failed')),
     });
+    
     const store = makeStore({}, storage);
     
     store.dispatch({
@@ -136,8 +143,9 @@ test('snippetMiddleware: load fetch rejects sets error', async (t) => {
     await setImmediate();
     await setImmediate();
     await Promise.resolve();
+    const {error} = store.getState();
     
-    t.ok(store.getState().error);
+    t.ok(error);
     t.end();
 });
 
@@ -145,6 +153,7 @@ test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
     const storage = makeStorage({
         fetchFromURL: () => Promise.reject(Error('fetch failed')),
     });
+    
     const store = makeStore({}, storage);
     
     store.dispatch({
@@ -153,8 +162,9 @@ test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
     await setImmediate();
     await setImmediate();
     await Promise.resolve();
+    const {loadingSnippet} = store.getState();
     
-    t.notOk(store.getState().loadingSnippet);
+    t.notOk(loadingSnippet);
     t.end();
 });
 
@@ -163,7 +173,9 @@ test('snippetMiddleware: stale load request skips resolve', async (t) => {
     const firstPromise = new Promise((r) => {
         resolveFirst = r;
     });
+    
     let callCount = 0;
+    
     const storage = makeStorage({
         fetchFromURL: () => {
             ++callCount;
@@ -171,9 +183,10 @@ test('snippetMiddleware: stale load request skips resolve', async (t) => {
             if (callCount === 1)
                 return firstPromise;
             
-            return new Promise(() => {});
+            return new Promise(noop);
         },
     });
+    
     const store = makeStore({}, storage);
     
     store.dispatch({
@@ -185,8 +198,9 @@ test('snippetMiddleware: stale load request skips resolve', async (t) => {
     resolveFirst();
     await setImmediate();
     await setImmediate();
+    const {loadingSnippet} = store.getState();
     
-    t.ok(store.getState().loadingSnippet);
+    t.ok(loadingSnippet);
     t.end();
 });
 
@@ -194,8 +208,8 @@ test('snippetMiddleware: clearError after fetch failure clears hash', async (t) 
     const storage = makeStorage({
         fetchFromURL: () => Promise.reject(Error('fetch failed')),
     });
+    
     const store = makeStore({}, storage);
-    const originalHash = globalThis.location.hash;
     
     store.dispatch({
         type: 'snippet/load',
@@ -212,7 +226,6 @@ test('snippetMiddleware: clearError after fetch failure clears hash', async (t) 
 });
 
 // --- snippet/save ---
-
 test('snippetMiddleware: save no revision calls create', async (t) => {
     let created = false;
     const storage = makeStorage({
@@ -223,6 +236,7 @@ test('snippetMiddleware: save no revision calls create', async (t) => {
             });
         },
     });
+    
     const store = makeStore({
         activeRevision: null,
     }, storage);
@@ -248,6 +262,7 @@ test('snippetMiddleware: save with revision calls update', async (t) => {
             });
         },
     });
+    
     const store = makeStore({
         activeRevision: makeRevision(),
     }, storage);
@@ -273,6 +288,7 @@ test('snippetMiddleware: save fork=true calls fork', async (t) => {
             });
         },
     });
+    
     const store = makeStore({
         activeRevision: makeRevision(),
     }, storage);
@@ -298,6 +314,7 @@ test('snippetMiddleware: save with showTransformPanel adds tool data', async (t)
             });
         },
     });
+    
     const store = makeStore({
         activeRevision: makeRevision(),
         showTransformPanel: true,
@@ -324,6 +341,7 @@ test('snippetMiddleware: save create with showTransformPanel', async (t) => {
             });
         },
     });
+    
     const store = makeStore({
         activeRevision: null,
         showTransformPanel: true,
@@ -344,6 +362,7 @@ test('snippetMiddleware: save error triggers setError', async (t) => {
     const storage = makeStorage({
         update: () => Promise.reject(Error('save failed')),
     });
+    
     const store = makeStore({
         activeRevision: makeRevision(),
     }, storage);
@@ -354,8 +373,8 @@ test('snippetMiddleware: save error triggers setError', async (t) => {
     });
     await setImmediate();
     await setImmediate();
+    const {error} = store.getState();
     
-    t.ok(store.getState().error);
+    t.ok(error);
     t.end();
 });
-

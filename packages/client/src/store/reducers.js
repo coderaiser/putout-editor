@@ -120,6 +120,7 @@ const slice = createSlice({
         
         setCode: (state, {payload: {code, cursor}}) => {
             state.workbench.code = code;
+            
             if (cursor != null && cursor)
                 state.cursor = cursor;
         },
@@ -221,13 +222,12 @@ function resetWorkbenchFromParser(state) {
     state.workbench.code = parser.category.codeExample;
     state.workbench.initialCode = parser.category.codeExample;
     
-    if (hadTransformer || state.workbench.transform.transformer) {
+    if (hadTransformer || state.workbench.transform.transformer)
         state.workbench.transform = {
             code: defaultTransformer.defaultTransform,
             initialCode: defaultParser.category.codeExample,
             transformer: defaultTransformer.id,
         };
-    }
 }
 
 function selectParserFromCategory(state, category) {
@@ -240,7 +240,6 @@ function selectParserFromCategory(state, category) {
     state.showTransformPanel = true;
     state.activeRevision = null;
 }
-
 
 export const {
     openSettingsDialog,

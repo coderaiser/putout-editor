@@ -61,8 +61,14 @@ export default function ToolbarContainer() {
                 if (keyMap)
                     logEvent('keyMap', keyMap);
             }}
-            onSave={() => dispatch({type: 'snippet/save', payload: false})}
-            onFork={() => dispatch({type: 'snippet/save', payload: true})}
+            onSave={() => dispatch({
+                type: 'snippet/save',
+                payload: false,
+            })}
+            onFork={() => dispatch({
+                type: 'snippet/save',
+                payload: true,
+            })}
             onNew={() => {
                 if (globalThis.location.hash) {
                     globalThis.location.hash = '';

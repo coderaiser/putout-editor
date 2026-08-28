@@ -24,7 +24,10 @@ function makeStore(overrides = {}) {
         },
     };
     
-    return configureStore({reducer: putoutEditor, preloadedState: revive(state)});
+    return configureStore({
+        reducer: putoutEditor,
+        preloadedState: revive(state),
+    });
 }
 
 function renderWithChildren(store) {

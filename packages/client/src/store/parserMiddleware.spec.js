@@ -2,7 +2,11 @@ import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
 import {parserListener} from './parserMiddleware.js';
-import {putoutEditor, setCode, setParserSettings} from './reducers.js';
+import {
+    putoutEditor,
+    setCode,
+    setParserSettings,
+} from './reducers.js';
 import {getParserByID} from '../parsers/index.js';
 
 const makeMockParseResult = () => ({
@@ -39,13 +43,14 @@ function makeStore(overrides = {}) {
 
 const getParseResult = (store) => store.getState().workbench.parseResult;
 
-const stubBabel = ({
-    parse = () => makeMockParseResult(),
-    opensByDefault,
-    promise = Promise.resolve({
-        parse: () => makeMockParseResult(),
-    }),
-} = {}) => {
+const stubBabel = (overrides = {}) => {
+    const {
+        parse = () => makeMockParseResult(),
+        opensByDefault,
+        promise = Promise.resolve({
+            parse: () => makeMockParseResult(),
+        }),
+    } = overrides;
     const babel = getParserByID('babel');
     const originalPromise = babel._promise;
     const originalParse = babel.parse;
@@ -103,6 +108,7 @@ test('parserMiddleware: parse error sets parseResult error', async (t) => {
             throw Error('parse failed');
         },
     });
+    
     const store = makeStore();
     
     store.dispatch({
@@ -159,8 +165,9 @@ test('parserMiddleware: null parser skips parse', async (t) => {
     await setImmediate();
     
     stub.restore();
+    const result = getParseResult(store);
     
-    t.notOk(getParseResult(store));
+    t.notOk(result);
     t.end();
 });
 
@@ -179,8 +186,9 @@ test('parserMiddleware: null code skips parse', async (t) => {
     await setImmediate();
     
     stub.restore();
+    const result = getParseResult(store);
     
-    t.notOk(getParseResult(store));
+    t.notOk(result);
     t.end();
 });
 
@@ -192,7 +200,7 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
                 plugins: [
                     'jsx',
                     'importAssertions',
-                    ['importAttributes', {}],
+                    ['importAttributes', { }],
                 ],
             },
         },
@@ -215,15 +223,12 @@ test('parserMiddleware: code change during parse discards stale result', async (
     const promise = new Promise((r) => {
         resolveParse = r;
     });
-    let parsedCodes = [];
     
     const stub = stubBabel({
         promise,
-        parse: (_realParser, code) => {
-            parsedCodes.push(code);
-            return makeMockParseResult();
-        },
+        parse: () => makeMockParseResult(),
     });
+    
     const store = makeStore();
     
     store.dispatch({
@@ -257,6 +262,7 @@ test('parserMiddleware: parser settings change during parse discards stale resul
     const stub = stubBabel({
         promise,
     });
+    
     const store = makeStore();
     
     store.dispatch({
@@ -312,6 +318,7 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     const stub = stubBabel({
         opensByDefault: false,
     });
+    
     const store = makeStore();
     
     store.dispatch({
@@ -325,4 +332,3 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     t.ok(getParseResult(store).ast);
     t.end();
 });
-

@@ -64,7 +64,7 @@ snippetListener.startListening({
         
         if (error) {
             logError('Failed to fetch revision: ' + error.message);
-            api.dispatch(setError(new Error('Failed to fetch revision: ' + error.message)));
+            api.dispatch(setError(Error('Failed to fetch revision: ' + error.message)));
             api.dispatch(doneLoadingSnippet());
             
             if (globalThis.history)
@@ -91,13 +91,18 @@ snippetListener.startListening({
         api.dispatch(startSave(fork));
         
         const data = buildSaveData(state);
-        const [error, newRevision] = await tryToCatch(saveRevision, fork, data, getRevision(state), api.extra.storageAdapter);
+        const [error, newRevision] = await tryToCatch(
+            saveRevision,
+            fork,
+            data,
+            getRevision(state),
+            api.extra.storageAdapter,
+        );
         
         if (error) {
             logError(error.message);
             api.dispatch(setError(error));
-        }
-        else if (newRevision) {
+        } else if (newRevision) {
             api.extra.storageAdapter.updateHash(newRevision);
         }
         

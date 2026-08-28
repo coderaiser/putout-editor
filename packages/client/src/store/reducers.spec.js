@@ -514,14 +514,20 @@ test('reducers: set key map', (t) => {
 });
 
 test('reducers: drop text sets code', (t) => {
-    const state = putoutEditor(getInitState(), dropText({text: 'dropped code', categoryId: 'javascript'}));
+    const state = putoutEditor(getInitState(), dropText({
+        text: 'dropped code',
+        categoryId: 'javascript',
+    }));
     
     t.equal(state.workbench.code, 'dropped code');
     t.end();
 });
 
 test('reducers: drop text sets initialCode', (t) => {
-    const state = putoutEditor(getInitState(), dropText({text: 'dropped code', categoryId: 'javascript'}));
+    const state = putoutEditor(getInitState(), dropText({
+        text: 'dropped code',
+        categoryId: 'javascript',
+    }));
     
     t.equal(state.workbench.initialCode, 'dropped code');
     t.end();

@@ -71,8 +71,7 @@ function App() {
     );
 }
 
-const storageAdapter = new StorageHandler([gist,
-    parse]);
+const storageAdapter = new StorageHandler([gist, parse]);
 
 const store = configureStore({
     reducer: putoutEditor,
@@ -83,7 +82,8 @@ const store = configureStore({
                 storageAdapter,
             },
         },
-    }).prepend(parserListener.middleware)
+    })
+        .prepend(parserListener.middleware)
         .prepend(snippetListener.middleware),
 });
 
@@ -108,11 +108,15 @@ root.render(
 );
 
 globalThis.onhashchange = () => {
-    store.dispatch({type: 'snippet/load'});
+    store.dispatch({
+        type: 'snippet/load',
+    });
 };
 
 if (location.hash.length > 1)
-    store.dispatch({type: 'snippet/load'});
+    store.dispatch({
+        type: 'snippet/load',
+    });
 
 globalThis.onbeforeunload = () => {
     const state = store.getState();

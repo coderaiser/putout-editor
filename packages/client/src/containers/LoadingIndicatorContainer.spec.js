@@ -19,7 +19,10 @@ function renderWithStore(overrides = {}) {
         },
     };
     
-    const store = configureStore({reducer: putoutEditor, preloadedState: revive(state)});
+    const store = configureStore({
+        reducer: putoutEditor,
+        preloadedState: revive(state),
+    });
     
     render(
         <Provider store={store}>
