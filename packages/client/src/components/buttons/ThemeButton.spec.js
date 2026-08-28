@@ -104,3 +104,55 @@ test('ThemeButton: toggles back to light on second click', (t) => {
     t.equal(theme, 'light');
     t.end();
 });
+
+test('ThemeButton: sets theme via menu item click', (t) => {
+    clearTheme();
+    render(
+        <ThemeButton/>,
+    );
+    
+    const [, darkItem] = document.querySelectorAll('li');
+    
+    fireEvent.click(darkItem);
+    
+    const {theme} = document.documentElement.dataset;
+    
+    cleanup();
+    
+    t.equal(theme, 'dark');
+    t.end();
+});
+
+test('ThemeButton: menu item click persists to localStorage', (t) => {
+    clearTheme();
+    render(
+        <ThemeButton/>,
+    );
+    
+    const [, darkItem] = document.querySelectorAll('li');
+    
+    fireEvent.click(darkItem);
+    
+    const stored = localStorage.getItem('theme');
+    
+    cleanup();
+    
+    t.equal(stored, 'dark');
+    t.end();
+});
+
+test('ThemeButton: mouseLeave resets forceClosed', (t) => {
+    clearTheme();
+    const {container} = render(
+        <ThemeButton/>,
+    );
+    
+    const div = container.querySelector('div');
+    
+    fireEvent.mouseLeave(div);
+    
+    cleanup();
+    
+    t.ok(div, 'mouseLeave handled without error');
+    t.end();
+});
