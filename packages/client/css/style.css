@@ -30,55 +30,57 @@
 }
 
 [data-theme='dark'] {
-    --color-bg-page:         #1a1a1a;
-    --color-bg-toolbar:      #1e1e1e;
-    --color-bg-editor:       #1a1a1a;
-    --color-bg-dialog:       #252526;
-    --color-text:            #d4d4d4;
-    --color-text-strong:     #e0e0e0;
-    --color-text-muted:      #b8b8b8;
-    --color-text-dim:        #9e9e9e;
-    --color-text-info:       #9a9a9a;
-    --color-accent:          #e05252;
-    --color-border:          #3c3c3c;
-    --color-banner:          #1f3a5f;
-    --color-divider:         #3c3c3c;
-    --color-divider-hover:   #666;
-    --color-active-bg:       #444;
-    --color-active-text:     #eee;
-    --color-error-bg:        #7a3b3b;
-    --color-overlay:         rgb(15 15 15 / 75%);
+    --color-bg-page:         #1c1917;
+    --color-bg-toolbar:      #292524;
+    --color-bg-contribution: #292524;
+    --color-bg-editor:       #1c1917;
+    --color-bg-dialog:       #292524;
+    --color-text:            #e7e5e4;
+    --color-text-strong:     #fafaf9;
+    --color-text-muted:      #a8a29e;
+    --color-text-dim:        #78716c;
+    --color-text-info:       #78716c;
+    --color-accent:          #f87171;
+    --color-border:          #3f3935;
+    --color-banner:          #1c2a3a;
+    --color-divider:         #3f3935;
+    --color-divider-hover:   #57534e;
+    --color-active-bg:       #44403c;
+    --color-active-text:     #fafaf9;
+    --color-error-bg:        #7f1d1d;
+    --color-overlay:         rgb(12 10 9 / 80%);
     --color-dialog-shadow:   #000;
-    --color-hover:           rgb(255 255 255 / 12%);
-    --color-hover-strong:    rgb(255 255 255 / 30%);
-    --color-selected:        rgb(255 255 255 / 8%);
+    --color-hover:           rgb(255 255 255 / 8%);
+    --color-hover-strong:    rgb(255 255 255 / 16%);
+    --color-selected:        rgb(255 255 255 / 6%);
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']),
     :root:not([data-theme]) {
-        --color-bg-page:         #1a1a1a;
-        --color-bg-toolbar:      #1e1e1e;
-        --color-bg-editor:       #1a1a1a;
-        --color-bg-dialog:       #252526;
-        --color-text:            #d4d4d4;
-        --color-text-strong:     #e0e0e0;
-        --color-text-muted:      #b8b8b8;
-        --color-text-dim:        #9e9e9e;
-        --color-text-info:       #9a9a9a;
-        --color-accent:          #e05252;
-        --color-border:          #3c3c3c;
-        --color-banner:          #1f3a5f;
-        --color-divider:         #3c3c3c;
-        --color-divider-hover:   #666;
-        --color-active-bg:       #444;
-        --color-active-text:     #eee;
-        --color-error-bg:        #7a3b3b;
-        --color-overlay:         rgb(15 15 15 / 75%);
+        --color-bg-page:         #1c1917;
+        --color-bg-toolbar:      #292524;
+        --color-bg-contribution: #292524;
+        --color-bg-editor:       #1c1917;
+        --color-bg-dialog:       #292524;
+        --color-text:            #e7e5e4;
+        --color-text-strong:     #fafaf9;
+        --color-text-muted:      #a8a29e;
+        --color-text-dim:        #78716c;
+        --color-text-info:       #78716c;
+        --color-accent:          #f87171;
+        --color-border:          #3f3935;
+        --color-banner:          #1c2a3a;
+        --color-divider:         #3f3935;
+        --color-divider-hover:   #57534e;
+        --color-active-bg:       #44403c;
+        --color-active-text:     #fafaf9;
+        --color-error-bg:        #7f1d1d;
+        --color-overlay:         rgb(12 10 9 / 80%);
         --color-dialog-shadow:   #000;
-        --color-hover:           rgb(255 255 255 / 12%);
-        --color-hover-strong:    rgb(255 255 255 / 30%);
-        --color-selected:        rgb(255 255 255 / 8%);
+        --color-hover:           rgb(255 255 255 / 8%);
+        --color-hover-strong:    rgb(255 255 255 / 16%);
+        --color-selected:        rgb(255 255 255 / 6%);
     }
 }
 html {
@@ -223,6 +225,7 @@ html {
 #Toolbar .menuButton ul {
     position: absolute;
     left: -1px;
+    top: 32px;
     padding: 0;
     margin: 0;
     list-style: none;

@@ -10,6 +10,7 @@
   "scripts": {
     "build": "madrun build",
     "start": "madrun start",
+    "start:dev": "madrun start:dev",
     "test": "madrun test",
     "coverage": "madrun coverage",
     "lint": "madrun lint",

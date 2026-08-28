@@ -10,9 +10,16 @@ const startEnv = {
     NODE_OPTIONS,
 };
 
+const devEnv = {
+    PORT: 3000,
+    STATIC: 'out',
+    NODE_OPTIONS,
+};
+
 export default {
     'build': () => 'madfork build',
     'start': () => [startEnv, 'node bin/putout-editor.js'],
+    'start:dev': () => [devEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
     'coverage': async () => 'madfork coverage',
     'prelint': () => 'putout bin .github deploy',
