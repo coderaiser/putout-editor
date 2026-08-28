@@ -1,3 +1,23 @@
+2026.08.28, v3.1.0
+
+fix:
+- c78f2ae dark theme
+- 138e733 font-size
+- 7fa6da4 style: icons
+- 20a8531 theme loading
+
+feature:
+- 7569b82 store: add behaviour spec and fix hideTransformer
+- 5049e3e client: containers: migrate to hooks
+- 5de5d30 store: add operations module
+- 04fab7f theme: dark theme and theme toggle
+- fb4ba08 icons: drop font-awesome for react-icons
+- c01af19 PrettierButton: rm
+- ba6f560 react compiler: add
+- afbd373 CompactArrayView: migrate to hooks
+- 0c13b62 client: ErrorMessage: migrate to hooks
+- 4b14297 client: GistBanner: migrate to hooks
+
 2026.07.20, v3.0.34
 
 feature:
