@@ -36,18 +36,18 @@
     --color-bg-contribution: #292524;
     --color-bg-editor:       #1c1917;
     --color-bg-dialog:       #292524;
-    --color-text:            #e7e5e4;
-    --color-text-strong:     #fafaf9;
-    --color-text-muted:      #a8a29e;
-    --color-text-dim:        #78716c;
-    --color-text-info:       #78716c;
+    --color-text:            #a8a29e;
+    --color-text-strong:     #d6d3d1;
+    --color-text-muted:      #78716c;
+    --color-text-dim:        #57534e;
+    --color-text-info:       #57534e;
     --color-accent:          #f87171;
     --color-border:          #3f3935;
     --color-banner:          #1c2a3a;
     --color-divider:         #3f3935;
     --color-divider-hover:   #57534e;
     --color-active-bg:       #44403c;
-    --color-active-text:     #fafaf9;
+    --color-active-text:     #d6d3d1;
     --color-error-bg:        #7f1d1d;
     --color-overlay:         rgb(12 10 9 / 80%);
     --color-dialog-shadow:   #000;
@@ -64,11 +64,11 @@
         --color-bg-contribution: #292524;
         --color-bg-editor:       #1c1917;
         --color-bg-dialog:       #292524;
-        --color-text:            #e7e5e4;
-        --color-text-strong:     #fafaf9;
-        --color-text-muted:      #a8a29e;
-        --color-text-dim:        #78716c;
-        --color-text-info:       #78716c;
+        --color-text:            #a8a29e;
+        --color-text-strong:     #d6d3d1;
+        --color-text-muted:      #78716c;
+        --color-text-dim:        #57534e;
+        --color-text-info:       #57534e;
         --color-accent:          #f87171;
         --color-border:          #3f3935;
         --color-banner:          #1c2a3a;
@@ -412,6 +412,11 @@ li.entry {
     background-color: rgb(255 240 6 / 40%);
 }
 
+[data-theme='dark'] .CodeMirror .marked,
+[data-theme='dark'] .entry.focused {
+    background-color: rgb(129 161 193 / 25%);
+}
+
 .entry > .value .s {
     cursor: text;
     -webkit-user-select: text;
@@ -439,9 +444,6 @@ li.entry {
 
 .entry .invokeable:hover {
     text-decoration: underline;
-}
-
-.placeholder {
 }
 
 .compact,

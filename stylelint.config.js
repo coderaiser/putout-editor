@@ -1,5 +1,5 @@
-module.exports = {
-  rules: {
-    'selector-id-pattern': null,
-  },
+export default {
+    rules: {
+        'selector-id-pattern': null,
+    },
 };
