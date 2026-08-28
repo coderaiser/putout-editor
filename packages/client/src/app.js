@@ -29,7 +29,7 @@ import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
 import {parserListener} from './store/parserMiddleware';
-import {snippetListener} from './store/snippetMiddleware';
+import {createSnippetListener} from './store/snippetMiddleware';
 
 function resize() {
     PubSub.publish('PANEL_RESIZE');
@@ -72,17 +72,12 @@ function App() {
 }
 
 const storageAdapter = new StorageHandler([gist, parse]);
+const snippetListener = createSnippetListener(storageAdapter);
 
 const store = configureStore({
     reducer: putoutEditor,
     preloadedState: revive(LocalStorage.readState()),
-    middleware: (getDefault) => getDefault({
-        thunk: {
-            extraArgument: {
-                storageAdapter,
-            },
-        },
-    })
+    middleware: (getDefault) => getDefault()
         .prepend(parserListener.middleware)
         .prepend(snippetListener.middleware),
 });

@@ -1,7 +1,7 @@
 import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
-import {snippetListener} from './snippetMiddleware.js';
+import {createSnippetListener} from './snippetMiddleware.js';
 import {putoutEditor, clearError} from './reducers.js';
 import {log} from '../utils/logger.js';
 
@@ -25,7 +25,8 @@ const getInitState = () => putoutEditor(undefined, {
 
 function makeStore(overrides = {}, storage = makeStorage()) {
     const state = getInitState();
-    
+    const listener = createSnippetListener(storage);
+
     return configureStore({
         reducer: putoutEditor,
         preloadedState: {
@@ -39,12 +40,7 @@ function makeStore(overrides = {}, storage = makeStorage()) {
         middleware: (getDefault) => getDefault({
             immutableCheck: false,
             serializableCheck: false,
-            thunk: {
-                extraArgument: {
-                    storageAdapter: storage,
-                },
-            },
-        }).prepend(snippetListener.middleware),
+        }).prepend(listener.middleware),
     });
 }
 
