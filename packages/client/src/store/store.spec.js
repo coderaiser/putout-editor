@@ -28,6 +28,14 @@ import {
 // makeStore() is the ONLY function that changes between Redux, RTK, and Zustand.
 // RTK:     configureStore({reducer: putoutEditor, preloadedState: revive(preload)})
 // Zustand: useStore.setState(revive(preload)); return useStore;
+const makeStorage = () => ({
+    fetchFromURL: () => Promise.resolve(null),
+    create: () => Promise.resolve(null),
+    update: () => Promise.resolve(null),
+    fork: () => Promise.resolve(null),
+    updateHash: () => {},
+});
+
 function makeStore(preload = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
@@ -38,6 +46,15 @@ function makeStore(preload = {}) {
         preloadedState: revive({
             ...base,
             ...preload,
+        }),
+        middleware: (getDefault) => getDefault({
+            immutableCheck: false,
+            serializableCheck: false,
+            thunk: {
+                extraArgument: {
+                    storageAdapter: makeStorage(),
+                },
+            },
         }),
     });
 }
