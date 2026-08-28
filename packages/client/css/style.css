@@ -170,7 +170,9 @@ html {
     background-color: transparent;
     box-sizing: border-box;
     color: inherit;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-family: inherit;
     font-size: 16px;
     margin: 0;
@@ -180,8 +182,7 @@ html {
 
 #Toolbar > .menuButton > span {
     cursor: default;
-    line-height: 29px;
-    padding: 2px 6px;
+    padding: 0 6px;
 }
 
 #Toolbar > * {
