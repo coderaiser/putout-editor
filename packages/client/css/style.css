@@ -84,7 +84,7 @@
     }
 }
 html {
-    font-size: 14px;
+    font-size: 16px;
     box-sizing: border-box;
     font-family: 'Verdana', 'non-serif';
 }
@@ -174,7 +174,7 @@ html {
     align-items: center;
     gap: 5px;
     font-family: inherit;
-    font-size: 16px;
+    font-size: inherit;
     margin: 0;
     min-width: 90px;
     outline: none;
@@ -281,7 +281,6 @@ html {
 }
 
 #info.small {
-    font-size: 12px;
     line-height: 1.3em;
 }
 
@@ -297,7 +296,6 @@ html {
 }
 
 #contribution {
-    font-size: 0.9em;
     color: var(--color-text-muted);
     position: absolute;
     height: 25px;
@@ -342,7 +340,6 @@ html {
 }
 
 .output .toolbar {
-    font-size: 14px;
     margin-left: -1px;
     border-bottom: 1px solid var(--color-border);
 }
@@ -354,7 +351,6 @@ html {
     border: 1px solid transparent;
     border-left: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
-    font-size: 14px;
     background-color: transparent;
     display: inline-block;
     vertical-align: top;
@@ -386,7 +382,7 @@ html {
 }
 
 #JSONEditor .CodeMirror {
-    font-size: 0.9em;
+    font-size: inherit;
 }
 
 #JSONEditor .CodeMirror,
@@ -442,7 +438,6 @@ li.entry {
 }
 
 .placeholder {
-    font-size: 0.9em;
 }
 
 .compact,
