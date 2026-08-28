@@ -26,7 +26,7 @@ const getInitState = () => putoutEditor(undefined, {
 function makeStore(overrides = {}, storage = makeStorage()) {
     const state = getInitState();
     const listener = createSnippetListener(storage);
-
+    
     return configureStore({
         reducer: putoutEditor,
         preloadedState: {

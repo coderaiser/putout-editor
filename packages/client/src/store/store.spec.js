@@ -1,4 +1,4 @@
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
 import {
     putoutEditor,
@@ -29,10 +29,10 @@ import {
 // RTK:     configureStore({reducer: putoutEditor, preloadedState: revive(preload)})
 // Zustand: useStore.setState(revive(preload)); return useStore;
 const makeStorage = () => ({
-    fetchFromURL: () => Promise.resolve(null),
-    create: () => Promise.resolve(null),
-    update: () => Promise.resolve(null),
-    fork: () => Promise.resolve(null),
+    fetchFromURL: stub().resolves(null),
+    create: stub().resolves(null),
+    update: stub().resolves(null),
+    fork: stub().resolves(null),
     updateHash: () => {},
 });
 
