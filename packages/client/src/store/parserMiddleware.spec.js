@@ -51,6 +51,7 @@ const stubBabel = (overrides = {}) => {
             parse: () => makeMockParseResult(),
         }),
     } = overrides;
+    
     const babel = getParserByID('babel');
     const originalPromise = babel._promise;
     const originalParse = babel.parse;
