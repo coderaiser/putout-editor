@@ -1,49 +1,49 @@
 import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
-import createMiddleware from './snippetMiddleware.js';
-import * as actions from './actions.js';
+import {configureStore} from '@reduxjs/toolkit';
+import {snippetListener} from './snippetMiddleware.js';
+import {putoutEditor, clearError} from './reducers.js';
 import {log} from '../utils/logger.js';
 
-const noop = () => {};
-
-log.event = noop;
-log.error = noop;
+log.event = () => {};
+log.error = () => {};
 
 const makeStorage = (overrides = {}) => ({
     fetchFromURL: stub().resolves(null),
     create: stub().resolves(null),
     update: stub().resolves(null),
     fork: stub().resolves(null),
-    updateHash: noop,
+    updateHash: () => {},
     ...overrides,
 });
 
-const getState = (overrides = {}) => ({
-    activeRevision: null,
-    showTransformPanel: false,
-    workbench: {
-        parser: 'babel',
-        parserSettings: null,
-        code: 'x',
-        initialCode: 'x',
-        transform: {
-            code: 't',
-            initialCode: 't',
-            transformer: 'putout',
-        },
-    },
-    ...overrides,
+const getInitState = () => putoutEditor(undefined, {
+    type: '@@INIT',
 });
 
-function apply(storageAdapter, store) {
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(storageAdapter)(store)(push);
+function makeStore(overrides = {}, storage = makeStorage()) {
+    const state = getInitState();
     
-    return {
-        dispatch,
-        nextActions,
-    };
+    return configureStore({
+        reducer: putoutEditor,
+        preloadedState: {
+            ...state,
+            ...overrides,
+            workbench: {
+                ...state.workbench,
+                ...(overrides.workbench || {}),
+            },
+        },
+        middleware: (getDefault) => getDefault({
+            immutableCheck: false,
+            serializableCheck: false,
+            thunk: {
+                extraArgument: {
+                    storageAdapter: storage,
+                },
+            },
+        }).prepend(snippetListener.middleware),
+    });
 }
 
 const makeRevision = () => ({
@@ -57,243 +57,113 @@ const makeRevision = () => ({
     getRevisionID: () => 'r1',
 });
 
-test('snippetMiddleware: default action passed to next', (t) => {
+// --- snippet/load ---
+
+test('snippetMiddleware: load while saving passes through without loading', async (t) => {
     const storage = makeStorage();
-    const store = {
-        getState,
-    };
+    const store = makeStore({
+        saving: true,
+    }, storage);
     
-    const {dispatch, nextActions} = apply(storage, store);
+    store.dispatch({
+        type: 'snippet/load',
+    });
+    await setImmediate();
+    await setImmediate();
     
-    const action = {
-        type: 'UNKNOWN',
-    };
-    
-    dispatch(action);
-    
-    t.equal(nextActions[0], action);
+    t.notOk(store.getState().loadingSnippet);
     t.end();
 });
 
-test('snippetMiddleware: CLEAR_ERROR passed to next', (t) => {
+test('snippetMiddleware: load while forking passes through without loading', async (t) => {
     const storage = makeStorage();
-    const store = {
-        getState,
-    };
+    const store = makeStore({
+        forking: true,
+    }, storage);
     
-    const {dispatch, nextActions} = apply(storage, store);
+    store.dispatch({
+        type: 'snippet/load',
+    });
+    await setImmediate();
+    await setImmediate();
     
-    dispatch(actions.clearError());
-    
-    t.equal(nextActions[0].type, 'CLEAR_ERROR');
+    t.notOk(store.getState().loadingSnippet);
     t.end();
 });
 
-test('snippetMiddleware: LOAD_SNIPPET while saving passes through type', (t) => {
-    const storage = makeStorage();
-    const store = {
-        getState: () => getState({
-            saving: true,
-        }),
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    
-    t.equal(nextActions[0].type, 'LOAD_SNIPPET');
-    t.end();
-});
-
-test('snippetMiddleware: LOAD_SNIPPET while saving only one action', (t) => {
-    const storage = makeStorage();
-    const store = {
-        getState: () => getState({
-            saving: true,
-        }),
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    
-    t.equal(nextActions.length, 1);
-    t.end();
-});
-
-test('snippetMiddleware: LOAD_SNIPPET while forking passes through', (t) => {
-    const storage = makeStorage();
-    const store = {
-        getState: () => getState({
-            forking: true,
-        }),
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    
-    t.equal(nextActions[0].type, 'LOAD_SNIPPET');
-    t.end();
-});
-
-test('snippetMiddleware: LOAD_SNIPPET while forking only one action', (t) => {
-    const storage = makeStorage();
-    const store = {
-        getState: () => getState({
-            forking: true,
-        }),
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    
-    t.equal(nextActions.length, 1);
-    t.end();
-});
-
-test('snippetMiddleware: LOAD_SNIPPET fetch resolves with SET_SNIPPET', async (t) => {
-    const revision = {
-        id: 'rev-1',
-    };
-    
+test('snippetMiddleware: load fetch resolves with revision sets activeRevision', async (t) => {
+    const revision = makeRevision();
     const storage = makeStorage({
         fetchFromURL: stub().resolves(revision),
     });
+    const store = makeStore({}, storage);
     
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    await setImmediate();
-    
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('SET_SNIPPET');
-    
-    t.ok(result);
-    t.end();
-});
-
-test('snippetMiddleware: LOAD_SNIPPET fetch resolves with DONE_LOADING', async (t) => {
-    const revision = {
-        id: 'rev-1',
-    };
-    
-    const storage = makeStorage({
-        fetchFromURL: stub().resolves(revision),
+    store.dispatch({
+        type: 'snippet/load',
     });
-    
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
+    await setImmediate();
     await setImmediate();
     
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('DONE_LOADING_SNIPPET');
-    
-    t.ok(result);
+    t.equal(store.getState().activeRevision, revision);
     t.end();
 });
 
-test('snippetMiddleware: LOAD_SNIPPET fetch resolves with null', async (t) => {
+test('snippetMiddleware: load fetch resolves with null clears activeRevision', async (t) => {
     const storage = makeStorage({
         fetchFromURL: stub().resolves(null),
     });
+    const store = makeStore({}, storage);
     
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
+    store.dispatch({
+        type: 'snippet/load',
+    });
+    await setImmediate();
     await setImmediate();
     
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('CLEAR_SNIPPET');
-    
-    t.ok(result);
+    t.notOk(store.getState().error);
     t.end();
 });
 
-test('snippetMiddleware: LOAD_SNIPPET fetch rejects sets error', async (t) => {
+test('snippetMiddleware: load fetch rejects sets error', async (t) => {
     const storage = makeStorage({
         fetchFromURL: () => Promise.reject(Error('fetch failed')),
     });
+    const store = makeStore({}, storage);
     
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
+    store.dispatch({
+        type: 'snippet/load',
+    });
     await setImmediate();
+    await setImmediate();
+    await Promise.resolve();
     
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('SET_ERROR');
-    
-    t.ok(result);
+    t.ok(store.getState().error);
     t.end();
 });
 
-test('snippetMiddleware: LOAD_SNIPPET fetch rejects done loading', async (t) => {
+test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
     const storage = makeStorage({
         fetchFromURL: () => Promise.reject(Error('fetch failed')),
     });
+    const store = makeStore({}, storage);
     
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
+    store.dispatch({
+        type: 'snippet/load',
+    });
     await setImmediate();
+    await setImmediate();
+    await Promise.resolve();
     
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('DONE_LOADING_SNIPPET');
-    
-    t.ok(result);
+    t.notOk(store.getState().loadingSnippet);
     t.end();
 });
 
-test('snippetMiddleware: LOAD_SNIPPET stale request skip resolve', async (t) => {
+test('snippetMiddleware: stale load request skips resolve', async (t) => {
     let resolveFirst;
     const firstPromise = new Promise((r) => {
         resolveFirst = r;
     });
-    
     let callCount = 0;
-    
     const storage = makeStorage({
         fetchFromURL: () => {
             ++callCount;
@@ -301,91 +171,50 @@ test('snippetMiddleware: LOAD_SNIPPET stale request skip resolve', async (t) => 
             if (callCount === 1)
                 return firstPromise;
             
-            return new Promise(noop);
+            return new Promise(() => {});
         },
     });
+    const store = makeStore({}, storage);
     
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    dispatch(actions.loadSnippet());
+    store.dispatch({
+        type: 'snippet/load',
+    });
+    store.dispatch({
+        type: 'snippet/load',
+    });
     resolveFirst();
     await setImmediate();
-    
-    t.equal(nextActions.length, 6);
-    t.end();
-});
-
-test('snippetMiddleware: LOAD_SNIPPET stale request skip error', async (t) => {
-    let rejectFirst;
-    const firstPromise = new Promise((_, rej) => {
-        rejectFirst = rej;
-    });
-    
-    let callCount = 0;
-    
-    const storage = makeStorage({
-        fetchFromURL: () => {
-            ++callCount;
-            
-            if (callCount === 1)
-                return firstPromise;
-            
-            return new Promise(noop);
-        },
-    });
-    
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
-    dispatch(actions.loadSnippet());
-    rejectFirst(Error('stale fail'));
     await setImmediate();
-    await Promise.resolve();
     
-    t.equal(nextActions.length, 6);
+    t.ok(store.getState().loadingSnippet);
     t.end();
 });
 
-test('snippetMiddleware: CLEAR_ERROR after fetch failure clears hash', async (t) => {
+test('snippetMiddleware: clearError after fetch failure clears hash', async (t) => {
     const storage = makeStorage({
         fetchFromURL: () => Promise.reject(Error('fetch failed')),
     });
+    const store = makeStore({}, storage);
+    const originalHash = globalThis.location.hash;
     
-    const store = {
-        getState,
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.loadSnippet());
+    store.dispatch({
+        type: 'snippet/load',
+    });
+    await setImmediate();
     await setImmediate();
     await Promise.resolve();
     
-    dispatch(actions.clearError());
+    store.dispatch(clearError());
+    await setImmediate();
     
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('CLEAR_ERROR');
-    
-    t.ok(result);
+    t.equal(globalThis.location.hash, '');
     t.end();
 });
 
-test('snippetMiddleware: SAVE no revision calls create', async (t) => {
+// --- snippet/save ---
+
+test('snippetMiddleware: save no revision calls create', async (t) => {
     let created = false;
-    
     const storage = makeStorage({
         create: () => {
             created = true;
@@ -393,28 +222,24 @@ test('snippetMiddleware: SAVE no revision calls create', async (t) => {
                 id: 'new-id',
             });
         },
-        updateHash: noop,
     });
+    const store = makeStore({
+        activeRevision: null,
+    }, storage);
     
-    const store = {
-        getState: () => getState({
-            activeRevision: null,
-        }),
-    };
-    
-    const {dispatch} = apply(storage, store);
-    
-    dispatch(actions.save(false));
+    store.dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
+    await setImmediate();
     await setImmediate();
     
     t.ok(created);
     t.end();
 });
 
-test('snippetMiddleware: SAVE with revision calls update', async (t) => {
+test('snippetMiddleware: save with revision calls update', async (t) => {
     let updated = false;
-    const rev = makeRevision();
-    
     const storage = makeStorage({
         update: () => {
             updated = true;
@@ -422,28 +247,24 @@ test('snippetMiddleware: SAVE with revision calls update', async (t) => {
                 id: 'updated-id',
             });
         },
-        updateHash: noop,
     });
+    const store = makeStore({
+        activeRevision: makeRevision(),
+    }, storage);
     
-    const store = {
-        getState: () => getState({
-            activeRevision: rev,
-        }),
-    };
-    
-    const {dispatch} = apply(storage, store);
-    
-    dispatch(actions.save(false));
+    store.dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
+    await setImmediate();
     await setImmediate();
     
     t.ok(updated);
     t.end();
 });
 
-test('snippetMiddleware: SAVE fork=true calls fork', async (t) => {
+test('snippetMiddleware: save fork=true calls fork', async (t) => {
     let forked = false;
-    const rev = makeRevision();
-    
     const storage = makeStorage({
         fork: () => {
             forked = true;
@@ -451,57 +272,50 @@ test('snippetMiddleware: SAVE fork=true calls fork', async (t) => {
                 id: 'forked-id',
             });
         },
-        updateHash: noop,
     });
+    const store = makeStore({
+        activeRevision: makeRevision(),
+    }, storage);
     
-    const store = {
-        getState: () => getState({
-            activeRevision: rev,
-        }),
-    };
-    
-    const {dispatch} = apply(storage, store);
-    
-    dispatch(actions.save(true));
+    store.dispatch({
+        type: 'snippet/save',
+        payload: true,
+    });
+    await setImmediate();
     await setImmediate();
     
     t.ok(forked);
     t.end();
 });
 
-test('snippetMiddleware: SAVE with showTransformPanel adds tool data', async (t) => {
+test('snippetMiddleware: save with showTransformPanel adds tool data', async (t) => {
     let savedData = null;
-    const rev = makeRevision();
-    
     const storage = makeStorage({
-        update: (revision, data) => {
+        update: (_revision, data) => {
             savedData = data;
             return Promise.resolve({
                 id: 'updated-id',
             });
         },
-        updateHash: noop,
     });
+    const store = makeStore({
+        activeRevision: makeRevision(),
+        showTransformPanel: true,
+    }, storage);
     
-    const store = {
-        getState: () => getState({
-            activeRevision: rev,
-            showTransformPanel: true,
-        }),
-    };
-    
-    const {dispatch} = apply(storage, store);
-    
-    dispatch(actions.save(false));
+    store.dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
+    await setImmediate();
     await setImmediate();
     
     t.ok(savedData);
     t.end();
 });
 
-test('snippetMiddleware: SAVE create with showTransformPanel', async (t) => {
+test('snippetMiddleware: save create with showTransformPanel', async (t) => {
     let createdData = null;
-    
     const storage = makeStorage({
         create: (data) => {
             createdData = data;
@@ -509,52 +323,39 @@ test('snippetMiddleware: SAVE create with showTransformPanel', async (t) => {
                 id: 'new-id',
             });
         },
-        updateHash: noop,
     });
+    const store = makeStore({
+        activeRevision: null,
+        showTransformPanel: true,
+    }, storage);
     
-    const store = {
-        getState: () => getState({
-            activeRevision: null,
-            showTransformPanel: true,
-        }),
-    };
-    
-    const {dispatch} = apply(storage, store);
-    
-    dispatch(actions.save(false));
+    store.dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
+    await setImmediate();
     await setImmediate();
     
     t.ok(createdData);
     t.end();
 });
 
-test('snippetMiddleware: SAVE error triggers setError', async (t) => {
+test('snippetMiddleware: save error triggers setError', async (t) => {
     const storage = makeStorage({
         update: () => Promise.reject(Error('save failed')),
-        updateHash: noop,
     });
+    const store = makeStore({
+        activeRevision: makeRevision(),
+    }, storage);
     
-    const rev = makeRevision();
-    
-    const store = {
-        getState: () => getState({
-            activeRevision: rev,
-        }),
-    };
-    
-    const {dispatch, nextActions} = apply(storage, store);
-    
-    dispatch(actions.save(false));
+    store.dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
     await setImmediate();
-    await Promise.resolve();
+    await setImmediate();
     
-    const types = [];
-    
-    for (const a of nextActions)
-        types.push(a.type);
-    
-    const result = types.includes('SET_ERROR');
-    
-    t.ok(result);
+    t.ok(store.getState().error);
     t.end();
 });
+

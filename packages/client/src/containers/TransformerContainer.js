@@ -3,7 +3,7 @@ import Transformer from '../components/Transformer.js';
 import {
     setTransformState,
     toggleFormatting,
-} from '../store/actions.js';
+} from '../store/reducers.js';
 import {getParser, getTransformer} from '../store/parserSelectors.js';
 import * as selectors from '../store/selectors.js';
 

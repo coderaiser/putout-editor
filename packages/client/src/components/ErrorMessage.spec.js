@@ -6,7 +6,7 @@ import {
     cleanup,
 } from '@testing-library/react';
 import {connect, Provider} from 'react-redux';
-import {createStore} from 'redux';
+import {configureStore} from '@reduxjs/toolkit';
 import ErrorMessage from './ErrorMessage.js';
 
 const CLEAR_ERROR = 'CLEAR_ERROR';
@@ -62,7 +62,7 @@ const ErrorMessageContainer = connect(
 )(ErrorMessage);
 
 test('ErrorMessage: no error renders nothing', (t) => {
-    const store = createStore(reducer);
+    const store = configureStore({reducer});
     
     render(
         <Provider store={store}>
@@ -79,7 +79,7 @@ test('ErrorMessage: no error renders nothing', (t) => {
 });
 
 test('ErrorMessage: error present renders message', (t) => {
-    const store = createStore(reducer);
+    const store = configureStore({reducer});
     
     store.dispatch(setError({
         message: 'something went wrong',
@@ -100,7 +100,7 @@ test('ErrorMessage: error present renders message', (t) => {
 });
 
 test('ErrorMessage: click OK dispatches clearError', (t) => {
-    const store = createStore(reducer);
+    const store = configureStore({reducer});
     
     store.dispatch(setError({
         message: 'dismiss me',
@@ -124,7 +124,7 @@ test('ErrorMessage: click OK dispatches clearError', (t) => {
 });
 
 test('ErrorMessage: renders alert svg icon', (t) => {
-    const store = createStore(reducer);
+    const store = configureStore({reducer});
     
     store.dispatch(setError({
         message: 'icon check',

@@ -5,8 +5,8 @@ import {
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import {createStore} from 'redux';
-import {astexplorer, revive} from '../store/reducers.js';
+import {configureStore} from '@reduxjs/toolkit';
+import {putoutEditor, revive} from '../store/reducers.js';
 import ShareDialogContainer from './ShareDialogContainer.js';
 
 const makeSnippet = () => ({
@@ -14,7 +14,7 @@ const makeSnippet = () => ({
 });
 
 function makeStore(overrides = {}) {
-    const base = astexplorer(undefined, {
+    const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
     
@@ -27,7 +27,7 @@ function makeStore(overrides = {}) {
         },
     };
     
-    return createStore(astexplorer, revive(state));
+    return configureStore({reducer: putoutEditor, preloadedState: revive(state)});
 }
 
 function renderContainer(store) {

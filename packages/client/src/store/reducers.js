@@ -1,4 +1,4 @@
-import * as actions from './actions.js';
+import {createSlice} from '@reduxjs/toolkit';
 import {
     getCategoryByID,
     getDefaultParser,
@@ -69,349 +69,208 @@ export const revive = (state = initialState) => ({
     },
 });
 
-export const astexplorer = (state = initialState, action) => ({
-    // UI related state
-    showSettingsDialog: showSettingsDialog(state.showSettingsDialog, action),
-    showShareDialog: showShareDialog(state.showShareDialog, action),
-    loadingSnippet: loadSnippet(state.loadingSnippet, action),
-    saving: saving(state.saving, action),
-    forking: forking(state.forking, action),
-    cursor: cursor(state.cursor, action),
-    error: error(state.error, action),
-    showTransformPanel: showTransformPanel(state.showTransformPanel, action), // Snippet related state
-    activeRevision: activeRevision(state.activeRevision, action), // Workbench settings
-    parserPerCategory: parserPerCategory(state.parserPerCategory, action),
-    parserSettings: parserSettings(state.parserSettings, action, state),
-    workbench: workbench(state.workbench, action, state),
-    enableFormatting: format(state.enableFormatting, action),
-});
-
-function format(state = initialState.enableFormatting, action) {
-    if (action.type === actions.TOGGLE_FORMATTING)
-        return !state;
-    
-    return state;
-}
-
-function workbench(state = initialState.workbench, action, fullState) {
-    function parserFromCategory(category) {
-        const parser = fullState.parserPerCategory[category.id] || getDefaultParser(category).id;
+const slice = createSlice({
+    name: 'putoutEditor',
+    initialState,
+    reducers: {
+        openSettingsDialog: (state) => {
+            state.showSettingsDialog = true;
+        },
+        closeSettingsDialog: (state) => {
+            state.showSettingsDialog = false;
+        },
+        openShareDialog: (state) => {
+            state.showShareDialog = true;
+        },
+        closeShareDialog: (state) => {
+            state.showShareDialog = false;
+        },
+        setError: (state, {payload}) => {
+            state.error = payload;
+        },
+        clearError: (state) => {
+            state.error = null;
+        },
+        toggleFormatting: (state) => {
+            state.enableFormatting = !state.enableFormatting;
+        },
+        setKeyMap: (state, {payload}) => {
+            state.workbench.keyMap = payload;
+        },
+        setCursor: (state, {payload}) => {
+            state.cursor = payload;
+        },
+        startLoadingSnippet: (state) => {
+            state.loadingSnippet = true;
+        },
+        doneLoadingSnippet: (state) => {
+            state.loadingSnippet = false;
+        },
+        startSave: (state, {payload: fork}) => {
+            state.saving = !fork;
+            state.forking = Boolean(fork);
+        },
+        endSave: (state) => {
+            state.saving = false;
+            state.forking = false;
+        },
+        hideTransformer: (state) => {
+            state.showTransformPanel = false;
+        },
         
-        return {
-            parser,
-            parserSettings: fullState.parserSettings[parser] || null,
-            code: category.codeExample,
-            initialCode: category.codeExample,
-        };
-    }
-    
-    switch(action.type) {
-    case actions.SELECT_CATEGORY:
-        return {
-            ...state,
-            ...parserFromCategory(action.category),
-        };
-    
-    case actions.DROP_TEXT:
-        return {
-            ...state,
-            ...parserFromCategory(getCategoryByID(action.categoryId)),
-            code: action.text,
-            initialCode: action.text,
-        };
-    
-    case actions.SET_PARSE_RESULT:
-        return {
-            ...state,
-            parseResult: action.result,
-        };
-    
-    case actions.SET_PARSER_SETTINGS:
-        return {
-            ...state,
-            parserSettings: action.settings,
-        };
-    
-    case actions.SET_PARSER: {
-        const newState = {
-            ...state,
-            parser: action.parser.id,
-        };
+        setCode: (state, {payload: {code, cursor}}) => {
+            state.workbench.code = code;
+            if (cursor != null && cursor)
+                state.cursor = cursor;
+        },
         
-        if (action.parser !== state.parser) {
-            // Update parser settings
-            newState.parserSettings = fullState.parserSettings[action.parser.id] || null;
-        }
+        setParseResult: (state, {payload: result}) => {
+            state.workbench.parseResult = result;
+        },
         
-        return newState;
-    }
-    
-    case actions.SET_CODE:
-        return {
-            ...state,
-            code: action.code,
-        };
-    
-    case actions.SELECT_TRANSFORMER: {
-        const differentParser = action.transformer.defaultParserID !== state.parser;
-        const differentTransformer = action.transformer.id !== state.transform.transformer;
-        
-        if (!differentParser && !differentTransformer)
-            return state;
-        
-        const newState = state;
-        
-        if (differentParser) {
-            newState.parser = action.transformer.defaultParserID;
-            newState.parserSettings = fullState.parserSettings[action.transformer.defaultParserID] || null;
-        }
-        
-        if (differentTransformer) {
-            const snippetHasDifferentTransform = fullState.activeRevision && fullState.activeRevision.getTransformerID() === action.transformer.id;
+        setParserSettings: (state, {payload: settings}) => {
+            state.workbench.parserSettings = settings;
             
-            newState.transform = {
-                ...state.transform,
-                transformer: action.transformer.id,
-                code: snippetHasDifferentTransform ? state.transform.code : action.transformer.defaultTransform,
-                initialCode: snippetHasDifferentTransform ? fullState.activeRevision.getTransformCode() : action.transformer.defaultTransform,
-            };
-        }
+            if (!state.activeRevision)
+                state.parserSettings[state.workbench.parser] = settings;
+        },
         
-        return newState;
-    }
-    
-    case actions.SET_TRANSFORM:
-        return {
-            ...state,
-            transform: {
-                ...state.transform,
-                code: action.code,
-            },
-        };
-    
-    case actions.SET_SNIPPET: {
-        const {revision} = action;
+        setParser: (state, {payload: parser}) => {
+            state.workbench.parser = parser.id;
+            state.parserPerCategory[parser.category.id] = parser.id;
+            
+            state.workbench.parserSettings = state.parserSettings[parser.id] || null;
+        },
         
-        const transformer = revision.getTransformerID();
-        const parserID = revision.getParserID();
+        setTransformState: (state, {payload: {code}}) => {
+            state.workbench.transform.code = code;
+        },
         
-        return {
-            ...state,
-            parser: parserID,
-            parserSettings: revision.getParserSettings() || fullState.parserSettings[parserID] || null,
-            code: revision.getCode(),
-            initialCode: revision.getCode(),
-            transform: {
-                ...state.transform,
-                transformer,
+        selectTransformer: (state, {payload: transformer}) => {
+            state.showTransformPanel = true;
+            
+            const differentParser = transformer.defaultParserID !== state.workbench.parser;
+            const differentTransformer = transformer.id !== state.workbench.transform.transformer;
+            
+            if (!differentParser && !differentTransformer)
+                return;
+            
+            if (differentParser) {
+                state.workbench.parser = transformer.defaultParserID;
+                state.workbench.parserSettings = state.parserSettings[transformer.defaultParserID] || null;
+            }
+            
+            if (differentTransformer) {
+                const snippetHasDifferentTransform = state.activeRevision && state.activeRevision.getTransformerID() === transformer.id;
+                
+                state.workbench.transform = {
+                    ...state.workbench.transform,
+                    transformer: transformer.id,
+                    code: snippetHasDifferentTransform ? state.workbench.transform.code : transformer.defaultTransform,
+                    initialCode: snippetHasDifferentTransform ? state.activeRevision.getTransformCode() : transformer.defaultTransform,
+                };
+            }
+        },
+        
+        setSnippet: (state, {payload: revision}) => {
+            state.activeRevision = revision;
+            state.cursor = null;
+            state.showTransformPanel = Boolean(revision.getTransformerID());
+            state.workbench.parser = revision.getParserID();
+            state.workbench.parserSettings = revision.getParserSettings() || state.parserSettings[revision.getParserID()] || null;
+            state.workbench.code = revision.getCode();
+            state.workbench.initialCode = revision.getCode();
+            state.workbench.transform = {
+                ...state.workbench.transform,
+                transformer: revision.getTransformerID(),
                 code: revision.getTransformCode(),
                 initialCode: revision.getTransformCode(),
-            },
-        };
-    }
-    
-    case actions.CLEAR_SNIPPET:
-    case actions.RESET: {
-        const reset = Boolean(actions.RESET);
-        const newState = {
-            ...state,
-            parserSettings: fullState.parserSettings[state.parser] || null,
-            code: getParserByID(state.parser).category.codeExample,
-            initialCode: getParserByID(state.parser).category.codeExample,
-            showTransformPanel: true,
-        };
-        
-        if (fullState.activeRevision?.getTransformerID() || reset && state.transform.transformer) {
-            // set default transformer, we only have one
-            newState.transform = {
-                ...state.transform,
-                code: defaultTransformer.defaultTransform,
-                initialCode: defaultParser.category.codeExample,
-                transformer: defaultTransformer.id,
             };
-        }
+        },
         
-        return newState;
-    }
-    
-    case actions.SET_KEY_MAP:
-        return {
-            ...state,
-            keyMap: action.keyMap,
-        };
-    
-    default:
-        return state;
-    }
-}
-
-function parserSettings(state = initialState.parserSettings, action, fullState) {
-    switch(action.type) {
-    case actions.SET_PARSER_SETTINGS:
-        if (fullState.activeRevision) {
-            // If a revision is loaded, we are **not** storing changes to the
-            // settings in our local copy
-            return state;
-        }
+        clearSnippet: (state) => {
+            resetWorkbenchFromParser(state);
+        },
         
-        return {
-            ...state,
-            [fullState.workbench.parser]: action.settings,
-        };
-    
-    default:
-        return state;
-    }
-}
-
-function parserPerCategory(state = initialState.parserPerCategory, action) {
-    switch(action.type) {
-    case actions.SET_PARSER:
-        return {
-            ...state,
-            [action.parser.category.id]: action.parser.id,
-        };
-    
-    default:
-        return state;
-    }
-}
-
-function showSettingsDialog(state = initialState.showSettingsDialog, action) {
-    switch(action.type) {
-    case actions.OPEN_SETTINGS_DIALOG:
-        return true;
-    
-    case actions.CLOSE_SETTINGS_DIALOG:
-        return false;
-    
-    default:
-        return state;
-    }
-}
-
-function showShareDialog(state = initialState.showShareDialog, action) {
-    switch(action.type) {
-    case actions.OPEN_SHARE_DIALOG:
-        return true;
-    
-    case actions.CLOSE_SHARE_DIALOG:
-        return false;
-    
-    default:
-        return state;
-    }
-}
-
-function loadSnippet(state = initialState.loadingSnippet, action) {
-    switch(action.type) {
-    case actions.START_LOADING_SNIPPET:
-        return true;
-    
-    case actions.DONE_LOADING_SNIPPET:
-        return false;
-    
-    default:
-        return state;
-    }
-}
-
-function saving(state = initialState.saving, action) {
-    switch(action.type) {
-    case actions.START_SAVE:
-        return !action.fork;
-    
-    case actions.END_SAVE:
-        return false;
-    
-    default:
-        return state;
-    }
-}
-
-function forking(state = initialState.forking, action) {
-    switch(action.type) {
-    case actions.START_SAVE:
-        return action.fork;
-    
-    case actions.END_SAVE:
-        return false;
-    
-    default:
-        return state;
-    }
-}
-
-function cursor(state = initialState.cursor, action) {
-    switch(action.type) {
-    case actions.SET_CURSOR:
-        return action.cursor;
-    
-    case actions.SET_CODE:
-        // If this action is triggered and the cursor = 0, then the code must be
-        // loaded
-        if (action.cursor != null && action.cursor)
-            return action.cursor;
+        reset: (state) => {
+            resetWorkbenchFromParser(state);
+        },
         
-        return state;
+        selectCategory: (state, {payload: category}) => {
+            selectParserFromCategory(state, category);
+        },
+        
+        dropText: (state, {payload: {text, categoryId}}) => {
+            const category = getCategoryByID(categoryId);
+            
+            selectParserFromCategory(state, category);
+            state.workbench.code = text;
+            state.workbench.initialCode = text;
+        },
+    },
+});
+
+function resetWorkbenchFromParser(state) {
+    const parser = getParserByID(state.workbench.parser);
+    const hadTransformer = state.activeRevision?.getTransformerID();
     
-    case actions.RESET:
-    case actions.SET_SNIPPET:
-    case actions.CLEAR_SNIPPET:
-        return null;
+    state.activeRevision = null;
+    state.cursor = null;
+    state.showTransformPanel = true;
+    state.workbench.parserSettings = state.parserSettings[state.workbench.parser] || null;
+    state.workbench.code = parser.category.codeExample;
+    state.workbench.initialCode = parser.category.codeExample;
     
-    default:
-        return state;
+    if (hadTransformer || state.workbench.transform.transformer) {
+        state.workbench.transform = {
+            code: defaultTransformer.defaultTransform,
+            initialCode: defaultParser.category.codeExample,
+            transformer: defaultTransformer.id,
+        };
     }
 }
 
-function error(state = initialState.error, action) {
-    switch(action.type) {
-    case actions.SET_ERROR:
-        return action.error;
+function selectParserFromCategory(state, category) {
+    const parserId = state.parserPerCategory[category.id] || getDefaultParser(category).id;
     
-    case actions.CLEAR_ERROR:
-        return null;
-    
-    default:
-        return state;
-    }
+    state.workbench.parser = parserId;
+    state.workbench.parserSettings = state.parserSettings[parserId] || null;
+    state.workbench.code = category.codeExample;
+    state.workbench.initialCode = category.codeExample;
+    state.showTransformPanel = true;
+    state.activeRevision = null;
 }
 
-function showTransformPanel(state = initialState.showTransformPanel, action) {
-    switch(action.type) {
-    case actions.SELECT_TRANSFORMER:
-        return true;
-    
-    case actions.HIDE_TRANSFORMER:
-        return false;
-    
-    case actions.SELECT_CATEGORY:
-    case actions.CLEAR_SNIPPET:
-        return true;
-    
-    case actions.SET_SNIPPET:
-        return Boolean(action.revision.getTransformerID());
-    
-    default:
-        return state;
-    }
-}
 
-function activeRevision(state = initialState.selectedRevision, action) {
-    switch(action.type) {
-    case actions.SET_SNIPPET:
-        return action.revision;
-    
-    case actions.SELECT_CATEGORY:
-    case actions.CLEAR_SNIPPET:
-    case actions.RESET:
-        return null;
-    
-    default:
-        return state;
-    }
-}
+export const {
+    openSettingsDialog,
+    closeSettingsDialog,
+    openShareDialog,
+    closeShareDialog,
+    setError,
+    clearError,
+    toggleFormatting,
+    setKeyMap,
+    setCursor,
+    setCode,
+    setParseResult,
+    setParserSettings,
+    setParser,
+    setTransformState,
+    selectTransformer,
+    hideTransformer,
+    setSnippet,
+    clearSnippet,
+    reset,
+    selectCategory,
+    dropText,
+    startLoadingSnippet,
+    doneLoadingSnippet,
+    startSave,
+    endSave,
+} = slice.actions;
+
+export const putoutEditor = slice.reducer;
 
 function pick(obj, ...properties) {
     return properties.reduce((result, prop) => {

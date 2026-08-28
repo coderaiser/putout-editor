@@ -1,11 +1,9 @@
 import {test} from 'supertape';
-import {createStore} from 'redux';
+import {configureStore} from '@reduxjs/toolkit';
 import {
-    astexplorer,
+    putoutEditor,
     revive,
     persist,
-} from './reducers.js';
-import {
     setCode,
     setCursor,
     hideTransformer,
@@ -24,21 +22,24 @@ import {
     doneLoadingSnippet,
     startSave,
     endSave,
-} from './actions.js';
+} from './reducers.js';
 
 // --- helpers ---
 // makeStore() is the ONLY function that changes between Redux, RTK, and Zustand.
-// RTK:     configureStore({reducer: astexplorer, preloadedState: revive(preload)})
+// RTK:     configureStore({reducer: putoutEditor, preloadedState: revive(preload)})
 // Zustand: useStore.setState(revive(preload)); return useStore;
 function makeStore(preload = {}) {
-    const base = astexplorer(undefined, {
+    const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
     
-    return createStore(astexplorer, revive({
-        ...base,
-        ...preload,
-    }));
+    return configureStore({
+        reducer: putoutEditor,
+        preloadedState: revive({
+            ...base,
+            ...preload,
+        }),
+    });
 }
 
 const getState = (store) => store.getState();

@@ -1,68 +1,76 @@
+import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryToCatch} from 'try-to-catch';
 import {parseCode} from './operations.js';
+import {setParseResult} from './reducers.js';
+import {getParser} from './parserSelectors.js';
 import {
     getParserSettings,
     getCode,
 } from './selectors.js';
-import {getParser} from './parserSelectors.js';
 
-export default (store) => (next) => async (action) => {
-    const oldState = store.getState();
-    next(action);
-    const newState = store.getState();
+export const parserListener = createListenerMiddleware();
+
+parserListener.startListening({
+    predicate: (action, current, previous) => {
+        return action.type === 'INIT'
+            || getParser(current) !== getParser(previous)
+            || getCode(current) !== getCode(previous)
+            || getParserSettings(current) !== getParserSettings(previous);
+    },
     
-    const newParser = getParser(newState);
-    const newParserSettings = getParserSettings(newState);
-    const newCode = getCode(newState);
-    
-    if (action.type === 'INIT' || getParser(oldState) !== newParser || getParserSettings(oldState) !== newParserSettings || getCode(oldState) !== newCode) {
-        if (!newParser || newCode == null)
+    effect: async (_, api) => {
+        const state = api.getState();
+        const parser = getParser(state);
+        const code = getCode(state);
+        const originalParserSettings = getParserSettings(state);
+        let parserSettings = originalParserSettings;
+        
+        if (!parser || code == null)
             return;
         
-        const start = Date.now();
-        
-        if (newParserSettings) {
-            const {plugins} = newParserSettings;
-            
-            newParserSettings.plugins = plugins.filter((a) => {
+        if (parserSettings?.plugins) {
+            const plugins = parserSettings.plugins.filter((a) => {
                 if (a === 'importAssertions')
                     return false;
                 
                 return a !== 'importAttributes' && a[0] !== 'importAttributes';
             });
+            
+            parserSettings = {
+                ...parserSettings,
+                plugins,
+            };
         }
         
-        const [error, result] = await tryToCatch(parseCode, newParser, newCode, newParserSettings);
+        const start = Date.now();
+        const [error, result] = await tryToCatch(parseCode, parser, code, parserSettings);
+        
+        // Staleness checks — bail if state changed during async
+        const nowState = api.getState();
+        
+        if (getParser(nowState) !== parser)
+            return;
+        
+        if (getCode(nowState) !== code)
+            return;
+        
+        if (getParserSettings(nowState) !== originalParserSettings)
+            return;
         
         if (error) {
-            next({
-                type: 'SET_PARSE_RESULT',
-                result: {
-                    time: null,
-                    ast: null,
-                    treeAdapter: null,
-                    error,
-                },
-            });
+            api.dispatch(setParseResult({
+                time: null,
+                ast: null,
+                treeAdapter: null,
+                error,
+            }));
             return;
         }
         
-        if (newParser !== getParser(store.getState()))
-            return;
-        
-        if (newCode !== getCode(store.getState()))
-            return;
-        
-        if (newParserSettings !== getParserSettings(store.getState()))
-            return;
-        
-        next({
-            type: 'SET_PARSE_RESULT',
-            result: {
-                time: Date.now() - start,
-                ...result,
-                error: null,
-            },
-        });
-    }
-};
+        api.dispatch(setParseResult({
+            time: Date.now() - start,
+            ...result,
+            error: null,
+        }));
+    },
+});

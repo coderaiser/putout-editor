@@ -6,12 +6,12 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {createStore} from 'redux';
-import {astexplorer, revive} from '../store/reducers.js';
+import {configureStore} from '@reduxjs/toolkit';
+import {putoutEditor, revive} from '../store/reducers.js';
 import PasteDropTargetContainer from './PasteDropTargetContainer.js';
 
 function makeStore(overrides = {}) {
-    const base = astexplorer(undefined, {
+    const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
     
@@ -24,7 +24,7 @@ function makeStore(overrides = {}) {
         },
     };
     
-    return createStore(astexplorer, revive(state));
+    return configureStore({reducer: putoutEditor, preloadedState: revive(state)});
 }
 
 function renderWithChildren(store) {

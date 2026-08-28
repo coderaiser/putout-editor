@@ -3,7 +3,7 @@ import SettingsDialog from '../components/dialogs/SettingsDialog.js';
 import {
     closeSettingsDialog,
     setParserSettings,
-} from '../store/actions.js';
+} from '../store/reducers.js';
 import {
     showSettingsDialog,
     getParserSettings,

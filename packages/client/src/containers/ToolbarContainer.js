@@ -4,7 +4,6 @@ import * as selectors from '../store/selectors.js';
 import * as parserSelectors from '../store/parserSelectors.js';
 import {logEvent} from '../utils/logger.js';
 import {
-    save,
     openSettingsDialog,
     openShareDialog,
     selectTransformer,
@@ -12,7 +11,7 @@ import {
     setParser,
     reset,
     setKeyMap,
-} from '../store/actions.js';
+} from '../store/reducers.js';
 
 export default function ToolbarContainer() {
     const forking = useSelector(selectors.isForking);
@@ -62,8 +61,8 @@ export default function ToolbarContainer() {
                 if (keyMap)
                     logEvent('keyMap', keyMap);
             }}
-            onSave={() => dispatch(save(false))}
-            onFork={() => dispatch(save(true))}
+            onSave={() => dispatch({type: 'snippet/save', payload: false})}
+            onFork={() => dispatch({type: 'snippet/save', payload: true})}
             onNew={() => {
                 if (globalThis.location.hash) {
                     globalThis.location.hash = '';

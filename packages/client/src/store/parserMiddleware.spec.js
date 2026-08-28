@@ -1,6 +1,8 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
-import createMiddleware from './parserMiddleware.js';
+import {configureStore} from '@reduxjs/toolkit';
+import {parserListener} from './parserMiddleware.js';
+import {putoutEditor, setCode, setParserSettings} from './reducers.js';
 import {getParserByID} from '../parsers/index.js';
 
 const makeMockParseResult = () => ({
@@ -12,319 +14,269 @@ const makeMockParseResult = () => ({
     directives: [],
 });
 
-const makeBaseState = (overrides = {}) => ({
-    workbench: {
-        parser: 'babel',
-        parserSettings: null,
-        code: 'const x = 1',
-        parseResult: null,
-        keyMap: 'vim',
-        initialCode: 'const x = 1',
-        transform: {
-            code: '',
-            initialCode: '',
-            transformer: 'putout',
-        },
-    },
-    parserSettings: {},
-    parserPerCategory: {},
-    ...overrides,
+const getInitState = () => putoutEditor(undefined, {
+    type: '@@INIT',
 });
 
-test('parserMiddleware: INIT triggers parse and dispatches SET_PARSE_RESULT with ast', async (t) => {
+function makeStore(overrides = {}) {
+    const state = getInitState();
+    
+    return configureStore({
+        reducer: putoutEditor,
+        preloadedState: overrides.workbench ? {
+            ...state,
+            workbench: {
+                ...state.workbench,
+                ...overrides.workbench,
+            },
+        } : state,
+        middleware: (getDefault) => getDefault({
+            immutableCheck: false,
+            serializableCheck: false,
+        }).prepend(parserListener.middleware),
+    });
+}
+
+const getParseResult = (store) => store.getState().workbench.parseResult;
+
+const stubBabel = ({
+    parse = () => makeMockParseResult(),
+    opensByDefault,
+    promise = Promise.resolve({
+        parse: () => makeMockParseResult(),
+    }),
+} = {}) => {
     const babel = getParserByID('babel');
     const originalPromise = babel._promise;
+    const originalParse = babel.parse;
+    const originalOpens = babel.opensByDefault;
     
-    babel._promise = Promise.resolve({
-        parse: () => makeMockParseResult(),
-    });
-    babel.parse = () => makeMockParseResult();
+    babel._promise = promise;
+    babel.parse = parse;
+    babel.opensByDefault = opensByDefault;
     
-    const store = {
-        getState: makeBaseState,
+    return {
+        restore() {
+            babel._promise = originalPromise;
+            babel.parse = originalParse;
+            babel.opensByDefault = originalOpens;
+        },
     };
+};
+
+test('parserMiddleware: INIT triggers parse and sets parseResult ast', async (t) => {
+    const stub = stubBabel();
+    const store = makeStore();
     
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
+    store.dispatch({
         type: 'INIT',
     });
     await setImmediate();
+    await setImmediate();
     
-    babel._promise = originalPromise;
-    const types = [];
+    stub.restore();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
-    
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.ok(result);
+    t.ok(getParseResult(store).ast);
     t.end();
 });
 
 test('parserMiddleware: code change triggers parse', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
+    const stub = stubBabel();
+    const store = makeStore();
     
-    babel._promise = Promise.resolve({
-        parse: () => makeMockParseResult(),
-    });
-    babel.parse = () => makeMockParseResult();
-    
-    const store = {
-        getState: () => makeBaseState(),
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
-        type: 'SET_CODE',
+    store.dispatch(setCode({
         code: 'const y = 2',
-    });
+        cursor: 0,
+    }));
+    await setImmediate();
     await setImmediate();
     
-    babel._promise = originalPromise;
+    stub.restore();
     
-    t.ok(nextActions.length > 0);
+    t.ok(getParseResult(store).ast);
     t.end();
 });
 
-test('parserMiddleware: parse error dispatches SET_PARSE_RESULT with error', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
-    const originalParse = babel.parse;
+test('parserMiddleware: parse error sets parseResult error', async (t) => {
+    const stub = stubBabel({
+        parse: () => {
+            throw Error('parse failed');
+        },
+    });
+    const store = makeStore();
     
-    babel._promise = Promise.resolve({});
-    babel.parse = () => {
-        throw Error('parse failed');
-    };
-    
-    const store = {
-        getState: makeBaseState,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
+    store.dispatch({
         type: 'INIT',
     });
     await setImmediate();
+    await setImmediate();
     
-    babel._promise = originalPromise;
-    babel.parse = originalParse;
-    const types = [];
+    stub.restore();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
-    
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.ok(result);
+    t.ok(getParseResult(store).error);
     t.end();
 });
 
-test('parserMiddleware: no change skips parse', (t) => {
-    const store = {
-        getState: () => makeBaseState({
-            workbench: {
-                ...makeBaseState().workbench,
-                parseResult: {
-                    ast: {
-                        type: 'Program',
-                    },
-                    time: 5,
-                    error: null,
-                    treeAdapter: {},
+test('parserMiddleware: no change skips parse', async (t) => {
+    const stub = stubBabel();
+    const store = makeStore({
+        workbench: {
+            parseResult: {
+                ast: {
+                    type: 'Program',
                 },
+                time: 5,
+                error: null,
+                treeAdapter: {},
             },
-        }),
-    };
+        },
+    });
     
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
+    store.dispatch({
         type: 'UNKNOWN',
     });
+    await setImmediate();
+    await setImmediate();
     
-    const types = [];
+    stub.restore();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
-    
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.notOk(result);
+    t.equal(getParseResult(store).time, 5);
     t.end();
 });
 
-test('parserMiddleware: null parser skips parse', (t) => {
-    const store = {
-        getState: () => makeBaseState({
-            workbench: {
-                ...makeBaseState().workbench,
-                parser: 'unknown-parser',
-            },
-        }),
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
-        type: 'INIT',
+test('parserMiddleware: null parser skips parse', async (t) => {
+    const stub = stubBabel();
+    const store = makeStore({
+        workbench: {
+            parser: 'unknown-parser',
+        },
     });
     
-    const types = [];
+    store.dispatch({
+        type: 'INIT',
+    });
+    await setImmediate();
+    await setImmediate();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
+    stub.restore();
     
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.notOk(result);
+    t.notOk(getParseResult(store));
     t.end();
 });
 
-test('parserMiddleware: null code skips parse', (t) => {
-    const store = {
-        getState: () => makeBaseState({
-            workbench: {
-                ...makeBaseState().workbench,
-                code: null,
-            },
-        }),
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
-        type: 'INIT',
+test('parserMiddleware: null code skips parse', async (t) => {
+    const stub = stubBabel();
+    const store = makeStore({
+        workbench: {
+            code: null,
+        },
     });
     
-    const types = [];
+    store.dispatch({
+        type: 'INIT',
+    });
+    await setImmediate();
+    await setImmediate();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
+    stub.restore();
     
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.notOk(result);
+    t.notOk(getParseResult(store));
     t.end();
 });
 
 test('parserMiddleware: parse with settings filters import attributes', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
-    const originalParse = babel.parse;
-    
-    babel._promise = Promise.resolve({
-        parse: () => makeMockParseResult(),
-    });
-    babel.parse = () => makeMockParseResult();
-    
-    const state = makeBaseState({
+    const stub = stubBabel();
+    const store = makeStore({
         workbench: {
-            ...makeBaseState().workbench,
             parserSettings: {
                 plugins: [
                     'jsx',
                     'importAssertions',
-                    ['importAttributes', { }],
+                    ['importAttributes', {}],
                 ],
             },
         },
     });
     
-    const store = {
-        getState: () => state,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
+    store.dispatch({
         type: 'INIT',
     });
     await setImmediate();
+    await setImmediate();
     
-    babel._promise = originalPromise;
-    babel.parse = originalParse;
-    const types = [];
+    stub.restore();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
-    
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.ok(result);
+    t.ok(getParseResult(store).ast);
     t.end();
 });
 
-test('parserMiddleware: state change between dispatch and resolve discards result', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
+test('parserMiddleware: code change during parse discards stale result', async (t) => {
     let resolveParse;
-    
-    babel._promise = new Promise((r) => {
+    const promise = new Promise((r) => {
         resolveParse = r;
     });
-    babel.parse = () => makeMockParseResult();
+    let parsedCodes = [];
     
-    let state = makeBaseState();
-    const store = {
-        getState: () => state,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
-        type: 'INIT',
-    });
-    
-    // Change state before promise resolves
-    state = makeBaseState({
-        workbench: {
-            ...makeBaseState().workbench,
-            parser: 'different-parser',
+    const stub = stubBabel({
+        promise,
+        parse: (_realParser, code) => {
+            parsedCodes.push(code);
+            return makeMockParseResult();
         },
     });
+    const store = makeStore();
     
+    store.dispatch({
+        type: 'INIT',
+    });
+    store.dispatch(setCode({
+        code: 'const y = 2',
+        cursor: 0,
+    }));
     resolveParse({
-        parse: () => makeMockParseResult(),
+        parse: () => ({
+            type: 'Program',
+            body: [],
+        }),
     });
     await setImmediate();
+    await setImmediate();
     
-    babel._promise = originalPromise;
-    const types = [];
+    stub.restore();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
+    t.notOk(getParseResult(store).stale);
+    t.end();
+});
+
+test('parserMiddleware: parser settings change during parse discards stale result', async (t) => {
+    let resolveParse;
+    const promise = new Promise((r) => {
+        resolveParse = r;
+    });
     
-    const result = types.includes('SET_PARSE_RESULT');
+    const stub = stubBabel({
+        promise,
+    });
+    const store = makeStore();
     
-    t.notOk(result);
+    store.dispatch({
+        type: 'INIT',
+    });
+    store.dispatch(setParserSettings({
+        plugins: ['jsx'],
+    }));
+    resolveParse({
+        parse: () => ({
+            type: 'Program',
+            body: [],
+        }),
+    });
+    await setImmediate();
+    await setImmediate();
+    
+    stub.restore();
+    
+    t.notOk(getParseResult(store).stale);
     t.end();
 });
 
@@ -332,165 +284,45 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
     const babel = getParserByID('babel');
     const originalPromise = babel._promise;
     const originalParse = babel.parse;
+    const originalLoad = babel.loadParser;
     
-    const state = makeBaseState();
-    const store = {
-        getState: () => state,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    // Clear _promise so parse creates a new one
     babel._promise = undefined;
     babel.parse = () => makeMockParseResult();
     babel.loadParser = (cb) => cb({
         parse: () => makeMockParseResult(),
     });
     
-    dispatch({
+    const store = makeStore();
+    
+    store.dispatch({
         type: 'INIT',
     });
+    await setImmediate();
     await setImmediate();
     
     babel._promise = originalPromise;
     babel.parse = originalParse;
-    const types = [];
+    babel.loadParser = originalLoad;
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
-    
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.ok(result);
+    t.ok(getParseResult(store).ast);
     t.end();
 });
 
 test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
-    const originalParse = babel.parse;
-    const originalOpensByDefault = babel.opensByDefault;
-    
-    const state = makeBaseState();
-    const store = {
-        getState: () => state,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    babel._promise = Promise.resolve({
-        parse: () => makeMockParseResult(),
+    const stub = stubBabel({
+        opensByDefault: false,
     });
-    babel.parse = () => makeMockParseResult();
-    babel.opensByDefault = false;
+    const store = makeStore();
     
-    dispatch({
+    store.dispatch({
         type: 'INIT',
     });
     await setImmediate();
+    await setImmediate();
     
-    babel._promise = originalPromise;
-    babel.parse = originalParse;
-    babel.opensByDefault = originalOpensByDefault;
-    const types = [];
+    stub.restore();
     
-    for (const a of nextActions) {
-        types.push(a.type);
-    }
-    
-    const result = types.includes('SET_PARSE_RESULT');
-    
-    t.ok(result);
+    t.ok(getParseResult(store).ast);
     t.end();
 });
 
-test('parserMiddleware: code change between dispatch and resolve discards result', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
-    let resolveParse;
-    
-    babel._promise = new Promise((r) => {
-        resolveParse = r;
-    });
-    babel.parse = () => makeMockParseResult();
-    
-    let state = makeBaseState();
-    const store = {
-        getState: () => state,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
-        type: 'INIT',
-    });
-    
-    state = makeBaseState({
-        workbench: {
-            ...makeBaseState().workbench,
-            code: 'const y = 2',
-        },
-    });
-    
-    resolveParse({
-        parse: () => makeMockParseResult(),
-    });
-    await setImmediate();
-    
-    babel._promise = originalPromise;
-    const result = nextActions.some(({type}) => type === 'SET_PARSE_RESULT');
-    
-    t.notOk(result);
-    t.end();
-});
-
-test('parserMiddleware: parserSettings change between dispatch and resolve discards result', async (t) => {
-    const babel = getParserByID('babel');
-    const originalPromise = babel._promise;
-    let resolveParse;
-    
-    babel._promise = new Promise((r) => {
-        resolveParse = r;
-    });
-    babel.parse = () => makeMockParseResult();
-    
-    let state = makeBaseState();
-    const store = {
-        getState: () => state,
-    };
-    
-    const nextActions = [];
-    const push = nextActions.push.bind(nextActions);
-    const dispatch = createMiddleware(store)(push);
-    
-    dispatch({
-        type: 'INIT',
-    });
-    
-    state = makeBaseState({
-        workbench: {
-            ...makeBaseState().workbench,
-            parserSettings: {
-                plugins: ['jsx'],
-            },
-        },
-    });
-    
-    resolveParse({
-        parse: () => makeMockParseResult(),
-    });
-    await setImmediate();
-    
-    babel._promise = originalPromise;
-    const result = nextActions.some(({type}) => type === 'SET_PARSE_RESULT');
-    
-    t.notOk(result);
-    t.end();
-});

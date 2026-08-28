@@ -1,11 +1,7 @@
 import '../css/style.css';
 import PubSub from 'pubsub-js';
 import {Provider, useSelector} from 'react-redux';
-import {
-    createStore,
-    applyMiddleware,
-    compose,
-} from 'redux';
+import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
 import * as LocalStorage from './components/LocalStorage';
 import ASTOutputContainer from './containers/ASTOutputContainer';
@@ -21,7 +17,7 @@ import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './containers/TransformerContainer';
 import debounce from './utils/debounce';
 import {
-    astexplorer,
+    putoutEditor,
     persist,
     revive,
 } from './store/reducers';
@@ -29,12 +25,11 @@ import {
     canSaveTransform,
     getRevision,
 } from './store/selectors';
-import {loadSnippet} from './store/actions';
 import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
-import parserMiddleware from './store/parserMiddleware';
-import snippetMiddleware from './store/snippetMiddleware';
+import {parserListener} from './store/parserMiddleware';
+import {snippetListener} from './store/snippetMiddleware';
 
 function resize() {
     PubSub.publish('PANEL_RESIZE');
@@ -76,17 +71,21 @@ function App() {
     );
 }
 
-const composeEnhancers = globalThis.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const storageAdapter = new StorageHandler([gist,
+    parse]);
 
-const store = createStore(
-    astexplorer,
-    revive(LocalStorage.readState()),
-    composeEnhancers(applyMiddleware(
-        snippetMiddleware(new StorageHandler([gist,
-            parse])),
-        parserMiddleware,
-    )),
-);
+const store = configureStore({
+    reducer: putoutEditor,
+    preloadedState: revive(LocalStorage.readState()),
+    middleware: (getDefault) => getDefault({
+        thunk: {
+            extraArgument: {
+                storageAdapter,
+            },
+        },
+    }).prepend(parserListener.middleware)
+        .prepend(snippetListener.middleware),
+});
 
 store.subscribe(debounce(() => {
     const state = store.getState();
@@ -109,11 +108,11 @@ root.render(
 );
 
 globalThis.onhashchange = () => {
-    store.dispatch(loadSnippet());
+    store.dispatch({type: 'snippet/load'});
 };
 
 if (location.hash.length > 1)
-    store.dispatch(loadSnippet());
+    store.dispatch({type: 'snippet/load'});
 
 globalThis.onbeforeunload = () => {
     const state = store.getState();

@@ -1,6 +1,6 @@
 import {useSelector, useDispatch} from 'react-redux';
 import ShareDialog from '../components/dialogs/ShareDialog.js';
-import {closeShareDialog} from '../store/actions.js';
+import {closeShareDialog} from '../store/reducers.js';
 import {
     showShareDialog,
     getRevision,

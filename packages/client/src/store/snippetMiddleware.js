@@ -1,9 +1,20 @@
-import * as actions from './actions.js';
-import {logEvent, logError} from '../utils/logger.js';
+import {createListenerMiddleware} from '@reduxjs/toolkit';
+import {tryToCatch} from 'try-to-catch';
 import {
     loadSnippetFromURL,
     saveRevision,
 } from './operations.js';
+import {logEvent, logError} from '../utils/logger.js';
+import {
+    setError,
+    clearError,
+    startLoadingSnippet,
+    doneLoadingSnippet,
+    setSnippet,
+    clearSnippet,
+    startSave,
+    endSave,
+} from './reducers.js';
 import {
     getParserSettings,
     getCode,
@@ -15,86 +26,84 @@ import {
 } from './selectors.js';
 import {getParser, getTransformer} from './parserSelectors.js';
 
+export const snippetListener = createListenerMiddleware();
+
 let requestId = 0;
 let clearURLOnClearError = false;
 
-export default (storageAdapter) => (store) => (next) => (action) => {
-    switch(action.type) {
-    case actions.CLEAR_ERROR:
+// clearError side effect
+snippetListener.startListening({
+    actionCreator: clearError,
+    effect: () => {
         if (clearURLOnClearError) {
             globalThis.location.hash = '';
             clearURLOnClearError = false;
         }
-        
-        return next(action);
-    
-    case actions.LOAD_SNIPPET: {
-        const state = store.getState();
+    },
+});
+
+// load snippet
+snippetListener.startListening({
+    type: 'snippet/load',
+    effect: async (_, api) => {
+        const state = api.getState();
         
         if (isSaving(state) || isForking(state))
-            return next(action);
+            return;
         
-        // Cancel previous pending load and goBack behavior
         clearURLOnClearError = false;
         const id = ++requestId;
         
-        next(actions.setError(null));
-        next(actions.startLoadingSnippet());
-        next(action);
+        api.dispatch(setError(null));
+        api.dispatch(startLoadingSnippet());
         
-        loadSnippetFromURL(storageAdapter)
-            .then((revision) => {
-                if (id !== requestId)
-                    return;
-                
-                if (revision)
-                    logEvent('snippet', 'load');
-                
-                next(revision ? actions.setSnippet(revision) : actions.clearSnippet());
-                next(actions.doneLoadingSnippet());
-            })
-            .catch((error) => {
-                if (id !== requestId)
-                    return;
-                
-                const errorMessage = 'Failed to fetch revision: ' + error.message;
-                logError(errorMessage);
-                
-                next(actions.setError(Error(errorMessage)));
-                next(actions.doneLoadingSnippet());
-                
-                if (globalThis.history)
-                    clearURLOnClearError = true;
-            });
+        const [error, revision] = await tryToCatch(loadSnippetFromURL, api.extra.storageAdapter);
         
-        break;
-    }
-    
-    case actions.SAVE: {
-        const state = store.getState();
+        if (id !== requestId)
+            return;
         
-        next(action);
-        next(actions.startSave(action.fork));
+        if (error) {
+            logError('Failed to fetch revision: ' + error.message);
+            api.dispatch(setError(new Error('Failed to fetch revision: ' + error.message)));
+            api.dispatch(doneLoadingSnippet());
+            
+            if (globalThis.history)
+                clearURLOnClearError = true;
+            
+            return;
+        }
+        
+        if (revision)
+            logEvent('snippet', 'load');
+        
+        api.dispatch(revision ? setSnippet(revision) : clearSnippet());
+        api.dispatch(doneLoadingSnippet());
+    },
+});
+
+// save snippet
+snippetListener.startListening({
+    type: 'snippet/save',
+    effect: async (action, api) => {
+        const fork = action.payload;
+        const state = api.getState();
+        
+        api.dispatch(startSave(fork));
         
         const data = buildSaveData(state);
-        saveRevision(action.fork, data, getRevision(state), storageAdapter)
-            .then((newRevision) => {
-                if (newRevision)
-                    storageAdapter.updateHash(newRevision);
-            })
-            .catch((error) => {
-                logError(error.message);
-                next(actions.setError(error));
-            })
-            .then(() => next(actions.endSave(action.fork)));
+        const [error, newRevision] = await tryToCatch(saveRevision, fork, data, getRevision(state), api.extra.storageAdapter);
         
-        break;
-    }
-    
-    default:
-        return next(action);
-    }
-};
+        if (error) {
+            logError(error.message);
+            api.dispatch(setError(error));
+        }
+        else if (newRevision) {
+            api.extra.storageAdapter.updateHash(newRevision);
+        }
+        
+        api.dispatch(endSave(fork));
+    },
+});
 
 function buildSaveData(state) {
     const parser = getParser(state);

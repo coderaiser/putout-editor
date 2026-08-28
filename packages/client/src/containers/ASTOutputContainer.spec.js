@@ -1,12 +1,12 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {createStore} from 'redux';
-import {astexplorer, revive} from '../store/reducers.js';
+import {configureStore} from '@reduxjs/toolkit';
+import {putoutEditor, revive} from '../store/reducers.js';
 import ASTOutputContainer from './ASTOutputContainer.js';
 
 function renderWithStore(overrides = {}) {
-    const base = astexplorer(undefined, {
+    const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
     
@@ -19,7 +19,7 @@ function renderWithStore(overrides = {}) {
         },
     };
     
-    const store = createStore(astexplorer, revive(state));
+    const store = configureStore({reducer: putoutEditor, preloadedState: revive(state)});
     
     render(
         <Provider store={store}>

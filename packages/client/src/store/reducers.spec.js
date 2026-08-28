@@ -1,10 +1,34 @@
 import {test} from 'supertape';
 import {
-    astexplorer,
+    putoutEditor,
     persist,
     revive,
+    openSettingsDialog,
+    closeSettingsDialog,
+    openShareDialog,
+    closeShareDialog,
+    startLoadingSnippet,
+    doneLoadingSnippet,
+    startSave,
+    endSave,
+    setCursor,
+    setCode,
+    reset,
+    setSnippet,
+    clearSnippet,
+    setError,
+    clearError,
+    toggleFormatting,
+    selectTransformer,
+    hideTransformer,
+    setParserSettings,
+    setParser,
+    setTransformState,
+    setKeyMap,
+    dropText,
+    setParseResult,
+    selectCategory,
 } from './reducers.js';
-import * as actions from './actions.js';
 
 const makeRevision = (overrides = {}) => ({
     canSave: () => true,
@@ -19,7 +43,7 @@ const makeRevision = (overrides = {}) => ({
 });
 
 function getInitState() {
-    const state = astexplorer(undefined, {
+    const state = putoutEditor(undefined, {
         type: '@@INIT',
     });
     
@@ -126,95 +150,95 @@ test('reducers: revive: uses initialState when undefined', (t) => {
 });
 
 test('reducers: open settings dialog', (t) => {
-    const state = astexplorer(getInitState(), actions.openSettingsDialog());
+    const state = putoutEditor(getInitState(), openSettingsDialog());
     
     t.ok(state.showSettingsDialog);
     t.end();
 });
 
 test('reducers: close settings dialog', (t) => {
-    const open = astexplorer(getInitState(), actions.openSettingsDialog());
-    const state = astexplorer(open, actions.closeSettingsDialog());
+    const open = putoutEditor(getInitState(), openSettingsDialog());
+    const state = putoutEditor(open, closeSettingsDialog());
     
     t.notOk(state.showSettingsDialog);
     t.end();
 });
 
 test('reducers: open share dialog', (t) => {
-    const state = astexplorer(getInitState(), actions.openShareDialog());
+    const state = putoutEditor(getInitState(), openShareDialog());
     
     t.ok(state.showShareDialog);
     t.end();
 });
 
 test('reducers: close share dialog', (t) => {
-    const open = astexplorer(getInitState(), actions.openShareDialog());
-    const state = astexplorer(open, actions.closeShareDialog());
+    const open = putoutEditor(getInitState(), openShareDialog());
+    const state = putoutEditor(open, closeShareDialog());
     
     t.notOk(state.showShareDialog);
     t.end();
 });
 
 test('reducers: start loading snippet', (t) => {
-    const state = astexplorer(getInitState(), actions.startLoadingSnippet());
+    const state = putoutEditor(getInitState(), startLoadingSnippet());
     
     t.ok(state.loadingSnippet);
     t.end();
 });
 
 test('reducers: done loading snippet', (t) => {
-    const loading = astexplorer(getInitState(), actions.startLoadingSnippet());
-    const state = astexplorer(loading, actions.doneLoadingSnippet());
+    const loading = putoutEditor(getInitState(), startLoadingSnippet());
+    const state = putoutEditor(loading, doneLoadingSnippet());
     
     t.notOk(state.loadingSnippet);
     t.end();
 });
 
 test('reducers: start save not fork sets saving', (t) => {
-    const state = astexplorer(getInitState(), actions.startSave(false));
+    const state = putoutEditor(getInitState(), startSave(false));
     
     t.ok(state.saving);
     t.end();
 });
 
 test('reducers: start save not fork unsets forking', (t) => {
-    const state = astexplorer(getInitState(), actions.startSave(false));
+    const state = putoutEditor(getInitState(), startSave(false));
     
     t.notOk(state.forking);
     t.end();
 });
 
 test('reducers: start save with fork sets forking', (t) => {
-    const state = astexplorer(getInitState(), actions.startSave(true));
+    const state = putoutEditor(getInitState(), startSave(true));
     
     t.ok(state.forking);
     t.end();
 });
 
 test('reducers: start save with fork unsets saving', (t) => {
-    const state = astexplorer(getInitState(), actions.startSave(true));
+    const state = putoutEditor(getInitState(), startSave(true));
     
     t.notOk(state.saving);
     t.end();
 });
 
 test('reducers: end save unsets saving', (t) => {
-    const saving = astexplorer(getInitState(), actions.startSave(false));
-    const state = astexplorer(saving, actions.endSave(false));
+    const saving = putoutEditor(getInitState(), startSave(false));
+    const state = putoutEditor(saving, endSave(false));
     
     t.notOk(state.saving);
     t.end();
 });
 
 test('reducers: set cursor', (t) => {
-    const state = astexplorer(getInitState(), actions.setCursor(10));
+    const state = putoutEditor(getInitState(), setCursor(10));
     
     t.equal(state.cursor, 10);
     t.end();
 });
 
 test('reducers: set code with cursor', (t) => {
-    const state = astexplorer(getInitState(), actions.setCode({
+    const state = putoutEditor(getInitState(), setCode({
         code: 'new',
         cursor: 5,
     }));
@@ -224,8 +248,8 @@ test('reducers: set code with cursor', (t) => {
 });
 
 test('reducers: set code with null cursor keeps previous', (t) => {
-    const setCursor = astexplorer(getInitState(), actions.setCursor(3));
-    const state = astexplorer(setCursor, actions.setCode({
+    const withCursor = putoutEditor(getInitState(), setCursor(3));
+    const state = putoutEditor(withCursor, setCode({
         code: 'new',
         cursor: 0,
     }));
@@ -235,61 +259,61 @@ test('reducers: set code with null cursor keeps previous', (t) => {
 });
 
 test('reducers: reset sets cursor to null', (t) => {
-    const setCursor = astexplorer(getInitState(), actions.setCursor(3));
-    const state = astexplorer(setCursor, actions.reset());
+    const withCursor = putoutEditor(getInitState(), setCursor(3));
+    const state = putoutEditor(withCursor, reset());
     
     t.notOk(state.cursor);
     t.end();
 });
 
 test('reducers: set snippet sets cursor to null', (t) => {
-    const setCursor = astexplorer(getInitState(), actions.setCursor(3));
-    const state = astexplorer(setCursor, actions.setSnippet(makeRevision()));
+    const withCursor = putoutEditor(getInitState(), setCursor(3));
+    const state = putoutEditor(withCursor, setSnippet(makeRevision()));
     
     t.notOk(state.cursor);
     t.end();
 });
 
 test('reducers: clear snippet sets cursor to null', (t) => {
-    const setCursor = astexplorer(getInitState(), actions.setCursor(3));
-    const state = astexplorer(setCursor, actions.clearSnippet());
+    const withCursor = putoutEditor(getInitState(), setCursor(3));
+    const state = putoutEditor(withCursor, clearSnippet());
     
     t.notOk(state.cursor);
     t.end();
 });
 
 test('reducers: set error', (t) => {
-    const state = astexplorer(getInitState(), actions.setError(Error('test error')));
+    const state = putoutEditor(getInitState(), setError(Error('test error')));
     
     t.ok(state.error);
     t.end();
 });
 
 test('reducers: set error message', (t) => {
-    const state = astexplorer(getInitState(), actions.setError(Error('test error')));
+    const state = putoutEditor(getInitState(), setError(Error('test error')));
     
     t.equal(state.error.message, 'test error');
     t.end();
 });
 
 test('reducers: clear error', (t) => {
-    const errState = astexplorer(getInitState(), actions.setError(Error('test error')));
-    const state = astexplorer(errState, actions.clearError());
+    const errState = putoutEditor(getInitState(), setError(Error('test error')));
+    const state = putoutEditor(errState, clearError());
     
     t.notOk(state.error);
     t.end();
 });
 
 test('reducers: toggle formatting enables', (t) => {
-    const state = astexplorer(getInitState(), actions.toggleFormatting());
+    const state = putoutEditor(getInitState(), toggleFormatting());
     
     t.ok(state.enableFormatting);
     t.end();
 });
 
 test('reducers: toggle formatting disables', (t) => {
-    const enabled = astexplorer(getInitState(), actions.toggleFormatting());
-    const state = astexplorer(enabled, actions.toggleFormatting());
+    const enabled = putoutEditor(getInitState(), toggleFormatting());
+    const state = putoutEditor(enabled, toggleFormatting());
     
     t.notOk(state.enableFormatting);
     t.end();
@@ -302,14 +326,14 @@ test('reducers: select transformer shows transform panel', (t) => {
         defaultTransform: '',
     };
     
-    const state = astexplorer(getInitState(), actions.selectTransformer(transformer));
+    const state = putoutEditor(getInitState(), selectTransformer(transformer));
     
     t.ok(state.showTransformPanel);
     t.end();
 });
 
 test('reducers: hide transformer returns false', (t) => {
-    const state = astexplorer(getInitState(), actions.hideTransformer());
+    const state = putoutEditor(getInitState(), hideTransformer());
     
     t.notOk(state.showTransformPanel);
     t.end();
@@ -320,7 +344,7 @@ test('reducers: set snippet with transformer shows transform panel', (t) => {
         getTransformerID: () => 'putout',
     });
     
-    const state = astexplorer(getInitState(), actions.setSnippet(rev));
+    const state = putoutEditor(getInitState(), setSnippet(rev));
     
     t.ok(state.showTransformPanel);
     t.end();
@@ -331,7 +355,7 @@ test('reducers: set snippet without transformer hides transform panel', (t) => {
         getTransformerID: () => null,
     });
     
-    const state = astexplorer(getInitState(), actions.setSnippet(rev));
+    const state = putoutEditor(getInitState(), setSnippet(rev));
     
     t.notOk(state.showTransformPanel);
     t.end();
@@ -339,7 +363,7 @@ test('reducers: set snippet without transformer hides transform panel', (t) => {
 
 test('reducers: set snippet sets activeRevision', (t) => {
     const rev = makeRevision();
-    const state = astexplorer(getInitState(), actions.setSnippet(rev));
+    const state = putoutEditor(getInitState(), setSnippet(rev));
     
     t.equal(state.activeRevision, rev);
     t.end();
@@ -347,8 +371,8 @@ test('reducers: set snippet sets activeRevision', (t) => {
 
 test('reducers: clear snippet clears activeRevision', (t) => {
     const rev = makeRevision();
-    const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
-    const state = astexplorer(withRev, actions.clearSnippet());
+    const withRev = putoutEditor(getInitState(), setSnippet(rev));
+    const state = putoutEditor(withRev, clearSnippet());
     
     t.notOk(state.activeRevision);
     t.end();
@@ -356,8 +380,8 @@ test('reducers: clear snippet clears activeRevision', (t) => {
 
 test('reducers: reset clears activeRevision', (t) => {
     const rev = makeRevision();
-    const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
-    const state = astexplorer(withRev, actions.reset());
+    const withRev = putoutEditor(getInitState(), setSnippet(rev));
+    const state = putoutEditor(withRev, reset());
     
     t.notOk(state.activeRevision);
     t.end();
@@ -365,19 +389,16 @@ test('reducers: reset clears activeRevision', (t) => {
 
 test('reducers: select category clears activeRevision', (t) => {
     const rev = makeRevision();
-    const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    const withRev = putoutEditor(getInitState(), setSnippet(rev));
     
-    const state = astexplorer(withRev, {
-        type: actions.SELECT_CATEGORY,
-        category: getCategory(),
-    });
+    const state = putoutEditor(withRev, selectCategory(getCategory()));
     
     t.notOk(state.activeRevision);
     t.end();
 });
 
 test('reducers: set code', (t) => {
-    const state = astexplorer(getInitState(), actions.setCode({
+    const state = putoutEditor(getInitState(), setCode({
         code: 'new code',
     }));
     
@@ -393,17 +414,14 @@ test('reducers: set parse result', (t) => {
         error: null,
     };
     
-    const state = astexplorer(getInitState(), {
-        type: actions.SET_PARSE_RESULT,
-        result,
-    });
+    const state = putoutEditor(getInitState(), setParseResult(result));
     
     t.equal(state.workbench.parseResult, result);
     t.end();
 });
 
 test('reducers: set parser settings on workbench', (t) => {
-    const state = astexplorer(getInitState(), actions.setParserSettings({
+    const state = putoutEditor(getInitState(), setParserSettings({
         plugins: ['jsx'],
     }));
     
@@ -414,14 +432,14 @@ test('reducers: set parser settings on workbench', (t) => {
 });
 
 test('reducers: set parser stores per category', (t) => {
-    const state = astexplorer(getInitState(), actions.setParser(getEspreeParser()));
+    const state = putoutEditor(getInitState(), setParser(getEspreeParser()));
     
     t.equal(state.parserPerCategory.javascript, 'espree');
     t.end();
 });
 
 test('reducers: set parser updates workbench parser', (t) => {
-    const state = astexplorer(getInitState(), actions.setParser(getEspreeParser()));
+    const state = putoutEditor(getInitState(), setParser(getEspreeParser()));
     
     t.equal(state.workbench.parser, 'espree');
     t.end();
@@ -434,8 +452,8 @@ test('reducers: select transformer same as current returns same state workbench'
         defaultTransform: '',
     };
     
-    const withTransformer = astexplorer(getInitState(), actions.selectTransformer(transformer));
-    const state = astexplorer(withTransformer, actions.selectTransformer(transformer));
+    const withTransformer = putoutEditor(getInitState(), selectTransformer(transformer));
+    const state = putoutEditor(withTransformer, selectTransformer(transformer));
     
     t.equal(state.workbench, withTransformer.workbench);
     t.end();
@@ -448,14 +466,14 @@ test('reducers: select transformer with different parser', (t) => {
         defaultTransform: '',
     };
     
-    const state = astexplorer(getInitState(), actions.selectTransformer(transformer));
+    const state = putoutEditor(getInitState(), selectTransformer(transformer));
     
     t.equal(state.workbench.parser, 'espree');
     t.end();
 });
 
 test('reducers: set transform', (t) => {
-    const state = astexplorer(getInitState(), actions.setTransformState({
+    const state = putoutEditor(getInitState(), setTransformState({
         code: 'new transform',
     }));
     
@@ -464,7 +482,7 @@ test('reducers: set transform', (t) => {
 });
 
 test('reducers: parserSettings stores per parser', (t) => {
-    const state = astexplorer(getInitState(), actions.setParserSettings({
+    const state = putoutEditor(getInitState(), setParserSettings({
         plugins: ['jsx'],
     }));
     
@@ -478,9 +496,9 @@ test('reducers: parserSettings stores per parser', (t) => {
 
 test('reducers: parserSettings unchanged with active revision', (t) => {
     const rev = makeRevision();
-    const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    const withRev = putoutEditor(getInitState(), setSnippet(rev));
     
-    const state = astexplorer(withRev, actions.setParserSettings({
+    const state = putoutEditor(withRev, setParserSettings({
         plugins: ['jsx'],
     }));
     
@@ -489,21 +507,21 @@ test('reducers: parserSettings unchanged with active revision', (t) => {
 });
 
 test('reducers: set key map', (t) => {
-    const state = astexplorer(getInitState(), actions.setKeyMap('sublime'));
+    const state = putoutEditor(getInitState(), setKeyMap('sublime'));
     
     t.equal(state.workbench.keyMap, 'sublime');
     t.end();
 });
 
 test('reducers: drop text sets code', (t) => {
-    const state = astexplorer(getInitState(), actions.dropText('dropped code', 'javascript'));
+    const state = putoutEditor(getInitState(), dropText({text: 'dropped code', categoryId: 'javascript'}));
     
     t.equal(state.workbench.code, 'dropped code');
     t.end();
 });
 
 test('reducers: drop text sets initialCode', (t) => {
-    const state = astexplorer(getInitState(), actions.dropText('dropped code', 'javascript'));
+    const state = putoutEditor(getInitState(), dropText({text: 'dropped code', categoryId: 'javascript'}));
     
     t.equal(state.workbench.initialCode, 'dropped code');
     t.end();
@@ -515,7 +533,7 @@ test('reducers: select transformer with different transformer and active revisio
         getTransformCode: () => 'revision transform',
     });
     
-    const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    const withRev = putoutEditor(getInitState(), setSnippet(rev));
     
     const transformer = {
         id: 'other',
@@ -523,7 +541,7 @@ test('reducers: select transformer with different transformer and active revisio
         defaultTransform: 'default transform',
     };
     
-    const state = astexplorer(withRev, actions.selectTransformer(transformer));
+    const state = putoutEditor(withRev, selectTransformer(transformer));
     
     t.equal(state.workbench.transform.code, 'revision transform');
     t.end();
@@ -535,7 +553,7 @@ test('reducers: select transformer with different transformer and active revisio
         getTransformCode: () => 'revision transform',
     });
     
-    const withRev = astexplorer(getInitState(), actions.setSnippet(rev));
+    const withRev = putoutEditor(getInitState(), setSnippet(rev));
     
     const transformer = {
         id: 'other',
@@ -543,7 +561,7 @@ test('reducers: select transformer with different transformer and active revisio
         defaultTransform: 'default transform',
     };
     
-    const state = astexplorer(withRev, actions.selectTransformer(transformer));
+    const state = putoutEditor(withRev, selectTransformer(transformer));
     
     t.equal(state.workbench.transform.code, 'default transform');
     t.end();
@@ -556,15 +574,15 @@ test('reducers: select transformer: snippetHasDifferentTransform uses revision i
     });
     
     const init = getInitState();
-    const withRev = astexplorer(init, actions.setSnippet(rev));
+    const withRev = putoutEditor(init, setSnippet(rev));
     
-    const diffTrans = astexplorer(withRev, actions.selectTransformer({
+    const diffTrans = putoutEditor(withRev, selectTransformer({
         id: 'other',
         defaultParserID: 'babel',
         defaultTransform: 'default',
     }));
     
-    const state = astexplorer(diffTrans, actions.selectTransformer({
+    const state = putoutEditor(diffTrans, selectTransformer({
         id: 'putout',
         defaultParserID: 'babel',
         defaultTransform: 'default',

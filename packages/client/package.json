@@ -74,6 +74,7 @@
     "@putout/plugin-declare-before-reference": "^10.0.0",
     "@putout/plugin-optional-chaining": "^3.0.0",
     "@putout/plugin-putout": "^29.0.0",
+    "@reduxjs/toolkit": "^2.12.0",
     "@swc/helpers": "^0.5.23",
     "acorn": "^8.0.1",
     "acorn-jsx": "^5.0.1",
@@ -107,9 +108,7 @@
     "react-icons": "^5.7.0",
     "react-redux": "^9.2.0",
     "redot": "^0.6.0",
-    "redux": "^5.0.1",
     "regexp-tree": "^0.1.5",
-    "reselect": "^5.1.1",
     "source-map": "^0.7.3",
     "try-catch": "^4.0.2",
     "url": "^0.11.4"

@@ -1,6 +1,6 @@
 import {useSelector, useDispatch} from 'react-redux';
 import ErrorMessage from '../components/ErrorMessage.js';
-import {clearError} from '../store/actions.js';
+import {clearError} from '../store/reducers.js';
 import {getError} from '../store/selectors.js';
 
 export default function ErrorMessageContainer() {
