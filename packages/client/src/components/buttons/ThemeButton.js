@@ -4,6 +4,7 @@ import cx from 'classnames';
 
 const THEME_KEY = 'theme';
 const DEFAULT_THEME = 'light';
+
 const themes = [
     'light',
     'dark',
@@ -27,7 +28,9 @@ export default function ThemeButton() {
     
     return (
         <div
-            className={cx('button', 'menuButton', {'is-closed': forceClosed})}
+            className={cx('button', 'menuButton', {
+                'is-closed': forceClosed,
+            })}
             onMouseLeave={() => setForceClosed(false)}
         >
             <button type="button" onClick={() => setForceClosed(true)}>
@@ -38,7 +41,9 @@ export default function ThemeButton() {
                 {themes.map((t) => (
                     <li
                         key={t}
-                        className={cx({selected: t === theme})}
+                        className={cx({
+                            selected: t === theme,
+                        })}
                         onClick={() => onItemClick(t)}
                     >
                         <button type="button">{t}</button>

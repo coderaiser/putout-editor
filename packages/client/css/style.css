@@ -1,5 +1,6 @@
 @import url(~codemirror/lib/codemirror.css);
 @import url(~codemirror/addon/fold/foldgutter.css);
+@import url(~codemirror/theme/nord.css);
 @import url(./highlight.css);
 @import url(../fontcustom/fontcustom.css);
 
@@ -337,6 +338,8 @@ html {
     inset: 0;
     padding: 0;
     border: none;
+    background-color: var(--color-bg-page);
+    color: var(--color-text);
 }
 
 .output .toolbar {
@@ -400,6 +403,7 @@ li.entry {
     list-style: none;
     padding: 5px;
     position: relative;
+    color: var(--color-text);
 }
 
 .CodeMirror .marked,
@@ -463,6 +467,53 @@ li.entry {
 .editor .CodeMirror-gutters {
     background-color: var(--color-bg-editor);
     border: none;
+}
+
+/* Dark theme overrides for CodeMirror */
+[data-theme='dark'] .CodeMirror {
+    background-color: var(--color-bg-editor);
+    color: var(--color-text);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .CodeMirror {
+        background-color: var(--color-bg-editor);
+        color: var(--color-text);
+    }
+}
+
+[data-theme='dark'] .CodeMirror-gutters {
+    background-color: var(--color-bg-editor);
+    border-right-color: var(--color-border);
+}
+
+[data-theme='dark'] .CodeMirror-linenumber {
+    color: var(--color-text-dim);
+}
+
+[data-theme='dark'] .CodeMirror-cursor {
+    border-left-color: var(--color-text);
+}
+
+[data-theme='dark'] .CodeMirror-selected {
+    background: var(--color-active-bg);
+}
+
+[data-theme='dark'] .CodeMirror-focused .CodeMirror-selected {
+    background: #44403c;
+}
+
+/* Links in dark theme */
+[data-theme='dark'] a {
+    color: #7dd3a8;
+}
+
+[data-theme='dark'] a:hover {
+    color: #a7f3d0;
+}
+
+[data-theme='dark'] #Toolbar a {
+    color: inherit;
 }
 
 .CodeMirror .ErrorGutter {

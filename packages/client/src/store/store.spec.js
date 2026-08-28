@@ -156,6 +156,7 @@ test('store: toggleFormatting twice restores enableFormatting to false', (t) => 
 // --- workbench.code ---
 test('store: setCode updates workbench.code', (t) => {
     const store = makeStore();
+    
     dispatch(store, setCode({
         code: 'const x = 1',
         cursor: 0,
@@ -173,6 +174,7 @@ test('store: cursor defaults to null', (t) => {
 
 test('store: setCode with non-zero cursor updates cursor', (t) => {
     const store = makeStore();
+    
     dispatch(store, setCode({
         code: 'x',
         cursor: 5,

@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
 import React from 'react';
 
+const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
+
 const noop = () => {};
 
 const defaultPrettierOptions = {
@@ -86,6 +88,16 @@ export default class Editor extends React.Component {
             lineNumbers: this.props.lineNumbers,
             readOnly: this.props.readOnly,
             indentUnit: 4,
+            theme: getCMTheme(),
+        });
+        
+        // Watch for theme changes on <html data-theme>
+        this._themeObserver = new MutationObserver(() => {
+            this.codeMirror.setOption('theme', getCMTheme());
+        });
+        this._themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme'],
         });
         
         this._bindCMHandler('blur', (instance) => {
@@ -172,6 +184,7 @@ export default class Editor extends React.Component {
     componentWillUnmount() {
         clearTimeout(this._updateTimer);
         this._unbindHandlers();
+        this._themeObserver?.disconnect();
         this._markerRange = null;
         this._mark = null;
         const {container} = this;
