@@ -5,6 +5,7 @@ import {parserListener} from './parserMiddleware.js';
 import {
     putoutEditor,
     setCode,
+    setParser,
     setParserSettings,
 } from './reducers.js';
 import {getParserByID} from '../parsers/index.js';
@@ -331,5 +332,100 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     stub.restore();
     
     t.ok(getParseResult(store).ast);
+    t.end();
+});
+
+test('parserMiddleware: code change during async discards stale parse', async (t) => {
+    let resolveParse;
+    const slowPromise = new Promise((resolve) => {
+        resolveParse = resolve;
+    });
+    
+    // stubBabel holds the parse open until resolveParse is called
+    const stub = stubBabel({
+        promise: slowPromise,
+        parse: () => makeMockParseResult(),
+    });
+    
+    const store = makeStore();
+    
+    // Dispatch INIT to trigger the first parse — parse is now in flight
+    store.dispatch({
+        type: 'INIT',
+    });
+    
+    // Wait one tick so the listener effect has started and captured `code`
+    await setImmediate();
+    
+    // Change only code while the parse is still in flight.
+    
+    // Parser stays the same, so the parser staleness check passes.
+    
+    // Code is now different, so the code staleness check should return early.
+    store.dispatch(setCode({
+        code: 'const changedWhileParsing = true',
+        cursor: 0,
+    }));
+    
+    // Resolve the first parse — listener will now do the staleness check
+    resolveParse({
+        parse: () => makeMockParseResult(),
+    });
+    
+    await setImmediate();
+    await setImmediate();
+    
+    stub.restore();
+    
+    // The stale result from the first parse must not have been dispatched.
+    
+    // A second parse fires for the new code — its result has no .stale property.
+    t.notOk(store.getState().workbench.parseResult?.stale);
+    t.end();
+});
+
+test('parserMiddleware: parser change during async discards stale parse', async (t) => {
+    let resolveParse;
+    const slowPromise = new Promise((resolve) => {
+        resolveParse = resolve;
+    });
+    
+    // stubBabel holds the parse open until resolveParse is called
+    const stub = stubBabel({
+        promise: slowPromise,
+        parse: () => makeMockParseResult(),
+    });
+    
+    const store = makeStore();
+    
+    // Dispatch INIT to trigger the first parse — parse is now in flight
+    store.dispatch({
+        type: 'INIT',
+    });
+    
+    // Wait one tick so the listener effect has started and captured `parser`
+    await setImmediate();
+    
+    // Change only the parser while the parse is still in flight.
+    
+    // Code stays the same, so the code staleness check would pass.
+    
+    // Parser is now different, so the parser staleness check should return early.
+    store.dispatch(setParser(getParserByID('espree')));
+    
+    // Resolve the first parse — listener will now do the staleness check
+    resolveParse({
+        parse: () => makeMockParseResult(),
+    });
+    
+    await setImmediate();
+    await setImmediate();
+    
+    stub.restore();
+    
+    // The stale result from the first parse must not have been dispatched.
+    
+    // A second parse fires for the new parser — its result has no .stale property.
+    t.notOk(store.getState().workbench.parseResult?.stale);
     t.end();
 });
