@@ -8,8 +8,6 @@ import {
     fork,
 } from './gist.js';
 
-const isError = (a) => a instanceof Error;
-
 const mockRevision = {
     getSnippetID: () => 'abc',
     getRevisionID: () => 'sha1',
@@ -185,19 +183,89 @@ test('gist: fork: error response throws', async (t) => {
     t.end();
 });
 
-test('gist: update: error response on fetch snippet throws', async (t) => {
+test('gist: update: sends exactly one request', async (t) => {
     const origFetch = globalThis.fetch;
+    let callCount = 0;
     
-    globalThis.fetch = stub().resolves({
-        ok: false,
-        status: 500,
+    globalThis.fetch = () => {
+        callCount++;
+        return {
+            ok: true,
+            json: stub().resolves({
+                id: 'gist123',
+                history: [{
+                    version: 'sha1ver',
+                }],
+                files: {
+                    'astexplorer.json': {
+                        content: JSON.stringify({
+                            parserID: 'babel',
+                            toolID: null,
+                            v: 2,
+                            settings: {
+                                babel: {},
+                            },
+                        }),
+                    },
+                    'source.js': {
+                        content: 'const a = 1;',
+                    },
+                },
+            }),
+        };
+    };
+    
+    await update(mockRevision, {
+        parserID: 'babel',
+        code: 'x',
     });
-    
-    const result = await update(mockRevision, {}).catch((e) => e);
     
     globalThis.fetch = origFetch;
     
-    t.ok(isError(result));
+    t.equal(callCount, 1);
+    t.end();
+});
+
+test('gist: update: sends PATCH method', async (t) => {
+    const origFetch = globalThis.fetch;
+    let method;
+    
+    globalThis.fetch = (url, opts) => {
+        ({method} = opts);
+        return {
+            ok: true,
+            json: stub().resolves({
+                id: 'gist123',
+                history: [{
+                    version: 'sha1ver',
+                }],
+                files: {
+                    'astexplorer.json': {
+                        content: JSON.stringify({
+                            parserID: 'babel',
+                            toolID: null,
+                            v: 2,
+                            settings: {
+                                babel: {},
+                            },
+                        }),
+                    },
+                    'source.js': {
+                        content: 'const a = 1;',
+                    },
+                },
+            }),
+        };
+    };
+    
+    await update(mockRevision, {
+        parserID: 'babel',
+        code: 'x',
+    });
+    
+    globalThis.fetch = origFetch;
+    
+    t.equal(method, 'PATCH');
     t.end();
 });
 
@@ -281,7 +349,7 @@ test('gist: fork: ok response resolves Revision', async (t) => {
     t.end();
 });
 
-test('gist: update: ok response resolves Revision', async (t) => {
+test('gist: update: returns Revision instance', async (t) => {
     const origFetch = globalThis.fetch;
     
     globalThis.fetch = stub().resolves({
@@ -309,131 +377,35 @@ test('gist: update: ok response resolves Revision', async (t) => {
         }),
     });
     
-    const result = await update(mockRevision, {});
-    
-    globalThis.fetch = origFetch;
-    
-    t.equal(result.getSnippetID(), 'gist123');
-    t.end();
-});
-
-test('gist: update: PATCH error response throws', async (t) => {
-    const origFetch = globalThis.fetch;
-    let callCount = 0;
-    
-    globalThis.fetch = () => {
-        ++callCount;
-        
-        if (callCount === 1)
-            return Promise.resolve({
-                ok: true,
-                json: stub().resolves({
-                    id: 'gist123',
-                    history: [{
-                        version: 'sha1ver',
-                    }],
-                    files: {
-                        'astexplorer.json': {
-                            content: JSON.stringify({
-                                parserID: 'babel',
-                                toolID: null,
-                                v: 2,
-                                settings: {
-                                    babel: {},
-                                },
-                            }),
-                        },
-                        'source.js': {
-                            content: 'const a = 1;',
-                        },
-                    },
-                }),
-            });
-        
-        return Promise.resolve({
-            ok: false,
-            status: 500,
-        });
-    };
-    
-    const result = await update(mockRevision, {}).catch((e) => e);
-    
-    globalThis.fetch = origFetch;
-    
-    t.match(result.message, 'Unable to update snippet');
-    t.end();
-});
-
-test('gist: update: with transformerID and no toolID clears transform', async (t) => {
-    const origFetch = globalThis.fetch;
-    let callCount = 0;
-    
-    globalThis.fetch = () => {
-        ++callCount;
-        
-        if (callCount === 1)
-            return Promise.resolve({
-                ok: true,
-                json: stub().resolves({
-                    id: 'gist-trans',
-                    history: [{
-                        version: 'v1',
-                    }],
-                    files: {
-                        'astexplorer.json': {
-                            content: JSON.stringify({
-                                parserID: 'babel',
-                                toolID: 'putout',
-                                v: 2,
-                                settings: {
-                                    babel: {},
-                                },
-                            }),
-                        },
-                        'source.js': {
-                            content: 'const x = 1;',
-                        },
-                    },
-                }),
-            });
-        
-        return Promise.resolve({
-            ok: true,
-            json: stub().resolves({
-                id: 'gist-trans',
-                history: [{
-                    version: 'v2',
-                }],
-                files: {
-                    'astexplorer.json': {
-                        content: JSON.stringify({
-                            parserID: 'babel',
-                            toolID: null,
-                            v: 2,
-                            settings: {
-                                babel: {},
-                            },
-                        }),
-                    },
-                    'source.js': {
-                        content: 'const x = 1;',
-                    },
-                },
-            }),
-        });
-    };
-    
-    const revWithTransformer = {
-        getSnippetID: () => 'gist-trans',
-    };
-    
-    const result = await update(revWithTransformer, {
-        toolID: null,
+    const result = await update(mockRevision, {
+        parserID: 'babel',
+        code: 'x',
     });
     
     globalThis.fetch = origFetch;
     
-    t.equal(result.getSnippetID(), 'gist-trans');
+    const {Revision} = await import('./gist.js');
+    
+    t.ok(result instanceof Revision);
+    t.end();
+});
+
+test('gist: update: throws on non-ok response', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = stub().resolves({
+        ok: false,
+        status: 500,
+    });
+    
+    const {tryToCatch} = await import('try-to-catch');
+    const [error] = await tryToCatch(update, mockRevision, {
+        code: 'x',
+    });
+    
+    globalThis.fetch = origFetch;
+    
+    t.ok(error);
     t.end();
 });
 
@@ -1004,7 +976,7 @@ test('gist: Revision: getCode caches result', async (t) => {
     t.end();
 });
 
-test('gist: Revision: getShareInfo returns JSX element', async (t) => {
+test('gist: Revision: getShareData returns object', async (t) => {
     const origFetch = globalThis.fetch;
     
     globalThis.fetch = stub().resolves({
@@ -1036,19 +1008,17 @@ test('gist: Revision: getShareInfo returns JSX element', async (t) => {
     
     globalThis.fetch = origFetch;
     
-    const result = rev.getShareInfo();
-    
-    t.equal(result.type, 'div');
+    t.ok(rev.getShareData());
     t.end();
 });
 
-test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
+test('gist: Revision: getShareData versionedURL contains snippetID', async (t) => {
     const origFetch = globalThis.fetch;
     
     globalThis.fetch = stub().resolves({
         ok: true,
         json: stub().resolves({
-            id: 'gist-focus',
+            id: 'gist-share',
             history: [{
                 version: 'v1',
             }],
@@ -1073,23 +1043,170 @@ test('gist: Revision: getShareInfo fires onFocus on all inputs', async (t) => {
     const rev = await create({});
     
     globalThis.fetch = origFetch;
+    const result = rev
+        .getShareData()
+        .versionedURL
+        .includes('gist-share');
     
-    const {
-        render,
-        fireEvent,
-        cleanup,
-    } = await import('@testing-library/react');
+    t.ok(result);
+    t.end();
+});
+
+test('gist: Revision: getShareData versionedURL contains revisionID', async (t) => {
+    const origFetch = globalThis.fetch;
     
-    const info = rev.getShareInfo();
-    const {container} = render(info);
-    const inputs = container.querySelectorAll('input');
+    globalThis.fetch = stub().resolves({
+        ok: true,
+        json: stub().resolves({
+            id: 'gist-share',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
     
-    fireEvent.focus(inputs[0]);
-    fireEvent.focus(inputs[1]);
-    fireEvent.focus(inputs[2]);
+    const rev = await create({});
     
-    cleanup();
+    globalThis.fetch = origFetch;
+    const result = rev
+        .getShareData()
+        .versionedURL
+        .includes(rev.getRevisionID());
     
-    t.equal(inputs.length, 3);
+    t.ok(result);
+    t.end();
+});
+
+test('gist: Revision: getShareData latestURL contains snippetID', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = stub().resolves({
+        ok: true,
+        json: stub().resolves({
+            id: 'gist-share',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    const result = rev
+        .getShareData()
+        .latestURL
+        .includes('gist-share');
+    
+    t.ok(result);
+    t.end();
+});
+
+test('gist: Revision: getShareData has no double slash in latestURL', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = stub().resolves({
+        ok: true,
+        json: stub().resolves({
+            id: 'gist-share',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    const result = rev
+        .getShareData()
+        .latestURL
+        .replace('https://', '')
+        .includes('//');
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('gist: Revision: getShareData embedURL is a string', async (t) => {
+    const origFetch = globalThis.fetch;
+    
+    globalThis.fetch = stub().resolves({
+        ok: true,
+        json: stub().resolves({
+            id: 'gist-share',
+            history: [{
+                version: 'v1',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
+                },
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    const rev = await create({});
+    
+    globalThis.fetch = origFetch;
+    const result = typeof rev.getShareData().embedURL;
+    const expected = 'string';
+    
+    t.equal(result, expected);
     t.end();
 });

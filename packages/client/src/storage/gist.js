@@ -13,23 +13,21 @@ function getIDAndRevisionFromHash() {
     return null;
 }
 
-function fetchSnippet(snippetID, revisionID = 'latest') {
-    return api(`/gist/${snippetID}/${revisionID}`, {
+async function fetchSnippet(snippetID, revisionID = 'latest') {
+    const response = await api(`/gist/${snippetID}/${revisionID}`, {
         method: 'GET',
-    })
-        .then((response) => {
-            if (response.ok)
-                return response.json();
-            
-            switch(response.status) {
-            case 404:
-                throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
-            
-            default:
-                throw Error('Unknown error.');
-            }
-        })
-        .then((response) => new Revision(response));
+    });
+    
+    if (response.ok)
+        return new Revision(await response.json());
+    
+    switch(response.status) {
+    case 404:
+        throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
+    
+    default:
+        throw Error('Unknown error.');
+    }
 }
 
 export const owns = (snippet) => snippet instanceof Revision;
@@ -38,85 +36,72 @@ export function matchesURL() {
     return getIDAndRevisionFromHash() !== null;
 }
 
-export function fetchFromURL() {
+export async function fetchFromURL() {
     const data = getIDAndRevisionFromHash();
     
     if (!data)
-        return Promise.resolve(null);
+        return null;
     
-    return fetchSnippet(data.id, data.rev);
+    return await fetchSnippet(data.id, data.rev);
 }
 
 /**
  * Create a new snippet.
  */
-export function create(data) {
-    return api('/gist', {
+export async function create(data) {
+    const response = await api('/gist', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-    })
-        .then((response) => {
-            if (response.ok)
-                return response.json();
-            
-            throw Error('Unable to create snippet.');
-        })
-        .then((data) => new Revision(data));
-}
-
-/**
- * Update an existing snippet.
- */
-export function update(revision, data) {
-    // Fetch latest version of snippet
-    return fetchSnippet(revision.getSnippetID()).then((latestRevision) => {
-        if (latestRevision.getTransformerID() && !data.toolID) {
-            // Revision was updated to *remove* the transformer, hence we have
-            // to signal the server to delete the transform.js file
-            data.transform = null;
-        }
-        
-        return api(`/gist/${revision.getSnippetID()}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-            .then((response) => {
-                if (response.ok)
-                    return response.json();
-                
-                throw Error('Unable to update snippet.');
-            })
-            .then((data) => new Revision(data));
     });
+    
+    if (!response.ok)
+        throw Error('Unable to create snippet.');
+    
+    return new Revision(await response.json());
 }
 
 /**
- * Fork existing snippet.
+ * Update an existing snippet (single PATCH — no prefetch).
+ * Caller is responsible for setting data.transform = null when
+ * transformer was removed (buildSaveData in snippetMiddleware handles this).
  */
-export function fork(revision, data) {
-    return api(`/gist/${revision.getSnippetID()}/${revision.getRevisionID()}`, {
+export async function update(revision, data) {
+    const response = await api(`/gist/${revision.getSnippetID()}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+    
+    if (!response.ok)
+        throw Error('Unable to update snippet.');
+    
+    return new Revision(await response.json());
+}
+
+/**
+ * Fork an existing snippet.
+ */
+export async function fork(revision, data) {
+    const response = await api(`/gist/${revision.getSnippetID()}/${revision.getRevisionID()}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-    })
-        .then((response) => {
-            if (response.ok)
-                return response.json();
-            
-            throw Error('Unable to fork snippet.');
-        })
-        .then((data) => new Revision(data));
+    });
+    
+    if (!response.ok)
+        throw Error('Unable to fork snippet.');
+    
+    return new Revision(await response.json());
 }
 
-class Revision {
+export class Revision {
     constructor(gist) {
         this._gist = gist;
         this._config = JSON.parse(gist.files['astexplorer.json'].content);
@@ -162,40 +147,15 @@ class Revision {
         return this._config.settings[this._config.parserID];
     }
     
-    getShareInfo() {
+    getShareData() {
         const snippetID = this.getSnippetID();
         const revisionID = this.getRevisionID();
         
-        return (
-            <div className="shareInfo">
-                <dl>
-                    <dt>Current Revision</dt>
-                    <dd>
-                        <input
-                            readOnly={true}
-                            onFocus={(e) => e.target.select()}
-                            value={`https://putout.cloudcmd.io/#/gist/${snippetID}/${revisionID}`}
-                        />
-                    </dd>
-                    <dt>Latest Revision</dt>
-                    <dd>
-                        <input
-                            readOnly={true}
-                            onFocus={(e) => e.target.select()}
-                            value={`https://putout.cloudcmd.io/#/gist/${snippetID}/latest`}
-                        />
-                    </dd>
-                    <dt>Gist</dt>
-                    <dd>
-                        <input
-                            readOnly={true}
-                            onFocus={(e) => e.target.select()}
-                            value={`https://gist.github.com/${snippetID}/${revisionID}`}
-                        />
-                    </dd>
-                </dl>
-            </div>
-        );
+        return {
+            versionedURL: `https://putout.cloudcmd.io/#/gist/${snippetID}/${revisionID}`,
+            latestURL: `https://putout.cloudcmd.io/#/gist/${snippetID}/latest`,
+            embedURL: `<script src="https://astexplorer.net/gist/${snippetID}/${revisionID}.js"></script>`,
+        };
     }
 }
 
