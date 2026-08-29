@@ -11,6 +11,7 @@ export default function TransformerContainer() {
     const transformCode = useSelector(selectors.getTransformCode);
     const code = useSelector(selectors.getCode);
     const keyMap = useSelector(selectors.getKeyMap);
+    const isLoading = useSelector(selectors.isLoadingSnippet);
     const mode = parser.category.editorMode || parser.category.id;
     const dispatch = useDispatch();
     
@@ -23,6 +24,7 @@ export default function TransformerContainer() {
             code={code}
             mode={mode}
             keyMap={keyMap}
+            isLoading={isLoading}
             onContentChange={({value, cursor}) => {
                 dispatch(setTransformState({
                     code: value,

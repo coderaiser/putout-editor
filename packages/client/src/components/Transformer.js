@@ -32,6 +32,7 @@ export default function Transformer(props) {
                 mode={props.mode}
                 keyMap={props.keyMap}
                 parser={props.parser}
+                isLoading={props.isLoading}
             />
         </SplitPane>
     );

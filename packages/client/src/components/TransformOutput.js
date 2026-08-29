@@ -41,6 +41,11 @@ export default class TransformOutput extends React.Component {
     }
     
     componentDidMount() {
+        // Do not run transform with default state while snippet is loading —
+        // avoids the flash of wrong/default transform output on initial page load.
+        if (this.props.isLoading)
+            return;
+        
         transform(
             this.props.transformer,
             this.props.transformCode,
@@ -54,7 +59,9 @@ export default class TransformOutput extends React.Component {
     }
     
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if (this.props.transformCode !== nextProps.transformCode || this.props.code !== nextProps.code || this.props.transformer !== nextProps.transformer) {
+        // When snippet finishes loading, isLoading flips false — treat that
+        // the same as any other prop change so we run the transform immediately.
+        if (this.props.transformCode !== nextProps.transformCode || this.props.code !== nextProps.code || this.props.transformer !== nextProps.transformer || (this.props.isLoading && !nextProps.isLoading)) {
             if (console.clear)
                 console.clear();
             
@@ -76,7 +83,7 @@ export default class TransformOutput extends React.Component {
     }
     
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.result !== nextState.result || this.state.error !== nextState.error;
+        return this.state.result !== nextState.result || this.state.error !== nextState.error || this.props.isLoading !== nextProps.isLoading;
     }
     
     _posFromIndex(index) {
