@@ -17,16 +17,10 @@ const Bomb = ({shouldThrow}) => {
     );
 };
 
-// Suppress React error boundary console output in tests
-const silence = () => {
-    const orig = console.error;
-    
-    console.error = () => {};
-    
-    return () => {
-        console.error = orig;
-    };
-};
+// Suppress React 18 error boundary stderr output in tests
+const renderWithBomb = (ui) => render(ui, {
+    onCaughtError: () => {},
+});
 
 test('ErrorBoundary: renders children normally', (t) => {
     const {container} = render(
@@ -42,12 +36,10 @@ test('ErrorBoundary: renders children normally', (t) => {
 });
 
 test('ErrorBoundary: renders fallback UI on error', (t) => {
-    const restore = silence();
-    const {container} = render(
+    const {container} = renderWithBomb(
         <ErrorBoundary><Bomb shouldThrow={true}/></ErrorBoundary>,
     );
     
-    restore();
     const result = container.querySelector('.error-boundary');
     
     cleanup();
@@ -57,12 +49,10 @@ test('ErrorBoundary: renders fallback UI on error', (t) => {
 });
 
 test('ErrorBoundary: fallback contains try again button', (t) => {
-    const restore = silence();
-    const {container} = render(
+    const {container} = renderWithBomb(
         <ErrorBoundary><Bomb shouldThrow={true}/></ErrorBoundary>,
     );
     
-    restore();
     const result = container.querySelector('button');
     
     cleanup();
@@ -72,10 +62,9 @@ test('ErrorBoundary: fallback contains try again button', (t) => {
 });
 
 test('ErrorBoundary: calls onError when child throws', (t) => {
-    const restore = silence();
     let called = false;
     
-    render(
+    renderWithBomb(
         <ErrorBoundary
             onError={() => {
                 called = true;
@@ -84,7 +73,6 @@ test('ErrorBoundary: calls onError when child throws', (t) => {
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
-    restore();
     cleanup();
     
     t.ok(called);
@@ -92,10 +80,9 @@ test('ErrorBoundary: calls onError when child throws', (t) => {
 });
 
 test('ErrorBoundary: onError receives Error instance', (t) => {
-    const restore = silence();
     let received;
     
-    render(
+    renderWithBomb(
         <ErrorBoundary
             onError={(e) => {
                 received = e;
@@ -104,7 +91,6 @@ test('ErrorBoundary: onError receives Error instance', (t) => {
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
-    restore();
     cleanup();
     const result = isError(received);
     
@@ -113,8 +99,7 @@ test('ErrorBoundary: onError receives Error instance', (t) => {
 });
 
 test('ErrorBoundary: renders custom fallback function result', (t) => {
-    const restore = silence();
-    const {container} = render(
+    const {container} = renderWithBomb(
         <ErrorBoundary
             fallback={() => (
                 <div id="custom">custom</div>
@@ -124,7 +109,6 @@ test('ErrorBoundary: renders custom fallback function result', (t) => {
         </ErrorBoundary>,
     );
     
-    restore();
     const result = container.querySelector('#custom');
     
     cleanup();
@@ -134,10 +118,9 @@ test('ErrorBoundary: renders custom fallback function result', (t) => {
 });
 
 test('ErrorBoundary: fallback function receives the error', (t) => {
-    const restore = silence();
     let received;
     
-    render(
+    renderWithBomb(
         <ErrorBoundary
             fallback={(e) => {
                 received = e;
@@ -147,7 +130,6 @@ test('ErrorBoundary: fallback function receives the error', (t) => {
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
-    restore();
     cleanup();
     const result = isError(received);
     
@@ -156,12 +138,10 @@ test('ErrorBoundary: fallback function receives the error', (t) => {
 });
 
 test('ErrorBoundary: reset button clears error state', (t) => {
-    const restore = silence();
-    const {container} = render(
+    const {container} = renderWithBomb(
         <ErrorBoundary><Bomb shouldThrow={true}/></ErrorBoundary>,
     );
     
-    restore();
     fireEvent.click(container.querySelector('button'));
     cleanup();
     const result = container.querySelector('.error-boundary');
