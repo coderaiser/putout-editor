@@ -1,4 +1,4 @@
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import {tryToCatch} from 'try-to-catch';
 import StorageHandler from './index.js';
 
@@ -100,16 +100,19 @@ test('StorageHandler: create: delegates to first backend', async (t) => {
     t.end();
 });
 
-test('StorageHandler: update: delegates to first backend', async (t) => {
+test('StorageHandler: update: delegates to owning backend', async (t) => {
+    const revision = {
+        _type: 'gist',
+    };
+    
     const backend = {
-        update() {
-            return Promise.resolve('updated');
-        },
+        owns: (rev) => rev._type === 'gist',
+        update: stub().resolves('updated'),
     };
     
     const handler = new StorageHandler([backend]);
     
-    const result = await handler.update('rev1', {
+    const result = await handler.update(revision, {
         code: 'y',
     });
     
@@ -117,16 +120,19 @@ test('StorageHandler: update: delegates to first backend', async (t) => {
     t.end();
 });
 
-test('StorageHandler: fork: delegates to first backend', async (t) => {
+test('StorageHandler: fork: delegates to owning backend', async (t) => {
+    const revision = {
+        _type: 'gist',
+    };
+    
     const backend = {
-        fork() {
-            return Promise.resolve('forked');
-        },
+        owns: (rev) => rev._type === 'gist',
+        fork: stub().resolves('forked'),
     };
     
     const handler = new StorageHandler([backend]);
     
-    const result = await handler.fork('rev1', {
+    const result = await handler.fork(revision, {
         code: 'z',
     });
     

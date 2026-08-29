@@ -1,16 +1,8 @@
 import {test, stub} from 'supertape';
 import {
-    render,
-    cleanup,
-    fireEvent,
-} from '@testing-library/react';
-import {
     matchesURL,
     fetchFromURL,
     owns,
-    create,
-    update,
-    fork,
     updateHash,
     Revision,
 } from './parse.js';
@@ -55,30 +47,6 @@ test('parse: owns: false for plain object', (t) => {
     const result = owns({});
     
     t.notOk(result);
-    t.end();
-});
-
-test('parse: create: rejects with not supported', async (t) => {
-    const err = await create().catch((e) => e);
-    const result = err.message.includes('not supported');
-    
-    t.ok(result);
-    t.end();
-});
-
-test('parse: update: rejects with not supported', async (t) => {
-    const err = await update().catch((e) => e);
-    const result = err.message.includes('not supported');
-    
-    t.ok(result);
-    t.end();
-});
-
-test('parse: fork: rejects with not supported', async (t) => {
-    const err = await fork().catch((e) => e);
-    const result = err.message.includes('not supported');
-    
-    t.ok(result);
     t.end();
 });
 
@@ -329,21 +297,78 @@ test('parse: Revision: getParserSettings parses settings for parserID', (t) => {
     t.end();
 });
 
-test('parse: Revision: getShareInfo renders and calls onFocus', (t) => {
+test('parse: Revision: getShareData returns object', (t) => {
     const rev = new Revision({
         snippetID: 'abc',
         revisionID: '1',
+        code: 'x',
+        parserID: 'babel',
     });
     
-    const info = rev.getShareInfo();
-    const {container} = render(info);
-    const inputs = container.querySelectorAll('input');
+    t.ok(rev.getShareData());
+    t.end();
+});
+
+test('parse: Revision: getShareData versionedURL contains snippetID', (t) => {
+    const rev = new Revision({
+        snippetID: 'abc',
+        revisionID: '1',
+        code: 'x',
+        parserID: 'babel',
+    });
     
-    fireEvent.focus(inputs[0]);
-    fireEvent.focus(inputs[1]);
-    cleanup();
+    const result = rev
+        .getShareData()
+        .versionedURL
+        .includes('abc');
     
-    t.equal(inputs.length, 2);
+    t.ok(result);
+    t.end();
+});
+
+test('parse: Revision: getShareData versionedURL has no double slash', (t) => {
+    const rev = new Revision({
+        snippetID: 'abc',
+        revisionID: '1',
+        code: 'x',
+        parserID: 'babel',
+    });
+    
+    const result = rev
+        .getShareData()
+        .versionedURL
+        .replace('https://', '')
+        .includes('//');
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('parse: Revision: getShareData latestURL is null', (t) => {
+    const rev = new Revision({
+        snippetID: 'abc',
+        revisionID: '1',
+        code: 'x',
+        parserID: 'babel',
+    });
+    
+    const {latestURL} = rev.getShareData();
+    
+    t.notOk(latestURL);
+    t.end();
+});
+
+test('parse: Revision: getShareData embedURL is null', (t) => {
+    const rev = new Revision({
+        snippetID: 'abc',
+        revisionID: '1',
+        code: 'x',
+        parserID: 'babel',
+    });
+    
+    const {embedURL} = rev.getShareData();
+    
+    t.notOk(embedURL);
     t.end();
 });
 

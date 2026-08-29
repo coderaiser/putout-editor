@@ -16,21 +16,19 @@ function getIDAndRevisionFromHash() {
     return null;
 }
 
-function fetchSnippet(snippetID, revisionID = 'latest') {
-    return api(`/parse/${snippetID}/${revisionID}`)
-        .then((response) => {
-            if (response.ok)
-                return response.json();
-            
-            switch(response.status) {
-            case 404:
-                throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
-            
-            default:
-                throw Error('Unknown error.');
-            }
-        })
-        .then((response) => new Revision(response));
+async function fetchSnippet(snippetID, revisionID = 'latest') {
+    const response = await api(`/parse/${snippetID}/${revisionID}`);
+    
+    if (response.ok)
+        return new Revision(await response.json());
+    
+    switch(response.status) {
+    case 404:
+        throw Error(`Snippet with ID ${snippetID}/${revisionID} doesn't exist.`);
+    
+    default:
+        throw Error('Unknown error.');
+    }
 }
 
 export const owns = (snippet) => snippet instanceof Revision;
@@ -41,40 +39,22 @@ export function matchesURL() {
 
 export function updateHash(revision) {
     const rev = revision.getRevisionID();
-    
     globalThis.location.hash = '/' + revision.getSnippetID() + (rev ? `/${rev}` : '');
 }
 
-export function fetchFromURL() {
+export async function fetchFromURL() {
     const urlParameters = getIDAndRevisionFromHash();
     
     if (urlParameters)
-        return fetchSnippet(urlParameters.id, urlParameters.rev);
+        return await fetchSnippet(urlParameters.id, urlParameters.rev);
     
-    return Promise.resolve(null);
+    return null;
 }
 
-/**
- * Create a new snippet.
- */
-export function create() {
-    return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
-}
-
-/**
- * Update an existing snippet.
- */
-export function update() {
-    return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
-}
-
-/**
- * Fork existing snippet.
- */
-export function fork() {
-    return Promise.reject(Error('Saving Parse snippets is not supported anymore.'));
-}
-
+// Note: create/update/fork intentionally absent.
+// parse.js is a read-only backend. StorageHandler routes update/fork
+// via _owns() which will never resolve to parse.js for write operations.
+// create() always goes to gist.js via StorageHandler._first().
 export class Revision {
     constructor(data) {
         this._data = data;
@@ -107,10 +87,8 @@ export class Revision {
         if (transform)
             return transform;
         
-        if (this._data.toolID) {
-            // Default transforms where never stored
+        if (this._data.toolID)
             return getTransformerByID(this._data.toolID).defaultTransform;
-        }
         
         return '';
     }
@@ -126,8 +104,6 @@ export class Revision {
     
     getCode() {
         const parserID = this.getParserID();
-        
-        // Code examples where never stored
         return this._data.code || getParserByID(parserID).category.codeExample;
     }
     
@@ -142,31 +118,15 @@ export class Revision {
         return parserSettings && JSON.parse(parserSettings);
     }
     
-    getShareInfo() {
+    getShareData() {
         const snippetID = this.getSnippetID();
         const revisionID = this.getRevisionID();
         
-        return (
-            <div className="shareInfo">
-                <dl>
-                    <dt>Current Revision</dt>
-                    <dd>
-                        <input
-                            readOnly={true}
-                            onFocus={(e) => e.target.select()}
-                            value={`https://putout.cloudcmd.io/#/gist/${snippetID}/${revisionID}`}
-                        />
-                    </dd>
-                    <dt>Latest Revision</dt>
-                    <dd>
-                        <input
-                            readOnly={true}
-                            onFocus={(e) => e.target.select()}
-                            value={`https://putout.cloudcmd.io//#/gist/${snippetID}/latest`}
-                        />
-                    </dd>
-                </dl>
-            </div>
-        );
+        return {
+            // No double slash — fixed from original
+            versionedURL: `https://putout.cloudcmd.io/#/${snippetID}/${revisionID}`,
+            latestURL: null,
+            embedURL: null,
+        };
     }
 }

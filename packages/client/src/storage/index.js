@@ -44,7 +44,7 @@ export default class StorageHandler {
    */
     update(revision, data) {
         return this
-            ._first()
+            ._owns(revision)
             .update(revision, data);
     }
     /**
@@ -52,7 +52,7 @@ export default class StorageHandler {
    */
     fork(revision, data) {
         return this
-            ._first()
+            ._owns(revision)
             .fork(revision, data);
     }
 }
