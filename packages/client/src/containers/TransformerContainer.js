@@ -1,9 +1,6 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Transformer from '../components/Transformer.js';
-import {
-    setTransformState,
-    toggleFormatting,
-} from '../store/reducers.js';
+import {setTransformState} from '../store/reducers.js';
 import {getParser, getTransformer} from '../store/parserSelectors.js';
 import * as selectors from '../store/selectors.js';
 
@@ -13,7 +10,6 @@ export default function TransformerContainer() {
     const defaultTransformCode = useSelector(selectors.getInitialTransformCode);
     const transformCode = useSelector(selectors.getTransformCode);
     const code = useSelector(selectors.getCode);
-    const enableFormatting = useSelector(selectors.getFormattingState);
     const keyMap = useSelector(selectors.getKeyMap);
     const mode = parser.category.editorMode || parser.category.id;
     const dispatch = useDispatch();
@@ -26,16 +22,12 @@ export default function TransformerContainer() {
             transformCode={transformCode}
             code={code}
             mode={mode}
-            enableFormatting={enableFormatting}
             keyMap={keyMap}
             onContentChange={({value, cursor}) => {
                 dispatch(setTransformState({
                     code: value,
                     cursor,
                 }));
-            }}
-            toggleFormatting={() => {
-                dispatch(toggleFormatting());
             }}
         />
     );

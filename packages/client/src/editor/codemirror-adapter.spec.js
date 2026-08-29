@@ -16,7 +16,6 @@ import {
     setDocValue,
     on,
     off,
-    getMaxLineLength,
     observeResize,
 } from './codemirror-adapter.js';
 
@@ -249,14 +248,6 @@ test('adapter: off removes event handler from editor', (t) => {
     t.end();
 });
 
-test('adapter: getMaxLineLength returns display.maxLineLength', (t) => {
-    const editor = makeEditor();
-    const result = getMaxLineLength(editor);
-    const expected = 80;
-    
-    t.equal(result, expected);
-    t.end();
-});
 
 test('adapter: observeResize returns a cleanup function', (t) => {
     const editor = makeEditor();

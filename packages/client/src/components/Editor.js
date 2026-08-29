@@ -1,10 +1,13 @@
 import {useRef, useEffect, useCallback} from 'react';
+import {print} from '@putout/printer';
+import {parse} from '@babel/parser';
+import plugins from '@putout/engine-parser/babel/plugins';
 import {
     createEditor, setValue, setOption,
     addLineClass, removeLineClass, markText,
     posFromIndex as adapterPosFromIndex,
     getCursorIndex, getDocValue, setDocValue,
-    getMaxLineLength, on, off, observeResize,
+    on, off, observeResize,
 } from '../editor/codemirror-adapter.js';
 
 const getCMTheme = () =>
@@ -12,18 +15,16 @@ const getCMTheme = () =>
         ? 'nord'
         : 'default';
 
-const defaultPrettierOptions = {
-    printWidth:         80,
-    tabWidth:           4,
-    singleQuote:        true,
-    bracketSpacing:     false,
-    jsxBracketSameLine: false,
-    parser:             'babel',
-    trailingComma:      'es5',
-    arrowParens:        'always',
-};
-
 const noop = () => {};
+
+const formatCode = (source) => {
+    try {
+        const ast = parse(source, {sourceType: 'module', plugins});
+        return print(ast);
+    } catch {
+        return null;
+    }
+};
 
 export default function Editor({
     value            = '',
@@ -33,7 +34,6 @@ export default function Editor({
     mode             = 'javascript',
     keyMap           = 'default',
     error            = null,
-    enableFormatting = false,
     highlightRange   = null,
     onContentChange  = noop,
     onActivity       = noop,
@@ -69,29 +69,12 @@ export default function Editor({
         // Resize — replaces PANEL_RESIZE pubsub subscription
         const cleanupResize = observeResize(editor, containerRef.current);
         
-        // Blur → prettier format on save
+        // Blur → format on save if babel can parse
         const [blurEv, blurFn] = on(editor, 'blur', (instance) => {
-            if (!enableFormatting)
-                return;
+            const formatted = formatCode(getDocValue(instance));
             
-            Promise
-                .all([
-                    import('prettier/standalone'),
-                    import('prettier/parser-babel'),
-                ])
-                .then(([prettierMod, babelMod]) => {
-                    const prettier  = prettierMod.default || prettierMod;
-                    const babel     = babelMod.default || babelMod;
-                    const currValue = getDocValue(instance);
-                    
-                    const options = {
-                        ...defaultPrettierOptions,
-                        printWidth: getMaxLineLength(instance),
-                        plugins:    [babel],
-                    };
-                    
-                    setDocValue(instance, prettier.format(currValue, options));
-                });
+            if (formatted !== null)
+                setDocValue(instance, formatted);
         });
         
         // Changes → debounced content update

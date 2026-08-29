@@ -39,7 +39,6 @@ const initialState = {
         },
     },
     
-    enableFormatting: false,
 };
 
 /**
@@ -98,9 +97,6 @@ const slice = createSlice({
         clearHighlight: (state, {payload: range} = {}) => {
             if (!range || state.highlightRange && range[0] === state.highlightRange[0] && range[1] === state.highlightRange[1])
                 state.highlightRange = null;
-        },
-        toggleFormatting: (state) => {
-            state.enableFormatting = !state.enableFormatting;
         },
         setKeyMap: (state, {payload}) => {
             state.workbench.keyMap = payload;
@@ -258,7 +254,6 @@ export const {
     clearError,
     setHighlight,
     clearHighlight,
-    toggleFormatting,
     setKeyMap,
     setCursor,
     setCode,

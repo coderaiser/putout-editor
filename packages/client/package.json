@@ -74,6 +74,7 @@
     "@putout/plugin-declare-before-reference": "^10.0.0",
     "@putout/plugin-optional-chaining": "^3.0.0",
     "@putout/plugin-putout": "^29.0.0",
+    "@putout/printer": "^18.41.0",
     "@reduxjs/toolkit": "^2.12.0",
     "@swc/helpers": "^0.5.23",
     "acorn": "^8.0.1",

@@ -212,32 +212,6 @@ test('Editor: switches to default theme when data-theme changes to light', async
     t.end();
 });
 
-test('Editor: blur without enableFormatting does not throw', async (t) => {
-    const {container} = render(<Editor value="x" enableFormatting={false}/>);
-    await act(async () => {
-        getCM(container).getInputField().blur();
-        await new Promise((r) => setTimeout(r, 20));
-    });
-    const result = container.querySelector('.editor');
-    cleanup();
-    t.ok(result);
-    t.end();
-});
-
-test('Editor: blur with enableFormatting=true does not throw', async (t) => {
-    const {container} = render(
-        <Editor value="const x=1" enableFormatting={true}/>,
-    );
-    const cm = getCM(container);
-    await act(async () => {
-        cm.getInputField().blur();
-        await new Promise((r) => setTimeout(r, 500));
-    });
-    const result = container.querySelector('.editor');
-    cleanup();
-    t.ok(result);
-    t.end();
-});
 
 test('Editor: calls onContentChange after value change', async (t) => {
     let received = null;

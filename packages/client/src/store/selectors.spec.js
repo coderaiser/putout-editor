@@ -1,7 +1,6 @@
 import {test} from 'supertape';
 import {
     canFork,
-    getFormattingState,
     getCursor,
     getError,
     isLoadingSnippet,
@@ -43,14 +42,6 @@ test('selectors: canFork: with revision: true', (t) => {
     t.end();
 });
 
-test('selectors: getFormattingState', (t) => {
-    const result = getFormattingState({
-        enableFormatting: true,
-    });
-    
-    t.ok(result);
-    t.end();
-});
 
 test('selectors: getCursor', (t) => {
     const result = getCursor({

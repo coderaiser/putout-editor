@@ -102,8 +102,6 @@ export function off(editor, event, handler) {
     editor.off(event, handler);
 }
 
-/** Get display maxLineLength (for prettier printWidth). */
-export const getMaxLineLength = (editor) => editor.display.maxLineLength;
 
 /**
  * Observe container resize and call refresh automatically.

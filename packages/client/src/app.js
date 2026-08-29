@@ -71,7 +71,9 @@ const snippetListener = createSnippetListener(storageAdapter);
 const store = configureStore({
     reducer: putoutEditor,
     preloadedState: revive(LocalStorage.readState()),
-    middleware: (getDefault) => getDefault()
+    middleware: (getDefault) => getDefault({
+        serializableCheck: false,
+    })
         .prepend(parserListener.middleware)
         .prepend(snippetListener.middleware),
 });

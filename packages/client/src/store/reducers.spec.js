@@ -18,7 +18,6 @@ import {
     clearSnippet,
     setError,
     clearError,
-    toggleFormatting,
     selectTransformer,
     hideTransformer,
     setParserSettings,
@@ -306,20 +305,6 @@ test('reducers: clear error', (t) => {
     t.end();
 });
 
-test('reducers: toggle formatting enables', (t) => {
-    const state = putoutEditor(getInitState(), toggleFormatting());
-    
-    t.ok(state.enableFormatting);
-    t.end();
-});
-
-test('reducers: toggle formatting disables', (t) => {
-    const enabled = putoutEditor(getInitState(), toggleFormatting());
-    const state = putoutEditor(enabled, toggleFormatting());
-    
-    t.notOk(state.enableFormatting);
-    t.end();
-});
 
 test('reducers: select transformer shows transform panel', (t) => {
     const transformer = {

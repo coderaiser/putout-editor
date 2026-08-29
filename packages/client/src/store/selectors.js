@@ -1,7 +1,6 @@
 import {createSelector} from '@reduxjs/toolkit';
 
 // UI related
-export const getFormattingState = (state) => state.enableFormatting;
 
 export const getCursor = (state) => state.cursor;
 

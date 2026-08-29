@@ -16,7 +16,6 @@ import {
     setSnippet,
     clearSnippet,
     reset,
-    toggleFormatting,
     setKeyMap,
     startLoadingSnippet,
     doneLoadingSnippet,
@@ -149,28 +148,6 @@ test('store: clearError resets error to null', (t) => {
     t.end();
 });
 
-// --- enableFormatting ---
-test('store: enableFormatting defaults to false', (t) => {
-    t.notOk(getState(makeStore()).enableFormatting);
-    t.end();
-});
-
-test('store: toggleFormatting sets enableFormatting to true', (t) => {
-    const store = makeStore();
-    dispatch(store, toggleFormatting());
-    
-    t.ok(getState(store).enableFormatting);
-    t.end();
-});
-
-test('store: toggleFormatting twice restores enableFormatting to false', (t) => {
-    const store = makeStore();
-    dispatch(store, toggleFormatting());
-    dispatch(store, toggleFormatting());
-    
-    t.notOk(getState(store).enableFormatting);
-    t.end();
-});
 
 // --- workbench.code ---
 test('store: setCode updates workbench.code', (t) => {
