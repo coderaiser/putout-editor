@@ -8,7 +8,6 @@
         "**/.madrun.js",
         "src/app.js",
         "src/components/ASTOutput.js",
-        "src/components/Editor.js",
         "src/components/GistBanner.js",
         "src/components/JSONEditor.js",
         "src/components/PasteDropTarget.js",
