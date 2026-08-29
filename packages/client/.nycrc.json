@@ -12,7 +12,6 @@
         "src/components/GistBanner.js",
         "src/components/JSONEditor.js",
         "src/components/PasteDropTarget.js",
-        "src/components/SplitPane.js",
         "src/components/TransformOutput.js",
         "src/components/Transformer.js",
         "src/components/buttons/SnippetButton.js",
