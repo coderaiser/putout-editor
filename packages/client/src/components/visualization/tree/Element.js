@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import PubSub from 'pubsub-js';
+import {connect} from 'react-redux';
 import React from 'react';
 import cx from 'classnames';
 import {TbAlertTriangle} from 'react-icons/tb';
@@ -7,6 +7,7 @@ import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
 import stringify from '../../../utils/stringify.js';
+import {setHighlight, clearHighlight} from '../../../store/reducers.js';
 
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
@@ -121,19 +122,13 @@ let Element = class extends React.Component {
         
         const {value} = this.state;
         
-        PubSub.publish('HIGHLIGHT', {
-            node: value,
-            range: this.props.treeAdapter.getRange(value),
-        });
+        this.props.setHighlight(this.props.treeAdapter.getRange(value));
     }
     
     _onMouseLeave() {
         const {value} = this.state;
         
-        PubSub.publish('CLEAR_HIGHLIGHT', {
-            node: value,
-            range: this.props.treeAdapter.getRange(value),
-        });
+        this.props.clearHighlight(this.props.treeAdapter.getRange(value));
     }
     
     _isFocused(level, path, value, open) {
@@ -330,6 +325,16 @@ Element.propTypes = {
         PropTypes.object,
         PropTypes.array,
     ]),
+    setHighlight: PropTypes.func,
+    clearHighlight: PropTypes.func,
 };
 
-export default Element = RecursiveTreeElement(Element);
+const mapDispatchToProps = {
+    setHighlight,
+    clearHighlight,
+};
+
+export default Element = connect(
+    null,
+    mapDispatchToProps,
+)(RecursiveTreeElement(Element));

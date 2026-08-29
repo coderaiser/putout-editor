@@ -1,5 +1,4 @@
 import '../css/style.css';
-import PubSub from 'pubsub-js';
 import {Provider, useSelector} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
@@ -32,10 +31,6 @@ import StorageHandler from './storage';
 import {parserListener} from './store/parserMiddleware';
 import {createSnippetListener} from './store/snippetMiddleware';
 
-function resize() {
-    PubSub.publish('PANEL_RESIZE');
-}
-
 function App() {
     const showTransformer = useSelector((s) => s.showTransformPanel);
     const hasError = useSelector((s) => Boolean(s.error));
@@ -54,11 +49,9 @@ function App() {
                         <SplitPane
                             className="splitpane-content"
                             vertical={true}
-                            onResize={resize}
                         >
                             <SplitPane
                                 className="splitpane"
-                                onResize={resize}
                             >
                                 <ErrorBoundary><CodeEditorContainer/></ErrorBoundary>
                                 <ErrorBoundary><ASTOutputContainer/></ErrorBoundary>

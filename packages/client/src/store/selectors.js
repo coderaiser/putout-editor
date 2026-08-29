@@ -5,6 +5,8 @@ export const getFormattingState = (state) => state.enableFormatting;
 
 export const getCursor = (state) => state.cursor;
 
+export const getHighlightRange = (state) => state.highlightRange;
+
 export const getError = (state) => state.error;
 
 export const isLoadingSnippet = (state) => state.loadingSnippet;

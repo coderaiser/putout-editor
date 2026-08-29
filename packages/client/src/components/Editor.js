@@ -3,7 +3,6 @@ import 'codemirror/keymap/vim';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/sublime';
 import PropTypes from 'prop-types';
-import PubSub from 'pubsub-js';
 import React from 'react';
 
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
@@ -80,7 +79,6 @@ export default class Editor extends React.Component {
     
     componentDidMount() {
         this._CMHandlers = [];
-        this._subscriptions = [];
         this.codeMirror = CodeMirror(this.container, {
             keyMap: this.props.keyMap,
             value: this.state.value,
@@ -133,50 +131,6 @@ export default class Editor extends React.Component {
             this._updateTimer = setTimeout(this._onActivity.bind(this, true), 100);
         });
         
-        this._subscriptions.push(PubSub.subscribe('PANEL_RESIZE', () => {
-            if (this.codeMirror)
-                this.codeMirror.refresh();
-        }));
-        
-        if (this.props.highlight) {
-            this._markerRange = null;
-            this._mark = null;
-            this._subscriptions.push(PubSub.subscribe('HIGHLIGHT', (_, {range}) => {
-                if (!range)
-                    return;
-                
-                const doc = this.codeMirror.getDoc();
-                
-                this._markerRange = range;
-                
-                // We only want one mark at a time.
-                if (this._mark)
-                    this._mark.clear();
-                
-                const [start, end] = range.map((index) => this._posFromIndex(doc, index));
-                
-                if (!start || !end) {
-                    this._markerRange = null;
-                    this._mark = this._markerRange;
-                    
-                    return;
-                }
-                
-                this._mark = this.codeMirror.markText(start, end, {
-                    className: 'marked',
-                });
-            }), PubSub.subscribe('CLEAR_HIGHLIGHT', (_, {range} = {}) => {
-                if (!range || this._markerRange && range[0] === this._markerRange[0] && range[1] === this._markerRange[1]) {
-                    this._markerRange = null;
-                    
-                    if (this._mark) {
-                        this._mark.clear();
-                        this._mark = null;
-                    }
-                }
-            }));
-        }
-        
         if (this.props.error)
             this._setError(this.props.error);
     }
@@ -204,8 +158,6 @@ export default class Editor extends React.Component {
         for (let i = 0; i < cmHandlers.length; i += 2) {
             this.codeMirror.off(cmHandlers[i], cmHandlers[i + 1]);
         }
-        
-        this._subscriptions.forEach(PubSub.unsubscribe);
     }
     
     _onContentChange() {

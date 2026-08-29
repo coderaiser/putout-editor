@@ -76,9 +76,11 @@ test('ErrorBoundary: calls onError when child throws', (t) => {
     let called = false;
     
     render(
-        <ErrorBoundary onError={() => {
-            called = true;
-        }}>
+        <ErrorBoundary
+            onError={() => {
+                called = true;
+            }}
+        >
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
@@ -94,9 +96,11 @@ test('ErrorBoundary: onError receives Error instance', (t) => {
     let received;
     
     render(
-        <ErrorBoundary onError={(e) => {
-            received = e;
-        }}>
+        <ErrorBoundary
+            onError={(e) => {
+                received = e;
+            }}
+        >
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
@@ -111,9 +115,11 @@ test('ErrorBoundary: onError receives Error instance', (t) => {
 test('ErrorBoundary: renders custom fallback function result', (t) => {
     const restore = silence();
     const {container} = render(
-        <ErrorBoundary fallback={() => (
-            <div id="custom">custom</div>
-        )}>
+        <ErrorBoundary
+            fallback={() => (
+                <div id="custom">custom</div>
+            )}
+        >
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
@@ -132,10 +138,12 @@ test('ErrorBoundary: fallback function receives the error', (t) => {
     let received;
     
     render(
-        <ErrorBoundary fallback={(e) => {
-            received = e;
-            return null;
-        }}>
+        <ErrorBoundary
+            fallback={(e) => {
+                received = e;
+                return null;
+            }}
+        >
             <Bomb shouldThrow={true}/>
         </ErrorBoundary>,
     );
@@ -166,9 +174,11 @@ test('ErrorBoundary: does not call onError without error', (t) => {
     let called = false;
     
     render(
-        <ErrorBoundary onError={() => {
-            called = true;
-        }}>
+        <ErrorBoundary
+            onError={() => {
+                called = true;
+            }}
+        >
             <div>ok</div>
         </ErrorBoundary>,
     );

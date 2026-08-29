@@ -96,6 +96,7 @@ test('adapter: setOption calls editor.setOption with key and value', (t) => {
 test('adapter: getScrollInfo returns scroll position object', (t) => {
     const editor = makeEditor();
     const result = getScrollInfo(editor);
+    
     const expected = {
         left: 0,
         top: 0,
@@ -139,6 +140,7 @@ test('adapter: removeLineClass calls editor.removeLineClass', (t) => {
 
 test('adapter: markText calls editor.markText', (t) => {
     const editor = makeEditor();
+    
     markText(editor, {line: 0, ch: 0}, {line: 0, ch: 5}, {
         className: 'marked',
     });
@@ -176,6 +178,7 @@ test('adapter: posFromIndex calls doc.posFromIndex', (t) => {
 
 test('adapter: indexFromPos calls doc.indexFromPos', (t) => {
     const editor = makeEditor();
+    
     indexFromPos(editor, {
         line: 0,
         ch: 5,

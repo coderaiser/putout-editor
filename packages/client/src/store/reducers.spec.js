@@ -28,6 +28,8 @@ import {
     dropText,
     setParseResult,
     selectCategory,
+    setHighlight,
+    clearHighlight,
 } from './reducers.js';
 
 const makeRevision = (overrides = {}) => ({
@@ -595,5 +597,43 @@ test('reducers: select transformer: snippetHasDifferentTransform uses revision i
     }));
     
     t.equal(state.workbench.transform.initialCode, 'revision code');
+    t.end();
+});
+
+test('reducers: highlightRange defaults to null', (t) => {
+    const state = getInitState();
+    
+    t.notOk(state.highlightRange);
+    t.end();
+});
+
+test('reducers: setHighlight sets highlightRange', (t) => {
+    const state = putoutEditor(getInitState(), setHighlight([0, 5]));
+    
+    t.deepEqual(state.highlightRange, [0, 5]);
+    t.end();
+});
+
+test('reducers: clearHighlight with no args sets highlightRange to null', (t) => {
+    const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
+    const state = putoutEditor(withHighlight, clearHighlight());
+    
+    t.notOk(state.highlightRange);
+    t.end();
+});
+
+test('reducers: clearHighlight with matching range clears it', (t) => {
+    const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
+    const state = putoutEditor(withHighlight, clearHighlight([0, 5]));
+    
+    t.notOk(state.highlightRange);
+    t.end();
+});
+
+test('reducers: clearHighlight with non-matching range preserves it', (t) => {
+    const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
+    const state = putoutEditor(withHighlight, clearHighlight([1, 6]));
+    
+    t.deepEqual(state.highlightRange, [0, 5]);
     t.end();
 });

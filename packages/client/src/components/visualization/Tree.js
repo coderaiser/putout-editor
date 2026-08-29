@@ -1,10 +1,11 @@
 import './css/tree.css';
 import PropTypes from 'prop-types';
+import {useDispatch} from 'react-redux';
 import React from 'react';
-import PubSub from 'pubsub-js';
 import Element from './tree/Element.js';
 import {logEvent} from '../../utils/logger.js';
 import {treeAdapterFromParseResult} from '../../core/TreeAdapter.js';
+import {clearHighlight} from '../../store/reducers.js';
 
 const {useReducer, useMemo} = React;
 
@@ -48,6 +49,7 @@ function makeCheckbox(name, settings, updateSettings) {
 export default function Tree({focusPath, parseResult}) {
     const [settings, updateSettings] = useReducer(reducer, null, initSettings);
     const treeAdapter = useMemo(() => treeAdapterFromParseResult(parseResult, settings), [parseResult.treeAdapter, settings]);
+    const dispatch = useDispatch();
     
     return (
         <div className="tree-visualization container">
@@ -71,7 +73,7 @@ export default function Tree({focusPath, parseResult}) {
             </div>
             <ul
                 onMouseLeave={() => {
-                    PubSub.publish('CLEAR_HIGHLIGHT');
+                    dispatch(clearHighlight());
                 }}
             >
                 <Element

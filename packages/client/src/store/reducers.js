@@ -18,6 +18,7 @@ const initialState = {
     saving: false,
     cursor: null,
     error: null,
+    highlightRange: null,
     showTransformPanel: true, // Snippet related state
     selectedRevision: null, // Workbench settings
     // Contains local settings of all parsers
@@ -90,6 +91,13 @@ const slice = createSlice({
         },
         clearError: (state) => {
             state.error = null;
+        },
+        setHighlight: (state, {payload: range}) => {
+            state.highlightRange = range;
+        },
+        clearHighlight: (state, {payload: range} = {}) => {
+            if (!range || state.highlightRange && range[0] === state.highlightRange[0] && range[1] === state.highlightRange[1])
+                state.highlightRange = null;
         },
         toggleFormatting: (state) => {
             state.enableFormatting = !state.enableFormatting;
@@ -248,6 +256,8 @@ export const {
     closeShareDialog,
     setError,
     clearError,
+    setHighlight,
+    clearHighlight,
     toggleFormatting,
     setKeyMap,
     setCursor,

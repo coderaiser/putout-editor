@@ -20,6 +20,7 @@ import {
     showTransformer,
     canSaveCode,
     canSaveTransform,
+    getHighlightRange,
 } from './selectors.js';
 
 test('selectors: canFork: no revision: false', (t) => {
@@ -324,6 +325,26 @@ test('selectors: canSaveTransform panel hidden', (t) => {
     };
     
     const result = canSaveTransform(s);
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('selectors: getHighlightRange returns range', (t) => {
+    const result = getHighlightRange({
+        highlightRange: [1, 2],
+    });
+    
+    const expected = [1, 2];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('selectors: getHighlightRange returns null when not set', (t) => {
+    const result = getHighlightRange({
+        highlightRange: null,
+    });
     
     t.notOk(result);
     t.end();

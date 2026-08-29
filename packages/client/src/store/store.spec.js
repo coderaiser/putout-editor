@@ -22,6 +22,7 @@ import {
     doneLoadingSnippet,
     startSave,
     endSave,
+    setHighlight,
 } from './reducers.js';
 
 // --- helpers ---
@@ -434,5 +435,18 @@ test('store: revive sets workbench.transform.initialCode from stored transform c
     });
     
     t.equal(stored.workbench.transform.initialCode, 'y');
+    t.end();
+});
+
+test('store: setHighlight stores range', (t) => {
+    const store = makeStore();
+    dispatch(store, setHighlight([2, 8]));
+    
+    t.deepEqual(getState(store).highlightRange, [2, 8]);
+    t.end();
+});
+
+test('store: highlightRange defaults to null', (t) => {
+    t.notOk(getState(makeStore()).highlightRange);
     t.end();
 });

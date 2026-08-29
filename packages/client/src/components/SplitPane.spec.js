@@ -102,9 +102,12 @@ test('SplitPane: pointerdown on divider does not throw', (t) => {
 test('SplitPane: pointerup calls onResize', (t) => {
     let called = false;
     const {container} = render(
-        <SplitPane className="pane" onResize={() => {
-            called = true;
-        }}>
+        <SplitPane
+            className="pane"
+            onResize={() => {
+                called = true;
+            }}
+        >
             <div>a</div><div>b</div>
         </SplitPane>,
     );

@@ -4,7 +4,6 @@ import 'codemirror/addon/fold/foldgutter.js';
 import 'codemirror/addon/fold/foldcode.js';
 import 'codemirror/addon/fold/brace-fold.js';
 import PropTypes from 'prop-types';
-import PubSub from 'pubsub-js';
 import React from 'react';
 
 export default class Editor extends React.Component {
@@ -22,7 +21,6 @@ export default class Editor extends React.Component {
     }
     
     componentDidMount() {
-        this._subscriptions = [];
         this.codeMirror = CodeMirror(this.container, {
             value: this.props.value,
             mode: {
@@ -34,24 +32,13 @@ export default class Editor extends React.Component {
             foldGutter: true,
             gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
         });
-        
-        this._subscriptions.push(PubSub.subscribe('PANEL_RESIZE', () => {
-            if (this.codeMirror)
-                this.codeMirror.refresh();
-        }));
     }
     
     componentWillUnmount() {
-        this._unbindHandlers();
-        
         const {container} = this;
         
         container.removeChild(container.children[0]);
         this.codeMirror = null;
-    }
-    
-    _unbindHandlers() {
-        this._subscriptions.forEach(PubSub.unsubscribe);
     }
     
     render() {

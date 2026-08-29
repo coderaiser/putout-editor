@@ -1,14 +1,9 @@
 import PropTypes from 'prop-types';
-import PubSub from 'pubsub-js';
 import React from 'react';
 import Editor from './Editor';
 import SplitPane from './SplitPane';
 import TransformOutput from './TransformOutput';
 import {getTransformerByID} from '../parsers/index.js';
-
-function resize() {
-    PubSub.publish('PANEL_RESIZE');
-}
 
 export default function Transformer(props) {
     // 🐊Putout transformer only have
@@ -29,10 +24,7 @@ export default function Transformer(props) {
     );
     
     return (
-        <SplitPane
-            className="splitpane"
-            onResize={resize}
-        >
+        <SplitPane className="splitpane">
             {formattingEditor}
             <TransformOutput
                 transformer={transformer}
