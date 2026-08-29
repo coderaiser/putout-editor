@@ -34,6 +34,9 @@ function makeStore(overrides = {}) {
     return configureStore({
         reducer: putoutEditor,
         preloadedState: revive(state),
+        middleware: (getDefault) => getDefault({
+            serializableCheck: false,
+        }),
     });
 }
 
