@@ -10,7 +10,11 @@ import {putoutEditor, revive} from '../store/reducers.js';
 import ShareDialogContainer from './ShareDialogContainer.js';
 
 const makeSnippet = () => ({
-    getShareInfo: () => 'share info',
+    getShareData: () => ({
+        versionedURL: '#/gist/abc',
+        latestURL: null,
+        embedURL: null,
+    }),
 });
 
 function makeStore(overrides = {}) {

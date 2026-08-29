@@ -7,7 +7,11 @@ import {
 import ShareDialog from './ShareDialog.js';
 
 const snippet = {
-    getShareInfo: stub().returns('share info'),
+    getShareData: stub().returns({
+        versionedURL: '#/gist/abc',
+        latestURL: '#/gist/abc/latest',
+        embedURL: '<script src="x.js"></script>',
+    }),
 };
 
 test('ShareDialog: not visible: renders nothing', (t) => {
@@ -40,18 +44,39 @@ test('ShareDialog: visible: renders dialog', (t) => {
     t.end();
 });
 
-test('ShareDialog: visible: renders share info from snippet', (t) => {
+test('ShareDialog: visible: renders share data from snippet', (t) => {
     const onWantToClose = stub();
     
     render(
         <ShareDialog visible={true} snippet={snippet} onWantToClose={onWantToClose}/>,
     );
     
-    const body = document.querySelector('.body');
+    const input = document.querySelector('.body input');
     
     cleanup();
     
-    t.equal(body.textContent, 'share info');
+    t.equal(input.value, '#/gist/abc');
+    t.end();
+});
+
+test('ShareDialog: focus on input selects value', (t) => {
+    const onWantToClose = stub();
+    
+    render(
+        <ShareDialog visible={true} snippet={snippet} onWantToClose={onWantToClose}/>,
+    );
+    
+    const inputs = document.querySelectorAll('.body input');
+    
+    inputs.forEach(fireEvent.focus);
+    
+    const selected = Array
+        .from(inputs)
+        .every((input) => input.value === '#/gist/abc' || input.value === '#/gist/abc/latest' || input.value.startsWith('<script'));
+    
+    cleanup();
+    
+    t.ok(selected);
     t.end();
 });
 

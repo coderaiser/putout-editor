@@ -13,7 +13,13 @@ export default class ShareDialog extends React.Component {
     }
     
     render() {
-        if (this.props.visible)
+        if (this.props.visible) {
+            const {
+                versionedURL,
+                latestURL,
+                embedURL,
+            } = this.props.snippet.getShareData();
+            
             return (
                 <div id="ShareDialog" className="dialog" onClick={this._outerClick}>
                     <div
@@ -24,7 +30,20 @@ export default class ShareDialog extends React.Component {
                         }}
                     >
                         <div className="body">
-                            {this.props.snippet.getShareInfo()}
+                            <div className="shareInfo">
+                                <dl>
+                                    <dt>Current Revision</dt>
+                                    <dd>
+                                        <input readOnly={true} onFocus={(e) => e.target.select()} value={versionedURL}/>
+                                    </dd>
+                                    {latestURL ? <dd>
+                                        <input readOnly={true} onFocus={(e) => e.target.select()} value={latestURL}/>
+                                    </dd> : null}
+                                    {embedURL ? <dd>
+                                        <input readOnly={true} onFocus={(e) => e.target.select()} value={embedURL}/>
+                                    </dd> : null}
+                                </dl>
+                            </div>
                         </div>
                         <div className="footer">
                             <button onClick={this.props.onWantToClose}>Close</button>
@@ -32,6 +51,7 @@ export default class ShareDialog extends React.Component {
                     </div>
                 </div>
             );
+        }
         
         return null;
     }

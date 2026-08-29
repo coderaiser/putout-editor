@@ -138,6 +138,9 @@ function buildSaveData(state) {
         data.toolID = transformer.id;
         data.versions[transformer.id] = transformer.version;
         data.transform = transformCode;
+    } else {
+        // Signal server to remove transformer file if it was previously set
+        data.transform = null;
     }
     
     return data;

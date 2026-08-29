@@ -354,6 +354,25 @@ test('snippetMiddleware: save create with showTransformPanel', async (t) => {
     t.end();
 });
 
+test('snippetMiddleware: buildSaveData: sets transform null when no transformer', async (t) => {
+    const storage = makeStorage();
+    const store = makeStore({
+        showTransformPanel: false,
+    }, storage);
+    
+    store.dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
+    await setImmediate();
+    await setImmediate();
+    
+    const [data] = storage.create.args[0];
+    
+    t.notOk(data.transform);
+    t.end();
+});
+
 test('snippetMiddleware: save error triggers setError', async (t) => {
     const storage = makeStorage({
         update: () => Promise.reject(Error('save failed')),
