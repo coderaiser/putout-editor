@@ -13,6 +13,7 @@ import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
 import SettingsDialogContainer from './containers/SettingsDialogContainer';
 import ShareDialogContainer from './containers/ShareDialogContainer';
 import SplitPane from './components/SplitPane';
+import ErrorBoundary from './components/ErrorBoundary';
 import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './containers/TransformerContainer';
 import debounce from './utils/debounce';
@@ -59,8 +60,8 @@ function App() {
                                 className="splitpane"
                                 onResize={resize}
                             >
-                                <CodeEditorContainer/>
-                                <ASTOutputContainer/>
+                                <ErrorBoundary><CodeEditorContainer/></ErrorBoundary>
+                                <ErrorBoundary><ASTOutputContainer/></ErrorBoundary>
                             </SplitPane>
                             {showTransformer ? <TransformerContainer/> : null}
                         </SplitPane>
