@@ -399,6 +399,7 @@ test('gist: update: throws on non-ok response', async (t) => {
     });
     
     const {tryToCatch} = await import('try-to-catch');
+    
     const [error] = await tryToCatch(update, mockRevision, {
         code: 'x',
     });
