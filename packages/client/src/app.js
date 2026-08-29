@@ -29,6 +29,7 @@ import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
 import {parserListener} from './store/parserMiddleware';
+import {formatListener} from './store/formatMiddleware';
 import {createSnippetListener} from './store/snippetMiddleware';
 
 function App() {
@@ -75,7 +76,8 @@ const store = configureStore({
         serializableCheck: false,
     })
         .prepend(parserListener.middleware)
-        .prepend(snippetListener.middleware),
+        .prepend(snippetListener.middleware)
+        .prepend(formatListener.middleware),
 });
 
 store.subscribe(debounce(() => {

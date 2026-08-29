@@ -1,12 +1,9 @@
 import {useRef, useEffect, useCallback} from 'react';
-import {print} from '@putout/printer';
-import {parse} from '@babel/parser';
-import plugins from '@putout/engine-parser/babel/plugins';
 import {
     createEditor, setValue, setOption,
     addLineClass, removeLineClass, markText,
     posFromIndex as adapterPosFromIndex,
-    getCursorIndex, getDocValue, setDocValue,
+    getCursorIndex,
     on, off, observeResize,
 } from '../editor/codemirror-adapter.js';
 
@@ -16,15 +13,6 @@ const getCMTheme = () =>
         : 'default';
 
 const noop = () => {};
-
-const formatCode = (source) => {
-    try {
-        const ast = parse(source, {sourceType: 'module', plugins});
-        return print(ast);
-    } catch {
-        return null;
-    }
-};
 
 export default function Editor({
     value            = '',
@@ -37,6 +25,7 @@ export default function Editor({
     highlightRange   = null,
     onContentChange  = noop,
     onActivity       = noop,
+    onBlur           = noop,
     posFromIndex:    posFromIndexProp,
 }) {
     const containerRef   = useRef(null);
@@ -69,12 +58,9 @@ export default function Editor({
         // Resize — replaces PANEL_RESIZE pubsub subscription
         const cleanupResize = observeResize(editor, containerRef.current);
         
-        // Blur → format on save if babel can parse
-        const [blurEv, blurFn] = on(editor, 'blur', (instance) => {
-            const formatted = formatCode(getDocValue(instance));
-            
-            if (formatted !== null)
-                setDocValue(instance, formatted);
+        // Blur → notify parent (formatting handled in middleware)
+        const [blurEv, blurFn] = on(editor, 'blur', () => {
+            onBlur();
         });
         
         // Changes → debounced content update

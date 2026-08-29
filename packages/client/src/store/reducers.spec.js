@@ -12,6 +12,7 @@ import {
     startSave,
     endSave,
     setCursor,
+    editorBlur,
     setCode,
     reset,
     setSnippet,
@@ -620,5 +621,13 @@ test('reducers: clearHighlight with non-matching range preserves it', (t) => {
     const state = putoutEditor(withHighlight, clearHighlight([1, 6]));
     
     t.deepEqual(state.highlightRange, [0, 5]);
+    t.end();
+});
+
+test('reducers: editorBlur is a no-op', (t) => {
+    const before = putoutEditor(undefined, {type: '@@INIT'});
+    const after = putoutEditor(before, editorBlur());
+    
+    t.equal(after, before);
     t.end();
 });

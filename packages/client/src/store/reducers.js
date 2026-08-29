@@ -122,6 +122,7 @@ const slice = createSlice({
             state.showTransformPanel = false;
         },
         
+        editorBlur: () => {},
         setCode: (state, {payload: {code, cursor}}) => {
             state.workbench.code = code;
             
@@ -256,6 +257,7 @@ export const {
     clearHighlight,
     setKeyMap,
     setCursor,
+    editorBlur,
     setCode,
     setParseResult,
     setParserSettings,
