@@ -66,6 +66,7 @@ test('decorations: mark clear removes all decorations from markField', (t) => {
 
 test('decorations: markText returns a clear no-op for empty range', (t) => {
     const view = makeView();
+    
     markText(view, {line: 0, ch: 0}, {line: 0, ch: 0}, {
         className: 'marked',
     });

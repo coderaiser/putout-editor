@@ -2,6 +2,8 @@ import {StateEffect, StateField} from '@codemirror/state';
 import {EditorView, Decoration} from '@codemirror/view';
 import {positionToOffset} from './position.js';
 
+const noop = () => {};
+
 export const setMarkEffect = StateEffect.define();
 export const clearMarkEffect = StateEffect.define();
 export const setLineEffect = StateEffect.define();
@@ -70,7 +72,7 @@ export function markText(view, from, to, {className}) {
     
     if (fromOffset === toOffset)
         return {
-            clear: () => {},
+            clear: noop,
         };
     
     const decoration = Decoration

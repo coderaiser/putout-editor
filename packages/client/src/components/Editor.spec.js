@@ -235,7 +235,10 @@ test('Editor: clears mark when highlightRange changes to null', async (t) => {
 });
 
 test('Editor: uses posFromIndex prop when provided', (t) => {
-    const posFromIndex = (_, index) => ({line: 0, ch: index});
+    const posFromIndex = (_, index) => ({
+        line: 0,
+        ch: index,
+    });
     const {container} = render(
         <Editor value="hello world" highlightRange={[0, 5]} posFromIndex={posFromIndex}/>,
     );
@@ -370,7 +373,13 @@ test('Editor: calls onContentChange after value change', async (t) => {
     
     await act(async () => {
         const view = getView(container);
-        view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: 'hello'}});
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: 'hello',
+            },
+        });
         await new Promise((r) => setTimeout(r, 250));
     });
     cleanup();
@@ -392,7 +401,13 @@ test('Editor: onContentChange receives value field', async (t) => {
     
     await act(async () => {
         const view = getView(container);
-        view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: 'hello'}});
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: 'hello',
+            },
+        });
         await new Promise((r) => setTimeout(r, 250));
     });
     cleanup();
@@ -414,7 +429,13 @@ test('Editor: onContentChange receives cursor field', async (t) => {
     
     await act(async () => {
         const view = getView(container);
-        view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: 'hello'}});
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: 'hello',
+            },
+        });
         await new Promise((r) => setTimeout(r, 250));
     });
     cleanup();
@@ -439,7 +460,14 @@ test('Editor: calls onActivity after cursor moves', async (t) => {
     
     await act(async () => {
         const view = getView(container);
-        view.dispatch({selection: {anchor: indexFromPos(view, {line: 0, ch: 5})}});
+        view.dispatch({
+            selection: {
+                anchor: indexFromPos(view, {
+                    line: 0,
+                    ch: 5,
+                }),
+            },
+        });
         await new Promise((r) => setTimeout(r, 150));
     });
     cleanup();
@@ -461,7 +489,14 @@ test('Editor: onActivity receives a number', async (t) => {
     
     await act(async () => {
         const view = getView(container);
-        view.dispatch({selection: {anchor: indexFromPos(view, {line: 0, ch: 3})}});
+        view.dispatch({
+            selection: {
+                anchor: indexFromPos(view, {
+                    line: 0,
+                    ch: 3,
+                }),
+            },
+        });
         await new Promise((r) => setTimeout(r, 150));
     });
     cleanup();
