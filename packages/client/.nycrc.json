@@ -10,7 +10,6 @@
     "src/components/ASTOutput.js",
     "src/components/GistBanner.js",
     "src/components/PasteDropTarget.js",
-    "src/components/TransformOutput.js",
     "src/components/Transformer.js",
     "src/components/visualization/JSON.js",
     "src/components/visualization/Tree.js",

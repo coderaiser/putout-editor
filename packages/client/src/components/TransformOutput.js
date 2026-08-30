@@ -1,157 +1,85 @@
+import {useState, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
-import React from 'react';
-import {SourceMapConsumer} from 'source-map/lib/source-map-consumer';
+import {SourceMapConsumer} from 'source-map';
 import stringify from 'json-stringify-safe';
-import Editor from './Editor';
-import JSONEditor from './JSONEditor';
+import Editor from './Editor.js';
+import JSONEditor from './JSONEditor.js';
+import resolvePositionFromIndex from './resolvePositionFromIndex.js';
 
-const isString = (a) => typeof a === 'string';
+const isString = (value) => typeof value === 'string';
 
-async function transform(transformer, transformCode, code, parser) {
+async function runTransform(transformer, transformCode, code, parser) {
     if (!transformer._promise)
         transformer._promise = new Promise(transformer.loadTransformer);
     
     const realTransformer = await transformer._promise;
     let result = transformer.transform(realTransformer, transformCode, code, parser);
-    
-    let map = null;
+    let sourceMap = null;
     
     if (!isString(result)) {
         if (result.map)
-            map = new SourceMapConsumer(result.map);
+            sourceMap = new SourceMapConsumer(result.map);
         
         result = result.code;
     }
     
     return {
         result,
-        map,
+        sourceMap,
     };
 }
 
-export default class TransformOutput extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            result: '',
-            map: null,
-            error: null,
-        };
-        this._posFromIndex = this._posFromIndex.bind(this);
-    }
+export default function TransformOutput({transformer, transformCode, code, mode, isLoading, parser, highlightRange}) {
+    const [result, setResult] = useState('');
+    const [sourceMap, setSourceMap] = useState(null);
+    const [error, setError] = useState(null);
+    const sourceMapRef = useRef(null);
     
-    componentDidMount() {
-        // Do not run transform with default state while snippet is loading —
-        // avoids the flash of wrong/default transform output on initial page load.
-        if (this.props.isLoading)
+    useEffect(() => {
+        sourceMapRef.current = sourceMap;
+    }, [sourceMap]);
+    
+    useEffect(() => {
+        if (isLoading)
             return;
         
-        transform(
-            this.props.transformer,
-            this.props.transformCode,
-            this.props.code,
-        ).then(({result, map}) => this.setState({
-            result,
-            map,
-        }), (error) => this.setState({
-            error,
-        }));
+        if (console.clear)
+            console.clear();
+        
+        runTransform(transformer, transformCode, code, parser)
+            .then(({result: transformResult, sourceMap: newSourceMap}) => {
+                setResult(transformResult);
+                setSourceMap(newSourceMap);
+                setError(null);
+            })
+            .catch((transformError) => setError(transformError));
+    }, [transformer, transformCode, code, isLoading, parser]);
+    
+    function posFromIndex(_, index) {
+        return resolvePositionFromIndex(sourceMapRef.current, index);
     }
     
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        // When snippet finishes loading, isLoading flips false — treat that
-        // the same as any other prop change so we run the transform immediately.
-        if (this.props.transformCode !== nextProps.transformCode || this.props.code !== nextProps.code || this.props.transformer !== nextProps.transformer || (this.props.isLoading && !nextProps.isLoading)) {
-            if (console.clear)
-                console.clear();
-            
-            transform(
-                nextProps.transformer,
-                nextProps.transformCode,
-                nextProps.code,
-                nextProps.parser,
-            )
-                .then(({result, map}) => ({
-                    result,
-                    map,
-                    error: null,
-                }), (error) => ({
-                    error,
-                }))
-                .then((state) => this.setState(state));
-        }
-    }
-    
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.state.result !== nextState.result || this.state.error !== nextState.error || this.props.isLoading !== nextProps.isLoading;
-    }
-    
-    _posFromIndex(index) {
-        const {map} = this.state;
-        
-        if (!map)
-            return;
-        
-        const [src] = map.sourcesContent;
-        
-        if (!index)
-            return {
-                line: 0,
-                ch: 0,
-            };
-        
-        let lineStart = src.lastIndexOf('\n', index - 1);
-        let column = index - lineStart - 1;
-        let line = 1;
-        
-        while (lineStart > 0) {
-            lineStart = src.lastIndexOf('\n', lineStart - 1);
-            line++;
-        }
-        
-        if (!lineStart)
-            line++;
-        
-        ({
-            line,
-            column,
-        } = map.generatedPositionFor({
-            line,
-            column,
-            source: map.sources[0],
-        }));
-        
-        if (line === null || column === null)
-            return;
-        
-        return {
-            line: line - 1,
-            ch: column,
-        };
-    }
-    
-    render() {
-        return (
-            <div className="output highlight">
-                {this.state.error ? <Editor
-                    highlight={false}
-                    key="error"
-                    lineNumbers={false}
-                    readOnly={true}
-                    value={this.state.error.stack}
-                /> : isString(this.state.result) ? <Editor
-                    posFromIndex={this._posFromIndex}
-                    mode={this.props.mode}
-                    key="output"
-                    readOnly={true}
-                    value={this.state.result}
-                /> : <JSONEditor
-                    className="container no-toolbar"
-                    value={stringify(this.state.result, null, 2)}
-                />}
-            </div>
-        );
-    }
+    return (
+        <div className="output highlight">
+            {error ? <Editor
+                highlight={false}
+                key="error"
+                lineNumbers={false}
+                readOnly={true}
+                value={error.stack}
+            /> : isString(result) ? <Editor
+                highlightRange={highlightRange}
+                posFromIndex={posFromIndex}
+                mode={mode}
+                key="output"
+                readOnly={true}
+                value={result}
+            /> : <JSONEditor
+                className="container no-toolbar"
+                value={stringify(result, null, 2)}
+            />}
+        </div>
+    );
 }
 
 TransformOutput.propTypes = {
@@ -159,4 +87,7 @@ TransformOutput.propTypes = {
     transformCode: PropTypes.string,
     mode: PropTypes.string,
     code: PropTypes.string,
+    isLoading: PropTypes.bool,
+    parser: PropTypes.string,
+    highlightRange: PropTypes.array,
 };
