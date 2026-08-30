@@ -11,11 +11,13 @@ import {TransformModule} from './transform/transform.module.ts';
 // node dist/main.js`), so the path resolves the same way regardless of
 // whether the entry point lives at src/main.ts or dist/main.js.
 export function getStaticModules() {
-    return process.env.STATIC ? [
-        ServeStaticModule.forRoot({
-            rootPath: resolve(process.cwd(), process.env.STATIC),
-        }),
-    ] : [];
+    return process.env.STATIC
+        ? [
+            ServeStaticModule.forRoot({
+                rootPath: resolve(process.cwd(), process.env.STATIC),
+            }),
+        ]
+        : [];
 }
 
 @Module({

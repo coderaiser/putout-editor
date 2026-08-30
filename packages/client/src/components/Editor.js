@@ -183,4 +183,3 @@ export default function Editor(props) {
         <div className="editor" ref={containerRef}/>
     );
 }
-

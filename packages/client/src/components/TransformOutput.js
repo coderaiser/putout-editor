@@ -71,23 +71,27 @@ export default function TransformOutput({transformer, transformCode, code, mode,
     
     return (
         <div className="output highlight">
-            {error ? <Editor
-                highlight={false}
-                key="error"
-                lineNumbers={false}
-                readOnly={true}
-                value={error.stack}
-            /> : isString(result) ? <Editor
-                highlightRange={highlightRange}
-                posFromIndex={posFromIndex}
-                mode={mode}
-                key="output"
-                readOnly={true}
-                value={result}
-            /> : <JSONEditor
-                className="container no-toolbar"
-                value={stringify(result, null, 2)}
-            />}
+            {error
+                ? <Editor
+                    highlight={false}
+                    key="error"
+                    lineNumbers={false}
+                    readOnly={true}
+                    value={error.stack}
+                />
+                : isString(result)
+                    ? <Editor
+                        highlightRange={highlightRange}
+                        posFromIndex={posFromIndex}
+                        mode={mode}
+                        key="output"
+                        readOnly={true}
+                        value={result}
+                    />
+                    : <JSONEditor
+                        className="container no-toolbar"
+                        value={stringify(result, null, 2)}
+                    />}
         </div>
     );
 }

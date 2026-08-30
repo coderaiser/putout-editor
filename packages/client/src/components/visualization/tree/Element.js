@@ -191,14 +191,16 @@ let Element = class extends React.Component {
                 if (nodeName)
                     valueOutput = <span className="tokenName nc" onClick={this._toggleClick}>
                         {nodeName}{' '}
-                        {lastClickedElement === this ? <span
-                            className="ge"
-                            style={{
-                                fontSize: '0.8em',
-                            }}
-                        >
-                            {' = $node'}
-                        </span> : null}
+                        {lastClickedElement === this
+                            ? <span
+                                className="ge"
+                                style={{
+                                    fontSize: '0.8em',
+                                }}
+                            >
+                                {' = $node'}
+                            </span>
+                            : null}
                     </span>;
                 
                 enableHighlight = treeAdapter.getRange(value) && level;
@@ -266,15 +268,17 @@ let Element = class extends React.Component {
             showToggler = false;
         }
         
-        const name = this.props.name ? <span
-            className="key"
-            onClick={showToggler ? this._toggleClick : null}
-        >
-            <span className="name nb">
-                {this.props.computed ? <span title="computed">*{this.props.name}</span> : this.props.name}
+        const name = this.props.name
+            ? <span
+                className="key"
+                onClick={showToggler ? this._toggleClick : null}
+            >
+                <span className="name nb">
+                    {this.props.computed ? <span title="computed">*{this.props.name}</span> : this.props.name}
+                </span>
+                <span className="p">: </span>
             </span>
-            <span className="p">: </span>
-        </span> : null;
+            : null;
         
         const classNames = cx({
             entry: true,
@@ -294,16 +298,20 @@ let Element = class extends React.Component {
                 <span className="value">
                     {valueOutput}
                 </span>
-                {prefix ? <span className="prefix p">
-                    {prefix}</span> : null}
+                {prefix
+                    ? <span className="prefix p">
+                        {prefix}</span>
+                    : null}
                 {content}
                 {suffix ? <div className="suffix p">{suffix}</div> : null}
-                {this.state.error ? <span>
-                    {' '}
-                    <TbAlertTriangle
-                        title={this.state.error.message}
-                    />
-                </span> : null}
+                {this.state.error
+                    ? <span>
+                        {' '}
+                        <TbAlertTriangle
+                            title={this.state.error.message}
+                        />
+                    </span>
+                    : null}
             </li>
         );
     }
