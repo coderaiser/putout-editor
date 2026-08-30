@@ -116,3 +116,20 @@
 .highlight .vg { color: var(--hl-blue); } /* Name.Variable.Global */
 .highlight .vi { color: var(--hl-blue); } /* Name.Variable.Instance */
 .highlight .il { color: var(--hl-cyan); } /* Literal.Number.Integer.Long */
+
+.cm-editor .hl-keyword        { color: var(--hl-green); }
+.cm-editor .hl-module-keyword { color: var(--hl-green); }
+.cm-editor .hl-constant       { color: var(--hl-orange); }
+.cm-editor .hl-string         { color: var(--hl-cyan); }
+.cm-editor .hl-number         { color: var(--hl-cyan); }
+.cm-editor .hl-comment        { color: var(--hl-comment); font-style: italic; }
+.cm-editor .hl-name           { color: var(--hl-name); }
+.cm-editor .hl-function       { color: var(--hl-blue); }
+.cm-editor .hl-class          { color: var(--hl-blue); }
+.cm-editor .hl-type           { color: var(--hl-red); }
+.cm-editor .hl-operator       { color: var(--hl-green); }
+.cm-editor .hl-punctuation    { color: var(--hl-base); }
+.cm-editor .hl-regexp         { color: var(--hl-red); }
+.cm-editor .hl-escape         { color: var(--hl-orange); }
+.cm-editor .hl-tag            { color: var(--hl-blue); }
+.cm-editor .hl-attr           { color: var(--hl-base); }

@@ -321,6 +321,7 @@ html {
 .splitpane-content {
     flex-grow: 2;
     position: relative;
+    background-color: var(--color-bg-editor);
 }
 
 .splitpane {
@@ -393,12 +394,11 @@ html {
     top: 0;
 }
 
-#JSONEditor .CodeMirror {
+#JSONEditor .cm-editor {
     font-size: inherit;
 }
 
-#JSONEditor .CodeMirror,
-#JSONEditor .CodeMirror-gutters {
+#JSONEditor .cm-gutters {
     background-color: var(--color-bg-toolbar);
 }
 
@@ -415,13 +415,13 @@ li.entry {
     color: var(--color-text);
 }
 
-.CodeMirror .marked,
+.cm-editor .marked,
 .entry.focused {
     border-radius: 2px;
     background-color: rgb(255 240 6 / 40%);
 }
 
-[data-theme='dark'] .CodeMirror .marked,
+[data-theme='dark'] .cm-editor .marked,
 [data-theme='dark'] .entry.focused {
     background-color: rgb(129 161 193 / 25%);
 }
@@ -467,51 +467,61 @@ li.entry {
     text-decoration: underline;
 }
 
-.CodeMirror {
+.cm-editor {
     height: 100%;
+    font-family: 'Bitstream Vera Sans Mono', 'Courier', monospace;
+    font-size: 13px;
 }
 
-.CodeMirror-scroll {
+.cm-scroller {
     overflow: auto;
 }
 
-.editor .CodeMirror-gutters {
+.editor .cm-gutters {
     background-color: var(--color-bg-editor);
     border: none;
+    min-height: 100%;
 }
 
-/* Dark theme overrides for CodeMirror */
-[data-theme='dark'] .CodeMirror {
+.editor .cm-lineNumbers .cm-gutterElement {
+    color: var(--color-text-dim);
+    padding: 0 8px;
+    min-width: 2.5em;
+    text-align: right;
+}
+
+/* Dark theme overrides for CodeMirror 6 */
+[data-theme='dark'] .cm-editor {
     background-color: var(--color-bg-editor);
     color: var(--color-text);
 }
 
 @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) .CodeMirror {
+    :root:not([data-theme='light']) .cm-editor {
         background-color: var(--color-bg-editor);
         color: var(--color-text);
     }
 }
 
-[data-theme='dark'] .CodeMirror-gutters {
+[data-theme='dark'] .cm-gutters {
     background-color: var(--color-bg-editor);
     border-right-color: var(--color-border);
 }
 
-[data-theme='dark'] .CodeMirror-linenumber {
+[data-theme='dark'] .cm-gutterElement {
     color: var(--color-text-dim);
 }
 
-[data-theme='dark'] .CodeMirror-cursor {
+[data-theme='dark'] .cm-cursor {
     border-left-color: var(--color-text);
 }
 
-[data-theme='dark'] .CodeMirror-selected {
-    background: var(--color-active-bg);
+[data-theme='dark'] .cm-selectionBackground {
+    background: var(--color-active-bg) !important;
 }
 
-[data-theme='dark'] .CodeMirror-focused .CodeMirror-selected {
-    background: #44403c;
+[data-theme='dark'] .cm-focused .cm-selectionBackground {
+    background: #44403c !important;
 }
 
 /* Links in dark theme */
@@ -527,11 +537,7 @@ li.entry {
     color: inherit;
 }
 
-.CodeMirror .ErrorGutter {
-    width: .7em;
-}
-
-.CodeMirror pre.errorMarker {
+.cm-editor .errorMarker {
     background-color: var(--color-error-bg);
 }
 
@@ -586,12 +592,6 @@ li.entry {
 
 #SettingsDialog ul.settings li {
     padding: 3px 0;
-}
-
-
-body .CodeMirror-hints,
-body .CodeMirror-Tern-tooltip {
-    z-index: 1000;
 }
 
 .shareInfo dd {
