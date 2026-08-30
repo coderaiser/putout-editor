@@ -2,7 +2,7 @@ import path from 'node:path';
 import pkg from 'putout/package.json' with {
     type: 'json',
 };
-import compileModule from '../../../utils/compileModule.js';
+import {compileModule} from '../../../utils/compileModule.js';
 
 const ID = 'putout';
 const displayName = '🐊Putout';

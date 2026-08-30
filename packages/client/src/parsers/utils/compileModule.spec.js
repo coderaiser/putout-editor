@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import compileModule from './compileModule.js';
+import {compileModule} from './compileModule.js';
 
 test('compileModule: compiles simple code returning an object', (t) => {
     const result = compileModule('module.exports = {a: 1}');

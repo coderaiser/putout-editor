@@ -58,6 +58,7 @@
     "raw-loader": "^4.0.0",
     "react-compiler-webpack": "^1.0.1",
     "redlint": "^6.9.2",
+    "redput": "^4.8.0",
     "redrun": "^13.0.4",
     "rimraf": "^6.0.1",
     "style-loader": "^4.0.0",
