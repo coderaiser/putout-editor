@@ -477,7 +477,7 @@ test('Editor: calls onActivity after cursor moves', async (t) => {
     });
     cleanup();
     
-    t.notOk(called);
+    t.ok(called);
     t.end();
 });
 
@@ -508,7 +508,7 @@ test('Editor: onActivity receives a number', async (t) => {
     cleanup();
     
     const result = typeof received;
-    const expected = 'object';
+    const expected = 'number';
     
     t.equal(result, expected);
     t.end();

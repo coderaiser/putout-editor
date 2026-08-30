@@ -29,6 +29,7 @@ export default function Editor(props) {
         error = null,
         highlightRange = null,
         onContentChange = noop,
+        onActivity = noop,
         onBlur = noop,
         posFromIndex: posFromIndexProp,
     } = props;
@@ -63,6 +64,13 @@ export default function Editor(props) {
                             cursor: cursorIndex,
                         });
                     }, 200);
+                }
+                
+                if (update.selectionSet) {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = setTimeout(() => {
+                        onActivity(getCursorIndex(editor));
+                    }, 50);
                 }
             },
         });
@@ -175,3 +183,4 @@ export default function Editor(props) {
         <div className="editor" ref={containerRef}/>
     );
 }
+
