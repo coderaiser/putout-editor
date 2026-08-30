@@ -37,6 +37,29 @@ test('gist: matchesURL: false for snippet hash', (t) => {
     t.end();
 });
 
+test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
+    const origHash = globalThis.location.hash;
+    const origFetch = globalThis.fetch;
+    let calledURL;
+    
+    globalThis.fetch = (url) => {
+        calledURL = url;
+        return {
+            ok: false,
+            status: 404,
+        };
+    };
+    globalThis.location.hash = '#/gist/abc123/rev456';
+    
+    await fetchFromURL().catch(() => {});
+    
+    globalThis.location.hash = origHash;
+    globalThis.fetch = origFetch;
+    
+    t.ok(calledURL.includes('rev456'));
+    t.end();
+});
+
 test('gist: matchesURL: false for empty hash', (t) => {
     const orig = globalThis.location.hash;
     

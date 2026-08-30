@@ -104,9 +104,18 @@ html {
     filter: blur(3px);
 }
 
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
 .loadingIndicator {
     font-size: 200%;
     color: var(--color-text-muted);
+}
+
+.loadingIndicator svg {
+    animation: spin 1s linear infinite;
 }
 
 .dropTarget {
