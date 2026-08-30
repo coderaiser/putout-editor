@@ -83,9 +83,6 @@ formatListener.startListening({
         const print = await getPrint();
         const formatted = format(print, ast);
         
-        if (!formatted)
-            return;
-        
         if (formatted === code)
             return;
         
