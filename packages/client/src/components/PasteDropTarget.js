@@ -1,11 +1,11 @@
+import {useState, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
-import React from 'react';
 import {categories} from '../parsers/index.js';
 
 const noop = () => {};
 
 function importEscodegen() {
-    return import('escodegen').then((mod) => mod.default || mod);
+    return import('escodegen').then((module_) => module_.default || module_);
 }
 
 const acceptedFileTypes = new Map([
@@ -13,77 +13,85 @@ const acceptedFileTypes = new Map([
     ['text/plain', 'TEXT'],
 ]);
 
-for (const {id, mimeTypes} of categories) {
-    for (const mimeType of mimeTypes) {
+for (const {id, mimeTypes} of categories)
+    for (const mimeType of mimeTypes)
         acceptedFileTypes.set(mimeType, id);
+
+function jsonToCode(json) {
+    let parsedAst;
+    
+    try {
+        parsedAst = JSON.parse(json);
+    } catch {
+        return Promise.resolve(json);
     }
+    
+    return importEscodegen().then((escodegen) =>
+        escodegen.generate(parsedAst, {format: {indent: {style: '    '}}}));
 }
 
-export default class PasteDropTarget extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dragging: false,
-        };
+export default function PasteDropTarget({onText, onError, children, ...props}) {
+    const [dragging, setDragging] = useState(false);
+    const containerRef = useRef(null);
+    
+    function handleASTError(type, event, exception) {
+        onError(type, event, `Cannot process pasted AST: ${exception.message}`);
     }
     
-    _onASTError(type, event, ex) {
-        this.props.onError(type, event, `Cannot process pasted AST: ${ex.message}`);
-    }
-    
-    componentDidMount() {
-        this._listeners = [];
-        const target = this.container;
+    useEffect(() => {
+        const removeListeners = [];
+        const container = containerRef.current;
         
-        // Handle pastes
-        this._bindListener(document, 'paste', (event) => {
-            if (!event.clipboardData) {
-                // No browser support? :(
-                return;
+        function bindListener(element, eventName, listener, capture) {
+            for (const singleEvent of eventName.split(/\s+/)) {
+                element.addEventListener(singleEvent, listener, capture);
+                removeListeners.push(() =>
+                    element.removeEventListener(singleEvent, listener, capture));
             }
+        }
+        
+        bindListener(document, 'paste', (event) => {
+            if (!event.clipboardData)
+                return;
             
-            const cbdata = event.clipboardData;
+            const clipboardData = event.clipboardData;
             
-            // Plain text
-            if (!cbdata.types.indexOf || !cbdata.types.indexOf('text/plain') > -1)
+            if (!clipboardData.types.indexOf ||
+                !clipboardData.types.indexOf('text/plain') > -1)
                 return;
             
             event.stopPropagation();
             event.preventDefault();
-            this
-                ._jsonToCode(cbdata.getData('text/plain'))
-                .then((code) => this.props.onText('paste', event, code), (ex) => {
+            
+            jsonToCode(clipboardData.getData('text/plain'))
+                .then((code) => onText('paste', event, code))
+                .catch((exception) => {
                     if (event.target.nodeName !== 'TEXTAREA')
-                        this._onASTError('paste', event, ex);
+                        handleASTError('paste', event, exception);
                 });
         }, true);
         
-        let timer;
+        let dragTimer;
         
-        // Handle file drops
-        this._bindListener(target, 'dragenter', (event) => {
-            clearTimeout(timer);
+        bindListener(container, 'dragenter', (event) => {
+            clearTimeout(dragTimer);
             event.preventDefault();
-            this.setState({
-                dragging: true,
-            });
+            setDragging(true);
         }, true);
         
-        this._bindListener(target, 'dragover', (event) => {
-            clearTimeout(timer);
+        bindListener(container, 'dragover', (event) => {
+            clearTimeout(dragTimer);
             event.preventDefault();
             event.dataTransfer.dropEffect = 'copy';
         }, true);
         
-        this._bindListener(target, 'drop', (event) => {
-            this.setState({
-                dragging: false,
-            });
+        bindListener(container, 'drop', (event) => {
+            setDragging(false);
             
             const [file] = event.dataTransfer.files;
             let categoryId = acceptedFileTypes.get(file.type);
             
-            if (!categoryId || !this.props.onText)
+            if (!categoryId || !onText)
                 return;
             
             event.preventDefault();
@@ -94,97 +102,54 @@ export default class PasteDropTarget extends React.Component {
             reader.onload = (readerEvent) => {
                 let text = readerEvent.target.result;
                 
-                if (categoryId === 'JSON' || categoryId === 'TEXT')
-                    text = this
-                        ._jsonToCode(text)
+                if (categoryId === 'JSON' || categoryId === 'TEXT') {
+                    text = jsonToCode(text)
                         .then((code) => {
                             categoryId = 'javascript';
                             return code;
                         })
-                        .catch((ex) => {
+                        .catch((exception) => {
                             if (categoryId === 'JSON')
-                                this._onASTError('drop', readerEvent, ex);
+                                handleASTError('drop', readerEvent, exception);
                             
                             return null;
                         });
+                }
                 
-                Promise
-                    .resolve(text)
+                Promise.resolve(text)
                     .then((code) => {
                         if (!code)
                             return;
                         
-                        this.props.onText('drop', readerEvent, code, categoryId);
+                        onText('drop', readerEvent, code, categoryId);
                     })
                     .catch(noop);
             };
+            
             reader.readAsText(file);
         }, true);
         
-        this._bindListener(target, 'dragleave', () => {
-            clearTimeout(timer);
-            timer = setTimeout(() => this.setState({
-                dragging: false,
-            }), 50);
+        bindListener(container, 'dragleave', () => {
+            clearTimeout(dragTimer);
+            dragTimer = setTimeout(() => setDragging(false), 50);
         }, true);
-    }
+        
+        return () => {
+            for (const removeListener of removeListeners)
+                removeListener();
+        };
+    }, []);
     
-    componentWillUnmount() {
-        for (const removeListener of this._listeners) {
-            removeListener();
-        }
-        
-        this._listeners = null;
-    }
-    
-    _jsonToCode(json) {
-        let ast;
-        
-        try {
-            ast = JSON.parse(json);
-        } catch(err) {
-            return Promise.resolve(json);
-        }
-        
-        return importEscodegen().then((escodegen) => {
-            return escodegen.generate(ast, {
-                format: {
-                    indent: {
-                        style: '    ',
-                    },
-                },
-            });
-        });
-    }
-    
-    _bindListener(elem, event, listener, capture) {
-        for (const e of event.split(/\s+/)) {
-            elem.addEventListener(e, listener, capture);
-            this._listeners.push(() => elem.removeEventListener(e, listener, capture));
-        }
-    }
-    
-    render() {
-        const {
-            children,
-            onText: _onText,
-            ...props
-        } = this.props;
-        
-        const dropindicator = this.state.dragging ? <div className="dropIndicator">
-            <div>Drop the code or (JSON-encoded) AST file here</div>
-        </div> : null;
-        
-        return (
-            <div
-                ref={(c) => this.container = c}
-                {...props}
-            >
-                {dropindicator}
-                {children}
-            </div>
-        );
-    }
+    return (
+        <div ref={containerRef} {...props}>
+            {dragging && (
+                <div className="dropIndicator">
+                    <div>Drop the code or (JSON-encoded) AST file here</div>
+                </div>
+            )}
+            {children}
+        </div>
+    );
 }
 
 PasteDropTarget.propTypes = {
