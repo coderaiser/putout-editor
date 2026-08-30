@@ -146,6 +146,7 @@ test('create: createEditor produces syntax-highlighted spans for javascript', (t
         value: 'const x = 1;',
         mode: 'javascript',
     });
+    
     const spans = view.dom.querySelectorAll('span.hl-keyword');
     
     view.destroy();
