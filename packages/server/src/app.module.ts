@@ -4,6 +4,7 @@ import {Module} from '@nestjs/common';
 import {ServeStaticModule} from '@nestjs/serve-static';
 import {GistModule} from './gist/gist.module.ts';
 import {ParseModule} from './parse/parse.module.ts';
+import {TransformModule} from './transform/transform.module.ts';
 
 // STATIC is resolved relative to the process working directory, matching
 // how the npm "start" script invokes the app (`cd server && STATIC=../out
@@ -18,6 +19,11 @@ export function getStaticModules() {
 }
 
 @Module({
-    imports: [GistModule, ParseModule, ...getStaticModules()],
+    imports: [
+        GistModule,
+        ParseModule,
+        TransformModule,
+        ...getStaticModules(),
+    ],
 })
 export class AppModule {}
