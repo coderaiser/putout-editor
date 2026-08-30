@@ -1,6 +1,3 @@
-@import url(~codemirror/lib/codemirror.css);
-@import url(~codemirror/addon/fold/foldgutter.css);
-@import url(~codemirror/theme/nord.css);
 @import url(./highlight.css);
 @import url(../fontcustom/fontcustom.css);
 
