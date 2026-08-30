@@ -1,11 +1,11 @@
 import {keymap} from '@codemirror/view';
+import {javascript} from '@codemirror/lang-javascript';
+import {vim} from '@replit/codemirror-vim';
+import {nord} from '@uiw/codemirror-theme-nord';
 import {
     defaultKeymap,
     emacsStyleKeymap,
 } from '@codemirror/commands';
-import {javascript} from '@codemirror/lang-javascript';
-import {vim} from '@replit/codemirror-vim';
-import {nord} from '@uiw/codemirror-theme-nord';
 
 export function keymapExtension(name) {
     if (name === 'vim')

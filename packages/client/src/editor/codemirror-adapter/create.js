@@ -1,10 +1,12 @@
 import {EditorState, Compartment} from '@codemirror/state';
+import {tags} from '@lezer/highlight';
+import {history, historyKeymap} from '@codemirror/commands';
 import {
     EditorView,
     lineNumbers as lineNumbersExtension,
     drawSelection,
+    keymap,
 } from '@codemirror/view';
-import {tags} from '@lezer/highlight';
 import {
     foldGutter,
     codeFolding,
@@ -114,8 +116,19 @@ export function createEditor(container, options = {}) {
     const themeCompartment = new Compartment();
     const keymapCompartment = new Compartment();
     const langCompartment = new Compartment();
+    const historyCompartment = new Compartment();
+    
+    const hideCursorOnBlur = EditorView.theme({
+        '&:not(.cm-focused) .cm-fat-cursor': {
+            display: 'none',
+        },
+    });
     
     const extensions = [
+        historyCompartment.of([
+            history(),
+            keymap.of(historyKeymap),
+        ]),
         markField,
         lineField,
         themeCompartment.of(themeExtension(theme)),
@@ -136,6 +149,7 @@ export function createEditor(container, options = {}) {
             EditorView.updateListener.of(updateListener),
         ] : [],
         drawSelection(),
+        hideCursorOnBlur,
     ];
     
     const view = new EditorView({
