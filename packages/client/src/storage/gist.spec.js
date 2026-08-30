@@ -40,15 +40,12 @@ test('gist: matchesURL: false for snippet hash', (t) => {
 test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
-    let calledURL;
+    const fetchStub = stub().resolves({
+        ok: false,
+        status: 404,
+    });
     
-    globalThis.fetch = (url) => {
-        calledURL = url;
-        return {
-            ok: false,
-            status: 404,
-        };
-    };
+    globalThis.fetch = fetchStub;
     globalThis.location.hash = '#/gist/abc123/rev456';
     
     await fetchFromURL().catch(() => {});
@@ -56,7 +53,7 @@ test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
     globalThis.location.hash = origHash;
     globalThis.fetch = origFetch;
     
-    t.ok(calledURL.includes('rev456'));
+    t.ok(fetchStub.args[0][0].includes('rev456'));
     t.end();
 });
 
@@ -208,35 +205,32 @@ test('gist: fork: error response throws', async (t) => {
 
 test('gist: update: sends exactly one request', async (t) => {
     const origFetch = globalThis.fetch;
-    let callCount = 0;
-    
-    globalThis.fetch = () => {
-        callCount++;
-        return {
-            ok: true,
-            json: stub().resolves({
-                id: 'gist123',
-                history: [{
-                    version: 'sha1ver',
-                }],
-                files: {
-                    'astexplorer.json': {
-                        content: JSON.stringify({
-                            parserID: 'babel',
-                            toolID: null,
-                            v: 2,
-                            settings: {
-                                babel: {},
-                            },
-                        }),
-                    },
-                    'source.js': {
-                        content: 'const a = 1;',
-                    },
+    const fetchStub = stub().resolves({
+        ok: true,
+        json: stub().resolves({
+            id: 'gist123',
+            history: [{
+                version: 'sha1ver',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
                 },
-            }),
-        };
-    };
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    globalThis.fetch = fetchStub;
     
     await update(mockRevision, {
         parserID: 'babel',
@@ -245,41 +239,38 @@ test('gist: update: sends exactly one request', async (t) => {
     
     globalThis.fetch = origFetch;
     
-    t.equal(callCount, 1);
+    t.equal(fetchStub.callCount, 1);
     t.end();
 });
 
 test('gist: update: sends PATCH method', async (t) => {
     const origFetch = globalThis.fetch;
-    let method;
-    
-    globalThis.fetch = (url, opts) => {
-        ({method} = opts);
-        return {
-            ok: true,
-            json: stub().resolves({
-                id: 'gist123',
-                history: [{
-                    version: 'sha1ver',
-                }],
-                files: {
-                    'astexplorer.json': {
-                        content: JSON.stringify({
-                            parserID: 'babel',
-                            toolID: null,
-                            v: 2,
-                            settings: {
-                                babel: {},
-                            },
-                        }),
-                    },
-                    'source.js': {
-                        content: 'const a = 1;',
-                    },
+    const fetchStub = stub().resolves({
+        ok: true,
+        json: stub().resolves({
+            id: 'gist123',
+            history: [{
+                version: 'sha1ver',
+            }],
+            files: {
+                'astexplorer.json': {
+                    content: JSON.stringify({
+                        parserID: 'babel',
+                        toolID: null,
+                        v: 2,
+                        settings: {
+                            babel: {},
+                        },
+                    }),
                 },
-            }),
-        };
-    };
+                'source.js': {
+                    content: 'const a = 1;',
+                },
+            },
+        }),
+    });
+    
+    globalThis.fetch = fetchStub;
     
     await update(mockRevision, {
         parserID: 'babel',
@@ -288,7 +279,7 @@ test('gist: update: sends PATCH method', async (t) => {
     
     globalThis.fetch = origFetch;
     
-    t.equal(method, 'PATCH');
+    t.equal(fetchStub.args[0][1].method, 'PATCH');
     t.end();
 });
 
