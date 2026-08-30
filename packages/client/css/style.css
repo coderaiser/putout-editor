@@ -470,7 +470,7 @@ li.entry {
 .cm-editor {
     height: 100%;
     font-family: 'Bitstream Vera Sans Mono', 'Courier', monospace;
-    font-size: 13px;
+    font-size: 16px;
 }
 
 .cm-scroller {
