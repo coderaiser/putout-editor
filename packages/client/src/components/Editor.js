@@ -18,7 +18,21 @@ const getCMTheme = () => document.documentElement.getAttribute('data-theme') ===
 
 const noop = () => {};
 
-export default function Editor({value = '', highlight = true, lineNumbers = true, readOnly = false, mode = 'javascript', keyMap = 'default', error = null, highlightRange = null, onContentChange = noop, onBlur = noop, posFromIndex: posFromIndexProp}) {
+export default function Editor(props) {
+    const {
+        value = '',
+        highlight = true,
+        lineNumbers = true,
+        readOnly = false,
+        mode = 'javascript',
+        keyMap = 'default',
+        error = null,
+        highlightRange = null,
+        onContentChange = noop,
+        onBlur = noop,
+        posFromIndex: posFromIndexProp,
+    } = props;
+    
     const containerRef = useRef(null);
     const editorRef = useRef(null);
     const valueRef = useRef(value);
