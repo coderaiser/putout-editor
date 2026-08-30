@@ -79,7 +79,7 @@ export default {
         splitChunks: {
             cacheGroups: {
                 parsermeta: {
-                    priority: 10,
+                    priority: 30,
                     test: /\/package\.json$/,
                     chunks(chunk) {
                         return chunk.name === 'app';
@@ -87,7 +87,40 @@ export default {
                     minChunks: 1,
                     minSize: 1,
                 },
+                codemirror: {
+                    priority: 25,
+                    name: 'codemirror',
+                    test: /\/node_modules\/(@codemirror|@lezer|@replit\/codemirror|@uiw\/codemirror)\//,
+                    chunks: 'all',
+                    minChunks: 1,
+                    minSize: 1,
+                },
+                putout: {
+                    priority: 20,
+                    name: 'putout',
+                    test: /\/node_modules\/(putout|@putout)\//,
+                    chunks: 'all',
+                    minChunks: 1,
+                    minSize: 1,
+                },
+                babel: {
+                    priority: 18,
+                    name: 'babel-parser',
+                    test: /\/node_modules\/@babel\/(parser|traverse)\//,
+                    chunks: 'all',
+                    minChunks: 1,
+                    minSize: 1,
+                },
+                react: {
+                    priority: 15,
+                    name: 'react',
+                    test: /\/node_modules\/(react|react-dom|react-redux|@reduxjs)\//,
+                    chunks: 'all',
+                    minChunks: 1,
+                    minSize: 1,
+                },
                 vendors: {
+                    priority: 5,
                     test,
                     chunks(chunk) {
                         return chunk.name === 'app';
@@ -239,7 +272,7 @@ export default {
         devtool: 'eval-source-map',
     },
     performance: {
-        maxEntrypointSize: THREE_MB,
+        maxEntrypointSize: 4 * 1024 * 1024,
         maxAssetSize: THREE_MB,
     },
 };
