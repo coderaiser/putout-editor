@@ -1,4 +1,8 @@
-import {useState, useEffect, useRef} from 'react';
+import {
+    useState,
+    useEffect,
+    useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import {SourceMapConsumer} from 'source-map';
 import stringify from 'json-stringify-safe';
@@ -52,8 +56,14 @@ export default function TransformOutput({transformer, transformCode, code, mode,
                 setSourceMap(newSourceMap);
                 setError(null);
             })
-            .catch((transformError) => setError(transformError));
-    }, [transformer, transformCode, code, isLoading, parser]);
+            .catch(setError);
+    }, [
+        transformer,
+        transformCode,
+        code,
+        isLoading,
+        parser,
+    ]);
     
     function posFromIndex(_, index) {
         return resolvePositionFromIndex(sourceMapRef.current, index);

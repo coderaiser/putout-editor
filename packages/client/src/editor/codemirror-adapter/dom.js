@@ -12,5 +12,6 @@ export function refresh(view) {
 export function observeResize(view, container) {
     const observer = new ResizeObserver(() => view.requestMeasure());
     observer.observe(container);
+    
     return () => observer.disconnect();
 }

@@ -1,5 +1,8 @@
 import {keymap} from '@codemirror/view';
-import {defaultKeymap, emacsStyleKeymap} from '@codemirror/commands';
+import {
+    defaultKeymap,
+    emacsStyleKeymap,
+} from '@codemirror/commands';
 import {javascript} from '@codemirror/lang-javascript';
 import {vim} from '@replit/codemirror-vim';
 import {nord} from '@uiw/codemirror-theme-nord';
@@ -29,11 +32,17 @@ export function languageExtension(mode) {
 
 export function setOption(view, key, value) {
     if (key === 'theme')
-        return view.dispatch({effects: view._themeCompartment.reconfigure(themeExtension(value))});
+        return view.dispatch({
+            effects: view._themeCompartment.reconfigure(themeExtension(value)),
+        });
     
     if (key === 'keyMap')
-        return view.dispatch({effects: view._keymapCompartment.reconfigure(keymapExtension(value))});
+        return view.dispatch({
+            effects: view._keymapCompartment.reconfigure(keymapExtension(value)),
+        });
     
     if (key === 'mode')
-        return view.dispatch({effects: view._langCompartment.reconfigure(languageExtension(value))});
+        return view.dispatch({
+            effects: view._langCompartment.reconfigure(languageExtension(value)),
+        });
 }

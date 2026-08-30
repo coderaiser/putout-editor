@@ -8,6 +8,8 @@ import {
     fork,
 } from './gist.js';
 
+const noop = () => {};
+
 const mockRevision = {
     getSnippetID: () => 'abc',
     getRevisionID: () => 'sha1',
@@ -40,6 +42,7 @@ test('gist: matchesURL: false for snippet hash', (t) => {
 test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
+    
     const fetchStub = stub().resolves({
         ok: false,
         status: 404,
@@ -48,12 +51,13 @@ test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
     globalThis.fetch = fetchStub;
     globalThis.location.hash = '#/gist/abc123/rev456';
     
-    await fetchFromURL().catch(() => {});
+    await fetchFromURL().catch(noop);
     
     globalThis.location.hash = origHash;
     globalThis.fetch = origFetch;
+    const result = fetchStub.args[0][0].includes('rev456');
     
-    t.ok(fetchStub.args[0][0].includes('rev456'));
+    t.ok(result);
     t.end();
 });
 
@@ -239,7 +243,7 @@ test('gist: update: sends exactly one request', async (t) => {
     
     globalThis.fetch = origFetch;
     
-    t.equal(fetchStub.callCount, 1);
+    t.calledOnce(fetchStub);
     t.end();
 });
 

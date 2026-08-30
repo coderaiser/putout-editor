@@ -154,7 +154,7 @@ export class Revision {
         return {
             versionedURL: `https://putout.cloudcmd.io/#/gist/${snippetID}/${revisionID}`,
             latestURL: `https://putout.cloudcmd.io/#/gist/${snippetID}/latest`,
-            embedURL: `<script src="https://astexplorer.net/gist/${snippetID}/${revisionID}.js"></script>`,
+            embedURL: `<script src="https://putout.cloudcmd.io/#gist/${snippetID}/${revisionID}.js"></script>`,
         };
     }
 }

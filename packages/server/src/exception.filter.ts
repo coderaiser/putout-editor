@@ -45,9 +45,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         }
         
         if (exception.response) {
-            const status = exception.status ?? exception.response.status;
+            const status = exception.status || exception.response.status;
             
-            sendError(response, status, exception.message ?? 'Something went wrong');
+            sendError(response, status, exception.message || 'Something went wrong');
             return;
         }
         

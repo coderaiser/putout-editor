@@ -6,6 +6,8 @@ import {
     getTransformerByID,
 } from '../parsers/index.js';
 
+const noop = () => {};
+
 const defaultParser = getDefaultParser(getCategoryByID('javascript'));
 const defaultTransformer = getTransformerByID('putout');
 
@@ -38,7 +40,6 @@ const initialState = {
             transformer: defaultTransformer.id,
         },
     },
-    
 };
 
 /**
@@ -122,8 +123,8 @@ const slice = createSlice({
             state.showTransformPanel = false;
         },
         
-        editorBlur: () => {},
-        transformBlur: () => {},
+        editorBlur: noop,
+        transformBlur: noop,
         setCode: (state, {payload: {code, cursor}}) => {
             state.workbench.code = code;
             

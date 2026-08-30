@@ -1,6 +1,10 @@
 export function offsetToPosition(document_, offset) {
     const line = document_.lineAt(offset);
-    return {line: line.number - 1, ch: offset - line.from};
+    
+    return {
+        line: line.number - 1,
+        ch: offset - line.from,
+    };
 }
 
 export function positionToOffset(document_, {line, ch}) {
@@ -15,6 +19,4 @@ export function indexFromPos(view, position) {
     return positionToOffset(view.state.doc, position);
 }
 
-export function getCursorIndex(view) {
-    return view.state.selection.main.head;
-}
+export const getCursorIndex = (view) => view.state.selection.main.head;

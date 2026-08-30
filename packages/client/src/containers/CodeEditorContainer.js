@@ -6,7 +6,11 @@ import {
     getKeyMap,
 } from '../store/selectors.js';
 import {getParser} from '../store/parserSelectors.js';
-import {setCode, setCursor, editorBlur} from '../store/reducers.js';
+import {
+    setCode,
+    setCursor,
+    editorBlur,
+} from '../store/reducers.js';
 
 export default function CodeEditorContainer() {
     const keyMap = useSelector(getKeyMap);

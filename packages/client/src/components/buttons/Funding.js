@@ -21,17 +21,17 @@ export default function Funding() {
                 <TbHeart size={18}/>
                 &nbsp;Funding
             </button>
-                <ul>
-                    {fundings.map((funding) => (
-                        <li
-                            key={funding}
-                        >
-                            <button
-                                onClick={() => globalThis.open(`https://${funding}.com/coderaiser`, '_blank')}
-                            >{funding}.com/coderaiser</button>
-                        </li>
-                    ))}
-                </ul>
+            <ul>
+                {fundings.map((funding) => (
+                    <li
+                        key={funding}
+                    >
+                        <button
+                            onClick={() => globalThis.open(`https://${funding}.com/coderaiser`, '_blank')}
+                        >{funding}.com/coderaiser</button>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }

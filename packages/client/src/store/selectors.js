@@ -1,7 +1,6 @@
 import {createSelector} from '@reduxjs/toolkit';
 
 // UI related
-
 export const getCursor = (state) => state.cursor;
 
 export const getHighlightRange = (state) => state.highlightRange;

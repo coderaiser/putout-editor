@@ -42,7 +42,6 @@ test('selectors: canFork: with revision: true', (t) => {
     t.end();
 });
 
-
 test('selectors: getCursor', (t) => {
     const result = getCursor({
         cursor: 3,

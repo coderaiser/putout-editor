@@ -13,7 +13,15 @@ import ShareButton from './ShareButton.js';
 
 export default function SnippetButton(props) {
     const [forceClosed, setForceClosed] = useState(false);
-    const {canFork, canSave, saving, forking, onFork, onSave} = props;
+    const {
+        canFork,
+        canSave,
+        saving,
+        forking,
+        onFork,
+        onSave,
+    } = props;
+    
     const canForkAndNotSave = canFork && !canSave;
     const savingOrForking = saving || forking;
     

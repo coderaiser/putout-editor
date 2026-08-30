@@ -148,7 +148,6 @@ test('store: clearError resets error to null', (t) => {
     t.end();
 });
 
-
 // --- workbench.code ---
 test('store: setCode updates workbench.code', (t) => {
     const store = makeStore();

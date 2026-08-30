@@ -6,6 +6,8 @@ import {
 } from '@testing-library/react';
 import ErrorBoundary from './ErrorBoundary.js';
 
+const noop = () => {};
+
 const isError = (a) => a instanceof Error;
 
 const Bomb = ({shouldThrow}) => {
@@ -19,7 +21,7 @@ const Bomb = ({shouldThrow}) => {
 
 // Suppress React 18 error boundary stderr output in tests
 const renderWithBomb = (ui) => render(ui, {
-    onCaughtError: () => {},
+    onCaughtError: noop,
 });
 
 test('ErrorBoundary: renders children normally', (t) => {

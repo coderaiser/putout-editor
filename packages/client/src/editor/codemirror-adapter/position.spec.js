@@ -1,59 +1,123 @@
 import {test} from 'supertape';
 import {EditorState} from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
-import {offsetToPosition, positionToOffset, posFromIndex, indexFromPos, getCursorIndex} from './position.js';
+import {
+    offsetToPosition,
+    positionToOffset,
+    posFromIndex,
+    indexFromPos,
+    getCursorIndex,
+} from './position.js';
 
 function makeView(document_ = 'hello\nworld') {
     const element = document.createElement('div');
     document.body.appendChild(element);
-    return new EditorView({state: EditorState.create({doc: document_}), parent: element});
+    
+    return new EditorView({
+        state: EditorState.create({
+            doc: document_,
+        }),
+        parent: element,
+    });
 }
 
 test('position: offsetToPosition line 0 ch 0 for offset 0', (t) => {
     const view = makeView();
-    t.deepEqual(offsetToPosition(view.state.doc, 0), {line: 0, ch: 0});
+    const result = offsetToPosition(view.state.doc, 0);
+    
+    const expected = {
+        line: 0,
+        ch: 0,
+    };
+    
     view.destroy();
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('position: offsetToPosition line 1 ch 0 for start of second line', (t) => {
     const view = makeView();
-    t.deepEqual(offsetToPosition(view.state.doc, 6), {line: 1, ch: 0});
+    const result = offsetToPosition(view.state.doc, 6);
+    
+    const expected = {
+        line: 1,
+        ch: 0,
+    };
+    
     view.destroy();
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('position: positionToOffset 0 for line 0 ch 0', (t) => {
     const view = makeView();
-    t.equal(positionToOffset(view.state.doc, {line: 0, ch: 0}), 0);
+    const result = positionToOffset(view.state.doc, {
+        line: 0,
+        ch: 0,
+    });
+    
+    const expected = 0;
+    
     view.destroy();
+    
+    t.equal(result, expected);
     t.end();
 });
 
 test('position: positionToOffset 6 for start of second line', (t) => {
     const view = makeView();
-    t.equal(positionToOffset(view.state.doc, {line: 1, ch: 0}), 6);
+    const result = positionToOffset(view.state.doc, {
+        line: 1,
+        ch: 0,
+    });
+    
+    const expected = 6;
+    
     view.destroy();
+    
+    t.equal(result, expected);
     t.end();
 });
 
 test('position: posFromIndex returns correct position', (t) => {
     const view = makeView();
-    t.deepEqual(posFromIndex(view, 6), {line: 1, ch: 0});
+    const result = posFromIndex(view, 6);
+    
+    const expected = {
+        line: 1,
+        ch: 0,
+    };
+    
     view.destroy();
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('position: indexFromPos returns correct offset', (t) => {
     const view = makeView();
-    t.equal(indexFromPos(view, {line: 1, ch: 0}), 6);
+    const result = indexFromPos(view, {
+        line: 1,
+        ch: 0,
+    });
+    
+    const expected = 6;
+    
     view.destroy();
+    
+    t.equal(result, expected);
     t.end();
 });
 
 test('position: getCursorIndex returns a number', (t) => {
     const view = makeView();
-    t.equal(typeof getCursorIndex(view), 'number');
+    const result = typeof getCursorIndex(view);
+    const expected = 'number';
+    
     view.destroy();
+    
+    t.equal(result, expected);
     t.end();
 });

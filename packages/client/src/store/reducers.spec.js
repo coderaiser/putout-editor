@@ -306,7 +306,6 @@ test('reducers: clear error', (t) => {
     t.end();
 });
 
-
 test('reducers: select transformer shows transform panel', (t) => {
     const transformer = {
         id: 'putout',
@@ -625,7 +624,10 @@ test('reducers: clearHighlight with non-matching range preserves it', (t) => {
 });
 
 test('reducers: editorBlur is a no-op', (t) => {
-    const before = putoutEditor(undefined, {type: '@@INIT'});
+    const before = putoutEditor(undefined, {
+        type: '@@INIT',
+    });
+    
     const after = putoutEditor(before, editorBlur());
     
     t.equal(after, before);

@@ -7,10 +7,11 @@ import {
     editorBlur,
     transformBlur,
     setParseResult,
-    setTransformState,
 } from './reducers.js';
 
-const getInitState = () => putoutEditor(undefined, {type: '@@INIT'});
+const getInitState = () => putoutEditor(undefined, {
+    type: '@@INIT',
+});
 
 function makeStore(overrides = {}) {
     const state = getInitState();
@@ -27,8 +28,7 @@ function makeStore(overrides = {}) {
         middleware: (getDefault) => getDefault({
             immutableCheck: false,
             serializableCheck: false,
-        })
-            .prepend(formatListener.middleware),
+        }).prepend(formatListener.middleware),
     });
 }
 
@@ -42,8 +42,14 @@ const makeAST = () => ({
             kind: 'const',
             declarations: [{
                 type: 'VariableDeclarator',
-                id: {type: 'Identifier', name: 'x'},
-                init: {type: 'NumericLiteral', value: 1},
+                id: {
+                    type: 'Identifier',
+                    name: 'x',
+                },
+                init: {
+                    type: 'NumericLiteral',
+                    value: 1,
+                },
             }],
         }],
         directives: [],
@@ -51,12 +57,16 @@ const makeAST = () => ({
 });
 
 // ─── editorBlur ───────────────────────────────────────────────────────────────
-
 test('formatMiddleware: editorBlur with valid ast formats code', async (t) => {
     const store = makeStore();
     const ast = makeAST();
     
-    store.dispatch(setParseResult({ast, error: null, time: 1, treeAdapter: null}));
+    store.dispatch(setParseResult({
+        ast,
+        error: null,
+        time: 1,
+        treeAdapter: null,
+    }));
     store.dispatch(editorBlur());
     
     await setImmediate();
@@ -66,7 +76,15 @@ test('formatMiddleware: editorBlur with valid ast formats code', async (t) => {
 });
 
 test('formatMiddleware: editorBlur without ast does nothing', async (t) => {
-    const store = makeStore({workbench: {parseResult: {ast: null, error: null}}});
+    const store = makeStore({
+        workbench: {
+            parseResult: {
+                ast: null,
+                error: null,
+            },
+        },
+    });
+    
     const before = store.getState().workbench.code;
     
     store.dispatch(editorBlur());
@@ -81,13 +99,23 @@ test('formatMiddleware: editorBlur does not dispatch when formatted equals code'
     const store = makeStore();
     const ast = makeAST();
     
-    store.dispatch(setParseResult({ast, error: null, time: 1, treeAdapter: null}));
+    store.dispatch(setParseResult({
+        ast,
+        error: null,
+        time: 1,
+        treeAdapter: null,
+    }));
     store.dispatch(editorBlur());
     await setImmediate();
     
     const before = store.getState().workbench.code;
     
-    store.dispatch(setParseResult({ast, error: null, time: 1, treeAdapter: null}));
+    store.dispatch(setParseResult({
+        ast,
+        error: null,
+        time: 1,
+        treeAdapter: null,
+    }));
     store.dispatch(editorBlur());
     await setImmediate();
     
@@ -97,9 +125,16 @@ test('formatMiddleware: editorBlur does not dispatch when formatted equals code'
 
 test('formatMiddleware: editorBlur does not dispatch when print throws', async (t) => {
     const store = makeStore();
-    const badAST = {type: 'UnknownNode123'};
+    const badAST = {
+        type: 'UnknownNode123',
+    };
     
-    store.dispatch(setParseResult({ast: badAST, error: null, time: 1, treeAdapter: null}));
+    store.dispatch(setParseResult({
+        ast: badAST,
+        error: null,
+        time: 1,
+        treeAdapter: null,
+    }));
     
     const before = store.getState().workbench.code;
     
@@ -111,7 +146,6 @@ test('formatMiddleware: editorBlur does not dispatch when print throws', async (
 });
 
 // ─── transformBlur ────────────────────────────────────────────────────────────
-
 test('formatMiddleware: transformBlur with valid code formats transform', async (t) => {
     const store = makeStore({
         workbench: {
@@ -126,7 +160,8 @@ test('formatMiddleware: transformBlur with valid code formats transform', async 
     store.dispatch(transformBlur());
     await setImmediate();
     
-    const code = store.getState().workbench.transform.code;
+    const {code} = store.getState().workbench.transform;
+    
     t.notEqual(code, 'export const replace=()=>({})');
     t.end();
 });

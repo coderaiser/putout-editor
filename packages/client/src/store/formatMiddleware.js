@@ -2,8 +2,17 @@ import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryCatch} from 'try-catch';
 import {parse} from '@babel/parser';
 import plugins from '@putout/engine-parser/babel/plugins';
-import {editorBlur, transformBlur, setCode, setTransformState} from './reducers.js';
-import {getParseResult, getCode, getTransformCode} from './selectors.js';
+import {
+    editorBlur,
+    transformBlur,
+    setCode,
+    setTransformState,
+} from './reducers.js';
+import {
+    getParseResult,
+    getCode,
+    getTransformCode,
+} from './selectors.js';
 
 export const formatListener = createListenerMiddleware();
 
@@ -14,7 +23,9 @@ const getPrint = async () => {
         return _print;
     
     const mod = await import('@putout/printer');
+    
     _print = mod.print;
+    
     return _print;
 };
 

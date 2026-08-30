@@ -1,40 +1,31 @@
-import {useRef, useEffect, useCallback} from 'react';
+import {useRef, useEffect} from 'react';
 import {
-    createEditor, setValue, setOption, getValue,
-    addLineClass, removeLineClass, markText,
+    createEditor,
+    setValue,
+    setOption,
+    getValue,
+    addLineClass,
+    removeLineClass,
+    markText,
     posFromIndex as adapterPosFromIndex,
     getCursorIndex,
-    on, off, observeResize,
+    on,
+    off,
+    observeResize,
 } from '../editor/codemirror-adapter/index.js';
 
-const getCMTheme = () =>
-    document.documentElement.getAttribute('data-theme') === 'dark'
-        ? 'nord'
-        : 'default';
+const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
 
 const noop = () => {};
 
-export default function Editor({
-    value            = '',
-    highlight        = true,
-    lineNumbers      = true,
-    readOnly         = false,
-    mode             = 'javascript',
-    keyMap           = 'default',
-    error            = null,
-    highlightRange   = null,
-    onContentChange  = noop,
-    onActivity       = noop,
-    onBlur           = noop,
-    posFromIndex:    posFromIndexProp,
-}) {
-    const containerRef   = useRef(null);
-    const editorRef      = useRef(null);
-    const valueRef       = useRef(value);
-    const errorRef       = useRef(error);
-    const markRef        = useRef(null);
+export default function Editor({value = '', highlight = true, lineNumbers = true, readOnly = false, mode = 'javascript', keyMap = 'default', error = null, highlightRange = null, onContentChange = noop, onActivity = noop, onBlur = noop, posFromIndex: posFromIndexProp}) {
+    const containerRef = useRef(null);
+    const editorRef = useRef(null);
+    const valueRef = useRef(value);
+    const errorRef = useRef(error);
+    const markRef = useRef(null);
     const markerRangeRef = useRef(null);
-    const timerRef       = useRef(null);
+    const timerRef = useRef(null);
     
     // Mount — create CodeMirror instance, bind all handlers
     useEffect(() => {
@@ -50,9 +41,13 @@ export default function Editor({
                     clearTimeout(timerRef.current);
                     timerRef.current = setTimeout(() => {
                         const currentValue = getValue(editor);
-                        const cursorIndex  = getCursorIndex(editor);
-                        valueRef.current   = currentValue;
-                        onContentChange({value: currentValue, cursor: cursorIndex});
+                        const cursorIndex = getCursorIndex(editor);
+                        
+                        valueRef.current = currentValue;
+                        onContentChange({
+                            value: currentValue,
+                            cursor: cursorIndex,
+                        });
                     }, 200);
                 }
                 
@@ -64,6 +59,7 @@ export default function Editor({
                 }
             },
         });
+        
         editorRef.current = editor;
         
         // Theme — watch data-theme attribute on <html>
@@ -72,7 +68,7 @@ export default function Editor({
         });
         
         themeObserver.observe(document.documentElement, {
-            attributes:      true,
+            attributes: true,
             attributeFilter: ['data-theme'],
         });
         
@@ -91,9 +87,7 @@ export default function Editor({
             cleanupResize();
             editor.destroy();
             editorRef.current = null;
-        };
-    // Mount only — prop changes handled by separate effects below
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        }; // Mount only — prop changes handled by separate effects below
     }, []);
     
     // Sync value prop
@@ -123,8 +117,7 @@ export default function Editor({
         if (!editor)
             return;
         
-        const getLine = (err) =>
-            err?.loc?.line ?? err?.lineNumber ?? err?.line ?? null;
+        const getLine = (err) => err?.loc?.line || err?.lineNumber || err?.line || null;
         
         const oldLine = getLine(errorRef.current);
         
@@ -157,9 +150,7 @@ export default function Editor({
         
         markerRangeRef.current = highlightRange;
         
-        const resolve = posFromIndexProp
-            ? (idx) => posFromIndexProp(editor.state.doc, idx)
-            : (idx) => adapterPosFromIndex(editor, idx);
+        const resolve = posFromIndexProp ? (idx) => posFromIndexProp(editor.state.doc, idx) : (idx) => adapterPosFromIndex(editor, idx);
         
         const [start, end] = highlightRange.map(resolve);
         
@@ -168,8 +159,12 @@ export default function Editor({
             return;
         }
         
-        markRef.current = markText(editor, start, end, {className: 'marked'});
+        markRef.current = markText(editor, start, end, {
+            className: 'marked',
+        });
     }, [highlightRange, highlight, posFromIndexProp]);
     
-    return <div className="editor" ref={containerRef}/>
+    return (
+        <div className="editor" ref={containerRef}/>
+    );
 }

@@ -1,4 +1,8 @@
-import {useState, useEffect, useRef} from 'react';
+import {
+    useState,
+    useEffect,
+    useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import {categories} from '../parsers/index.js';
 
@@ -26,8 +30,13 @@ function jsonToCode(json) {
         return Promise.resolve(json);
     }
     
-    return importEscodegen().then((escodegen) =>
-        escodegen.generate(parsedAst, {format: {indent: {style: '    '}}}));
+    return importEscodegen().then((escodegen) => escodegen.generate(parsedAst, {
+        format: {
+            indent: {
+                style: '    ',
+            },
+        },
+    }));
 }
 
 export default function PasteDropTarget({onText, onError, children, ...props}) {
@@ -35,7 +44,11 @@ export default function PasteDropTarget({onText, onError, children, ...props}) {
     const containerRef = useRef(null);
     
     function handleASTError(type, event, exception) {
-        onError(type, event, `Cannot process pasted AST: ${exception.message}`);
+        onError(
+            type,
+            event,
+            `Cannot process pasted AST: ${exception.message}`,
+        );
     }
     
     useEffect(() => {
@@ -45,8 +58,7 @@ export default function PasteDropTarget({onText, onError, children, ...props}) {
         function bindListener(element, eventName, listener, capture) {
             for (const singleEvent of eventName.split(/\s+/)) {
                 element.addEventListener(singleEvent, listener, capture);
-                removeListeners.push(() =>
-                    element.removeEventListener(singleEvent, listener, capture));
+                removeListeners.push(() => element.removeEventListener(singleEvent, listener, capture));
             }
         }
         
@@ -54,10 +66,9 @@ export default function PasteDropTarget({onText, onError, children, ...props}) {
             if (!event.clipboardData)
                 return;
             
-            const clipboardData = event.clipboardData;
+            const {clipboardData} = event;
             
-            if (!clipboardData.types.indexOf ||
-                !clipboardData.types.indexOf('text/plain') > -1)
+            if (!clipboardData.types.indexOf || !clipboardData.types.indexOf('text/plain') > -1)
                 return;
             
             event.stopPropagation();
@@ -102,7 +113,7 @@ export default function PasteDropTarget({onText, onError, children, ...props}) {
             reader.onload = (readerEvent) => {
                 let text = readerEvent.target.result;
                 
-                if (categoryId === 'JSON' || categoryId === 'TEXT') {
+                if (categoryId === 'JSON' || categoryId === 'TEXT')
                     text = jsonToCode(text)
                         .then((code) => {
                             categoryId = 'javascript';
@@ -114,9 +125,9 @@ export default function PasteDropTarget({onText, onError, children, ...props}) {
                             
                             return null;
                         });
-                }
                 
-                Promise.resolve(text)
+                Promise
+                    .resolve(text)
                     .then((code) => {
                         if (!code)
                             return;
