@@ -7,7 +7,6 @@ const keyMappings = [
     'default',
     'vim',
     'emacs',
-    'sublime',
 ];
 
 class KeyMapButton extends React.Component {

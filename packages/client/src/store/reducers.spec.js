@@ -495,9 +495,9 @@ test('reducers: parserSettings unchanged with active revision', (t) => {
 });
 
 test('reducers: set key map', (t) => {
-    const state = putoutEditor(getInitState(), setKeyMap('sublime'));
+    const state = putoutEditor(getInitState(), setKeyMap('emacs'));
     
-    t.equal(state.workbench.keyMap, 'sublime');
+    t.equal(state.workbench.keyMap, 'emacs');
     t.end();
 });
 

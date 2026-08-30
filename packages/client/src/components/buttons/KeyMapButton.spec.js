@@ -44,7 +44,7 @@ test('KeyMapButton: renders four key map options', (t) => {
     
     cleanup();
     
-    t.equal(items.length, 4);
+    t.equal(items.length, 3);
     t.end();
 });
 

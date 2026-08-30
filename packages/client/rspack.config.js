@@ -135,7 +135,6 @@ export default {
                 join(__dirname, 'node_modules', 'eslint-visitor-keys'),
                 join(__dirname, 'node_modules', 'json-parse-better-errors'),
                 join(__dirname, 'node_modules', 'lodash-es'),
-                join(__dirname, 'node_modules', 'prettier'),
                 join(__dirname, 'node_modules', 'react-redux', 'es'),
                 join(__dirname, 'node_modules', 'redux', 'es'),
                 join(__dirname, 'node_modules', 'regexp-tree'),

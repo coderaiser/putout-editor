@@ -1,7 +1,6 @@
 import CodeMirror from 'codemirror';
 import 'codemirror/keymap/vim.js';
 import 'codemirror/keymap/emacs.js';
-import 'codemirror/keymap/sublime.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/addon/fold/foldgutter.js';
 import 'codemirror/addon/fold/foldcode.js';
@@ -102,6 +101,14 @@ export function off(editor, event, handler) {
     editor.off(event, handler);
 }
 
+
+/**
+ * Get the CodeMirror instance from a DOM container.
+ * In CM5: el.CodeMirror — stable API for tests and CM6 migration.
+ */
+export function getView(container) {
+    return container.querySelector('.CodeMirror')?.CodeMirror ?? null;
+}
 
 /**
  * Observe container resize and call refresh automatically.

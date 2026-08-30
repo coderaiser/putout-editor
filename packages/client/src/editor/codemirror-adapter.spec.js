@@ -17,6 +17,7 @@ import {
     on,
     off,
     observeResize,
+    getView,
 } from './codemirror-adapter.js';
 
 const isFn = (a) => typeof a === 'function';
@@ -271,5 +272,25 @@ test('adapter: observeResize cleanup disconnects observer', (t) => {
     cleanup();
     
     t.ok(true);
+    t.end();
+});
+
+test('adapter: getView returns CM instance from container', (t) => {
+    const container = document.createElement('div');
+    const cm = makeEditor();
+    const cmEl = document.createElement('div');
+    cmEl.className = 'CodeMirror';
+    cmEl.CodeMirror = cm;
+    container.appendChild(cmEl);
+    
+    const result = getView(container);
+    t.equal(result, cm);
+    t.end();
+});
+
+test('adapter: getView returns null when no CodeMirror element', (t) => {
+    const container = document.createElement('div');
+    const result = getView(container);
+    t.equal(result, null);
     t.end();
 });
