@@ -1,6 +1,6 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Transformer from '../components/Transformer.js';
-import {setTransformState} from '../store/reducers.js';
+import {setTransformState, transformBlur} from '../store/reducers.js';
 import {getParser, getTransformer} from '../store/parserSelectors.js';
 import * as selectors from '../store/selectors.js';
 
@@ -31,6 +31,7 @@ export default function TransformerContainer() {
                     cursor,
                 }));
             }}
+            onBlur={() => dispatch(transformBlur())}
         />
     );
 }

@@ -123,6 +123,7 @@ const slice = createSlice({
         },
         
         editorBlur: () => {},
+        transformBlur: () => {},
         setCode: (state, {payload: {code, cursor}}) => {
             state.workbench.code = code;
             
@@ -258,6 +259,7 @@ export const {
     setKeyMap,
     setCursor,
     editorBlur,
+    transformBlur,
     setCode,
     setParseResult,
     setParserSettings,

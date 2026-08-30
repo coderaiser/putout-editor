@@ -13,6 +13,7 @@ export default function Transformer(props) {
         highlight: false,
         value: props.transformCode,
         onContentChange: props.onContentChange,
+        onBlur: props.onBlur,
         keyMap: props.keyMap,
     });
     
@@ -46,5 +47,6 @@ Transformer.propTypes = {
     mode: PropTypes.string,
     keyMap: PropTypes.string,
     onContentChange: PropTypes.func,
+    onBlur: PropTypes.func,
     parser: PropTypes.string,
 };
