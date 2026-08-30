@@ -6,6 +6,7 @@
         "**/*.spec.*",
         "**/*.types.ts",
         "**/*.config.*",
+        "**/*.d.ts",
         "**/.*.*",
         "src/main.ts",
         "dist",
