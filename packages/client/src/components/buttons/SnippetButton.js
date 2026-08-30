@@ -1,5 +1,4 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import {useState} from 'react';
 import cx from 'classnames';
 import {
     TbDeviceFloppy,
@@ -12,80 +11,54 @@ import NewButton from './NewButton.js';
 import SaveButton from './SaveButton.js';
 import ShareButton from './ShareButton.js';
 
-export default class SnippetButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            forceClosed: false,
-        };
-        this._onTriggerClick = this._onTriggerClick.bind(this);
-        this._onItemClick = this._onItemClick.bind(this);
-        this._onMouseLeave = this._onMouseLeave.bind(this);
-    }
+export default function SnippetButton(props) {
+    const [forceClosed, setForceClosed] = useState(false);
+    const {canFork, canSave, saving, forking, onFork, onSave} = props;
+    const canForkAndNotSave = canFork && !canSave;
+    const savingOrForking = saving || forking;
     
-    _onTriggerClick() {
-        this.setState({
-            forceClosed: true,
-        });
-    }
+    const onTriggerClick = () => {
+        setForceClosed(true);
+    };
     
-    _onItemClick() {
-        this.setState({
-            forceClosed: true,
-        });
-    }
+    const onItemClick = () => {
+        setForceClosed(true);
+    };
     
-    _onMouseLeave() {
-        this.setState({
-            forceClosed: false,
-        });
-    }
+    const onMouseLeave = () => {
+        setForceClosed(false);
+    };
     
-    render() {
-        const {props} = this;
-        const canForkAndNotSave = props.canFork && !props.canSave;
-        const savingOrForking = props.saving || props.forking;
-        
-        return (
-            <div
-                className={cx({
-                    'button': true,
-                    'menuButton': true,
-                    'is-closed': this.state.forceClosed,
-                })}
-                onMouseLeave={this._onMouseLeave}
+    return (
+        <div
+            className={cx({
+                'button': true,
+                'menuButton': true,
+                'is-closed': forceClosed,
+            })}
+            onMouseLeave={onMouseLeave}
+        >
+            <span onClick={onTriggerClick}>
+                <TbFileCode size={18}/>
+                Snippet
+            </span>
+            <ul onClick={onItemClick}>
+                <li><NewButton {...props}/></li>
+                <li><SaveButton {...props}/></li>
+                <li><ForkButton {...props}/></li>
+                <li><ShareButton {...props}/></li>
+            </ul>
+            <button
+                type="button"
+                title={canForkAndNotSave ? 'Fork' : 'Save'}
+                style={{
+                    minWidth: 0,
+                }}
+                disabled={savingOrForking || !canSave && !canFork}
+                onClick={canForkAndNotSave ? onFork : onSave}
             >
-                <span onClick={this._onTriggerClick}>
-                    <TbFileCode size={18}/>
-                    Snippet
-                </span>
-                <ul onClick={this._onItemClick}>
-                    <li><NewButton {...props}/></li>
-                    <li><SaveButton {...props}/></li>
-                    <li><ForkButton {...props}/></li>
-                    <li><ShareButton {...props}/></li>
-                </ul>
-                <button
-                    type="button"
-                    title={canForkAndNotSave ? 'Fork' : 'Save'}
-                    style={{
-                        minWidth: 0,
-                    }}
-                    disabled={savingOrForking || !props.canSave && !props.canFork}
-                    onClick={canForkAndNotSave ? props.onFork : props.onSave}
-                >
-                    {savingOrForking ? <TbLoader2 size={18}/> : canForkAndNotSave ? <TbGitFork size={18}/> : <TbDeviceFloppy size={18}/>}
-                </button>
-            </div>
-        );
-    }
+                {savingOrForking ? <TbLoader2 size={18}/> : canForkAndNotSave ? <TbGitFork size={18}/> : <TbDeviceFloppy size={18}/>}
+            </button>
+        </div>
+    );
 }
-
-SnippetButton.propTypes = {
-    canFork: PropTypes.bool,
-    canSave: PropTypes.bool,
-    forking: PropTypes.bool,
-    onFork: PropTypes.func,
-    onSave: PropTypes.func,
-    saving: PropTypes.bool,
-};

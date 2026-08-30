@@ -1,5 +1,4 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import {useState} from 'react';
 import cx from 'classnames';
 import {TbKeyboard} from 'react-icons/tb';
 
@@ -9,74 +8,51 @@ const keyMappings = [
     'emacs',
 ];
 
-class KeyMapButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            forceClosed: false,
-        };
-        this._onItemClick = this._onItemClick.bind(this);
-        this._onTriggerClick = this._onTriggerClick.bind(this);
-        this._onMouseLeave = this._onMouseLeave.bind(this);
-    }
+export default function KeyMapButton({keyMap, onKeyMapChange}) {
+    const [forceClosed, setForceClosed] = useState(false);
     
-    _onItemClick(keyMap) {
-        this.props.onKeyMapChange(keyMap);
-        this.setState({
-            forceClosed: true,
-        });
-    }
+    const onItemClick = (key) => {
+        onKeyMapChange(key);
+        setForceClosed(true);
+    };
     
-    _onTriggerClick() {
-        this.setState({
-            forceClosed: true,
-        });
-    }
+    const onTriggerClick = () => {
+        setForceClosed(true);
+    };
     
-    _onMouseLeave() {
-        this.setState({
-            forceClosed: false,
-        });
-    }
+    const onMouseLeave = () => {
+        setForceClosed(false);
+    };
     
-    render() {
-        return (
-            <div
-                className={cx({
-                    'button': true,
-                    'menuButton': true,
-                    'is-closed': this.state.forceClosed,
-                })}
-                onMouseLeave={this._onMouseLeave}
+    return (
+        <div
+            className={cx({
+                'button': true,
+                'menuButton': true,
+                'is-closed': forceClosed,
+            })}
+            onMouseLeave={onMouseLeave}
+        >
+            <button
+                type="button"
+                onClick={onTriggerClick}
             >
-                <button
-                    type="button"
-                    onClick={this._onTriggerClick}
-                >
-                    <TbKeyboard size={18}/>
-                    {this.props.keyMap}
-                </button>
-                <ul>
-                    {keyMappings.map((keyMap) => (
-                        <li
-                            key={keyMap}
-                            disabled={this.props.keyMap === keyMap}
-                            onClick={() => this._onItemClick(keyMap)}
-                        >
-                            <button type="button">
-                                {keyMap}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        );
-    }
+                <TbKeyboard size={18}/>
+                {keyMap}
+            </button>
+            <ul>
+                {keyMappings.map((keyMapItem) => (
+                    <li
+                        key={keyMapItem}
+                        disabled={keyMap === keyMapItem}
+                        onClick={() => onItemClick(keyMapItem)}
+                    >
+                        <button type="button">
+                            {keyMapItem}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 }
-
-KeyMapButton.propTypes = {
-    onKeyMapChange: PropTypes.func,
-    keyMap: PropTypes.string,
-};
-
-export default KeyMapButton;

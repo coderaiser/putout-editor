@@ -1,4 +1,3 @@
-import React from 'react';
 import cx from 'classnames';
 import {TbHeart} from 'react-icons/tb';
 
@@ -8,22 +7,21 @@ const fundings = [
     'ko-fi',
 ];
 
-class Funding extends React.Component {
-    render() {
-        return (
-            <div
-                className={cx({
-                    button: true,
-                    menuButton: true,
-                })}
+export default function Funding() {
+    return (
+        <div
+            className={cx({
+                button: true,
+                menuButton: true,
+            })}
+        >
+            <button
+                type="button"
             >
-                <button
-                    type="button"
-                >
-                    <TbHeart size={18}/>
-                    &nbsp;Funding
-                </button>
-                {<ul>
+                <TbHeart size={18}/>
+                &nbsp;Funding
+            </button>
+                <ul>
                     {fundings.map((funding) => (
                         <li
                             key={funding}
@@ -33,10 +31,7 @@ class Funding extends React.Component {
                             >{funding}.com/coderaiser</button>
                         </li>
                     ))}
-                </ul>}
-            </div>
-        );
-    }
+                </ul>
+        </div>
+    );
 }
-
-export default Funding;

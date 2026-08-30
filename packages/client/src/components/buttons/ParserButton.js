@@ -1,81 +1,59 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import {useState} from 'react';
+import cx from 'classnames';
 import {TbCode, TbSettings} from 'react-icons/tb';
 import {getParserByID} from '../../parsers/index.js';
 
-export default class ParserButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            forceClosed: false,
-        };
-        this._onItemClick = this._onItemClick.bind(this);
-        this._onTriggerClick = this._onTriggerClick.bind(this);
-        this._onMouseLeave = this._onMouseLeave.bind(this);
-    }
+export default function ParserButton({parser, category, onParserChange, onParserSettingsButtonClick}) {
+    const [forceClosed, setForceClosed] = useState(false);
+    const parsers = category.parsers.filter((p) => p.showInMenu);
     
-    _onItemClick({currentTarget}) {
+    const onItemClick = ({currentTarget}) => {
         const parserID = currentTarget.getAttribute('data-id');
-        this.props.onParserChange(getParserByID(parserID));
-        this.setState({
-            forceClosed: true,
-        });
-    }
+        onParserChange(getParserByID(parserID));
+        setForceClosed(true);
+    };
     
-    _onTriggerClick() {
-        this.setState({
-            forceClosed: true,
-        });
-    }
+    const onTriggerClick = () => {
+        setForceClosed(true);
+    };
     
-    _onMouseLeave() {
-        this.setState({
-            forceClosed: false,
-        });
-    }
+    const onMouseLeave = () => {
+        setForceClosed(false);
+    };
     
-    render() {
-        const parsers = this.props.category.parsers.filter((p) => p.showInMenu);
-        const className = `button menuButton${this.state.forceClosed ? ' is-closed' : ''}`;
-        
-        return (
-            <div
-                className={className}
-                ref={(c) => this._container = c}
-                onMouseLeave={this._onMouseLeave}
+    return (
+        <div
+            className={cx({
+                'button': true,
+                'menuButton': true,
+                'is-closed': forceClosed,
+            })}
+            onMouseLeave={onMouseLeave}
+        >
+            <span onClick={onTriggerClick}>
+                <TbCode size={18}/>
+                {parser.displayName}
+            </span>
+            <ul>
+                {parsers.map((parserItem) => (
+                    <li key={parserItem.id} onClick={onItemClick} data-id={parserItem.id}>
+                        <button type="button">
+                            {parserItem.displayName}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+            <button
+                type="button"
+                title="Parser Settings"
+                style={{
+                    minWidth: 0,
+                }}
+                disabled={!parser.hasSettings()}
+                onClick={onParserSettingsButtonClick}
             >
-                <span onClick={this._onTriggerClick}>
-                    <TbCode size={18}/>
-                    {this.props.parser.displayName}
-                </span>
-                <ul>
-                    {parsers.map((parser) => (
-                        <li key={parser.id} onClick={this._onItemClick} data-id={parser.id}>
-                            <button type="button">
-                                {parser.displayName}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-                <button
-                    type="button"
-                    title="Parser Settings"
-                    style={{
-                        minWidth: 0,
-                    }}
-                    disabled={!this.props.parser.hasSettings()}
-                    onClick={this.props.onParserSettingsButtonClick}
-                >
-                    <TbSettings size={18}/>
-                </button>
-            </div>
-        );
-    }
+                <TbSettings size={18}/>
+            </button>
+        </div>
+    );
 }
-
-ParserButton.propTypes = {
-    onParserChange: PropTypes.func,
-    onParserSettingsButtonClick: PropTypes.func,
-    parser: PropTypes.object,
-    category: PropTypes.object,
-};

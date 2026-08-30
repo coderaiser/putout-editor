@@ -1,54 +1,37 @@
-import CodeMirror from 'codemirror';
-import 'codemirror/mode/javascript/javascript.js';
-import 'codemirror/addon/fold/foldgutter.js';
-import 'codemirror/addon/fold/foldcode.js';
-import 'codemirror/addon/fold/brace-fold.js';
-import PropTypes from 'prop-types';
-import React from 'react';
+import {useRef, useEffect} from 'react';
+import {
+    createEditor, setValue, getScrollInfo, scrollTo, observeResize,
+} from '../editor/codemirror-adapter.js';
 
-export default class Editor extends React.Component {
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        if (nextProps.value !== this.codeMirror.getValue()) {
-            // preserve scroll position
-            const info = this.codeMirror.getScrollInfo();
-            this.codeMirror.setValue(nextProps.value);
-            this.codeMirror.scrollTo(info.left, info.top);
-        }
-    }
+export default function JSONEditor({value = '', className = ''}) {
+    const containerRef = useRef(null);
+    const editorRef    = useRef(null);
     
-    shouldComponentUpdate() {
-        return false;
-    }
-    
-    componentDidMount() {
-        this.codeMirror = CodeMirror(this.container, {
-            value: this.props.value,
-            mode: {
-                name: 'javascript',
-                json: true,
-            },
-            readOnly: true,
+    useEffect(() => {
+        const editor = createEditor(containerRef.current, {
+            value,
+            mode:        {name: 'javascript', json: true},
+            readOnly:    true,
             lineNumbers: true,
-            foldGutter: true,
-            gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+            foldGutter:  true,
+            gutters:     ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
         });
-    }
+        editorRef.current = editor;
+        const cleanupResize = observeResize(editor, containerRef.current);
+        return () => {
+            cleanupResize();
+            editorRef.current = null;
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     
-    componentWillUnmount() {
-        const {container} = this;
-        
-        container.removeChild(container.children[0]);
-        this.codeMirror = null;
-    }
+    useEffect(() => {
+        const editor = editorRef.current;
+        if (!editor || value === editor.getValue()) return;
+        const info = getScrollInfo(editor);
+        setValue(editor, value);
+        scrollTo(editor, info.left, info.top);
+    }, [value]);
     
-    render() {
-        return (
-            <div id="JSONEditor" className={this.props.className} ref={(c) => this.container = c}/>
-        );
-    }
+    return <div id="JSONEditor" className={className} ref={containerRef}/>;
 }
-
-Editor.propTypes = {
-    value: PropTypes.string,
-    className: PropTypes.string,
-};

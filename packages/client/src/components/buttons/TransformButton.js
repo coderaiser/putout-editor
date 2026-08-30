@@ -1,21 +1,19 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import {useState} from 'react';
 import cx from 'classnames';
 import {TbToggleLeft, TbToggleRight} from 'react-icons/tb';
 import {getTransformerByID} from '../../parsers/index.js';
 
-export default class TransformButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            forceClosed: false,
-        };
-        this._onClick = this._onClick.bind(this);
-        this._onTriggerClick = this._onTriggerClick.bind(this);
-        this._onMouseLeave = this._onMouseLeave.bind(this);
-    }
+export default function TransformButton({category, transformer, showTransformer, onTransformChange}) {
+    const [forceClosed, setForceClosed] = useState(false);
     
-    _onClick({target}) {
+    const onTriggerClick = () => {
+        if (transformer)
+            onTransformChange(null);
+        
+        setForceClosed(true);
+    };
+    
+    const onClick = ({target}) => {
         let transformID;
         
         if (target.nodeName.toLowerCase() === 'li')
@@ -23,69 +21,47 @@ export default class TransformButton extends React.Component {
         else
             transformID = target.value;
         
-        this.props.onTransformChange(getTransformerByID(transformID));
-        this.setState({
-            forceClosed: true,
-        });
-    }
+        onTransformChange(getTransformerByID(transformID));
+        setForceClosed(true);
+    };
     
-    _onTriggerClick() {
-        if (this.props.transformer)
-            this.props.onTransformChange(null);
-        
-        this.setState({
-            forceClosed: true,
-        });
-    }
+    const onMouseLeave = () => {
+        setForceClosed(false);
+    };
     
-    _onMouseLeave() {
-        this.setState({
-            forceClosed: false,
-        });
-    }
-    
-    render() {
-        return (
-            <div
-                className={cx({
-                    'button': true,
-                    'menuButton': true,
-                    'disabled': !this.props.category.transformers.length,
-                    'is-closed': this.state.forceClosed,
-                })}
-                onMouseLeave={this._onMouseLeave}
+    return (
+        <div
+            className={cx({
+                'button': true,
+                'menuButton': true,
+                'disabled': !category.transformers.length,
+                'is-closed': forceClosed,
+            })}
+            onMouseLeave={onMouseLeave}
+        >
+            <button
+                type="button"
+                onClick={onTriggerClick}
+                disabled={!category.transformers.length}
             >
-                <button
-                    type="button"
-                    onClick={this._onTriggerClick}
-                    disabled={!this.props.category.transformers.length}
-                >
-                    {this.props.showTransformer ? <TbToggleRight size={18}/> : <TbToggleLeft size={18}/>}
-                    Transform
-                </button>
-                {this.props.category.transformers.length && <ul>
-                    {this.props.category.transformers.map((transformer) => (
-                        <li
-                            key={transformer.id}
-                            className={cx({
-                                selected: this.props.showTransformer && this.props.transformer === transformer,
-                            })}
-                            onClick={this._onClick}
-                        >
-                            <button value={transformer.id} type="button">
-                                {transformer.displayName}
-                            </button>
-                        </li>
-                    ))}
-                </ul>}
-            </div>
-        );
-    }
+                {showTransformer ? <TbToggleRight size={18}/> : <TbToggleLeft size={18}/>}
+                Transform
+            </button>
+            {category.transformers.length > 0 && <ul>
+                {category.transformers.map((transformerItem) => (
+                    <li
+                        key={transformerItem.id}
+                        className={cx({
+                            selected: showTransformer && transformer === transformerItem,
+                        })}
+                        onClick={onClick}
+                    >
+                        <button value={transformerItem.id} type="button">
+                            {transformerItem.displayName}
+                        </button>
+                    </li>
+                ))}
+            </ul>}
+        </div>
+    );
 }
-
-TransformButton.propTypes = {
-    category: PropTypes.object,
-    transformer: PropTypes.object,
-    showTransformer: PropTypes.bool,
-    onTransformChange: PropTypes.func,
-};
