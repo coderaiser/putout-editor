@@ -12,9 +12,6 @@
         "src/parsers/js/recast.js": {
             "variables/remove-unused": "off"
         },
-        ".eslintrc.js": {
-            "remove-console": "on"
-        },
         "*.cjs": {
             "nodejs/convert-esm-to-commonjs": "on"
         }
