@@ -15,7 +15,6 @@
     "src/components/Transformer.js",
     "src/components/buttons/SnippetButton.js",
     "src/components/buttons/TransformButton.js",
-    "src/components/dialogs/SettingsDialog.js",
     "src/components/visualization/JSON.js",
     "src/components/visualization/Tree.js",
     "src/containers/CodeEditorContainer.js",
