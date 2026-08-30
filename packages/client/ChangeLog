@@ -1,3 +1,49 @@
+2026.08.30, v2.6.0
+
+fix:
+- a560a0b clien: style
+- c83e63e @putout/editor: client: run rule after change
+- a7fca9d client: font-size: 14px
+- effc246 client: events: blur
+- 57db9f0 server: parse: align babel plugin names and error typing for tsc
+- 4fab488 cline: font-size: 13px -> 16px
+- 1b06f29 css: replace CM5 rules with CM6, fix syntax highlight, white lines, gutters
+- c4e0e56 Editor.spec: replace CM5 API with CM6
+- 5524f1e storage: gist.spec: use stub.resolves for all fetch stubs
+- d04b47f formatMiddleware: remove dead branch
+- 6967dd9 spinner
+- 4727127 initial load
+- af235fc buildSaveData sets transform null when transformer removed
+- 134e587 parse.js — async/await, delete dead methods, getShareData, no JSX
+- e415c26 gist.js — async/await, remove double-fetch, getShareData, no JSX
+- 2897bf2 remove isomorphic-fetch
+- c33e228 parserMiddleware.spec.js — cover code-change and parser-change staleness branches
+- 8d3d505 snippetMiddleware — factory pattern, storageAdapter via closure not api.extra
+- ba7cf47 store.spec.js — disable RTK serializable checks, add storageAdapter
+- e0335b5 install @reduxjs/toolkit and react-redux
+- c78f2ae dark theme
+- 138e733 font-size
+- 7fa6da4 style: icons
+- 20a8531 theme loading
+
+feature:
+- 566df1d server: transform: add worker
+- 1f2da6b server: parse: add PUT /parse and GET /parse endpoints
+- 6bc5fb2 rspack: split vendors into focused cache groups
+- 63f22d2 reuse compileModule from redput
+- edba601 @putout/editor: client: codemirror-adapter: split
+- 186319d rm sublime, no CM 6 support
+- d8337ff format plugin code on blur
+- 8dd3038 @putout/editor: client: decrease bundle size
+- cb9845f @putout/editor: client: prettier -> @putout/printer
+- 6bb1beb Editor: simplify
+- ad587bb redux toolkit
+- 7569b82 store: add behaviour spec and fix hideTransformer
+- 5049e3e client: containers: migrate to hooks
+- 5de5d30 store: add operations module
+- 04fab7f theme: dark theme and theme toggle
+- fb4ba08 icons: drop font-awesome for react-icons
+
 2026.08.20, v2.5.0
 
 fix:
