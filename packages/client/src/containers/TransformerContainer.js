@@ -20,7 +20,7 @@ export default function TransformerContainer() {
     
     return (
         <Transformer
-            parser={parser}
+            parser={parser.id}
             transformer={transformer}
             defaultTransformCode={defaultTransformCode}
             transformCode={transformCode}
