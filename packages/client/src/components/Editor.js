@@ -1,11 +1,11 @@
 import {useRef, useEffect, useCallback} from 'react';
 import {
-    createEditor, setValue, setOption,
+    createEditor, setValue, setOption, getValue,
     addLineClass, removeLineClass, markText,
     posFromIndex as adapterPosFromIndex,
     getCursorIndex,
     on, off, observeResize,
-} from '../editor/codemirror-adapter.js';
+} from '../editor/codemirror-adapter/index.js';
 
 const getCMTheme = () =>
     document.documentElement.getAttribute('data-theme') === 'dark'
@@ -39,9 +39,30 @@ export default function Editor({
     // Mount — create CodeMirror instance, bind all handlers
     useEffect(() => {
         const editor = createEditor(containerRef.current, {
-            keyMap, value, mode, lineNumbers, readOnly,
-            indentUnit: 4,
+            keyMap,
+            value,
+            mode,
+            lineNumbers,
+            readOnly,
             theme: getCMTheme(),
+            updateListener: (update) => {
+                if (update.docChanged) {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = setTimeout(() => {
+                        const currentValue = getValue(editor);
+                        const cursorIndex  = getCursorIndex(editor);
+                        valueRef.current   = currentValue;
+                        onContentChange({value: currentValue, cursor: cursorIndex});
+                    }, 200);
+                }
+                
+                if (update.selectionSet) {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = setTimeout(() => {
+                        onActivity(getCursorIndex(editor));
+                    }, 100);
+                }
+            },
         });
         editorRef.current = editor;
         
@@ -63,40 +84,12 @@ export default function Editor({
             onBlur();
         });
         
-        // Changes → debounced content update
-        const [changesEv, changesFn] = on(editor, 'changes', () => {
-            clearTimeout(timerRef.current);
-            timerRef.current = setTimeout(() => {
-                const doc  = editor.getDoc();
-                const args = {
-                    value:  doc.getValue(),
-                    cursor: doc.indexFromPos(doc.getCursor()),
-                };
-                
-                valueRef.current = args.value;
-                onContentChange(args);
-            }, 200);
-        });
-        
-        // Cursor activity → debounced cursor position update
-        const [cursorEv, cursorFn] = on(editor, 'cursorActivity', () => {
-            clearTimeout(timerRef.current);
-            timerRef.current = setTimeout(() => {
-                onActivity(getCursorIndex(editor));
-            }, 100);
-        });
-        
         return () => {
             clearTimeout(timerRef.current);
             off(editor, blurEv, blurFn);
-            off(editor, changesEv, changesFn);
-            off(editor, cursorEv, cursorFn);
             themeObserver.disconnect();
             cleanupResize();
-            
-            if (containerRef.current?.children[0])
-                containerRef.current.removeChild(containerRef.current.children[0]);
-            
+            editor.destroy();
             editorRef.current = null;
         };
     // Mount only — prop changes handled by separate effects below
@@ -165,7 +158,7 @@ export default function Editor({
         markerRangeRef.current = highlightRange;
         
         const resolve = posFromIndexProp
-            ? (idx) => posFromIndexProp(editor.getDoc(), idx)
+            ? (idx) => posFromIndexProp(editor.state.doc, idx)
             : (idx) => adapterPosFromIndex(editor, idx);
         
         const [start, end] = highlightRange.map(resolve);
