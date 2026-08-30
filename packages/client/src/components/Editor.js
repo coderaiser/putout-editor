@@ -18,7 +18,7 @@ const getCMTheme = () => document.documentElement.getAttribute('data-theme') ===
 
 const noop = () => {};
 
-export default function Editor({value = '', highlight = true, lineNumbers = true, readOnly = false, mode = 'javascript', keyMap = 'default', error = null, highlightRange = null, onContentChange = noop, onActivity = noop, onBlur = noop, posFromIndex: posFromIndexProp}) {
+export default function Editor({value = '', highlight = true, lineNumbers = true, readOnly = false, mode = 'javascript', keyMap = 'default', error = null, highlightRange = null, onContentChange = noop, onBlur = noop, posFromIndex: posFromIndexProp}) {
     const containerRef = useRef(null);
     const editorRef = useRef(null);
     const valueRef = useRef(value);
@@ -49,13 +49,6 @@ export default function Editor({value = '', highlight = true, lineNumbers = true
                             cursor: cursorIndex,
                         });
                     }, 200);
-                }
-                
-                if (update.selectionSet) {
-                    clearTimeout(timerRef.current);
-                    timerRef.current = setTimeout(() => {
-                        onActivity(getCursorIndex(editor));
-                    }, 100);
                 }
             },
         });

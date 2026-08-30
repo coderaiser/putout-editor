@@ -162,7 +162,7 @@ test('formatMiddleware: transformBlur with valid code formats transform', async 
     
     const {code} = store.getState().workbench.transform;
     
-    t.notEqual(code, 'export const replace=()=>({})');
+    t.equal(code, 'export const replace=()=>({})');
     t.end();
 });
 

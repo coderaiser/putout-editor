@@ -5,6 +5,10 @@ const testEnv = defineEnv({
     jsx: true,
     dom: true,
     css: true,
+}, {
+    env: {
+        NODE_OPTIONS: '--enable-source-maps',
+    },
 });
 
 const env = {
