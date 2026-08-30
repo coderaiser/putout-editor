@@ -50,9 +50,7 @@ export class ParseService {
             plugins: [
                 'jsx',
                 'typescript',
-                'classProperties',
-                'classStaticBlock',
-                'topLevelAwait',
+                'importMeta',
             ],
         });
         

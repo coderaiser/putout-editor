@@ -177,7 +177,9 @@ test('parse service: parseSource throws UnprocessableEntityException for invalid
     const service = new ParseService(new Map(), new Map());
     const [error] = await tryToCatch(service.parseSource.bind(service), 'const = 1');
     
-    t.equal(error.status, 422);
+    t.equal((error as Error & {
+        status: number;
+    }).status, 422);
     t.end();
 });
 
