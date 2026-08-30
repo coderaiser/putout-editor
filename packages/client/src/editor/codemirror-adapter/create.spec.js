@@ -141,6 +141,16 @@ test('create: createEditor exposes keymapCompartment on view', (t) => {
     t.end();
 });
 
+test('create: createEditor produces syntax-highlighted spans for javascript', (t) => {
+    const view = createEditor(makeContainer(), {value: 'const x = 1;', mode: 'javascript'});
+    const spans = view.dom.querySelectorAll('span.hl-keyword');
+    
+    view.destroy();
+    
+    t.ok(spans.length > 0);
+    t.end();
+});
+
 test('create: createEditor exposes langCompartment on view', (t) => {
     const view = createEditor(makeContainer());
     

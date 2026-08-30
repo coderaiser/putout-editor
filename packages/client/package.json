@@ -75,6 +75,7 @@
     "@codemirror/language": "^6.12.4",
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.9",
+    "@lezer/highlight": "^1.2.3",
     "@putout/plugin-conditions": "^9.0.2",
     "@putout/plugin-declare": "^8.0.0",
     "@putout/plugin-declare-before-reference": "^10.0.0",
