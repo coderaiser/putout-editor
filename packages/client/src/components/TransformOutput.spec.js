@@ -1,9 +1,6 @@
+import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
-import {
-    render,
-    cleanup,
-    act,
-} from '@testing-library/react';
+import {render, cleanup} from '@testing-library/react';
 import TransformOutput from './TransformOutput.js';
 
 const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
@@ -18,21 +15,19 @@ const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
 });
 
 test('TransformOutput: renders output container', async (t) => {
-    let container;
+    const {container} = render(
+        <TransformOutput
+            transformer={makeTransformer()}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+        />,
+    );
     
-    await act(() => {
-        ({container} = render(
-            <TransformOutput
-                transformer={makeTransformer()}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-            />,
-        ));
-    });
-    
+    await setImmediate();
     const output = container.querySelector('.output');
+    
     cleanup();
     
     t.ok(output);
@@ -47,18 +42,17 @@ test('TransformOutput: does not call transform when isLoading is true', async (t
         transform,
     };
     
-    await act(() => {
-        render(
-            <TransformOutput
-                transformer={transformer}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={true}
-            />,
-        );
-    });
+    render(
+        <TransformOutput
+            transformer={transformer}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={true}
+        />,
+    );
     
+    await setImmediate();
     cleanup();
     
     t.notOk(transform.called);
@@ -66,21 +60,19 @@ test('TransformOutput: does not call transform when isLoading is true', async (t
 });
 
 test('TransformOutput: renders editor when transform throws', async (t) => {
-    let container;
+    const {container} = render(
+        <TransformOutput
+            transformer={makeTransformer('', true)}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+        />,
+    );
     
-    await act(() => {
-        ({container} = render(
-            <TransformOutput
-                transformer={makeTransformer('', true)}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-            />,
-        ));
-    });
-    
+    await setImmediate();
     const editor = container.querySelector('.output .editor');
+    
     cleanup();
     
     t.ok(editor);
@@ -88,21 +80,19 @@ test('TransformOutput: renders editor when transform throws', async (t) => {
 });
 
 test('TransformOutput: renders string result in editor', async (t) => {
-    let container;
+    const {container} = render(
+        <TransformOutput
+            transformer={makeTransformer('const x = 1;')}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+        />,
+    );
     
-    await act(() => {
-        ({container} = render(
-            <TransformOutput
-                transformer={makeTransformer('const x = 1;')}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-            />,
-        ));
-    });
-    
+    await setImmediate();
     const editor = container.querySelector('.output .editor');
+    
     cleanup();
     
     t.ok(editor);
@@ -117,18 +107,17 @@ test('TransformOutput: reuses cached transformer promise', async (t) => {
         transform: () => 'const x = 1;',
     };
     
-    await act(() => {
-        render(
-            <TransformOutput
-                transformer={transformer}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-            />,
-        );
-    });
+    render(
+        <TransformOutput
+            transformer={transformer}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+        />,
+    );
     
+    await setImmediate();
     cleanup();
     
     t.notOk(loadTransformer.called);
@@ -136,25 +125,23 @@ test('TransformOutput: reuses cached transformer promise', async (t) => {
 });
 
 test('TransformOutput: renders JSONEditor for object result without map', async (t) => {
-    let container;
+    const {container} = render(
+        <TransformOutput
+            transformer={makeTransformer({
+                code: {
+                    hello: 'world',
+                },
+            })}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+        />,
+    );
     
-    await act(() => {
-        ({container} = render(
-            <TransformOutput
-                transformer={makeTransformer({
-                    code: {
-                        hello: 'world',
-                    },
-                })}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-            />,
-        ));
-    });
-    
+    await setImmediate();
     const jsonEditor = container.querySelector('#JSONEditor');
+    
     cleanup();
     
     t.ok(jsonEditor);
@@ -162,29 +149,27 @@ test('TransformOutput: renders JSONEditor for object result without map', async 
 });
 
 test('TransformOutput: renders output when object result has map', async (t) => {
-    let container;
+    const {container} = render(
+        <TransformOutput
+            transformer={makeTransformer({
+                code: 'const y = 2;',
+                map: {
+                    version: 3,
+                    sources: ['a.js'],
+                    names: [],
+                    mappings: '',
+                },
+            })}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+        />,
+    );
     
-    await act(() => {
-        ({container} = render(
-            <TransformOutput
-                transformer={makeTransformer({
-                    code: 'const y = 2;',
-                    map: {
-                        version: 3,
-                        sources: ['a.js'],
-                        names: [],
-                        mappings: '',
-                    },
-                })}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-            />,
-        ));
-    });
-    
+    await setImmediate();
     const output = container.querySelector('.output');
+    
     cleanup();
     
     t.ok(output);
@@ -192,22 +177,20 @@ test('TransformOutput: renders output when object result has map', async (t) => 
 });
 
 test('TransformOutput: resolves highlight range through posFromIndex', async (t) => {
-    let container;
+    const {container} = render(
+        <TransformOutput
+            transformer={makeTransformer('const x = 1;')}
+            transformCode=""
+            code="const x = 1"
+            mode="javascript"
+            isLoading={false}
+            highlightRange={[0, 5]}
+        />,
+    );
     
-    await act(() => {
-        ({container} = render(
-            <TransformOutput
-                transformer={makeTransformer('const x = 1;')}
-                transformCode=""
-                code="const x = 1"
-                mode="javascript"
-                isLoading={false}
-                highlightRange={[0, 5]}
-            />,
-        ));
-    });
-    
+    await setImmediate();
     const editor = container.querySelector('.output .editor');
+    
     cleanup();
     
     t.ok(editor);
