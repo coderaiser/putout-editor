@@ -239,6 +239,7 @@ test('Editor: uses posFromIndex prop when provided', (t) => {
         line: 0,
         ch: index,
     });
+    
     const {container} = render(
         <Editor value="hello world" highlightRange={[0, 5]} posFromIndex={posFromIndex}/>,
     );
@@ -373,6 +374,7 @@ test('Editor: calls onContentChange after value change', async (t) => {
     
     await act(async () => {
         const view = getView(container);
+        
         view.dispatch({
             changes: {
                 from: 0,
@@ -401,6 +403,7 @@ test('Editor: onContentChange receives value field', async (t) => {
     
     await act(async () => {
         const view = getView(container);
+        
         view.dispatch({
             changes: {
                 from: 0,
@@ -429,6 +432,7 @@ test('Editor: onContentChange receives cursor field', async (t) => {
     
     await act(async () => {
         const view = getView(container);
+        
         view.dispatch({
             changes: {
                 from: 0,
@@ -460,6 +464,7 @@ test('Editor: calls onActivity after cursor moves', async (t) => {
     
     await act(async () => {
         const view = getView(container);
+        
         view.dispatch({
             selection: {
                 anchor: indexFromPos(view, {
@@ -489,6 +494,7 @@ test('Editor: onActivity receives a number', async (t) => {
     
     await act(async () => {
         const view = getView(container);
+        
         view.dispatch({
             selection: {
                 anchor: indexFromPos(view, {

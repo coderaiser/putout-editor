@@ -152,4 +152,3 @@ export function createEditor(container, options = {}) {
     
     return view;
 }
-
