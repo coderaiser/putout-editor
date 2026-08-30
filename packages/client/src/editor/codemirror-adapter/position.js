@@ -1,9 +1,10 @@
 export function offsetToPosition(document_, offset) {
-    const line = document_.lineAt(offset);
+    const index = offset < 0 ? 0 : offset > document_.length ? document_.length : offset;
+    const line = document_.lineAt(index);
     
     return {
         line: line.number - 1,
-        ch: offset - line.from,
+        ch: index - line.from,
     };
 }
 

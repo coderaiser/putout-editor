@@ -111,6 +111,36 @@ test('position: indexFromPos returns correct offset', (t) => {
     t.end();
 });
 
+test('position: offsetToPosition clamps negative offset to start', (t) => {
+    const view = makeView();
+    const result = offsetToPosition(view.state.doc, -1);
+    
+    const expected = {
+        line: 0,
+        ch: 0,
+    };
+    
+    view.destroy();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('position: offsetToPosition clamps offset beyond end to end', (t) => {
+    const view = makeView();
+    const result = offsetToPosition(view.state.doc, 999);
+    
+    const expected = {
+        line: 1,
+        ch: 5,
+    };
+    
+    view.destroy();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 test('position: getCursorIndex returns a number', (t) => {
     const view = makeView();
     const result = typeof getCursorIndex(view);

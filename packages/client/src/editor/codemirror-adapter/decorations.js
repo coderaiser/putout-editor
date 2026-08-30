@@ -36,7 +36,7 @@ export const lineField = StateField.define({
         for (const effect of transaction.effects) {
             if (effect.is(setLineEffect)) {
                 const {line, cls} = effect.value;
-                const {from} = transaction.state.doc.line(line + 1);
+                const {from} = transaction.state.doc.line(Math.min(line + 1, transaction.state.doc.lines));
                 
                 decorations = decorations.update({
                     add: [
@@ -65,11 +65,19 @@ export const lineField = StateField.define({
 });
 
 export function markText(view, from, to, {className}) {
+    const fromOffset = positionToOffset(view.state.doc, from);
+    const toOffset = positionToOffset(view.state.doc, to);
+    
+    if (fromOffset === toOffset)
+        return {
+            clear: () => {},
+        };
+    
     const decoration = Decoration
         .mark({
             class: className,
         })
-        .range(positionToOffset(view.state.doc, from), positionToOffset(view.state.doc, to));
+        .range(fromOffset, toOffset);
     
     view.dispatch({
         effects: setMarkEffect.of(decoration),

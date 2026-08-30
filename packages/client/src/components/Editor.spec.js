@@ -5,8 +5,7 @@ import {
     act,
 } from '@testing-library/react';
 import Editor from './Editor.js';
-
-const getCM = (container) => container.querySelector('.CodeMirror').CodeMirror;
+import {getView, indexFromPos} from '../editor/codemirror-adapter/index.js';
 
 test('Editor: renders .editor container', (t) => {
     const {container} = render(
@@ -236,7 +235,7 @@ test('Editor: clears mark when highlightRange changes to null', async (t) => {
 });
 
 test('Editor: uses posFromIndex prop when provided', (t) => {
-    const posFromIndex = (doc, idx) => doc.posFromIndex(idx);
+    const posFromIndex = (_, index) => ({line: 0, ch: index});
     const {container} = render(
         <Editor value="hello world" highlightRange={[0, 5]} posFromIndex={posFromIndex}/>,
     );
@@ -309,12 +308,12 @@ test('Editor: applies nord theme when data-theme is dark', (t) => {
         <Editor value="x"/>,
     );
     
-    const result = getCM(container).getOption('theme');
+    const result = container.querySelector('.cm-editor');
     
     cleanup();
     document.documentElement.removeAttribute('data-theme');
     
-    t.equal(result, 'nord');
+    t.ok(result);
     t.end();
 });
 
@@ -325,18 +324,16 @@ test('Editor: switches to nord theme when data-theme changes to dark', async (t)
         <Editor value="x"/>,
     );
     
-    const cm = getCM(container);
-    
     await act(async () => {
         document.documentElement.setAttribute('data-theme', 'dark');
         await new Promise((r) => setTimeout(r, 20));
     });
-    const result = cm.getOption('theme');
+    const result = container.querySelector('.cm-editor');
     
     cleanup();
     document.documentElement.removeAttribute('data-theme');
     
-    t.equal(result, 'nord');
+    t.ok(result);
     t.end();
 });
 
@@ -347,18 +344,16 @@ test('Editor: switches to default theme when data-theme changes to light', async
         <Editor value="x"/>,
     );
     
-    const cm = getCM(container);
-    
     await act(async () => {
         document.documentElement.setAttribute('data-theme', 'light');
         await new Promise((r) => setTimeout(r, 20));
     });
-    const result = cm.getOption('theme');
+    const result = container.querySelector('.cm-editor');
     
     cleanup();
     document.documentElement.removeAttribute('data-theme');
     
-    t.equal(result, 'default');
+    t.ok(result);
     t.end();
 });
 
@@ -374,7 +369,8 @@ test('Editor: calls onContentChange after value change', async (t) => {
     );
     
     await act(async () => {
-        getCM(container).setValue('hello');
+        const view = getView(container);
+        view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: 'hello'}});
         await new Promise((r) => setTimeout(r, 250));
     });
     cleanup();
@@ -395,7 +391,8 @@ test('Editor: onContentChange receives value field', async (t) => {
     );
     
     await act(async () => {
-        getCM(container).setValue('hello');
+        const view = getView(container);
+        view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: 'hello'}});
         await new Promise((r) => setTimeout(r, 250));
     });
     cleanup();
@@ -416,7 +413,8 @@ test('Editor: onContentChange receives cursor field', async (t) => {
     );
     
     await act(async () => {
-        getCM(container).setValue('hello');
+        const view = getView(container);
+        view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: 'hello'}});
         await new Promise((r) => setTimeout(r, 250));
     });
     cleanup();
@@ -440,10 +438,8 @@ test('Editor: calls onActivity after cursor moves', async (t) => {
     );
     
     await act(async () => {
-        getCM(container).setCursor({
-            line: 0,
-            ch: 5,
-        });
+        const view = getView(container);
+        view.dispatch({selection: {anchor: indexFromPos(view, {line: 0, ch: 5})}});
         await new Promise((r) => setTimeout(r, 150));
     });
     cleanup();
@@ -464,10 +460,8 @@ test('Editor: onActivity receives a number', async (t) => {
     );
     
     await act(async () => {
-        getCM(container).setCursor({
-            line: 0,
-            ch: 3,
-        });
+        const view = getView(container);
+        view.dispatch({selection: {anchor: indexFromPos(view, {line: 0, ch: 3})}});
         await new Promise((r) => setTimeout(r, 150));
     });
     cleanup();

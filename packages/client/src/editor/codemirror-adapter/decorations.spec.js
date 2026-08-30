@@ -64,6 +64,32 @@ test('decorations: mark clear removes all decorations from markField', (t) => {
     t.end();
 });
 
+test('decorations: markText returns a clear no-op for empty range', (t) => {
+    const view = makeView();
+    markText(view, {line: 0, ch: 0}, {line: 0, ch: 0}, {
+        className: 'marked',
+    });
+    
+    view.destroy();
+    
+    t.equal(view.state.field(markField).size, 0);
+    t.end();
+});
+
+test('decorations: markText empty range clear does not throw', (t) => {
+    const view = makeView();
+    const mark = markText(view, {line: 0, ch: 0}, {line: 0, ch: 0}, {
+        className: 'marked',
+    });
+    
+    mark.clear();
+    
+    view.destroy();
+    
+    t.ok(mark.clear);
+    t.end();
+});
+
 test('decorations: addLineClass adds decoration to lineField', (t) => {
     const view = makeView();
     addLineClass(view, 0, 'text', 'errorMarker');
