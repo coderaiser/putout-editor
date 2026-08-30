@@ -1,3 +1,17 @@
+export type ParseRequest = {
+    source: string;
+};
+
+export type ParseDocumentation = {
+    description: string;
+    method: string;
+    url: string;
+    contentType: string;
+    body: string;
+    response: Record<string, unknown>;
+    errors: Record<string, string>;
+};
+
 export type SnippetRevisionRef = {
     objectId: string;
 };

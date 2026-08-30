@@ -140,3 +140,59 @@ test('parse service: revision id valid but revision data missing from map', asyn
     t.equal(e!.message, 'Not found');
     t.end();
 });
+
+test('parse service: documentation returns object with method PUT', (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = service.documentation();
+    
+    t.equal(result.method, 'PUT');
+    t.end();
+});
+
+test('parse service: documentation returns object with correct url', (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = service.documentation();
+    
+    t.equal(result.url, '/api/v1/parse');
+    t.end();
+});
+
+test('parse service: parseSource returns File node for valid source', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('const x = 1;');
+    
+    t.equal(result.type, 'File');
+    t.end();
+});
+
+test('parse service: parseSource returns program body for valid source', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('const x = 1;');
+    
+    t.ok(Array.isArray(result.program.body));
+    t.end();
+});
+
+test('parse service: parseSource throws UnprocessableEntityException for invalid source', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const [error] = await tryToCatch(service.parseSource.bind(service), 'const = 1');
+    
+    t.equal(error.status, 422);
+    t.end();
+});
+
+test('parse service: parseSource handles TypeScript source', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('const x: number = 1;');
+    
+    t.equal(result.type, 'File');
+    t.end();
+});
+
+test('parse service: parseSource handles JSX source', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('const element = <div />;');
+    
+    t.equal(result.type, 'File');
+    t.end();
+});

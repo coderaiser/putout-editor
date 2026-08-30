@@ -1,9 +1,13 @@
 import {
+    Body,
     Controller,
     Get,
+    HttpCode,
     Param,
+    Put,
 } from '@nestjs/common';
 import {ParseService} from './parse.service.ts';
+import type {ParseRequest} from './parse.types.ts';
 
 @Controller('api/v1/parse')
 export class ParseController {
@@ -15,5 +19,18 @@ export class ParseController {
         @Param('revisionid') revisionId: string,
     ) {
         return this.parseService.load(snippetId, revisionId);
+    }
+    
+    @Get()
+    getDocumentation() {
+        return this.parseService.documentation();
+    }
+    
+    @Put()
+    @HttpCode(200)
+    async parseSource(
+        @Body() body: ParseRequest,
+    ) {
+        return this.parseService.parseSource(body.source);
     }
 }
