@@ -1,19 +1,45 @@
+import {type Print} from '@putout/printer';
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryCatch} from 'try-catch';
-import {editorBlur, setCode} from './reducers.ts';
-import {getParseResult, getCode} from './selectors.ts';
+import plugins from '@putout/engine-parser/babel/plugins';
+import {
+    type RootState,
+    editorBlur,
+    transformBlur,
+    setCode,
+    setTransformState,
+} from './reducers.ts';
+import {
+    getParseResult,
+    getCode,
+    getTransformCode,
+} from './selectors.ts';
+
+const {parse} = JSON;
 
 export const formatListener = createListenerMiddleware();
 
-let _print = null;
+const parseTransform = (code: string) => {
+    const [error, ast] = tryCatch(parse, code, {
+        sourceType: 'module',
+        plugins,
+    });
+    
+    if (error)
+        return null;
+    
+    return ast;
+};
+
+let _print: Print;
 
 const getPrint = async () => {
     if (_print)
         return _print;
     
-    const mod = await import('@putout/printer');
+    const {print} = await import('@putout/printer');
     
-    _print = mod.print;
+    _print = print as Print;
     
     return _print;
 };
@@ -27,7 +53,9 @@ const format = (print: any, ast: any) => {
     return result;
 };
 
-formatListener.startListening({
+const startAppListening = formatListener.startListening.withTypes<RootState>();
+
+startAppListening({
     actionCreator: editorBlur,
     effect: async (_, api) => {
         const state = api.getState();
@@ -53,3 +81,35 @@ formatListener.startListening({
         }));
     },
 });
+
+const startFormatListening = formatListener.startListening.withTypes<RootState>();
+
+startFormatListening({
+    actionCreator: transformBlur,
+    effect: async (_, api) => {
+        const state = api.getState();
+        const code = getTransformCode(state);
+        
+        if (!code)
+            return;
+        
+        const ast = parseTransform(code);
+        
+        if (!ast)
+            return;
+        
+        const print = await getPrint();
+        const formatted = format(print, ast);
+        
+        if (!formatted)
+            return;
+        
+        if (formatted === code)
+            return;
+        
+        api.dispatch(setTransformState({
+            code: formatted,
+        }));
+    },
+});
+
