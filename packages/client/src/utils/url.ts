@@ -6,7 +6,7 @@ export function getDataFromURI() {
     const match = globalThis.location.hash.match(DATA_PATTERN);
     
     if (match) {
-        const params = {
+        const params: Record<string, unknown> = {
             id: match[1],
             rev: Number(match[2]) || 0,
         };
@@ -20,7 +20,7 @@ export function getDataFromURI() {
     return {};
 }
 
-export function updateURI(data) {
+export function updateURI(data: Record<string, unknown>) {
     const currentParams = getDataFromURI();
     const {
         id,
@@ -41,7 +41,7 @@ export function updateURI(data) {
     }
     
     if (Object.keys(params).length > 0)
-        hash += '?' + queryString.stringify(params);
+        hash += '?' + queryString.stringify(params as Record<string, string>);
     
     globalThis.location.hash = hash;
 }

@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import {getDataFromURI, updateURI} from './url.js';
+import {getDataFromURI, updateURI} from './url.ts';
 
 test('url: getDataFromURI: empty hash', (t) => {
     globalThis.location.hash = '';
