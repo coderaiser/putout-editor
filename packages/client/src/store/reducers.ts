@@ -148,7 +148,10 @@ const slice = createSlice({
         setHighlight: (state, {payload: range}) => {
             state.highlightRange = range;
         },
-        clearHighlight: (state, {payload: range} = {}) => {
+        clearHighlight: (state, {payload: range} = {
+            payload: {},
+            type: '',
+        }) => {
             if (!range || state.highlightRange && range[0] === state.highlightRange[0] && range[1] === state.highlightRange[1])
                 state.highlightRange = null;
         },
@@ -228,7 +231,7 @@ const slice = createSlice({
                     ...state.workbench.transform,
                     transformer: transformer.id,
                     code: snippetHasDifferentTransform ? state.workbench.transform.code : transformer.defaultTransform,
-                    initialCode: snippetHasDifferentTransform ? state.activeRevision.getTransformCode() : transformer.defaultTransform,
+                    initialCode: snippetHasDifferentTransform ? state.activeRevision?.getTransformCode() : transformer.defaultTransform,
                 };
             }
         },
@@ -271,7 +274,7 @@ const slice = createSlice({
     },
 });
 
-function resetWorkbenchFromParser(state) {
+function resetWorkbenchFromParser(state: RootState) {
     const parser = getParserByID(state.workbench.parser);
     const hadTransformer = state.activeRevision?.getTransformerID();
     
@@ -290,7 +293,15 @@ function resetWorkbenchFromParser(state) {
         };
 }
 
-function selectParserFromCategory(state, category) {
+type Category = {
+    id: string;
+    displayName: string;
+    mimeTypes: string[];
+    fileExtension: string;
+    codeExample: string;
+};
+
+function selectParserFromCategory(state: RootState, category: Category) {
     const parserId = state.parserPerCategory[category.id] || getDefaultParser(category).id;
     
     state.workbench.parser = parserId;

@@ -58,9 +58,10 @@ test('dom: observeResize returns a function', (t) => {
     const result = typeof cleanup;
     const expected = 'function';
     
-    t.equal(result, expected);
-    cleanup();
     view.destroy();
+    cleanup();
+    
+    t.equal(result, expected);
     t.end();
 });
 

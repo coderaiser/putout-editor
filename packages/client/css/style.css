@@ -1,5 +1,5 @@
-@import url(./highlight.css);
-@import url(../fontcustom/fontcustom.css);
+@import './highlight.css';
+@import '../fontcustom/fontcustom.css';
 
 :root {
     --color-bg-page:         #fff;

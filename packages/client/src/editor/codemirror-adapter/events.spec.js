@@ -70,9 +70,10 @@ test('events: handler fires on contentDOM blur (not view.dom)', (t) => {
     // Dispatch on contentDOM (the actual focusable element)
     view.contentDOM.dispatchEvent(new FocusEvent('blur'));
     
-    t.ok(fired, 'handler should fire when blur dispatched on contentDOM');
-    off(view, eventName, handler);
     view.destroy();
+    off(view, eventName, handler);
+    
+    t.ok(fired, 'handler should fire when blur dispatched on contentDOM');
     t.end();
 });
 
@@ -91,8 +92,9 @@ test('events: handler does NOT fire when event dispatched only on view.dom wrapp
         bubbles: false,
     }));
     
-    t.notOk(fired, 'handler should NOT fire when event only on view.dom wrapper');
-    off(view, eventName, handler);
     view.destroy();
+    off(view, eventName, handler);
+    
+    t.notOk(fired, 'handler should NOT fire when event only on view.dom wrapper');
     t.end();
 });
