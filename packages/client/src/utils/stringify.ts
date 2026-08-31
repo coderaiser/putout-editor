@@ -1,9 +1,12 @@
-export default function stringify(value) {
+export default function stringify(value: unknown): string | number {
     switch(typeof value) {
-    case 'function':
-        return value
+    case 'function': {
+        const matched = value
             .toString()
-            .match(/function[^(]*\([^)]*\)/)[0];
+            .match(/function[^(]*\([^)]*\)/);
+        
+        return matched![0];
+    }
     
     case 'object':
         return value ? JSON.stringify(value, stringify) : 'null';
@@ -15,6 +18,6 @@ export default function stringify(value) {
         return globalThis.isNaN(value) ? 'NaN' : value;
     
     default:
-        return JSON.stringify(value);
+        return String(JSON.stringify(value));
     }
 }

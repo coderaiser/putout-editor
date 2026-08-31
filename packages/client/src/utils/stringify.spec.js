@@ -1,5 +1,5 @@
 import {test, stub} from 'supertape';
-import stringify from './stringify.js';
+import stringify from './stringify.ts';
 
 test('stringify: function returns signature', (t) => {
     const fn = stub();
