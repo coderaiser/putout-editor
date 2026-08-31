@@ -284,4 +284,3 @@ export default {
         maxAssetSize: THREE_MB,
     },
 };
-
