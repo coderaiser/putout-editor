@@ -1,6 +1,10 @@
 import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
-import {render, cleanup, act} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    act,
+} from '@testing-library/react';
 import TransformOutput from './TransformOutput.js';
 
 const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
