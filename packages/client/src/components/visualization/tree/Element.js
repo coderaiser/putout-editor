@@ -182,14 +182,16 @@ function Element(props) {
             if (nodeName)
                 valueOutput = <span className="tokenName nc" onClick={toggleClick}>
                     {nodeName}{' '}
-                    {lastClickedElement === selfHandle.current ? <span
-                        className="ge"
-                        style={{
-                            fontSize: '0.8em',
-                        }}
-                    >
-                        {' = $node'}
-                    </span> : null}
+                    {lastClickedElement === selfHandle.current
+                        ? <span
+                            className="ge"
+                            style={{
+                                fontSize: '0.8em',
+                            }}
+                        >
+                            {' = $node'}
+                        </span>
+                        : null}
                 </span>;
             
             enableHighlight = treeAdapter.getRange(state.value) && level;
@@ -262,15 +264,17 @@ function Element(props) {
         showToggler = false;
     }
     
-    const name = props.name ? <span
-        className="key"
-        onClick={showToggler ? toggleClick : null}
-    >
-        <span className="name nb">
-            {props.computed ? <span title="computed">*{props.name}</span> : props.name}
+    const name = props.name
+        ? <span
+            className="key"
+            onClick={showToggler ? toggleClick : null}
+        >
+            <span className="name nb">
+                {props.computed ? <span title="computed">*{props.name}</span> : props.name}
+            </span>
+            <span className="p">: </span>
         </span>
-        <span className="p">: </span>
-    </span> : null;
+        : null;
     
     const classNames = cx({
         entry: true,
@@ -290,16 +294,20 @@ function Element(props) {
             <span className="value">
                 {valueOutput}
             </span>
-            {prefix ? <span className="prefix p">
-                {prefix}</span> : null}
+            {prefix
+                ? <span className="prefix p">
+                    {prefix}</span>
+                : null}
             {content}
             {suffix ? <div className="suffix p">{suffix}</div> : null}
-            {state.error ? <span>
-                {' '}
-                <TbAlertTriangle
-                    title={state.error.message}
-                />
-            </span> : null}
+            {state.error
+                ? <span>
+                    {' '}
+                    <TbAlertTriangle
+                        title={state.error.message}
+                    />
+                </span>
+                : null}
         </li>
     );
 }

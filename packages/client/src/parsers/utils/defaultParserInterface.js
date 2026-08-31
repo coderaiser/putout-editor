@@ -129,9 +129,11 @@ export default {
    */_getSettingsConfiguration(defaultOptions) {
         const keys = Object.keys(defaultOptions);
         
-        return keys.length > 0 ? {
-            fields: keys,
-        } : null;
+        return keys.length > 0
+            ? {
+                fields: keys,
+            }
+            : null;
     },
     
     hasSettings() {
