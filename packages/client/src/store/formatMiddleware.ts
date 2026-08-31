@@ -12,6 +12,7 @@ import {
     getCode,
     getTransformCode,
 } from './selectors.ts';
+import {normalizeRule} from './normalizeRule.ts';
 
 export const formatListener = createListenerMiddleware();
 
@@ -21,7 +22,7 @@ startAppListening({
     actionCreator: editorBlur,
     effect: async (_, api) => {
         const state = api.getState();
-        const ast = getParseResult(state)?.ast;
+        const {ast} = getParseResult(state);
         
         if (!ast)
             return;
@@ -65,12 +66,13 @@ startFormatListening({
         
         const {print} = await import('@putout/printer');
         const formatted = print(ast);
+        const normalized = normalizeRule(formatted);
         
-        if (formatted === code)
+        if (normalized === code)
             return;
         
         api.dispatch(setTransformState({
-            code: formatted,
+            code: normalized,
         }));
     },
 });

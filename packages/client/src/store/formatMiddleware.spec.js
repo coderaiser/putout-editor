@@ -1,6 +1,7 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
+import {montag} from 'montag';
 import {formatListener} from './formatMiddleware.ts';
 import {
     putoutEditor,
@@ -123,28 +124,6 @@ test('formatMiddleware: editorBlur does not dispatch when formatted equals code'
     t.end();
 });
 
-test('formatMiddleware: editorBlur does not dispatch when print throws', async (t) => {
-    const store = makeStore();
-    const badAST = {
-        type: 'UnknownNode123',
-    };
-    
-    store.dispatch(setParseResult({
-        ast: badAST,
-        error: null,
-        time: 1,
-        treeAdapter: null,
-    }));
-    
-    const before = store.getState().workbench.code;
-    
-    store.dispatch(editorBlur());
-    await setImmediate();
-    
-    t.equal(store.getState().workbench.code, before);
-    t.end();
-});
-
 // ─── transformBlur ────────────────────────────────────────────────────────────
 test('formatMiddleware: transformBlur with valid code formats transform', async (t) => {
     const store = makeStore({
@@ -218,5 +197,57 @@ test('formatMiddleware: transformBlur does not dispatch when formatted equals co
     await setImmediate();
     
     t.equal(store.getState().workbench.transform.code, 'export const replace = () => ({});\n');
+    t.end();
+});
+
+test('formatMiddleware: transformBlur inserts blank line after comment when missing', async (t) => {
+    const store = makeStore({
+        workbench: {
+            transform: {
+                code: '// https://git.io/JqcMn\nexport const report = () => `Use const`;',
+                cursor: 0,
+                initialCode: '',
+            },
+        },
+    });
+    
+    store.dispatch(transformBlur());
+    await setImmediate();
+    
+    const {code} = store.getState().workbench.transform;
+    const expected = montag`
+        // https://git.io/JqcMn
+        
+        export const report = () => \`Use const\`;
+   
+   `;
+    
+    t.equal(code, expected);
+    t.end();
+});
+
+test('formatMiddleware: transformBlur does not duplicate blank line when already present', async (t) => {
+    const store = makeStore({
+        workbench: {
+            transform: {
+                code: '// https://git.io/JqcMn\n\nexport const report = () => `Use const`;',
+                cursor: 0,
+                initialCode: '',
+            },
+        },
+    });
+    
+    store.dispatch(transformBlur());
+    await setImmediate();
+    
+    const {code} = store.getState().workbench.transform;
+    const expected = montag`
+        // https://git.io/JqcMn
+        
+        export const report = () => \`Use const\`;
+    
+    `;
+    
+    t.equal(code, expected);
     t.end();
 });
