@@ -1,5 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import Transformer from '../components/Transformer.js';
+import Transformer from './Transformer.js';
 import {
     setTransformState,
     transformBlur,

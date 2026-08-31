@@ -4,7 +4,7 @@ import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
 import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './components/LocalStorage';
-import ASTOutputContainer from './containers/ASTOutputContainer';
+import ASTOutputContainer from './ast/ASTOutputContainer.js';
 import CodeEditorContainer from './containers/CodeEditorContainer';
 import ErrorMessageContainer from './containers/ErrorMessageContainer';
 import GistBanner from './components/GistBanner';
@@ -14,7 +14,7 @@ import SettingsDialogContainer from './containers/SettingsDialogContainer';
 import ShareDialogContainer from './containers/ShareDialogContainer';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
-import TransformerContainer from './containers/TransformerContainer';
+import TransformerContainer from './transform/TransformerContainer.js';
 import debounce from './utils/debounce.ts';
 import {
     putoutEditor,

@@ -1,5 +1,4 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
-import {tryCatch} from 'try-catch';
 import {
     type RootState,
     editorBlur,
@@ -12,7 +11,7 @@ import {
     getCode,
     getTransformCode,
 } from './selectors.ts';
-import {normalizeRule} from './normalizeRule.ts';
+import {formatInput, formatRule} from '../transform/format.ts';
 
 export const formatListener = createListenerMiddleware();
 
@@ -23,16 +22,11 @@ startAppListening({
     effect: async (_, api) => {
         const state = api.getState();
         const {ast} = getParseResult(state);
+        const source = getCode(state);
         
-        if (!ast)
-            return;
+        const [error, formatted] = await formatInput(source, ast);
         
-        const {print} = await import('@putout/printer');
-        const formatted = print(ast);
-        
-        const code = getCode(state);
-        
-        if (formatted === code)
+        if (error)
             return;
         
         api.dispatch(setCode({
@@ -48,31 +42,14 @@ startFormatListening({
     actionCreator: transformBlur,
     effect: async (_, api) => {
         const state = api.getState();
-        const code = getTransformCode(state);
-        
-        if (!code)
-            return;
-        
-        const {parse} = await import('@babel/parser');
-        const {default: plugins} = await import('@putout/engine-parser/babel/plugins');
-        
-        const [error, ast] = tryCatch(parse, code, {
-            sourceType: 'module',
-            plugins,
-        });
+        const source = getTransformCode(state);
+        const [error, code] = await formatRule(source);
         
         if (error)
             return;
         
-        const {print} = await import('@putout/printer');
-        const formatted = print(ast);
-        const normalized = normalizeRule(formatted);
-        
-        if (normalized === code)
-            return;
-        
         api.dispatch(setTransformState({
-            code: normalized,
+            code,
         }));
     },
 });
