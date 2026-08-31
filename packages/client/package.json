@@ -123,6 +123,7 @@
   "scripts": {
     "test": "madrun test",
     "coverage": "madrun coverage",
+    "test:dts": "madrun test:dts",
     "start": "madrun start",
     "build": "madrun build",
     "build:dev": "madrun build:dev",

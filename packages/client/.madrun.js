@@ -18,6 +18,7 @@ const env = {
 export default {
     'test': () => [testEnv, 'tape "src/**/*.spec.js"'],
     'coverage': async () => [testEnv, `c8 tape "src/**/*.spec.js"`],
+    'test:dts': () => 'tsc --noEmit',
     'start': () => 'http-server ../../out',
     'build': () => [env, build('production')],
     'build:dev': () => [env, build('development')],
