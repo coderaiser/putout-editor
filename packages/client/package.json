@@ -31,6 +31,7 @@
     "@supertape/loader-css": "^1.0.0",
     "@supertape/loader-dom": "^1.0.0",
     "@supertape/loader-jsx": "^1.0.3",
+    "@supertape/loader-ts": "^1.0.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "acorn-private-methods": "^1.0.0",
