@@ -1,6 +1,9 @@
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import React from 'react';
+import {useDispatch} from 'react-redux';
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import cx from 'classnames';
 import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';
@@ -12,329 +15,295 @@ import {setHighlight, clearHighlight} from '../../../store/reducers.js';
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
 
-/*
-// For debugging
-function log(f) {
-  return function(a, b) {
-    let result = f.call(this, a,b);
-    console.log(a.name, a.name || a.value && a.value.type, 'Updates', result);
-    return result;
-  };
-}
-*/
-let lastClickedElement;
+let lastClickedElement = null;
 
-let Element = class extends React.Component {
-    constructor(props) {
-        super(props);
-        this._execFunction = this._execFunction.bind(this);
-        this._onMouseLeave = this._onMouseLeave.bind(this);
-        this._onMouseOver = this._onMouseOver.bind(this);
-        this._toggleClick = this._toggleClick.bind(this);
-        const {
-            value,
-            name,
-            deepOpen,
-            treeAdapter,
-        } = props;
-        
-        // Some elements should be open by default
-        const open = props.open
-            || !props.level
-            || deepOpen
-            || value && treeAdapter.opensByDefault(value, name);
-        
-        this.state = {
-            open,
-            deepOpen,
-            value,
-        };
+function Element(props) {
+    const {
+        value,
+        deepOpen,
+        treeAdapter,
+        focusPath,
+        level,
+    } = props;
+    
+    const dispatch = useDispatch();
+    const container = useRef(null);
+    const mounted = useRef(false);
+    const previousFocusPath = useRef(null);
+    const [, setRenderVersion] = useState(0);
+    
+    const selfHandle = useRef({
+        trigger: () => setRenderVersion((version) => version + 1),
+    });
+    
+    const [state, setState] = useState({
+        open: props.open || !props.level || deepOpen || value && treeAdapter.opensByDefault(value, props.name),
+        deepOpen,
+        value,
+        error: null,
+    });
+    
+    const [previousProps, setPreviousProps] = useState(props);
+    
+    if (props !== previousProps) {
+        setPreviousProps(props);
+        setState((current) => ({
+            ...current,
+            open: props.open || props.deepOpen || current.open,
+            deepOpen: props.deepOpen,
+            value: props.value,
+        }));
     }
     
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        this.setState({
-            open: nextProps.open || nextProps.deepOpen || this.state.open,
-            deepOpen: nextProps.deepOpen,
-            value: nextProps.value,
-        });
-    }
-    
-    componentWillUnmount() {
-        if (lastClickedElement === this)
+    useEffect(() => () => {
+        if (lastClickedElement === selfHandle.current)
             lastClickedElement = null;
-    }
+    }, []);
     
-    _shouldAutoFocus(thisProps, nextProps) {
-        const {focusPath: thisFocusPath} = thisProps;
-        const {settings: nextSettings, focusPath: nextFocusPath} = nextProps;
+    useEffect(() => {
+        const wasFocusPath = previousFocusPath.current;
+        const isInitialRender = !mounted.current;
         
-        return thisFocusPath !== nextFocusPath && nextFocusPath.indexOf(nextProps.value) > -1 && nextSettings.autofocus;
-    }
-    
-    componentDidMount() {
-        if (this.props.settings.autofocus)
-            this._scrollIntoView();
-    }
-    
-    componentDidUpdate(prevProps) {
-        if (this._shouldAutoFocus(prevProps, this.props))
-            this._scrollIntoView();
-    }
-    
-    _scrollIntoView() {
-        const {focusPath, value} = this.props;
+        mounted.current = true;
+        previousFocusPath.current = props.focusPath;
         
-        if (focusPath.length > 0 && focusPath.at(-1) === value)
-            setTimeout(() => this.container?.scrollIntoView(), 0);
-    }
-    
-    _toggleClick({shiftKey}) {
-        const open = shiftKey || !this.state.open;
-        
-        const update = () => {
-            // Make AST node accessible
-            if (open)
-                globalThis.$node = this.state.value;
-            else
-                delete globalThis.$node;
-            
-            this.setState({
-                open,
-                deepOpen: shiftKey,
-            });
-        };
-        
-        if (lastClickedElement && lastClickedElement !== this) {
-            const element = lastClickedElement;
-            
-            lastClickedElement = open ? this : null;
-            element.forceUpdate(update);
+        if (isInitialRender) {
+            if (props.settings.autofocus)
+                scrollIntoView();
             
             return;
         }
         
-        lastClickedElement = open ? this : null;
+        if (wasFocusPath !== props.focusPath && props.focusPath.indexOf(props.value) > -1 && props.settings.autofocus)
+            scrollIntoView();
+    });
+    
+    function scrollIntoView() {
+        const {focusPath, value} = props;
+        
+        if (focusPath.length > 0 && focusPath.at(-1) === value)
+            setTimeout(() => container.current?.scrollIntoView(), 0);
+    }
+    
+    function toggleClick({shiftKey}) {
+        const open = shiftKey || !state.open;
+        
+        const update = () => {
+            // Make AST node accessible
+            if (open)
+                globalThis.$node = state.value;
+            else
+                delete globalThis.$node;
+            
+            setState((current) => ({
+                ...current,
+                open,
+                deepOpen: shiftKey,
+            }));
+        };
+        
+        if (lastClickedElement && lastClickedElement !== selfHandle.current) {
+            const element = lastClickedElement;
+            
+            lastClickedElement = open ? selfHandle.current : null;
+            element.trigger();
+            update();
+            
+            return;
+        }
+        
+        lastClickedElement = open ? selfHandle.current : null;
         update();
     }
     
-    _onMouseOver(e) {
+    function onMouseOver(e) {
         e.stopPropagation();
         
-        const {value} = this.state;
-        
-        this.props.setHighlight(this.props.treeAdapter.getRange(value));
+        dispatch(setHighlight(props.treeAdapter.getRange(state.value)));
     }
     
-    _onMouseLeave() {
-        const {value} = this.state;
-        
-        this.props.clearHighlight(this.props.treeAdapter.getRange(value));
+    function onMouseLeave() {
+        dispatch(clearHighlight(props.treeAdapter.getRange(state.value)));
     }
     
-    _isFocused(level, path, value, open) {
-        return level && path.indexOf(value) > -1
-            && (!open || path.at(-1) === value);
-    }
-    
-    _execFunction() {
-        const state = {
+    function execFunction() {
+        const update = {
             error: null,
         };
         
         try {
-            state.value = this.state.value.call(this.props.parent);
+            update.value = state.value.call(props.parent);
         } catch(err) {
-            state.error = err;
+            update.error = err;
         }
         
-        this.setState(state);
+        setState((current) => ({
+            ...current,
+            ...update,
+        }));
     }
     
-    _createSubElement(key, value, name, computed) {
+    function createSubElement(key, value, name, computed) {
         return (
             <Element
                 key={key}
                 name={name}
-                focusPath={this.props.focusPath}
-                deepOpen={this.state.deepOpen}
+                focusPath={props.focusPath}
+                deepOpen={state.deepOpen}
                 value={value}
                 computed={computed}
-                level={this.props.level + 1}
-                treeAdapter={this.props.treeAdapter}
-                settings={this.props.settings}
-                parent={this.props.value}
+                level={props.level + 1}
+                treeAdapter={props.treeAdapter}
+                settings={props.settings}
+                parent={props.value}
             />
         );
     }
     
-    render() {
-        const {
-            focusPath,
-            treeAdapter,
-            level,
-        } = this.props;
-        
-        const {open, value} = this.state;
-        
-        const focused = this._isFocused(level, focusPath, value, open);
-        let valueOutput = null;
-        let content = null;
-        let prefix = null;
-        let suffix = null;
-        let showToggler = false;
-        let enableHighlight = false;
-        
-        if (value && typeof value === 'object') {
-            if (!Array.isArray(value)) {
-                const nodeName = treeAdapter.getNodeName(value);
-                
-                if (nodeName)
-                    valueOutput = <span className="tokenName nc" onClick={this._toggleClick}>
-                        {nodeName}{' '}
-                        {lastClickedElement === this ? <span
-                            className="ge"
-                            style={{
-                                fontSize: '0.8em',
-                            }}
-                        >
-                            {' = $node'}
-                        </span> : null}
-                    </span>;
-                
-                enableHighlight = treeAdapter.getRange(value) && level;
-            } else {
-                enableHighlight = true;
-            }
+    function isFocused(level, path, value, open) {
+        return level && path.indexOf(value) > -1
+            && (!open || path.at(-1) === value);
+    }
+    
+    const {open} = state;
+    
+    const focused = isFocused(level, focusPath, state.value, open);
+    let valueOutput = null;
+    let content = null;
+    let prefix = null;
+    let suffix = null;
+    let showToggler = false;
+    let enableHighlight = false;
+    
+    if (state.value && typeof state.value === 'object') {
+        if (!Array.isArray(state.value)) {
+            const nodeName = treeAdapter.getNodeName(state.value);
             
-            if (isNumber(value.length)) {
-                if (value.length > 0 && open) {
-                    prefix = '[';
-                    suffix = ']';
-                    const elements = Array
-                        .from(treeAdapter.walkNode(value))
-                        .filter(({key}) => key !== 'length')
-                        .map(({key, value, computed}) => this._createSubElement(key, value, Number.isInteger(Number(key)) ? undefined : key, computed));
-                    
-                    content = <ul className="value-body">{elements}</ul>;
-                } else {
-                    valueOutput = <span>
-                        {valueOutput}
-                        <CompactArrayView
-                            array={value}
-                            onClick={this._toggleClick}
-                        />
-                    </span>;
-                }
-                
-                showToggler = value.length > 0;
-            } else {
-                if (open) {
-                    prefix = '{';
-                    suffix = '}';
-                    const elements = Array
-                        .from(treeAdapter.walkNode(value))
-                        .map(({key, value, computed}) => this._createSubElement(key, value, key, computed));
-                    
-                    content = <ul className="value-body">{elements}</ul>;
-                    showToggler = elements.length > 0;
-                } else {
-                    const keys = Array
-                        .from(treeAdapter.walkNode(value))
-                        .map(({key}) => key);
-                    
-                    valueOutput = <span>
-                        {valueOutput}
-                        <CompactObjectView
-                            onClick={this._toggleClick}
-                            keys={keys}
-                        />
-                    </span>;
-                    showToggler = keys.length > 0;
-                }
-            }
-        } else if (isFn(value)) {
-            valueOutput = <span
-                className="ge invokeable"
-                title="Click to invoke function"
-                onClick={this._execFunction}
-            >
-                (...)
-            </span>;
-            showToggler = false;
+            if (nodeName)
+                valueOutput = <span className="tokenName nc" onClick={toggleClick}>
+                    {nodeName}{' '}
+                    {lastClickedElement === selfHandle.current ? <span
+                        className="ge"
+                        style={{
+                            fontSize: '0.8em',
+                        }}
+                    >
+                        {' = $node'}
+                    </span> : null}
+                </span>;
+            
+            enableHighlight = treeAdapter.getRange(state.value) && level;
         } else {
-            valueOutput = <span className="s">{stringify(value)}</span>;
-            showToggler = false;
+            enableHighlight = true;
         }
         
-        const name = this.props.name ? <span
-            className="key"
-            onClick={showToggler ? this._toggleClick : null}
-        >
-            <span className="name nb">
-                {this.props.computed ? <span title="computed">*{this.props.name}</span> : this.props.name}
-            </span>
-            <span className="p">: </span>
-        </span> : null;
-        
-        const classNames = cx({
-            entry: true,
-            focused,
-            toggable: showToggler,
-            open,
-        });
-        
-        return (
-            <li
-                ref={(c) => this.container = c}
-                className={classNames}
-                onMouseOver={enableHighlight ? this._onMouseOver : null}
-                onMouseLeave={enableHighlight ? this._onMouseLeave : null}
-            >
-                {name}
-                <span className="value">
+        if (isNumber(state.value.length)) {
+            if (state.value.length > 0 && open) {
+                prefix = '[';
+                suffix = ']';
+                const elements = Array
+                    .from(treeAdapter.walkNode(state.value))
+                    .filter(({key}) => key !== 'length')
+                    .map(({key, value, computed}) => createSubElement(
+                        key,
+                        value,
+                        Number.isInteger(Number(key)) ? undefined : key,
+                        computed,
+                    ));
+                
+                content = <ul className="value-body">{elements}</ul>;
+            } else {
+                valueOutput = <span>
                     {valueOutput}
-                </span>
-                {prefix ? <span className="prefix p">
-                    {prefix}</span> : null}
-                {content}
-                {suffix ? <div className="suffix p">{suffix}</div> : null}
-                {this.state.error ? <span>
-                    {' '}
-                    <TbAlertTriangle
-                        title={this.state.error.message}
+                    <CompactArrayView
+                        array={state.value}
+                        onClick={toggleClick}
                     />
-                </span> : null}
-            </li>
-        );
+                </span>;
+            }
+            
+            showToggler = state.value.length > 0;
+        } else {
+            if (open) {
+                prefix = '{';
+                suffix = '}';
+                const elements = Array
+                    .from(treeAdapter.walkNode(state.value))
+                    .map(({key, value, computed}) => createSubElement(key, value, key, computed));
+                
+                content = <ul className="value-body">{elements}</ul>;
+                showToggler = elements.length > 0;
+            } else {
+                const keys = Array
+                    .from(treeAdapter.walkNode(state.value))
+                    .map(({key}) => key);
+                
+                valueOutput = <span>
+                    {valueOutput}
+                    <CompactObjectView
+                        onClick={toggleClick}
+                        keys={keys}
+                    />
+                </span>;
+                showToggler = keys.length > 0;
+            }
+        }
+    } else if (isFn(state.value)) {
+        valueOutput = <span
+            className="ge invokeable"
+            title="Click to invoke function"
+            onClick={execFunction}
+        >
+            (...)
+        </span>;
+        showToggler = false;
+    } else {
+        valueOutput = <span className="s">{stringify(state.value)}</span>;
+        showToggler = false;
     }
-};
+    
+    const name = props.name ? <span
+        className="key"
+        onClick={showToggler ? toggleClick : null}
+    >
+        <span className="name nb">
+            {props.computed ? <span title="computed">*{props.name}</span> : props.name}
+        </span>
+        <span className="p">: </span>
+    </span> : null;
+    
+    const classNames = cx({
+        entry: true,
+        focused,
+        toggable: showToggler,
+        open,
+    });
+    
+    return (
+        <li
+            ref={container}
+            className={classNames}
+            onMouseOver={enableHighlight ? onMouseOver : null}
+            onMouseLeave={enableHighlight ? onMouseLeave : null}
+        >
+            {name}
+            <span className="value">
+                {valueOutput}
+            </span>
+            {prefix ? <span className="prefix p">
+                {prefix}</span> : null}
+            {content}
+            {suffix ? <div className="suffix p">{suffix}</div> : null}
+            {state.error ? <span>
+                {' '}
+                <TbAlertTriangle
+                    title={state.error.message}
+                />
+            </span> : null}
+        </li>
+    );
+}
 
 Element.displayName = 'Element';
 
-Element.propTypes = {
-    name: PropTypes.string,
-    value: PropTypes.any,
-    computed: PropTypes.bool,
-    open: PropTypes.bool,
-    deepOpen: PropTypes.bool,
-    focusPath: PropTypes.array.isRequired,
-    level: PropTypes.number,
-    treeAdapter: PropTypes.object.isRequired,
-    settings: PropTypes.object.isRequired,
-    parent: PropTypes.oneOfType([
-        PropTypes.object,
-        PropTypes.array,
-    ]),
-    setHighlight: PropTypes.func,
-    clearHighlight: PropTypes.func,
-};
-
-const mapDispatchToProps = {
-    setHighlight,
-    clearHighlight,
-};
-
-export default Element = connect(
-    null,
-    mapDispatchToProps,
-)(RecursiveTreeElement(Element));
+export default RecursiveTreeElement(Element);
