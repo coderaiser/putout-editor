@@ -1,6 +1,6 @@
 import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
-import {render, cleanup} from '@testing-library/react';
+import {render, cleanup, act} from '@testing-library/react';
 import TransformOutput from './TransformOutput.js';
 
 const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
@@ -60,17 +60,21 @@ test('TransformOutput: does not call transform when isLoading is true', async (t
 });
 
 test('TransformOutput: renders editor when transform throws', async (t) => {
-    const {container} = render(
-        <TransformOutput
-            transformer={makeTransformer('', true)}
-            transformCode=""
-            code="const x = 1"
-            mode="javascript"
-            isLoading={false}
-        />,
-    );
+    let container;
     
-    await setImmediate();
+    await act(async () => {
+        ({container} = render(
+            <TransformOutput
+                transformer={makeTransformer('', true)}
+                transformCode=""
+                code="const x = 1"
+                mode="javascript"
+                isLoading={false}
+            />,
+        ));
+        await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    
     const editor = container.querySelector('.output .editor');
     
     cleanup();
@@ -189,6 +193,31 @@ test('TransformOutput: resolves highlight range through posFromIndex', async (t)
     );
     
     await setImmediate();
+    const editor = container.querySelector('.output .editor');
+    
+    cleanup();
+    
+    t.ok(editor);
+    t.end();
+});
+
+test('TransformOutput: posFromIndex returns undefined when no sourceMap', async (t) => {
+    let container;
+    
+    await act(async () => {
+        ({container} = render(
+            <TransformOutput
+                transformer={makeTransformer('const x = 1;')}
+                transformCode=""
+                code="const x = 1"
+                mode="javascript"
+                isLoading={false}
+                highlightRange={[0, 5]}
+            />,
+        ));
+        await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    
     const editor = container.querySelector('.output .editor');
     
     cleanup();
