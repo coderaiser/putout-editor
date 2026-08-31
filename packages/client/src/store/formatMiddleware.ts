@@ -53,7 +53,7 @@ startFormatListening({
             return;
         
         const {parse} = await import('@babel/parser');
-        const plugins = await import('@putout/engine-parser/babel/plugins');
+        const {default: plugins} = await import('@putout/engine-parser/babel/plugins');
         
         const [error, ast] = tryCatch(parse, code, {
             sourceType: 'module',
