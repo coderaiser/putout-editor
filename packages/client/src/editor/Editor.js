@@ -14,9 +14,10 @@ import {
     observeResize,
 } from './codemirror/index.js';
 
+const returns = (a) => () => a;
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
 
-const noop = () => {};
+const noop = returns();
 
 export default function Editor(props) {
     const {
@@ -43,7 +44,6 @@ export default function Editor(props) {
     const timerRef = useRef(null);
     const activityRef = useRef(null);
     
-    // Mount — create CodeMirror instance, bind all handlers
     useEffect(() => {
         const editor = createEditor(containerRef.current, {
             keyMap,
@@ -80,7 +80,6 @@ export default function Editor(props) {
         
         editorRef.current = editor;
         
-        // Theme — watch data-theme attribute on <html>
         const themeObserver = new MutationObserver(() => {
             setOption(editor, 'theme', getCMTheme());
         });
@@ -90,13 +89,8 @@ export default function Editor(props) {
             attributeFilter: ['data-theme'],
         });
         
-        // Resize — replaces PANEL_RESIZE pubsub subscription
         const cleanupResize = observeResize(editor, containerRef.current);
-        
-        // Blur → notify parent (formatting handled in middleware)
-        const [blurEv, blurFn] = on(editor, 'blur', () => {
-            onBlur();
-        });
+        const [blurEv, blurFn] = on(editor, 'blur', onBlur);
         
         return () => {
             clearTimeout(timerRef.current);
@@ -105,10 +99,9 @@ export default function Editor(props) {
             cleanupResize();
             editor.destroy();
             editorRef.current = null;
-        }; // Mount only — prop changes handled by separate effects below
+        };
     }, []);
     
-    // Sync value prop
     useEffect(() => {
         if (editorRef.current && value !== valueRef.current) {
             valueRef.current = value;
@@ -116,26 +109,19 @@ export default function Editor(props) {
         }
     }, [value]);
     
-    // Sync mode prop
     useEffect(() => {
         if (editorRef.current)
             setOption(editorRef.current, 'mode', mode);
     }, [mode]);
     
-    // Sync keyMap prop
     useEffect(() => {
         if (editorRef.current)
             setOption(editorRef.current, 'keyMap', keyMap);
     }, [keyMap]);
     
-    // Sync error prop — add/remove error line class
     useEffect(() => {
         const editor = editorRef.current;
-        
-        if (!editor)
-            return;
-        
-        const getLine = (err) => err?.loc?.line || err?.lineNumber || err?.line || null;
+        const getLine = (error) => error && (error.lineNumber || error.line || error.loc?.line);
         
         const oldLine = getLine(errorRef.current);
         
@@ -186,3 +172,4 @@ export default function Editor(props) {
         <div className="editor" ref={containerRef}/>
     );
 }
+

@@ -21,10 +21,9 @@
         "src/containers/ToolbarContainer.js",
         "src/containers/TransformerContainer.js",
         "src/parsers/transpilers/typescript.js",
-        "src/components/Editor.js",
-        "src/components/Editor.spec.js",
         "src/components/visualization/tree/**",
-        "src/parsers/js/**"
+        "src/parsers/js/**",
+        "coverage"
     ],
     "branches": 100,
     "lines": 100,
