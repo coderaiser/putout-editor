@@ -54,7 +54,7 @@ export default function Editor(props) {
             updateListener: (update) => {
                 if (update.docChanged) {
                     clearTimeout(timerRef.current);
-                    timerRef.current = setTimeout(() => {
+                    setTimeout(() => {
                         const currentValue = getValue(editor);
                         const cursorIndex = getCursorIndex(editor);
                         
