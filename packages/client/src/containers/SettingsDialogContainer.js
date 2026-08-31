@@ -1,5 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import SettingsDialog from '../components/dialogs/SettingsDialog.js';
+import SettingsDialog from '../parser-selection/dialogs/SettingsDialog.js';
 import {
     closeSettingsDialog,
     setParserSettings,
@@ -8,7 +8,7 @@ import {
     showSettingsDialog,
     getParserSettings,
 } from '../store/selectors.ts';
-import {getParser} from '../store/parserSelectors.ts';
+import {getParser} from '../parser-selection/store/parserSelectors.ts';
 
 export default function SettingsDialogContainer() {
     const visible = useSelector(showSettingsDialog);

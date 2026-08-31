@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import cx from 'classnames';
 import {TbCode, TbSettings} from 'react-icons/tb';
-import {getParserByID} from '../../parsers/index.js';
+import {getParserByID} from '../parsers/index.js';
 
 export default function ParserButton({parser, category, onParserChange, onParserSettingsButtonClick}) {
     const [forceClosed, setForceClosed] = useState(false);

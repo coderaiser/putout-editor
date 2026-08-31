@@ -1,12 +1,12 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryToCatch} from 'try-to-catch';
-import {parseCode} from './operations.ts';
-import {setParseResult} from './reducers.ts';
+import {parseCode} from '../../store/operations.ts';
+import {setParseResult} from '../../store/reducers.ts';
 import {getParser} from './parserSelectors.ts';
 import {
     getParserSettings,
     getCode,
-} from './selectors.ts';
+} from '../../store/selectors.ts';
 
 export const parserListener = createListenerMiddleware();
 

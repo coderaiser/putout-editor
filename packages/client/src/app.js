@@ -28,7 +28,7 @@ import {
 import * as gist from './snippet/storage/gist.js';
 import * as parse from './snippet/storage/parse';
 import StorageHandler from './snippet/storage';
-import {parserListener} from './store/parserMiddleware.ts';
+import {parserListener} from './parser-selection/store/parserMiddleware.ts';
 import {formatListener} from './store/formatMiddleware.ts';
 import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 

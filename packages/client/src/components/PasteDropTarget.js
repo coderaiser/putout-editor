@@ -4,7 +4,7 @@ import {
     useRef,
 } from 'react';
 import PropTypes from 'prop-types';
-import {categories} from '../parsers/index.js';
+import {categories} from '../parser-selection/parsers/index.js';
 
 const noop = () => {};
 

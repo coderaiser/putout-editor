@@ -3,7 +3,7 @@ import React from 'react';
 import Editor from '../editor/Editor.js';
 import SplitPane from '../components/SplitPane.js';
 import TransformOutput from './TransformOutput.js';
-import {getTransformerByID} from '../parsers/index.js';
+import {getTransformerByID} from '../parser-selection/parsers/index.js';
 
 export default function Transformer(props) {
     // 🐊Putout transformer only have

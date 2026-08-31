@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import {TbQuestionMark} from 'react-icons/tb';
-import ParserButton from './buttons/ParserButton.js';
+import ParserButton from '../parser-selection/buttons/ParserButton.js';
 import SnippetButton from '../snippet/SnippetButton.js';
 import TransformButton from '../transform/TransformButton.js';
 import KeyMapButton from './buttons/KeyMapButton.js';
 import ThemeButton from './buttons/ThemeButton.js';
 import Funding from './buttons/Funding.js';
-import {getTransformerByID} from '../parsers/index.js';
+import {getTransformerByID} from '../parser-selection/parsers/index.js';
 
 export default function Toolbar(props) {
     const {

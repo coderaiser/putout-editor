@@ -5,7 +5,7 @@ import {
     getParseResult,
     getKeyMap,
 } from '../store/selectors.ts';
-import {getParser} from '../store/parserSelectors.ts';
+import {getParser} from '../parser-selection/store/parserSelectors.ts';
 import {
     setCode,
     setCursor,

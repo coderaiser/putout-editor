@@ -2,13 +2,13 @@ import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
 import {parserListener} from './parserMiddleware.ts';
+import {getParserByID} from '../parsers/index.js';
 import {
     putoutEditor,
     setCode,
     setParser,
     setParserSettings,
-} from './reducers.ts';
-import {getParserByID} from '../parsers/index.js';
+} from '../../store/reducers.ts';
 
 const makeMockParseResult = () => ({
     type: 'Program',
@@ -431,3 +431,4 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     t.notOk(store.getState().workbench.parseResult?.stale);
     t.end();
 });
+

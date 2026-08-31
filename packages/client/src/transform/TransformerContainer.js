@@ -4,7 +4,7 @@ import {
     setTransformState,
     transformBlur,
 } from '../store/reducers.ts';
-import {getParser, getTransformer} from '../store/parserSelectors.ts';
+import {getParser, getTransformer} from '../parser-selection/store/parserSelectors.ts';
 import * as selectors from '../store/selectors.ts';
 
 export default function TransformerContainer() {

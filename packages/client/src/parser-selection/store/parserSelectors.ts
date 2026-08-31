@@ -4,13 +4,13 @@ import {
     getParserByID,
     getTransformerByID,
 } from '../parsers/index.js';
-import type {RootState} from './reducers.ts';
+import type {RootState} from '../../store/reducers.ts';
 import {
     getParserSettings,
     getRevision,
     canSaveCode,
     canSaveTransform,
-} from './selectors.ts';
+} from '../../store/selectors.ts';
 
 export function getParser(state: RootState) {
     return getParserByID(state.workbench.parser);

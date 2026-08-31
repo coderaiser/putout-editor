@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import cx from 'classnames';
 import {TbToggleLeft, TbToggleRight} from 'react-icons/tb';
-import {getTransformerByID} from '../parsers/index.js';
+import {getTransformerByID} from '../parser-selection/parsers/index.js';
 
 export default function TransformButton({category, transformer, showTransformer, onTransformChange}) {
     const [forceClosed, setForceClosed] = useState(false);
