@@ -1,5 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import ShareDialog from '../components/dialogs/ShareDialog.js';
+import ShareDialog from '../snippet/ShareDialog.js';
 import {closeShareDialog} from '../store/reducers.ts';
 import {
     showShareDialog,

@@ -3,11 +3,11 @@ import {Provider, useSelector} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
 import {ErrorBoundary} from 'react-error-boundary';
-import * as LocalStorage from './components/LocalStorage';
+import * as LocalStorage from './snippet/LocalStorage.js';
 import ASTOutputContainer from './ast/ASTOutputContainer.js';
 import CodeEditorContainer from './containers/CodeEditorContainer';
 import ErrorMessageContainer from './containers/ErrorMessageContainer';
-import GistBanner from './components/GistBanner';
+import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicatorContainer from './containers/LoadingIndicatorContainer';
 import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
 import SettingsDialogContainer from './containers/SettingsDialogContainer';
@@ -25,12 +25,12 @@ import {
     canSaveTransform,
     getRevision,
 } from './store/selectors.ts';
-import * as gist from './storage/gist';
-import * as parse from './storage/parse';
-import StorageHandler from './storage';
+import * as gist from './snippet/storage/gist.js';
+import * as parse from './snippet/storage/parse';
+import StorageHandler from './snippet/storage';
 import {parserListener} from './store/parserMiddleware.ts';
 import {formatListener} from './store/formatMiddleware.ts';
-import {createSnippetListener} from './store/snippetMiddleware.ts';
+import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 
 function App() {
     const showTransformer = useSelector((s) => s.showTransformPanel);

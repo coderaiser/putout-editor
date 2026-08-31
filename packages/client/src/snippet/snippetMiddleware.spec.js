@@ -2,7 +2,7 @@ import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
 import {createSnippetListener} from './snippetMiddleware.ts';
-import {putoutEditor, clearError} from './reducers.ts';
+import {putoutEditor, clearError} from '../store/reducers.ts';
 import {log} from '../utils/logger.ts';
 
 const noop = () => {};
