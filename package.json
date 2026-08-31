@@ -7,6 +7,9 @@
     "url": "git+https://github.com/coderaiser/putout-editor.git"
   },
   "type": "module",
+  "bin": {
+    "putout-editor": "./bin/putout-editor.js"
+  },
   "scripts": {
     "build": "madrun build",
     "start": "madrun start",
