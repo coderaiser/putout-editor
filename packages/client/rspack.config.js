@@ -261,6 +261,8 @@ export default {
             'jscodeshift': false,
             'process/browser': resolve('process/browser'),
             'tty': resolve('tty-browserify'),
+            'process': resolve('process/browser'),
+            'util': resolve('util/'),
         },
     },
     
@@ -282,3 +284,4 @@ export default {
         maxAssetSize: THREE_MB,
     },
 };
+

@@ -1,4 +1,3 @@
-import {type Print} from '@putout/printer';
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryCatch} from 'try-catch';
 import {parse} from '@babel/parser';
@@ -30,19 +29,6 @@ const parseTransform = (code: string) => {
     return ast;
 };
 
-let _print: Print;
-
-const getPrint = async () => {
-    if (_print)
-        return _print;
-    
-    const {print} = await import('@putout/printer');
-    
-    _print = print as Print;
-    
-    return _print;
-};
-
 const startAppListening = formatListener.startListening.withTypes<RootState>();
 
 startAppListening({
@@ -54,7 +40,7 @@ startAppListening({
         if (!ast)
             return;
         
-        const print = await getPrint();
+        const {print} = await import('@putout/printer');
         const formatted = print(ast);
         
         const code = getCode(state);
@@ -85,7 +71,7 @@ startFormatListening({
         if (!ast)
             return;
         
-        const print = await getPrint();
+        const {print} = await import('@putout/printer');
         const formatted = print(ast);
         
         if (formatted === code)
