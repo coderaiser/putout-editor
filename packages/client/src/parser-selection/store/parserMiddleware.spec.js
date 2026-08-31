@@ -431,4 +431,3 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     t.notOk(store.getState().workbench.parseResult?.stale);
     t.end();
 });
-
