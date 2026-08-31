@@ -43,15 +43,6 @@ const getPrint = async () => {
     return _print;
 };
 
-const format = (print: any, ast: any) => {
-    const [error, result] = tryCatch(print, ast);
-    
-    if (error)
-        return null;
-    
-    return result;
-};
-
 const startAppListening = formatListener.startListening.withTypes<RootState>();
 
 startAppListening({
@@ -64,10 +55,7 @@ startAppListening({
             return;
         
         const print = await getPrint();
-        const formatted = format(print, ast);
-        
-        if (!formatted)
-            return;
+        const formatted = print(ast);
         
         const code = getCode(state);
         
@@ -98,10 +86,7 @@ startFormatListening({
             return;
         
         const print = await getPrint();
-        const formatted = format(print, ast);
-        
-        if (!formatted)
-            return;
+        const formatted = print(ast);
         
         if (formatted === code)
             return;
