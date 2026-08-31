@@ -1,7 +1,5 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryCatch} from 'try-catch';
-import {parse} from '@babel/parser';
-import plugins from '@putout/engine-parser/babel/plugins';
 import {
     type RootState,
     editorBlur,
@@ -16,18 +14,6 @@ import {
 } from './selectors.ts';
 
 export const formatListener = createListenerMiddleware();
-
-const parseTransform = (code: string) => {
-    const [error, ast] = tryCatch(parse, code, {
-        sourceType: 'module',
-        plugins,
-    });
-    
-    if (error)
-        return null;
-    
-    return ast;
-};
 
 const startAppListening = formatListener.startListening.withTypes<RootState>();
 
@@ -66,9 +52,14 @@ startFormatListening({
         if (!code)
             return;
         
-        const ast = parseTransform(code);
+        const {parse} = await import('@babel/parser');
+        const plugins = await import('@putout/engine-parser/babel/plugins');
+        const [error, ast] = tryCatch(parse, code, {
+            sourceType: 'module',
+            plugins,
+        });
         
-        if (!ast)
+        if (error)
             return;
         
         const {print} = await import('@putout/printer');
