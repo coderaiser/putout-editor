@@ -8,7 +8,7 @@ import {
 } from 'react-icons/tb';
 import ForkButton from './ForkButton.js';
 import NewButton from './NewButton.tsx';
-import SaveButton from './SaveButton.js';
+import SaveButton from './SaveButton.tsx';
 import ShareButton from './ShareButton.js';
 
 export default function SnippetButton(props) {

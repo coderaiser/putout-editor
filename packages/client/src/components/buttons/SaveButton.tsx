@@ -1,7 +1,13 @@
-import PropTypes from 'prop-types';
 import {TbDeviceFloppy, TbLoader2} from 'react-icons/tb';
 
-export default function SaveButton({canSave, saving, forking, onSave}) {
+type Props = {
+    canSave?: boolean;
+    saving?: boolean;
+    forking?: boolean;
+    onSave?: () => void;
+};
+
+export default function SaveButton({canSave, saving, forking, onSave}: Props) {
     return (
         <button
             type="button"
@@ -12,10 +18,3 @@ export default function SaveButton({canSave, saving, forking, onSave}) {
         </button>
     );
 }
-
-SaveButton.propTypes = {
-    canSave: PropTypes.bool,
-    saving: PropTypes.bool,
-    forking: PropTypes.bool,
-    onSave: PropTypes.func,
-};
