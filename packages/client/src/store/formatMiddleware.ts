@@ -1,6 +1,7 @@
 import {type Print} from '@putout/printer';
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryCatch} from 'try-catch';
+import {parse} from '@babel/parser';
 import plugins from '@putout/engine-parser/babel/plugins';
 import {
     type RootState,
@@ -14,8 +15,6 @@ import {
     getCode,
     getTransformCode,
 } from './selectors.ts';
-
-const {parse} = JSON;
 
 export const formatListener = createListenerMiddleware();
 
