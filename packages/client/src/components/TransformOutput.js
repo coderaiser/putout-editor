@@ -6,9 +6,9 @@ import {
 import PropTypes from 'prop-types';
 import {SourceMapConsumer} from 'source-map';
 import stringify from 'json-stringify-safe';
-import Editor from './Editor.js';
+import Editor from '../editor/Editor.js';
 import JSONEditor from './JSONEditor.js';
-import resolvePositionFromIndex from './resolvePositionFromIndex.js';
+import resolvePositionFromIndex from '../editor/resolvePositionFromIndex.js';
 
 const isString = (value) => typeof value === 'string';
 

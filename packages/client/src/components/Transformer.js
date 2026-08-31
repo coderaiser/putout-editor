@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import Editor from './Editor';
+import Editor from '../editor/Editor.js';
 import SplitPane from './SplitPane';
 import TransformOutput from './TransformOutput';
 import {getTransformerByID} from '../parsers/index.js';

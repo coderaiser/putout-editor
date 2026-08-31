@@ -1,5 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import Editor from '../components/Editor.js';
+import Editor from '../editor/Editor.js';
 import {
     getCode,
     getParseResult,

@@ -12,7 +12,7 @@ import {
     on,
     off,
     observeResize,
-} from '../editor/codemirror-adapter/index.js';
+} from './codemirror/index.js';
 
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
 
