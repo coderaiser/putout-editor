@@ -41,6 +41,7 @@ export default function Editor(props) {
     const markRef = useRef(null);
     const markerRangeRef = useRef(null);
     const timerRef = useRef(null);
+    const activityRef = useRef(null);
     
     // Mount — create CodeMirror instance, bind all handlers
     useEffect(() => {
@@ -54,7 +55,7 @@ export default function Editor(props) {
             updateListener: (update) => {
                 if (update.docChanged) {
                     clearTimeout(timerRef.current);
-                    setTimeout(() => {
+                    timerRef.current = setTimeout(() => {
                         const currentValue = getValue(editor);
                         const cursorIndex = getCursorIndex(editor);
                         
@@ -64,11 +65,13 @@ export default function Editor(props) {
                             cursor: cursorIndex,
                         });
                     }, 200);
+                    
+                    return;
                 }
                 
                 if (update.selectionSet) {
-                    clearTimeout(timerRef.current);
-                    timerRef.current = setTimeout(() => {
+                    clearTimeout(activityRef.current);
+                    activityRef.current = setTimeout(() => {
                         onActivity(getCursorIndex(editor));
                     }, 50);
                 }
