@@ -29,16 +29,12 @@ export default function ShareDialog({visible, snippet, onWantToClose}) {
                             <dd>
                                 <input readOnly={true} onFocus={(e) => e.target.select()} value={versionedURL}/>
                             </dd>
-                            {latestURL
-                                ? <dd>
-                                    <input readOnly={true} onFocus={(e) => e.target.select()} value={latestURL}/>
-                                </dd>
-                                : null}
-                            {embedURL
-                                ? <dd>
-                                    <input readOnly={true} onFocus={(e) => e.target.select()} value={embedURL}/>
-                                </dd>
-                                : null}
+                            {latestURL ? <dd>
+                                <input readOnly={true} onFocus={(e) => e.target.select()} value={latestURL}/>
+                            </dd> : null}
+                            {embedURL ? <dd>
+                                <input readOnly={true} onFocus={(e) => e.target.select()} value={embedURL}/>
+                            </dd> : null}
                         </dl>
                     </div>
                 </div>

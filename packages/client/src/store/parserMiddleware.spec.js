@@ -28,15 +28,13 @@ function makeStore(overrides = {}) {
     
     return configureStore({
         reducer: putoutEditor,
-        preloadedState: overrides.workbench
-            ? {
-                ...state,
-                workbench: {
-                    ...state.workbench,
-                    ...overrides.workbench,
-                },
-            }
-            : state,
+        preloadedState: overrides.workbench ? {
+            ...state,
+            workbench: {
+                ...state.workbench,
+                ...overrides.workbench,
+            },
+        } : state,
         middleware: (getDefault) => getDefault({
             immutableCheck: false,
             serializableCheck: false,
