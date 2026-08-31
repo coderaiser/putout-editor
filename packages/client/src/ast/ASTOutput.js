@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import visualizations from './visualization/index.js';
+import visualizations from '../components/visualization/index.js';
 import getFocusPath from '../editor/getFocusPath.js';
-import {Button} from './visualization/Button.js';
+import {Button} from '../components/visualization/Button.js';
 
 const getName = (a) => a.name;
 

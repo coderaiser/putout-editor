@@ -1,5 +1,5 @@
 import {useSelector} from 'react-redux';
-import ASTOutput from '../components/ASTOutput.js';
+import ASTOutput from '../ast/ASTOutput.js';
 import {getParser} from '../store/parserSelectors.ts';
 import {getParseResult, getCursor} from '../store/selectors.ts';
 
