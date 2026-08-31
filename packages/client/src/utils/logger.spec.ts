@@ -3,7 +3,7 @@ import {
     log,
     logEvent,
     logError,
-} from './logger.js';
+} from './logger.ts';
 
 test('logger: logEvent: calls log.event with category, action, label', (t) => {
     const {event: original} = log;

@@ -4,7 +4,7 @@ import {
     loadSnippetFromURL,
     saveRevision,
 } from './operations.js';
-import {logEvent, logError} from '../utils/logger.js';
+import {logEvent, logError} from '../utils/logger.ts';
 import {
     setError,
     clearError,

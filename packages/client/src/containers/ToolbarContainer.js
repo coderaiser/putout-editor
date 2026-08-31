@@ -2,7 +2,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import Toolbar from '../components/Toolbar.js';
 import * as selectors from '../store/selectors.js';
 import * as parserSelectors from '../store/parserSelectors.js';
-import {logEvent} from '../utils/logger.js';
+import {logEvent} from '../utils/logger.ts';
 import {
     openSettingsDialog,
     openShareDialog,

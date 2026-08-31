@@ -4,6 +4,8 @@
     "all": true,
     "exclude": [
         "**/*.spec.js",
+        "**/*.spec.ts",
+        "**/*.d.ts",
         "**/*.config.*",
         "**/.madrun.js",
         "src/app.js",

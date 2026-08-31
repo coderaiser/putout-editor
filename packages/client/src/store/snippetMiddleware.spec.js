@@ -3,7 +3,7 @@ import {test, stub} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
 import {createSnippetListener} from './snippetMiddleware.js';
 import {putoutEditor, clearError} from './reducers.js';
-import {log} from '../utils/logger.js';
+import {log} from '../utils/logger.ts';
 
 const noop = () => {};
 
