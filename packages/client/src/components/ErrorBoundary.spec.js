@@ -1,10 +1,10 @@
 import {test} from 'supertape';
+import {ErrorBoundary} from 'react-error-boundary';
 import {
     render,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import ErrorBoundary from './ErrorBoundary.js';
 
 const noop = () => {};
 
@@ -19,14 +19,21 @@ const Bomb = ({shouldThrow}) => {
     );
 };
 
-// Suppress React 18 error boundary stderr output in tests
+const renderFallback = ({error}) => (
+    <div className="error-boundary">
+        <p>{error.message}</p>
+    </div>
+);
+
 const renderWithBomb = (ui) => render(ui, {
     onCaughtError: noop,
 });
 
 test('ErrorBoundary: renders children normally', (t) => {
     const {container} = render(
-        <ErrorBoundary><div id="child">ok</div></ErrorBoundary>,
+        <ErrorBoundary fallbackRender={renderFallback}>
+            <div id="child">ok</div>
+        </ErrorBoundary>,
     );
     
     const result = container.querySelector('#child');
@@ -39,7 +46,9 @@ test('ErrorBoundary: renders children normally', (t) => {
 
 test('ErrorBoundary: renders fallback UI on error', (t) => {
     const {container} = renderWithBomb(
-        <ErrorBoundary><Bomb shouldThrow={true}/></ErrorBoundary>,
+        <ErrorBoundary fallbackRender={renderFallback}>
+            <Bomb shouldThrow={true}/>
+        </ErrorBoundary>,
     );
     
     const result = container.querySelector('.error-boundary');
@@ -50,16 +59,18 @@ test('ErrorBoundary: renders fallback UI on error', (t) => {
     t.end();
 });
 
-test('ErrorBoundary: fallback contains try again button', (t) => {
+test('ErrorBoundary: fallback renders error message', (t) => {
     const {container} = renderWithBomb(
-        <ErrorBoundary><Bomb shouldThrow={true}/></ErrorBoundary>,
+        <ErrorBoundary fallbackRender={renderFallback}>
+            <Bomb shouldThrow={true}/>
+        </ErrorBoundary>,
     );
     
-    const result = container.querySelector('button');
+    const result = container.querySelector('.error-boundary p').textContent;
     
     cleanup();
     
-    t.ok(result);
+    t.equal(result, 'test error');
     t.end();
 });
 
@@ -68,6 +79,7 @@ test('ErrorBoundary: calls onError when child throws', (t) => {
     
     renderWithBomb(
         <ErrorBoundary
+            fallbackRender={renderFallback}
             onError={() => {
                 called = true;
             }}
@@ -86,6 +98,7 @@ test('ErrorBoundary: onError receives Error instance', (t) => {
     
     renderWithBomb(
         <ErrorBoundary
+            fallbackRender={renderFallback}
             onError={(e) => {
                 received = e;
             }}
@@ -103,7 +116,7 @@ test('ErrorBoundary: onError receives Error instance', (t) => {
 test('ErrorBoundary: renders custom fallback function result', (t) => {
     const {container} = renderWithBomb(
         <ErrorBoundary
-            fallback={() => (
+            fallbackRender={() => (
                 <div id="custom">custom</div>
             )}
         >
@@ -119,13 +132,13 @@ test('ErrorBoundary: renders custom fallback function result', (t) => {
     t.end();
 });
 
-test('ErrorBoundary: fallback function receives the error', (t) => {
+test('ErrorBoundary: fallbackRender receives the error', (t) => {
     let received;
     
     renderWithBomb(
         <ErrorBoundary
-            fallback={(e) => {
-                received = e;
+            fallbackRender={({error}) => {
+                received = error;
                 return null;
             }}
         >
@@ -139,16 +152,33 @@ test('ErrorBoundary: fallback function receives the error', (t) => {
     t.end();
 });
 
-test('ErrorBoundary: reset button clears error state', (t) => {
+test('ErrorBoundary: resetErrorBoundary renders children again', (t) => {
+    let shouldThrow = true;
+    
+    const BombOnce = () => {
+        if (shouldThrow)
+            throw Error('test error');
+        
+        return (
+            <div id="safe">safe</div>
+        );
+    };
+    
     const {container} = renderWithBomb(
-        <ErrorBoundary><Bomb shouldThrow={true}/></ErrorBoundary>,
+        <ErrorBoundary
+            fallbackRender={({resetErrorBoundary}) => (
+                <button onClick={resetErrorBoundary}>Try again</button>
+            )}
+        >
+            <BombOnce/>
+        </ErrorBoundary>,
     );
     
+    shouldThrow = false;
     fireEvent.click(container.querySelector('button'));
-    cleanup();
-    const result = container.querySelector('.error-boundary');
+    const result = container.querySelector('#safe');
     
-    t.notOk(result);
+    t.ok(result);
     t.end();
 });
 
@@ -157,6 +187,7 @@ test('ErrorBoundary: does not call onError without error', (t) => {
     
     render(
         <ErrorBoundary
+            fallbackRender={renderFallback}
             onError={() => {
                 called = true;
             }}

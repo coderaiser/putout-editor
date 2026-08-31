@@ -2,6 +2,7 @@ import '../css/style.css';
 import {Provider, useSelector} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
+import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './components/LocalStorage';
 import ASTOutputContainer from './containers/ASTOutputContainer';
 import CodeEditorContainer from './containers/CodeEditorContainer';
@@ -12,7 +13,6 @@ import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
 import SettingsDialogContainer from './containers/SettingsDialogContainer';
 import ShareDialogContainer from './containers/ShareDialogContainer';
 import SplitPane from './components/SplitPane';
-import ErrorBoundary from './components/ErrorBoundary';
 import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './containers/TransformerContainer';
 import debounce from './utils/debounce';
@@ -54,8 +54,24 @@ function App() {
                             <SplitPane
                                 className="splitpane"
                             >
-                                <ErrorBoundary><CodeEditorContainer/></ErrorBoundary>
-                                <ErrorBoundary><ASTOutputContainer/></ErrorBoundary>
+                                <ErrorBoundary
+                                    fallbackRender={({error}) => (
+                                        <div className="error-boundary">
+                                            <p>{error.message}</p>
+                                        </div>
+                                    )}
+                                >
+                                    <CodeEditorContainer/>
+                                </ErrorBoundary>
+                                <ErrorBoundary
+                                    fallbackRender={({error}) => (
+                                        <div className="error-boundary">
+                                            <p>{error.message}</p>
+                                        </div>
+                                    )}
+                                >
+                                    <ASTOutputContainer/>
+                                </ErrorBoundary>
                             </SplitPane>
                             {showTransformer ? <TransformerContainer/> : null}
                         </SplitPane>
