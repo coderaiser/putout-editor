@@ -148,7 +148,7 @@ export default {
     
     module: {
         rules: [{
-            test: /\.(jsx?|mjs)$/,
+            test: /\.(jsx?|mjs|tsx?)$/,
             type: 'javascript/auto',
             resolve: {
                 fullySpecified: false,
@@ -188,8 +188,8 @@ export default {
                 options: {
                     jsc: {
                         parser: {
-                            syntax: 'ecmascript',
-                            jsx: true,
+                            syntax: 'typescript',
+                            tsx: true,
                         },
                         transform: {
                             react: {
@@ -236,6 +236,12 @@ export default {
     
     plugins,
     resolve: {
+        extensions: [
+            '.ts',
+            '.tsx',
+            '.js',
+            '.jsx',
+        ],
         alias: {
             'acorn-private-methods': resolve('acorn-private-methods'),
         },
