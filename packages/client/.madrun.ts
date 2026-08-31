@@ -2,13 +2,10 @@ import {run} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
 const testEnv = defineEnv({
-    jsx: true,
     dom: true,
     css: true,
-}, {
-    env: {
-        NODE_OPTIONS: '--enable-source-maps --import ./loader-ts.js',
-    },
+    ts: true,
+    jsx: true,
 });
 
 const env = {

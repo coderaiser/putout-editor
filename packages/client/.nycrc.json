@@ -8,7 +8,7 @@
         "**/*.spec.tsx",
         "**/*.d.ts",
         "**/*.config.*",
-        "**/.madrun.js",
+        "**/.madrun.*",
         "src/app.js",
         "src/components/ASTOutput.js",
         "src/components/GistBanner.js",
