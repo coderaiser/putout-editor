@@ -11,7 +11,7 @@ import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicatorContainer from './containers/LoadingIndicatorContainer';
 import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
 import SettingsDialogContainer from './containers/SettingsDialogContainer';
-import ShareDialogContainer from './containers/ShareDialogContainer';
+import ShareDialogContainer from './snippet/dialogs/ShareDialogContainer.js';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './transform/TransformerContainer.js';
