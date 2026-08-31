@@ -1,53 +1,54 @@
 import {createSelector} from '@reduxjs/toolkit';
+import type {RootState} from './reducers.ts';
 
 // UI related
-export const getCursor = (state) => state.cursor;
+export const getCursor = (state: RootState) => state.cursor;
 
-export const getHighlightRange = (state) => state.highlightRange;
+export const getHighlightRange = (state: RootState) => state.highlightRange;
 
-export const getError = (state) => state.error;
+export const getError = (state: RootState) => state.error;
 
-export const isLoadingSnippet = (state) => state.loadingSnippet;
+export const isLoadingSnippet = (state: RootState) => state.loadingSnippet;
 
-export const showSettingsDialog = (state) => state.showSettingsDialog;
+export const showSettingsDialog = (state: RootState) => state.showSettingsDialog;
 
-export const showShareDialog = (state) => state.showShareDialog;
+export const showShareDialog = (state: RootState) => state.showShareDialog;
 
-export const isForking = (state) => state.forking;
+export const isForking = (state: RootState) => state.forking;
 
-export const isSaving = (state) => state.saving;
+export const isSaving = (state: RootState) => state.saving;
 
-export const getParserSettings = (state) => state.workbench.parserSettings;
+export const getParserSettings = (state: RootState) => state.workbench.parserSettings;
 
-export const getParseResult = (state) => state.workbench.parseResult;
+export const getParseResult = (state: RootState) => state.workbench.parseResult;
 
 // Code related
-export function getRevision(state) {
+export function getRevision(state: RootState) {
     return state.activeRevision;
 }
 
-export function getCode(state) {
+export function getCode(state: RootState) {
     return state.workbench.code;
 }
 
-export function getInitialCode(state) {
+export function getInitialCode(state: RootState) {
     return state.workbench.initialCode;
 }
 
-export const getKeyMap = (state) => state.workbench.keyMap;
+export const getKeyMap = (state: RootState) => state.workbench.keyMap;
 
 const isCodeDirty = createSelector([getCode, getInitialCode], (code, initialCode) => code !== initialCode);
 
 // Transform related
-export function getTransformCode(state) {
+export function getTransformCode(state: RootState) {
     return state.workbench.transform.code;
 }
 
-export function getInitialTransformCode(state) {
+export function getInitialTransformCode(state: RootState) {
     return state.workbench.transform.initialCode;
 }
 
-export function showTransformer(state) {
+export function showTransformer(state: RootState) {
     return state.showTransformPanel;
 }
 

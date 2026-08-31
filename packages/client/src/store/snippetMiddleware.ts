@@ -26,7 +26,7 @@ import {
 } from './selectors.ts';
 import {getParser, getTransformer} from './parserSelectors.ts';
 
-export function createSnippetListener(storageAdapter) {
+export function createSnippetListener(storageAdapter: any) {
     const listener = createListenerMiddleware();
     
     let requestId = 0;
@@ -114,7 +114,7 @@ export function createSnippetListener(storageAdapter) {
     return listener;
 }
 
-function buildSaveData(state) {
+function buildSaveData(state: RootState) {
     const parser = getParser(state);
     const parserSettings = getParserSettings(state);
     const code = getCode(state);
@@ -122,7 +122,7 @@ function buildSaveData(state) {
     const transformer = getTransformer(state);
     const showTransformPanel = showTransformer(state);
     
-    const data = {
+    const data: Record<string, any> = {
         parserID: parser.id,
         settings: {
             [parser.id]: parserSettings,

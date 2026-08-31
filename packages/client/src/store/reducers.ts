@@ -6,12 +6,63 @@ import {
     getTransformerByID,
 } from '../parsers/index.js';
 
+interface Revision {
+    canSave(): boolean;
+    getSnippetID(): string;
+    getRevisionID(): string;
+    getTransformerID(): string | null;
+    getTransformCode(): string;
+    getParserID(): string;
+    getCode(): string;
+    getParserSettings(): any;
+    getPath(): string;
+    getShareData(): {
+        versionedURL: string;
+        latestURL: string;
+        embedURL: string;
+    };
+}
+
+interface TransformState {
+    code: string;
+    initialCode: string;
+    transformer: string;
+}
+
+interface WorkbenchState {
+    parser: string;
+    parserSettings: any;
+    parseError: any;
+    parseResult: any;
+    code: string;
+    keyMap: string;
+    initialCode: string;
+    transform: TransformState;
+}
+
+interface State {
+    showSettingsDialog: boolean;
+    showShareDialog: boolean;
+    loadingSnippet: boolean;
+    forking: boolean;
+    saving: boolean;
+    cursor: number | null;
+    error: Error | null;
+    highlightRange: number[] | null;
+    showTransformPanel: boolean;
+    selectedRevision: any;
+    activeRevision: Revision | null;
+    parserSettings: Record<string, any>;
+    parserPerCategory: Record<string, string>;
+    workbench: WorkbenchState;
+}
+
 const noop = () => {};
 
 const defaultParser = getDefaultParser(getCategoryByID('javascript'));
 const defaultTransformer = getTransformerByID('putout');
 
-const initialState = {
+const initialState: State = {
     // UI related state
     showSettingsDialog: false,
     showShareDialog: false,
@@ -47,7 +98,7 @@ const initialState = {
 /**
  * Returns the subset of the data that makes sense to persist between visits.
  */
-export const persist = (state) => ({
+export const persist = (state: State) => ({
     ...pick(state, 'showTransformPanel', 'parserSettings', 'parserPerCategory'),
     workbench: {
         ...pick(state.workbench, 'parser', 'code', 'keyMap'),
@@ -59,7 +110,7 @@ export const persist = (state) => ({
  * When read from persistent storage, set the last stored code as initial version.
  * This is necessary because we use CodeMirror as an uncontrolled component.
  */
-export const revive = (state = initialState) => ({
+export const revive = (state: State = initialState) => ({
     ...state,
     workbench: {
         ...state.workbench,
@@ -287,9 +338,9 @@ export type RootState = ReturnType<typeof putoutEditor>;
 
 export type AppDispatch = ReturnType<typeof configureStore>['dispatch'];
 
-function pick(obj, ...properties) {
+function pick<T extends object, K extends keyof T>(obj: T, ...properties: K[]): Pick<T, K> {
     return properties.reduce((result, prop) => {
         result[prop] = obj[prop];
         return result;
-    }, {});
+    }, {} as Pick<T, K>);
 }

@@ -10,12 +10,13 @@ import {
     canSaveCode,
     canSaveTransform,
 } from './selectors.ts';
+import type {RootState} from './reducers.ts';
 
-export function getParser(state) {
+export function getParser(state: RootState) {
     return getParserByID(state.workbench.parser);
 }
 
-export function getTransformer(state) {
+export function getTransformer(state: RootState) {
     return getTransformerByID(state.workbench.transform.transformer);
 }
 

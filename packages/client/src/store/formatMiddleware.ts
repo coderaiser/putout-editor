@@ -5,7 +5,7 @@ import {getParseResult, getCode} from './selectors.ts';
 
 export const formatListener = createListenerMiddleware();
 
-let _print = null;
+let _print: any = null;
 
 const getPrint = async () => {
     if (_print)
@@ -18,7 +18,7 @@ const getPrint = async () => {
     return _print;
 };
 
-const format = (print, ast) => {
+const format = (print: any, ast: any) => {
     const [error, result] = tryCatch(print, ast);
     
     if (error)

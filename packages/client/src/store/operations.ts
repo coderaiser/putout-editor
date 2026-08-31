@@ -7,13 +7,13 @@ import {
     typeKeysFilter,
 } from '../core/TreeAdapter.js';
 
-const returns = (a) => () => a;
+const returns = (a: any) => () => a;
 
 /**
  * Parse code with the given parser and settings.
  * Returns { ast, treeAdapter } on success. Throws on parse error.
  */
-export async function parseCode(parser, code, parserSettings) {
+export async function parseCode(parser: any, code: string, parserSettings: any) {
     const settings = parserSettings || parser.getDefaultOptions();
     
     if (!parser._promise)
@@ -49,7 +49,7 @@ export async function parseCode(parser, code, parserSettings) {
  * Fetch a snippet revision from the URL hash via storageAdapter.
  * Returns revision object or null.
  */
-export const loadSnippetFromURL = (storageAdapter) => storageAdapter.fetchFromURL();
+export const loadSnippetFromURL = (storageAdapter: any) => storageAdapter.fetchFromURL();
 
 /**
  * Save, update, or fork a snippet revision via storageAdapter.
@@ -58,7 +58,7 @@ export const loadSnippetFromURL = (storageAdapter) => storageAdapter.fetchFromUR
  * fork=false + no revision → storageAdapter.create(data)
  * Returns new revision or undefined.
  */
-export function saveRevision(fork, data, revision, storageAdapter) {
+export function saveRevision(fork: boolean, data: any, revision: any, storageAdapter: any) {
     if (fork)
         return storageAdapter.fork(revision, data);
     

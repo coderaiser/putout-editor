@@ -12,6 +12,6 @@ export function logEvent(category: string, action: string, label: string): void 
     log.event(category, action, label);
 }
 
-export function logError(exDescription: string, exFatal: boolean): void {
+export function logError(exDescription: string, exFatal?: boolean): void {
     log.error(exDescription, exFatal);
 }
