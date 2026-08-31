@@ -3,6 +3,8 @@ declare module 'supertape' {
     export function stub(): any;
 }
 
-declare module 'try-catch';
-declare module 'try-to-catch';
-declare module 'lodash.isequal';
+declare module 'try-catch'
+
+declare module 'try-to-catch'
+
+declare module 'lodash.isequal'

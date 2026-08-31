@@ -1,5 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
-import type {configureStore} from '@reduxjs/toolkit';
+import {createSlice, type configureStore} from '@reduxjs/toolkit';
 import {
     getCategoryByID,
     getDefaultParser,
