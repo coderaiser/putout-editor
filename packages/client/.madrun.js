@@ -5,10 +5,9 @@ const testEnv = defineEnv({
     jsx: true,
     dom: true,
     css: true,
-    ts: true,
 }, {
     env: {
-        NODE_OPTIONS: '--enable-source-maps',
+        NODE_OPTIONS: '--enable-source-maps --import ./loader-ts.js',
     },
 });
 
@@ -17,8 +16,8 @@ const env = {
 };
 
 export default {
-    'test': () => [testEnv, 'tape "src/**/*.spec.{js,ts}"'],
-    'coverage': async () => [testEnv, `c8 tape "src/**/*.spec.{js,ts}"`],
+    'test': () => [testEnv, 'tape "src/**/*.spec.{js,ts,tsx}"'],
+    'coverage': async () => [testEnv, `c8 tape "src/**/*.spec.{js,ts,tsx}"`],
     'test:dts': () => 'tsc --noEmit',
     'start': () => 'http-server ../../out',
     'build': () => [env, build('production')],
