@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import debounce from './debounce.js';
+import debounce from './debounce.ts';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

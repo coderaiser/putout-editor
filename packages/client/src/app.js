@@ -15,7 +15,7 @@ import ShareDialogContainer from './containers/ShareDialogContainer';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
 import TransformerContainer from './containers/TransformerContainer';
-import debounce from './utils/debounce';
+import debounce from './utils/debounce.ts';
 import {
     putoutEditor,
     persist,
