@@ -6,7 +6,7 @@ import {
     TbGitFork,
     TbLoader2,
 } from 'react-icons/tb';
-import ForkButton from './ForkButton.js';
+import ForkButton from './ForkButton.tsx';
 import NewButton from './NewButton.tsx';
 import SaveButton from './SaveButton.tsx';
 import ShareButton from './ShareButton.js';
