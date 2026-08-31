@@ -5,6 +5,7 @@
     "exclude": [
         "**/*.spec.js",
         "**/*.spec.ts",
+        "**/*.spec.tsx",
         "**/*.d.ts",
         "**/*.config.*",
         "**/.madrun.js",

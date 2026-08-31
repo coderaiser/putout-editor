@@ -3,15 +3,15 @@ import {
     render,
     cleanup,
     fireEvent,
+    screen,
 } from '@testing-library/react';
-import NewButton from './NewButton.js';
+import NewButton from './NewButton.tsx';
 
 test('NewButton: disabled when saving', (t) => {
     render(
         <NewButton saving={true} forking={false}/>,
     );
-    
-    const button = document.querySelector('button');
+    const button = screen.getByRole('button') as HTMLButtonElement;
     
     cleanup();
     
@@ -23,8 +23,7 @@ test('NewButton: disabled when forking', (t) => {
     render(
         <NewButton saving={false} forking={true}/>,
     );
-    
-    const button = document.querySelector('button');
+    const button = screen.getByRole('button') as HTMLButtonElement;
     
     cleanup();
     
@@ -36,8 +35,7 @@ test('NewButton: enabled when not saving or forking', (t) => {
     render(
         <NewButton saving={false} forking={false}/>,
     );
-    
-    const button = document.querySelector('button');
+    const button = screen.getByRole('button') as HTMLButtonElement;
     
     cleanup();
     
@@ -54,8 +52,7 @@ test('NewButton: onNew called on click', (t) => {
     render(
         <NewButton saving={false} forking={false} onNew={onNew}/>,
     );
-    
-    const button = document.querySelector('button');
+    const button = screen.getByRole('button');
     
     fireEvent.click(button);
     
@@ -69,8 +66,9 @@ test('NewButton: renders new file svg icon', (t) => {
     render(
         <NewButton saving={false} forking={false}/>,
     );
-    
-    const svg = document.querySelector('button svg');
+    const svg = screen
+        .getByRole('button')
+        .querySelector('svg');
     
     cleanup();
     

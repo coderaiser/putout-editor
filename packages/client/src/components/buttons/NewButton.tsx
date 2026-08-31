@@ -1,7 +1,12 @@
-import PropTypes from 'prop-types';
 import {TbFilePlus} from 'react-icons/tb';
 
-export default function SaveButton({saving, forking, onNew}) {
+type Props = {
+    saving?: boolean;
+    forking?: boolean;
+    onNew?: () => void;
+};
+
+export default function NewButton({saving, forking, onNew}: Props) {
     return (
         <button
             type="button"
@@ -12,9 +17,3 @@ export default function SaveButton({saving, forking, onNew}) {
         </button>
     );
 }
-
-SaveButton.propTypes = {
-    saving: PropTypes.bool,
-    forking: PropTypes.bool,
-    onNew: PropTypes.func,
-};

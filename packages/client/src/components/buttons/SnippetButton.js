@@ -7,7 +7,7 @@ import {
     TbLoader2,
 } from 'react-icons/tb';
 import ForkButton from './ForkButton.js';
-import NewButton from './NewButton.js';
+import NewButton from './NewButton.tsx';
 import SaveButton from './SaveButton.js';
 import ShareButton from './ShareButton.js';
 
