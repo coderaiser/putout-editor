@@ -1,14 +1,13 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 function shouldAutoFocus({value, settings, focusPath}) {
     return settings.autofocus && focusPath.indexOf(value) > -1;
 }
 
-/**
- * This is a higher order component the prevents infinite recursion when opening
- * the element tree.
- */
 export default function RecursiveTreeElement(Element) {
     const openValues = new WeakMap();
     
@@ -32,75 +31,58 @@ export default function RecursiveTreeElement(Element) {
         openValues.set(value, n);
     }
     
-    class RecursiveElement extends React.Component {
-        constructor(props) {
-            super(props);
+    return function RecursiveElement(props) {
+        const previousValue = useRef(null);
+        const [state, setState] = useState(() => {
+            const {deepOpen} = props;
+            const open = shouldAutoFocus(props);
             
-            let {deepOpen} = props;
-            let open = shouldAutoFocus(props);
-            
-            if (props.value && typeof props.value === 'object') {
-                if (openValues.has(props.value)) {
-                    deepOpen = false;
-                    open = false;
-                }
-                
-                addValue(props.value);
-            }
-            
-            this.state = {
+            return {
                 deepOpen,
                 open,
             };
-        }
+        });
         
-        componentWillUnmount() {
-            const {value} = this.props;
+        useEffect(() => () => {
+            const {value} = props;
             
             if (value && typeof value === 'object')
                 removeValue(value);
-        }
+        }, []);
         
-        UNSAFE_componentWillReceiveProps(props) {
-            let {deepOpen} = props;
+        useEffect(() => {
+            let {deepOpen, value} = props;
             let open = shouldAutoFocus(props);
+            const wasValue = previousValue.current;
             
-            if (props.value !== !this.props.value) {
-                if (this.props.value && typeof this.props.value === 'object')
-                    removeValue(this.props.value);
+            if (wasValue !== value) {
+                if (wasValue && typeof wasValue === 'object')
+                    removeValue(wasValue);
                 
-                if (props.value && typeof props.value === 'object') {
-                    if (openValues.has(props.value)) {
+                if (value && typeof value === 'object') {
+                    if (openValues.has(value)) {
                         deepOpen = false;
                         open = false;
                     }
                     
-                    addValue(props.value);
+                    addValue(value);
                 }
+                
+                previousValue.current = value;
             }
             
-            this.setState({
+            setState({
                 deepOpen,
                 open,
             });
-        }
+        }, [props.value, props.focusPath, props.deepOpen]);
         
-        render() {
-            const {props} = this;
-            
-            return (
-                <Element
-                    {...props}
-                    open={this.state.open}
-                    deepOpen={this.state.deepOpen}
-                />
-            );
-        }
-    }
-    RecursiveElement.propTypes = {
-        deepOpen: PropTypes.bool,
-        value: PropTypes.any,
+        return (
+            <Element
+                {...props}
+                open={state.open}
+                deepOpen={state.deepOpen}
+            />
+        );
     };
-    
-    return RecursiveElement;
 }
