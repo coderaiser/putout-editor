@@ -54,7 +54,7 @@ export default function Editor(props) {
             updateListener: (update) => {
                 if (update.docChanged) {
                     clearTimeout(timerRef.current);
-                    setTimeout(() => {
+                    timerRef.current = setTimeout(() => {
                         const currentValue = getValue(editor);
                         const cursorIndex = getCursorIndex(editor);
                         
@@ -64,6 +64,7 @@ export default function Editor(props) {
                             cursor: cursorIndex,
                         });
                     }, 200);
+                    return;
                 }
                 
                 if (update.selectionSet) {
