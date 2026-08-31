@@ -1,10 +1,10 @@
 import {useSelector, useDispatch} from 'react-redux';
 import ShareDialog from '../components/dialogs/ShareDialog.js';
-import {closeShareDialog} from '../store/reducers.js';
+import {closeShareDialog} from '../store/reducers.ts';
 import {
     showShareDialog,
     getRevision,
-} from '../store/selectors.js';
+} from '../store/selectors.ts';
 
 export default function ShareDialogContainer() {
     const visible = useSelector(showShareDialog);

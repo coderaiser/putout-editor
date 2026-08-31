@@ -1,4 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
+import type {configureStore} from '@reduxjs/toolkit';
 import {
     getCategoryByID,
     getDefaultParser,
@@ -23,6 +24,7 @@ const initialState = {
     highlightRange: null,
     showTransformPanel: true, // Snippet related state
     selectedRevision: null, // Workbench settings
+    activeRevision: null,
     // Contains local settings of all parsers
     parserSettings: {}, // Remember selected parser per category
     parserPerCategory: {},
@@ -31,6 +33,7 @@ const initialState = {
         parser: defaultParser.id,
         parserSettings: null,
         parseError: null,
+        parseResult: null,
         code: defaultParser.category.codeExample,
         keyMap: 'vim',
         initialCode: defaultParser.category.codeExample,
@@ -280,6 +283,10 @@ export const {
 } = slice.actions;
 
 export const putoutEditor = slice.reducer;
+
+export type RootState = ReturnType<typeof putoutEditor>;
+
+export type AppDispatch = ReturnType<typeof configureStore>['dispatch'];
 
 function pick(obj, ...properties) {
     return properties.reduce((result, prop) => {

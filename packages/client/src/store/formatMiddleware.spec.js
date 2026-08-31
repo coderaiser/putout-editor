@@ -1,13 +1,13 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
-import {formatListener} from './formatMiddleware.js';
+import {formatListener} from './formatMiddleware.ts';
 import {
     putoutEditor,
     editorBlur,
     transformBlur,
     setParseResult,
-} from './reducers.js';
+} from './reducers.ts';
 
 const getInitState = () => putoutEditor(undefined, {
     type: '@@INIT',

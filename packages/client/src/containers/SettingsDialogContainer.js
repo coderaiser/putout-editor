@@ -3,12 +3,12 @@ import SettingsDialog from '../components/dialogs/SettingsDialog.js';
 import {
     closeSettingsDialog,
     setParserSettings,
-} from '../store/reducers.js';
+} from '../store/reducers.ts';
 import {
     showSettingsDialog,
     getParserSettings,
-} from '../store/selectors.js';
-import {getParser} from '../store/parserSelectors.js';
+} from '../store/selectors.ts';
+import {getParser} from '../store/parserSelectors.ts';
 
 export default function SettingsDialogContainer() {
     const visible = useSelector(showSettingsDialog);

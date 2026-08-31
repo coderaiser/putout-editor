@@ -1,13 +1,13 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
-import {parserListener} from './parserMiddleware.js';
+import {parserListener} from './parserMiddleware.ts';
 import {
     putoutEditor,
     setCode,
     setParser,
     setParserSettings,
-} from './reducers.js';
+} from './reducers.ts';
 import {getParserByID} from '../parsers/index.js';
 
 const makeMockParseResult = () => ({

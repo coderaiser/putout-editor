@@ -22,7 +22,7 @@ import {
     startSave,
     endSave,
     setHighlight,
-} from './reducers.js';
+} from './reducers.ts';
 
 // --- helpers ---
 // makeStore() is the ONLY function that changes between Redux, RTK, and Zustand.

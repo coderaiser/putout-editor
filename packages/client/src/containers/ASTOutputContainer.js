@@ -1,7 +1,7 @@
 import {useSelector} from 'react-redux';
 import ASTOutput from '../components/ASTOutput.js';
-import {getParser} from '../store/parserSelectors.js';
-import {getParseResult, getCursor} from '../store/selectors.js';
+import {getParser} from '../store/parserSelectors.ts';
+import {getParseResult, getCursor} from '../store/selectors.ts';
 
 export default function ASTOutputContainer() {
     const parser = useSelector(getParser);

@@ -3,7 +3,7 @@ import {
     getParser,
     getTransformer,
     canSave,
-} from './parserSelectors.js';
+} from './parserSelectors.ts';
 
 const state = (overrides = {}) => ({
     activeRevision: null,

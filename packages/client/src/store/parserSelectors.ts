@@ -9,7 +9,7 @@ import {
     getRevision,
     canSaveCode,
     canSaveTransform,
-} from './selectors.js';
+} from './selectors.ts';
 
 export function getParser(state) {
     return getParserByID(state.workbench.parser);

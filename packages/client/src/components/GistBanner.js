@@ -10,7 +10,7 @@ import {
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {TbX} from 'react-icons/tb';
-import {getRevision} from '../store/selectors.js';
+import {getRevision} from '../store/selectors.ts';
 
 const buttonStyle = {
     backgroundColor: 'transparent',

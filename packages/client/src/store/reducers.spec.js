@@ -30,7 +30,7 @@ import {
     selectCategory,
     setHighlight,
     clearHighlight,
-} from './reducers.js';
+} from './reducers.ts';
 
 const makeRevision = (overrides = {}) => ({
     canSave: () => true,

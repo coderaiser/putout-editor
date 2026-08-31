@@ -1,7 +1,7 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryCatch} from 'try-catch';
-import {editorBlur, setCode} from './reducers.js';
-import {getParseResult, getCode} from './selectors.js';
+import {editorBlur, setCode} from './reducers.ts';
+import {getParseResult, getCode} from './selectors.ts';
 
 export const formatListener = createListenerMiddleware();
 

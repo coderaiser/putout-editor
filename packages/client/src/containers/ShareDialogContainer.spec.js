@@ -6,7 +6,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, revive} from '../store/reducers.js';
+import {putoutEditor, revive} from '../store/reducers.ts';
 import ShareDialogContainer from './ShareDialogContainer.js';
 
 const makeSnippet = () => ({

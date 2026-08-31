@@ -1,7 +1,7 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Toolbar from '../components/Toolbar.js';
-import * as selectors from '../store/selectors.js';
-import * as parserSelectors from '../store/parserSelectors.js';
+import * as selectors from '../store/selectors.ts';
+import * as parserSelectors from '../store/parserSelectors.ts';
 import {logEvent} from '../utils/logger.ts';
 import {
     openSettingsDialog,
@@ -11,7 +11,7 @@ import {
     setParser,
     reset,
     setKeyMap,
-} from '../store/reducers.js';
+} from '../store/reducers.ts';
 
 export default function ToolbarContainer() {
     const forking = useSelector(selectors.isForking);

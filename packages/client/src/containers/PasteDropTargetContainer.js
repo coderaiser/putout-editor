@@ -1,6 +1,6 @@
 import {useDispatch} from 'react-redux';
 import PasteDropTarget from '../components/PasteDropTarget.js';
-import {setError, dropText} from '../store/reducers.js';
+import {setError, dropText} from '../store/reducers.ts';
 
 export default function PasteDropTargetContainer({children}) {
     const dispatch = useDispatch();

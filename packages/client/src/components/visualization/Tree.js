@@ -5,7 +5,7 @@ import React from 'react';
 import Element from './tree/Element.js';
 import {logEvent} from '../../utils/logger.ts';
 import {treeAdapterFromParseResult} from '../../core/TreeAdapter.js';
-import {clearHighlight} from '../../store/reducers.js';
+import {clearHighlight} from '../../store/reducers.ts';
 
 const {useReducer, useMemo} = React;
 

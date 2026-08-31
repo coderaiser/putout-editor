@@ -20,7 +20,7 @@ import {
     canSaveCode,
     canSaveTransform,
     getHighlightRange,
-} from './selectors.js';
+} from './selectors.ts';
 
 test('selectors: canFork: no revision: false', (t) => {
     const result = canFork({

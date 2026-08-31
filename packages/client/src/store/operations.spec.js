@@ -4,7 +4,7 @@ import {
     parseCode,
     loadSnippetFromURL,
     saveRevision,
-} from './operations.js';
+} from './operations.ts';
 
 // --- mock factory ---
 // Build the minimum mock parser needed for parseCode.

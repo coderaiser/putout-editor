@@ -4,13 +4,13 @@ import {
     getCode,
     getParseResult,
     getKeyMap,
-} from '../store/selectors.js';
-import {getParser} from '../store/parserSelectors.js';
+} from '../store/selectors.ts';
+import {getParser} from '../store/parserSelectors.ts';
 import {
     setCode,
     setCursor,
     editorBlur,
-} from '../store/reducers.js';
+} from '../store/reducers.ts';
 
 export default function CodeEditorContainer() {
     const keyMap = useSelector(getKeyMap);

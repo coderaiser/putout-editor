@@ -20,17 +20,17 @@ import {
     putoutEditor,
     persist,
     revive,
-} from './store/reducers';
+} from './store/reducers.ts';
 import {
     canSaveTransform,
     getRevision,
-} from './store/selectors';
+} from './store/selectors.ts';
 import * as gist from './storage/gist';
 import * as parse from './storage/parse';
 import StorageHandler from './storage';
-import {parserListener} from './store/parserMiddleware';
-import {formatListener} from './store/formatMiddleware';
-import {createSnippetListener} from './store/snippetMiddleware';
+import {parserListener} from './store/parserMiddleware.ts';
+import {formatListener} from './store/formatMiddleware.ts';
+import {createSnippetListener} from './store/snippetMiddleware.ts';
 
 function App() {
     const showTransformer = useSelector((s) => s.showTransformPanel);

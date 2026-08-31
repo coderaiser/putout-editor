@@ -3,9 +3,9 @@ import Transformer from '../components/Transformer.js';
 import {
     setTransformState,
     transformBlur,
-} from '../store/reducers.js';
-import {getParser, getTransformer} from '../store/parserSelectors.js';
-import * as selectors from '../store/selectors.js';
+} from '../store/reducers.ts';
+import {getParser, getTransformer} from '../store/parserSelectors.ts';
+import * as selectors from '../store/selectors.ts';
 
 export default function TransformerContainer() {
     const parser = useSelector(getParser);

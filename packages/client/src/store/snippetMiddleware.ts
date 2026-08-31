@@ -3,7 +3,7 @@ import {tryToCatch} from 'try-to-catch';
 import {
     loadSnippetFromURL,
     saveRevision,
-} from './operations.js';
+} from './operations.ts';
 import {logEvent, logError} from '../utils/logger.ts';
 import {
     setError,
@@ -14,7 +14,7 @@ import {
     clearSnippet,
     startSave,
     endSave,
-} from './reducers.js';
+} from './reducers.ts';
 import {
     getParserSettings,
     getCode,
@@ -23,8 +23,8 @@ import {
     getRevision,
     getTransformCode,
     showTransformer,
-} from './selectors.js';
-import {getParser, getTransformer} from './parserSelectors.js';
+} from './selectors.ts';
+import {getParser, getTransformer} from './parserSelectors.ts';
 
 export function createSnippetListener(storageAdapter) {
     const listener = createListenerMiddleware();
