@@ -57,11 +57,7 @@ export default function PasteDropTarget({children, ...props}) {
     }
     
     function handleASTError(type, event, exception) {
-        onError(
-            type,
-            event,
-            `Cannot process pasted AST: ${exception.message}`,
-        );
+        onError(`Cannot process pasted AST: ${exception.message}`);
     }
     
     useEffect(() => {
@@ -132,9 +128,9 @@ export default function PasteDropTarget({children, ...props}) {
                             categoryId = 'javascript';
                             return code;
                         })
-                        .catch(() => {
+                        .catch((exception) => {
                             if (categoryId === 'JSON')
-                                handleASTError('drop');
+                                handleASTError('drop', undefined, exception);
                             
                             return null;
                         });
