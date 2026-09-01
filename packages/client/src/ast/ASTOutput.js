@@ -1,12 +1,15 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import {useState, useMemo} from 'react';
+import {useSelector} from 'react-redux';
 import visualizations from '../components/visualization/index.js';
 import getFocusPath from '../editor/getFocusPath.js';
 import {Button} from '../components/visualization/Button.js';
+import {getParser} from '../parser-selection/store/parserSelectors.ts';
+import {
+    getParseResult,
+    getCursor,
+} from '../store/selectors.ts';
 
 const getName = (a) => a.name;
-
-const {useState, useMemo} = React;
 
 function formatTime(time) {
     if (!time)
@@ -22,9 +25,13 @@ const clearName = (a) => a
     .split('_')
     .pop();
 
-export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
+export default function ASTOutput() {
+    const parser = useSelector(getParser);
+    const parseResult = useSelector(getParseResult) || {};
+    const cursor = useSelector(getCursor);
     const [selectedOutput, setSelectedOutput] = useState(0);
     const {ast = null} = parseResult;
+    const Visualization = visualizations[selectedOutput];
     
     const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(parseResult.ast, cursor, parser) : [], [ast, cursor, parser]);
     
@@ -39,10 +46,10 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
             {parseResult.error.message}
         </div>;
     else if (ast)
-        output = React.createElement(visualizations[selectedOutput], {
-            parseResult,
-            focusPath,
-        });
+        output = <Visualization
+            parseResult={parseResult}
+            focusPath={focusPath}
+        />;
     
     const names = visualizations
         .map(getName)
@@ -65,9 +72,3 @@ export default function ASTOutput({parser, parseResult = {}, cursor = null}) {
         </div>
     );
 }
-
-ASTOutput.propTypes = {
-    parser: PropTypes.object.isRequired,
-    parseResult: PropTypes.object,
-    cursor: PropTypes.any,
-};

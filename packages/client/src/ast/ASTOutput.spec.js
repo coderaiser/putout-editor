@@ -2,8 +2,11 @@ import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, revive} from '../store/reducers.ts';
-import ASTOutputContainer from './ASTOutputContainer.js';
+import ASTOutput from './ASTOutput.js';
+import {
+    putoutEditor,
+    revive,
+} from '../store/reducers.ts';
 
 function renderWithStore(overrides = {}) {
     const base = putoutEditor(undefined, {
@@ -26,14 +29,14 @@ function renderWithStore(overrides = {}) {
     
     render(
         <Provider store={store}>
-            <ASTOutputContainer/>
+            <ASTOutput/>
         </Provider>,
     );
     
     return store;
 }
 
-test('ASTOutputContainer: renders output element', (t) => {
+test('ASTOutput: renders output element', (t) => {
     renderWithStore({
         workbench: {
             parseResult: {
@@ -56,7 +59,7 @@ test('ASTOutputContainer: renders output element', (t) => {
     t.end();
 });
 
-test('ASTOutputContainer: rendered without exception on parse error', (t) => {
+test('ASTOutput: renders error message from store', (t) => {
     renderWithStore({
         workbench: {
             parseResult: {
@@ -65,14 +68,35 @@ test('ASTOutputContainer: rendered without exception on parse error', (t) => {
                     message: 'parse failed',
                 },
                 time: 0,
-                treeAdapter: {
-                    type: 'estree',
-                    options: {},
-                },
             },
         },
     });
     
-    t.pass('rendered without exception');
+    const output = document.querySelector('.output');
+    const result = output.textContent.includes('parse failed');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('ASTOutput: renders time from store', (t) => {
+    renderWithStore({
+        workbench: {
+            parseResult: {
+                ast: null,
+                error: null,
+                time: 1500,
+            },
+        },
+    });
+    
+    const time = document.querySelector('.time');
+    const result = time.textContent;
+    
+    cleanup();
+    
+    t.equal(result, '1.50s');
     t.end();
 });
