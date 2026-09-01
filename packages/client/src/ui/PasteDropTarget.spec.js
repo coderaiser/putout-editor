@@ -74,7 +74,7 @@ test('PasteDropTarget: drop of plain text sets code', async (t) => {
         fireEvent.drop(document.querySelector('#child-test').parentNode, {
             dataTransfer: {
                 files: [{
-                    type: 'text/javascript',
+                    type: 'text/plain',
                 }],
             },
         });
