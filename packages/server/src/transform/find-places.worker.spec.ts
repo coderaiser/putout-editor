@@ -140,7 +140,12 @@ test('find-places worker: invalid fixture throws structured with kind fixture_sy
         fixture: 'const = broken',
         plugin: replaceVarWithConst,
     });
-    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'fixture_syntax');
+    
+    t.equal((error as {
+        structured?: {
+            kind: string;
+        };
+    }).structured?.kind, 'fixture_syntax');
     t.end();
 });
 
@@ -149,7 +154,12 @@ test('find-places worker: runtime error throws structured with kind plugin_error
         fixture: 'var x = 1;',
         plugin: throwingPlugin,
     });
-    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'plugin_error');
+    
+    t.equal((error as {
+        structured?: {
+            kind: string;
+        };
+    }).structured?.kind, 'plugin_error');
     t.end();
 });
 
@@ -158,6 +168,11 @@ test('find-places worker: invalid fixture throws structured with position', asyn
         fixture: 'const = broken',
         plugin: replaceVarWithConst,
     });
-    t.ok((error as {structured?: {position?: unknown}}).structured?.position);
+    
+    t.ok((error as {
+        structured?: {
+            position?: unknown;
+        };
+    }).structured?.position);
     t.end();
 });

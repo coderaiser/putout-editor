@@ -147,8 +147,19 @@ test('find-places service: returns structured body on error', async (t) => {
 test('find-places service: returns 422 with plugin_error body on unstructured error', async (t) => {
     const run = stub().rejects(Error('boom'));
     const service = createServiceWithRun(run);
-    const [error] = await tryToCatch(service.findPlaces.bind(service), {fixture: 'x', plugin: ''});
-    t.equal((error as {status?: number}).status, 422);
-    t.deepEqual((error as {response?: unknown}).response, {kind: 'plugin_error', message: 'boom'});
+    const [error] = await tryToCatch(service.findPlaces.bind(service), {
+        fixture: 'x',
+        plugin: '',
+    });
+    
+    t.equal((error as {
+        status?: number;
+    }).status, 422);
+    t.deepEqual((error as {
+        response?: unknown;
+    }).response, {
+        kind: 'plugin_error',
+        message: 'boom',
+    });
     t.end();
 });
