@@ -76,7 +76,7 @@ function App() {
                             {showTransformer ? <Transformer/> : null}
                         </SplitPane>
                     </div>
-                </PasteDropTargetContainer>
+                </PasteDropTarget>
             </div>
         </div>
     );
