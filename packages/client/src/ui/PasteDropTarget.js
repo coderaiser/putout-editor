@@ -45,7 +45,7 @@ export default function PasteDropTarget({children, ...props}) {
     const [dragging, setDragging] = useState(false);
     const containerRef = useRef(null);
     
-    function onText(code, categoryId) {
+    function onText(type, event, code, categoryId) {
         dispatch(dropText({
             text: code,
             categoryId,
@@ -56,8 +56,12 @@ export default function PasteDropTarget({children, ...props}) {
         dispatch(setError(error));
     }
     
-    function handleASTError(type) {
-        onError(type);
+    function handleASTError(type, event, exception) {
+        onError(
+            type,
+            event,
+            `Cannot process pasted AST: ${exception.message}`,
+        );
     }
     
     useEffect(() => {
@@ -84,10 +88,10 @@ export default function PasteDropTarget({children, ...props}) {
             event.preventDefault();
             
             jsonToCode(clipboardData.getData('text/plain'))
-                .then((code) => onText('paste', code))
+                .then((code) => onText('paste', event, code))
                 .catch(() => {
                     if (event.target.nodeName !== 'TEXTAREA')
-                        handleASTError('paste');
+                        handleASTError('paste', event, Error('parse failed'));
                 });
         }, true);
         
@@ -141,7 +145,7 @@ export default function PasteDropTarget({children, ...props}) {
                         if (!code)
                             return;
                         
-                        onText('drop', code);
+                        onText('drop', readerEvent, code, categoryId);
                     })
                     .catch(noop);
             };
