@@ -12,7 +12,6 @@
         "src/app.js",
         "src/ast/ASTOutput.js",
         "src/ast/Tree.js",
-        "src/ast/tree/**",
         "src/components/PasteDropTarget.js",
         "src/components/visualization/JSON.js",
         "src/containers/CodeEditorContainer.js",
@@ -21,8 +20,9 @@
         "src/snippet/GistBanner.js",
         "src/transform/Transformer.js",
         "src/transform/TransformerContainer.js",
-        "src/parser-selection/parsers/js/**",
         "src/parser-selection/parsers/transpilers/typescript.js",
+        "src/ast/tree/**",
+        "src/parser-selection/parsers/js/**",
         "coverage"
     ],
     "branches": 100,
