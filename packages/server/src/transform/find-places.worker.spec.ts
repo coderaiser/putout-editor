@@ -9,6 +9,13 @@ export const replace = () => ({
 });
 `;
 
+const throwingPlugin = `
+export const report = () => 'use const';
+export const replace = () => {
+    throw new Error('intentional error');
+};
+`;
+
 test('find-places worker: returns places array', async (t) => {
     const {places} = await findPlaces({
         fixture: 'var x = 1;',
@@ -128,14 +135,29 @@ test('find-places worker: plugin_syntax error has position', async (t) => {
     t.end();
 });
 
-test('find-places worker: does not modify fixture source', async (t) => {
-    const fixture = 'var x = 1;';
-    
-    await findPlaces({
-        fixture,
+test('find-places worker: invalid fixture throws structured with kind fixture_syntax', async (t) => {
+    const [error] = await tryToCatch(findPlaces, {
+        fixture: 'const = broken',
         plugin: replaceVarWithConst,
     });
-    
-    t.ok(true);
+    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'fixture_syntax');
+    t.end();
+});
+
+test('find-places worker: runtime error throws structured with kind plugin_error', async (t) => {
+    const [error] = await tryToCatch(findPlaces, {
+        fixture: 'var x = 1;',
+        plugin: throwingPlugin,
+    });
+    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'plugin_error');
+    t.end();
+});
+
+test('find-places worker: invalid fixture throws structured with position', async (t) => {
+    const [error] = await tryToCatch(findPlaces, {
+        fixture: 'const = broken',
+        plugin: replaceVarWithConst,
+    });
+    t.ok((error as {structured?: {position?: unknown}}).structured?.position);
     t.end();
 });
