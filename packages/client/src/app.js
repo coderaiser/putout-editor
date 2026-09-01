@@ -5,15 +5,15 @@ import {createRoot} from 'react-dom/client';
 import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './snippet/LocalStorage.js';
 import ASTOutput from './ast/ASTOutput.js';
-import CodeEditorContainer from './containers/CodeEditorContainer';
-import ErrorMessageContainer from './containers/ErrorMessageContainer';
+import ConnectedEditor from './editor/ConnectedEditor.js';
+import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
-import LoadingIndicatorContainer from './containers/LoadingIndicatorContainer';
-import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
+import LoadingIndicator from './ui/LoadingIndicator.js';
+import PasteDropTarget from './ui/PasteDropTarget.js';
 import SettingsDialog from './parser-selection/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
-import SplitPane from './components/SplitPane';
-import ToolbarContainer from './containers/ToolbarContainer';
+import SplitPane from './ui/SplitPane.js';
+import Toolbar from './ui/Toolbar.js';
 import Transformer from './transform/Transformer.js';
 import debounce from './utils/debounce.ts';
 import {
@@ -38,14 +38,14 @@ function App() {
     
     return (
         <div>
-            <ErrorMessageContainer/>
+            <ErrorMessage/>
             <div className={'dropTarget' + (hasError ? ' hasError' : '')}>
-                <PasteDropTargetContainer>
-                    <LoadingIndicatorContainer/>
+                <PasteDropTarget>
+                    <LoadingIndicator/>
                     <SettingsDialog/>
                     <ShareDialog/>
                     <div id="root">
-                        <ToolbarContainer/>
+                        <Toolbar/>
                         <GistBanner/>
                         <SplitPane
                             className="splitpane-content"
@@ -61,7 +61,7 @@ function App() {
                                         </div>
                                     )}
                                 >
-                                    <CodeEditorContainer/>
+                                    <ConnectedEditor/>
                                 </ErrorBoundary>
                                 <ErrorBoundary
                                     fallbackRender={({error}) => (
