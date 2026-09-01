@@ -14,6 +14,7 @@ test('find-places worker: returns places array', async (t) => {
         fixture: 'var x = 1;',
         plugin: replaceVarWithConst,
     });
+    
     const result = Array.isArray(places);
     
     t.ok(result);
@@ -55,6 +56,7 @@ test('find-places worker: place has rule string', async (t) => {
         fixture: 'var x = 1;',
         plugin: replaceVarWithConst,
     });
+    
     const result = typeof places[0].rule;
     const expected = 'string';
     
@@ -77,6 +79,7 @@ test('find-places worker: place has position.line number', async (t) => {
         fixture: 'var x = 1;',
         plugin: replaceVarWithConst,
     });
+    
     const result = typeof places[0].position.line;
     const expected = 'number';
     
@@ -89,6 +92,7 @@ test('find-places worker: place has position.column number', async (t) => {
         fixture: 'var x = 1;',
         plugin: replaceVarWithConst,
     });
+    
     const result = typeof places[0].position.column;
     const expected = 'number';
     
@@ -126,6 +130,7 @@ test('find-places worker: plugin_syntax error has position', async (t) => {
 
 test('find-places worker: does not modify fixture source', async (t) => {
     const fixture = 'var x = 1;';
+    
     await findPlaces({
         fixture,
         plugin: replaceVarWithConst,

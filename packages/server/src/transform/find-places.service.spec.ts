@@ -59,7 +59,9 @@ test('find-places service: findPlaces returns places array', async (t) => {
             },
         }],
     });
+    
     const service = createServiceWithRun(run);
+    
     const result = await service.findPlaces({
         fixture: 'var x = 1;',
         plugin: '',
@@ -82,6 +84,7 @@ test('find-places service: returns 400 on plugin_syntax error', async (t) => {
     }));
     
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.findPlaces.bind(service), {
         fixture: 'x',
         plugin: '',
@@ -102,6 +105,7 @@ test('find-places service: returns 422 on plugin_error', async (t) => {
     }));
     
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.findPlaces.bind(service), {
         fixture: 'x',
         plugin: '',
@@ -122,10 +126,13 @@ test('find-places service: returns structured body on error', async (t) => {
             column: 5,
         },
     };
+    
     const run = stub().rejects(Object.assign(Error('bad'), {
         structured,
     }));
+    
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.findPlaces.bind(service), {
         fixture: 'x',
         plugin: '',

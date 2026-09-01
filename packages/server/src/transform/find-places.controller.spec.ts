@@ -24,6 +24,7 @@ test('find-places controller: GET returns documentation', async (t) => {
         }),
         findPlaces: stub(),
     };
+    
     const controller = await createController(mockService);
     
     controller.getDocumentation();
@@ -39,6 +40,7 @@ test('find-places controller: GET documentation has url', async (t) => {
         }),
         findPlaces: stub(),
     };
+    
     const controller = await createController(mockService);
     const result = controller.getDocumentation();
     
@@ -53,7 +55,9 @@ test('find-places controller: PUT calls findPlaces with body', async (t) => {
             places: [],
         }),
     };
+    
     const controller = await createController(mockService);
+    
     const body = {
         fixture: 'var x = 1;',
         plugin: '',
@@ -74,13 +78,16 @@ test('find-places controller: PUT returns places result', async (t) => {
             column: 0,
         },
     }];
+    
     const mockService = {
         documentation: stub(),
         findPlaces: stub().resolves({
             places,
         }),
     };
+    
     const controller = await createController(mockService);
+    
     const result = await controller.findPlaces({
         fixture: 'var x = 1;',
         plugin: '',
