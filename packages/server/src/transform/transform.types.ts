@@ -27,7 +27,17 @@ export type TransformDocumentation = {
     url: string;
     body: TransformRequest;
     response: string;
-    errors: Record<string, string | {kind: string; message: string; position?: {line: number; column: number}}>;
+    errors: Record<string, string | {
+        kind: string;
+        message: string;
+        position?: {
+            line: number;
+            column: number;
+        };
+    }>;
     links: Record<string, string>;
-    examples: {name: string; plugin: string}[];
+    examples: {
+        name: string;
+        plugin: string;
+    }[];
 };

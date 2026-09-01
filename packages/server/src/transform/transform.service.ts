@@ -1,9 +1,6 @@
 import {resolve, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {
-    Injectable,
-    HttpException,
-} from '@nestjs/common';
+import {Injectable, HttpException} from '@nestjs/common';
 import {tryToCatch} from 'try-to-catch';
 import Piscina from 'piscina';
 import type {
@@ -52,7 +49,10 @@ export class TransformService {
                 400: {
                     kind: 'plugin_syntax',
                     message: 'Your plugin is invalid JavaScript',
-                    position: {line: 1, column: 13},
+                    position: {
+                        line: 1,
+                        column: 13,
+                    },
                 },
                 422: {
                     kind: 'plugin_error',
@@ -84,9 +84,15 @@ export class TransformService {
         });
         
         if (error) {
-            const structured = (error as {structured?: StructuredError}).structured;
+            const {structured} = error as {
+                structured?: StructuredError;
+            };
             const status = structured?.kind === 'plugin_syntax' ? 400 : 422;
-            const body = structured ?? {kind: 'plugin_error', message: error.message};
+            const body = structured || {
+                kind: 'plugin_error',
+                message: error.message,
+            };
+            
             throw new HttpException(body, status);
         }
         

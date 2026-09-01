@@ -83,7 +83,11 @@ test('transform worker: invalid plugin throws structured with kind plugin_syntax
         plugin: 'export const = broken',
     });
     
-    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'plugin_syntax');
+    t.equal((error as {
+        structured?: {
+            kind: string;
+        };
+    }).structured?.kind, 'plugin_syntax');
     t.end();
 });
 
@@ -93,7 +97,11 @@ test('transform worker: runtime error throws structured with kind plugin_error',
         plugin: throwingPlugin,
     });
     
-    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'plugin_error');
+    t.equal((error as {
+        structured?: {
+            kind: string;
+        };
+    }).structured?.kind, 'plugin_error');
     t.end();
 });
 
@@ -103,7 +111,10 @@ test('transform worker: invalid fixture throws structured with kind fixture_synt
         plugin: replaceVarWithConst,
     });
     
-    t.equal((error as {structured?: {kind: string}}).structured?.kind, 'fixture_syntax');
+    t.equal((error as {
+        structured?: {
+            kind: string;
+        };
+    }).structured?.kind, 'fixture_syntax');
     t.end();
 });
-

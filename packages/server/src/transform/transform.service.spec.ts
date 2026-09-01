@@ -108,40 +108,72 @@ test('transform service: transform throws HttpException 422 for plugin runtime e
 });
 
 test('transform service: returns 400 when plugin has syntax error', async (t) => {
-    const run = stub().rejects(Object.assign(new Error('bad syntax'), {
-        structured: {kind: 'plugin_syntax', message: 'bad syntax', position: {line: 1, column: 5}},
+    const run = stub().rejects(Object.assign(Error('bad syntax'), {
+        structured: {
+            kind: 'plugin_syntax',
+            message: 'bad syntax',
+            position: {
+                line: 1,
+                column: 5,
+            },
+        },
     }));
+    
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.transform.bind(service), {
         fixture: 'const x = 1;',
         plugin: 'export const = broken',
     });
-    t.equal((error as {status?: number}).status, 400);
+    
+    t.equal((error as {
+        status?: number;
+    }).status, 400);
     t.end();
 });
 
 test('transform service: returns 422 when plugin_error', async (t) => {
-    const run = stub().rejects(Object.assign(new Error('runtime'), {
-        structured: {kind: 'plugin_error', message: 'runtime'},
+    const run = stub().rejects(Object.assign(Error('runtime'), {
+        structured: {
+            kind: 'plugin_error',
+            message: 'runtime',
+        },
     }));
+    
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.transform.bind(service), {
         fixture: 'const x = 1;',
         plugin: 'export const replace = () => ({});',
     });
-    t.equal((error as {status?: number}).status, 422);
+    
+    t.equal((error as {
+        status?: number;
+    }).status, 422);
     t.end();
 });
 
 test('transform service: returns structured body on error', async (t) => {
-    const structured = {kind: 'plugin_syntax', message: 'bad', position: {line: 1, column: 5}};
-    const run = stub().rejects(Object.assign(new Error('bad'), {structured}));
+    const structured = {
+        kind: 'plugin_syntax',
+        message: 'bad',
+        position: {
+            line: 1,
+            column: 5,
+        },
+    };
+    const run = stub().rejects(Object.assign(Error('bad'), {
+        structured,
+    }));
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.transform.bind(service), {
         fixture: 'const x = 1;',
         plugin: 'export const = broken',
     });
-    t.deepEqual((error as {response?: unknown}).response, structured);
+    
+    t.deepEqual((error as {
+        response?: unknown;
+    }).response, structured);
     t.end();
 });
-
