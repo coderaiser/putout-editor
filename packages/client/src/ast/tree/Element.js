@@ -9,7 +9,7 @@ import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
-import stringify from '../../utils/stringify.ts';
+import stringify from '../stringify.ts';
 import {setHighlight, clearHighlight} from '../../store/reducers.ts';
 
 const isNumber = (a) => typeof a === 'number';

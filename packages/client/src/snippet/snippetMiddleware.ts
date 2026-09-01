@@ -4,7 +4,7 @@ import {
     loadSnippetFromURL,
     saveRevision,
 } from '../store/operations.ts';
-import {logEvent, logError} from '../utils/logger.ts';
+import {logEvent, logError} from './logger.ts';
 import {
     setError,
     clearError,

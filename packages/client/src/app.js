@@ -15,7 +15,7 @@ import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import SplitPane from './ui/SplitPane.js';
 import Toolbar from './ui/Toolbar.js';
 import Transformer from './transform/Transformer.js';
-import debounce from './utils/debounce.ts';
+import debounce from './app/debounce.ts';
 import {
     putoutEditor,
     persist,
