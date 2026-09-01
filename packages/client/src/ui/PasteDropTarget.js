@@ -45,10 +45,10 @@ export default function PasteDropTarget({children, ...props}) {
     const [dragging, setDragging] = useState(false);
     const containerRef = useRef(null);
     
-    function onText(code, categoryId) {
+    function onText(action, code) {
         dispatch(dropText({
             text: code,
-            categoryId,
+            categoryId: 'javascript',
         }));
     }
     
