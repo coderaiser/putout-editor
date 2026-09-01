@@ -1,8 +1,11 @@
-import PropTypes from 'prop-types';
+import {useSelector} from 'react-redux';
 import {TbLoader2} from 'react-icons/tb';
+import {isLoadingSnippet} from '../store/selectors.ts';
 
-export default function LoadingIndicator(props) {
-    return props.visible
+export default function LoadingIndicator() {
+    const visible = useSelector(isLoadingSnippet);
+    
+    return visible
         ? <div
             className="loadingIndicator cover"
         >
@@ -12,7 +15,3 @@ export default function LoadingIndicator(props) {
         </div>
         : null;
 }
-
-LoadingIndicator.propTypes = {
-    visible: PropTypes.bool,
-};

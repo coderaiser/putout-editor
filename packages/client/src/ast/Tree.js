@@ -1,4 +1,4 @@
-import '../components/visualization/css/tree.css';
+import './css/tree.css';
 import PropTypes from 'prop-types';
 import {useDispatch} from 'react-redux';
 import React from 'react';

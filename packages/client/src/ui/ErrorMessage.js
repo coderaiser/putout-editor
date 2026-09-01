@@ -1,7 +1,12 @@
-import PropTypes from 'prop-types';
+import {useSelector, useDispatch} from 'react-redux';
 import {TbAlertTriangle} from 'react-icons/tb';
+import {clearError} from '../store/reducers.ts';
+import {getError} from '../store/selectors.ts';
 
-export default function ErrorMessage({error, onWantToClose}) {
+export default function ErrorMessage() {
+    const error = useSelector(getError);
+    const dispatch = useDispatch();
+    
     if (!error)
         return null;
     
@@ -21,7 +26,7 @@ export default function ErrorMessage({error, onWantToClose}) {
                 >
                     <button
                         type="button"
-                        onClick={onWantToClose}
+                        onClick={() => dispatch(clearError())}
                     >
                         OK
                     </button>
@@ -30,8 +35,3 @@ export default function ErrorMessage({error, onWantToClose}) {
         </div>
     );
 }
-
-ErrorMessage.propTypes = {
-    error: PropTypes.object,
-    onWantToClose: PropTypes.func,
-};

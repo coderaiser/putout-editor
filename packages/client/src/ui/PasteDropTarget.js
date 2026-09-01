@@ -3,7 +3,8 @@ import {
     useEffect,
     useRef,
 } from 'react';
-import PropTypes from 'prop-types';
+import {useDispatch} from 'react-redux';
+import {setError, dropText} from '../store/reducers.ts';
 import {categories} from '../parser-selection/parsers/index.js';
 
 const noop = () => {};
@@ -39,9 +40,21 @@ function jsonToCode(json) {
     }));
 }
 
-export default function PasteDropTarget({onText, onError, children, ...props}) {
+export default function PasteDropTarget({children, ...props}) {
+    const dispatch = useDispatch();
     const [dragging, setDragging] = useState(false);
     const containerRef = useRef(null);
+    
+    function onText(type, event, code, categoryId) {
+        dispatch(dropText({
+            text: code,
+            categoryId,
+        }));
+    }
+    
+    function onError(error) {
+        dispatch(setError(error));
+    }
     
     function handleASTError(type, event, exception) {
         onError(
@@ -162,9 +175,3 @@ export default function PasteDropTarget({onText, onError, children, ...props}) {
         </div>
     );
 }
-
-PasteDropTarget.propTypes = {
-    onText: PropTypes.func,
-    onError: PropTypes.func,
-    children: PropTypes.node,
-};

@@ -1,6 +1,6 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Editor from '../editor/Editor.js';
-import SplitPane from '../components/SplitPane.js';
+import SplitPane from '../ui/SplitPane.js';
 import TransformOutput from './TransformOutput.js';
 import {getTransformerByID} from '../parser-selection/parsers/index.js';
 import {

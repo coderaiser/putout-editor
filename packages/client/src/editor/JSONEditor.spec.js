@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import JSONEditor from './JSONEditor.js';
-import {getView, getValue} from '../editor/codemirror/index.js';
+import {getView, getValue} from './codemirror/index.js';
 
 test('JSONEditor: renders container with id', (t) => {
     const {container} = render(

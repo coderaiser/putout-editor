@@ -7,8 +7,8 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
+import PasteDropTarget from './PasteDropTarget.js';
 import {putoutEditor, revive} from '../store/reducers.ts';
-import PasteDropTargetContainer from './PasteDropTargetContainer.js';
 
 function makeStore(overrides = {}) {
     const base = putoutEditor(undefined, {
@@ -33,14 +33,14 @@ function makeStore(overrides = {}) {
 function renderWithChildren(store) {
     render(
         <Provider store={store}>
-            <PasteDropTargetContainer>
+            <PasteDropTarget>
                 <span id="child-test">hello</span>
-            </PasteDropTargetContainer>
+            </PasteDropTarget>
         </Provider>,
     );
 }
 
-test('PasteDropTargetContainer: renders child content', (t) => {
+test('PasteDropTarget: renders child content', (t) => {
     const store = makeStore();
     
     renderWithChildren(store);
@@ -53,7 +53,7 @@ test('PasteDropTargetContainer: renders child content', (t) => {
     t.end();
 });
 
-test('PasteDropTargetContainer: drop of plain text sets code', async (t) => {
+test('PasteDropTarget: drop of plain text sets code', async (t) => {
     const store = makeStore();
     const OriginalReader = globalThis.FileReader;
     
@@ -90,7 +90,7 @@ test('PasteDropTargetContainer: drop of plain text sets code', async (t) => {
     t.end();
 });
 
-test('PasteDropTargetContainer: dropped invalid AST shows error', async (t) => {
+test('PasteDropTarget: dropped invalid AST shows error', async (t) => {
     const store = makeStore();
     const OriginalReader = globalThis.FileReader;
     const onUnhandledRejection = () => {};
@@ -127,6 +127,7 @@ test('PasteDropTargetContainer: dropped invalid AST shows error', async (t) => {
         globalThis.FileReader = OriginalReader;
         process.removeListener('unhandledRejection', onUnhandledRejection);
     }
+    
     const {error} = store.getState();
     
     t.ok(error);

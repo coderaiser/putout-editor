@@ -1,8 +1,8 @@
 import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
-import visualizations from '../components/visualization/index.js';
+import visualizations from './visualization.js';
 import getFocusPath from '../editor/getFocusPath.js';
-import {Button} from '../components/visualization/Button.js';
+import {Button} from './Button.js';
 import {getParser} from '../parser-selection/store/parserSelectors.ts';
 import {
     getParseResult,

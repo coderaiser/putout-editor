@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import visualizations from './index.js';
+import visualizations from './visualization.js';
 
 test('visualization: index: exports array of visualizations', (t) => {
     const result = Array.isArray(visualizations);
