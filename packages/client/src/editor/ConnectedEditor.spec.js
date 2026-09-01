@@ -50,6 +50,12 @@ test('ConnectedEditor: renders editor container', (t) => {
 });
 
 test('ConnectedEditor: renders value from store', (t) => {
+    renderWithStore({
+        workbench: {
+            code: 'const a = 1;',
+        },
+    });
+    
     const view = getView(document.body);
     const result = view.state.doc.toString();
     
