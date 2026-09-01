@@ -11,7 +11,7 @@ import {
     getCode,
     getTransformCode,
 } from './selectors.ts';
-import {formatInput, formatRule} from '../transform/format.ts';
+import {formatInput, formatRule} from '../editor-plugin/format.ts';
 
 export const formatListener = createListenerMiddleware();
 

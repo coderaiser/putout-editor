@@ -1,7 +1,7 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Editor from '../editor/Editor.js';
 import SplitPane from '../ui/SplitPane.js';
-import TransformOutput from './TransformOutput.js';
+import TransformOutput from '../editor-output/TransformOutput.js';
 import {getTransformerByID} from '../parser-selection/parsers/index.js';
 import {
     setTransformState,

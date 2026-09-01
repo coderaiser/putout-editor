@@ -14,7 +14,7 @@ import SettingsDialog from './parser-selection/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import SplitPane from './ui/SplitPane.js';
 import Toolbar from './ui/Toolbar.js';
-import Transformer from './transform/Transformer.js';
+import Transformer from './editor-plugin/Transformer.js';
 import debounce from './app/debounce.ts';
 import {
     putoutEditor,

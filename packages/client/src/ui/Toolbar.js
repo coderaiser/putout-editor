@@ -2,7 +2,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {TbQuestionMark} from 'react-icons/tb';
 import ParserButton from '../parser-selection/buttons/ParserButton.js';
 import SnippetButton from '../snippet/buttons/SnippetButton.js';
-import TransformButton from '../transform/TransformButton.js';
+import TransformButton from '../editor-plugin/TransformButton.js';
 import KeyMapButton from './buttons/KeyMapButton.js';
 import ThemeButton from './buttons/ThemeButton.js';
 import Funding from './buttons/Funding.js';
