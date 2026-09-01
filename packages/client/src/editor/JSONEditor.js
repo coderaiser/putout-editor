@@ -6,7 +6,7 @@ import {
     getScrollInfo,
     scrollTo,
     observeResize,
-} from '../editor/codemirror/index.js';
+} from './codemirror/index.js';
 
 export default function JSONEditor({value = '', className = ''}) {
     const containerRef = useRef(null);

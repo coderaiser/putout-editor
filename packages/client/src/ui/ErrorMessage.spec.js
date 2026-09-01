@@ -1,17 +1,14 @@
 import {test} from 'supertape';
+import {Provider} from 'react-redux';
+import {configureStore} from '@reduxjs/toolkit';
 import {
     render,
     screen,
     fireEvent,
     cleanup,
 } from '@testing-library/react';
-import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
 import ErrorMessage from './ErrorMessage.js';
-import {
-    putoutEditor,
-    revive,
-} from '../store/reducers.ts';
+import {putoutEditor, revive} from '../store/reducers.ts';
 
 function renderWithStore(overrides = {}) {
     const base = putoutEditor(undefined, {

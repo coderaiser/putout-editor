@@ -3,10 +3,7 @@ import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import ASTOutput from './ASTOutput.js';
-import {
-    putoutEditor,
-    revive,
-} from '../store/reducers.ts';
+import {putoutEditor, revive} from '../store/reducers.ts';
 
 function renderWithStore(overrides = {}) {
     const base = putoutEditor(undefined, {

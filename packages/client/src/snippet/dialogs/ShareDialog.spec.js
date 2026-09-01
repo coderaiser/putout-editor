@@ -7,10 +7,7 @@ import {
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import ShareDialog from './ShareDialog.js';
-import {
-    putoutEditor,
-    revive,
-} from '../../store/reducers.ts';
+import {putoutEditor, revive} from '../../store/reducers.ts';
 
 const makeSnippet = () => ({
     getShareData: () => ({
@@ -111,8 +108,7 @@ test('ShareDialog: renders one input when latest and embed URLs are missing', (t
     
     renderDialog(store);
     
-    const inputs = document.querySelectorAll('.body input');
-    const {length} = inputs;
+    const {length} = document.querySelectorAll('.body input');
     
     cleanup();
     

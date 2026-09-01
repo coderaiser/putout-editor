@@ -127,7 +127,6 @@ test('PasteDropTarget: dropped invalid AST shows error', async (t) => {
         globalThis.FileReader = OriginalReader;
         process.removeListener('unhandledRejection', onUnhandledRejection);
     }
-    
     const {error} = store.getState();
     
     t.ok(error);

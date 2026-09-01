@@ -45,7 +45,7 @@ export default function PasteDropTarget({children, ...props}) {
     const [dragging, setDragging] = useState(false);
     const containerRef = useRef(null);
     
-    function onText(type, event, code, categoryId) {
+    function onText(code, categoryId) {
         dispatch(dropText({
             text: code,
             categoryId,
@@ -56,12 +56,8 @@ export default function PasteDropTarget({children, ...props}) {
         dispatch(setError(error));
     }
     
-    function handleASTError(type, event, exception) {
-        onError(
-            type,
-            event,
-            `Cannot process pasted AST: ${exception.message}`,
-        );
+    function handleASTError(type) {
+        onError(type);
     }
     
     useEffect(() => {
@@ -88,10 +84,10 @@ export default function PasteDropTarget({children, ...props}) {
             event.preventDefault();
             
             jsonToCode(clipboardData.getData('text/plain'))
-                .then((code) => onText('paste', event, code))
-                .catch((exception) => {
+                .then((code) => onText('paste', code))
+                .catch(() => {
                     if (event.target.nodeName !== 'TEXTAREA')
-                        handleASTError('paste', event, exception);
+                        handleASTError('paste');
                 });
         }, true);
         
@@ -132,9 +128,9 @@ export default function PasteDropTarget({children, ...props}) {
                             categoryId = 'javascript';
                             return code;
                         })
-                        .catch((exception) => {
+                        .catch(() => {
                             if (categoryId === 'JSON')
-                                handleASTError('drop', readerEvent, exception);
+                                handleASTError('drop');
                             
                             return null;
                         });
@@ -145,7 +141,7 @@ export default function PasteDropTarget({children, ...props}) {
                         if (!code)
                             return;
                         
-                        onText('drop', readerEvent, code, categoryId);
+                        onText('drop', code);
                     })
                     .catch(noop);
             };

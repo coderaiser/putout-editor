@@ -12,7 +12,7 @@ import * as selectors from '../store/selectors.ts';
 
 export default function Transformer() {
     const parser = useSelector(getParser);
-    const transformer = useSelector(getTransformer) ?? getTransformerByID('putout');
+    const transformer = useSelector(getTransformer) || getTransformerByID('putout');
     const transformCode = useSelector(selectors.getTransformCode);
     const code = useSelector(selectors.getCode);
     const keyMap = useSelector(selectors.getKeyMap);

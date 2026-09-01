@@ -7,10 +7,7 @@ import {
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import Transformer from './Transformer.js';
-import {
-    putoutEditor,
-    revive,
-} from '../store/reducers.ts';
+import {putoutEditor, revive} from '../store/reducers.ts';
 import {getView} from '../editor/codemirror/index.js';
 
 const recordActions = (actions) => () => (next) => (action) => {
@@ -71,6 +68,7 @@ test('Transformer: renders transform code from store', (t) => {
             },
         },
     });
+    
     const container = renderTransformer(store);
     const view = getView(container);
     const result = view.state.doc.toString();
@@ -131,6 +129,7 @@ test('Transformer: renders output pane when store transformer is unknown', async
             },
         },
     });
+    
     const container = renderTransformer(store);
     
     await act(async () => {
