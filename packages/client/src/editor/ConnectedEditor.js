@@ -1,5 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import Editor from '../editor/Editor.js';
+import Editor from './Editor.js';
 import {
     getCode,
     getParseResult,
@@ -12,12 +12,12 @@ import {
     editorBlur,
 } from '../store/reducers.ts';
 
-export default function CodeEditorContainer() {
+export default function ConnectedEditor() {
     const keyMap = useSelector(getKeyMap);
     const value = useSelector(getCode);
     const parser = useSelector(getParser);
     const mode = parser.category.editorMode || parser.category.id;
-    const error = useSelector((s) => (getParseResult(s) || {}).error);
+    const error = useSelector((state) => (getParseResult(state) || {}).error);
     const dispatch = useDispatch();
     
     return (
@@ -26,12 +26,10 @@ export default function CodeEditorContainer() {
             value={value}
             mode={mode}
             error={error}
-            onContentChange={({value, cursor}) => {
-                dispatch(setCode({
-                    code: value,
-                    cursor,
-                }));
-            }}
+            onContentChange={({value, cursor}) => dispatch(setCode({
+                code: value,
+                cursor,
+            }))}
             onActivity={(cursor) => dispatch(setCursor(cursor))}
             onBlur={() => dispatch(editorBlur())}
         />
