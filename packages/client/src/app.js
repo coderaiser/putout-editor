@@ -10,7 +10,7 @@ import ErrorMessageContainer from './containers/ErrorMessageContainer';
 import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicatorContainer from './containers/LoadingIndicatorContainer';
 import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
-import SettingsDialogContainer from './containers/SettingsDialogContainer';
+import SettingsDialog from './parser-selection/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
@@ -42,7 +42,7 @@ function App() {
             <div className={'dropTarget' + (hasError ? ' hasError' : '')}>
                 <PasteDropTargetContainer>
                     <LoadingIndicatorContainer/>
-                    <SettingsDialogContainer/>
+                    <SettingsDialog/>
                     <ShareDialog/>
                     <div id="root">
                         <ToolbarContainer/>

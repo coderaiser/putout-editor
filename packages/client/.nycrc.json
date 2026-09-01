@@ -15,7 +15,6 @@
         "src/components/PasteDropTarget.js",
         "src/components/visualization/JSON.js",
         "src/containers/CodeEditorContainer.js",
-        "src/containers/SettingsDialogContainer.js",
         "src/containers/ToolbarContainer.js",
         "src/snippet/GistBanner.js",
         "src/transform/Transformer.js",

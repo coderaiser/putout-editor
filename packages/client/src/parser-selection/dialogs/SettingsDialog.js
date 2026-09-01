@@ -1,7 +1,21 @@
 import {useState, useEffect} from 'react';
-import PropTypes from 'prop-types';
+import {useSelector, useDispatch} from 'react-redux';
+import {
+    closeSettingsDialog,
+    setParserSettings,
+} from '../../store/reducers.ts';
+import {
+    showSettingsDialog,
+    getParserSettings,
+} from '../../store/selectors.ts';
+import {getParser} from '../store/parserSelectors.ts';
 
-export default function SettingsDialog({visible, parser, parserSettings, onSave, onWantToClose}) {
+export default function SettingsDialog() {
+    const visible = useSelector(showSettingsDialog);
+    const parser = useSelector(getParser);
+    const parserSettings = useSelector(getParserSettings);
+    const dispatch = useDispatch();
+    
     const [localSettings, setLocalSettings] = useState(parserSettings);
     
     useEffect(() => {
@@ -18,8 +32,8 @@ export default function SettingsDialog({visible, parser, parserSettings, onSave,
     }
     
     function handleSaveAndClose() {
-        onSave(parser, localSettings);
-        onWantToClose();
+        dispatch(setParserSettings(localSettings));
+        dispatch(closeSettingsDialog());
     }
     
     function handleReset() {
@@ -53,11 +67,3 @@ export default function SettingsDialog({visible, parser, parserSettings, onSave,
     
     return null;
 }
-
-SettingsDialog.propTypes = {
-    onSave: PropTypes.func,
-    onWantToClose: PropTypes.func,
-    visible: PropTypes.bool,
-    parser: PropTypes.object.isRequired,
-    parserSettings: PropTypes.object,
-};

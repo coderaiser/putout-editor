@@ -1,45 +1,70 @@
 import {test} from 'supertape';
+import {Provider} from 'react-redux';
+import {configureStore} from '@reduxjs/toolkit';
 import {
     render,
     cleanup,
-    act,
     fireEvent,
+    act,
 } from '@testing-library/react';
 import SettingsDialog from './SettingsDialog.js';
+import {
+    putoutEditor,
+    revive,
+    setParserSettings,
+} from '../../store/reducers.ts';
 
-const noop = () => {};
+function makeStore(overrides = {}) {
+    const base = putoutEditor(undefined, {
+        type: '@@INIT',
+    });
+    
+    const state = {
+        ...base,
+        ...overrides,
+        workbench: {
+            ...base.workbench,
+            ...overrides.workbench || {},
+        },
+    };
+    
+    return configureStore({
+        reducer: putoutEditor,
+        preloadedState: revive(state),
+        middleware: (getDefault) => getDefault({
+            serializableCheck: false,
+        }),
+    });
+}
 
-const makeParser = (hasSettings = true) => ({
-    displayName: 'Babel',
-    hasSettings: () => hasSettings,
-    renderSettings: (settings) => (
-        <input
-            id="setting"
-            readOnly
-            value={JSON.stringify(settings || {})}
-        />
-    ),
-});
+function makeSettingsStore() {
+    return makeStore({
+        showSettingsDialog: true,
+        parserSettings: {
+            espree: {
+                range: true,
+            },
+        },
+        workbench: {
+            parser: 'espree',
+        },
+    });
+}
 
-const makeProps = (overrides = {}) => ({
-    visible: true,
-    parser: makeParser(),
-    parserSettings: {},
-    onSave: noop,
-    onWantToClose: noop,
-    ...overrides,
-});
+function renderDialog(store) {
+    render(
+        <Provider store={store}>
+            <SettingsDialog/>
+        </Provider>,
+    );
+}
 
 test('SettingsDialog: returns null when not visible', (t) => {
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                visible: false,
-            })}
-        />,
-    );
+    const store = makeStore();
     
-    const result = container.querySelector('#SettingsDialog');
+    renderDialog(store);
+    
+    const result = document.querySelector('#SettingsDialog');
     
     cleanup();
     
@@ -47,34 +72,27 @@ test('SettingsDialog: returns null when not visible', (t) => {
     t.end();
 });
 
-test('SettingsDialog: returns null when parser has no renderSettings', (t) => {
-    const parser = {
-        ...makeParser(),
-        renderSettings: null,
-    };
+test('SettingsDialog: renders dialog for default parser when visible', (t) => {
+    const store = makeStore({
+        showSettingsDialog: true,
+    });
     
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                parser,
-            })}
-        />,
-    );
+    renderDialog(store);
     
-    const result = container.querySelector('#SettingsDialog');
+    const result = document.querySelector('#SettingsDialog');
     
     cleanup();
     
-    t.notOk(result);
+    t.ok(result);
     t.end();
 });
 
 test('SettingsDialog: renders when visible', (t) => {
-    const {container} = render(
-        <SettingsDialog {...makeProps()}/>,
-    );
+    const store = makeSettingsStore();
     
-    const result = container.querySelector('#SettingsDialog');
+    renderDialog(store);
+    
+    const result = document.querySelector('#SettingsDialog');
     
     cleanup();
     
@@ -83,199 +101,151 @@ test('SettingsDialog: renders when visible', (t) => {
 });
 
 test('SettingsDialog: renders parser displayName in header', (t) => {
-    const {container} = render(
-        <SettingsDialog {...makeProps()}/>,
-    );
+    const store = makeSettingsStore();
     
-    const result = container.querySelector('h3').textContent;
+    renderDialog(store);
+    
+    const result = document.querySelector('h3').textContent;
     
     cleanup();
     
-    t.match(result, 'Babel');
+    t.match(result, 'espree');
     t.end();
 });
 
-test('SettingsDialog: renders reset button', (t) => {
-    const {container} = render(
-        <SettingsDialog {...makeProps()}/>,
-    );
+test('SettingsDialog: close button closes dialog', (t) => {
+    const store = makeSettingsStore();
     
-    const buttons = container.querySelectorAll('button');
+    renderDialog(store);
+    
+    const buttons = document.querySelectorAll('button');
+    
+    fireEvent.click(buttons[1]);
     
     cleanup();
-    const result = buttons[0].textContent.includes('Reset');
     
-    t.ok(result);
+    const {showSettingsDialog} = store.getState();
+    
+    t.notOk(showSettingsDialog);
     t.end();
 });
 
-test('SettingsDialog: renders close button', (t) => {
-    const {container} = render(
-        <SettingsDialog {...makeProps()}/>,
-    );
+test('SettingsDialog: close button saves parserSettings', (t) => {
+    const store = makeSettingsStore();
     
-    const buttons = container.querySelectorAll('button');
+    renderDialog(store);
+    
+    const buttons = document.querySelectorAll('button');
+    
+    fireEvent.click(buttons[1]);
     
     cleanup();
-    const result = buttons[1].textContent.includes('Close');
     
-    t.ok(result);
+    const result = store.getState().workbench.parserSettings;
+    const expected = {
+        range: true,
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
-test('SettingsDialog: close button calls onSave and onWantToClose', (t) => {
-    let saved = false;
-    let closed = false;
+test('SettingsDialog: reset button clears parserSettings on close', (t) => {
+    const store = makeSettingsStore();
     
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                onSave: () => {
-                    saved = true;
-                },
-                onWantToClose: () => {
-                    closed = true;
-                },
-            })}
-        />,
-    );
+    renderDialog(store);
     
-    fireEvent.click(container.querySelectorAll('button')[1]);
+    const buttons = document.querySelectorAll('button');
+    
+    fireEvent.click(buttons[0]);
+    fireEvent.click(buttons[1]);
+    
     cleanup();
     
-    t.ok(saved && closed);
-    t.end();
-});
-
-test('SettingsDialog: reset button clears parserSettings', (t) => {
-    let savedSettings = null;
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                parserSettings: {
-                    a: 1,
-                },
-                onSave: (parser, settings) => {
-                    savedSettings = settings;
-                },
-            })}
-        />,
-    );
-    
-    fireEvent.click(container.querySelectorAll('button')[0]); // reset
-    fireEvent.click(container.querySelectorAll('button')[1]); // close
-    cleanup();
-    
-    const result = savedSettings;
+    const result = store.getState().workbench.parserSettings;
     const expected = {};
     
     t.deepEqual(result, expected);
     t.end();
 });
 
-test('SettingsDialog: UNSAFE_componentWillReceiveProps syncs new parserSettings', async (t) => {
-    const {container, rerender} = render(
-        <SettingsDialog
-            {...makeProps({
-                parserSettings: {
-                    a: 1,
-                },
-            })}
-        />,
-    );
+test('SettingsDialog: settings change saved on close', (t) => {
+    const store = makeSettingsStore();
+    
+    renderDialog(store);
+    
+    const checkbox = document.querySelector('input[type="checkbox"]');
+    
+    fireEvent.click(checkbox);
+    
+    const buttons = document.querySelectorAll('button');
+    
+    fireEvent.click(buttons[1]);
+    
+    cleanup();
+    
+    const result = store.getState().workbench.parserSettings.range;
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('SettingsDialog: outer click on backdrop closes dialog', (t) => {
+    const store = makeSettingsStore();
+    
+    renderDialog(store);
+    
+    fireEvent.click(document.querySelector('#SettingsDialog'));
+    
+    cleanup();
+    
+    const {showSettingsDialog} = store.getState();
+    
+    t.notOk(showSettingsDialog);
+    t.end();
+});
+
+test('SettingsDialog: inner click does not close dialog', (t) => {
+    const store = makeSettingsStore();
+    
+    renderDialog(store);
+    
+    fireEvent.click(document.querySelector('.inner'));
+    
+    cleanup();
+    
+    const {showSettingsDialog} = store.getState();
+    
+    t.ok(showSettingsDialog);
+    t.end();
+});
+
+test('SettingsDialog: syncs parserSettings from store', async (t) => {
+    const store = makeStore({
+        showSettingsDialog: true,
+        parserSettings: {
+            espree: {
+                sourceType: 'script',
+            },
+        },
+        workbench: {
+            parser: 'espree',
+        },
+    });
+    
+    renderDialog(store);
     
     await act(() => {
-        rerender(
-            <SettingsDialog
-                {...makeProps({
-                    parserSettings: {
-                        b: 2,
-                    },
-                })}
-            />,
-        );
+        store.dispatch(setParserSettings({
+            sourceType: 'module',
+        }));
     });
-    const result = container.querySelector('#setting').value;
+    
+    const selects = document.querySelectorAll('.settings select');
+    const result = selects[1].value;
     
     cleanup();
     
-    t.equal(result, '{"b":2}');
-    t.end();
-});
-
-test('SettingsDialog: outer click on backdrop calls onWantToClose', (t) => {
-    let closed = false;
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                onWantToClose: () => {
-                    closed = true;
-                },
-            })}
-        />,
-    );
-    
-    // Click the backdrop element itself (not the inner dialog)
-    fireEvent.click(container.querySelector('#SettingsDialog'));
-    cleanup();
-    
-    t.ok(closed);
-    t.end();
-});
-
-test('SettingsDialog: inner click does not call onWantToClose', (t) => {
-    let closed = false;
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                onWantToClose: () => {
-                    closed = true;
-                },
-            })}
-        />,
-    );
-    
-    fireEvent.click(container.querySelector('.inner'));
-    cleanup();
-    
-    t.notOk(closed);
-    t.end();
-});
-
-test('SettingsDialog: onChange updates parserSettings saved on close', (t) => {
-    let savedSettings = null;
-    
-    const parser = makeParser();
-    
-    parser.renderSettings = (settings, onChange) => (
-        <button
-            id="apply"
-            onClick={() => onChange({
-                x: 2,
-            })}
-        >Apply</button>
-    );
-    
-    const {container} = render(
-        <SettingsDialog
-            {...makeProps({
-                parser,
-                onSave: (parser, settings) => {
-                    savedSettings = settings;
-                },
-            })}
-        />,
-    );
-    
-    fireEvent.click(container.querySelector('#apply'));
-    fireEvent.click([...container.querySelectorAll('button')].at(-1)); // close
-    cleanup();
-    
-    const result = savedSettings;
-    const expected = {
-        x: 2,
-    };
-    
-    t.deepEqual(result, expected);
+    t.equal(result, 'module');
     t.end();
 });
