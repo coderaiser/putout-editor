@@ -128,3 +128,9 @@ test('transform-error: structuredFromPutoutError preserves message', (t) => {
     t.equal(result.message, 'something went wrong');
     t.end();
 });
+test('transform-error: structuredFromPutoutError SyntaxError without loc has no position', (t) => {
+    const error = new SyntaxError('bad');
+    const result = structuredFromPutoutError(error);
+    t.notOk(result.position);
+    t.end();
+});

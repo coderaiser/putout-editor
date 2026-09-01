@@ -76,7 +76,7 @@ test('transform service: transform handles empty fixture', async (t) => {
     t.end();
 });
 
-test('transform service: transform surfaces worker error as 422', async (t) => {
+test('transform service: transform surfaces worker error as 400', async (t) => {
     const service = createServiceWithRealWorker();
     const [error] = await tryToCatch(service.transform.bind(service), {
         fixture: 'const x = 1;',
@@ -85,6 +85,6 @@ test('transform service: transform surfaces worker error as 422', async (t) => {
     
     t.equal((error as Error & {
         status: number;
-    }).status, 422);
+    }).status, 400);
     t.end();
 });
