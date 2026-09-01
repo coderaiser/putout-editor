@@ -7,10 +7,7 @@ import {
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import ConnectedEditor from './ConnectedEditor.js';
-import {
-    putoutEditor,
-    revive,
-} from '../store/reducers.ts';
+import {putoutEditor, revive} from '../store/reducers.ts';
 import {getView} from './codemirror/index.js';
 
 function renderWithStore(overrides = {}) {
@@ -53,12 +50,6 @@ test('ConnectedEditor: renders editor container', (t) => {
 });
 
 test('ConnectedEditor: renders value from store', (t) => {
-    const store = renderWithStore({
-        workbench: {
-            code: 'const a = 1;',
-        },
-    });
-    
     const view = getView(document.body);
     const result = view.state.doc.toString();
     
