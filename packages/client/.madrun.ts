@@ -8,13 +8,20 @@ const testEnv = defineEnv({
     jsx: true,
 });
 
+const tsxLoader = '--import ./lib/register-tsx-loader.js';
+
+const envForTest = {
+    ...testEnv,
+    NODE_OPTIONS: `"${tsxLoader} ${testEnv.NODE_OPTIONS.slice(1, -1)}"`,
+};
+
 const env = {
     NODE_OPTIONS: '--max_old_space_size=5048',
 };
 
 export default {
-    'test': () => [testEnv, 'tape "src/**/*.spec.{js,ts,tsx}"'],
-    'coverage': async () => [testEnv, `c8 tape "src/**/*.spec.{js,ts,tsx}"`],
+    'test': () => [envForTest, 'tape "src/**/*.spec.{js,ts,tsx}"'],
+    'coverage': async () => [envForTest, `c8 tape "src/**/*.spec.{js,ts,tsx}"`],
     'test:dts': () => 'tsc --noEmit',
     'start': () => 'http-server ../../out',
     'build': () => [env, build('production')],

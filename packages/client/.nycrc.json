@@ -9,6 +9,7 @@
         "**/*.d.ts",
         "**/*.config.*",
         "**/.madrun.*",
+        "lib/**",
         "src/app.js",
         "src/ast/ASTOutput.js",
         "src/ast/Tree.js",
