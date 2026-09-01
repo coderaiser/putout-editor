@@ -77,7 +77,7 @@ test('transform service: transform applies replace rule to fixture', async (t) =
     t.end();
 });
 
-test('transform service: transform throws UnprocessableEntityException for invalid plugin', async (t) => {
+test('transform service: transform throws HttpException 422 for invalid plugin', async (t) => {
     const run = stub().rejects(Error('boom'));
     const service = createServiceWithRun(run);
     
@@ -92,7 +92,7 @@ test('transform service: transform throws UnprocessableEntityException for inval
     t.end();
 });
 
-test('transform service: transform throws UnprocessableEntityException for plugin runtime error', async (t) => {
+test('transform service: transform throws HttpException 422 for plugin runtime error', async (t) => {
     const run = stub().rejects(Error('boom'));
     const service = createServiceWithRun(run);
     
@@ -106,3 +106,42 @@ test('transform service: transform throws UnprocessableEntityException for plugi
     }).status, 422);
     t.end();
 });
+
+test('transform service: returns 400 when plugin has syntax error', async (t) => {
+    const run = stub().rejects(Object.assign(new Error('bad syntax'), {
+        structured: {kind: 'plugin_syntax', message: 'bad syntax', position: {line: 1, column: 5}},
+    }));
+    const service = createServiceWithRun(run);
+    const [error] = await tryToCatch(service.transform.bind(service), {
+        fixture: 'const x = 1;',
+        plugin: 'export const = broken',
+    });
+    t.equal((error as {status?: number}).status, 400);
+    t.end();
+});
+
+test('transform service: returns 422 when plugin_error', async (t) => {
+    const run = stub().rejects(Object.assign(new Error('runtime'), {
+        structured: {kind: 'plugin_error', message: 'runtime'},
+    }));
+    const service = createServiceWithRun(run);
+    const [error] = await tryToCatch(service.transform.bind(service), {
+        fixture: 'const x = 1;',
+        plugin: 'export const replace = () => ({});',
+    });
+    t.equal((error as {status?: number}).status, 422);
+    t.end();
+});
+
+test('transform service: returns structured body on error', async (t) => {
+    const structured = {kind: 'plugin_syntax', message: 'bad', position: {line: 1, column: 5}};
+    const run = stub().rejects(Object.assign(new Error('bad'), {structured}));
+    const service = createServiceWithRun(run);
+    const [error] = await tryToCatch(service.transform.bind(service), {
+        fixture: 'const x = 1;',
+        plugin: 'export const = broken',
+    });
+    t.deepEqual((error as {response?: unknown}).response, structured);
+    t.end();
+});
+

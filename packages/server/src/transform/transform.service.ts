@@ -2,13 +2,14 @@ import {resolve, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
     Injectable,
-    UnprocessableEntityException,
+    HttpException,
 } from '@nestjs/common';
 import {tryToCatch} from 'try-to-catch';
 import Piscina from 'piscina';
 import type {
     TransformRequest,
     TransformDocumentation,
+    StructuredError,
 } from './transform.types.ts';
 
 type WorkerInput = {
@@ -48,7 +49,15 @@ export class TransformService {
             },
             response: 'const x = 1;',
             errors: {
-                422: 'Plugin is invalid or transformation failed',
+                400: {
+                    kind: 'plugin_syntax',
+                    message: 'Your plugin is invalid JavaScript',
+                    position: {line: 1, column: 13},
+                },
+                422: {
+                    kind: 'plugin_error',
+                    message: 'Plugin compiled but failed at runtime',
+                },
             },
             links: {
                 putout: 'https://github.com/coderaiser/putout',
@@ -74,8 +83,12 @@ export class TransformService {
             plugin,
         });
         
-        if (error)
-            throw new UnprocessableEntityException(error.message);
+        if (error) {
+            const structured = (error as {structured?: StructuredError}).structured;
+            const status = structured?.kind === 'plugin_syntax' ? 400 : 422;
+            const body = structured ?? {kind: 'plugin_error', message: error.message};
+            throw new HttpException(body, status);
+        }
         
         return result.code;
     }
