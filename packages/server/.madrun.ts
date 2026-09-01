@@ -28,6 +28,7 @@ export default {
         'node --import @supertape/loader-nestjs src/main.ts',
     ],
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
+    'test:e2e': () => [allEnv, 'tape "test/**/*.spec.ts"'],
     'test:js': () => [allEnv, 'tape "dist/**/*.spec.js"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
     'prelint': () => 'redlint fix',

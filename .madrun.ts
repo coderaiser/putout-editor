@@ -21,6 +21,7 @@ export default {
     'start': () => [startEnv, 'node bin/putout-editor.js'],
     'start:dev': () => [devEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
+    'test:e2e': () => 'madfork test:e2e',
     'coverage': async () => 'madfork coverage',
     'prelint': () => 'putout bin .github deploy',
     'lint': () => 'madfork lint',

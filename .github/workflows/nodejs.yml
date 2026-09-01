@@ -50,6 +50,8 @@ jobs:
           message: "chore: ${{ env.NAME }}: actions: lint ☘️"
       - name: Coverage
         run: redrun coverage
+      - name: E2E tests
+        run: redrun test:e2e
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         continue-on-error: true

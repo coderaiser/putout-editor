@@ -15,6 +15,7 @@
     "start": "madrun start",
     "start:dev": "madrun start:dev",
     "test": "madrun test",
+    "test:e2e": "madrun test:e2e",
     "coverage": "madrun coverage",
     "lint": "madrun lint",
     "test:dts": "madrun test:dts",

@@ -8,6 +8,7 @@
         "**/*.config.*",
         "**/*.d.ts",
         "**/.*.*",
+        "**/test/**",
         "src/main.ts",
         "dist",
         "coverage"
