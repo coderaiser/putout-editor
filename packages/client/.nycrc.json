@@ -9,7 +9,6 @@
         "**/*.d.ts",
         "**/*.config.*",
         "**/.madrun.*",
-        "lib/**",
         "src/app.js",
         "src/ast/ASTOutput.js",
         "src/ast/Tree.js",
@@ -20,6 +19,7 @@
         "src/snippet/GistBanner.js",
         "src/transform/Transformer.js",
         "src/parser-selection/parsers/transpilers/typescript.js",
+        "lib/**",
         "src/ast/tree/**",
         "src/parser-selection/parsers/js/**",
         "coverage"

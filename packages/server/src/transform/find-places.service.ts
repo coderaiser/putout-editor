@@ -12,11 +12,9 @@ import type {
 type WorkerResult = {
     places: Place[];
 };
-
 type PiscinaPool = {
     run(task: TransformRequest): Promise<WorkerResult>;
 };
-
 type PiscinaConstructor = new (options: {
     filename: string;
     idleTimeout: number;
@@ -32,7 +30,6 @@ const createPool = (): PiscinaPool => new (Piscina as unknown as PiscinaConstruc
 @Injectable()
 export class FindPlacesService {
     private readonly pool: PiscinaPool = createPool();
-    
     documentation() {
         return {
             description: 'Find all places in source code where a putout plugin matches, without modifying the code. Use this to iterate on a plugin: check what it detects and where before applying transforms.',
@@ -40,7 +37,7 @@ export class FindPlacesService {
             url: '/api/v1/find-places',
             body: {
                 fixture: 'var x = 1;\nvar y = 2;',
-                plugin: "export const report = () => 'use const';\nexport const replace = () => ({ 'var __x = __y': 'const __x = __y' });",
+                plugin: 'export const report = () => \'use const\';\nexport const replace = () => ({ \'var __x = __y\': \'const __x = __y\' });',
             },
             response: {
                 places: [{
@@ -63,7 +60,7 @@ export class FindPlacesService {
                 },
                 422: {
                     kind: 'plugin_error',
-                    message: "☝️ Looks like 'report' is not a 'function'",
+                    message: '☝️ Looks like \'report\' is not a \'function\'',
                 },
             },
             links: {
@@ -76,17 +73,17 @@ export class FindPlacesService {
         };
     }
     
-    async findPlaces(request: TransformRequest): Promise<{
-        places: Place[];
-    }> {
+    async findPlaces(request: TransformRequest): Promise<{places: Place[]}> {
         const [error, result] = await tryToCatch(this.pool.run.bind(this.pool), request);
         
         if (error) {
-            const structured = (error as {
+            const {structured} = error as {
                 structured?: StructuredError;
-            }).structured;
+            };
+            
             const status = structured?.kind === 'plugin_syntax' ? 400 : 422;
-            const body = structured ?? {
+            
+            const body = structured || {
                 kind: 'plugin_error',
                 message: error.message,
             };

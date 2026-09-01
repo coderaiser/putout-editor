@@ -13,7 +13,6 @@ type WorkerInput = {
     fixture: string;
     plugin: string;
 };
-
 type WorkerResult = {
     places: Place[];
 };
@@ -35,6 +34,7 @@ export default async function findPlaces({fixture, plugin}: WorkerInput): Promis
     
     if (putoutError) {
         const structured = structuredFromPutoutError(putoutError);
+        
         throw Object.assign(Error(putoutError.message), {
             structured,
         });

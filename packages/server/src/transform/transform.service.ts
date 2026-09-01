@@ -87,7 +87,9 @@ export class TransformService {
             const {structured} = error as {
                 structured?: StructuredError;
             };
+            
             const status = structured?.kind === 'plugin_syntax' ? 400 : 422;
+            
             const body = structured || {
                 kind: 'plugin_error',
                 message: error.message,

@@ -33,6 +33,7 @@ export default async function runTransform({fixture, plugin}: WorkerInput): Prom
     
     if (putoutError) {
         const structured = structuredFromPutoutError(putoutError);
+        
         throw Object.assign(Error(putoutError.message), {
             structured,
         });

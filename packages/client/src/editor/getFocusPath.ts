@@ -1,4 +1,7 @@
-function isInRange(range: [number, number], pos: number): boolean {
+function isInRange(range: [
+    number,
+    number,
+], pos: number): boolean {
     return pos >= range[0] && pos <= range[1];
 }
 
@@ -54,10 +57,16 @@ export default function getFocusPath(node: AstNode, pos: number, parser: Parser,
     return path;
 }
 
-type Range = [number, number] | undefined;
+type Range = [
+    number,
+    number,
+] | undefined;
 
 interface Parser {
-    nodeToRange(node: AstNode): [number, number] | undefined;
+    nodeToRange(node: AstNode): [
+        number,
+        number,
+    ] | undefined;
     forEachProperty(node: AstNode): Iterable<{value: unknown}>;
 }
 

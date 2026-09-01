@@ -162,9 +162,11 @@ test('transform service: returns structured body on error', async (t) => {
             column: 5,
         },
     };
+    
     const run = stub().rejects(Object.assign(Error('bad'), {
         structured,
     }));
+    
     const service = createServiceWithRun(run);
     
     const [error] = await tryToCatch(service.transform.bind(service), {

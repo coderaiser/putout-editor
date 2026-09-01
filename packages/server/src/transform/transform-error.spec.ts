@@ -47,6 +47,7 @@ test('transform-error: compilePlugin error has structured.message string', (t) =
     const [error] = compilePlugin('export const = broken', {
         require,
     });
+    
     const result = typeof error?.structured.message;
     const expected = 'string';
     
@@ -58,6 +59,7 @@ test('transform-error: compilePlugin error has structured.position with line', (
     const [error] = compilePlugin('export const = broken', {
         require,
     });
+    
     const result = typeof error?.structured.position?.line;
     const expected = 'number';
     
@@ -69,6 +71,7 @@ test('transform-error: compilePlugin error has structured.position with column',
     const [error] = compilePlugin('export const = broken', {
         require,
     });
+    
     const result = typeof error?.structured.position?.column;
     const expected = 'number';
     
@@ -83,6 +86,7 @@ test('transform-error: structuredFromPutoutError SyntaxError returns fixture_syn
             column: 5,
         },
     });
+    
     const result = structuredFromPutoutError(error);
     
     t.equal(result.kind, 'fixture_syntax');
@@ -96,6 +100,7 @@ test('transform-error: structuredFromPutoutError SyntaxError has position', (t) 
             column: 5,
         },
     });
+    
     const result = structuredFromPutoutError(error);
     
     t.deepEqual(result.position, {
@@ -128,9 +133,11 @@ test('transform-error: structuredFromPutoutError preserves message', (t) => {
     t.equal(result.message, 'something went wrong');
     t.end();
 });
+
 test('transform-error: structuredFromPutoutError SyntaxError without loc has no position', (t) => {
     const error = new SyntaxError('bad');
     const result = structuredFromPutoutError(error);
+    
     t.notOk(result.position);
     t.end();
 });

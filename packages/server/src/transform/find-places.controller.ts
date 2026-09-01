@@ -19,7 +19,9 @@ export class FindPlacesController {
     
     @Put()
     @HttpCode(200)
-    findPlaces(@Body() body: TransformRequest) {
+    findPlaces(
+        @Body() body: TransformRequest,
+    ) {
         return this.findPlacesService.findPlaces(body);
     }
 }
