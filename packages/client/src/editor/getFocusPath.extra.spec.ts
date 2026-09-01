@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import getFocusPath from './getFocusPath.js';
+import getFocusPath from './getFocusPath.ts';
 
 test('getFocusPath: single node with range returns node only (length)', (t) => {
     const node = {
