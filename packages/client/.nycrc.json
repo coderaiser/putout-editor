@@ -19,7 +19,6 @@
         "src/containers/ToolbarContainer.js",
         "src/snippet/GistBanner.js",
         "src/transform/Transformer.js",
-        "src/transform/TransformerContainer.js",
         "src/parser-selection/parsers/transpilers/typescript.js",
         "src/ast/tree/**",
         "src/parser-selection/parsers/js/**",

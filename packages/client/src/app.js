@@ -14,7 +14,7 @@ import SettingsDialogContainer from './containers/SettingsDialogContainer';
 import ShareDialogContainer from './snippet/dialogs/ShareDialogContainer.js';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
-import TransformerContainer from './transform/TransformerContainer.js';
+import Transformer from './transform/Transformer.js';
 import debounce from './utils/debounce.ts';
 import {
     putoutEditor,
@@ -73,7 +73,7 @@ function App() {
                                     <ASTOutputContainer/>
                                 </ErrorBoundary>
                             </SplitPane>
-                            {showTransformer ? <TransformerContainer/> : null}
+                            {showTransformer ? <Transformer/> : null}
                         </SplitPane>
                     </div>
                 </PasteDropTargetContainer>
