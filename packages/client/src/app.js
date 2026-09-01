@@ -11,7 +11,7 @@ import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicatorContainer from './containers/LoadingIndicatorContainer';
 import PasteDropTargetContainer from './containers/PasteDropTargetContainer';
 import SettingsDialogContainer from './containers/SettingsDialogContainer';
-import ShareDialogContainer from './snippet/dialogs/ShareDialogContainer.js';
+import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import SplitPane from './components/SplitPane';
 import ToolbarContainer from './containers/ToolbarContainer';
 import Transformer from './transform/Transformer.js';
@@ -43,7 +43,7 @@ function App() {
                 <PasteDropTargetContainer>
                     <LoadingIndicatorContainer/>
                     <SettingsDialogContainer/>
-                    <ShareDialogContainer/>
+                    <ShareDialog/>
                     <div id="root">
                         <ToolbarContainer/>
                         <GistBanner/>

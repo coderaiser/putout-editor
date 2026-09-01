@@ -1,4 +1,17 @@
-export default function ShareDialog({visible, snippet, onWantToClose}) {
+import {useSelector, useDispatch} from 'react-redux';
+import {closeShareDialog} from '../../store/reducers.ts';
+import {
+    showShareDialog,
+    getRevision,
+} from '../../store/selectors.ts';
+
+export default function ShareDialog() {
+    const visible = useSelector(showShareDialog);
+    const snippet = useSelector(getRevision);
+    const dispatch = useDispatch();
+    
+    const onWantToClose = () => dispatch(closeShareDialog());
+    
     const onOuterClick = (event) => {
         if (event.target === document.getElementById('ShareDialog'))
             onWantToClose();
