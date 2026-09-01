@@ -1,12 +1,13 @@
 import {test} from 'supertape';
-import {render, cleanup, fireEvent} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import Toolbar from './Toolbar.js';
-import {
-    putoutEditor,
-    revive,
-} from '../store/reducers.ts';
+import {putoutEditor, revive} from '../store/reducers.ts';
 
 const recordActions = (actions) => () => (next) => (action) => {
     actions.push(action);
