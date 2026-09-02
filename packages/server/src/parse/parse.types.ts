@@ -16,7 +16,10 @@ export type ParseDocumentation = {
     queryParams: Record<string, string>;
     response: Record<string, unknown>;
     errors: Record<string, string>;
-    examples: {name: string; url: string}[];
+    examples: {
+        name: string;
+        url: string;
+    }[];
 };
 
 export type SnippetRevisionRef = {

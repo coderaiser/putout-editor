@@ -207,6 +207,7 @@ test('parse service: parseSource with compact=true returns smaller result', asyn
     const service = new ParseService(new Map(), new Map());
     const source = 'const x = 1;\nvar y = foo();\nlet z = "hello";';
     const full = await service.parseSource(source);
+    
     const compact = await service.parseSource(source, {
         compact: true,
     });

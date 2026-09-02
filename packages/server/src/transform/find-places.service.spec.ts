@@ -162,6 +162,7 @@ test('find-places service: returns 422 with plugin_error body on unstructured er
 test('find-places service: returns plugin_error body on unstructured error', async (t) => {
     const run = stub().rejects(Error('boom'));
     const service = createServiceWithRun(run);
+    
     const [error] = await tryToCatch(service.findPlaces.bind(service), {
         fixture: 'x',
         plugin: '',
