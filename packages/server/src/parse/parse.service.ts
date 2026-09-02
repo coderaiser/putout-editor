@@ -6,10 +6,13 @@ import {
     NotFoundException,
     UnprocessableEntityException,
 } from '@nestjs/common';
+import {compactAST} from './compact.ts';
+import {queryAST} from './query.ts';
 import type {
     Snippet,
     SnippetRevision,
     ParseDocumentation,
+    ParseOptions,
 } from './parse.types.ts';
 
 @Injectable()
@@ -26,6 +29,10 @@ export class ParseService {
             url: '/api/v1/parse',
             contentType: 'text/javascript',
             body: 'const x = foo.bar(42);',
+            queryParams: {
+                compact: 'boolean (default: false) — strip loc, tokens, comments, extra from AST. Reduces response size by ~60%.',
+                query: 'string — comma-separated Babel node types to search for, e.g. ?query=VariableDeclaration,Identifier. Returns only matching node positions. Implies compact=true.',
+            },
             response: {
                 type: 'File',
                 start: 0,
@@ -38,10 +45,23 @@ export class ParseService {
             errors: {
                 422: 'Source code could not be parsed — syntax error',
             },
+            examples: [{
+                name: 'full AST',
+                url: 'PUT /api/v1/parse',
+            }, {
+                name: 'compact AST',
+                url: 'PUT /api/v1/parse?compact=true',
+            }, {
+                name: 'find all var declarations',
+                url: 'PUT /api/v1/parse?query=VariableDeclaration',
+            }, {
+                name: 'find multiple node types',
+                url: 'PUT /api/v1/parse?query=VariableDeclaration,FunctionDeclaration',
+            }],
         };
     }
     
-    async parseSource(source: string) {
+    async parseSource(source: string, options: ParseOptions = {}): Promise<unknown> {
         const [error, ast] = await tryToCatch(parse, source, {
             sourceType: 'module',
             strictMode: false,
@@ -56,6 +76,12 @@ export class ParseService {
         
         if (error)
             throw new UnprocessableEntityException(error.message);
+        
+        if (options.query)
+            return queryAST(ast, options.query);
+        
+        if (options.compact)
+            return compactAST(ast);
         
         return ast;
     }

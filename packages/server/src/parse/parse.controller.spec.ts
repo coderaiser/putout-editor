@@ -83,7 +83,102 @@ test('parse controller: PUT /api/v1/parse calls parseSource with source', async 
     await controller.parseSource({
         source: 'const x = 1;',
     });
+    const args = ['const x = 1;', {
+        compact: false,
+        query: undefined,
+    }];
     
-    t.calledWith(mockParseService.parseSource, ['const x = 1;']);
+    t.calledWith(mockParseService.parseSource, args);
+    t.end();
+});
+
+test('parse controller: PUT with compact=true passes compact option to service', async (t) => {
+    const mockParseService = {
+        load: stub(),
+        documentation: stub(),
+        parseSource: stub().resolves({
+            type: 'File',
+        }),
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            controllers: [ParseController],
+            providers: [{
+                provide: ParseService,
+                useValue: mockParseService,
+            }],
+        })
+        .compile();
+    
+    const controller = module.get(ParseController);
+    
+    await controller.parseSource({source: 'const x = 1;'}, 'true', undefined);
+    const args = ['const x = 1;', {
+        compact: true,
+        query: undefined,
+    }];
+    
+    t.calledWith(mockParseService.parseSource, args);
+    t.end();
+});
+
+test('parse controller: PUT with query param passes it to service', async (t) => {
+    const mockParseService = {
+        load: stub(),
+        documentation: stub(),
+        parseSource: stub().resolves([]),
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            controllers: [ParseController],
+            providers: [{
+                provide: ParseService,
+                useValue: mockParseService,
+            }],
+        })
+        .compile();
+    
+    const controller = module.get(ParseController);
+    
+    await controller.parseSource({source: 'var x = 1;'}, undefined, 'VariableDeclaration');
+    const args = ['var x = 1;', {
+        compact: false,
+        query: 'VariableDeclaration',
+    }];
+    
+    t.calledWith(mockParseService.parseSource, args);
+    t.end();
+});
+
+test('parse controller: PUT with no query params passes defaults to service', async (t) => {
+    const mockParseService = {
+        load: stub(),
+        documentation: stub(),
+        parseSource: stub().resolves({
+            type: 'File',
+        }),
+    };
+    
+    const module = await Test
+        .createTestingModule({
+            controllers: [ParseController],
+            providers: [{
+                provide: ParseService,
+                useValue: mockParseService,
+            }],
+        })
+        .compile();
+    
+    const controller = module.get(ParseController);
+    
+    await controller.parseSource({source: 'const x = 1;'}, undefined, undefined);
+    const args = ['const x = 1;', {
+        compact: false,
+        query: undefined,
+    }];
+    
+    t.calledWith(mockParseService.parseSource, args);
     t.end();
 });

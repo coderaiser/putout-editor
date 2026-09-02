@@ -159,7 +159,7 @@ test('parse service: documentation returns object with correct url', (t) => {
 
 test('parse service: parseSource returns File node for valid source', async (t) => {
     const service = new ParseService(new Map(), new Map());
-    const result = await service.parseSource('const x = 1;');
+    const result = await service.parseSource('const x = 1;') as Record<string, unknown>;
     
     t.equal(result.type, 'File');
     t.end();
@@ -167,7 +167,11 @@ test('parse service: parseSource returns File node for valid source', async (t) 
 
 test('parse service: parseSource returns program body for valid source', async (t) => {
     const service = new ParseService(new Map(), new Map());
-    const result = await service.parseSource('const x = 1;');
+    const result = await service.parseSource('const x = 1;') as {
+        program: {
+            body: unknown;
+        };
+    };
     
     t.ok(Array.isArray(result.program.body));
     t.end();
@@ -185,7 +189,7 @@ test('parse service: parseSource throws UnprocessableEntityException for invalid
 
 test('parse service: parseSource handles TypeScript source', async (t) => {
     const service = new ParseService(new Map(), new Map());
-    const result = await service.parseSource('const x: number = 1;');
+    const result = await service.parseSource('const x: number = 1;') as Record<string, unknown>;
     
     t.equal(result.type, 'File');
     t.end();
@@ -193,7 +197,57 @@ test('parse service: parseSource handles TypeScript source', async (t) => {
 
 test('parse service: parseSource handles JSX source', async (t) => {
     const service = new ParseService(new Map(), new Map());
-    const result = await service.parseSource('const element = <div />;');
+    const result = await service.parseSource('const element = <div />;') as Record<string, unknown>;
+    
+    t.equal(result.type, 'File');
+    t.end();
+});
+
+test('parse service: parseSource with compact=true returns smaller result', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const source = 'const x = 1;\nvar y = foo();\nlet z = "hello";';
+    const full = await service.parseSource(source);
+    const compact = await service.parseSource(source, {
+        compact: true,
+    });
+    
+    t.ok(JSON.stringify(compact).length < JSON.stringify(full).length);
+    t.end();
+});
+
+test('parse service: parseSource with compact=true has no loc', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const compact = await service.parseSource('const x = 1;', {
+        compact: true,
+    }) as Record<string, unknown>;
+    
+    t.notOk(compact.loc);
+    t.end();
+});
+
+test('parse service: parseSource with query returns array', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('var x = 1;', {
+        query: 'VariableDeclaration',
+    });
+    
+    t.ok(Array.isArray(result));
+    t.end();
+});
+
+test('parse service: parseSource with query returns matches', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('var x = 1;\nvar y = 2;', {
+        query: 'VariableDeclaration',
+    }) as unknown[];
+    
+    t.equal(result.length, 2);
+    t.end();
+});
+
+test('parse service: parseSource with no options returns full AST', async (t) => {
+    const service = new ParseService(new Map(), new Map());
+    const result = await service.parseSource('const x = 1;') as Record<string, unknown>;
     
     t.equal(result.type, 'File');
     t.end();

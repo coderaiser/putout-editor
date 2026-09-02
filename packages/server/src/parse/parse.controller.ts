@@ -5,6 +5,7 @@ import {
     HttpCode,
     Param,
     Put,
+    Query,
 } from '@nestjs/common';
 import {ParseService} from './parse.service.ts';
 import type {ParseRequest} from './parse.types.ts';
@@ -30,7 +31,12 @@ export class ParseController {
     @HttpCode(200)
     async parseSource(
         @Body() body: ParseRequest,
+        @Query('compact') compact?: string,
+        @Query('query') query?: string,
     ) {
-        return this.parseService.parseSource(body.source);
+        return this.parseService.parseSource(body.source, {
+            compact: compact === 'true',
+            query,
+        });
     }
 }
