@@ -69,3 +69,37 @@ test('Element: renders Identifier node name correctly', (t) => {
     t.equal(result, 'Identifier', 'should show Identifier, not VariableDeclarator');
     t.end();
 });
+
+test('Element: Identifier is focused on first render when cursor is inside it', async (t) => {
+    const identifier = {type: 'Identifier', name: 'a', start: 6, end: 7};
+    const declarator = {
+        type: 'VariableDeclarator',
+        id: identifier,
+        init: {type: 'NumericLiteral', value: 3, start: 10, end: 11},
+        start: 6,
+        end: 11,
+    };
+    const declaration = {
+        type: 'VariableDeclaration',
+        kind: 'const',
+        declarations: [declarator],
+        start: 0,
+        end: 12,
+    };
+    const focusPath = [declaration, declarator, identifier];
+
+    const {container} = renderElement({
+        value: declaration,
+        focusPath,
+        level: 1,
+    });
+
+    // No setTimeout — must be immediate on first render
+    const focused = container.querySelector('.focused');
+    const focusedText = focused?.querySelector('.tokenName')?.textContent?.trim() ?? '';
+
+    cleanup();
+
+    t.equal(focusedText, 'Identifier');
+    t.end();
+});
