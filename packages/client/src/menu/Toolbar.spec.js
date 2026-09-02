@@ -250,10 +250,6 @@ test('Toolbar: transform button dispatches selectTransformer', (t) => {
     renderToolbar(store);
     
     // Find the transform button (it's a select-like component)
-    const transformButton = document.querySelector('#Toolbar select');
-    
-    // This test verifies the transform button exists and is rendered
-    // The actual transform change is tested in TransformButton.spec.js
     cleanup();
     
     t.ok(true);
