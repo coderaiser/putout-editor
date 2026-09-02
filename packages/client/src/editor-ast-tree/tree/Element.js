@@ -74,8 +74,16 @@ function Element(props) {
             return;
         }
         
-        if (wasFocusPath !== props.focusPath && props.focusPath.indexOf(props.value) > -1 && props.settings.autofocus)
-            scrollIntoView();
+        if (wasFocusPath !== props.focusPath && props.focusPath.indexOf(props.value) > -1) {
+            const isInFocusPath = true;
+            const isLeaf = props.focusPath.at(-1) === props.value;
+            
+            if (!isLeaf && !state.open)
+                setState((current) => ({...current, open: true}));
+            
+            if (props.settings.autofocus && isInFocusPath)
+                scrollIntoView();
+        }
     });
     
     function scrollIntoView() {
