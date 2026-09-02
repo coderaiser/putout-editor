@@ -11,6 +11,7 @@ import isFocused from './isFocused.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
 import stringify from '../stringify.ts';
 import useElementState from './useElementState.js';
+import useFocusEffect from './useFocusEffect.js';
 import useHighlight from './useHighlight.js';
 
 const isNumber = (a) => typeof a === 'number';
@@ -26,8 +27,6 @@ function Element(props) {
     } = props;
     
     const container = useRef(null);
-    const mounted = useRef(false);
-    const previousFocusPath = useRef(null);
     const [, setRenderVersion] = useState(0);
     
     const selfHandle = useRef({
@@ -35,47 +34,13 @@ function Element(props) {
     });
     
     const [state, setState] = useElementState(props, treeAdapter);
+
+    useFocusEffect(props, state, setState, container);
     
     useEffect(() => () => {
         if (lastClickedElement === selfHandle.current)
             lastClickedElement = null;
     }, []);
-    
-    useEffect(() => {
-        const wasFocusPath = previousFocusPath.current;
-        const isInitialRender = !mounted.current;
-        
-        mounted.current = true;
-        previousFocusPath.current = props.focusPath;
-        
-        if (isInitialRender) {
-            if (props.settings.autofocus)
-                scrollIntoView();
-            
-            return;
-        }
-        
-        if (wasFocusPath !== props.focusPath && props.focusPath.indexOf(props.value) > -1) {
-            const isInFocusPath = true;
-            const isLeaf = props.focusPath.at(-1) === props.value;
-            
-            if (!isLeaf && !state.open)
-                setState((current) => ({
-                    ...current,
-                    open: true,
-                }));
-            
-            if (props.settings.autofocus && isInFocusPath)
-                scrollIntoView();
-        }
-    });
-    
-    function scrollIntoView() {
-        const {focusPath, value} = props;
-        
-        if (focusPath.length > 0 && focusPath.at(-1) === value)
-            setTimeout(() => container.current?.scrollIntoView(), 0);
-    }
     
     function toggleClick({shiftKey}) {
         const open = shiftKey || !state.open;
