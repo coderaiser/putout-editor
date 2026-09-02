@@ -5,11 +5,7 @@ import {ParseService} from '../parse/parse.service.ts';
 
 @Injectable()
 export class InfoService {
-    constructor(
-        private readonly transformService: TransformService,
-        private readonly findPlacesService: FindPlacesService,
-        private readonly parseService: ParseService,
-    ) {}
+    constructor(private readonly transformService: TransformService, private readonly findPlacesService: FindPlacesService, private readonly parseService: ParseService) {}
     
     info() {
         return {
@@ -38,7 +34,10 @@ export class InfoService {
                 example: {
                     kind: 'plugin_syntax',
                     message: 'Unexpected token (1:13)',
-                    position: {line: 1, column: 13},
+                    position: {
+                        line: 1,
+                        column: 13,
+                    },
                 },
             },
             links: {

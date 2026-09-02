@@ -11,9 +11,13 @@ import {ParseService} from '../parse/parse.service.ts';
         InfoService,
         TransformService,
         FindPlacesService,
-        ParseService,
-        {provide: 'SNIPPETS', useValue: new Map()},
-        {provide: 'SNIPPET_REVISIONS', useValue: new Map()},
+        ParseService, {
+            provide: 'SNIPPETS',
+            useValue: new Map(),
+        }, {
+            provide: 'SNIPPET_REVISIONS',
+            useValue: new Map(),
+        },
     ],
 })
 export class InfoModule {}
