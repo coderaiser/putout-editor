@@ -156,6 +156,17 @@ test('find-places service: returns 422 with plugin_error body on unstructured er
     t.equal((error as {
         status?: number;
     }).status, 422);
+    t.end();
+});
+
+test('find-places service: returns plugin_error body on unstructured error', async (t) => {
+    const run = stub().rejects(Error('boom'));
+    const service = createServiceWithRun(run);
+    const [error] = await tryToCatch(service.findPlaces.bind(service), {
+        fixture: 'x',
+        plugin: '',
+    });
+    
     t.deepEqual((error as {
         response?: unknown;
     }).response, {
