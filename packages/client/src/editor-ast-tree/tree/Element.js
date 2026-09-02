@@ -35,11 +35,11 @@ function Element(props) {
     const selfHandle = useRef({
         trigger: () => setRenderVersion((version) => version + 1),
     });
-
+    
     const isInFocusPath = props.focusPath.indexOf(value) > -1;
     const isLeafInFocusPath = props.focusPath.at(-1) === value;
     const openFromFocusPath = isInFocusPath && !isLeafInFocusPath;
-
+    
     const [state, setState] = useState({
         open: props.open || !props.level || deepOpen || openFromFocusPath || value && treeAdapter.opensByDefault(value, props.name),
         deepOpen,
