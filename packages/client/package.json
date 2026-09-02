@@ -124,7 +124,7 @@
     "redot": "^0.6.0",
     "regexp-tree": "^0.1.5",
     "source-map": "^0.7.3",
-    "try-catch": "^4.0.2",
+    "try-catch": "^4.1.1",
     "url": "^0.11.4"
   },
   "scripts": {
