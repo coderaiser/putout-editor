@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+import stringify from '../ast/stringify.ts';
 import {useRef, useEffect} from 'react';
 import {
     createEditor,
@@ -6,15 +8,18 @@ import {
     getScrollInfo,
     scrollTo,
     observeResize,
-} from './codemirror/index.js';
+} from '../editor/codemirror/index.js';
 
-export default function JSONEditor({value = '', className = ''}) {
+export default function EditorASTJson({value = '', parseResult = null, className = ''}) {
     const containerRef = useRef(null);
     const editorRef = useRef(null);
+    const resolvedValue = parseResult
+        ? stringify(parseResult.ast, null, 4)
+        : value;
     
     useEffect(() => {
         const editor = createEditor(containerRef.current, {
-            value,
+            value: resolvedValue,
             mode: {
                 name: 'javascript',
                 json: true,
@@ -37,15 +42,21 @@ export default function JSONEditor({value = '', className = ''}) {
     useEffect(() => {
         const editor = editorRef.current;
         
-        if (!editor || value === getValue(editor))
+        if (!editor || resolvedValue === getValue(editor))
             return;
         
         const info = getScrollInfo(editor);
-        setValue(editor, value);
+        setValue(editor, resolvedValue);
         scrollTo(editor, info.left, info.top);
-    }, [value]);
+    }, [resolvedValue]);
     
     return (
-        <div id="JSONEditor" className={className} ref={containerRef}/>
+        <div id="EditorASTJson" className={className} ref={containerRef}/>
     );
 }
+
+EditorASTJson.propTypes = {
+    value: PropTypes.string,
+    parseResult: PropTypes.object,
+    className: PropTypes.string,
+};

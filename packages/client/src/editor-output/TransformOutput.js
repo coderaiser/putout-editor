@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import {SourceMapConsumer} from 'source-map';
 import stringify from 'json-stringify-safe';
 import Editor from '../editor/Editor.js';
-import JSONEditor from '../editor/JSONEditor.js';
+import EditorASTJson from '../editor-ast-json/index.js';
 import resolvePositionFromIndex from '../editor/resolvePositionFromIndex.js';
 
 const isString = (value) => typeof value === 'string';
@@ -88,7 +88,7 @@ export default function TransformOutput({transformer, transformCode, code, mode,
                         readOnly={true}
                         value={result}
                     />
-                    : <JSONEditor
+                    : <EditorASTJson
                         className="container no-toolbar"
                         value={stringify(result, null, 2)}
                     />}

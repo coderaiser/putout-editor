@@ -132,7 +132,7 @@ test('TransformOutput: reuses cached transformer promise', async (t) => {
     t.end();
 });
 
-test('TransformOutput: renders JSONEditor for object result without map', async (t) => {
+test('TransformOutput: renders EditorASTJson for object result without map', async (t) => {
     const {container} = render(
         <TransformOutput
             transformer={makeTransformer({
@@ -148,7 +148,7 @@ test('TransformOutput: renders JSONEditor for object result without map', async 
     );
     
     await setImmediate();
-    const jsonEditor = container.querySelector('#JSONEditor');
+    const jsonEditor = container.querySelector('#EditorASTJson');
     
     cleanup();
     

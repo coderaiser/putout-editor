@@ -1,4 +1,4 @@
-import JSON from './JSON.js';
+import EditorASTJson from '../editor-ast-json/index.js';
 import Tree from './Tree.js';
 
-export default [Tree, JSON];
+export default [Tree, EditorASTJson];
