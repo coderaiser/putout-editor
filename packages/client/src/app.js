@@ -14,7 +14,7 @@ import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import SplitPane from './ui/SplitPane.js';
 import Toolbar from './menu/Toolbar.js';
-import Transformer from './editor-plugin/Transformer.js';
+import EditorPlugin from './editor-plugin/index.js';
 import debounce from './app/debounce.ts';
 import {
     putoutEditor,
@@ -73,7 +73,7 @@ function App() {
                                     <EditorASTTree/>
                                 </ErrorBoundary>
                             </SplitPane>
-                            {showTransformer ? <Transformer/> : null}
+                            {showTransformer ? <EditorPlugin/> : null}
                         </SplitPane>
                     </div>
                 </PasteDropTarget>

@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import Transformer from './Transformer.js';
+import EditorPlugin from './index.js';
 import {putoutEditor, revive} from '../store/reducers.ts';
 import {getView} from '../editor/codemirror/index.js';
 
@@ -53,14 +53,14 @@ function renderWithStore(overrides = {}) {
 function renderTransformer(store) {
     const {container} = render(
         <Provider store={store}>
-            <Transformer/>
+            <EditorPlugin/>
         </Provider>,
     );
     
     return container;
 }
 
-test('Transformer: renders transform code from store', (t) => {
+test('EditorPlugin: renders transform code from store', (t) => {
     const {store} = renderWithStore({
         workbench: {
             transform: {
@@ -79,7 +79,7 @@ test('Transformer: renders transform code from store', (t) => {
     t.end();
 });
 
-test('Transformer: dispatches setTransformState when editor content changes', async (t) => {
+test('EditorPlugin: dispatches setTransformState when editor content changes', async (t) => {
     const {store} = renderWithStore();
     const container = renderTransformer(store);
     
@@ -105,7 +105,7 @@ test('Transformer: dispatches setTransformState when editor content changes', as
     t.end();
 });
 
-test('Transformer: dispatches transformBlur when editor blurs', (t) => {
+test('EditorPlugin: dispatches transformBlur when editor blurs', (t) => {
     const {actions, store} = renderWithStore();
     const container = renderTransformer(store);
     const view = getView(container);
@@ -120,7 +120,7 @@ test('Transformer: dispatches transformBlur when editor blurs', (t) => {
     t.end();
 });
 
-test('Transformer: renders output pane when store transformer is unknown', async (t) => {
+test('EditorPlugin: renders output pane when store transformer is unknown', async (t) => {
     const {store} = renderWithStore({
         loadingSnippet: true,
         workbench: {

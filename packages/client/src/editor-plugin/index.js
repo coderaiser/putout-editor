@@ -10,7 +10,7 @@ import {
 import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
 import * as selectors from '../store/selectors.ts';
 
-export default function Transformer() {
+export default function EditorPlugin() {
     const parser = useSelector(getParser);
     const transformer = useSelector(getTransformer) || getTransformerByID('putout');
     const transformCode = useSelector(selectors.getTransformCode);

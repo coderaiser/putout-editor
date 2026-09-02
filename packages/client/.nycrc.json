@@ -16,7 +16,7 @@
         "src/editor-source/index.js",
         "src/menu/Toolbar.js",
         "src/snippet/GistBanner.js",
-        "src/editor-plugin/Transformer.js",
+        "src/editor-plugin/index.js",
         "src/parser/parsers/transpilers/typescript.js",
         "lib/**",
         "src/editor-ast-tree/tree/**",
