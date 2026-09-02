@@ -127,4 +127,3 @@ test('EditorASTJson: does not update when value unchanged', (t) => {
     t.equal(result, '{}');
     t.end();
 });
-

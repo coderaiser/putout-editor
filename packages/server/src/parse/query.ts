@@ -59,4 +59,3 @@ export function queryAST(ast: unknown, query: string): QueryMatch[] {
     
     return results.sort((first, second) => first.start - second.start);
 }
-
