@@ -3,8 +3,12 @@ import {render, cleanup} from '@testing-library/react';
 import EditorASTJson from './index.js';
 import {getView, getValue} from '../editor/codemirror/index.js';
 
+const {stringify} = JSON;
+
 test('EditorASTJson: renders container element', (t) => {
-    const {container} = render(<EditorASTJson value="{}"/>);
+    const {container} = render(
+        <EditorASTJson value="{}"/>,
+    );
     
     const result = container.querySelector('#EditorASTJson');
     
@@ -15,7 +19,9 @@ test('EditorASTJson: renders container element', (t) => {
 });
 
 test('EditorASTJson: renders with default props', (t) => {
-    const {container} = render(<EditorASTJson/>);
+    const {container} = render(
+        <EditorASTJson/>,
+    );
     
     const result = container.querySelector('#EditorASTJson');
     
@@ -26,7 +32,9 @@ test('EditorASTJson: renders with default props', (t) => {
 });
 
 test('EditorASTJson: renders with className', (t) => {
-    const {container} = render(<EditorASTJson className="ast-view" value="{}"/>);
+    const {container} = render(
+        <EditorASTJson className="ast-view" value="{}"/>,
+    );
     
     const result = container.querySelector('.ast-view');
     
@@ -38,7 +46,13 @@ test('EditorASTJson: renders with className', (t) => {
 
 test('EditorASTJson: renders with parseResult uses ast value', (t) => {
     const {container} = render(
-        <EditorASTJson parseResult={{ast: {type: 'File'}}}/>,
+        <EditorASTJson
+            parseResult={{
+                ast: {
+                    type: 'File',
+                },
+            }}
+        />,
     );
     
     const result = container.querySelector('#EditorASTJson');
@@ -50,7 +64,9 @@ test('EditorASTJson: renders with parseResult uses ast value', (t) => {
 });
 
 test('EditorASTJson: creates CodeMirror editor on mount', (t) => {
-    const {container} = render(<EditorASTJson value="{}"/>);
+    const {container} = render(
+        <EditorASTJson value="{}"/>,
+    );
     
     const editor = getView(container);
     
@@ -61,7 +77,9 @@ test('EditorASTJson: creates CodeMirror editor on mount', (t) => {
 });
 
 test('EditorASTJson: cleanup removes editor child on unmount', (t) => {
-    const {container, unmount} = render(<EditorASTJson value="{}"/>);
+    const {container, unmount} = render(
+        <EditorASTJson value="{}"/>,
+    );
     
     unmount();
     const children = container.querySelectorAll('.cm-editor').length;
@@ -71,23 +89,35 @@ test('EditorASTJson: cleanup removes editor child on unmount', (t) => {
 });
 
 test('EditorASTJson: updates editor value when value changes', (t) => {
-    const {container, rerender} = render(<EditorASTJson value="{}"/>);
+    const {container, rerender} = render(
+        <EditorASTJson value="{}"/>,
+    );
     
-    rerender(<EditorASTJson value='{"type": "File"}'/>);
+    rerender(
+        <EditorASTJson
+            value={stringify({
+                type: 'File',
+            })}
+        />,
+    );
     
     const editor = getView(container);
     const result = editor ? getValue(editor) : null;
     
     cleanup();
     
-    t.equal(result, '{"type": "File"}');
+    t.equal(result, '{"type":"File"}');
     t.end();
 });
 
 test('EditorASTJson: does not update when value unchanged', (t) => {
-    const {container, rerender} = render(<EditorASTJson value="{}"/>);
+    const {container, rerender} = render(
+        <EditorASTJson value="{}"/>,
+    );
     
-    rerender(<EditorASTJson value="{}"/>);
+    rerender(
+        <EditorASTJson value="{}"/>,
+    );
     
     const editor = getView(container);
     const result = editor ? getValue(editor) : null;
@@ -97,3 +127,4 @@ test('EditorASTJson: does not update when value unchanged', (t) => {
     t.equal(result, '{}');
     t.end();
 });
+

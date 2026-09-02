@@ -1,11 +1,12 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Editor from '../editor/Editor.js';
+import {getParser} from '../parser/store/parserSelectors.ts';
 import {
     getCode,
     getParseResult,
     getKeyMap,
+    getHighlightRange,
 } from '../store/selectors.ts';
-import {getParser} from '../parser/store/parserSelectors.ts';
 import {
     setCode,
     setCursor,
@@ -18,6 +19,7 @@ export default function EditorSource() {
     const parser = useSelector(getParser);
     const mode = parser.category.editorMode || parser.category.id;
     const error = useSelector((state) => (getParseResult(state) || {}).error);
+    const highlightRange = useSelector(getHighlightRange);
     const dispatch = useDispatch();
     
     return (
@@ -26,6 +28,7 @@ export default function EditorSource() {
             value={value}
             mode={mode}
             error={error}
+            highlightRange={highlightRange}
             onContentChange={({value, cursor}) => dispatch(setCode({
                 code: value,
                 cursor,

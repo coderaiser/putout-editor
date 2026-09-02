@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import stringify from '../editor-ast-tree/stringify.ts';
 import {useRef, useEffect} from 'react';
+import stringify from '../editor-ast-tree/stringify.ts';
 import {
     createEditor,
     setValue,
@@ -13,6 +13,7 @@ import {
 export default function EditorASTJson({value = '', parseResult = null, className = ''}) {
     const containerRef = useRef(null);
     const editorRef = useRef(null);
+    
     const resolvedValue = parseResult
         ? stringify(parseResult.ast, null, 4)
         : value;
