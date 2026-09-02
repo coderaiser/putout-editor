@@ -33,7 +33,7 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@nestjs/testing": "^11.1.28",
+    "@nestjs/testing": "^12.0.1",
     "@putout/eslint-flat": "^4.0.1",
     "@putout/plugin-nestjs": "^1.0.0",
     "@supertape/loader-nestjs": "^1.0.0",
@@ -50,8 +50,8 @@
     "redrun": "^13.0.4",
     "superc8": "^12.7.0",
     "supertape": "^13.3.0",
-    "typescript": "^6.0.0",
     "try-catch": "^4.0.0",
-    "try-to-catch": "^4.1.0"
+    "try-to-catch": "^4.1.0",
+    "typescript": "^6.0.0"
   }
 }
