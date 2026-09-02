@@ -1,7 +1,7 @@
 import {useSelector, useDispatch} from 'react-redux';
 import Editor from '../editor/Editor.js';
 import SplitPane from '../ui/SplitPane.js';
-import TransformOutput from '../editor-output/TransformOutput.js';
+import EditorResult from '../editor-result/index.js';
 import {getTransformerByID} from '../parser/parsers/index.js';
 import {
     setTransformState,
@@ -34,7 +34,7 @@ export default function EditorPlugin() {
                     keyMap={keyMap}
                 />
             </div>
-            <TransformOutput
+            <EditorResult
                 transformer={transformer}
                 transformCode={transformCode}
                 code={code}

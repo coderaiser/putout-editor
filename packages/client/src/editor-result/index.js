@@ -33,7 +33,7 @@ async function runTransform(transformer, transformCode, code, parser) {
     };
 }
 
-export default function TransformOutput({transformer, transformCode, code, mode, isLoading, parser, highlightRange}) {
+export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser, highlightRange}) {
     const [result, setResult] = useState('');
     const [sourceMap, setSourceMap] = useState(null);
     const [error, setError] = useState(null);
@@ -96,7 +96,7 @@ export default function TransformOutput({transformer, transformCode, code, mode,
     );
 }
 
-TransformOutput.propTypes = {
+EditorResult.propTypes = {
     transformer: PropTypes.object,
     transformCode: PropTypes.string,
     mode: PropTypes.string,

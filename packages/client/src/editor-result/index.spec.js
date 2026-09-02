@@ -5,7 +5,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import TransformOutput from './TransformOutput.js';
+import EditorResult from './index.js';
 
 const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
     _promise: null,
@@ -18,9 +18,9 @@ const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
     },
 });
 
-test('TransformOutput: renders output container', async (t) => {
+test('EditorResult: renders output container', async (t) => {
     const {container} = render(
-        <TransformOutput
+        <EditorResult
             transformer={makeTransformer()}
             transformCode=""
             code="const x = 1"
@@ -38,7 +38,7 @@ test('TransformOutput: renders output container', async (t) => {
     t.end();
 });
 
-test('TransformOutput: does not call transform when isLoading is true', async (t) => {
+test('EditorResult: does not call transform when isLoading is true', async (t) => {
     const transform = stub().returns('');
     const transformer = {
         _promise: null,
@@ -47,7 +47,7 @@ test('TransformOutput: does not call transform when isLoading is true', async (t
     };
     
     render(
-        <TransformOutput
+        <EditorResult
             transformer={transformer}
             transformCode=""
             code="const x = 1"
@@ -63,12 +63,12 @@ test('TransformOutput: does not call transform when isLoading is true', async (t
     t.end();
 });
 
-test('TransformOutput: renders editor when transform throws', async (t) => {
+test('EditorResult: renders editor when transform throws', async (t) => {
     let container;
     
     await act(async () => {
         ({container} = render(
-            <TransformOutput
+            <EditorResult
                 transformer={makeTransformer('', true)}
                 transformCode=""
                 code="const x = 1"
@@ -87,9 +87,9 @@ test('TransformOutput: renders editor when transform throws', async (t) => {
     t.end();
 });
 
-test('TransformOutput: renders string result in editor', async (t) => {
+test('EditorResult: renders string result in editor', async (t) => {
     const {container} = render(
-        <TransformOutput
+        <EditorResult
             transformer={makeTransformer('const x = 1;')}
             transformCode=""
             code="const x = 1"
@@ -107,7 +107,7 @@ test('TransformOutput: renders string result in editor', async (t) => {
     t.end();
 });
 
-test('TransformOutput: reuses cached transformer promise', async (t) => {
+test('EditorResult: reuses cached transformer promise', async (t) => {
     const loadTransformer = stub().resolves();
     const transformer = {
         _promise: new Promise((resolve) => resolve({})),
@@ -116,7 +116,7 @@ test('TransformOutput: reuses cached transformer promise', async (t) => {
     };
     
     render(
-        <TransformOutput
+        <EditorResult
             transformer={transformer}
             transformCode=""
             code="const x = 1"
@@ -132,9 +132,9 @@ test('TransformOutput: reuses cached transformer promise', async (t) => {
     t.end();
 });
 
-test('TransformOutput: renders EditorASTJson for object result without map', async (t) => {
+test('EditorResult: renders EditorASTJson for object result without map', async (t) => {
     const {container} = render(
-        <TransformOutput
+        <EditorResult
             transformer={makeTransformer({
                 code: {
                     hello: 'world',
@@ -156,9 +156,9 @@ test('TransformOutput: renders EditorASTJson for object result without map', asy
     t.end();
 });
 
-test('TransformOutput: renders output when object result has map', async (t) => {
+test('EditorResult: renders output when object result has map', async (t) => {
     const {container} = render(
-        <TransformOutput
+        <EditorResult
             transformer={makeTransformer({
                 code: 'const y = 2;',
                 map: {
@@ -184,9 +184,9 @@ test('TransformOutput: renders output when object result has map', async (t) => 
     t.end();
 });
 
-test('TransformOutput: resolves highlight range through posFromIndex', async (t) => {
+test('EditorResult: resolves highlight range through posFromIndex', async (t) => {
     const {container} = render(
-        <TransformOutput
+        <EditorResult
             transformer={makeTransformer('const x = 1;')}
             transformCode=""
             code="const x = 1"
@@ -205,12 +205,12 @@ test('TransformOutput: resolves highlight range through posFromIndex', async (t)
     t.end();
 });
 
-test('TransformOutput: posFromIndex returns undefined when no sourceMap', async (t) => {
+test('EditorResult: posFromIndex returns undefined when no sourceMap', async (t) => {
     let container;
     
     await act(async () => {
         ({container} = render(
-            <TransformOutput
+            <EditorResult
                 transformer={makeTransformer('const x = 1;')}
                 transformCode=""
                 code="const x = 1"
