@@ -5,7 +5,7 @@ import {
 } from 'react';
 import {useDispatch} from 'react-redux';
 import {setError, dropText} from '../store/reducers.ts';
-import {categories} from '../parser-selection/parsers/index.js';
+import {categories} from '../parser/parsers/index.js';
 
 const noop = () => {};
 

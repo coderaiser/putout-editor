@@ -10,7 +10,7 @@ import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicator from './ui/LoadingIndicator.js';
 import PasteDropTarget from './ui/PasteDropTarget.js';
-import SettingsDialog from './parser-selection/dialogs/SettingsDialog.js';
+import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import SplitPane from './ui/SplitPane.js';
 import Toolbar from './menu/Toolbar.js';
@@ -28,7 +28,7 @@ import {
 import * as gist from './snippet/storage/gist.js';
 import * as parse from './snippet/storage/parse';
 import StorageHandler from './snippet/storage';
-import {parserListener} from './parser-selection/store/parserMiddleware.ts';
+import {parserListener} from './parser/store/parserMiddleware.ts';
 import {formatListener} from './store/formatMiddleware.ts';
 import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 

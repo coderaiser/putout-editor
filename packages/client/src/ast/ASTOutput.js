@@ -3,7 +3,7 @@ import {useSelector} from 'react-redux';
 import visualizations from './visualization.js';
 import getFocusPath from '../editor/getFocusPath.ts';
 import {Button} from './Button.js';
-import {getParser} from '../parser-selection/store/parserSelectors.ts';
+import {getParser} from '../parser/store/parserSelectors.ts';
 import {getParseResult, getCursor} from '../store/selectors.ts';
 
 const getName = (a) => a.name;

@@ -24,7 +24,7 @@ import {
     getTransformCode,
     showTransformer,
 } from '../store/selectors.ts';
-import {getParser, getTransformer} from '../parser-selection/store/parserSelectors.ts';
+import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
 
 export function createSnippetListener(storageAdapter: any) {
     const listener = createListenerMiddleware();

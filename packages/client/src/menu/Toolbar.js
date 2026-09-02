@@ -1,14 +1,14 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {TbQuestionMark} from 'react-icons/tb';
-import ParserButton from '../parser-selection/buttons/ParserButton.js';
+import ParserButton from '../parser/buttons/ParserButton.js';
 import SnippetButton from '../snippet/buttons/SnippetButton.js';
 import TransformButton from '../editor-plugin/TransformButton.js';
 import KeyMapButton from './KeyMapButton.js';
 import ThemeButton from './ThemeButton.js';
 import Funding from './Funding.js';
-import {getTransformerByID} from '../parser-selection/parsers/index.js';
+import {getTransformerByID} from '../parser/parsers/index.js';
 import * as selectors from '../store/selectors.ts';
-import * as parserSelectors from '../parser-selection/store/parserSelectors.ts';
+import * as parserSelectors from '../parser/store/parserSelectors.ts';
 import {logEvent} from '../snippet/logger.ts';
 import {
     openSettingsDialog,

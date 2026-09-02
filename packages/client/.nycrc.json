@@ -18,10 +18,10 @@
         "src/menu/Toolbar.js",
         "src/snippet/GistBanner.js",
         "src/editor-plugin/Transformer.js",
-        "src/parser-selection/parsers/transpilers/typescript.js",
+        "src/parser/parsers/transpilers/typescript.js",
         "lib/**",
         "src/ast/tree/**",
-        "src/parser-selection/parsers/js/**",
+        "src/parser/parsers/js/**",
         "coverage"
     ],
     "branches": 100,

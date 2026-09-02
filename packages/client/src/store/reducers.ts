@@ -4,7 +4,7 @@ import {
     getDefaultParser,
     getParserByID,
     getTransformerByID,
-} from '../parser-selection/parsers/index.js';
+} from '../parser/parsers/index.js';
 
 interface Revision {
     canSave(): boolean;
