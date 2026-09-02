@@ -79,7 +79,10 @@ function Element(props) {
             const isLeaf = props.focusPath.at(-1) === props.value;
             
             if (!isLeaf && !state.open)
-                setState((current) => ({...current, open: true}));
+                setState((current) => ({
+                    ...current,
+                    open: true,
+                }));
             
             if (props.settings.autofocus && isInFocusPath)
                 scrollIntoView();
