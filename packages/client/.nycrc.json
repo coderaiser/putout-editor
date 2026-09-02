@@ -21,6 +21,7 @@
         "lib/**",
         "src/editor-ast-tree/tree/**",
         "src/parser/parsers/js/**",
+        "src/types.ts",
         "coverage"
     ],
     "branches": 100,
