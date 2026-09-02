@@ -9,7 +9,7 @@
     "@nestjs/cli": "^12.0.0",
     "@nestjs/common": "^12.0.1",
     "@nestjs/core": "^12.0.1",
-    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/platform-express": "^12.0.1",
     "@nestjs/serve-static": "^5.0.5",
     "@octokit/rest": "^22.0.0",
     "express": "^5.2.1",
