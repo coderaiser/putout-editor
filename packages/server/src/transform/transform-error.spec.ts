@@ -39,7 +39,7 @@ test('transform-error: compilePlugin error has structured.kind plugin_syntax', (
         require,
     });
     
-    t.equal(error?.structured.kind, 'plugin_syntax');
+    t.equal(error?.structured?.kind, 'plugin_syntax');
     t.end();
 });
 
@@ -48,7 +48,7 @@ test('transform-error: compilePlugin error has structured.message string', (t) =
         require,
     });
     
-    const result = typeof error?.structured.message;
+    const result = typeof error?.structured?.message;
     const expected = 'string';
     
     t.equal(result, expected);
@@ -60,7 +60,7 @@ test('transform-error: compilePlugin error has structured.position with line', (
         require,
     });
     
-    const result = typeof error?.structured.position?.line;
+    const result = typeof error?.structured?.position?.line;
     const expected = 'number';
     
     t.equal(result, expected);
@@ -72,7 +72,7 @@ test('transform-error: compilePlugin error has structured.position with column',
         require,
     });
     
-    const result = typeof error?.structured.position?.column;
+    const result = typeof error?.structured?.position?.column;
     const expected = 'number';
     
     t.equal(result, expected);
