@@ -55,7 +55,7 @@ export default {
     },
 };
 
-function build(env) {
+function build(env: string) {
     const rm = 'rimraf ../../out';
     const mv = 'mv ../../out-build ../../out';
     const rspack = `NODE_ENV=${env} rspack build --mode=${env}`;

@@ -1,4 +1,4 @@
-const isNumber = (a) => !Number.isNaN(a) && typeof a === 'number';
+const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
 type Position = {
     line: number;
@@ -59,3 +59,4 @@ export function queryAST(ast: unknown, query: string): QueryMatch[] {
     
     return results.sort((first, second) => first.start - second.start);
 }
+
