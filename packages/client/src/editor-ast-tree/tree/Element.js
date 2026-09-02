@@ -8,6 +8,7 @@ import cx from 'classnames';
 import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
+import isFocused from './isFocused.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
 import stringify from '../stringify.ts';
 import {setHighlight, clearHighlight} from '../../store/reducers.ts';
@@ -173,11 +174,6 @@ function Element(props) {
                 parent={props.value}
             />
         );
-    }
-    
-    function isFocused(level, path, value, open) {
-        return level && path.indexOf(value) > -1
-            && (!open || path.at(-1) === value);
     }
     
     const {open} = state;
