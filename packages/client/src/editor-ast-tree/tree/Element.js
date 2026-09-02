@@ -10,6 +10,7 @@ import CompactObjectView from './CompactObjectView.js';
 import isFocused from './isFocused.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
 import stringify from '../stringify.ts';
+import useElementState from './useElementState.js';
 import useHighlight from './useHighlight.js';
 
 const isNumber = (a) => typeof a === 'number';
@@ -19,8 +20,6 @@ let lastClickedElement = null;
 
 function Element(props) {
     const {
-        value,
-        deepOpen,
         treeAdapter,
         focusPath,
         level,
@@ -35,28 +34,7 @@ function Element(props) {
         trigger: () => setRenderVersion((version) => version + 1),
     });
     
-    const isInFocusPath = props.focusPath.indexOf(value) > -1;
-    const isLeafInFocusPath = props.focusPath.at(-1) === value;
-    const openFromFocusPath = isInFocusPath && !isLeafInFocusPath;
-    
-    const [state, setState] = useState({
-        open: props.open || !props.level || deepOpen || openFromFocusPath || value && treeAdapter.opensByDefault(value, props.name),
-        deepOpen,
-        value,
-        error: null,
-    });
-    
-    const [previousProps, setPreviousProps] = useState(props);
-    
-    if (props !== previousProps) {
-        setPreviousProps(props);
-        setState((current) => ({
-            ...current,
-            open: props.open || props.deepOpen || current.open,
-            deepOpen: props.deepOpen,
-            value: props.value,
-        }));
-    }
+    const [state, setState] = useElementState(props, treeAdapter);
     
     useEffect(() => () => {
         if (lastClickedElement === selfHandle.current)
