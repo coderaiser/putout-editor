@@ -1,4 +1,3 @@
-import {useDispatch} from 'react-redux';
 import {
     useEffect,
     useRef,
@@ -11,7 +10,7 @@ import CompactObjectView from './CompactObjectView.js';
 import isFocused from './isFocused.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
 import stringify from '../stringify.ts';
-import {setHighlight, clearHighlight} from '../../store/reducers.ts';
+import useHighlight from './useHighlight.js';
 
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
@@ -27,7 +26,6 @@ function Element(props) {
         level,
     } = props;
     
-    const dispatch = useDispatch();
     const container = useRef(null);
     const mounted = useRef(false);
     const previousFocusPath = useRef(null);
@@ -132,16 +130,8 @@ function Element(props) {
         update();
     }
     
-    function onMouseOver(e) {
-        e.stopPropagation();
-        
-        dispatch(setHighlight(props.treeAdapter.getRange(state.value)));
-    }
-    
-    function onMouseLeave() {
-        dispatch(clearHighlight(props.treeAdapter.getRange(state.value)));
-    }
-    
+    const {onMouseOver, onMouseLeave} = useHighlight(treeAdapter, state.value);
+
     function execFunction() {
         const update = {
             error: null,
