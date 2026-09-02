@@ -5,7 +5,7 @@ import {createRoot} from 'react-dom/client';
 import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './snippet/LocalStorage.js';
 import ASTOutput from './ast/ASTOutput.js';
-import ConnectedEditor from './editor/ConnectedEditor.js';
+import EditorSource from './editor-source/index.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicator from './ui/LoadingIndicator.js';
@@ -61,7 +61,7 @@ function App() {
                                         </div>
                                     )}
                                 >
-                                    <ConnectedEditor/>
+                                    <EditorSource/>
                                 </ErrorBoundary>
                                 <ErrorBoundary
                                     fallbackRender={({error}) => (

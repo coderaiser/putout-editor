@@ -6,9 +6,9 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import ConnectedEditor from './ConnectedEditor.js';
+import EditorSource from './index.js';
 import {putoutEditor, revive} from '../store/reducers.ts';
-import {getView} from './codemirror/index.js';
+import {getView} from '../editor/codemirror/index.js';
 
 function renderWithStore(overrides = {}) {
     const base = putoutEditor(undefined, {
@@ -31,14 +31,14 @@ function renderWithStore(overrides = {}) {
     
     render(
         <Provider store={store}>
-            <ConnectedEditor/>
+            <EditorSource/>
         </Provider>,
     );
     
     return store;
 }
 
-test('ConnectedEditor: renders editor container', (t) => {
+test('EditorSource: renders editor container', (t) => {
     renderWithStore();
     
     const result = document.querySelector('.editor');
@@ -49,7 +49,7 @@ test('ConnectedEditor: renders editor container', (t) => {
     t.end();
 });
 
-test('ConnectedEditor: renders value from store', (t) => {
+test('EditorSource: renders value from store', (t) => {
     renderWithStore({
         workbench: {
             code: 'const a = 1;',
@@ -65,7 +65,7 @@ test('ConnectedEditor: renders value from store', (t) => {
     t.end();
 });
 
-test('ConnectedEditor: dispatches setCode when editor content changes', async (t) => {
+test('EditorSource: dispatches setCode when editor content changes', async (t) => {
     const store = renderWithStore();
     
     await act(async () => {
@@ -90,7 +90,7 @@ test('ConnectedEditor: dispatches setCode when editor content changes', async (t
     t.end();
 });
 
-test('ConnectedEditor: dispatches setCursor when cursor moves', async (t) => {
+test('EditorSource: dispatches setCursor when cursor moves', async (t) => {
     const store = renderWithStore();
     
     await act(async () => {
@@ -113,7 +113,7 @@ test('ConnectedEditor: dispatches setCursor when cursor moves', async (t) => {
     t.end();
 });
 
-test('ConnectedEditor: dispatches editorBlur when editor blurs', (t) => {
+test('EditorSource: dispatches editorBlur when editor blurs', (t) => {
     const store = renderWithStore();
     const view = getView(document.body);
     

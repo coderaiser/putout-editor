@@ -13,7 +13,7 @@
         "src/ast/ASTOutput.js",
         "src/ast/Tree.js",
         "src/ui/PasteDropTarget.js",
-        "src/editor/ConnectedEditor.js",
+        "src/editor-source/index.js",
         "src/menu/Toolbar.js",
         "src/snippet/GistBanner.js",
         "src/editor-plugin/Transformer.js",

@@ -1,5 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import Editor from './Editor.js';
+import Editor from '../editor/Editor.js';
 import {
     getCode,
     getParseResult,
@@ -12,7 +12,7 @@ import {
     editorBlur,
 } from '../store/reducers.ts';
 
-export default function ConnectedEditor() {
+export default function EditorSource() {
     const keyMap = useSelector(getKeyMap);
     const value = useSelector(getCode);
     const parser = useSelector(getParser);
