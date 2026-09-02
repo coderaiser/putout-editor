@@ -8,12 +8,14 @@ function makeInfoService() {
             url: '/api/v1/transform',
         }),
     };
+    
     const findPlacesService = {
         documentation: stub().returns({
             method: 'PUT',
             url: '/api/v1/find-places',
         }),
     };
+    
     const parseService = {
         documentation: stub().returns({
             method: 'PUT',
@@ -143,9 +145,11 @@ test('info service: calls transform documentation', (t) => {
     const transformService = {
         documentation: stub().returns({}),
     };
+    
     const findPlacesService = {
         documentation: stub().returns({}),
     };
+    
     const parseService = {
         documentation: stub().returns({}),
     };
@@ -162,9 +166,11 @@ test('info service: calls parse documentation', (t) => {
     const transformService = {
         documentation: stub().returns({}),
     };
+    
     const findPlacesService = {
         documentation: stub().returns({}),
     };
+    
     const parseService = {
         documentation: stub().returns({}),
     };
@@ -181,9 +187,11 @@ test('info service: calls findPlaces documentation', (t) => {
     const transformService = {
         documentation: stub().returns({}),
     };
+    
     const findPlacesService = {
         documentation: stub().returns({}),
     };
+    
     const parseService = {
         documentation: stub().returns({}),
     };

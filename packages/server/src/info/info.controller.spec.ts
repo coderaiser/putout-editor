@@ -23,6 +23,7 @@ test('info controller: GET calls info on service', async (t) => {
             name: 'putout-editor API',
         }),
     };
+    
     const controller = await createController(mockService);
     
     controller.getInfo();
@@ -38,6 +39,7 @@ test('info controller: GET returns info result', async (t) => {
             workflow: [],
         }),
     };
+    
     const controller = await createController(mockService);
     const result = controller.getInfo();
     
