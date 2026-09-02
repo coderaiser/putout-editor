@@ -5,7 +5,7 @@ import {
     functionFilter,
     emptyKeysFilter,
     typeKeysFilter,
-} from '../ast/TreeAdapter.js';
+} from '../editor-ast-tree/TreeAdapter.js';
 
 const returns = (a: any) => () => a;
 

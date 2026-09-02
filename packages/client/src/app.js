@@ -4,7 +4,7 @@ import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
 import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './snippet/LocalStorage.js';
-import ASTOutput from './ast/ASTOutput.js';
+import EditorASTTree from './editor-ast-tree/index.js';
 import EditorSource from './editor-source/index.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
@@ -70,7 +70,7 @@ function App() {
                                         </div>
                                     )}
                                 >
-                                    <ASTOutput/>
+                                    <EditorASTTree/>
                                 </ErrorBoundary>
                             </SplitPane>
                             {showTransformer ? <Transformer/> : null}

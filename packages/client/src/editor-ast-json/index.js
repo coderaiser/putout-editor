@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import stringify from '../ast/stringify.ts';
+import stringify from '../editor-ast-tree/stringify.ts';
 import {useRef, useEffect} from 'react';
 import {
     createEditor,

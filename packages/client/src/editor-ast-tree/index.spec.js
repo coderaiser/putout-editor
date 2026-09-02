@@ -2,7 +2,7 @@ import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import ASTOutput from './ASTOutput.js';
+import EditorASTTree from './index.js';
 import {putoutEditor, revive} from '../store/reducers.ts';
 
 function renderWithStore(overrides = {}) {
@@ -26,14 +26,14 @@ function renderWithStore(overrides = {}) {
     
     render(
         <Provider store={store}>
-            <ASTOutput/>
+            <EditorASTTree/>
         </Provider>,
     );
     
     return store;
 }
 
-test('ASTOutput: renders output element', (t) => {
+test('EditorASTTree: renders output element', (t) => {
     renderWithStore({
         workbench: {
             parseResult: {
@@ -56,7 +56,7 @@ test('ASTOutput: renders output element', (t) => {
     t.end();
 });
 
-test('ASTOutput: renders error message from store', (t) => {
+test('EditorASTTree: renders error message from store', (t) => {
     renderWithStore({
         workbench: {
             parseResult: {
@@ -78,7 +78,7 @@ test('ASTOutput: renders error message from store', (t) => {
     t.end();
 });
 
-test('ASTOutput: renders time from store', (t) => {
+test('EditorASTTree: renders time from store', (t) => {
     renderWithStore({
         workbench: {
             parseResult: {

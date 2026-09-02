@@ -22,7 +22,7 @@ const clearName = (a) => a
     .split('_')
     .pop();
 
-export default function ASTOutput() {
+export default function EditorASTTree() {
     const parser = useSelector(getParser);
     const parseResult = useSelector(getParseResult) || {};
     const cursor = useSelector(getCursor);
