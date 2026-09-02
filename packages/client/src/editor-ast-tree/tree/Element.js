@@ -4,19 +4,13 @@ import {
     useState,
 } from 'react';
 import cx from 'classnames';
-import {TbAlertTriangle} from 'react-icons/tb';
-import CompactArrayView from './CompactArrayView.js';
-import CompactObjectView from './CompactObjectView.js';
 import ElementName from './ElementName.js';
+import ElementValue from './ElementValue.js';
 import isFocused from './isFocused.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
-import stringify from '../stringify.ts';
 import useElementState from './useElementState.js';
 import useFocusEffect from './useFocusEffect.js';
 import useHighlight from './useHighlight.js';
-
-const isNumber = (a) => typeof a === 'number';
-const isFn = (a) => typeof a === 'function';
 
 let lastClickedElement = null;
 
@@ -113,101 +107,18 @@ function Element(props) {
     const {open} = state;
     
     const focused = isFocused(level, focusPath, state.value, open);
-    let valueOutput = null;
-    let content = null;
-    let prefix = null;
-    let suffix = null;
-    let showToggler = false;
-    let enableHighlight = false;
-    
-    if (state.value && typeof state.value === 'object') {
-        if (!Array.isArray(state.value)) {
-            const nodeName = treeAdapter.getNodeName(state.value);
-            
-            if (nodeName)
-                valueOutput = <span className="tokenName nc" onClick={toggleClick}>
-                    {nodeName}{' '}
-                    {lastClickedElement === selfHandle.current
-                        ? <span
-                            className="ge"
-                            style={{
-                                fontSize: '0.8em',
-                            }}
-                        >
-                            {' = $node'}
-                        </span>
-                        : null}
-                </span>;
-            
-            enableHighlight = treeAdapter.getRange(state.value) && level;
-        } else {
-            enableHighlight = true;
-        }
-        
-        if (isNumber(state.value.length)) {
-            if (state.value.length > 0 && open) {
-                prefix = '[';
-                suffix = ']';
-                const elements = Array
-                    .from(treeAdapter.walkNode(state.value))
-                    .filter(({key}) => key !== 'length')
-                    .map(({key, value, computed}) => createSubElement(
-                        key,
-                        value,
-                        Number.isInteger(Number(key)) ? undefined : key,
-                        computed,
-                    ));
-                
-                content = <ul className="value-body">{elements}</ul>;
-            } else {
-                valueOutput = <span>
-                    {valueOutput}
-                    <CompactArrayView
-                        array={state.value}
-                        onClick={toggleClick}
-                    />
-                </span>;
-            }
-            
-            showToggler = state.value.length > 0;
-        } else {
-            if (open) {
-                prefix = '{';
-                suffix = '}';
-                const elements = Array
-                    .from(treeAdapter.walkNode(state.value))
-                    .map(({key, value, computed}) => createSubElement(key, value, key, computed));
-                
-                content = <ul className="value-body">{elements}</ul>;
-                showToggler = elements.length > 0;
-            } else {
-                const keys = Array
-                    .from(treeAdapter.walkNode(state.value))
-                    .map(({key}) => key);
-                
-                valueOutput = <span>
-                    {valueOutput}
-                    <CompactObjectView
-                        onClick={toggleClick}
-                        keys={keys}
-                    />
-                </span>;
-                showToggler = keys.length > 0;
-            }
-        }
-    } else if (isFn(state.value)) {
-        valueOutput = <span
-            className="ge invokeable"
-            title="Click to invoke function"
-            onClick={execFunction}
-        >
-            (...)
-        </span>;
-        showToggler = false;
-    } else {
-        valueOutput = <span className="s">{stringify(state.value)}</span>;
-        showToggler = false;
-    }
+    const value = state.value;
+    const isObject = value && typeof value === 'object';
+    const isArray = Array.isArray(value);
+    const nodeName = isObject && !isArray ? treeAdapter.getNodeName(value) : null;
+    const children = isObject ? Array.from(treeAdapter.walkNode(value)) : [];
+    const enableHighlight = isObject && (isArray || treeAdapter.getRange(value) && level);
+    const showToggler = !isObject
+        ? false
+        : typeof value.length === 'number'
+            ? value.length > 0
+            : children.length > 0;
+    const showAsSelected = lastClickedElement === selfHandle.current;
     
     const classNames = cx({
         entry: true,
@@ -229,23 +140,17 @@ function Element(props) {
                 showToggler={showToggler}
                 onClick={toggleClick}
             />
-            <span className="value">
-                {valueOutput}
-            </span>
-            {prefix
-                ? <span className="prefix p">
-                    {prefix}</span>
-                : null}
-            {content}
-            {suffix ? <div className="suffix p">{suffix}</div> : null}
-            {state.error
-                ? <span>
-                    {' '}
-                    <TbAlertTriangle
-                        title={state.error.message}
-                    />
-                </span>
-                : null}
+            <ElementValue
+                value={value}
+                open={open}
+                error={state.error}
+                nodeName={nodeName}
+                showAsSelected={showAsSelected}
+                children={children}
+                onClick={toggleClick}
+                onExecFunction={execFunction}
+                createSubElement={createSubElement}
+            />
         </li>
     );
 }
