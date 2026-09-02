@@ -7,6 +7,7 @@ import cx from 'classnames';
 import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
+import ElementName from './ElementName.js';
 import isFocused from './isFocused.js';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
 import stringify from '../stringify.ts';
@@ -208,18 +209,6 @@ function Element(props) {
         showToggler = false;
     }
     
-    const name = props.name
-        ? <span
-            className="key"
-            onClick={showToggler ? toggleClick : null}
-        >
-            <span className="name nb">
-                {props.computed ? <span title="computed">*{props.name}</span> : props.name}
-            </span>
-            <span className="p">: </span>
-        </span>
-        : null;
-    
     const classNames = cx({
         entry: true,
         focused,
@@ -234,7 +223,12 @@ function Element(props) {
             onMouseOver={enableHighlight ? onMouseOver : null}
             onMouseLeave={enableHighlight ? onMouseLeave : null}
         >
-            {name}
+            <ElementName
+                name={props.name}
+                computed={props.computed}
+                showToggler={showToggler}
+                onClick={toggleClick}
+            />
             <span className="value">
                 {valueOutput}
             </span>
