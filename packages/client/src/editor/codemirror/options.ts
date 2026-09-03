@@ -6,7 +6,7 @@ import {
 import {javascript} from '@codemirror/lang-javascript';
 import {vim} from '@replit/codemirror-vim';
 import {nord} from '@uiw/codemirror-theme-nord';
-import type {Extension} from '@codemirror/state';
+import {type Extension, type Compartment} from '@codemirror/state';
 import type {
     KeyMap,
     EditorMode,
@@ -49,24 +49,31 @@ export type OptionValue =
     };
 
 export function setOption(view: EditorView & {
-    _themeCompartment: import('@codemirror/state');
-    _keymapCompartment: import('@codemirror/state');
-    _langCompartment: import('@codemirror/state');
+    _themeCompartment: Compartment;
+    _keymapCompartment: Compartment;
+    _langCompartment: Compartment;
 }, key: OptionKey, value: OptionValue): void {
+    const {
+        _themeCompartment,
+        _keymapCompartment,
+        _langCompartment,
+    } = view;
+    
     if (key === 'theme')
         return view.dispatch({
-            effects: view._themeCompartment.reconfigure(themeExtension(value as EditorTheme)),
+            effects: _themeCompartment.reconfigure(themeExtension(value as EditorTheme)),
         });
     
     if (key === 'keyMap')
         return view.dispatch({
-            effects: view._keymapCompartment.reconfigure(keymapExtension(value as KeyMap)),
+            effects: _keymapCompartment.reconfigure(keymapExtension(value as KeyMap)),
         });
     
     if (key === 'mode')
         return view.dispatch({
-            effects: view._langCompartment.reconfigure(languageExtension(value as EditorMode | {
+            effects: _langCompartment.reconfigure(languageExtension(value as EditorMode | {
                 name: EditorMode;
             })),
         });
 }
+
