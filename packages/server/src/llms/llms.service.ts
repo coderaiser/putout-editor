@@ -39,7 +39,7 @@ All errors return JSON: {kind, message, position?}
 - plugin_error   — HTTP 422: plugin compiled but failed at runtime. Fix plugin logic.
 `;
     }
-
+    
     llmsFullTxt(): string {
         return `# putout-editor — Full Reference
 
