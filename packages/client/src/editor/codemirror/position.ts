@@ -1,10 +1,12 @@
 import type {EditorView} from '@codemirror/view';
 import type {CharOffset, SourcePosition} from '../../types.ts';
 
-export function offsetToPosition(document_: EditorView['state']['doc'], offset: CharOffset): SourcePosition | null {
-    if (typeof offset !== 'number' || Number.isNaN(offset))
-        return null;
+const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
+export function offsetToPosition(document_: EditorView['state']['doc'], offset: CharOffset): SourcePosition | null {
+    if (!isNumber(offset) || Number.isNaN(offset))
+        return null;
+    
     const index = offset < 0 ? 0 : offset > document_.length ? document_.length : offset;
     const line = document_.lineAt(index);
     

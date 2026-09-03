@@ -4,10 +4,10 @@ const isFn = (a) => typeof a === 'function';
 const validateRange = (range) => {
     if (!range)
         return null;
-
+    
     if (!isNumber(range[0]) || !isNumber(range[1]))
         return null;
-
+    
     return range;
 };
 
