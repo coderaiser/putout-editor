@@ -1,11 +1,5 @@
 import {estreeToBabel} from 'estree-to-babel';
-import {
-    ignoreKeysFilter,
-    locationInformationFilter,
-    functionFilter,
-    emptyKeysFilter,
-    typeKeysFilter,
-} from '../editor-ast-tree/TreeAdapter.js';
+import {ignoreKeysFilter, locationInformationFilter, functionFilter, emptyKeysFilter, typeKeysFilter,} from '../../parser/TreeAdapter.js';
 
 const returns = (a: any) => () => a;
 
