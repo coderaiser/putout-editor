@@ -51,7 +51,7 @@ export default function EditorASTJson({value = '', parseResult = null, className
     }, [resolvedValue]);
     
     return (
-        <div id="EditorASTJson" className={className} ref={containerRef}/>
+        <div id="EditorASTJson" className={`container ${className}`.trim()} ref={containerRef}/>
     );
 }
 
