@@ -138,7 +138,9 @@ test('EditorASTJson: renders AST as proper JSON with indentation', (t) => {
     };
     
     const {container} = render(
-        <EditorASTJson parseResult={{ast}}/>,
+        <EditorASTJson parseResult={{
+            ast,
+        }}/>,
     );
     
     const editor = getView(container);
@@ -147,7 +149,9 @@ test('EditorASTJson: renders AST as proper JSON with indentation', (t) => {
     cleanup();
     
     const expected = JSON.stringify(ast, null, 4);
+    
     t.equal(result, expected, 'should render properly indented JSON');
+    t.end();
 });
 
 test('EditorASTJson: handles nested objects correctly', (t) => {
@@ -161,7 +165,9 @@ test('EditorASTJson: handles nested objects correctly', (t) => {
     };
     
     const {container} = render(
-        <EditorASTJson parseResult={{ast}}/>,
+        <EditorASTJson parseResult={{
+            ast,
+        }}/>,
     );
     
     const editor = getView(container);
@@ -169,6 +175,6 @@ test('EditorASTJson: handles nested objects correctly', (t) => {
     
     cleanup();
     
-    t.ok(result.includes('"value": 42'), 'should handle nested objects');
+    t.match(result, '"value": 42', 'should handle nested objects');
     t.end();
 });

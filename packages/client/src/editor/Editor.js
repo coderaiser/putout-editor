@@ -175,7 +175,7 @@ export default function Editor(props) {
             return;
         
         const resolve = posFromIndexProp ? (idx) => posFromIndexProp(editor.state.doc, idx) : (idx) => adapterPosFromIndex(editor, idx);
-        const toOffset = posFromIndexProp ? (pos) => adapterIndexFromPos(editor, pos) : (pos) => adapterIndexFromPos(editor, pos);
+        const toOffset = (pos) => adapterIndexFromPos(editor, pos);
         
         const [start, end] = highlightRange.map(resolve);
         
@@ -183,12 +183,14 @@ export default function Editor(props) {
             const startOffset = toOffset(start);
             const endOffset = toOffset(end);
             
-            if (startOffset !== null && endOffset !== null) {
+            if (startOffset !== null && endOffset !== null)
                 editor.dispatch({
-                    selection: {anchor: startOffset, head: endOffset},
+                    selection: {
+                        anchor: startOffset,
+                        head: endOffset,
+                    },
                     scrollIntoView: true,
                 });
-            }
         }
     }, [highlightRange, posFromIndexProp]);
     

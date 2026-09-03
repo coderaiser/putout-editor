@@ -534,12 +534,11 @@ test('Editor: sets selection when highlightRange changes', (t) => {
         );
     });
     
-    const anchor = view.state.selection.main.anchor;
-    const head = view.state.selection.main.head;
+    const {anchor, head} = view.state.selection.main;
     
     cleanup();
     
-    t.ok(anchor === 0 && head === 5, 'should set selection to highlight range');
+    t.ok(!anchor && head === 5, 'should set selection to highlight range');
     t.end();
 });
 
