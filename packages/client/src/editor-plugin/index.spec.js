@@ -6,9 +6,9 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
+import {putoutEditor, revive} from '#store';
+import {getView} from '#editor';
 import EditorPlugin from './index.js';
-import {putoutEditor, revive} from '../store/reducers.ts';
-import {getView} from '../editor/codemirror/index.js';
 
 const recordActions = (actions) => () => (next) => (action) => {
     actions.push(action);

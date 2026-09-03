@@ -5,7 +5,7 @@ import {
     act,
 } from '@testing-library/react';
 import Editor from './Editor.js';
-import {getView, indexFromPos} from './codemirror/index.js';
+import {getView, indexFromPos} from './codemirror/index.ts';
 
 test('Editor: renders .editor container', (t) => {
     const {container} = render(
