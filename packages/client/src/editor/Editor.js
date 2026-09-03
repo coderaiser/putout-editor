@@ -184,8 +184,11 @@ export default function Editor(props) {
         const resolve = (idx) => {
             if (posFromIndexProp) {
                 const result = posFromIndexProp(editor.state.doc, idx);
-                if (result) return result;
+                
+                if (result)
+                    return result;
             }
+            
             return adapterPosFromIndex(editor, idx);
         };
         
