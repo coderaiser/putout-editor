@@ -15,9 +15,7 @@ import {
     getParser,
     getTransformer,
 } from '#parser';
-import {
-    getHighlightRange,
-} from '../store/selectors.ts';
+import {getHighlightRange} from '../store/selectors.ts';
 
 export default function EditorPlugin() {
     const parser = useSelector(getParser);
