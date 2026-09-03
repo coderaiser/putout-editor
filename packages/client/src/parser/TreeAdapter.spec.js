@@ -754,16 +754,6 @@ test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
     t.end();
 });
 
-test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
-    const filter = typeKeysFilter(new Set([
-        'type',
-        'kind',
-    ]));
-    
-    t.notOk(filter.test(null, 'value'));
-    t.end();
-});
-
 test('TreeAdapter: treeAdapterFromParseResult: handles null treeAdapter', (t) => {
     const adapter = treeAdapterFromParseResult({
         treeAdapter: null,
