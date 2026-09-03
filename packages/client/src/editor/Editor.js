@@ -8,6 +8,7 @@ import {
     removeLineClass,
     markText,
     posFromIndex as adapterPosFromIndex,
+    indexFromPos as adapterIndexFromPos,
     getCursorIndex,
     on,
     off,
@@ -166,6 +167,30 @@ export default function Editor(props) {
             className: 'marked',
         });
     }, [highlightRange, highlight, posFromIndexProp]);
+    
+    useEffect(() => {
+        const editor = editorRef.current;
+        
+        if (!editor || !highlightRange)
+            return;
+        
+        const resolve = posFromIndexProp ? (idx) => posFromIndexProp(editor.state.doc, idx) : (idx) => adapterPosFromIndex(editor, idx);
+        const toOffset = posFromIndexProp ? (pos) => adapterIndexFromPos(editor, pos) : (pos) => adapterIndexFromPos(editor, pos);
+        
+        const [start, end] = highlightRange.map(resolve);
+        
+        if (start && end) {
+            const startOffset = toOffset(start);
+            const endOffset = toOffset(end);
+            
+            if (startOffset !== null && endOffset !== null) {
+                editor.dispatch({
+                    selection: {anchor: startOffset, head: endOffset},
+                    scrollIntoView: true,
+                });
+            }
+        }
+    }, [highlightRange, posFromIndexProp]);
     
     return (
         <div className="editor" ref={containerRef}/>

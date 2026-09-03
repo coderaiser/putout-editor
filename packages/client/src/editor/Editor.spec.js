@@ -513,3 +513,54 @@ test('Editor: onActivity receives a number', async (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('Editor: sets selection when highlightRange changes', (t) => {
+    const {container, rerender} = render(
+        <Editor value="const x = 1;"/>,
+    );
+    
+    const view = getView(container);
+    
+    act(() => {
+        rerender(
+            <Editor
+                value="const x = 1;"
+                highlightRange={[0, 5]}
+                posFromIndex={(_, idx) => ({
+                    line: 0,
+                    ch: idx,
+                })}
+            />,
+        );
+    });
+    
+    const anchor = view.state.selection.main.anchor;
+    const head = view.state.selection.main.head;
+    
+    cleanup();
+    
+    t.ok(anchor === 0 && head === 5, 'should set selection to highlight range');
+    t.end();
+});
+
+test('Editor: does not crash when highlightRange is null', (t) => {
+    const {container, rerender} = render(
+        <Editor value="const x = 1;"/>,
+    );
+    
+    act(() => {
+        rerender(
+            <Editor
+                value="const x = 1;"
+                highlightRange={null}
+            />,
+        );
+    });
+    
+    const result = container.querySelector('.editor');
+    
+    cleanup();
+    
+    t.ok(result, 'should render without crash');
+    t.end();
+});
