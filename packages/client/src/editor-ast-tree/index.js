@@ -2,8 +2,8 @@ import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import {getParser} from '#parser';
 import {getParseResult, getCursor} from '#store';
+import {getFocusPath} from '#editor';
 import visualizations from './visualization.js';
-import getFocusPath from '../editor/getFocusPath.ts';
 import {Button} from './Button.js';
 
 const getName = (a) => a.name;
@@ -69,3 +69,4 @@ export default function EditorASTTree() {
         </div>
     );
 }
+

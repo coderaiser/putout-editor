@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import * as store from './index.ts';
+import * as store from '#store';
 
 test('store barrel: re-exports reducers, selectors, operations', (t) => {
     const names = Object.keys(store);

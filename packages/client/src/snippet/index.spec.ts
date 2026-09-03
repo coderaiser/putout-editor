@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import * as snippet from './index.ts';
+import * as snippet from '#snippet';
 
 test('snippet barrel: re-exports LocalStorage, url, logger', (t) => {
     const names = Object.keys(snippet);

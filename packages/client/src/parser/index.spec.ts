@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import * as parser from './index.ts';
+import * as parser from '#parser';
 
 test('parser barrel: re-exports selectors, TreeAdapter, parsers', (t) => {
     const names = Object.keys(parser);

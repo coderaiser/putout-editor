@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import * as editor from './index.ts';
+import * as editor from '#editor';
 
 test('editor barrel: re-exports codemirror, Editor, getFocusPath, stringify, format', (t) => {
     const names = Object.keys(editor);

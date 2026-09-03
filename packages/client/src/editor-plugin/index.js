@@ -1,12 +1,12 @@
 import {useSelector, useDispatch} from 'react-redux';
 import EditorResult from '#editor-result';
 import {Editor} from '#editor';
-import SplitPane from '../ui/SplitPane.js';
-import {getTransformerByID} from '../parser/parsers/index.js';
 import {
     setTransformState,
     transformBlur,
-} from '../store/reducers.ts';
+} from '#store';
+import SplitPane from '../ui/SplitPane.js';
+import {getTransformerByID} from '../parser/parsers/index.js';
 import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
 import * as selectors from '../store/selectors.ts';
 
