@@ -132,7 +132,7 @@
     "react-redux": "^9.3.0",
     "redot": "^0.6.0",
     "regexp-tree": "^0.1.5",
-    "source-map": "^0.7.3",
+    "source-map": "^0.8.0",
     "try-catch": "^4.1.1",
     "url": "^0.11.4"
   },
