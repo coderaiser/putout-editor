@@ -1,11 +1,13 @@
 .tree-visualization {
     display: flex;
     flex-direction: column;
+    background-color: transparent;
 }
 
 .tree-visualization > .toolbar {
     padding: 5px;
     flex-shrink: 0;
+    background-color: var(--color-bg-toolbar);
 }
 
 .tree-visualization > .toolbar label {
@@ -29,6 +31,7 @@
     user-select: none;
     overflow-y: auto;
     height: 100%;
+    background-color: transparent;
 }
 
 .tree-visualization .value-body {

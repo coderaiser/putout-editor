@@ -393,10 +393,11 @@ html {
 
 #EditorASTJson .cm-editor {
     font-size: inherit;
+    background-color: transparent;
 }
 
 #EditorASTJson .cm-gutters {
-    background-color: var(--color-bg-toolbar);
+    background-color: transparent;
 }
 
 .editor {
