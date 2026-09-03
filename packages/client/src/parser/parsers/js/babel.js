@@ -6,8 +6,7 @@ import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './estree/defaultESTreeParserInterface.js';
 
 const isString = (a) => typeof a === 'string';
-
-const isUndefined = (a) => typeof a === 'undefined';
+const isNumber = (a) => typeof a === 'number';
 const {keys} = Object;
 
 const availablePlugins = [
@@ -143,7 +142,7 @@ export default {
     },
     
     nodeToRange(node) {
-        if (!isUndefined(node.start))
+        if (isNumber(node.start) && isNumber(node.end))
             return [
                 node.start,
                 node.end,

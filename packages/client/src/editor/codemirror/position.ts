@@ -1,7 +1,10 @@
 import type {EditorView} from '@codemirror/view';
 import type {CharOffset, SourcePosition} from '../../types.ts';
 
-export function offsetToPosition(document_: EditorView['state']['doc'], offset: CharOffset): SourcePosition {
+export function offsetToPosition(document_: EditorView['state']['doc'], offset: CharOffset): SourcePosition | null {
+    if (typeof offset !== 'number' || Number.isNaN(offset))
+        return null;
+
     const index = offset < 0 ? 0 : offset > document_.length ? document_.length : offset;
     const line = document_.lineAt(index);
     
@@ -15,10 +18,12 @@ export function positionToOffset(document_: EditorView['state']['doc'], {line, c
     if (line < 0 || line >= document_.lines)
         return null;
     
-    return document_.line(line + 1).from + ch;
+    const lineInfo = document_.line(line + 1);
+    
+    return Math.min(lineInfo.from + ch, document_.length);
 }
 
-export function posFromIndex(view: EditorView, index: CharOffset): SourcePosition {
+export function posFromIndex(view: EditorView, index: CharOffset): SourcePosition | null {
     return offsetToPosition(view.state.doc, index);
 }
 

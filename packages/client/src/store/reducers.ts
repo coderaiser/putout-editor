@@ -146,6 +146,11 @@ const slice = createSlice({
             state.error = null;
         },
         setHighlight: (state, {payload: range}) => {
+            if (!range) {
+                state.highlightRange = null;
+                return;
+            }
+            
             if (state.highlightRange && state.highlightRange[0] === range[0] && state.highlightRange[1] === range[1])
                 return;
             

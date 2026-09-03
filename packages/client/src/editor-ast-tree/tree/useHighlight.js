@@ -7,6 +7,10 @@ export default function useHighlight(treeAdapter, value) {
     
     function onMouseOver(event) {
         event.stopPropagation();
+        
+        if (!range)
+            return;
+        
         dispatch(setHighlight(range));
     }
     

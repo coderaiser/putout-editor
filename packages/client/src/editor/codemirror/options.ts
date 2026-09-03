@@ -2,6 +2,7 @@ import {keymap, type EditorView} from '@codemirror/view';
 import {
     defaultKeymap,
     emacsStyleKeymap,
+    indentWithTab,
 } from '@codemirror/commands';
 import {javascript} from '@codemirror/lang-javascript';
 import {vim} from '@replit/codemirror-vim';
@@ -18,9 +19,9 @@ export function keymapExtension(name: KeyMap): Extension {
         return vim();
     
     if (name === 'emacs')
-        return keymap.of(emacsStyleKeymap);
+        return keymap.of([...emacsStyleKeymap, indentWithTab]);
     
-    return keymap.of(defaultKeymap);
+    return keymap.of([...defaultKeymap, indentWithTab]);
 }
 
 export function themeExtension(name: EditorTheme): Extension {

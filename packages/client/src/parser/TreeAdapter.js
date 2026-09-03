@@ -1,6 +1,16 @@
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
 
+const validateRange = (range) => {
+    if (!range)
+        return null;
+
+    if (!isNumber(range[0]) || !isNumber(range[1]))
+        return null;
+
+    return range;
+};
+
 /**
  * Configurable base class for all tree traversal.
  */
@@ -35,7 +45,7 @@ class TreeAdapter {
             return this._ranges.get(node);
         
         const {nodeToRange} = this._adapterOptions;
-        let range = nodeToRange(node);
+        let range = validateRange(nodeToRange(node));
         
         if (!range) {
             // If the node doesn't have location data itself, try to derive it from
@@ -55,8 +65,8 @@ class TreeAdapter {
                 last = next.value?.value;
             }
             
-            const rangeFirst = first && nodeToRange(first);
-            const rangeLast = last && nodeToRange(last);
+            const rangeFirst = validateRange(first && nodeToRange(first));
+            const rangeLast = validateRange(last && nodeToRange(last));
             
             if (rangeFirst && rangeLast)
                 range = [
