@@ -176,3 +176,15 @@ test('find-places service: returns plugin_error body on unstructured error', asy
     });
     t.end();
 });
+
+test('find-places service: constructing service does not spawn worker threads', (t) => {
+    const service = new FindPlacesService();
+    const {threads} = (service as unknown as {
+        pool: {
+            threads: readonly unknown[];
+        };
+    }).pool;
+    
+    t.equal(threads.length, 0);
+    t.end();
+});

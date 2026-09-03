@@ -25,11 +25,13 @@ const currentDirectory = dirname(fileURLToPath(import.meta.url));
 type PiscinaConstructor = new (options: {
     filename: string;
     idleTimeout: number;
+    minThreads: number;
 }) => PiscinaPool;
 
 const createPool = (): PiscinaPool => new (Piscina as unknown as PiscinaConstructor)({
     filename: resolve(currentDirectory, './transform.worker.js'),
     idleTimeout: 5000,
+    minThreads: 0,
 });
 
 @Injectable()

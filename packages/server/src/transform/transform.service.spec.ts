@@ -179,3 +179,15 @@ test('transform service: returns structured body on error', async (t) => {
     }).response, structured);
     t.end();
 });
+
+test('transform service: constructing service does not spawn worker threads', (t) => {
+    const service = new TransformService();
+    const {threads} = (service as unknown as {
+        pool: {
+            threads: readonly unknown[];
+        };
+    }).pool;
+    
+    t.equal(threads.length, 0);
+    t.end();
+});

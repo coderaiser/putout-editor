@@ -18,6 +18,7 @@ type PiscinaPool = {
 type PiscinaConstructor = new (options: {
     filename: string;
     idleTimeout: number;
+    minThreads: number;
 }) => PiscinaPool;
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
@@ -25,6 +26,7 @@ const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const createPool = (): PiscinaPool => new (Piscina as unknown as PiscinaConstructor)({
     filename: resolve(currentDirectory, './find-places.worker.js'),
     idleTimeout: 5000,
+    minThreads: 0,
 });
 
 @Injectable()
