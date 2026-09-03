@@ -2,7 +2,7 @@ import path from 'node:path';
 import pkg from 'putout/package.json' with {
     type: 'json',
 };
-import {compileModule} from '../../../utils/compileModule.js';
+import {compileRule} from 'redput/compile-rule';
 
 const ID = 'putout';
 const displayName = '🐊Putout';
@@ -49,7 +49,7 @@ export default {
             esprima,
         });
         
-        const plugin = compileModule(transformCode, {
+        const plugin = compileRule(transformCode, {
             require: (name) => {
                 if (name === 'path' || name === 'node:path')
                     return path;
