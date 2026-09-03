@@ -12,14 +12,7 @@
         "noEmit": true,
         "jsx": "react-jsx",
         "allowJs": true,
-        "checkJs": false,
-        "paths": {
-            "@editor/*": ["./src/editor/*"],
-            "@store/*": ["./src/store/*"],
-            "@parser/*": ["./src/parser/*"],
-            "@snippet/*": ["./src/snippet/*"],
-            "@ui/*": ["./src/ui/*"]
-        }
+        "checkJs": false
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

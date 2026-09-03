@@ -242,14 +242,6 @@ export default {
             '.js',
             '.jsx',
         ],
-        alias: {
-            '@editor': new URL('src/editor', import.meta.url).pathname,
-            '@store': new URL('src/store', import.meta.url).pathname,
-            '@parser': new URL('src/parser', import.meta.url).pathname,
-            '@snippet': new URL('src/snippet', import.meta.url).pathname,
-            '@ui': new URL('src/ui', import.meta.url).pathname,
-            'acorn-private-methods': resolve('acorn-private-methods'),
-        },
         fallback: {
             'url': resolve('url/'),
             'assert': resolve('assert'),
