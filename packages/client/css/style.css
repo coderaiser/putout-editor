@@ -409,10 +409,19 @@ html {
 #EditorASTJson .cm-editor {
     font-size: inherit;
     background-color: transparent;
+    color: var(--color-text);
 }
 
 #EditorASTJson .cm-gutters {
     background-color: transparent;
+}
+
+#EditorASTJson .cm-gutterElement {
+    color: var(--color-text-dim);
+}
+
+#EditorASTJson .cm-content {
+    color: var(--color-text);
 }
 
 .editor {
