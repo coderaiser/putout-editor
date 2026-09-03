@@ -14,10 +14,10 @@
     "#editor-ast-json": "./src/editor-ast-json/index.js",
     "#editor": "./src/editor/index.ts",
     "#editor-result": "./src/editor-result/index.js",
-    "#store": "./src/store/index.js",
-    "#parser": "./src/parser/index.js",
-    "#snippet": "./src/snippet/index.js",
-    "#ui": "./src/ui/index.js"
+    "#store": "./src/store/index.ts",
+    "#parser": "./src/parser/index.ts",
+    "#snippet": "./src/snippet/index.ts",
+    "#ui": "./src/ui/index.ts"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

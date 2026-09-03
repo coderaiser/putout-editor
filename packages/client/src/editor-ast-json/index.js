@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import {useRef, useEffect} from 'react';
-import stringify from '../editor/stringify.ts';
 import {
+    stringify,
     createEditor,
     setValue,
     getValue,
     getScrollInfo,
     scrollTo,
     observeResize,
-} from '../editor/codemirror/index.js';
+} from '#editor';
 
 export default function EditorASTJson({value = '', parseResult = null, className = ''}) {
     const containerRef = useRef(null);
@@ -61,3 +61,4 @@ EditorASTJson.propTypes = {
     parseResult: PropTypes.object,
     className: PropTypes.string,
 };
+
