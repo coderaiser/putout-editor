@@ -12,9 +12,9 @@ export function offsetToPosition(document_: EditorView['state']['doc'], offset: 
 }
 
 export function positionToOffset(document_: EditorView['state']['doc'], {line, ch}: SourcePosition): CharOffset | null {
-    if (line < 0 || line >= document_.lines) {
+    if (line < 0 || line >= document_.lines)
         return null;
-    }
+    
     return document_.line(line + 1).from + ch;
 }
 
