@@ -26,8 +26,8 @@ import {
     getRevision,
 } from './store/selectors.ts';
 import * as gist from './snippet/storage/gist.js';
-import * as parse from './snippet/storage/parse';
-import StorageHandler from './snippet/storage';
+import * as parse from './snippet/storage/parse.js';
+import StorageHandler from './snippet/storage/index.js';
 import {parserListener} from './parser/store/parserMiddleware.ts';
 import {formatListener} from './store/formatMiddleware.ts';
 import {createSnippetListener} from './snippet/snippetMiddleware.ts';
