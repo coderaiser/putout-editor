@@ -61,4 +61,3 @@ EditorASTJson.propTypes = {
     parseResult: PropTypes.object,
     className: PropTypes.string,
 };
-
