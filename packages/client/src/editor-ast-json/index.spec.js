@@ -127,3 +127,48 @@ test('EditorASTJson: does not update when value unchanged', (t) => {
     t.equal(result, '{}');
     t.end();
 });
+
+test('EditorASTJson: renders AST as proper JSON with indentation', (t) => {
+    const ast = {
+        type: 'File',
+        program: {
+            type: 'Program',
+            body: [],
+        },
+    };
+    
+    const {container} = render(
+        <EditorASTJson parseResult={{ast}}/>,
+    );
+    
+    const editor = getView(container);
+    const result = editor ? getValue(editor) : null;
+    
+    cleanup();
+    
+    const expected = JSON.stringify(ast, null, 4);
+    t.equal(result, expected, 'should render properly indented JSON');
+});
+
+test('EditorASTJson: handles nested objects correctly', (t) => {
+    const ast = {
+        type: 'File',
+        nested: {
+            deep: {
+                value: 42,
+            },
+        },
+    };
+    
+    const {container} = render(
+        <EditorASTJson parseResult={{ast}}/>,
+    );
+    
+    const editor = getView(container);
+    const result = editor ? getValue(editor) : null;
+    
+    cleanup();
+    
+    t.ok(result.includes('"value": 42'), 'should handle nested objects');
+    t.end();
+});

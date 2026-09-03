@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import {useRef, useEffect} from 'react';
 import {
-    stringify,
     createEditor,
     setValue,
     getValue,
@@ -15,7 +14,7 @@ export default function EditorASTJson({value = '', parseResult = null, className
     const editorRef = useRef(null);
     
     const resolvedValue = parseResult
-        ? stringify(parseResult.ast, null, 4)
+        ? JSON.stringify(parseResult.ast, null, 4)
         : value;
     
     useEffect(() => {
@@ -61,3 +60,5 @@ EditorASTJson.propTypes = {
     parseResult: PropTypes.object,
     className: PropTypes.string,
 };
+
+EditorASTJson.displayName = 'JSON';
