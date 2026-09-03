@@ -44,6 +44,7 @@ export default function Editor(props) {
     const markerRangeRef = useRef(null);
     const timerRef = useRef(null);
     const activityRef = useRef(null);
+    const programmaticSelectionRef = useRef(false);
     
     useEffect(() => {
         const editor = createEditor(containerRef.current, {
@@ -71,6 +72,12 @@ export default function Editor(props) {
                 }
                 
                 if (update.selectionSet) {
+                    // Skip onActivity when selection is set programmatically
+                    if (programmaticSelectionRef.current) {
+                        programmaticSelectionRef.current = false;
+                        return;
+                    }
+                    
                     clearTimeout(activityRef.current);
                     activityRef.current = setTimeout(() => {
                         onActivity(getCursorIndex(editor));
@@ -183,7 +190,10 @@ export default function Editor(props) {
             const startOffset = toOffset(start);
             const endOffset = toOffset(end);
             
-            if (startOffset !== null && endOffset !== null)
+            if (startOffset !== null && endOffset !== null) {
+                // Mark this as programmatic selection to prevent feedback loop
+                programmaticSelectionRef.current = true;
+                
                 editor.dispatch({
                     selection: {
                         anchor: startOffset,
@@ -191,6 +201,7 @@ export default function Editor(props) {
                     },
                     scrollIntoView: true,
                 });
+            }
         }
     }, [highlightRange, posFromIndexProp]);
     
