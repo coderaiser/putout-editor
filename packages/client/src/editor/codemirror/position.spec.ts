@@ -201,11 +201,11 @@ test('position: offsetToPosition returns null for NaN offset', (t) => {
 
 test('position: offsetToPosition returns null for object offset', (t) => {
     const view = makeView();
-    const result = offsetToPosition(view.state.doc, {
+    const result = offsetToPosition(view.state.doc, ({
         column: 0,
         index: 0,
         line: 1,
-    } as unknown as CharOffset);
+    } as unknown) as CharOffset);
     
     view.destroy();
     
