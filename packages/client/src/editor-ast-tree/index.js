@@ -6,7 +6,7 @@ import {getFocusPath} from '#editor';
 import visualizations from './visualization.js';
 import {Button} from './Button.js';
 
-const getName = (a) => a.name;
+const getName = (a) => a.displayName || a.name;
 
 function formatTime(time) {
     if (!time)
