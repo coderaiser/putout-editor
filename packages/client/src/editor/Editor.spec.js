@@ -3,6 +3,7 @@ import {
     render,
     cleanup,
     act,
+    fireEvent,
 } from '@testing-library/react';
 import Editor from './Editor.js';
 import {getView, indexFromPos} from './codemirror/index.ts';
@@ -561,5 +562,56 @@ test('Editor: does not crash when highlightRange is null', (t) => {
     cleanup();
     
     t.ok(result, 'should render without crash');
+    t.end();
+});
+
+test('Editor: does not crash when highlightRange contains non-number positions', (t) => {
+    const {container} = render(
+        <Editor
+            value="const x = 1;"
+            highlightRange={[{
+                column: 0,
+                index: 0,
+                line: 1,
+            }, {
+                column: 5,
+                index: 5,
+                line: 1,
+            }]}
+        />,
+    );
+    
+    const marks = container.querySelectorAll('.marked');
+    
+    cleanup();
+    
+    t.equal(marks.length, 0);
+    t.end();
+});
+
+test('Editor: Tab indents the current line', (t) => {
+    const {container} = render(
+        <Editor value="abc"/>,
+    );
+    
+    const content = container.querySelector('.cm-content');
+    
+    act(() => {
+        content.focus();
+        fireEvent.keyDown(content, {
+            key: 'Tab',
+            code: 'Tab',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
+    
+    const view = getView(container);
+    const result = view.state.doc.toString();
+    const expected = '    abc';
+    
+    cleanup();
+    
+    t.equal(result, expected);
     t.end();
 });

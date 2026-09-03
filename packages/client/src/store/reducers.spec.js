@@ -599,6 +599,22 @@ test('reducers: setHighlight sets highlightRange', (t) => {
     t.end();
 });
 
+test('reducers: setHighlight with null payload clears highlightRange', (t) => {
+    const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
+    const state = putoutEditor(withHighlight, setHighlight(null));
+    
+    t.notOk(state.highlightRange);
+    t.end();
+});
+
+test('reducers: setHighlight with undefined payload does not crash', (t) => {
+    const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
+    const state = putoutEditor(withHighlight, setHighlight(undefined));
+    
+    t.notOk(state.highlightRange);
+    t.end();
+});
+
 test('reducers: clearHighlight with no args sets highlightRange to null', (t) => {
     const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
     const state = putoutEditor(withHighlight, clearHighlight());

@@ -8,6 +8,7 @@ import {
     indexFromPos,
     getCursorIndex,
 } from './position.ts';
+import type {CharOffset} from '../../types.ts';
 
 function makeView(document_ = 'hello\nworld') {
     const element = document.createElement('div');
@@ -175,5 +176,54 @@ test('position.js: positionToOffset returns null for line beyond document', (t) 
     view.destroy();
     
     t.notOk(result);
+    t.end();
+});
+
+test('position: offsetToPosition returns null for undefined offset', (t) => {
+    const view = makeView();
+    const result = offsetToPosition(view.state.doc, undefined as unknown as CharOffset);
+    
+    view.destroy();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('position: offsetToPosition returns null for NaN offset', (t) => {
+    const view = makeView();
+    const result = offsetToPosition(view.state.doc, NaN as unknown as CharOffset);
+    
+    view.destroy();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('position: offsetToPosition returns null for object offset', (t) => {
+    const view = makeView();
+    const result = offsetToPosition(view.state.doc, {
+        column: 0,
+        index: 0,
+        line: 1,
+    } as unknown as CharOffset);
+    
+    view.destroy();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('position: positionToOffset clamps offset beyond document end', (t) => {
+    const view = makeView('hello');
+    const result = positionToOffset(view.state.doc, {
+        line: 0,
+        ch: 100,
+    });
+    
+    const expected = 5;
+    
+    view.destroy();
+    
+    t.equal(result, expected);
     t.end();
 });

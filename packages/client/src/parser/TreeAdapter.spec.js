@@ -9,6 +9,8 @@ import {
     treeAdapterFromParseResult,
 } from './TreeAdapter.js';
 
+const isUndefined = (a) => typeof a === 'undefined';
+
 const noop = () => {};
 
 test('TreeAdapter: ignoreKeysFilter: filters key in set', (t) => {
@@ -805,5 +807,91 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange returns null for null tr
     });
     
     t.notOk(result);
+    t.end();
+});
+
+const makeBabelLikeAdapter = () => treeAdapterFromParseResult({
+    treeAdapter: {
+        type: 'default',
+        options: {
+            openByDefault: () => false,
+            nodeToRange(node) {
+                if (!isUndefined(node.start))
+                    return [node.start, node.end];
+            },
+            nodeToName: (node) => node.type,
+            walkNode: function*(node) {
+                for (const prop in node)
+                    yield {
+                        value: node[prop],
+                        key: prop,
+                    };
+            },
+        },
+    },
+}, {});
+
+test('TreeAdapter: getRange returns null when nodeToRange returns object positions', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const loc = {
+        start: {
+            line: 1,
+            column: 0,
+            index: 0,
+        },
+        end: {
+            line: 1,
+            column: 12,
+            index: 12,
+        },
+    };
+    
+    const result = adapter.getRange(loc);
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange returns null when children-derived range has non-number entries', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const parent = {
+        a: {
+            start: {
+                line: 1,
+            },
+            end: {
+                line: 2,
+            },
+        },
+        b: {
+            start: {
+                line: 3,
+            },
+            end: {
+                line: 4,
+            },
+        },
+    };
+    
+    const result = adapter.getRange(parent);
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange returns numeric range when positions are numbers', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const result = adapter.getRange({
+        type: 'Identifier',
+        start: 6,
+        end: 7,
+    });
+    
+    const expected = [6, 7];
+    
+    t.deepEqual(result, expected);
     t.end();
 });

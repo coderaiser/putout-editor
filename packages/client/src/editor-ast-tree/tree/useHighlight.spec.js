@@ -149,3 +149,40 @@ test('useHighlight: returns onMouseLeave function', (t) => {
     t.equal(typeof result.onMouseLeave, 'function');
     t.end();
 });
+
+test('useHighlight: onMouseOver without range does not set highlightRange', (t) => {
+    const store = renderWithStore({
+        treeAdapter: makeAdapter(null),
+        value: {},
+    });
+    
+    fireEvent.mouseOver(document.querySelector('#target'));
+    cleanup();
+    const {highlightRange} = store.getState();
+    
+    t.notOk(highlightRange);
+    t.end();
+});
+
+test('useHighlight: onMouseOver without range keeps existing highlightRange', (t) => {
+    const store = configureStore({
+        reducer: putoutEditor,
+        preloadedState: {
+            ...putoutEditor(undefined, {
+                type: '@@INIT',
+            }),
+            highlightRange: [0, 5],
+        },
+    });
+    
+    renderWithStore({
+        treeAdapter: makeAdapter(null),
+        value: {},
+    }, store);
+    
+    fireEvent.mouseOver(document.querySelector('#target'));
+    cleanup();
+    
+    t.deepEqual(store.getState().highlightRange, [0, 5]);
+    t.end();
+});
