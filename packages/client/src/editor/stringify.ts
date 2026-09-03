@@ -17,7 +17,7 @@ export default function stringify(value: unknown): string | number {
     if (isUndefined(value))
         return 'undefined';
     
-    if (isNumber(value))
+    if (typeof value === 'number')
         return globalThis.isNaN(value) ? 'NaN' : value;
     
     return String(JSON.stringify(value));

@@ -90,7 +90,7 @@ export function markText(view: EditorView, from: SourcePosition, to: SourcePosit
     const fromOffset = positionToOffset(view.state.doc, from);
     const toOffset = positionToOffset(view.state.doc, to);
     
-    if (fromOffset === toOffset)
+    if (fromOffset === null || toOffset === null || fromOffset === toOffset)
         return {
             clear: noop,
         };
