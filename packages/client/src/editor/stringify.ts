@@ -29,4 +29,3 @@ export default function stringify(value: unknown): string | number {
     
     return String(JSON.stringify(value));
 }
-
