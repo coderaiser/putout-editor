@@ -151,3 +151,30 @@ test('position: getCursorIndex returns a number', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('position.js: positionToOffset returns null for negative line', (t) => {
+    const view = makeView('hello\nworld');
+    const result = positionToOffset(view.state.doc, {
+        line: -1,
+        ch: 0,
+    });
+    
+    view.destroy();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('position.js: positionToOffset returns null for line beyond document', (t) => {
+    const view = makeView('hello');
+    const result = positionToOffset(view.state.doc, {
+        line: 99,
+        ch: 0,
+    });
+    
+    view.destroy();
+    
+    t.notOk(result);
+    t.end();
+});
+
