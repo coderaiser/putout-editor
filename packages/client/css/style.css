@@ -282,9 +282,12 @@ html {
 #info {
     color: var(--color-text-info);
     cursor: default;
-    float: right;
+    margin-left: auto;
     padding-right: 20px;
     border: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
 }
 
 #info.small {
@@ -345,7 +348,7 @@ html {
     inset: 0;
     padding: 0;
     border: none;
-    background-color: var(--color-bg-page);
+    background-color: transparent;
     color: var(--color-text);
 }
 

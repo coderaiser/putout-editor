@@ -15,6 +15,9 @@ import {
     getParser,
     getTransformer,
 } from '#parser';
+import {
+    getHighlightRange,
+} from '../store/selectors.ts';
 
 export default function EditorPlugin() {
     const parser = useSelector(getParser);
@@ -23,6 +26,7 @@ export default function EditorPlugin() {
     const code = useSelector(getCode);
     const keyMap = useSelector(getKeyMap);
     const isLoading = useSelector(isLoadingSnippet);
+    const highlightRange = useSelector(getHighlightRange);
     const mode = parser.category.editorMode || parser.category.id;
     const dispatch = useDispatch();
     
@@ -48,6 +52,7 @@ export default function EditorPlugin() {
                 keyMap={keyMap}
                 parser={parser.id}
                 isLoading={isLoading}
+                highlightRange={highlightRange}
             />
         </SplitPane>
     );

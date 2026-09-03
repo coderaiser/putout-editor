@@ -38,7 +38,7 @@
 }
 
 .highlight {
-    background-color: var(--color-bg-toolbar);
+    background-color: var(--color-bg-editor);
     padding: 7px 7px 7px 10px;
     border: 1px solid var(--color-border);
     overflow: hidden;
