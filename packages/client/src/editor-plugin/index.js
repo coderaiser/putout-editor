@@ -1,22 +1,28 @@
 import {useSelector, useDispatch} from 'react-redux';
 import EditorResult from '#editor-result';
 import {Editor} from '#editor';
+import {SplitPane} from '#ui';
 import {
     setTransformState,
     transformBlur,
+    getTransformCode,
+    getCode,
+    getKeyMap,
+    isLoadingSnippet,
 } from '#store';
-import SplitPane from '../ui/SplitPane.js';
-import {getTransformerByID} from '../parser/parsers/index.js';
-import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
-import * as selectors from '../store/selectors.ts';
+import {
+    getTransformerByID,
+    getParser,
+    getTransformer,
+} from '#parser';
 
 export default function EditorPlugin() {
     const parser = useSelector(getParser);
     const transformer = useSelector(getTransformer) || getTransformerByID('putout');
-    const transformCode = useSelector(selectors.getTransformCode);
-    const code = useSelector(selectors.getCode);
-    const keyMap = useSelector(selectors.getKeyMap);
-    const isLoading = useSelector(selectors.isLoadingSnippet);
+    const transformCode = useSelector(getTransformCode);
+    const code = useSelector(getCode);
+    const keyMap = useSelector(getKeyMap);
+    const isLoading = useSelector(isLoadingSnippet);
     const mode = parser.category.editorMode || parser.category.id;
     const dispatch = useDispatch();
     
