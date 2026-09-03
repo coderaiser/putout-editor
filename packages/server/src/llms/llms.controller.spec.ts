@@ -26,6 +26,7 @@ test('llms controller: GET /llms.txt calls llmsTxt on service', async (t) => {
         llmsTxt: stub().returns('# putout-editor'),
         llmsFullTxt: stub().returns(''),
     };
+    
     const controller = await createController(mockService);
     
     controller.getLlmsTxt(makeRes() as never);
@@ -39,6 +40,7 @@ test('llms controller: GET /llms.txt sends service result', async (t) => {
         llmsTxt: stub().returns('# putout-editor'),
         llmsFullTxt: stub().returns(''),
     };
+    
     const controller = await createController(mockService);
     const res = makeRes();
     
@@ -53,6 +55,7 @@ test('llms controller: GET /llms-full.txt calls llmsFullTxt on service', async (
         llmsTxt: stub().returns(''),
         llmsFullTxt: stub().returns('# full'),
     };
+    
     const controller = await createController(mockService);
     
     controller.getLlmsFullTxt(makeRes() as never);
@@ -66,6 +69,7 @@ test('llms controller: GET /llms-full.txt sends service result', async (t) => {
         llmsTxt: stub().returns(''),
         llmsFullTxt: stub().returns('# full'),
     };
+    
     const controller = await createController(mockService);
     const res = makeRes();
     
