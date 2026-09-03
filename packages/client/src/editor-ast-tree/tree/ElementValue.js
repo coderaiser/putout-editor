@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
-import stringify from '../stringify.ts';
+import stringify from '../../editor/stringify.ts';
 
 const isNumber = (value) => typeof value === 'number';
 
