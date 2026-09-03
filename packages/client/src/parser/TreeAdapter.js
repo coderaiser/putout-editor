@@ -226,13 +226,13 @@ function createTreeAdapter(type, adapterOptions, filterValues) {
 }
 
 export function treeAdapterFromParseResult({treeAdapter}, filterValues) {
-    if (!treeAdapter) {
+    if (!treeAdapter)
         return new TreeAdapter({
             openByDefault: () => false,
             nodeToRange: () => null,
             nodeToName: () => null,
             *walkNode() {},
         }, filterValues);
-    }
+    
     return createTreeAdapter(treeAdapter.type, treeAdapter.options, filterValues);
 }
