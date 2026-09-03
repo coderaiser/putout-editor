@@ -175,7 +175,7 @@ export default function Editor(props) {
             return;
         
         const resolve = posFromIndexProp ? (idx) => posFromIndexProp(editor.state.doc, idx) : (idx) => adapterPosFromIndex(editor, idx);
-        const toOffset = (pos) => adapterIndexFromPos(editor, pos);
+        const toOffset = (pos) => pos ? adapterIndexFromPos(editor, pos) : null;
         
         const [start, end] = highlightRange.map(resolve);
         
