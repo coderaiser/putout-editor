@@ -1,5 +1,9 @@
 import {test} from 'supertape';
-import {render, cleanup, act} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    act,
+} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import Element from './Element.js';
@@ -139,7 +143,7 @@ test('Element: dispatches setCursor when clicking on a node with range', (t) => 
         keyElement.click();
     });
     
-    const cursor = store.getState().cursor;
+    const {cursor} = store.getState();
     
     cleanup();
     
@@ -166,7 +170,7 @@ test('Element: dispatches setHighlight when clicking on a node with range', (t) 
         keyElement.click();
     });
     
-    const highlightRange = store.getState().highlightRange;
+    const {highlightRange} = store.getState();
     
     cleanup();
     
@@ -191,11 +195,11 @@ test('Element: does not dispatch setCursor when clicking on a node without range
         keyElement.click();
     });
     
-    const cursor = store.getState().cursor;
+    const {cursor} = store.getState();
     
     cleanup();
     
-    t.equal(cursor, null, 'should not dispatch setCursor');
+    t.notOk(cursor, 'should not dispatch setCursor');
     t.end();
 });
 
@@ -216,10 +220,10 @@ test('Element: does not dispatch setHighlight when clicking on a node without ra
         keyElement.click();
     });
     
-    const highlightRange = store.getState().highlightRange;
+    const {highlightRange} = store.getState();
     
     cleanup();
     
-    t.equal(highlightRange, null, 'should not dispatch setHighlight');
+    t.notOk(highlightRange, 'should not dispatch setHighlight');
     t.end();
 });
