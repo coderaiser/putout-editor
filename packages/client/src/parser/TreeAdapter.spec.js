@@ -753,3 +753,65 @@ test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
     t.notOk(filter.test(null, 'value'));
     t.end();
 });
+test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
+    const filter = typeKeysFilter(new Set([
+        'type',
+        'kind',
+    ]));
+
+    t.notOk(filter.test(null, 'value'));
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: handles null treeAdapter', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: null,
+    }, {});
+
+    t.ok(adapter);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: walkNode does not throw for null treeAdapter', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: null,
+    }, {});
+
+    const [error] = tryToCatch(() => {
+        const results = [...adapter.walkNode({
+            type: 'Program',
+            body: [],
+        })];
+        return results;
+    });
+
+    t.notOk(error);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: walkNode returns empty for null treeAdapter', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: null,
+    }, {});
+
+    const results = [...adapter.walkNode({
+        type: 'Program',
+        body: [],
+    })];
+
+    t.equal(results.length, 0);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: getRange returns null for null treeAdapter', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: null,
+    }, {});
+
+    const result = adapter.getRange({
+        type: 'Program',
+    });
+
+    t.notOk(result);
+    t.end();
+});
