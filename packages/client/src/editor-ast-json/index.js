@@ -9,8 +9,6 @@ import {
     observeResize,
 } from '#editor';
 
-const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
-
 export default function EditorASTJson({value = '', parseResult = null, className = ''}) {
     const containerRef = useRef(null);
     const editorRef = useRef(null);
@@ -29,7 +27,7 @@ export default function EditorASTJson({value = '', parseResult = null, className
             readOnly: true,
             lineNumbers: true,
             foldGutter: true,
-            theme: getCMTheme(),
+            theme: 'default',
         });
         
         editorRef.current = editor;

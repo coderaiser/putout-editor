@@ -157,13 +157,17 @@ html {
     flex-shrink: 0;
     flex-grow: 0;
     font-family: monospace;
-    height: 32px;
+    height: auto;
+    min-height: 32px;
     line-height: 32px;
     border-bottom: 1px solid var(--color-border);
     color: var(--color-text);
     padding-left: 10px;
     background-color: var(--color-bg-toolbar);
     z-index: 200;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 #Toolbar,
@@ -196,6 +200,14 @@ html {
     height: 32px;
     border-right: 1px solid var(--color-border);
     vertical-align: top;
+}
+
+#Toolbar > #info {
+    height: auto;
+    min-height: 32px;
+    line-height: 1.3em;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 #Toolbar > * button {

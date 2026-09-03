@@ -75,6 +75,6 @@ test('visualization: Button: click calls setSelectedOutput with value', (t) => {
     
     cleanup();
     
-    t.equal(calls[0], '2');
+    t.equal(calls[0], 2);
     t.end();
 });

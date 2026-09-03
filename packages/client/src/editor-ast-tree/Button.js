@@ -4,9 +4,9 @@ export const Button = ({selectedOutput, setSelectedOutput}) => (name, index) => 
     <button
         key={index}
         value={index}
-        onClick={(event) => setSelectedOutput(event.target.value)}
+        onClick={() => setSelectedOutput(index)}
         className={cx({
-            active: selectedOutput === index,
+            active: selectedOutput == index,
         })}
     >
         {name}
