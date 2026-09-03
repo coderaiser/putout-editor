@@ -146,6 +146,11 @@ const slice = createSlice({
             state.error = null;
         },
         setHighlight: (state, {payload: range}) => {
+            if (state.highlightRange
+                && state.highlightRange[0] === range[0]
+                && state.highlightRange[1] === range[1])
+                return;
+            
             state.highlightRange = range;
         },
         clearHighlight: (state, {payload: range} = {
@@ -159,6 +164,9 @@ const slice = createSlice({
             state.workbench.keyMap = payload;
         },
         setCursor: (state, {payload}) => {
+            if (state.cursor === payload)
+                return;
+            
             state.cursor = payload;
         },
         startLoadingSnippet: (state) => {
