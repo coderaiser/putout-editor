@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 export default function ElementName({name, computed, showToggler, onClick}) {
     if (!name)
         return null;
-
+    
     return (
         <span className="key" onClick={showToggler ? onClick : null}>
             <span className="name nb">

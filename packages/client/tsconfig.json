@@ -14,11 +14,11 @@
         "allowJs": true,
         "checkJs": false,
         "paths": {
-            "@editor/*":  ["./src/editor/*"],
-            "@store/*":   ["./src/store/*"],
-            "@parser/*":  ["./src/parser/*"],
+            "@editor/*": ["./src/editor/*"],
+            "@store/*": ["./src/store/*"],
+            "@parser/*": ["./src/parser/*"],
             "@snippet/*": ["./src/snippet/*"],
-            "@ui/*":      ["./src/ui/*"]
+            "@ui/*": ["./src/ui/*"]
         }
     },
     "include": ["src/**/*"],

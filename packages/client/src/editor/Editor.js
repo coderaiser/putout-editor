@@ -136,7 +136,6 @@ export default function Editor(props) {
         errorRef.current = error;
     }, [error]);
     
-    // Sync highlightRange prop — replaces HIGHLIGHT/CLEAR_HIGHLIGHT pubsub
     useEffect(() => {
         const editor = editorRef.current;
         

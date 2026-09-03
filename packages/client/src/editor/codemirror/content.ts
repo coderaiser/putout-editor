@@ -11,8 +11,7 @@ export function setValue(view: EditorView, value: SourceCode): void {
     });
 }
 
-export const getValue = (view: EditorView): SourceCode =>
-    view.state.doc.toString();
+export const getValue = (view: EditorView): SourceCode => view.state.doc.toString();
 
 export const getDocValue = getValue;
 export const setDocValue = setValue;

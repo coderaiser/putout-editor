@@ -12,6 +12,8 @@ import useElementState from './useElementState.js';
 import useFocusEffect from './useFocusEffect.js';
 import useHighlight from './useHighlight.js';
 
+const isNumber = (a) => !Number.isNaN(a) && typeof a === 'number';
+
 let lastClickedElement = null;
 
 function Element(props) {
@@ -29,7 +31,7 @@ function Element(props) {
     });
     
     const [state, setState] = useElementState(props, treeAdapter);
-
+    
     useFocusEffect(props, state, setState, container);
     
     useEffect(() => () => {
@@ -69,7 +71,7 @@ function Element(props) {
     }
     
     const {onMouseOver, onMouseLeave} = useHighlight(treeAdapter, state.value);
-
+    
     function execFunction() {
         const update = {
             error: null,
@@ -104,20 +106,26 @@ function Element(props) {
         );
     }
     
-    const {open} = state;
+    const {open, value} = state;
     
     const focused = isFocused(level, focusPath, state.value, open);
-    const value = state.value;
+    
     const isObject = value && typeof value === 'object';
     const isArray = Array.isArray(value);
     const nodeName = isObject && !isArray ? treeAdapter.getNodeName(value) : null;
     const children = isObject ? Array.from(treeAdapter.walkNode(value)) : [];
-    const enableHighlight = isObject && (isArray || treeAdapter.getRange(value) && level);
+    
+    const enableHighlight = isObject
+        && (isArray
+        || treeAdapter.getRange(value)
+        && level);
+    
     const showToggler = !isObject
         ? false
-        : typeof value.length === 'number'
+        : isNumber(value.length)
             ? value.length > 0
             : children.length > 0;
+    
     const showAsSelected = lastClickedElement === selfHandle.current;
     
     const classNames = cx({

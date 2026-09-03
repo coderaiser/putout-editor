@@ -14,7 +14,7 @@ test('stringify: object', (t) => {
         a: 1,
     });
     
-    t.equal(result, String.raw`"\"\""`);
+    t.equal(result, String.raw`""""`);
     t.end();
 });
 

@@ -77,6 +77,7 @@ test('Element: Identifier is focused on first render when cursor is inside it', 
         start: 6,
         end: 7,
     };
+    
     const declarator = {
         type: 'VariableDeclarator',
         id: identifier,

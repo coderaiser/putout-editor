@@ -1,12 +1,13 @@
 import {EditorState, Compartment} from '@codemirror/state';
 import {tags} from '@lezer/highlight';
-import {history, historyKeymap} from '@codemirror/commands';
 import {
+    type ViewUpdate,
     EditorView,
     lineNumbers as lineNumbersExtension,
     drawSelection,
     keymap,
 } from '@codemirror/view';
+import {history, historyKeymap} from '@codemirror/commands';
 import {
     foldGutter,
     codeFolding,
@@ -19,7 +20,12 @@ import {
     languageExtension,
 } from './options.ts';
 import {markField, lineField} from './decorations.ts';
-import type {SourceCode, KeyMap, EditorMode, EditorTheme} from '../../types.ts';
+import type {
+    SourceCode,
+    KeyMap,
+    EditorMode,
+    EditorTheme,
+} from '../../types.ts';
 
 const editorHighlightStyle = HighlightStyle.define([{
     tag: tags.keyword,
@@ -103,13 +109,16 @@ const editorHighlightStyle = HighlightStyle.define([{
 
 export type CreateEditorOptions = {
     value?: SourceCode;
-    mode?: EditorMode | {name: EditorMode};
+    mode?: EditorMode | {
+        name: EditorMode;
+        json?: boolean;
+    };
     keyMap?: KeyMap;
     theme?: EditorTheme;
     lineNumbers?: boolean;
     readOnly?: boolean;
     foldGutter?: boolean;
-    updateListener?: (update: import('@codemirror/view').ViewUpdate) => void;
+    updateListener?: (update: ViewUpdate) => void;
 };
 
 // Augmented EditorView with compartment refs for dynamic option changes
@@ -119,7 +128,8 @@ export type PutoutEditorView = EditorView & {
     _langCompartment: Compartment;
 };
 
-export function createEditor(container: Element, options: CreateEditorOptions = {}): PutoutEditorView { /* c8 ignore next */
+export function createEditor(container: Element, options: CreateEditorOptions = {}): PutoutEditorView {
+    /* c8 ignore next */
     const {
         value = '',
         mode = 'javascript',
@@ -130,18 +140,18 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
         foldGutter: fold = false,
         updateListener,
     } = options;
-
+    
     const themeCompartment = new Compartment();
     const keymapCompartment = new Compartment();
     const langCompartment = new Compartment();
     const historyCompartment = new Compartment();
-
+    
     const hideCursorOnBlur = EditorView.theme({
         '&:not(.cm-focused) .cm-fat-cursor': {
             display: 'none',
         },
     });
-
+    
     const extensions = [
         historyCompartment.of([
             history(),
@@ -177,7 +187,7 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
         drawSelection(),
         hideCursorOnBlur,
     ];
-
+    
     const view = new EditorView({
         state: EditorState.create({
             doc: value,
@@ -185,10 +195,10 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
         }),
         parent: container,
     }) as PutoutEditorView;
-
+    
     view._themeCompartment = themeCompartment;
     view._keymapCompartment = keymapCompartment;
     view._langCompartment = langCompartment;
-
+    
     return view;
 }

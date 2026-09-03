@@ -18,10 +18,10 @@
         "src/snippet/GistBanner.js",
         "src/editor-plugin/index.js",
         "src/parser/parsers/transpilers/typescript.js",
+        "src/types.ts",
         "lib/**",
         "src/editor-ast-tree/tree/**",
         "src/parser/parsers/js/**",
-        "src/types.ts",
         "coverage"
     ],
     "branches": 100,

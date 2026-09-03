@@ -4,6 +4,8 @@ import CompactArrayView from './CompactArrayView.js';
 import CompactObjectView from './CompactObjectView.js';
 import stringify from '../../editor/stringify.ts';
 
+const isFn = (a) => typeof a === 'function';
+
 const isNumber = (value) => typeof value === 'number';
 
 function renderError(error) {
@@ -15,22 +17,12 @@ function renderError(error) {
     );
 }
 
-export default function ElementValue({
-    value,
-    open,
-    error,
-    nodeName,
-    showAsSelected,
-    children,
-    onClick,
-    onExecFunction,
-    createSubElement,
-}) {
+export default function ElementValue({value, open, error, nodeName, showAsSelected, children, onClick, onExecFunction, createSubElement}) {
     let valueOutput = null;
     let content = null;
     let prefix = null;
     let suffix = null;
-
+    
     if (nodeName)
         valueOutput = <span className="tokenName nc" onClick={onClick}>
             {nodeName}{' '}
@@ -45,8 +37,8 @@ export default function ElementValue({
                 </span>
                 : null}
         </span>;
-
-    if (value && typeof value === 'object') {
+    
+    if (value && typeof value === 'object')
         if (isNumber(value.length)) {
             if (value.length > 0 && open) {
                 prefix = '[';
@@ -59,7 +51,7 @@ export default function ElementValue({
                         Number.isInteger(Number(key)) ? undefined : key,
                         computed,
                     ));
-
+                
                 content = <ul className="value-body">{elements}</ul>;
             } else {
                 valueOutput = <span>
@@ -70,26 +62,33 @@ export default function ElementValue({
                     />
                 </span>;
             }
-        } else {
-            if (open) {
-                prefix = '{';
-                suffix = '}';
-                const elements = children.map(({key, value: childValue, computed}) => createSubElement(key, childValue, key, computed));
-
-                content = <ul className="value-body">{elements}</ul>;
-            } else {
-                const keys = children.map(({key}) => key);
-
-                valueOutput = <span>
-                    {valueOutput}
-                    <CompactObjectView
-                        onClick={onClick}
-                        keys={keys}
-                    />
-                </span>;
+        } else if (open) {
+            prefix = '{';
+            suffix = '}';
+            const elements = [];
+            
+            for (const {key, value: childValue, computed} of children) {
+                elements.push(createSubElement(key, childValue, key, computed));
             }
+            
+            content = <ul className="value-body">{elements}</ul>;
+        } else {
+            const keys = [];
+            
+            for (const {key} of children) {
+                keys.push(key);
+            }
+            
+            valueOutput = <span>
+                {valueOutput}
+                <CompactObjectView
+                    onClick={onClick}
+                    keys={keys}
+                />
+            </span>;
         }
-    } else if (typeof value === 'function') {
+    
+    else if (isFn(value))
         valueOutput = <span
             className="ge invokeable"
             title="Click to invoke function"
@@ -97,10 +96,9 @@ export default function ElementValue({
         >
             (...)
         </span>;
-    } else {
+    else
         valueOutput = <span className="s">{stringify(value)}</span>;
-    }
-
+    
     return (
         <>
             <span className="value">

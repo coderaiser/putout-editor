@@ -1,6 +1,6 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
-import EditorASTJson from './index.js';
+import EditorASTJson from '#editor-ast-json';
 import {getView, getValue} from '../editor/codemirror/index.js';
 
 const {stringify} = JSON;

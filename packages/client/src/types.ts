@@ -8,7 +8,10 @@ export type SourcePosition = {
 };
 
 // Range of characters in source text: [start, end] inclusive-exclusive
-export type SourceRange = [CharOffset, CharOffset];
+export type SourceRange = [
+    CharOffset,
+    CharOffset,
+];
 
 // Babel AST node — open interface, all parsers produce nodes with at least these fields
 export interface AstNode {
@@ -34,7 +37,11 @@ export type TransformerID = string;
 export type EditorMode = string;
 
 // CodeMirror key map name
-export type KeyMap = 'vim' | 'emacs' | 'sublime' | 'default';
+export type KeyMap =
+    | 'vim'
+    | 'emacs'
+    | 'sublime'
+    | 'default';
 
 // Editor theme name
 export type EditorTheme = 'nord' | 'default';

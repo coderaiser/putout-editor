@@ -243,11 +243,11 @@ export default {
             '.jsx',
         ],
         alias: {
-            '@editor':        join(__dirname, 'src/editor'),
-            '@store':         join(__dirname, 'src/store'),
-            '@parser':        join(__dirname, 'src/parser'),
-            '@snippet':       join(__dirname, 'src/snippet'),
-            '@ui':            join(__dirname, 'src/ui'),
+            '@editor': new URL('src/editor', import.meta.url).pathname,
+            '@store': new URL('src/store', import.meta.url).pathname,
+            '@parser': new URL('src/parser', import.meta.url).pathname,
+            '@snippet': new URL('src/snippet', import.meta.url).pathname,
+            '@ui': new URL('src/ui', import.meta.url).pathname,
             'acorn-private-methods': resolve('acorn-private-methods'),
         },
         fallback: {
