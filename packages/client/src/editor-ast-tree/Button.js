@@ -6,7 +6,7 @@ export const Button = ({selectedOutput, setSelectedOutput}) => (name, index) => 
         value={index}
         onClick={() => setSelectedOutput(index)}
         className={cx({
-            active: selectedOutput == index,
+            active: selectedOutput === index,
         })}
     >
         {name}
