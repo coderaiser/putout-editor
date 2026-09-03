@@ -208,4 +208,3 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     
     return view;
 }
-
