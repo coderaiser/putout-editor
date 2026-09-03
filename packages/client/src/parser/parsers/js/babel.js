@@ -126,6 +126,8 @@ export default {
                 
                 if (plugin[0] === 'recordAndTuple')
                     return 'recordAndTuple';
+                
+                return plugin;
             })
             .filter((name) => name !== 'recordAndTuple');
         
