@@ -1,5 +1,17 @@
 import {EditorState, Compartment} from '@codemirror/state';
+import {
+    indentWithTab,
+    history,
+    historyKeymap,
+} from '@codemirror/commands';
 import {tags} from '@lezer/highlight';
+import {
+    indentUnit,
+    foldGutter,
+    codeFolding,
+    syntaxHighlighting,
+    HighlightStyle,
+} from '@codemirror/language';
 import {
     type ViewUpdate,
     EditorView,
@@ -7,13 +19,6 @@ import {
     drawSelection,
     keymap,
 } from '@codemirror/view';
-import {history, historyKeymap} from '@codemirror/commands';
-import {
-    foldGutter,
-    codeFolding,
-    syntaxHighlighting,
-    HighlightStyle,
-} from '@codemirror/language';
 import {
     keymapExtension,
     themeExtension,
@@ -155,7 +160,8 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     const extensions = [
         historyCompartment.of([
             history(),
-            keymap.of(historyKeymap),
+            keymap.of([historyKeymap, indentWithTab]),
+            indentUnit.of('    '),
         ]),
         markField,
         lineField,
@@ -202,3 +208,4 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     
     return view;
 }
+
