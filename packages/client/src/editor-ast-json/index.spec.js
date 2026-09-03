@@ -138,9 +138,11 @@ test('EditorASTJson: renders AST as proper JSON with indentation', (t) => {
     };
     
     const {container} = render(
-        <EditorASTJson parseResult={{
-            ast,
-        }}/>,
+        <EditorASTJson
+            parseResult={{
+                ast,
+            }}
+        />,
     );
     
     const editor = getView(container);
@@ -165,9 +167,11 @@ test('EditorASTJson: handles nested objects correctly', (t) => {
     };
     
     const {container} = render(
-        <EditorASTJson parseResult={{
-            ast,
-        }}/>,
+        <EditorASTJson
+            parseResult={{
+                ast,
+            }}
+        />,
     );
     
     const editor = getView(container);
