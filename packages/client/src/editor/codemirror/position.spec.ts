@@ -177,4 +177,3 @@ test('position.js: positionToOffset returns null for line beyond document', (t) 
     t.notOk(result);
     t.end();
 });
-
