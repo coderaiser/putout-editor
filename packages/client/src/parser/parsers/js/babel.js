@@ -104,33 +104,28 @@ export default {
         
         options.plugins = options.plugins
             .map((plugin) => {
-                switch(plugin) {
-                case 'decorators':
+                if (plugin === 'decorators')
                     return ['decorators', {
                         decoratorsBeforeExport: false,
                     }];
                 
-                case 'discardBinding':
+                if (plugin === 'discardBinding')
                     return ['discardBinding', {
                         syntaxType: 'void',
                     }];
                 
-                case 'pipelineOperator':
+                if (plugin === 'pipelineOperator')
                     return ['pipelineOperator', {
                         proposal: 'minimal',
                     }];
                 
-                case 'optionalChainingAssign':
+                if (plugin === 'optionalChainingAssign')
                     return ['optionalChainingAssign', {
                         version: '2023-07',
                     }];
                 
-                default:
-                    if (plugin[0] === 'recordAndTuple')
-                        return 'recordAndTuple';
-                    
-                    return plugin;
-                }
+                if (plugin[0] === 'recordAndTuple')
+                    return 'recordAndTuple';
             })
             .filter((name) => name !== 'recordAndTuple');
         

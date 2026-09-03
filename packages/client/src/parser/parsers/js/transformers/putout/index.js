@@ -76,24 +76,21 @@ export default {
 };
 
 function chooseParser(parserName, {acorn, babel, espree, esprima}) {
-    switch(parserName) {
-    case 'acorn':
+    if (parserName === 'acorn')
         return acorn;
     
-    case 'espree':
+    if (parserName === 'espree')
         return espree;
     
-    case 'esprima':
+    if (parserName === 'esprima')
         return esprima;
     
-    default:
-        return {
-            parse: (source, options) => {
-                return babel.parse(source, {
-                    ...options,
-                    isRecovery: true,
-                });
-            },
-        };
-    }
+    return {
+        parse: (source, options) => {
+            return babel.parse(source, {
+                ...options,
+                isRecovery: true,
+            });
+        },
+    };
 }

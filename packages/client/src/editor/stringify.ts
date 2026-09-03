@@ -1,6 +1,9 @@
+const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
+const isFn = (a: unknown): a is Function => typeof a === 'function';
+
 export default function stringify(value: unknown): string | number {
-    switch(typeof value) {
-    case 'function': {
+    if (isFn(value)) {
         const matched = value
             .toString()
             .match(/function[^(]*\([^)]*\)/);
@@ -8,16 +11,14 @@ export default function stringify(value: unknown): string | number {
         return matched![0];
     }
     
-    case 'object':
+    if (typeof value === 'object')
         return value ? JSON.stringify(value, stringify) : 'null';
     
-    case 'undefined':
+    if (isUndefined(value))
         return 'undefined';
     
-    case 'number':
+    if (isNumber(value))
         return globalThis.isNaN(value) ? 'NaN' : value;
     
-    default:
-        return String(JSON.stringify(value));
-    }
+    return String(JSON.stringify(value));
 }
