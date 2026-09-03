@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import {render, cleanup} from '@testing-library/react';
+import {render, cleanup, act} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import Element from './Element.js';
@@ -33,19 +33,22 @@ function renderElement(props) {
         }),
     });
     
-    return render(
-        <Provider store={store}>
-            <ul>
-                <Element
-                    treeAdapter={treeAdapter}
-                    settings={settings}
-                    focusPath={[]}
-                    level={1}
-                    {...props}
-                />
-            </ul>
-        </Provider>,
-    );
+    return {
+        store,
+        ...render(
+            <Provider store={store}>
+                <ul>
+                    <Element
+                        treeAdapter={treeAdapter}
+                        settings={settings}
+                        focusPath={[]}
+                        level={1}
+                        {...props}
+                    />
+                </ul>
+            </Provider>,
+        ),
+    };
 }
 
 test('Element: renders Identifier node name correctly', (t) => {
@@ -114,5 +117,109 @@ test('Element: Identifier is focused on first render when cursor is inside it', 
     cleanup();
     
     t.equal(focusedText, 'Identifier');
+    t.end();
+});
+
+test('Element: dispatches setCursor when clicking on a node with range', (t) => {
+    const identifierNode = {
+        type: 'Identifier',
+        name: 'a',
+        start: 4,
+        end: 5,
+    };
+    
+    const {store, container} = renderElement({
+        value: identifierNode,
+        name: 'a',
+    });
+    
+    const keyElement = container.querySelector('.key');
+    
+    act(() => {
+        keyElement.click();
+    });
+    
+    const cursor = store.getState().cursor;
+    
+    cleanup();
+    
+    t.equal(cursor, 4, 'should dispatch setCursor with start position');
+    t.end();
+});
+
+test('Element: dispatches setHighlight when clicking on a node with range', (t) => {
+    const identifierNode = {
+        type: 'Identifier',
+        name: 'a',
+        start: 4,
+        end: 5,
+    };
+    
+    const {store, container} = renderElement({
+        value: identifierNode,
+        name: 'a',
+    });
+    
+    const keyElement = container.querySelector('.key');
+    
+    act(() => {
+        keyElement.click();
+    });
+    
+    const highlightRange = store.getState().highlightRange;
+    
+    cleanup();
+    
+    t.deepEqual(highlightRange, [4, 5], 'should dispatch setHighlight with range');
+    t.end();
+});
+
+test('Element: does not dispatch setCursor when clicking on a node without range', (t) => {
+    const identifierNode = {
+        type: 'Identifier',
+        name: 'a',
+    };
+    
+    const {store, container} = renderElement({
+        value: identifierNode,
+        name: 'a',
+    });
+    
+    const keyElement = container.querySelector('.key');
+    
+    act(() => {
+        keyElement.click();
+    });
+    
+    const cursor = store.getState().cursor;
+    
+    cleanup();
+    
+    t.equal(cursor, null, 'should not dispatch setCursor');
+    t.end();
+});
+
+test('Element: does not dispatch setHighlight when clicking on a node without range', (t) => {
+    const identifierNode = {
+        type: 'Identifier',
+        name: 'a',
+    };
+    
+    const {store, container} = renderElement({
+        value: identifierNode,
+        name: 'a',
+    });
+    
+    const keyElement = container.querySelector('.key');
+    
+    act(() => {
+        keyElement.click();
+    });
+    
+    const highlightRange = store.getState().highlightRange;
+    
+    cleanup();
+    
+    t.equal(highlightRange, null, 'should not dispatch setHighlight');
     t.end();
 });

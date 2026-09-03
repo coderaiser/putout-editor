@@ -3,6 +3,7 @@ import {
     useRef,
     useState,
 } from 'react';
+import {useDispatch} from 'react-redux';
 import cx from 'classnames';
 import ElementName from './ElementName.js';
 import ElementValue from './ElementValue.js';
@@ -11,6 +12,7 @@ import RecursiveTreeElement from './RecursiveTreeElement.js';
 import useElementState from './useElementState.js';
 import useFocusEffect from './useFocusEffect.js';
 import useHighlight from './useHighlight.js';
+import {setCursor, setHighlight} from '../../store/reducers.ts';
 
 const isNumber = (a) => !Number.isNaN(a) && typeof a === 'number';
 
@@ -23,6 +25,7 @@ function Element(props) {
         level,
     } = props;
     
+    const dispatch = useDispatch();
     const container = useRef(null);
     const [, setRenderVersion] = useState(0);
     
@@ -41,6 +44,14 @@ function Element(props) {
     
     function toggleClick({shiftKey}) {
         const open = shiftKey || !state.open;
+        
+        // Get range for this AST node and dispatch cursor/highlight updates
+        const range = treeAdapter.getRange(state.value);
+        
+        if (range && range[0] != null) {
+            dispatch(setCursor(range[0]));
+            dispatch(setHighlight(range));
+        }
         
         const update = () => {
             // Make AST node accessible
