@@ -1,4 +1,4 @@
-import defaultParserInterface from '../../utils/defaultParserInterface.js';
+import defaultParserInterface from './defaultParserInterface.js';
 
 export default {
     ...defaultParserInterface,

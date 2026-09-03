@@ -3,7 +3,7 @@ import pkg from '@babel/parser/package.json' with {
 };
 import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
-import defaultParserInterface from './utils/defaultESTreeParserInterface.js';
+import defaultParserInterface from './estree/defaultESTreeParserInterface.js';
 
 const isString = (a) => typeof a === 'string';
 

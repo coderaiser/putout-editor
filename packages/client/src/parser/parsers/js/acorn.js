@@ -1,7 +1,7 @@
 import pkg from 'acorn/package.json' with {
     type: 'json',
 };
-import defaultParserInterface from './utils/defaultESTreeParserInterface.js';
+import defaultParserInterface from './estree/defaultESTreeParserInterface.js';
 
 const ID = 'acorn';
 
