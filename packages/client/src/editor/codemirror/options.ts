@@ -76,4 +76,3 @@ export function setOption(view: EditorView & {
             })),
         });
 }
-
