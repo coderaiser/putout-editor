@@ -32,6 +32,7 @@
     "madfork": "^1.0.1",
     "madrun": "^13.0.3",
     "oxlint": "^1.35.0",
+    "qword": "^1.1.0",
     "redlint": "^6.0.0",
     "superc8": "^12.0.0",
     "supertape": "^13.0.0"
