@@ -1,10 +1,11 @@
 import {EditorState, Compartment} from '@codemirror/state';
+import {tags} from '@lezer/highlight';
 import {
     indentWithTab,
+    insertNewlineAndIndent,
     history,
     historyKeymap,
 } from '@codemirror/commands';
-import {tags} from '@lezer/highlight';
 import {
     indentUnit,
     foldGutter,
@@ -160,7 +161,10 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     const extensions = [
         historyCompartment.of([
             history(),
-            keymap.of([...historyKeymap, indentWithTab]),
+            keymap.of([...historyKeymap, indentWithTab, {
+                key: 'Enter',
+                run: insertNewlineAndIndent,
+            }]),
             indentUnit.of('    '),
         ]),
         markField,
@@ -208,3 +212,4 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     
     return view;
 }
+
