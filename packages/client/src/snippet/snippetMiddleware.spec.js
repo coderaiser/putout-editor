@@ -34,7 +34,7 @@ function makeStore(overrides = {}, storage = makeStorage()) {
             ...overrides,
             workbench: {
                 ...state.workbench,
-                ...overrides.workbench,
+                ...overrides.workbench || {},
             },
         },
         middleware: (getDefault) => getDefault({

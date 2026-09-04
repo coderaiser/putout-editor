@@ -24,7 +24,7 @@ function makeStore(overrides = {}) {
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...overrides.workbench,
+            ...overrides.workbench || {},
         },
     };
     

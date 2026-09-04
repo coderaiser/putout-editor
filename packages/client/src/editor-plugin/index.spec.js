@@ -26,10 +26,10 @@ function renderWithStore(overrides = {}) {
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...overrides.workbench,
+            ...overrides.workbench || {},
             transform: {
                 ...base.workbench.transform,
-                ...overrides.workbench?.transform,
+                ...overrides.workbench?.transform || {},
             },
         },
     };

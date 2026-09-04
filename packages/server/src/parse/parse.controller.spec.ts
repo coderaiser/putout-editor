@@ -85,6 +85,7 @@ test('parse controller: PUT /api/v1/parse calls parseSource with source', async 
     });
     const args = ['const x = 1;', {
         compact: false,
+        query: undefined,
     }];
     
     t.calledWith(mockParseService.parseSource, args);
@@ -115,6 +116,7 @@ test('parse controller: PUT with compact=true passes compact option to service',
     await controller.parseSource({source: 'const x = 1;'}, 'true', undefined);
     const args = ['const x = 1;', {
         compact: true,
+        query: undefined,
     }];
     
     t.calledWith(mockParseService.parseSource, args);
@@ -174,6 +176,7 @@ test('parse controller: PUT with no query params passes defaults to service', as
     await controller.parseSource({source: 'const x = 1;'}, undefined, undefined);
     const args = ['const x = 1;', {
         compact: false,
+        query: undefined,
     }];
     
     t.calledWith(mockParseService.parseSource, args);

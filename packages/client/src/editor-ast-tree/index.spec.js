@@ -15,7 +15,7 @@ function renderWithStore(overrides = {}) {
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...overrides.workbench,
+            ...overrides.workbench || {},
         },
     };
     
