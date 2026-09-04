@@ -1,5 +1,6 @@
 import type {CharOffset, SourcePosition} from '../types.ts';
 
+declare const RangeBrand: unique symbol;
 const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
 // [start, end) offsets into source text. Branded: a plain [number, number]

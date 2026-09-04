@@ -1,6 +1,6 @@
-import {parseSourceRange} from '../parser/contract.ts';
+import {parseSourceRange, type SourceRange} from '../parser/contract.ts';
 
-function isInRange(range: [
+function isInRange(range: readonly [
     number,
     number,
 ], pos: number): boolean {
@@ -25,6 +25,8 @@ export function nodeToRange(parser: Parser, node: AstNode): Range {
                 rangeLast[1],
             ];
     }
+    
+    return null;
 }
 
 export default function getFocusPath(node: AstNode, pos: number, parser: Parser, seen: Set<AstNode> = new Set()): AstNode[] {
@@ -59,10 +61,7 @@ export default function getFocusPath(node: AstNode, pos: number, parser: Parser,
     return path;
 }
 
-type Range = [
-    number,
-    number,
-] | null;
+type Range = SourceRange | null;
 
 export interface Parser {
     nodeToRange(node: AstNode): [
