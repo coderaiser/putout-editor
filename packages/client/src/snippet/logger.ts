@@ -8,7 +8,7 @@ export const log: {
     error: console.log.bind(console),
 };
 
-export function logEvent(category: string, action: string, label: string): void {
+export function logEvent(category: string, action: string, label = ''): void {
     log.event(category, action, label);
 }
 

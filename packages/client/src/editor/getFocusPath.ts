@@ -62,7 +62,7 @@ type Range = [
     number,
 ] | undefined;
 
-interface Parser {
+export interface Parser {
     nodeToRange(node: AstNode): [
         number,
         number,
@@ -70,7 +70,7 @@ interface Parser {
     forEachProperty(node: AstNode): Iterable<{value: unknown}>;
 }
 
-interface AstNode {
+export interface AstNode {
     [key: string]: unknown;
     length?: number;
     at?: (index: number) => unknown;

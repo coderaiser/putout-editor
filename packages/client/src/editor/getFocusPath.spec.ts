@@ -1,6 +1,18 @@
 import {test} from 'supertape';
 import getFocusPath, {nodeToRange} from './getFocusPath.ts';
 
+type ArrayLikeNode = unknown[] & {
+    [key: string]: unknown;
+    child?: unknown;
+    children?: Iterable<unknown>;
+    numberProp?: number;
+    nullProp?: unknown;
+    _range?: [
+        number,
+        number,
+    ];
+};
+
 test('getFocusPath: finds path length to nested node by position', (t) => {
     const grandchild = {
         _range: [10, 20],
@@ -20,10 +32,19 @@ test('getFocusPath: finds path length to nested node by position', (t) => {
     };
     
     const parser = {
-        nodeToRange(node) {
+        nodeToRange(node: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return node._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -62,10 +83,19 @@ test('getFocusPath: path root is first item', (t) => {
     };
     
     const parser = {
-        nodeToRange(node) {
+        nodeToRange(node: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return node._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -104,10 +134,19 @@ test('getFocusPath: path child is second item', (t) => {
     };
     
     const parser = {
-        nodeToRange(node) {
+        nodeToRange(node: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return node._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -146,10 +185,19 @@ test('getFocusPath: path grandchild is third item', (t) => {
     };
     
     const parser = {
-        nodeToRange(node) {
+        nodeToRange(node: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return node._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -176,7 +224,12 @@ test('getFocusPath: returns empty when pos not in any range', (t) => {
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
         *forEachProperty() {/* no children */},
@@ -200,7 +253,7 @@ test('nodeToRange: falls back to first/last child range when parent has no range
     };
     
     // parent is array-like
-    const parent = [child1, child2];
+    const parent = [child1, child2] as ArrayLikeNode;
     
     parent.length = 2;
     
@@ -210,9 +263,15 @@ test('nodeToRange: falls back to first/last child range when parent has no range
         };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
+        *forEachProperty() {},
     };
     
     const result = nodeToRange(parser, parent);
@@ -229,7 +288,7 @@ test('getFocusPath: prepends parent when parent has no range but child does', (t
     };
     
     // make parent array-like and also expose child property for parser.forEachProperty
-    const parent = [child];
+    const parent = [child] as ArrayLikeNode;
     
     parent.child = child;
     parent.length = 1;
@@ -240,10 +299,19 @@ test('getFocusPath: prepends parent when parent has no range but child does', (t
         };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -258,11 +326,25 @@ test('getFocusPath: prepends parent when parent has no range but child does', (t
 });
 
 test('getFocusPath: handles cycles without infinite recursion', (t) => {
-    const a = {
+    const a: {
+        length: number;
+        child?: unknown;
+        _range?: [
+            number,
+            number,
+        ];
+    } = {
         length: 1,
     };
     
-    const b = {
+    const b: {
+        length: number;
+        child?: unknown;
+        _range?: [
+            number,
+            number,
+        ];
+    } = {
         length: 1,
     };
     
@@ -274,10 +356,19 @@ test('getFocusPath: handles cycles without infinite recursion', (t) => {
     b._range = [10, 20];
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -302,7 +393,7 @@ test('getFocusPath: parent combined range out of pos returns empty', (t) => {
         length: 0,
     };
     
-    const parent = [child1, child2];
+    const parent = [child1, child2] as ArrayLikeNode;
     
     parent.length = 2;
     
@@ -312,12 +403,19 @@ test('getFocusPath: parent combined range out of pos returns empty', (t) => {
         };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
-            if (node[0])
-                for (const v of node)
+        *forEachProperty(node: unknown) {
+            const list = node as unknown[];
+            
+            if (list[0])
+                for (const v of list)
                     yield {
                         value: v,
                     };
@@ -336,7 +434,7 @@ test('getFocusPath: ignores non-object or falsy property values', (t) => {
         length: 0,
     };
     
-    const parent = [child];
+    const parent = [child] as ArrayLikeNode;
     
     parent.child = child;
     parent.numberProp = 5;
@@ -349,10 +447,19 @@ test('getFocusPath: ignores non-object or falsy property values', (t) => {
         };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -389,10 +496,19 @@ test('getFocusPath: prepends parent when parent has no range or length but child
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -417,10 +533,19 @@ test('getFocusPath: prepends parent when parent has no range or length but child
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            children?: Iterable<unknown>;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,

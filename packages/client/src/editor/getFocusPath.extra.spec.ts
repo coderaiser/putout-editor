@@ -7,7 +7,12 @@ test('getFocusPath: single node with range returns node only (length)', (t) => {
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
         *forEachProperty() {/* no children */},
@@ -25,7 +30,12 @@ test('getFocusPath: single node with range returns node only (item)', (t) => {
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
         *forEachProperty() {/* no children */},
@@ -49,10 +59,18 @@ test('getFocusPath: prepends parent when parent has no length and no range (pare
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,
@@ -77,10 +95,18 @@ test('getFocusPath: prepends parent when parent has no length and no range (chil
     };
     
     const parser = {
-        nodeToRange(n) {
+        nodeToRange(n: {
+            _range?: [
+                number,
+                number,
+            ];
+        }) {
             return n._range;
         },
-        *forEachProperty(node) {
+        *forEachProperty(node: {
+            child?: unknown;
+            [key: string]: unknown;
+        }) {
             if (node.child)
                 yield {
                     value: node.child,

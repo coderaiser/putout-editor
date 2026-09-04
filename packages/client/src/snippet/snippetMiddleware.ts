@@ -6,6 +6,7 @@ import {
 } from '../store/operations.ts';
 import {logEvent, logError} from './logger.ts';
 import {
+    type RootState,
     setError,
     clearError,
     startLoadingSnippet,
@@ -26,8 +27,16 @@ import {
 } from '../store/selectors.ts';
 import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
 
-export function createSnippetListener(storageAdapter: any) {
-    const listener = createListenerMiddleware();
+type StorageAdapter = {
+    fetchFromURL: () => Promise<unknown>;
+    fork: (revision: unknown, data: unknown) => Promise<unknown>;
+    update: (revision: unknown, data: unknown) => Promise<unknown>;
+    create: (data: unknown) => Promise<unknown>;
+    updateHash: (revision: unknown) => void;
+};
+
+export function createSnippetListener(storageAdapter: StorageAdapter) {
+    const listener = createListenerMiddleware<RootState>();
     
     let requestId = 0;
     let clearURLOnClearError = false;
@@ -86,7 +95,9 @@ export function createSnippetListener(storageAdapter: any) {
     listener.startListening({
         type: 'snippet/save',
         effect: async (action, api) => {
-            const fork = action.payload;
+            const fork = (action as {
+                payload?: boolean;
+            }).payload;
             const state = api.getState();
             
             api.dispatch(startSave(fork));
@@ -107,7 +118,7 @@ export function createSnippetListener(storageAdapter: any) {
                 storageAdapter.updateHash(newRevision);
             }
             
-            api.dispatch(endSave(fork));
+            api.dispatch(endSave());
         },
     });
     
@@ -122,7 +133,15 @@ function buildSaveData(state: RootState) {
     const transformer = getTransformer(state);
     const showTransformPanel = showTransformer(state);
     
-    const data: Record<string, any> = {
+    const data: {
+        parserID: string;
+        settings: Record<string, unknown>;
+        versions: Record<string, unknown>;
+        filename: string;
+        code: string;
+        toolID?: string;
+        transform?: string | null;
+    } = {
         parserID: parser.id,
         settings: {
             [parser.id]: parserSettings,

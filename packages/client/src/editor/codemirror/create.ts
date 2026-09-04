@@ -160,7 +160,7 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     const extensions = [
         historyCompartment.of([
             history(),
-            keymap.of([historyKeymap, indentWithTab]),
+            keymap.of([...historyKeymap, indentWithTab]),
             indentUnit.of('    '),
         ]),
         markField,

@@ -1,6 +1,7 @@
 import {test} from 'supertape';
 import {EditorState, Compartment} from '@codemirror/state';
 import {EditorView} from '@codemirror/view';
+import type {PutoutEditorView} from './create.ts';
 import {
     keymapExtension,
     themeExtension,
@@ -16,7 +17,7 @@ function makeView() {
             doc: 'hello',
         }),
         parent: element,
-    });
+    }) as PutoutEditorView;
     
     view._themeCompartment = new Compartment();
     view._keymapCompartment = new Compartment();
@@ -55,7 +56,7 @@ test('options: themeExtension nord returns nord theme object', (t) => {
 
 test('options: themeExtension default returns empty array', (t) => {
     const result = themeExtension('default');
-    const expected = [];
+    const expected: unknown[] = [];
     
     t.deepEqual(result, expected);
     t.end();
@@ -80,7 +81,7 @@ test('options: languageExtension object with javascript name returns extension',
 
 test('options: languageExtension unknown string returns empty array', (t) => {
     const result = languageExtension('css');
-    const expected = [];
+    const expected: unknown[] = [];
     
     t.deepEqual(result, expected);
     t.end();
@@ -88,7 +89,7 @@ test('options: languageExtension unknown string returns empty array', (t) => {
 
 test('options: languageExtension null returns empty array', (t) => {
     const result = languageExtension(null);
-    const expected = [];
+    const expected: unknown[] = [];
     
     t.deepEqual(result, expected);
     t.end();

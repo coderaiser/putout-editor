@@ -30,7 +30,8 @@ export function themeExtension(name: EditorTheme): Extension {
 
 export function languageExtension(mode: EditorMode | {
     name: EditorMode;
-}): Extension {
+    json?: boolean;
+} | null): Extension {
     const name = typeof mode === 'object' ? mode?.name : mode;
     
     if (name === 'javascript')
@@ -47,7 +48,9 @@ export type OptionValue =
     | EditorMode
     | {
         name: EditorMode;
-    };
+        json?: boolean;
+    }
+    | null;
 
 export function setOption(view: EditorView & {
     _themeCompartment: Compartment;
