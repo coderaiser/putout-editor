@@ -1,3 +1,5 @@
+import type {SourceRange} from './parser/contract.ts';
+
 // Character offset into source text (0-indexed, matches CM6 and Babel's start/end)
 export type CharOffset = number;
 
@@ -7,11 +9,11 @@ export type SourcePosition = {
     ch: number;
 };
 
-// Range of characters in source text: [start, end] inclusive-exclusive
-export type SourceRange = [
-    CharOffset,
-    CharOffset,
-];
+// Range of characters in source text: [start, end] inclusive-exclusive.
+// Branded & produced only by the contract — a raw [number, number] (or worse,
+// [object, object] from a parser) cannot flow into typed call sites.
+export type {SourceRange} from './parser/contract.ts';
+export {parseSourceRange, parseCharOffset, parseSourcePosition} from './parser/contract.ts';
 
 // Babel AST node — open interface, all parsers produce nodes with at least these fields
 export interface AstNode {
