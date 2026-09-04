@@ -33,6 +33,8 @@ jobs:
         run: bun i --no-save
       - name: Init Madrun
         run: madrun --init
+      - name: Typecheck
+        run: redrun test:dts
       - name: Lint
         run: redrun fix:lint
       - name: Lint Kubernetes
