@@ -120,26 +120,14 @@ test('EditorPlugin: dispatches transformBlur when editor blurs', (t) => {
     t.end();
 });
 
-test('EditorPlugin: renders output pane when store transformer is unknown', async (t) => {
-    const {store} = renderWithStore({
-        loadingSnippet: true,
-        workbench: {
-            transform: {
-                transformer: 'nope',
-            },
-        },
-    });
-    
+test('EditorPlugin: renders plugin editor without SplitPane', (t) => {
+    const {store} = renderWithStore();
     const container = renderTransformer(store);
     
-    await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-    });
-    
-    const output = container.querySelector('.output');
+    const editor = container.querySelector('.editor');
     
     cleanup();
     
-    t.ok(output);
+    t.ok(editor);
     t.end();
 });

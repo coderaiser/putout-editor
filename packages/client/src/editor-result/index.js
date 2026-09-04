@@ -35,7 +35,7 @@ async function runTransform(transformer, transformCode, code, parser) {
     };
 }
 
-export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser}) {
+export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser, highlightRange}) {
     const [result, setResult] = useState('');
     const [sourceMap, setSourceMap] = useState(null);
     const [error, setError] = useState(null);
@@ -81,13 +81,14 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                     readOnly={true}
                     value={error.stack}
                 />
-                : isString(result)
+                            : isString(result)
                     ? <Editor
                         posFromIndex={posFromIndex}
                         mode={mode}
                         key="output"
                         readOnly={true}
                         value={result}
+                        highlightRange={highlightRange}
                     />
                     : <EditorASTJson
                         className="container no-toolbar"

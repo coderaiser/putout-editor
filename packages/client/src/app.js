@@ -12,9 +12,9 @@ import LoadingIndicator from './ui/LoadingIndicator.js';
 import PasteDropTarget from './ui/PasteDropTarget.js';
 import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
-import SplitPane from './ui/SplitPane.js';
 import Toolbar from './menu/Toolbar.js';
 import EditorPlugin from './editor-plugin/index.js';
+import AppLayout from './layout/AppLayout.js';
 import debounce from './app/debounce.ts';
 import {
     putoutEditor,
@@ -47,13 +47,8 @@ function App() {
                     <div id="root">
                         <Toolbar/>
                         <GistBanner/>
-                        <SplitPane
-                            className="splitpane-content"
-                            vertical={true}
-                        >
-                            <SplitPane
-                                className="splitpane"
-                            >
+                        <AppLayout
+                            topLeft={
                                 <ErrorBoundary
                                     fallbackRender={({error}) => (
                                         <div className="error-boundary">
@@ -63,6 +58,8 @@ function App() {
                                 >
                                     <EditorSource/>
                                 </ErrorBoundary>
+                            }
+                            topRight={
                                 <ErrorBoundary
                                     fallbackRender={({error}) => (
                                         <div className="error-boundary">
@@ -72,9 +69,10 @@ function App() {
                                 >
                                     <EditorASTTree/>
                                 </ErrorBoundary>
-                            </SplitPane>
-                            {showTransformer ? <EditorPlugin/> : null}
-                        </SplitPane>
+                            }
+                            bottomLeft={showTransformer ? <EditorPlugin/> : null}
+                            bottomRight={null}
+                        />
                     </div>
                 </PasteDropTarget>
             </div>
