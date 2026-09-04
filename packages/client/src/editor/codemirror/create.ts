@@ -161,10 +161,13 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     const extensions = [
         historyCompartment.of([
             history(),
-            keymap.of([...historyKeymap, indentWithTab, {
-                key: 'Enter',
-                run: insertNewlineAndIndent,
-            }]),
+            keymap.of([
+                ...historyKeymap,
+                indentWithTab, {
+                    key: 'Enter',
+                    run: insertNewlineAndIndent,
+                },
+            ]),
             indentUnit.of('    '),
         ]),
         markField,
@@ -212,4 +215,3 @@ export function createEditor(container: Element, options: CreateEditorOptions = 
     
     return view;
 }
-

@@ -35,7 +35,7 @@ async function runTransform(transformer, transformCode, code, parser) {
     };
 }
 
-export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser, highlightRange}) {
+export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser}) {
     const [result, setResult] = useState('');
     const [sourceMap, setSourceMap] = useState(null);
     const [error, setError] = useState(null);
@@ -83,7 +83,6 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                 />
                 : isString(result)
                     ? <Editor
-                        highlightRange={highlightRange}
                         posFromIndex={posFromIndex}
                         mode={mode}
                         key="output"
