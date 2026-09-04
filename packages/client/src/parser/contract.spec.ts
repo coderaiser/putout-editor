@@ -8,8 +8,9 @@ import {
 
 test('parser: contract: parseSourceRange returns [0, 5] for valid pair', (t) => {
     const result = parseSourceRange([0, 5]);
+    const expected = [0, 5];
     
-    t.deepEqual(result, [0, 5]);
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -163,17 +164,23 @@ test('parser: contract: parseCharOffset returns null for object', (t) => {
 });
 
 test('parser: contract: isCharOffset returns true for number', (t) => {
-    t.ok(isCharOffset(5));
+    const result = isCharOffset(5);
+    
+    t.ok(result);
     t.end();
 });
 
 test('parser: contract: isCharOffset returns false for NaN', (t) => {
-    t.notOk(isCharOffset(NaN));
+    const result = isCharOffset(NaN);
+    
+    t.notOk(result);
     t.end();
 });
 
 test('parser: contract: isCharOffset returns false for object', (t) => {
-    t.notOk(isCharOffset({}));
+    const result = isCharOffset({});
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -183,10 +190,12 @@ test('parser: contract: parseSourcePosition returns {line, ch} for valid object'
         ch: 4,
     });
     
-    t.deepEqual(result, {
+    const expected = {
         line: 1,
         ch: 4,
-    });
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
