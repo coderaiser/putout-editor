@@ -10,8 +10,9 @@ export type SourcePosition = {
 };
 
 // Range of characters in source text: [start, end] inclusive-exclusive.
-// Branded & produced only by the contract — a raw [number, number] (or worse,
-// [object, object] from a parser) cannot flow into typed call sites.
+// A canonical, plain tuple. Safety is enforced at the runtime choke points
+// (store / TreeAdapter): only values reconstructed by `parseSourceRange`
+// may flow into typed call sites — no casts, no foreign arrays.
 export type {
     SourceRange,
     parseSourceRange,

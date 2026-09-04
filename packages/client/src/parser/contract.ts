@@ -1,30 +1,35 @@
 import type {CharOffset, SourcePosition} from '../types.ts';
 
-declare const RangeBrand: unique symbol;
-const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
+const isFiniteNumber = (a: unknown): a is number => typeof a === 'number' && Number.isFinite(a);
 
-// [start, end) offsets into source text. Branded: a plain [number, number]
-// (or worse, [object, object] from a parser) cannot flow into typed call sites.
+/**
+ * [start, end) offsets into source text. A plain, canonical tuple — not branded.
+ * The safety property is enforced by the runtime choke point: only values that
+ * pass through `parseSourceRange` (which reconstructs a fresh, canonical tuple)
+ * may become editor state. No casts are needed and none are allowed.
+ */
 export type SourceRange = readonly [
     CharOffset,
     CharOffset,
-] & {
-    [RangeBrand]: 'SourceRange';
-};
+];
 
-export const isCharOffset = (value: unknown): value is CharOffset => isNumber(value) && Number.isFinite(value) && value >= 0;
+export const isCharOffset = (value: unknown): value is CharOffset => isFiniteNumber(value) && value >= 0;
 
 export const parseCharOffset = (value: unknown): CharOffset | null => isCharOffset(value) ? value : null;
 
 export const parseSourceRange = (value: unknown): SourceRange | null => {
-    if (!Array.isArray(value) || value.length !== 2)
+    if (!Array.isArray(value) || value.length < 2)
         return null;
     
-    if (!isCharOffset(value[0]) || !isCharOffset(value[1]))
+    const start = parseCharOffset(value[0]);
+    const end = parseCharOffset(value[1]);
+    
+    if (start === null || end === null)
         return null;
     
-    // The single cast in the codebase — guarded by the checks above.
-    return value as unknown as SourceRange;
+    // Reconstruct a fresh, canonical pair — never leak the original (possibly
+    // overflowing or untrusted) array. Extra elements are dropped.
+    return [start, end];
 };
 
 export const parseSourcePosition = (value: unknown): SourcePosition | null => {
