@@ -5,7 +5,7 @@ import {createRoot} from 'react-dom/client';
 import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './snippet/LocalStorage.js';
 import EditorASTTree from './editor-ast-tree/index.js';
-import EditorSource from './editor-source/index.js';
+import SourcePanel from './panel-source/index.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicator from './ui/LoadingIndicator.js';
@@ -48,17 +48,7 @@ function App() {
                         <Toolbar/>
                         <GistBanner/>
                         <AppLayout
-                            topLeft={
-                                <ErrorBoundary
-                                    fallbackRender={({error}) => (
-                                        <div className="error-boundary">
-                                            <p>{error.message}</p>
-                                        </div>
-                                    )}
-                                >
-                                    <EditorSource/>
-                                </ErrorBoundary>
-                            }
+                            topLeft={<SourcePanel/>}
                             topRight={
                                 <ErrorBoundary
                                     fallbackRender={({error}) => (
