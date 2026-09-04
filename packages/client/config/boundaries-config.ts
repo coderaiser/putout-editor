@@ -52,7 +52,13 @@ export default [{
                         type: 'editor',
                     },
                 },
-                allow: [],
+                allow: [{
+                    to: {
+                        element: {
+                            type: 'parser',
+                        },
+                    },
+                }],
             }, {
                 from: {
                     element: {

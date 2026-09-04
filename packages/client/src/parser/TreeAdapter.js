@@ -4,7 +4,7 @@ const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
 
 // One validator, one brand: range validation is owned by the contract module.
-const validateRange = (range) => parseSourceRange(range);
+const validateRange = parseSourceRange;
 
 /**
  * Configurable base class for all tree traversal.

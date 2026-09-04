@@ -558,6 +558,7 @@ test('getFocusPath: prepends parent when parent has no range or length but child
     t.equal(path[0], parent);
     t.end();
 });
+
 test('getFocusPath: nodeToRange returns undefined for NaN start from parser', (t) => {
     const parser = {
         nodeToRange() {
