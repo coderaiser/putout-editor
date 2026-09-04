@@ -98,6 +98,7 @@ export function createSnippetListener(storageAdapter: StorageAdapter) {
             const fork = (action as {
                 payload?: boolean;
             }).payload;
+            
             const state = api.getState();
             
             api.dispatch(startSave(fork));
