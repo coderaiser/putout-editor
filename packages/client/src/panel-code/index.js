@@ -5,7 +5,6 @@ import {
     getCode,
     getKeyMap,
     isLoadingSnippet,
-    getHighlightRange,
 } from '#store';
 import {
     getParser,
@@ -20,7 +19,6 @@ export default function CodePanel() {
     const code = useSelector(getCode);
     const keyMap = useSelector(getKeyMap);
     const isLoading = useSelector(isLoadingSnippet);
-    const highlightRange = useSelector(getHighlightRange);
     const mode = parser.category.editorMode || parser.category.id;
 
     return (
@@ -32,7 +30,6 @@ export default function CodePanel() {
             keyMap={keyMap}
             parser={parser.id}
             isLoading={isLoading}
-            highlightRange={highlightRange}
         />
     );
 }

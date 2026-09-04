@@ -1,15 +1,10 @@
 import {
     useState,
     useEffect,
-    useRef,
 } from 'react';
 import PropTypes from 'prop-types';
-import {SourceMapConsumer} from 'source-map';
 import stringify from 'json-stringify-safe';
-import {
-    Editor,
-    resolvePositionFromIndex,
-} from '#editor';
+import {Editor} from '#editor';
 import EditorASTJson from '#editor-ast-json';
 
 const isString = (value) => typeof value === 'string';
@@ -19,31 +14,14 @@ async function runTransform(transformer, transformCode, code, parser) {
         transformer._promise = new Promise(transformer.loadTransformer);
     
     const realTransformer = await transformer._promise;
-    let result = transformer.transform(realTransformer, transformCode, code, parser);
-    let sourceMap = null;
+    const result = transformer.transform(realTransformer, transformCode, code, parser);
     
-    if (!isString(result)) {
-        if (result.map)
-            sourceMap = new SourceMapConsumer(result.map);
-        
-        result = result.code;
-    }
-    
-    return {
-        result,
-        sourceMap,
-    };
+    return isString(result) ? result : result.code;
 }
 
-export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser, highlightRange}) {
+export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser}) {
     const [result, setResult] = useState('');
-    const [sourceMap, setSourceMap] = useState(null);
     const [error, setError] = useState(null);
-    const sourceMapRef = useRef(null);
-    
-    useEffect(() => {
-        sourceMapRef.current = sourceMap;
-    }, [sourceMap]);
     
     useEffect(() => {
         if (isLoading)
@@ -53,9 +31,8 @@ export default function EditorResult({transformer, transformCode, code, mode, is
             console.clear();
         
         runTransform(transformer, transformCode, code, parser)
-            .then(({result: transformResult, sourceMap: newSourceMap}) => {
+            .then((transformResult) => {
                 setResult(transformResult);
-                setSourceMap(newSourceMap);
                 setError(null);
             })
             .catch(setError);
@@ -67,10 +44,6 @@ export default function EditorResult({transformer, transformCode, code, mode, is
         parser,
     ]);
     
-    function posFromIndex(_, index) {
-        return resolvePositionFromIndex(sourceMapRef.current, index);
-    }
-    
     return (
         <div className="output highlight">
             {error
@@ -81,14 +54,12 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                     readOnly={true}
                     value={error.stack}
                 />
-                            : isString(result)
+                : isString(result)
                     ? <Editor
-                        posFromIndex={posFromIndex}
                         mode={mode}
                         key="output"
                         readOnly={true}
                         value={result}
-                        highlightRange={highlightRange}
                     />
                     : <EditorASTJson
                         className="container no-toolbar"
@@ -105,5 +76,4 @@ EditorResult.propTypes = {
     code: PropTypes.string,
     isLoading: PropTypes.bool,
     parser: PropTypes.string,
-    highlightRange: PropTypes.array,
 };
