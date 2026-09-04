@@ -1,15 +1,10 @@
+import {parseSourceRange} from './contract.ts';
+
 const isNumber = (a) => typeof a === 'number';
 const isFn = (a) => typeof a === 'function';
 
-const validateRange = (range) => {
-    if (!range)
-        return null;
-    
-    if (!isNumber(range[0]) || !isNumber(range[1]))
-        return null;
-    
-    return range;
-};
+// One validator, one brand: range validation is owned by the contract module.
+const validateRange = (range) => parseSourceRange(range);
 
 /**
  * Configurable base class for all tree traversal.

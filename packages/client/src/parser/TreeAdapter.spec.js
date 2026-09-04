@@ -881,6 +881,74 @@ test('TreeAdapter: getRange returns null when children-derived range has non-num
     t.end();
 });
 
+test('TreeAdapter: getRange returns null when range has NaN offset', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const result = adapter.getRange({
+        start: NaN,
+        end: 5,
+    });
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange returns null when range has Infinity offset', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const result = adapter.getRange({
+        start: 0,
+        end: Infinity,
+    });
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange returns null when range has negative offset', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const result = adapter.getRange({
+        start: -1,
+        end: 5,
+    });
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange returns null when range has string offsets', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const result = adapter.getRange({
+        start: '0',
+        end: '5',
+    });
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: getRange returns null when children-derived range has NaN offset', (t) => {
+    const adapter = makeBabelLikeAdapter();
+    
+    const parent = {
+        a: {
+            start: NaN,
+            end: 2,
+        },
+        b: {
+            start: 3,
+            end: 4,
+        },
+    };
+    
+    const result = adapter.getRange(parent);
+    
+    t.notOk(result);
+    t.end();
+});
+
 test('TreeAdapter: getRange returns numeric range when positions are numbers', (t) => {
     const adapter = makeBabelLikeAdapter();
     

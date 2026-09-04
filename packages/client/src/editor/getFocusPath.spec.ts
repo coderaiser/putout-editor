@@ -558,3 +558,44 @@ test('getFocusPath: prepends parent when parent has no range or length but child
     t.equal(path[0], parent);
     t.end();
 });
+test('getFocusPath: nodeToRange returns undefined for NaN start from parser', (t) => {
+    const parser = {
+        nodeToRange() {
+            return [NaN, 5];
+        },
+        *forEachProperty() {},
+    };
+    
+    const result = nodeToRange(parser, {});
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('getFocusPath: nodeToRange returns undefined for Infinity end from parser', (t) => {
+    const parser = {
+        nodeToRange() {
+            return [0, Infinity];
+        },
+        *forEachProperty() {},
+    };
+    
+    const result = nodeToRange(parser, {});
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('getFocusPath: nodeToRange returns undefined for negative offset from parser', (t) => {
+    const parser = {
+        nodeToRange() {
+            return [-5, 5];
+        },
+        *forEachProperty() {},
+    };
+    
+    const result = nodeToRange(parser, {});
+    
+    t.notOk(result);
+    t.end();
+});

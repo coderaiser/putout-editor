@@ -1,3 +1,5 @@
+import {parseSourceRange} from '../parser/contract.ts';
+
 function isInRange(range: [
     number,
     number,
@@ -6,7 +8,7 @@ function isInRange(range: [
 }
 
 export function nodeToRange(parser: Parser, node: AstNode): Range {
-    const range = parser.nodeToRange(node);
+    const range = parseSourceRange(parser.nodeToRange(node));
     
     if (range)
         return range;
@@ -14,8 +16,8 @@ export function nodeToRange(parser: Parser, node: AstNode): Range {
     if (node.length && node.length > 0) {
         const first = node[0] as AstNode;
         const lastNode = node.at && node.at(-1) as AstNode;
-        const rangeFirst = first && parser.nodeToRange(first);
-        const rangeLast = lastNode && parser.nodeToRange(lastNode);
+        const rangeFirst = first && parseSourceRange(parser.nodeToRange(first));
+        const rangeLast = lastNode && parseSourceRange(parser.nodeToRange(lastNode));
         
         if (rangeFirst && rangeLast)
             return [
@@ -60,7 +62,7 @@ export default function getFocusPath(node: AstNode, pos: number, parser: Parser,
 type Range = [
     number,
     number,
-] | undefined;
+] | null;
 
 export interface Parser {
     nodeToRange(node: AstNode): [
