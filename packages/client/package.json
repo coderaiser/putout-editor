@@ -16,6 +16,7 @@
     "#editor-result": "./src/editor-result/index.js",
     "#layout": "./src/layout/AppLayout.js",
     "#panel-ast": "./src/panel-ast/index.js",
+    "#panel-code": "./src/panel-code/index.js",
     "#panel-source": "./src/panel-source/index.js",
     "#panel-transform": "./src/panel-transform/index.js",
     "#store": "./src/store/index.ts",

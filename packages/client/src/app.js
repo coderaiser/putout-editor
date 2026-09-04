@@ -4,6 +4,7 @@ import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
 import * as LocalStorage from './snippet/LocalStorage.js';
 import AstPanel from './panel-ast/index.js';
+import CodePanel from './panel-code/index.js';
 import SourcePanel from './panel-source/index.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
@@ -49,7 +50,7 @@ function App() {
                             topLeft={<SourcePanel/>}
                             topRight={<AstPanel/>}
                             bottomLeft={<TransformPanel/>}
-                            bottomRight={null}
+                            bottomRight={<CodePanel/>}
                         />
                     </div>
                 </PasteDropTarget>
