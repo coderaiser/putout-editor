@@ -810,6 +810,32 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange returns null for null tr
     t.end();
 });
 
+test('TreeAdapter: treeAdapterFromParseResult: opensByDefault returns false for null treeAdapter', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: null,
+    }, {});
+    
+    const result = adapter.opensByDefault({
+        type: 'Program',
+    });
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('TreeAdapter: treeAdapterFromParseResult: getNodeName returns null for null treeAdapter', (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: null,
+    }, {});
+    
+    const result = adapter.getNodeName({
+        type: 'Program',
+    });
+    
+    t.notOk(result);
+    t.end();
+});
+
 const makeBabelLikeAdapter = () => treeAdapterFromParseResult({
     treeAdapter: {
         type: 'default',
@@ -963,3 +989,4 @@ test('TreeAdapter: getRange returns numeric range when positions are numbers', (
     t.deepEqual(result, expected);
     t.end();
 });
+

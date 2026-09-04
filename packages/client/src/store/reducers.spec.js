@@ -649,3 +649,23 @@ test('reducers: editorBlur is a no-op', (t) => {
     t.equal(after, before);
     t.end();
 });
+
+test('reducers: setHighlight with same range preserves instance', (t) => {
+    const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
+    const before = withHighlight.highlightRange;
+    
+    const state = putoutEditor(withHighlight, setHighlight([0, 5]));
+    
+    t.equal(state.highlightRange, before);
+    t.end();
+});
+
+test('reducers: setCursor with same value preserves instance', (t) => {
+    const withCursor = putoutEditor(getInitState(), setCursor(3));
+    const before = withCursor.cursor;
+    
+    const state = putoutEditor(withCursor, setCursor(3));
+    
+    t.equal(state.cursor, before);
+    t.end();
+});
