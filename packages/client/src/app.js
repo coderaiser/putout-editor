@@ -2,9 +2,8 @@ import '../css/style.css';
 import {Provider, useSelector} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
-import {ErrorBoundary} from 'react-error-boundary';
 import * as LocalStorage from './snippet/LocalStorage.js';
-import EditorASTTree from './editor-ast-tree/index.js';
+import AstPanel from './panel-ast/index.js';
 import SourcePanel from './panel-source/index.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
@@ -49,17 +48,7 @@ function App() {
                         <GistBanner/>
                         <AppLayout
                             topLeft={<SourcePanel/>}
-                            topRight={
-                                <ErrorBoundary
-                                    fallbackRender={({error}) => (
-                                        <div className="error-boundary">
-                                            <p>{error.message}</p>
-                                        </div>
-                                    )}
-                                >
-                                    <EditorASTTree/>
-                                </ErrorBoundary>
-                            }
+                            topRight={<AstPanel/>}
                             bottomLeft={showTransformer ? <EditorPlugin/> : null}
                             bottomRight={null}
                         />
