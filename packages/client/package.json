@@ -17,6 +17,7 @@
     "#layout": "./src/layout/AppLayout.js",
     "#panel-ast": "./src/panel-ast/index.js",
     "#panel-source": "./src/panel-source/index.js",
+    "#panel-transform": "./src/panel-transform/index.js",
     "#store": "./src/store/index.ts",
     "#parser": "./src/parser/index.ts",
     "#snippet": "./src/snippet/index.ts",

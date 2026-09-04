@@ -12,7 +12,7 @@ import PasteDropTarget from './ui/PasteDropTarget.js';
 import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import Toolbar from './menu/Toolbar.js';
-import EditorPlugin from './editor-plugin/index.js';
+import TransformPanel from './panel-transform/index.js';
 import AppLayout from './layout/AppLayout.js';
 import debounce from './app/debounce.ts';
 import {
@@ -32,7 +32,6 @@ import {formatListener} from './store/formatMiddleware.ts';
 import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 
 function App() {
-    const showTransformer = useSelector((s) => s.showTransformPanel);
     const hasError = useSelector((s) => Boolean(s.error));
     
     return (
@@ -49,7 +48,7 @@ function App() {
                         <AppLayout
                             topLeft={<SourcePanel/>}
                             topRight={<AstPanel/>}
-                            bottomLeft={showTransformer ? <EditorPlugin/> : null}
+                            bottomLeft={<TransformPanel/>}
                             bottomRight={null}
                         />
                     </div>
