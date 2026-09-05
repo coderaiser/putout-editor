@@ -10,7 +10,7 @@ const config = buildBoundaries({
     'editor-source': ['editor', 'store', 'parser'],
     'editor-result': ['editor', 'editor-ast-json'],
     'editor-ast-json': ['editor'],
-    'editor-plugin': [
+    'editor-transform': [
         'editor',
         'editor-result',
         'store',
@@ -26,11 +26,11 @@ const config = buildBoundaries({
     ],
     'panel-source': ['editor-source', 'ui', 'store'],
     'panel-ast': ['editor-ast-tree', 'ui', 'store'],
-    'panel-transform': ['editor-plugin', 'store'],
+    'panel-transform': ['editor-transform', 'store'],
     'panel-code': ['editor-result', 'store', 'parser'],
     'layout': ['panel-*', 'ui'],
     'menu': [
-        'editor-plugin',
+        'editor-transform',
         'parser',
         'snippet',
         'store',

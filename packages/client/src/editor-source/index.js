@@ -1,17 +1,15 @@
 import {useSelector, useDispatch} from 'react-redux';
-import Editor from '../editor/Editor.js';
-import {getParser} from '../parser/store/parserSelectors.ts';
+import {getParser} from '#parser';
+import {Editor} from '#editor';
 import {
     getCode,
     getParseResult,
     getKeyMap,
     getHighlightRange,
-} from '../store/selectors.ts';
-import {
     setCode,
     setCursor,
     editorBlur,
-} from '../store/reducers.ts';
+} from '#store';
 
 export default function EditorSource() {
     const keyMap = useSelector(getKeyMap);

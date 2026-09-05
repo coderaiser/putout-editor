@@ -15,7 +15,7 @@
         "src/editor-source/index.js",
         "src/menu/Toolbar.js",
         "src/snippet/GistBanner.js",
-        "src/editor-plugin/index.js",
+        "src/editor-transform/index.js",
         "src/parser/parsers/transpilers/typescript.js",
         "src/types.ts",
         "lib/**",

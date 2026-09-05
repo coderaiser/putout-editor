@@ -5,9 +5,11 @@ import {posFromIndex, indexFromPos} from './position.js';
 const state = EditorState.create({
     doc: 'hello world\nsecond line',
 });
+
 const view = {
     state,
 };
+
 const {doc} = state;
 
 test('posFromIndex: returns null for negative index', (t) => {
