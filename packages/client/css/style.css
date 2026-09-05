@@ -673,6 +673,8 @@ li.entry {
     color: var(--color-text);
     cursor: pointer;
     padding: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-tabs button.active {

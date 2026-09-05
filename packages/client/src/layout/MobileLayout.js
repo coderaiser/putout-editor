@@ -29,11 +29,13 @@ export default function MobileLayout({topLeft, topRight, bottomLeft, bottomRight
             <div className="mobile-panel">
                 {panels[activeKey]}
             </div>
-            <nav className="mobile-tabs">
+            <nav className="mobile-tabs" role="tablist">
                 {TABS.map(({label, key}) => (
                     <button
                         key={key}
                         type="button"
+                        role="tab"
+                        aria-selected={activeKey === key}
                         className={activeKey === key ? 'active' : ''}
                         onClick={() => setActiveKey(key)}
                     >

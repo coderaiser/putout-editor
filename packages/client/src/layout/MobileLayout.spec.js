@@ -74,7 +74,7 @@ test('MobileLayout: shows all four tab buttons', (t) => {
         <MobileLayout {...panels}/>,
     );
     
-    const count = screen.getAllByRole('button').length;
+    const count = screen.getAllByRole('tab').length;
     
     cleanup();
     
@@ -104,5 +104,52 @@ test('MobileLayout: active class moves to clicked tab', (t) => {
     cleanup();
     
     t.equal(activeButton?.textContent, 'Source');
+    t.end();
+});
+
+test('MobileLayout: Transform tab has aria-selected=true by default', (t) => {
+    render(
+        <MobileLayout {...panels}/>,
+    );
+    
+    const transformTab = screen.getByRole('tab', {
+        name: 'Transform',
+    });
+    
+    cleanup();
+    
+    t.equal(transformTab.getAttribute('aria-selected'), 'true');
+    t.end();
+});
+
+test('MobileLayout: Source tab has aria-selected=false by default', (t) => {
+    render(
+        <MobileLayout {...panels}/>,
+    );
+    
+    const sourceTab = screen.getByRole('tab', {
+        name: 'Source',
+    });
+    
+    cleanup();
+    
+    t.equal(sourceTab.getAttribute('aria-selected'), 'false');
+    t.end();
+});
+
+test('MobileLayout: clicking Source sets aria-selected=true on Source button', (t) => {
+    render(
+        <MobileLayout {...panels}/>,
+    );
+    
+    const sourceTab = screen.getByRole('tab', {
+        name: 'Source',
+    });
+    
+    fireEvent.click(sourceTab);
+    
+    cleanup();
+    
+    t.equal(sourceTab.getAttribute('aria-selected'), 'true');
     t.end();
 });
