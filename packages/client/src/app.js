@@ -17,6 +17,7 @@ import PasteDropTarget from './ui/PasteDropTarget.js';
 import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import Toolbar from './menu/Toolbar.js';
+import MobileToolbar from './menu/MobileToolbar.js';
 import debounce from './app/debounce.ts';
 import {
     putoutEditor,
@@ -49,7 +50,7 @@ function App() {
                     <SettingsDialog/>
                     <ShareDialog/>
                     <div id="root">
-                        <Toolbar/>
+                        {isMobile ? <MobileToolbar/> : <Toolbar/>}
                         <GistBanner/>
                         <Layout
                             topLeft={<SourcePanel/>}
