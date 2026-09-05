@@ -7,5 +7,7 @@ export default function TransformPanel() {
     if (!showTransformer)
         return null;
     
-    return <EditorPlugin/>;
+    return (
+        <EditorPlugin/>
+    );
 }

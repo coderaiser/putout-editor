@@ -1,4 +1,7 @@
-import {parseSourceRange, type SourceRange} from '../parser/contract.ts';
+import {
+    parseSourceRange,
+    type SourceRange,
+} from '../parser/contract.ts';
 
 function isInRange(range: readonly [
     number,

@@ -88,15 +88,17 @@ test('parser: contract: parseSourceRange returns null for short array', (t) => {
 
 test('parser: contract: parseSourceRange returns canonical [0, 1] for long array (drops extras)', (t) => {
     const result = parseSourceRange([0, 1, 2]);
+    const expected = [0, 1];
     
-    t.deepEqual(result, [0, 1]);
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: contract: parseSourceRange reconstructs canonical [0, 5] dropping garbage extras', (t) => {
     const result = parseSourceRange([0, 5, 'garbage']);
+    const expected = [0, 5];
     
-    t.deepEqual(result, [0, 5]);
+    t.deepEqual(result, expected);
     t.end();
 });
 

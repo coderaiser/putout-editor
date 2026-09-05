@@ -20,7 +20,7 @@ export default function CodePanel() {
     const keyMap = useSelector(getKeyMap);
     const isLoading = useSelector(isLoadingSnippet);
     const mode = parser.category.editorMode || parser.category.id;
-
+    
     return (
         <EditorResult
             transformer={transformer}

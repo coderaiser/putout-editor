@@ -2,8 +2,8 @@ import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
+import TransformPanel from '#panel-transform';
 import {putoutEditor, revive} from '../store/reducers.ts';
-import TransformPanel from './index.js';
 
 function makeStore(showTransformPanel = false) {
     const base = putoutEditor(undefined, {
@@ -16,7 +16,9 @@ function makeStore(showTransformPanel = false) {
             ...base,
             showTransformPanel,
         }),
-        middleware: (get) => get({serializableCheck: false}),
+        middleware: (get) => get({
+            serializableCheck: false,
+        }),
     });
 }
 
@@ -26,7 +28,9 @@ test('TransformPanel: renders null when showTransformPanel is false', (t) => {
             <TransformPanel/>
         </Provider>,
     );
+    
     cleanup();
+    
     t.notOk(container.firstChild);
     t.end();
 });
@@ -37,8 +41,11 @@ test('TransformPanel: renders EditorPlugin when showTransformPanel is true', (t)
             <TransformPanel/>
         </Provider>,
     );
+    
     const result = container.firstChild;
+    
     cleanup();
+    
     t.ok(result);
     t.end();
 });

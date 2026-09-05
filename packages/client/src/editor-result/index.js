@@ -1,7 +1,4 @@
-import {
-    useState,
-    useEffect,
-} from 'react';
+import {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import stringify from 'json-stringify-safe';
 import {Editor} from '#editor';

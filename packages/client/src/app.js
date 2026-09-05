@@ -2,10 +2,12 @@ import '../css/style.css';
 import {Provider, useSelector} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
+import AstPanel from '#panel-ast';
+import CodePanel from '#panel-code';
+import SourcePanel from '#panel-source';
+import TransformPanel from '#panel-transform';
+import AppLayout from '#layout';
 import * as LocalStorage from './snippet/LocalStorage.js';
-import AstPanel from './panel-ast/index.js';
-import CodePanel from './panel-code/index.js';
-import SourcePanel from './panel-source/index.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicator from './ui/LoadingIndicator.js';
@@ -13,8 +15,6 @@ import PasteDropTarget from './ui/PasteDropTarget.js';
 import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import Toolbar from './menu/Toolbar.js';
-import TransformPanel from './panel-transform/index.js';
-import AppLayout from './layout/AppLayout.js';
 import debounce from './app/debounce.ts';
 import {
     putoutEditor,

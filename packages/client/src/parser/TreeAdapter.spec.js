@@ -989,4 +989,3 @@ test('TreeAdapter: getRange returns numeric range when positions are numbers', (
     t.deepEqual(result, expected);
     t.end();
 });
-

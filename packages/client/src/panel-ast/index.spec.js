@@ -2,15 +2,17 @@ import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {configureStore} from '@reduxjs/toolkit';
 import {Provider} from 'react-redux';
+import AstPanel from '#panel-ast';
 import {putoutEditor, revive} from '../store/reducers.ts';
-import AstPanel from './index.js';
 
 const makeStore = () => configureStore({
     reducer: putoutEditor,
     preloadedState: revive(putoutEditor(undefined, {
         type: '@@INIT',
     })),
-    middleware: (get) => get({serializableCheck: false}),
+    middleware: (get) => get({
+        serializableCheck: false,
+    }),
 });
 
 test('AstPanel: renders without crashing', (t) => {
@@ -19,8 +21,11 @@ test('AstPanel: renders without crashing', (t) => {
             <AstPanel/>
         </Provider>,
     );
+    
     const result = container.firstChild;
+    
     cleanup();
+    
     t.ok(result);
     t.end();
 });
@@ -29,6 +34,7 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
+    
     const store = configureStore({
         reducer: putoutEditor,
         preloadedState: revive({
@@ -44,7 +50,9 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
                 },
             },
         }),
-        middleware: (get) => get({serializableCheck: false}),
+        middleware: (get) => get({
+            serializableCheck: false,
+        }),
     });
     
     const {container} = render(
@@ -52,8 +60,11 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
             <AstPanel/>
         </Provider>,
     );
+    
     const result = container.querySelector('.error-boundary');
+    
     cleanup();
+    
     t.ok(result);
     t.end();
 });

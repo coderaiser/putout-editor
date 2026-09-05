@@ -1,6 +1,7 @@
 import type {CharOffset, SourcePosition} from '../types.ts';
 
-const isFiniteNumber = (a: unknown): a is number => typeof a === 'number' && Number.isFinite(a);
+const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
+const isFiniteNumber = (a: unknown): a is number => isNumber(a) && Number.isFinite(a);
 
 /**
  * [start, end) offsets into source text. A plain, canonical tuple — not branded.

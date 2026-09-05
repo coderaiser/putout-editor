@@ -2,15 +2,17 @@ import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
+import CodePanel from '#panel-code';
 import {putoutEditor, revive} from '../store/reducers.ts';
-import CodePanel from './index.js';
 
 const makeStore = () => configureStore({
     reducer: putoutEditor,
     preloadedState: revive(putoutEditor(undefined, {
         type: '@@INIT',
     })),
-    middleware: (get) => get({serializableCheck: false}),
+    middleware: (get) => get({
+        serializableCheck: false,
+    }),
 });
 
 test('CodePanel: renders without crashing', async (t) => {
@@ -20,10 +22,11 @@ test('CodePanel: renders without crashing', async (t) => {
         </Provider>,
     );
     
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise(setImmediate);
     
     const result = container.querySelector('.output');
     cleanup();
+    
     t.ok(result);
     t.end();
 });
@@ -32,6 +35,7 @@ test('CodePanel: falls back to default transformer when transformer unknown', as
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
+    
     const store = configureStore({
         reducer: putoutEditor,
         preloadedState: revive({
@@ -44,7 +48,9 @@ test('CodePanel: falls back to default transformer when transformer unknown', as
                 },
             },
         }),
-        middleware: (get) => get({serializableCheck: false}),
+        middleware: (get) => get({
+            serializableCheck: false,
+        }),
     });
     
     const {container} = render(
@@ -53,10 +59,11 @@ test('CodePanel: falls back to default transformer when transformer unknown', as
         </Provider>,
     );
     
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise(setImmediate);
     
     const result = container.querySelector('.output');
     cleanup();
+    
     t.ok(result);
     t.end();
 });
