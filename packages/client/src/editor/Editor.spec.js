@@ -543,6 +543,29 @@ test('Editor: sets selection when highlightRange changes', (t) => {
     t.end();
 });
 
+test('Editor: clears previous mark when highlightRange changes', (t) => {
+    const {container, rerender} = render(
+        <Editor value="const x = 1;" highlightRange={[0, 5]}/>,
+    );
+    
+    act(() => {
+        rerender(
+            <Editor
+                value="const x = 1;"
+                highlightRange={[6, 10]}
+            />,
+        );
+    });
+    
+    const marksAfter = container.querySelectorAll('.marked');
+    
+    cleanup();
+    
+    t.ok(marksAfter.length > 0);
+    t.end();
+});
+
+
 test('Editor: does not crash when highlightRange is null', (t) => {
     const {container, rerender} = render(
         <Editor value="const x = 1;"/>,
