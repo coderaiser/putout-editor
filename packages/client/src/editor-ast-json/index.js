@@ -7,7 +7,10 @@ import {
     getScrollInfo,
     scrollTo,
     observeResize,
+    setOption,
 } from '#editor';
+
+const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
 
 export default function EditorASTJson({value = '', parseResult = null, className = ''}) {
     const containerRef = useRef(null);
@@ -27,13 +30,23 @@ export default function EditorASTJson({value = '', parseResult = null, className
             readOnly: true,
             lineNumbers: true,
             foldGutter: true,
-            theme: 'default',
+            theme: getCMTheme(),
+        });
+
+        const themeObserver = new MutationObserver(() => {
+            setOption(editor, 'theme', getCMTheme());
+        });
+
+        themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme'],
         });
         
         editorRef.current = editor;
         const cleanupResize = observeResize(editor, containerRef.current);
         
         return () => {
+            themeObserver.disconnect();
             cleanupResize();
             editor.destroy();
             editorRef.current = null;

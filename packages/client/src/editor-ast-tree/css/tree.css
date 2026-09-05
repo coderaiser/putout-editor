@@ -1,7 +1,7 @@
 .tree-visualization {
     display: flex;
     flex-direction: column;
-    background-color: transparent;
+    background-color: var(--color-bg-editor);
 }
 
 .tree-visualization > .toolbar {
@@ -31,7 +31,7 @@
     user-select: none;
     overflow-y: auto;
     height: 100%;
-    background-color: transparent;
+    background-color: var(--color-bg-editor);
 }
 
 .tree-visualization .value-body {
