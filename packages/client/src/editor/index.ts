@@ -18,7 +18,7 @@ export {
     getView,
     refresh,
     observeResize,
-} from './codemirror/index.ts';
+} from 'qword/client';
 export {default as Editor} from './Editor.js';
 export {default as getFocusPath} from './getFocusPath.ts';
 export {default as resolvePositionFromIndex} from './resolvePositionFromIndex.js';

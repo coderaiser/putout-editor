@@ -6,7 +6,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import Editor from './Editor.js';
-import {getView, indexFromPos} from './codemirror/index.ts';
+import {getView, indexFromPos} from 'qword/client';
 
 test('Editor: renders .editor container', (t) => {
     const {container} = render(
