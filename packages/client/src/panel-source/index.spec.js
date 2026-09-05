@@ -51,11 +51,16 @@ test('SourcePanel: renders without crashing', (t) => {
 });
 
 test('SourcePanel: renders error boundary fallback on editor error', (t) => {
+    const originalError = console.error;
+    console.error = () => {};
+    
     const {container} = render(
         <Provider store={makeBrokenStore()}>
             <SourcePanel/>
         </Provider>,
     );
+    
+    console.error = originalError;
     
     const result = container.querySelector('.error-boundary');
     

@@ -31,6 +31,9 @@ test('AstPanel: renders without crashing', (t) => {
 });
 
 test('AstPanel: renders error boundary fallback on tree error', (t) => {
+    const originalError = console.error;
+    console.error = () => {};
+    
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -60,6 +63,8 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
             <AstPanel/>
         </Provider>,
     );
+    
+    console.error = originalError;
     
     const result = container.querySelector('.error-boundary');
     

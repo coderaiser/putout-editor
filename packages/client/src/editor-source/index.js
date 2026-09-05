@@ -15,6 +15,11 @@ export default function EditorSource() {
     const keyMap = useSelector(getKeyMap);
     const value = useSelector(getCode);
     const parser = useSelector(getParser);
+    
+    if (!parser) {
+        throw Error('Parser not found');
+    }
+    
     const mode = parser.category.editorMode || parser.category.id;
     const error = useSelector((state) => (getParseResult(state) || {}).error);
     const highlightRange = useSelector(getHighlightRange);
