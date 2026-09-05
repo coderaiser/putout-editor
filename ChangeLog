@@ -1,3 +1,137 @@
+2026.09.05, v3.2.0
+
+fix:
+- 6f67d8f client: editor-code: rm dead code
+- d393861 mobile
+- cc6e204 error when source is broken
+- 17ecd88 client: qword: add null-safe position wrappers
+- 1f30ac7 correct parse endpoint documentation to reflect JSON body format
+- e95a3ef ts: annotate nodeToRange tuple in getFocusPath specs
+- d0395e5 select on editor-source, no editor-result
+- a7b3bf7 @putout/editor: client: enter: keep cursor position
+- 2ac62ad @putout/editor: client: crash
+- 68d473d client: range
+- 757f743 @putout/editor: client: tab
+- 80e66a9 (theme): consistent colors for Tree and JSON across themes
+- ff0e8ca (store): prevent redundant state updates to stop flickering
+- 24fa69d (editor-ast-tree): fix toggle button and JSON/Tree colors
+- 3a523be (editor-result): pass highlightRange to EditorResult
+- 09f0336 (editor): fallback to default position when posFromIndex returns null
+- 1f65564 (tree): apply transparent background for consistent theming
+- 9cf3958 (editor-ast-json): apply dark theme support
+- 7d6fe74 (editor): prevent infinite loop on programmatic selection
+- 5a31a85 (editor): handle null position in selection effect
+- 32a221f (editor-ast-json): add container class for scrollbar and fix displayName
+- 4f70a28 editor-ast-tree: name
+- 44266b5 (visualization): add displayName for proper toolbar labeling
+- 37d7319 (editor-ast-json): use JSON.stringify instead of custom stringify
+- e45fd86 (editor): set selection when highlightRange changes
+- 8f755ab (editor-ast-tree): dispatch setCursor and setHighlight on node click
+- 602d132 client: babel
+- e9a00d0 TreeAdapater: broken editor-ast-tree
+- 9a89ed4 click on editor-ast-tree crashes editor-source
+- 8610174 transform: piscina: do not eagerly spawn worker threads
+- da8d399 types
+- bc7e3f2 Element: click on syntax selects ast
+- b701df4 select on click
+- baf9634 transform: split find-places test with two assertions into one per test
+- 59b09ae ui: PasteDropTarget: fix onText parameter order and use text/plain for drop test
+- 421f4e4 client: close PasteDropTarget tag in app
+- 458d29c editor: render connected editor before reading value in spec
+- 0c076e1 ui: paste drop target set error for invalid ast
+- 42efefb client: load tsx files with jsx transform
+- 97cab81 server: transform: structured errors — 400 mapping and full branch coverage
+- 8e65c9f @putout/editor: client: formatMiddleware: plugins
+- ed27034 @putout/editor: client: Editor
+- 85af66d Editor
+- 913c5a8 bandle size
+- edb3528 Editor: timerRef
+- a7731c6 Editor: timeout
+- b048765 @putout/editor: client: select AST when select js construction
+- a68e576 hide cursor on blur
+- a560a0b clien: style
+- c83e63e @putout/editor: client: run rule after change
+- a7fca9d client: font-size: 14px
+- effc246 client: events: blur
+- 57db9f0 server: parse: align babel plugin names and error typing for tsc
+- 4fab488 cline: font-size: 13px -> 16px
+- 1b06f29 css: replace CM5 rules with CM6, fix syntax highlight, white lines, gutters
+- c4e0e56 Editor.spec: replace CM5 API with CM6
+- 5524f1e storage: gist.spec: use stub.resolves for all fetch stubs
+- d04b47f formatMiddleware: remove dead branch
+- 6967dd9 spinner
+- 4727127 initial load
+- af235fc buildSaveData sets transform null when transformer removed
+- 134e587 parse.js — async/await, delete dead methods, getShareData, no JSX
+- e415c26 gist.js — async/await, remove double-fetch, getShareData, no JSX
+- 2897bf2 remove isomorphic-fetch
+- c33e228 parserMiddleware.spec.js — cover code-change and parser-change staleness branches
+- 8d3d505 snippetMiddleware — factory pattern, storageAdapter via closure not api.extra
+- ba7cf47 store.spec.js — disable RTK serializable checks, add storageAdapter
+- e0335b5 install @reduxjs/toolkit and react-redux
+
+feature:
+- bbc8acd client: editor-ast-tree: migrate to ts
+- 588a3fb client: boundaries: dsl
+- 3aed15c add viewport meta tag for mobile keyboard handling
+- 7cd8387 harden mobile tab accessibility and touch behavior
+- 29678b9 client: mobile: add mobile layout with useMobile hook
+- bb3abfe migrate to qword
+- 35bceaf @putout/editor: qword v1.1.0
+- 0a6f5ad protect from broken editor-source after editor-ast-tree click
+- faa3d63 client: TreeAdapter: improve
+- 8adf970 parser: add position/range contract module
+- 2452d06 client: types
+- 3943546 @putout/editor-client: source-map v0.8.0
+- 2be24f5 client: codemirror: ts
+- bbb5fdb llms: add
+- 886d2c3 client: ts
+- f89e7d3 types: add src/types.ts — shared domain types
+- 04dfec2 server: info
+- 680154d @putout/editor-server: piscina v5.3.2
+- 9388ae7 @putout/editor-server: @nestjs/testing v12.0.1
+- 4cc12a8 @putout/editor-server: @nestjs/serve-static v12.0.0
+- 862263f @putout/editor-server: @nestjs/platform-express v12.0.1
+- f42be88 @putout/editor-server: @nestjs/core v12.0.1
+- 25d3096 @putout/editor-server: @nestjs/common v12.0.1
+- 7561ded @putout/editor-server: @nestjs/cli v12.0.0
+- ab6f5fe @putout/editor-client: try-catch v4.1.1
+- acf4d8b server: query: add
+- 218a417 toolbar -> menu
+- 9676ac3 server: find-places
+- 617fccb client: editor-plugin
+- 089892e getFocusPath: migrate to TS
+- 0b0f15c server: transform: worker
+- 897d4eb find-places: add
+- c13cc0b server: transform: improve
+- cb37ca4 ContentEditor: merge with container
+- 0ac96e6 Toolbar: merge with container
+- cf404c3 new shape
+- f73e0e7 parser-selection
+- 2169ddd @putout/editor: client: snippet
+- 89904b6 @putout/editor: client: ast
+- da83a73 @putout/editor: client: ast
+- 6d65f60 @putout/editor: client: editor
+- 51fbd2c store: migrate tot TS
+- 4d1947d bottom-left editor: format on blur
+- f7a7488 store: migrate to TS
+- 626ed96 migrate to Ts
+- d9b243e client: buttons: migrate ForkButton to TypeScript
+- 56ad523 client: buttons: migrate SaveButton to TypeScript
+- f1f6285 client: buttons: migrate NewButton to TypeScript
+- 91bb71b client: utils: migrate logger to TypeScript
+- 566df1d server: transform: add worker
+- 1f2da6b server: parse: add PUT /parse and GET /parse endpoints
+- 6bc5fb2 rspack: split vendors into focused cache groups
+- 63f22d2 reuse compileModule from redput
+- edba601 @putout/editor: client: codemirror-adapter: split
+- 186319d rm sublime, no CM 6 support
+- d8337ff format plugin code on blur
+- 8dd3038 @putout/editor: client: decrease bundle size
+- cb9845f @putout/editor: client: prettier -> @putout/printer
+- 6bb1beb Editor: simplify
+- ad587bb redux toolkit
+
 2026.08.28, v3.1.0
 
 fix:
