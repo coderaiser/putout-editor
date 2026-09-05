@@ -8,6 +8,7 @@ import SourcePanel from '#panel-source';
 import TransformPanel from '#panel-transform';
 import AppLayout from '#layout';
 import {useMobile} from '#ui';
+import MobileLayout from '#layout-mobile';
 import * as LocalStorage from './snippet/LocalStorage.js';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
@@ -16,7 +17,6 @@ import PasteDropTarget from './ui/PasteDropTarget.js';
 import SettingsDialog from './parser/dialogs/SettingsDialog.js';
 import ShareDialog from './snippet/dialogs/ShareDialog.js';
 import Toolbar from './menu/Toolbar.js';
-import MobileLayout from './layout/MobileLayout.js';
 import debounce from './app/debounce.ts';
 import {
     putoutEditor,

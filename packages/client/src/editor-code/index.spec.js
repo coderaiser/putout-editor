@@ -5,7 +5,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import EditorResult from '#editor-result';
+import EditorResult from '#editor-code';
 
 const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
     _promise: null,

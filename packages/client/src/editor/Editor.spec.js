@@ -5,8 +5,8 @@ import {
     act,
     fireEvent,
 } from '@testing-library/react';
-import Editor from './Editor.js';
 import {getView, indexFromPos} from 'qword/client';
+import Editor from './Editor.js';
 
 test('Editor: renders .editor container', (t) => {
     const {container} = render(

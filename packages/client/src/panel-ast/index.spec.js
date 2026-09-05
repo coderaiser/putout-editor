@@ -3,7 +3,7 @@ import {render, cleanup} from '@testing-library/react';
 import {configureStore} from '@reduxjs/toolkit';
 import {Provider} from 'react-redux';
 import AstPanel from '#panel-ast';
-import {putoutEditor, revive} from '../store/reducers.ts';
+import {putoutEditor, revive} from '#store';
 
 const makeStore = () => configureStore({
     reducer: putoutEditor,

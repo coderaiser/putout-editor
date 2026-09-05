@@ -1,5 +1,5 @@
 import {useSelector} from 'react-redux';
-import EditorResult from '#editor-result';
+import EditorResult from '#editor-code';
 import {
     getTransformCode,
     getCode,

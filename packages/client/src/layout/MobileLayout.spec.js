@@ -5,7 +5,7 @@ import {
     fireEvent,
     cleanup,
 } from '@testing-library/react';
-import MobileLayout from './MobileLayout.js';
+import MobileLayout from '#layout-mobile';
 
 const panels = {
     topLeft: <div>source</div>,
@@ -86,6 +86,7 @@ test('MobileLayout: active tab has active class', (t) => {
     const {container} = render(
         <MobileLayout {...panels}/>,
     );
+    
     const activeButton = container.querySelector('button.active');
     
     cleanup();
@@ -117,8 +118,10 @@ test('MobileLayout: Transform tab has aria-selected=true by default', (t) => {
     });
     
     cleanup();
+    const result = transformTab.getAttribute('aria-selected');
+    const expected = 'true';
     
-    t.equal(transformTab.getAttribute('aria-selected'), 'true');
+    t.equal(result, expected);
     t.end();
 });
 
@@ -132,8 +135,10 @@ test('MobileLayout: Source tab has aria-selected=false by default', (t) => {
     });
     
     cleanup();
+    const result = sourceTab.getAttribute('aria-selected');
+    const expected = 'false';
     
-    t.equal(sourceTab.getAttribute('aria-selected'), 'false');
+    t.equal(result, expected);
     t.end();
 });
 
@@ -149,7 +154,9 @@ test('MobileLayout: clicking Source sets aria-selected=true on Source button', (
     fireEvent.click(sourceTab);
     
     cleanup();
+    const result = sourceTab.getAttribute('aria-selected');
+    const expected = 'true';
     
-    t.equal(sourceTab.getAttribute('aria-selected'), 'true');
+    t.equal(result, expected);
     t.end();
 });

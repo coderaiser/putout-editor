@@ -1,13 +1,12 @@
 import {test} from 'supertape';
-import {buildBoundaries} from './boundaries-dsl.ts';
+import {buildBoundaries} from './boundaries-dsl';
 
 test('buildBoundaries: registers each key as an element with src/ pattern', (t) => {
     const config = buildBoundaries({
         store: [],
         editor: [],
     });
-    const elements = config['boundaries/elements'];
-    const result = elements;
+    const result = config['boundaries/elements'];
     const expected = [{
         type: 'store',
         pattern: 'src/store/**',
