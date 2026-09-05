@@ -6,7 +6,9 @@ test('buildBoundaries: registers each key as an element with src/ pattern', (t) 
         store: [],
         editor: [],
     });
+    
     const result = config['boundaries/elements'];
+    
     const expected = [{
         type: 'store',
         pattern: 'src/store/**',
@@ -24,6 +26,7 @@ test('buildBoundaries: produces a policy for each key', (t) => {
         store: ['editor'],
         editor: [],
     });
+    
     const [, {policies}] = config['boundaries/dependencies'];
     
     t.equal(policies.length, 2);
@@ -36,6 +39,7 @@ test('buildBoundaries: policy allow list matches declared targets', (t) => {
         editor: [],
         parser: [],
     });
+    
     const [, {policies}] = config['boundaries/dependencies'];
     const storePolicy = policies.find((p) => p.from.element.type === 'store');
     
@@ -59,6 +63,7 @@ test('buildBoundaries: wildcard * passes through as literal', (t) => {
     const config = buildBoundaries({
         app: ['*'],
     });
+    
     const [, {policies}] = config['boundaries/dependencies'];
     const [appPolicy] = policies;
     
@@ -102,6 +107,7 @@ test('buildBoundaries: glob with no matches keeps literal pattern', (t) => {
     const config = buildBoundaries({
         layout: ['panel-*'],
     });
+    
     const [, {policies}] = config['boundaries/dependencies'];
     const [layoutPolicy] = policies;
     
@@ -119,6 +125,7 @@ test('buildBoundaries: empty allow list produces empty policy', (t) => {
     const config = buildBoundaries({
         editor: [],
     });
+    
     const [, {policies}] = config['boundaries/dependencies'];
     
     t.deepEqual(policies[0].allow, []);

@@ -565,7 +565,6 @@ test('Editor: clears previous mark when highlightRange changes', (t) => {
     t.end();
 });
 
-
 test('Editor: does not crash when highlightRange is null', (t) => {
     const {container, rerender} = render(
         <Editor value="const x = 1;"/>,

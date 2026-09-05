@@ -5,14 +5,14 @@ import {
 } from 'react';
 import {useDispatch} from 'react-redux';
 import cx from 'classnames';
+import {setCursor, setHighlight} from '#store';
 import ElementName from './ElementName.js';
 import ElementValue from './ElementValue.js';
-import isFocused from './isFocused.js';
+import isFocused from './isFocused.ts';
 import RecursiveTreeElement from './RecursiveTreeElement.js';
-import useElementState from './useElementState.js';
-import useFocusEffect from './useFocusEffect.js';
-import useHighlight from './useHighlight.js';
-import {setCursor, setHighlight} from '../../store/reducers.ts';
+import useElementState from './useElementState.ts';
+import useFocusEffect from './useFocusEffect.ts';
+import useHighlight from './useHighlight.ts';
 
 const isNumber = (a) => !Number.isNaN(a) && typeof a === 'number';
 
