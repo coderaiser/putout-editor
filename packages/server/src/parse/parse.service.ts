@@ -27,8 +27,8 @@ export class ParseService {
             description: 'Parse JavaScript/TypeScript source code with Babel and return its AST.',
             method: 'PUT',
             url: '/api/v1/parse',
-            contentType: 'text/javascript',
-            body: 'const x = foo.bar(42);',
+            contentType: 'application/json',
+            body: JSON.stringify({source: 'const x = foo.bar(42);'}),
             queryParams: {
                 compact: 'boolean (default: false) — strip loc, tokens, comments, extra from AST. Reduces response size by ~60%.',
                 query: 'string — comma-separated Babel node types to search for, e.g. ?query=VariableDeclaration,Identifier. Returns only matching node positions. Implies compact=true.',

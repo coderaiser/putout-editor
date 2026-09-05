@@ -157,6 +157,23 @@ test('parse service: documentation returns object with correct url', (t) => {
     t.end();
 });
 
+test('parse service: documentation returns application/json contentType', async (t) => {
+    const service = await createService(new Map(), new Map());
+    const docs = service.documentation();
+    
+    t.equal(docs.contentType, 'application/json');
+    t.end();
+});
+
+test('parse service: documentation body is valid JSON with source field', async (t) => {
+    const service = await createService(new Map(), new Map());
+    const docs = service.documentation();
+    const parsed = JSON.parse(docs.body);
+    
+    t.ok(Object.hasOwn(parsed, 'source'));
+    t.end();
+});
+
 test('parse service: parseSource returns File node for valid source', async (t) => {
     const service = new ParseService(new Map(), new Map());
     const result = await service.parseSource('const x = 1;') as Record<string, unknown>;
