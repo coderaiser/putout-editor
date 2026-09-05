@@ -150,7 +150,13 @@ html {
 #root {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 26px);
+    height: calc(100dvh - 26px);
+}
+
+@media (width <= 767px) {
+    #root {
+        height: 100dvh;
+    }
 }
 
 #Toolbar {
@@ -646,14 +652,16 @@ li.entry {
 .mobile-layout {
     display: flex;
     flex-direction: column;
-    height: calc(100dvh - var(--toolbar-height, 48px));
+    height: 100%;
     overflow: hidden;
+    min-height: 0;
 }
 
 .mobile-panel {
     flex: 1;
-    overflow: auto;
+    overflow: hidden;
     min-height: 0;
+    position: relative;
 }
 
 .mobile-tabs {
@@ -683,6 +691,35 @@ li.entry {
 }
 
 @media (width <= 767px) {
+    .dropTarget {
+        inset: 0;
+    }
+    
+    #Toolbar > *,
+    #Toolbar > .menuButton > span,
+    #Toolbar button {
+        min-width: 0;
+        padding: 0 6px;
+    }
+    
+    #Toolbar > h1 {
+        font-size: 14px;
+        padding-right: 6px;
+    }
+    
+    #Toolbar #info,
+    #Toolbar .funding {
+        display: none;
+    }
+    
+    #Toolbar button,
+    #Toolbar a,
+    .menuButton,
+    .output .toolbar button {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
     .toolbar-buttons {
         flex-wrap: wrap;
         height: auto;
