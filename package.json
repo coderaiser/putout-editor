@@ -46,7 +46,10 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@codemirror/lang-html": "^6.4.11",
+    "@codemirror/lang-json": "^6.0.2"
+  },
   "publishConfig": {
     "access": "public"
   }
