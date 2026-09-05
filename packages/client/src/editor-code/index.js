@@ -1,10 +1,6 @@
 import {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import stringify from 'json-stringify-safe';
 import {Editor} from '#editor';
-import EditorASTJson from '#editor-ast-json';
-
-const isString = (value) => typeof value === 'string';
 
 async function runTransform(transformer, transformCode, code, parser) {
     if (!transformer._promise)
@@ -13,7 +9,7 @@ async function runTransform(transformer, transformCode, code, parser) {
     const realTransformer = await transformer._promise;
     const result = transformer.transform(realTransformer, transformCode, code, parser);
     
-    return isString(result) ? result : result.code;
+    return result;
 }
 
 export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser}) {
@@ -51,17 +47,12 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                     readOnly={true}
                     value={error.stack}
                 />
-                : isString(result)
-                    ? <Editor
-                        mode={mode}
-                        key="output"
-                        readOnly={true}
-                        value={result}
-                    />
-                    : <EditorASTJson
-                        className="container no-toolbar"
-                        value={stringify(result, null, 2)}
-                    />}
+                : <Editor
+                    mode={mode}
+                    key="output"
+                    readOnly={true}
+                    value={result}
+                />}
         </div>
     );
 }
