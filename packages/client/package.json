@@ -12,7 +12,7 @@
   "author": "coderaiser",
   "imports": {
     "#editor-ast-json": "./src/editor-ast-json/index.js",
-    "#editor": "./src/editor/index.js",
+    "#editor": "./src/editor/index.ts",
     "#editor-code": "./src/editor-code/index.js",
     "#layout": "./src/layout/AppLayout.js",
     "#layout-mobile": "./src/layout/MobileLayout.js",
