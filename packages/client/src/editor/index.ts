@@ -6,8 +6,6 @@ export {
     setDocValue,
     getScrollInfo,
     scrollTo,
-    posFromIndex,
-    indexFromPos,
     getCursorIndex,
     markText,
     addLineClass,
@@ -19,6 +17,11 @@ export {
     refresh,
     observeResize,
 } from 'qword/client';
+
+// Null-safe wrappers
+export {posFromIndex, indexFromPos} from './position.js';
+
+// Existing exports
 export {default as Editor} from './Editor.js';
 export {default as getFocusPath} from './getFocusPath.ts';
 export {default as resolvePositionFromIndex} from './resolvePositionFromIndex.js';

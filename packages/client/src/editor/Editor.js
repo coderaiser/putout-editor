@@ -7,13 +7,15 @@ import {
     addLineClass,
     removeLineClass,
     markText,
-    posFromIndex as adapterPosFromIndex,
-    indexFromPos as adapterIndexFromPos,
     getCursorIndex,
     on,
     off,
     observeResize,
 } from 'qword/client';
+import {
+    posFromIndex as adapterPosFromIndex,
+    indexFromPos as adapterIndexFromPos,
+} from './position.js';
 
 const returns = (a) => () => a;
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
