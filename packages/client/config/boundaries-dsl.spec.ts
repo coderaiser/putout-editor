@@ -1,0 +1,83 @@
+import {test} from 'supertape';
+import {buildBoundaries} from './boundaries-dsl.ts';
+
+test('buildBoundaries: registers each key as an element with src/ pattern', (t) => {
+    const config = buildBoundaries({store: [], editor: []});
+    const elements = config['boundaries/elements'];
+    
+    t.deepEqual(elements, [
+        {type: 'store', pattern: 'src/store/**'},
+        {type: 'editor', pattern: 'src/editor/**'},
+    ]);
+    t.end();
+});
+
+test('buildBoundaries: produces a policy for each key', (t) => {
+    const config = buildBoundaries({store: ['editor'], editor: []});
+    const {policies} = config['boundaries/dependencies'][1];
+    
+    t.equal(policies.length, 2);
+    t.end();
+});
+
+test('buildBoundaries: policy allow list matches declared targets', (t) => {
+    const config = buildBoundaries({store: ['editor', 'parser'], editor: [], parser: []});
+    const {policies} = config['boundaries/dependencies'][1];
+    const storePolicy = policies.find((p) => p.from.element.type === 'store');
+    
+    t.deepEqual(storePolicy?.allow, [
+        {to: {element: {type: 'editor'}}},
+        {to: {element: {type: 'parser'}}},
+    ]);
+    t.end();
+});
+
+test('buildBoundaries: wildcard * passes through as literal', (t) => {
+    const config = buildBoundaries({app: ['*']});
+    const {policies} = config['boundaries/dependencies'][1];
+    const appPolicy = policies[0];
+    
+    t.deepEqual(appPolicy.allow, [{to: {element: {type: '*'}}}]);
+    t.end();
+});
+
+test('buildBoundaries: glob panel-* expands to all panel- keys', (t) => {
+    const config = buildBoundaries({
+        layout: ['panel-*'],
+        'panel-source': [],
+        'panel-ast': [],
+    });
+    const {policies} = config['boundaries/dependencies'][1];
+    const layoutPolicy = policies.find((p) => p.from.element.type === 'layout');
+    
+    t.deepEqual(layoutPolicy?.allow, [
+        {to: {element: {type: 'panel-source'}}},
+        {to: {element: {type: 'panel-ast'}}},
+    ]);
+    t.end();
+});
+
+test('buildBoundaries: glob with no matches keeps literal pattern', (t) => {
+    const config = buildBoundaries({layout: ['panel-*']});
+    const {policies} = config['boundaries/dependencies'][1];
+    const layoutPolicy = policies[0];
+    
+    t.deepEqual(layoutPolicy?.allow, [{to: {element: {type: 'panel-*'}}}]);
+    t.end();
+});
+
+test('buildBoundaries: empty allow list produces empty policy', (t) => {
+    const config = buildBoundaries({editor: []});
+    const {policies} = config['boundaries/dependencies'][1];
+    
+    t.deepEqual(policies[0].allow, []);
+    t.end();
+});
+
+test('buildBoundaries: default is set to disallow', (t) => {
+    const config = buildBoundaries({});
+    const [, ruleConfig] = config['boundaries/dependencies'];
+    
+    t.equal(ruleConfig.default, 'disallow');
+    t.end();
+});
