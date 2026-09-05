@@ -22,7 +22,7 @@ const makeProps = (overrides: Partial<ElementProps> = {}): ElementProps => ({
     open: false,
     deepOpen: false,
     computed: false,
-    treeAdapter: {} as never,
+    treeAdapter: ({} as never),
     settings: {
         autofocus: false,
     },
@@ -30,8 +30,8 @@ const makeProps = (overrides: Partial<ElementProps> = {}): ElementProps => ({
     ...overrides,
 });
 
-function TestHook({props}: {props: ElementProps}) {
-        const containerRef = useRef<HTMLDivElement | null>(null);
+function TestHook({props}: {props: ElementProps;}) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const [state, setState] = useState<ElementState>({
         open: false,
         deepOpen: false,

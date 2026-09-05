@@ -6,11 +6,9 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor} from '../../store/reducers.ts';
+import {putoutEditor, type RootState} from '../../store/reducers.ts';
 import useHighlight from './useHighlight.ts';
-import type {TreeAdapter} from './types.ts';
-import type {NodeRange} from './types.ts';
-import type {RootState} from '../../store/reducers.ts';
+import {type TreeAdapter, type NodeRange} from './types.ts';
 
 const makeAdapter = (range: NodeRange | null): TreeAdapter => ({
     getRange: () => range,
@@ -82,7 +80,7 @@ test('useHighlight: onMouseOver stops event propagation', (t) => {
         value: {},
     });
     
-        const target = document.querySelector('#target')!;
+    const target = document.querySelector('#target')!;
     
     (target as HTMLElement).onmouseover = () => {
         stopPropagation();

@@ -16,9 +16,8 @@ export default function EditorSource() {
     const value = useSelector(getCode);
     const parser = useSelector(getParser);
     
-    if (!parser) {
+    if (!parser)
         throw Error('Parser not found');
-    }
     
     const mode = parser.category.editorMode || parser.category.id;
     const error = useSelector((state) => (getParseResult(state) || {}).error);

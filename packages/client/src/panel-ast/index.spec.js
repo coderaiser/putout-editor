@@ -5,6 +5,8 @@ import {Provider} from 'react-redux';
 import AstPanel from '#panel-ast';
 import {putoutEditor, revive} from '#store';
 
+const noop = () => {};
+
 const makeStore = () => configureStore({
     reducer: putoutEditor,
     preloadedState: revive(putoutEditor(undefined, {
@@ -32,7 +34,8 @@ test('AstPanel: renders without crashing', (t) => {
 
 test('AstPanel: renders error boundary fallback on tree error', (t) => {
     const originalError = console.error;
-    console.error = () => {};
+    
+    console.error = noop;
     
     const base = putoutEditor(undefined, {
         type: '@@INIT',

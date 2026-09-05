@@ -5,6 +5,8 @@ import {Provider} from 'react-redux';
 import SourcePanel from '#panel-source';
 import {putoutEditor, revive} from '#store';
 
+const noop = () => {};
+
 const makeStore = () => configureStore({
     reducer: putoutEditor,
     preloadedState: revive(putoutEditor(undefined, {
@@ -52,7 +54,8 @@ test('SourcePanel: renders without crashing', (t) => {
 
 test('SourcePanel: renders error boundary fallback on editor error', (t) => {
     const originalError = console.error;
-    console.error = () => {};
+    
+    console.error = noop;
     
     const {container} = render(
         <Provider store={makeBrokenStore()}>

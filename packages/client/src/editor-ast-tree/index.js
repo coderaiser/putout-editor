@@ -30,9 +30,8 @@ export default function EditorASTTree() {
     const {ast = null} = parseResult;
     const Visualization = visualizations[selectedOutput];
     
-    if (!parser) {
+    if (!parser)
         throw Error('Parser not found');
-    }
     
     const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(parseResult.ast, cursor, parser) : [], [ast, cursor, parser]);
     

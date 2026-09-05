@@ -4,13 +4,17 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import type {ElementProps, ElementState, TreeAdapter} from './types.ts';
+import type {
+    ElementProps,
+    ElementState,
+    TreeAdapter,
+} from './types.ts';
 import useElementState from './useElementState.ts';
 
 const makeAdapter = (opensByDefault = false): TreeAdapter => ({
     getRange: () => null,
     getNodeName: () => null,
-        walkNode: () => [],
+    walkNode: () => [],
     opensByDefault: () => opensByDefault,
 });
 

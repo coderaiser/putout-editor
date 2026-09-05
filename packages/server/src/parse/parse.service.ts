@@ -28,7 +28,9 @@ export class ParseService {
             method: 'PUT',
             url: '/api/v1/parse',
             contentType: 'application/json',
-            body: JSON.stringify({source: 'const x = foo.bar(42);'}),
+            body: JSON.stringify({
+                source: 'const x = foo.bar(42);',
+            }),
             queryParams: {
                 compact: 'boolean (default: false) — strip loc, tokens, comments, extra from AST. Reduces response size by ~60%.',
                 query: 'string — comma-separated Babel node types to search for, e.g. ?query=VariableDeclaration,Identifier. Returns only matching node positions. Implies compact=true.',
