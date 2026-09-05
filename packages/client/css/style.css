@@ -641,3 +641,48 @@ li.entry {
     padding-left: 5px;
     font-size: 12px;
 }
+
+/* Mobile layout */
+.mobile-layout {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--toolbar-height, 48px));
+    overflow: hidden;
+}
+
+.mobile-panel {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+}
+
+.mobile-tabs {
+    display: flex;
+    height: 48px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-toolbar);
+    flex-shrink: 0;
+}
+
+.mobile-tabs button {
+    flex: 1;
+    font-size: 12px;
+    border: none;
+    border-top: 2px solid transparent;
+    background: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 0;
+}
+
+.mobile-tabs button.active {
+    border-top-color: var(--color-accent);
+    font-weight: 600;
+}
+
+@media (width <= 767px) {
+    .toolbar-buttons {
+        flex-wrap: wrap;
+        height: auto;
+    }
+}
