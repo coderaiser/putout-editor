@@ -1,17 +1,23 @@
 type ElementType = string;
-
 type BoundaryMap = Record<ElementType, ElementType[]>;
-
 type RawElement = {
     type: ElementType;
     pattern: string;
 };
-
 type RawPolicy = {
-    from: {element: {type: ElementType}};
-    allow: {to: {element: {type: ElementType}}}[];
+    from: {
+        element: {
+            type: ElementType;
+        };
+    };
+    allow: {
+        to: {
+            element: {
+                type: ElementType;
+            };
+        };
+    }[];
 };
-
 type BoundariesConfig = {
     'boundaries/elements': RawElement[];
     'boundaries/dependencies': [string, {
@@ -36,22 +42,35 @@ function expandGlob(pattern: ElementType, knownTypes: ElementType[]): ElementTyp
 
 export function buildBoundaries(map: BoundaryMap): BoundariesConfig {
     const knownTypes = Object.keys(map);
+    const elements: RawElement[] = [];
     
-    const elements: RawElement[] = knownTypes.map((type) => ({
-        type,
-        pattern: `src/${type}/**`,
-    }));
+    for (const type of knownTypes) {
+        elements.push({
+            type,
+            pattern: `src/${type}/**`,
+        });
+    }
     
-    const policies: RawPolicy[] = knownTypes.map((from) => {
-        const targets = map[from].flatMap((target) =>
-            expandGlob(target, knownTypes),
-        );
+    const policies: RawPolicy[] = [];
+    
+    for (const from of knownTypes) {
+        const targets = map[from].flatMap((target) => expandGlob(target, knownTypes));
         
-        return {
-            from: {element: {type: from}},
-            allow: targets.map((type) => ({to: {element: {type}}})),
-        };
-    });
+        policies.push({
+            from: {
+                element: {
+                    type: from,
+                },
+            },
+            allow: targets.map((type) => ({
+                to: {
+                    element: {
+                        type,
+                    },
+                },
+            })),
+        });
+    }
     
     return {
         'boundaries/elements': elements,

@@ -1,328 +1,49 @@
 import boundaries from 'eslint-plugin-boundaries';
+import {buildBoundaries} from './boundaries-dsl.ts';
+
+const config = buildBoundaries({
+    'editor': ['parser'],
+    'store': ['editor', 'parser'],
+    'parser': ['editor', 'store'],
+    'snippet': ['editor', 'store', 'parser'],
+    'ui': ['editor', 'store', 'parser'],
+    'editor-source': ['editor', 'store', 'parser'],
+    'editor-result': ['editor', 'editor-ast-json'],
+    'editor-ast-json': ['editor'],
+    'editor-plugin': [
+        'editor',
+        'editor-result',
+        'store',
+        'parser',
+        'ui',
+    ],
+    'editor-ast-tree': [
+        'editor',
+        'editor-ast-json',
+        'store',
+        'parser',
+        'snippet',
+    ],
+    'panel-source': ['editor-source', 'ui'],
+    'panel-ast': ['editor-ast-tree', 'ui'],
+    'panel-transform': ['editor-plugin', 'store'],
+    'panel-code': ['editor-result', 'store', 'parser'],
+    'layout': ['panel-*', 'ui'],
+    'menu': [
+        'editor-plugin',
+        'parser',
+        'snippet',
+        'store',
+    ],
+    'app': ['*'],
+});
 
 export default [{
     plugins: {
         boundaries,
     },
-    settings: {
-        'boundaries/elements': [{
-            type: 'editor',
-            pattern: 'src/editor/**',
-        }, {
-            type: 'store',
-            pattern: 'src/store/**',
-        }, {
-            type: 'parser',
-            pattern: 'src/parser/**',
-        }, {
-            type: 'snippet',
-            pattern: 'src/snippet/**',
-        }, {
-            type: 'ui',
-            pattern: 'src/ui/**',
-        }, {
-            type: 'editor-source',
-            pattern: 'src/editor-source/**',
-        }, {
-            type: 'editor-result',
-            pattern: 'src/editor-result/**',
-        }, {
-            type: 'editor-ast-json',
-            pattern: 'src/editor-ast-json/**',
-        }, {
-            type: 'editor-plugin',
-            pattern: 'src/editor-plugin/**',
-        }, {
-            type: 'editor-ast-tree',
-            pattern: 'src/editor-ast-tree/**',
-        }, {
-            type: 'menu',
-            pattern: 'src/menu/**',
-        }, {
-            type: 'app',
-            pattern: 'src/app/**',
-        }],
-    },
+    settings: config,
     rules: {
-        'boundaries/dependencies': ['error', {
-            default: 'disallow',
-            policies: [{
-                from: {
-                    element: {
-                        type: 'editor',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'store',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'parser',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'snippet',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'ui',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'editor-source',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'editor-result',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'editor-ast-json',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'editor-ast-json',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'editor-plugin',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'editor-result',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'ui',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'editor-ast-tree',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'editor-ast-json',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'snippet',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'menu',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: 'editor-plugin',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'parser',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'snippet',
-                        },
-                    },
-                }, {
-                    to: {
-                        element: {
-                            type: 'store',
-                        },
-                    },
-                }],
-            }, {
-                from: {
-                    element: {
-                        type: 'app',
-                    },
-                },
-                allow: [{
-                    to: {
-                        element: {
-                            type: '*',
-                        },
-                    },
-                }],
-            }],
-        }],
+        'boundaries/dependencies': config['boundaries/dependencies'],
     },
 }];
