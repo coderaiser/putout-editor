@@ -4,13 +4,15 @@ import {
     useRef,
 } from 'react';
 import {useDispatch} from 'react-redux';
-import {setError, dropText} from '../store/reducers.ts';
-import {categories} from '../parser/parsers/index.js';
+import {tryCatch} from 'try-catch';
+import {setError, dropText} from '#store';
+import {categories} from '#parser';
 
 const noop = () => {};
 
-function importEscodegen() {
-    return import('escodegen').then((module_) => module_.default || module_);
+async function importEscodegen() {
+    const escodegen = await import('escodegen');
+    return escodegen.default || escodegen;
 }
 
 const acceptedFileTypes = new Map([
@@ -23,13 +25,10 @@ for (const {id, mimeTypes} of categories)
         acceptedFileTypes.set(mimeType, id);
 
 function jsonToCode(json) {
-    let parsedAst;
+    const [error, parsedAst] = tryCatch(JSON.parse, json);
     
-    try {
-        parsedAst = JSON.parse(json);
-    } catch {
+    if (error)
         return Promise.resolve(json);
-    }
     
     return importEscodegen().then((escodegen) => escodegen.generate(parsedAst, {
         format: {
