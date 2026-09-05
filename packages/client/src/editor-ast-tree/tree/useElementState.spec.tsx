@@ -4,13 +4,17 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
+import type {ElementProps, ElementState, TreeAdapter} from './types.ts';
 import useElementState from './useElementState.ts';
 
-const makeAdapter = (opensByDefault = false) => ({
+const makeAdapter = (opensByDefault = false): TreeAdapter => ({
+    getRange: () => null,
+    getNodeName: () => null,
+        walkNode: () => [],
     opensByDefault: () => opensByDefault,
 });
 
-const makeProps = (overrides = {}) => ({
+const makeProps = (overrides: Partial<ElementProps> = {}): ElementProps => ({
     value: {
         type: 'Identifier',
     },
@@ -19,17 +23,29 @@ const makeProps = (overrides = {}) => ({
     level: 1,
     open: false,
     name: null,
+    computed: false,
+    treeAdapter: makeAdapter(),
+    settings: {
+        autofocus: false,
+    },
+    parent: null,
     ...overrides,
 });
 
-function TestHook({props, adapter, onState}) {
+type TestHookProps = {
+    props: ElementProps;
+    adapter: TreeAdapter;
+    onState: (state: ElementState) => void;
+};
+
+function TestHook({props, adapter, onState}: TestHookProps) {
     const [state] = useElementState(props, adapter);
     onState(state);
     
     return null;
 }
 
-function captureState(props, adapter, onState) {
+function captureState(props: ElementProps, adapter: TreeAdapter, onState: (state: ElementState) => void) {
     render(
         <TestHook props={props} adapter={adapter} onState={onState}/>,
     );
@@ -37,18 +53,18 @@ function captureState(props, adapter, onState) {
 }
 
 test('useElementState: open is false by default at level 1', (t) => {
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps(), makeAdapter(), (state) => {
         result = state;
     });
     
-    t.notOk(result.open);
+    t.notOk(result!.open);
     t.end();
 });
 
 test('useElementState: open is true at level 0', (t) => {
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps({
         level: 0,
@@ -56,7 +72,7 @@ test('useElementState: open is true at level 0', (t) => {
         result = state;
     });
     
-    t.ok(result.open);
+    t.ok(result!.open);
     t.end();
 });
 
@@ -69,7 +85,7 @@ test('useElementState: open is true when value is in focusPath as non-leaf', (t)
         type: 'Identifier',
     };
     
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps({
         value,
@@ -78,7 +94,7 @@ test('useElementState: open is true when value is in focusPath as non-leaf', (t)
         result = state;
     });
     
-    t.ok(result.open);
+    t.ok(result!.open);
     t.end();
 });
 
@@ -87,7 +103,7 @@ test('useElementState: open is false when value is leaf in focusPath', (t) => {
         type: 'Identifier',
     };
     
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps({
         value,
@@ -96,7 +112,7 @@ test('useElementState: open is false when value is leaf in focusPath', (t) => {
         result = state;
     });
     
-    t.notOk(result.open);
+    t.notOk(result!.open);
     t.end();
 });
 
@@ -105,7 +121,7 @@ test('useElementState: initial value matches props.value', (t) => {
         type: 'Identifier',
     };
     
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps({
         value,
@@ -113,29 +129,29 @@ test('useElementState: initial value matches props.value', (t) => {
         result = state;
     });
     
-    t.equal(result.value, value);
+    t.equal(result!.value, value);
     t.end();
 });
 
 test('useElementState: error is null initially', (t) => {
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps(), makeAdapter(), (state) => {
         result = state;
     });
     
-    t.notOk(result.error);
+    t.notOk(result!.error);
     t.end();
 });
 
 test('useElementState: open is true when adapter opens by default', (t) => {
-    let result;
+    let result: ElementState | undefined;
     
     captureState(makeProps(), makeAdapter(true), (state) => {
         result = state;
     });
     
-    t.ok(result.open);
+    t.ok(result!.open);
     t.end();
 });
 
@@ -148,7 +164,7 @@ test('useElementState: updates value when props change', async (t) => {
         type: 'Literal',
     };
     
-    let result;
+    let result: ElementState | undefined;
     
     const {rerender} = render(
         <TestHook
@@ -178,6 +194,6 @@ test('useElementState: updates value when props change', async (t) => {
     
     cleanup();
     
-    t.equal(result.value, second);
+    t.equal(result!.value, second);
     t.end();
 });

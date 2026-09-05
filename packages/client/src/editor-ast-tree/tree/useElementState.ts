@@ -22,7 +22,7 @@ export default function useElementState(props: ElementProps, treeAdapter: TreeAd
     const openFromFocusPath = isInFocusPath && !isLeafInFocusPath;
     
     const [state, setState] = useState<ElementState>({
-        open: open || !level || deepOpen || openFromFocusPath || value && treeAdapter.opensByDefault(value, props.name),
+                open: open || !level || deepOpen || openFromFocusPath || Boolean(value) && treeAdapter.opensByDefault(value, props.name),
         deepOpen,
         value,
         error: null,

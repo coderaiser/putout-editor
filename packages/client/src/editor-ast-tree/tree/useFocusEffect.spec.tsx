@@ -5,27 +5,38 @@ import {
     act,
 } from '@testing-library/react';
 import {useRef, useState} from 'react';
+import type {ElementProps, ElementState} from './types.ts';
 import useFocusEffect from './useFocusEffect.ts';
 
 const noop = () => {};
 
 globalThis.HTMLElement.prototype.scrollIntoView = noop;
 
-const makeProps = (overrides = {}) => ({
+const makeProps = (overrides: Partial<ElementProps> = {}): ElementProps => ({
     focusPath: [],
     value: {
         type: 'Identifier',
     },
+    name: null,
+    level: 1,
+    open: false,
+    deepOpen: false,
+    computed: false,
+    treeAdapter: {} as never,
     settings: {
         autofocus: false,
     },
+    parent: null,
     ...overrides,
 });
 
-function TestHook({props}) {
-    const containerRef = useRef(null);
-    const [state, setState] = useState({
+function TestHook({props}: {props: ElementProps}) {
+        const containerRef = useRef<HTMLDivElement | null>(null);
+    const [state, setState] = useState<ElementState>({
         open: false,
+        deepOpen: false,
+        value: null,
+        error: null,
     });
     
     useFocusEffect(props, state, setState, containerRef);
@@ -40,7 +51,7 @@ test('useFocusEffect: does not open when value not in focusPath', async (t) => {
     );
     
     await act(stub().resolves());
-    const result = container.querySelector('[data-open]').dataset.open;
+    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();
     
@@ -75,7 +86,7 @@ test('useFocusEffect: opens non-leaf when focusPath changes to include value', a
             <TestHook props={props}/>,
         );
     });
-    const result = container.querySelector('[data-open]').dataset.open;
+    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();
     
@@ -106,7 +117,7 @@ test('useFocusEffect: does not open leaf node', async (t) => {
             <TestHook props={props}/>,
         );
     });
-    const result = container.querySelector('[data-open]').dataset.open;
+    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();
     
@@ -132,7 +143,7 @@ test('useFocusEffect: scrolls on initial render when autofocus and leaf in focus
     );
     
     await act(stub().resolves());
-    const result = container.querySelector('[data-open]').dataset.open;
+    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();
     

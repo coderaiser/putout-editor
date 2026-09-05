@@ -8,12 +8,24 @@ import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {putoutEditor} from '../../store/reducers.ts';
 import useHighlight from './useHighlight.ts';
+import type {TreeAdapter} from './types.ts';
+import type {NodeRange} from './types.ts';
+import type {RootState} from '../../store/reducers.ts';
 
-const makeAdapter = (range) => ({
+const makeAdapter = (range: NodeRange | null): TreeAdapter => ({
     getRange: () => range,
+    getNodeName: () => null,
+    walkNode: () => [],
+    opensByDefault: () => false,
 });
 
-function TestComponent({treeAdapter, value, onOver}) {
+type TestComponentProps = {
+    treeAdapter: TreeAdapter;
+    value: unknown;
+    onOver?: (event: React.MouseEvent) => void;
+};
+
+function TestComponent({treeAdapter, value, onOver}: TestComponentProps) {
     const {onMouseOver, onMouseLeave} = useHighlight(treeAdapter, value);
     
     return (
@@ -28,7 +40,13 @@ function TestComponent({treeAdapter, value, onOver}) {
     );
 }
 
-function renderWithStore(props, store) {
+type TestProps = {
+    treeAdapter: TreeAdapter;
+    value: unknown;
+    onOver?: (event: React.MouseEvent) => void;
+};
+
+function renderWithStore(props: TestProps, store?: ReturnType<typeof configureStore>) {
     const currentStore = store || configureStore({
         reducer: putoutEditor,
     });
@@ -43,16 +61,16 @@ function renderWithStore(props, store) {
 }
 
 test('useHighlight: onMouseOver sets highlightRange from adapter range', (t) => {
-    const range = [0, 5];
+    const range: NodeRange = [0, 5];
     const store = renderWithStore({
         treeAdapter: makeAdapter(range),
         value: {},
     });
     
-    fireEvent.mouseOver(document.querySelector('#target'));
+    fireEvent.mouseOver(document.querySelector('#target')!);
     cleanup();
     
-    t.deepEqual(store.getState().highlightRange, [0, 5]);
+    t.deepEqual((store.getState() as RootState).highlightRange, [0, 5]);
     t.end();
 });
 
@@ -60,13 +78,13 @@ test('useHighlight: onMouseOver stops event propagation', (t) => {
     const stopPropagation = stub();
     
     renderWithStore({
-        treeAdapter: makeAdapter([0, 5]),
+        treeAdapter: makeAdapter([0, 5] as NodeRange),
         value: {},
     });
     
-    const target = document.querySelector('#target');
+        const target = document.querySelector('#target')!;
     
-    target.onmouseover = () => {
+    (target as HTMLElement).onmouseover = () => {
         stopPropagation();
     };
     
@@ -78,7 +96,7 @@ test('useHighlight: onMouseOver stops event propagation', (t) => {
 });
 
 test('useHighlight: onMouseLeave clears highlightRange', (t) => {
-    const range = [0, 5];
+    const range: NodeRange = [0, 5];
     const store = configureStore({
         reducer: putoutEditor,
         preloadedState: {
@@ -94,19 +112,19 @@ test('useHighlight: onMouseLeave clears highlightRange', (t) => {
         value: {},
     }, store);
     
-    fireEvent.mouseLeave(document.querySelector('#target'));
+    fireEvent.mouseLeave(document.querySelector('#target')!);
     cleanup();
-    const {highlightRange} = store.getState();
+    const {highlightRange} = store.getState() as RootState;
     
     t.notOk(highlightRange);
     t.end();
 });
 
 test('useHighlight: returns onMouseOver function', (t) => {
-    let result;
+    let result: ReturnType<typeof useHighlight> | undefined;
     
     function ProbeComponent() {
-        result = useHighlight(makeAdapter([0, 5]), {});
+        result = useHighlight(makeAdapter([0, 5] as NodeRange), {});
         
         return null;
     }
@@ -122,15 +140,15 @@ test('useHighlight: returns onMouseOver function', (t) => {
     );
     cleanup();
     
-    t.equal(typeof result.onMouseOver, 'function');
+    t.equal(typeof result!.onMouseOver, 'function');
     t.end();
 });
 
 test('useHighlight: returns onMouseLeave function', (t) => {
-    let result;
+    let result: ReturnType<typeof useHighlight> | undefined;
     
     function ProbeComponent() {
-        result = useHighlight(makeAdapter([0, 5]), {});
+        result = useHighlight(makeAdapter([0, 5] as NodeRange), {});
         
         return null;
     }
@@ -146,7 +164,7 @@ test('useHighlight: returns onMouseLeave function', (t) => {
     );
     cleanup();
     
-    t.equal(typeof result.onMouseLeave, 'function');
+    t.equal(typeof result!.onMouseLeave, 'function');
     t.end();
 });
 
@@ -156,9 +174,9 @@ test('useHighlight: onMouseOver without range does not set highlightRange', (t) 
         value: {},
     });
     
-    fireEvent.mouseOver(document.querySelector('#target'));
+    fireEvent.mouseOver(document.querySelector('#target')!);
     cleanup();
-    const {highlightRange} = store.getState();
+    const {highlightRange} = store.getState() as RootState;
     
     t.notOk(highlightRange);
     t.end();
@@ -180,9 +198,9 @@ test('useHighlight: onMouseOver without range keeps existing highlightRange', (t
         value: {},
     }, store);
     
-    fireEvent.mouseOver(document.querySelector('#target'));
+    fireEvent.mouseOver(document.querySelector('#target')!);
     cleanup();
     
-    t.deepEqual(store.getState().highlightRange, [0, 5]);
+    t.deepEqual((store.getState() as RootState).highlightRange, [0, 5]);
     t.end();
 });
