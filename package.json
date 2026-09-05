@@ -32,7 +32,7 @@
     "madfork": "^1.0.1",
     "madrun": "^13.0.3",
     "oxlint": "^1.35.0",
-    "qword": "^1.1.0",
+    "qword": "^1.1.1",
     "redlint": "^6.0.0",
     "superc8": "^12.0.0",
     "supertape": "^13.0.0"
@@ -46,10 +46,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {
-    "@codemirror/lang-html": "^6.4.11",
-    "@codemirror/lang-json": "^6.0.2"
-  },
+  "dependencies": {},
   "publishConfig": {
     "access": "public"
   }
