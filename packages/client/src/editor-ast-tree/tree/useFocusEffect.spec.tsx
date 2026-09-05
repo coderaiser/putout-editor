@@ -5,7 +5,7 @@ import {
     act,
 } from '@testing-library/react';
 import {useRef, useState} from 'react';
-import useFocusEffect from './useFocusEffect.js';
+import useFocusEffect from './useFocusEffect.ts';
 
 const noop = () => {};
 

@@ -7,7 +7,7 @@ import {
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {putoutEditor} from '../../store/reducers.ts';
-import useHighlight from './useHighlight.js';
+import useHighlight from './useHighlight.ts';
 
 const makeAdapter = (range) => ({
     getRange: () => range,

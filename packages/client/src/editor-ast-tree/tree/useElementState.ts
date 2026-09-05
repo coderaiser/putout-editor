@@ -1,6 +1,14 @@
 import {useState} from 'react';
+import type {
+    ElementProps,
+    ElementState,
+    TreeAdapter,
+} from './types.ts';
 
-export default function useElementState(props, treeAdapter) {
+export default function useElementState(props: ElementProps, treeAdapter: TreeAdapter): [
+    ElementState,
+    React.Dispatch<React.SetStateAction<ElementState>>,
+] {
     const {
         value,
         deepOpen,
@@ -13,7 +21,7 @@ export default function useElementState(props, treeAdapter) {
     const isLeafInFocusPath = focusPath.at(-1) === value;
     const openFromFocusPath = isInFocusPath && !isLeafInFocusPath;
     
-    const [state, setState] = useState({
+    const [state, setState] = useState<ElementState>({
         open: open || !level || deepOpen || openFromFocusPath || value && treeAdapter.opensByDefault(value, props.name),
         deepOpen,
         value,

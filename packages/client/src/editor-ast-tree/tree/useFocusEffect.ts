@@ -1,8 +1,9 @@
 import {useEffect, useRef} from 'react';
+import type {ElementProps, ElementState} from './types.ts';
 
-export default function useFocusEffect(props, state, setState, containerRef) {
+export default function useFocusEffect(props: ElementProps, state: ElementState, setState: React.Dispatch<React.SetStateAction<ElementState>>, containerRef: React.RefObject<HTMLElement | null>) {
     const mounted = useRef(false);
-    const previousFocusPath = useRef(null);
+    const previousFocusPath = useRef<unknown[] | null>(null);
     
     useEffect(() => {
         const wasFocusPath = previousFocusPath.current;
@@ -33,7 +34,7 @@ export default function useFocusEffect(props, state, setState, containerRef) {
     });
 }
 
-function scrollToLeaf(focusPath, value, containerRef) {
+function scrollToLeaf(focusPath: unknown[], value: unknown, containerRef: React.RefObject<HTMLElement | null>) {
     if (focusPath.length > 0 && focusPath.at(-1) === value)
         setTimeout(() => containerRef.current?.scrollIntoView(), 0);
 }

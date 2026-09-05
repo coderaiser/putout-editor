@@ -4,7 +4,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import useElementState from './useElementState.js';
+import useElementState from './useElementState.ts';
 
 const makeAdapter = (opensByDefault = false) => ({
     opensByDefault: () => opensByDefault,

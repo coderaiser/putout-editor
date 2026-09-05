@@ -1,11 +1,12 @@
 import {useDispatch} from 'react-redux';
 import {setHighlight, clearHighlight} from '../../store/reducers.ts';
+import type {TreeAdapter} from './types.ts';
 
-export default function useHighlight(treeAdapter, value) {
+export default function useHighlight(treeAdapter: TreeAdapter, value: unknown) {
     const dispatch = useDispatch();
     const range = treeAdapter.getRange(value);
     
-    function onMouseOver(event) {
+    function onMouseOver(event: React.MouseEvent) {
         event.stopPropagation();
         
         if (!range)

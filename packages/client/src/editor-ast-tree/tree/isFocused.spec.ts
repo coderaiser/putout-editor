@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import isFocused from './isFocused.js';
+import isFocused from './isFocused.ts';
 
 const node = {
     type: 'Identifier',
