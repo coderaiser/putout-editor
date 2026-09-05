@@ -688,3 +688,13 @@ li.entry {
         height: auto;
     }
 }
+.parse-error {
+    padding: 20px;
+    margin: 0;
+    font-family: monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--color-error, #e53e3e);
+    background: transparent;
+}

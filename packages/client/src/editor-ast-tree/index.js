@@ -38,13 +38,7 @@ export default function EditorASTTree() {
     let output;
     
     if (parseResult.error)
-        output = <div
-            style={{
-                padding: 20,
-            }}
-        >
-            {parseResult.error.message}
-        </div>;
+        output = <pre className="parse-error">{parseResult.error.message}</pre>;
     else if (ast)
         output = <Visualization
             parseResult={parseResult}

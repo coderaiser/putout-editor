@@ -18,7 +18,7 @@ export default function ErrorMessage() {
                     {' '}
                     Error
                 </h3>
-                <div>{error.message}</div>
+                <pre className="parse-error">{error.message}</pre>
                 <div
                     style={{
                         marginTop: 15,
