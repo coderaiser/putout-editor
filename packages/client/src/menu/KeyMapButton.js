@@ -8,7 +8,7 @@ const keyMappings = [
     'emacs',
 ];
 
-export default function KeyMapButton({keyMap, onKeyMapChange}) {
+export default function KeyMapButton({id, keyMap, onKeyMapChange}) {
     const [forceClosed, setForceClosed] = useState(false);
     
     const onItemClick = (key) => {
@@ -26,6 +26,7 @@ export default function KeyMapButton({keyMap, onKeyMapChange}) {
     
     return (
         <div
+            id={id}
             className={cx({
                 'button': true,
                 'menuButton': true,

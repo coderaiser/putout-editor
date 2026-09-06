@@ -3,7 +3,7 @@ import cx from 'classnames';
 import {TbToggleLeft, TbToggleRight} from 'react-icons/tb';
 import {getTransformerByID} from '#parser';
 
-export default function TransformButton({category, transformer, showTransformer, onTransformChange}) {
+export default function TransformButton({id, category, transformer, showTransformer, onTransformChange}) {
     const [forceClosed, setForceClosed] = useState(false);
     
     const onTriggerClick = () => {
@@ -31,6 +31,7 @@ export default function TransformButton({category, transformer, showTransformer,
     
     return (
         <div
+            id={id}
             className={cx({
                 'button': true,
                 'menuButton': true,

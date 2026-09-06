@@ -126,12 +126,14 @@ export default function Toolbar() {
                 onParserSettingsButtonClick={onParserSettingsButtonClick}
             />
             <TransformButton
+                id="ToolbarTransform"
                 category={parser.category}
                 transformer={transformer}
                 showTransformer={showTransformerVal}
                 onTransformChange={onTransformChange}
             />
             <KeyMapButton
+                id="ToolbarKeyMap"
                 keyMap={keyMap}
                 onKeyMapChange={onKeyMapChange}
             />
