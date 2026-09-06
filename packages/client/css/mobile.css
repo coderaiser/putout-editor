@@ -1,6 +1,112 @@
-@media (width <= 767px) {
-    /* ── Layout ───────────────────────────────────────────── */
+/* ── Mobile layout ───────────────────────────────────────── */
 
+#MobileMenu {
+    display: flex;
+    flex-shrink: 0;
+    height: 44px;
+    background: var(--color-bg-toolbar);
+    border-bottom: 1px solid var(--color-border);
+    position: relative;    /* anchor for dropdown absolute positioning */
+    z-index: 300;          /* above editor */
+}
+
+#MobileMenu > *,
+#MobileMenu .mobile-dropdown {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    border-right: 1px solid var(--color-border);
+    box-sizing: border-box;
+}
+
+/* ── MobileDropdown ──────────────────────────────────────── */
+
+.mobile-dropdown__trigger {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-dropdown__trigger:active {
+    background: var(--color-hover);
+}
+
+.mobile-dropdown__menu {
+    position: absolute;
+    bottom: 44px;
+    left: 0;
+    min-width: 180px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--color-bg-toolbar);
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    box-shadow: 0 -4px 16px rgb(0 0 0 / 20%);
+    z-index: 400;
+}
+
+.mobile-dropdown__menu li {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-dropdown__menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-dropdown__menu button:active {
+    background: var(--color-hover);
+}
+
+.mobile-dropdown__menu button:disabled {
+    color: var(--color-text-dim);
+    cursor: default;
+}
+
+/* ── Help link + Theme button ────────────────────────────── */
+
+.mobile-menu__help,
+.mobile-menu__theme {
+    color: var(--color-text);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+
+@media (width <= 767px) {
     #root {
         height: 100dvh;
     }
@@ -9,121 +115,7 @@
         inset: 0;
     }
 
-    /* ── Toolbar: stacking context above editor ───────────── */
-
-    #Toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        height: auto;
-        padding: 0;
-        overflow: visible;
-        z-index: 300;
-        position: relative;
-    }
-
-    /* Uniform cells — 4 items × 25% = one row, no orphans */
-    #Toolbar > *,
-    #Toolbar > .menuButton {
-        min-width: 0;
-        width: 25%;
-        flex: 0 0 25%;
-        height: 44px;
-        border-right: 1px solid var(--color-border);
-        border-bottom: 1px solid var(--color-border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        padding: 0 10px;
-        box-sizing: border-box;
-    }
-
-    #Toolbar button,
-    #Toolbar > a {
-        width: 100%;
-        height: 44px;
-        font-size: 13px;
-        padding: 0 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-    }
-
-    /* Hide on mobile — leaves Snippet, Parser, ?, Theme: one clean row */
-    #Toolbar #info,
-    #Toolbar h1,
-    #ToolbarTransform,
-    #ToolbarKeyMap,
-    #Toolbar .funding {
-        display: none;
-    }
-
-    /* ── Dropdowns: open upward, solid background ─────────── */
-
-    #Toolbar .menuButton {
-        position: relative;
-    }
-
-    #Toolbar .menuButton ul {
-        position: absolute !important;
-        top: auto !important;
-        bottom: 100% !important;
-        left: 0 !important;
-        z-index: 400 !important;
-        min-width: 180px;
-        display: none;
-        padding: 0;
-        margin: 0;
-        list-style: none;
-        border: 1px solid var(--color-border) !important;
-        border-bottom: none !important;
-        background-color: var(--color-bg-toolbar) !important;
-        box-shadow: 0 -4px 16px rgb(0 0 0 / 25%);
-    }
-
-    #Toolbar .menuButton:hover > ul,
-    #Toolbar .menuButton > ul:not([style*="display: none"]) {
-        display: block;
-    }
-
-    #Toolbar .menuButton ul li {
-        display: block;
-        border-bottom: 1px solid var(--color-border);
-    }
-
-    #Toolbar .menuButton ul button {
-        width: 100%;
-        height: 44px;
-        font-size: 13px;
-        text-align: left;
-        justify-content: flex-start;
-        padding: 0 16px;
-        background-color: transparent !important;
-        color: var(--color-text) !important;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    #Toolbar .menuButton ul button:active,
-    #Toolbar .menuButton ul button:hover {
-        background-color: var(--color-hover) !important;
-    }
-
-    /* ── Touch ───────────────────────────────────────────── */
-
-    #Toolbar button,
-    #Toolbar a,
-    .menuButton,
-    .output .toolbar button,
-    .mobile-tabs button {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    /* ── Editor: prevent scroll bleeding out of CM6 ──────── */
-
+    /* Editor: prevent scroll bleeding out of CM6 */
     .mobile-panel .cm-scroller {
         overflow: auto;
         touch-action: pan-y;
@@ -134,8 +126,7 @@
         touch-action: pan-y;
     }
 
-    /* ── Tab bar: iPhone home indicator safe area ─────────── */
-
+    /* Tab bar: iPhone home indicator */
     .mobile-tabs {
         height: calc(48px + env(safe-area-inset-bottom));
         padding-bottom: env(safe-area-inset-bottom);

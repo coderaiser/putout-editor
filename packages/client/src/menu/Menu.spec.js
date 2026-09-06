@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import Toolbar from './Toolbar.js';
+import Menu from './Menu.js';
 import {putoutEditor, revive} from '../store/reducers.ts';
 
 const recordActions = (actions) => () => (next) => (action) => {
@@ -38,18 +38,18 @@ function makeStore(overrides = {}, actions = []) {
     });
 }
 
-function renderToolbar(store) {
+function renderMenu(store) {
     render(
         <Provider store={store}>
-            <Toolbar/>
+            <Menu/>
         </Provider>,
     );
 }
 
-test('Toolbar: renders title', (t) => {
+test('Menu: renders title', (t) => {
     const store = makeStore();
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const title = document.querySelector('#Toolbar h1');
     
@@ -59,10 +59,10 @@ test('Toolbar: renders title', (t) => {
     t.end();
 });
 
-test('Toolbar: renders help question-mark svg icon', (t) => {
+test('Menu: renders help question-mark svg icon', (t) => {
     const store = makeStore();
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const svg = document.querySelector('#Toolbar a svg');
     
@@ -72,10 +72,10 @@ test('Toolbar: renders help question-mark svg icon', (t) => {
     t.end();
 });
 
-test('Toolbar: parser info shows parser name', (t) => {
+test('Menu: parser info shows parser name', (t) => {
     const store = makeStore();
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const info = document.querySelector('#info');
     const result = info.textContent.includes('babel');
@@ -86,10 +86,10 @@ test('Toolbar: parser info shows parser name', (t) => {
     t.end();
 });
 
-test('Toolbar: parser info renders link when parser has homepage', (t) => {
+test('Menu: parser info renders link when parser has homepage', (t) => {
     const store = makeStore();
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const link = document.querySelector('#info a');
     
@@ -99,10 +99,10 @@ test('Toolbar: parser info renders link when parser has homepage', (t) => {
     t.end();
 });
 
-test('Toolbar: transformer info shown when showTransformer', (t) => {
+test('Menu: transformer info shown when showTransformer', (t) => {
     const store = makeStore();
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const info = document.querySelector('#info');
     const result = info.textContent.includes('Transformer') && info.textContent.includes('🐊Putout');
@@ -113,12 +113,12 @@ test('Toolbar: transformer info shown when showTransformer', (t) => {
     t.end();
 });
 
-test('Toolbar: no transformer info when showTransformer false', (t) => {
+test('Menu: no transformer info when showTransformer false', (t) => {
     const store = makeStore({
         showTransformPanel: false,
     });
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const info = document.querySelector('#info');
     const result = info.textContent.includes('Transformer');
@@ -129,10 +129,10 @@ test('Toolbar: no transformer info when showTransformer false', (t) => {
     t.end();
 });
 
-test('Toolbar: keyMap menu item dispatches setKeyMap', (t) => {
+test('Menu: keyMap menu item dispatches setKeyMap', (t) => {
     const store = makeStore();
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const items = document.querySelectorAll('#Toolbar li');
     const vimItem = [...items].find((item) => item.textContent === 'vim');
@@ -147,11 +147,11 @@ test('Toolbar: keyMap menu item dispatches setKeyMap', (t) => {
     t.end();
 });
 
-test('Toolbar: save button dispatches snippet/save', (t) => {
+test('Menu: save button dispatches snippet/save', (t) => {
     const actions = [];
     const store = makeStore({}, actions);
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const buttons = document.querySelectorAll('#Toolbar button');
     const saveButton = [...buttons].find((button) => button.textContent.trim() === 'Save');
@@ -166,12 +166,12 @@ test('Toolbar: save button dispatches snippet/save', (t) => {
     t.end();
 });
 
-test('Toolbar: new button clears location hash', (t) => {
+test('Menu: new button clears location hash', (t) => {
     const store = makeStore();
     
     globalThis.location.hash = '#/gist/abc';
     
-    renderToolbar(store);
+    renderMenu(store);
     
     const buttons = document.querySelectorAll('#Toolbar button');
     const newButton = [...buttons].find((button) => button.textContent.includes('New'));
@@ -186,11 +186,11 @@ test('Toolbar: new button clears location hash', (t) => {
     t.end();
 });
 
-test('Toolbar: fork button dispatches snippet/save with payload true', (t) => {
+test('Menu: fork button dispatches snippet/save with payload true', (t) => {
     const actions = [];
     const store = makeStore({}, actions);
     
-    renderToolbar(store);
+    renderMenu(store);
     
     // The save button is the last button in the toolbar (from SnippetButton)
     const buttons = document.querySelectorAll('#Toolbar button');
@@ -206,7 +206,7 @@ test('Toolbar: fork button dispatches snippet/save with payload true', (t) => {
     t.end();
 });
 
-test('Toolbar: share button dispatches openShareDialog', (t) => {
+test('Menu: share button dispatches openShareDialog', (t) => {
     const actions = [];
     const store = makeStore({
         activeRevision: {
@@ -227,7 +227,7 @@ test('Toolbar: share button dispatches openShareDialog', (t) => {
         },
     }, actions);
     
-    renderToolbar(store);
+    renderMenu(store);
     
     // The share button is inside SnippetButton
     const buttons = document.querySelectorAll('#Toolbar button');
@@ -243,11 +243,11 @@ test('Toolbar: share button dispatches openShareDialog', (t) => {
     t.end();
 });
 
-test('Toolbar: transform button dispatches selectTransformer', (t) => {
+test('Menu: transform button dispatches selectTransformer', (t) => {
     const actions = [];
     const store = makeStore({}, actions);
     
-    renderToolbar(store);
+    renderMenu(store);
     
     // Find the transform button (it's a select-like component)
     cleanup();
