@@ -366,13 +366,14 @@ html {
     inset: 0;
     padding: 0;
     border: none;
-    background-color: transparent;
+    background-color: var(--color-bg-editor);
     color: var(--color-text);
 }
 
 .output .toolbar {
     margin-left: -1px;
     border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-bg-toolbar);
 }
 
 .output .toolbar > button {
@@ -383,6 +384,7 @@ html {
     border-left: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
     background-color: transparent;
+    color: var(--color-text);
     display: inline-block;
     vertical-align: top;
     outline: none;
