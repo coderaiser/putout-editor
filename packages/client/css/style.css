@@ -660,9 +660,10 @@ li.entry {
 .mobile-layout {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+    flex: 1;
     min-height: 0;
+    overflow: hidden;
+    background-color: var(--color-bg-editor);
 }
 
 .mobile-panel {
@@ -670,6 +671,7 @@ li.entry {
     overflow: hidden;
     min-height: 0;
     position: relative;
+    background-color: var(--color-bg-editor);
 }
 
 .mobile-tabs {
