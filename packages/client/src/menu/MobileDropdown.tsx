@@ -9,19 +9,19 @@ type Props = {
 export default function MobileDropdown({trigger, children, className}: Props) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-    
+
     useEffect(() => {
         if (!open)
             return;
-        
-        const onPointerDown = (e: PointerEvent) => {
+
+        const onPointerUp = (e: PointerEvent) => {
             if (!ref.current?.contains(e.target as Node))
                 setOpen(false);
         };
-        
-        document.addEventListener('pointerdown', onPointerDown);
-        
-        return () => document.removeEventListener('pointerdown', onPointerDown);
+
+        document.addEventListener('pointerup', onPointerUp);
+
+        return () => document.removeEventListener('pointerup', onPointerUp);
     }, [open]);
     
     const classes = ['mobile-dropdown', className]
