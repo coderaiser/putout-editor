@@ -414,21 +414,27 @@ html {
 
 #EditorASTJson .cm-editor {
     font-size: inherit;
+}
+
+/* Light theme: transparent so page background shows through */
+:root:not([data-theme='dark']) #EditorASTJson .cm-editor {
     background-color: transparent;
     color: var(--color-text);
 }
 
-#EditorASTJson .cm-gutters {
+:root:not([data-theme='dark']) #EditorASTJson .cm-gutters {
     background-color: transparent;
 }
 
-#EditorASTJson .cm-gutterElement {
+:root:not([data-theme='dark']) #EditorASTJson .cm-gutterElement {
     color: var(--color-text-dim);
 }
 
-#EditorASTJson .cm-content {
+:root:not([data-theme='dark']) #EditorASTJson .cm-content {
     color: var(--color-text);
 }
+
+/* Dark theme: let nord control all colors — no overrides */
 
 .editor {
     position: absolute;
