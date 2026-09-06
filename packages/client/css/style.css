@@ -1,5 +1,6 @@
 @import './highlight.css';
 @import '../fontcustom/fontcustom.css';
+@import './mobile.css';
 
 :root {
     --color-bg-page:         #fff;
@@ -153,11 +154,7 @@ html {
     height: calc(100dvh - 26px);
 }
 
-@media (width <= 767px) {
-    #root {
-        height: 100dvh;
-    }
-}
+
 
 #Toolbar {
     flex-shrink: 0;
@@ -700,41 +697,7 @@ li.entry {
     font-weight: 600;
 }
 
-@media (width <= 767px) {
-    .dropTarget {
-        inset: 0;
-    }
-    
-    #Toolbar > *,
-    #Toolbar > .menuButton > span,
-    #Toolbar button {
-        min-width: 0;
-        padding: 0 6px;
-    }
-    
-    #Toolbar > h1 {
-        font-size: 14px;
-        padding-right: 6px;
-    }
-    
-    #Toolbar #info,
-    #Toolbar .funding {
-        display: none;
-    }
-    
-    #Toolbar button,
-    #Toolbar a,
-    .menuButton,
-    .output .toolbar button {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .toolbar-buttons {
-        flex-wrap: wrap;
-        height: auto;
-    }
-}
+
 
 .parse-error {
     padding: 20px;
