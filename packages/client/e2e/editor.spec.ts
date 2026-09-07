@@ -127,7 +127,7 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     await press('Escape');
 
     await press('0');
-    await press('f}');
+    await write('f}');
     await press('V');
     await press('y');
     await press('p');
