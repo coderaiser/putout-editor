@@ -118,12 +118,11 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
         await page.getByRole('tab', {name: /source/i}).tap();
     }
 
+    await page.locator(`[data-name="${EDITOR_SOURCE}"] .cm-content`).click();
     const {write, press, read} = await editor.get(EDITOR_SOURCE);
-    await press('i');
     await press('ControlOrMeta+A');
-    await write('    rules.push(element);');
-    await press('Enter');
-    await write('}');
+    await write('    rules.push(element);
+}');
     await press('Escape');
 
     await press('0');
