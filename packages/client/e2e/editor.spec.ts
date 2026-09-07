@@ -60,3 +60,25 @@ test('switching AST view changes the output mode', async ({page}) => {
     await page.getByRole('button', {name: /json/i}).click();
     await expect(page.locator('.output .cm-editor').first()).toBeVisible();
 });
+
+test('vim mode preserves indent after consecutive Enter presses', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+
+    if (await page.locator('.mobile-tabs').isVisible())
+        await page.getByRole('tab', {name: /source/i}).tap();
+
+    await page.locator(`[data-name="${EDITOR_SOURCE}"] .cm-content`).click();
+    const {write, press, read} = await editor.get(EDITOR_SOURCE);
+
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write('    hello');
+    await press('Enter');
+    await press('Enter');
+    await write('X');
+    await press('Escape');
+
+    const result = await read();
+    expect(result).toContain('  X');
+});
