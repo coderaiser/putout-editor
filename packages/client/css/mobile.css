@@ -19,6 +19,7 @@
     height: 44px;
     border-right: 1px solid var(--color-border);
     box-sizing: border-box;
+    position: relative;    /* anchor for child dropdown menu */
 }
 
 /* ── MobileDropdown ──────────────────────────────────────── */

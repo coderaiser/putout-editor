@@ -14,14 +14,25 @@ export default function MobileDropdown({trigger, children, className}: Props) {
         if (!open)
             return;
 
-        const onPointerUp = (e: PointerEvent) => {
-            if (!ref.current?.contains(e.target as Node))
-                setOpen(false);
+        // Defer so the tap/click that opened the menu doesn't
+        // immediately re-close it via the document listener
+        let onPointerDown: ((e: PointerEvent) => void) | null = null;
+
+        const id = setTimeout(() => {
+            onPointerDown = (e: PointerEvent) => {
+                if (!ref.current?.contains(e.target as Node))
+                    setOpen(false);
+            };
+
+            document.addEventListener('pointerdown', onPointerDown);
+        }, 0);
+
+        return () => {
+            clearTimeout(id);
+
+            if (onPointerDown)
+                document.removeEventListener('pointerdown', onPointerDown);
         };
-
-        document.addEventListener('pointerup', onPointerUp);
-
-        return () => document.removeEventListener('pointerup', onPointerUp);
     }, [open]);
     
     const classes = ['mobile-dropdown', className]
