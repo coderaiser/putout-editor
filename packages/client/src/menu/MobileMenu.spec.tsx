@@ -18,6 +18,7 @@ function makeStore(overrides: any = {}, actions: any[] = []) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
+    
     const state = {
         ...base,
         ...overrides,
@@ -340,6 +341,7 @@ test('MobileMenu: Snippet shows loader while saving', (t) => {
     const store = makeStore({
         saving: true,
     });
+    
     const {container, unmount} = renderMenu(store);
     
     fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
@@ -356,6 +358,7 @@ test('MobileMenu: Snippet save button disabled while saving', (t) => {
     const store = makeStore({
         saving: true,
     });
+    
     const {container, unmount} = renderMenu(store);
     
     fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);

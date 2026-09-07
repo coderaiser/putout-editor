@@ -95,7 +95,7 @@ test('SplitPane: pointerdown on divider does not throw', (t) => {
     fireEvent.pointerDown(container.querySelector('.splitpane-divider'));
     cleanup();
     
-    t.ok(true);
+    t.pass();
     t.end();
 });
 
@@ -126,7 +126,7 @@ test('SplitPane: pointerup without onResize does not throw', (t) => {
     fireEvent.pointerUp(document);
     cleanup();
     
-    t.ok(true);
+    t.pass();
     t.end();
 });
 
@@ -172,6 +172,6 @@ test('SplitPane: vertical pointermove uses pageY', (t) => {
     fireEvent.pointerUp(document);
     cleanup();
     
-    t.ok(true);
+    t.pass();
     t.end();
 });

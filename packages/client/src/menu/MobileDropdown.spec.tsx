@@ -108,6 +108,7 @@ test('MobileDropdown: applies className to wrapper', (t) => {
     const {container, unmount} = renderDropdown({
         className: 'my-class',
     });
+    
     t.ok(container.querySelector('.mobile-dropdown.my-class'));
     unmount();
     cleanup();

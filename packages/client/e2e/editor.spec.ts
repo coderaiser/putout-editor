@@ -58,6 +58,7 @@ test('syntax error contains useful information', async ({page}) => {
         .locator('.output')
         .first()
         .locator('pre.parse-error');
+    
     await expect(error).toBeVisible();
     await expect(error).toContainText(/Unexpected token/i);
 });
@@ -202,6 +203,7 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
         press,
         read,
     } = await editor.get(EDITOR_SOURCE);
+    
     await press('ControlOrMeta+A');
     await write('for (const [index, element] of elements.entries()) {\n    if (compare(element, "heading(2, \\"Rules\\")")) {\n        rules.push(element);\n    }\n}');
     await press('Escape');

@@ -33,6 +33,7 @@ test('snippet dropdown opens', async ({page}) => {
     const snippet = page.getByRole('button', {
         name: /snippet/i,
     });
+    
     await snippet.tap();
     await expect(page
         .getByRole('menu')
@@ -44,6 +45,7 @@ test('snippet dropdown exposes accessible semantics', async ({page}) => {
     const snippet = page.getByRole('button', {
         name: /snippet/i,
     });
+    
     await expect(snippet).toHaveAttribute('aria-expanded', 'false');
     await snippet.tap();
     await expect(snippet).toHaveAttribute('aria-expanded', 'true');
@@ -55,6 +57,7 @@ test('parser dropdown opens', async ({page}) => {
     const parser = page.getByRole('button', {
         name: /babel/i,
     });
+    
     await parser.tap();
     await expect(page
         .getByRole('menu')
@@ -66,6 +69,7 @@ test('dropdown closes on outside tap', async ({page}) => {
     const snippet = page.getByRole('button', {
         name: /snippet/i,
     });
+    
     await snippet.tap();
     await expect(page
         .getByRole('menu')
@@ -91,6 +95,7 @@ test('mobile tabs contain four controls', async ({page}) => {
     const tabs = page
         .locator('.mobile-tabs')
         .getByRole('tab');
+    
     await expect(tabs).toHaveCount(4);
 });
 

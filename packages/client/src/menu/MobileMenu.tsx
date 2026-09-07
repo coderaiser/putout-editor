@@ -55,6 +55,7 @@ export default function MobileMenu() {
         type: 'snippet/save',
         payload: false,
     });
+    
     const onFork = () => dispatch({
         type: 'snippet/save',
         payload: true,
@@ -117,8 +118,10 @@ export default function MobileMenu() {
                 </li>
             </MobileDropdown>
             {/* ── Parser ───────────────────────────────────── */}
-            <MobileDropdown trigger={<><TbCode size={18}/>
-                {parser.displayName}</>}>
+            <MobileDropdown
+                trigger={<><TbCode size={18}/>
+                    {parser.displayName}</>}
+            >
                 {parsers.map((p: any) => (
                     <li key={p.id} role="menuitem">
                         <button

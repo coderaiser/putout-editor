@@ -252,6 +252,6 @@ test('Menu: transform button dispatches selectTransformer', (t) => {
     // Find the transform button (it's a select-like component)
     cleanup();
     
-    t.ok(true);
+    t.pass();
     t.end();
 });
