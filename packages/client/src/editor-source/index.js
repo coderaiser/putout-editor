@@ -25,18 +25,20 @@ export default function EditorSource() {
     const dispatch = useDispatch();
     
     return (
-        <Editor
-            keyMap={keyMap}
-            value={value}
-            mode={mode}
-            error={error}
-            highlightRange={highlightRange}
-            onContentChange={({value, cursor}) => dispatch(setCode({
-                code: value,
-                cursor,
-            }))}
-            onActivity={(cursor) => dispatch(setCursor(cursor))}
-            onBlur={() => dispatch(editorBlur())}
-        />
+        <div data-name="editor-source">
+            <Editor
+                keyMap={keyMap}
+                value={value}
+                mode={mode}
+                error={error}
+                highlightRange={highlightRange}
+                onContentChange={({value, cursor}) => dispatch(setCode({
+                    code: value,
+                    cursor,
+                }))}
+                onActivity={(cursor) => dispatch(setCursor(cursor))}
+                onBlur={() => dispatch(editorBlur())}
+            />
+        </div>
     );
 }

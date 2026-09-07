@@ -13,7 +13,7 @@ export default function EditorPlugin() {
     const dispatch = useDispatch();
     
     return (
-        <div>
+        <div data-name="editor-transform">
             <Editor
                 highlight={false}
                 value={transformCode}
