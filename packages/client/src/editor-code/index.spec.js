@@ -133,52 +133,58 @@ test('EditorResult: reuses cached transformer promise', async (t) => {
 });
 
 test('EditorResult: renders EditorASTJson for object result without map', async (t) => {
-    const {container} = render(
-        <EditorResult
-            transformer={makeTransformer({
-                code: {
-                    hello: 'world',
-                },
-            })}
-            transformCode=""
-            code="const x = 1"
-            mode="javascript"
-            isLoading={false}
-        />,
-    );
+    let jsonEditor;
     
-    await setImmediate();
-    const jsonEditor = container.querySelector('#EditorASTJson');
-    
-    cleanup();
+    await act(async () => {
+        const {container} = render(
+            <EditorResult
+                transformer={makeTransformer({
+                    code: {
+                        hello: 'world',
+                    },
+                })}
+                transformCode=""
+                code="const x = 1"
+                mode="javascript"
+                isLoading={false}
+            />,
+        );
+        
+        await setImmediate();
+        jsonEditor = container.querySelector('#EditorASTJson');
+        cleanup();
+    });
     
     t.ok(jsonEditor);
     t.end();
 });
 
 test('EditorResult: renders output when object result has map', async (t) => {
-    const {container} = render(
-        <EditorResult
-            transformer={makeTransformer({
-                code: 'const y = 2;',
-                map: {
-                    version: 3,
-                    sources: ['a.js'],
-                    names: [],
-                    mappings: '',
-                },
-            })}
-            transformCode=""
-            code="const x = 1"
-            mode="javascript"
-            isLoading={false}
-        />,
-    );
+    let output;
     
-    await setImmediate();
-    const output = container.querySelector('.output');
-    
-    cleanup();
+    await act(async () => {
+        const {container} = render(
+            <EditorResult
+                transformer={makeTransformer({
+                    code: 'const y = 2;',
+                    map: {
+                        version: 3,
+                        sources: ['a.js'],
+                        names: [],
+                        mappings: '',
+                    },
+                })}
+                transformCode=""
+                code="const x = 1"
+                mode="javascript"
+                isLoading={false}
+            />,
+        );
+        
+        await setImmediate();
+        output = container.querySelector('.output');
+        cleanup();
+    });
     
     t.ok(output);
     t.end();
