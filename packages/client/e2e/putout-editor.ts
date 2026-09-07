@@ -1,4 +1,8 @@
-import {expect, type Page, type Locator} from '@playwright/test';
+import {
+    expect,
+    type Page,
+    type Locator,
+} from '@playwright/test';
 
 export const EDITOR_SOURCE = 'editor-source';
 export const EDITOR_TRANSFORM = 'editor-transform';
@@ -15,7 +19,7 @@ interface EditorHandle {
 export function createPutoutEditor(page: Page) {
     async function get(name: EditorName): Promise<EditorHandle> {
         const locator = page.locator(`[data-name="${name}"] .cm-content`);
-
+        
         return {
             locator,
             async write(text: string) {
@@ -24,16 +28,21 @@ export function createPutoutEditor(page: Page) {
             async press(key: string) {
                 await page.keyboard.press(key);
             },
-            async read(): Promise<string> {
+            async read() {
                 return locator.innerText();
             },
         };
     }
-
+    
     async function goto() {
         await page.goto('/');
-        await expect(page.locator('.cm-editor').first()).toBeVisible();
+        await expect(page
+            .locator('.cm-editor')
+            .first()).toBeVisible();
     }
-
-    return {get, goto};
+    
+    return {
+        get,
+        goto,
+    };
 }

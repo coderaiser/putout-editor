@@ -1,4 +1,9 @@
-import {useState, useEffect, useRef, type ReactNode} from 'react';
+import {
+    useState,
+    useEffect,
+    useRef,
+    type ReactNode,
+} from 'react';
 
 type Props = {
     trigger: ReactNode;
@@ -9,18 +14,18 @@ type Props = {
 export default function MobileDropdown({trigger, children, className}: Props) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-
+    
     useEffect(() => {
         if (!open)
             return;
-
+        
         const onOutsideClick = (e: MouseEvent) => {
             if (!ref.current?.contains(e.target as Node))
                 setOpen(false);
         };
-
+        
         document.addEventListener('click', onOutsideClick);
-
+        
         return () => document.removeEventListener('click', onOutsideClick);
     }, [open]);
     

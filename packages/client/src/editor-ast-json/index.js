@@ -32,11 +32,11 @@ export default function EditorASTJson({value = '', parseResult = null, className
             foldGutter: true,
             theme: getCMTheme(),
         });
-
+        
         const themeObserver = new MutationObserver(() => {
             setOption(editor, 'theme', getCMTheme());
         });
-
+        
         themeObserver.observe(document.documentElement, {
             attributes: true,
             attributeFilter: ['data-theme'],

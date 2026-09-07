@@ -112,22 +112,22 @@
     #root {
         height: 100dvh;
     }
-
+    
     .dropTarget {
         inset: 0;
     }
-
+    
     /* Editor: prevent scroll bleeding out of CM6 */
     .mobile-panel .cm-scroller {
         overflow: auto;
         touch-action: pan-y;
         overscroll-behavior: contain;
     }
-
+    
     .mobile-panel .cm-content {
         touch-action: pan-y;
     }
-
+    
     /* Tab bar: iPhone home indicator */
     .mobile-tabs {
         height: calc(48px + env(safe-area-inset-bottom));
@@ -138,18 +138,18 @@
 
 /* ── Show correct menu per viewport ─────────────────────── */
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
     /* Hide all toolbar content — keep only logo (h1) */
     #Toolbar > *:not(h1) {
         display: none !important;
     }
-
+    
     /* Make toolbar compact — just the info row */
     #Toolbar {
         flex-wrap: nowrap;
         min-height: 0;
     }
-
+    
     #MobileMenu {
         display: flex;
     }

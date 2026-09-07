@@ -18,25 +18,54 @@ test('mobile menu is hidden on desktop', async ({page}) => {
 
 test('source editor renders', async ({page}) => {
     await createPutoutEditor(page).goto();
-    await expect(page.locator('.cm-editor').first()).toBeVisible();
+    await expect(page
+        .locator('.cm-editor')
+        .first()).toBeVisible();
 });
 
 test('AST output renders', async ({page}) => {
     await page.goto('/');
-    await expect(page.locator('.output').first()).toBeVisible();
+    await expect(page
+        .locator('.output')
+        .first()).toBeVisible();
 });
 
 test('AST view controls render', async ({page}) => {
     await page.goto('/');
-    await expect(page.getByRole('button', {name: /tree/i})).toBeVisible();
-    await expect(page.getByRole('button', {name: /json/i})).toBeVisible();
+    await expect(page.getByRole('button', {
+        name: /tree/i,
+    })).toBeVisible();
+    await expect(page.getByRole('button', {
+        name: /json/i,
+    })).toBeVisible();
 });
 
 test('desktop parser menu opens and changes parser', async ({page}) => {
     await page.goto('/');
-    await expect(page.locator('#Toolbar').getByText('acorn', {exact: true})).toBeHidden();
-    await page.locator('#Toolbar').getByText('babel', {exact: true}).first().hover();
-    await expect(page.getByRole('button', {name: /acorn/i})).toBeVisible();
-    await page.getByRole('button', {name: /acorn/i}).click();
-    await expect(page.locator('#Toolbar').getByText('acorn', {exact: true}).first()).toBeVisible();
+    await expect(page
+        .locator('#Toolbar')
+        .getByText('acorn', {
+            exact: true,
+        })).toBeHidden();
+    await page
+        .locator('#Toolbar')
+        .getByText('babel', {
+            exact: true,
+        })
+        .first()
+        .hover();
+    await expect(page.getByRole('button', {
+        name: /acorn/i,
+    })).toBeVisible();
+    await page
+        .getByRole('button', {
+            name: /acorn/i,
+        })
+        .click();
+    await expect(page
+        .locator('#Toolbar')
+        .getByText('acorn', {
+            exact: true,
+        })
+        .first()).toBeVisible();
 });

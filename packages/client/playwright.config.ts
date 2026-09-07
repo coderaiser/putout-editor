@@ -10,23 +10,19 @@ export default defineConfig({
         baseURL: 'http://localhost:8080',
         trace: 'on-first-retry',
     },
-    projects: [
-        {
-            name: 'desktop-chrome',
-            testMatch: ['**/desktop.spec.ts', '**/editor.spec.ts'],
-            use: {...devices['Desktop Chrome']},
-        },
-        {
-            name: 'mobile-safari',
-            testMatch: ['**/mobile.spec.ts', '**/editor.spec.ts'],
-            use: {...devices['iPhone 14']},
-        },
-        {
-            name: 'mobile-chrome',
-            testMatch: ['**/mobile.spec.ts', '**/editor.spec.ts'],
-            use: {...devices['Pixel 7']},
-        },
-    ],
+    projects: [{
+        name: 'desktop-chrome',
+        testMatch: ['**/desktop.spec.ts', '**/editor.spec.ts'],
+        use: devices['Desktop Chrome'],
+    }, {
+        name: 'mobile-safari',
+        testMatch: ['**/mobile.spec.ts', '**/editor.spec.ts'],
+        use: devices['iPhone 14'],
+    }, {
+        name: 'mobile-chrome',
+        testMatch: ['**/mobile.spec.ts', '**/editor.spec.ts'],
+        use: devices['Pixel 7'],
+    }],
     webServer: {
         command: 'npm run start',
         url: 'http://localhost:8080',

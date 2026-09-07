@@ -24,8 +24,8 @@ import {
 } from '../store/reducers.ts';
 
 const THEME_KEY = 'theme';
-const readTheme = (): string =>
-    globalThis.localStorage?.getItem(THEME_KEY) ?? 'light';
+
+const readTheme = (): string => globalThis.localStorage?.getItem(THEME_KEY) || 'light';
 
 const applyTheme = (theme: string): void => {
     globalThis.localStorage?.setItem(THEME_KEY, theme);
@@ -34,11 +34,11 @@ const applyTheme = (theme: string): void => {
 
 export default function MobileMenu() {
     const dispatch = useDispatch();
-    const saving  = useSelector(selectors.isSaving);
+    const saving = useSelector(selectors.isSaving);
     const forking = useSelector(selectors.isForking);
     const canSave = useSelector(parserSelectors.canSave);
     const canFork = useSelector(selectors.canFork);
-    const parser  = useSelector(parserSelectors.getParser);
+    const parser = useSelector(parserSelectors.getParser);
     
     const [theme, setTheme] = useState(readTheme);
     
@@ -49,16 +49,23 @@ export default function MobileMenu() {
     const parsers = parser.category.parsers.filter((p: any) => p.showInMenu);
     
     const canForkAndNotSave = canFork && !canSave;
-    const savingOrForking   = saving || forking;
+    const savingOrForking = saving || forking;
     
-    const onSave = () => dispatch({type: 'snippet/save', payload: false});
-    const onFork = () => dispatch({type: 'snippet/save', payload: true});
+    const onSave = () => dispatch({
+        type: 'snippet/save',
+        payload: false,
+    });
+    const onFork = () => dispatch({
+        type: 'snippet/save',
+        payload: true,
+    });
     
     const onNew = () => {
         if (globalThis.location?.hash) {
             globalThis.location.hash = '';
             return;
         }
+        
         dispatch(reset());
     };
     
@@ -78,12 +85,10 @@ export default function MobileMenu() {
         logEvent('ui', 'open_share');
     };
     
-    const toggleTheme = () =>
-        setTheme((t) => t === 'light' ? 'dark' : 'light');
+    const toggleTheme = () => setTheme((t) => t === 'light' ? 'dark' : 'light');
     
     return (
         <div id="MobileMenu">
-            
             {/* ── Snippet ──────────────────────────────────── */}
             <MobileDropdown trigger={<><TbFileCode size={18}/> Snippet</>}>
                 <li role="menuitem">
@@ -94,7 +99,7 @@ export default function MobileMenu() {
                 <li role="menuitem">
                     <button
                         type="button"
-                        disabled={savingOrForking || (!canSave && !canFork)}
+                        disabled={savingOrForking || !canSave && !canFork}
                         onClick={canForkAndNotSave ? onFork : onSave}
                     >
                         {savingOrForking
@@ -111,9 +116,9 @@ export default function MobileMenu() {
                     </button>
                 </li>
             </MobileDropdown>
-            
             {/* ── Parser ───────────────────────────────────── */}
-            <MobileDropdown trigger={<><TbCode size={18}/> {parser.displayName}</>}>
+            <MobileDropdown trigger={<><TbCode size={18}/>
+                {parser.displayName}</>}>
                 {parsers.map((p: any) => (
                     <li key={p.id} role="menuitem">
                         <button
@@ -134,7 +139,6 @@ export default function MobileMenu() {
                     </button>
                 </li>
             </MobileDropdown>
-            
             {/* ── Help ─────────────────────────────────────── */}
             <a
                 className="mobile-menu__help"
@@ -145,7 +149,6 @@ export default function MobileMenu() {
             >
                 <TbQuestionMark size={18}/>
             </a>
-            
             {/* ── Theme ────────────────────────────────────── */}
             <button
                 type="button"
@@ -155,7 +158,6 @@ export default function MobileMenu() {
             >
                 {theme === 'light' ? <TbMoon size={18}/> : <TbSun size={18}/>}
             </button>
-            
         </div>
     );
 }

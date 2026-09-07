@@ -155,7 +155,6 @@ html {
 }
 
 
-
 #Toolbar {
     flex-shrink: 0;
     flex-grow: 0;
@@ -698,14 +697,13 @@ li.entry {
 }
 
 
-
 .parse-error {
     padding: 20px;
     margin: 0;
     font-family: monospace;
     font-size: 13px;
     white-space: pre-wrap;
-    word-break: break-word;
+    overflow-wrap: anywhere;
     color: var(--color-error, #e53e3e);
     background: transparent;
 }

@@ -7,9 +7,8 @@ async function runTransform(transformer, transformCode, code, parser) {
         transformer._promise = new Promise(transformer.loadTransformer);
     
     const realTransformer = await transformer._promise;
-    const result = transformer.transform(realTransformer, transformCode, code, parser);
     
-    return result;
+    return transformer.transform(realTransformer, transformCode, code, parser);
 }
 
 export default function EditorResult({transformer, transformCode, code, mode, isLoading, parser}) {
