@@ -14,25 +14,14 @@ export default function MobileDropdown({trigger, children, className}: Props) {
         if (!open)
             return;
 
-        // Defer so the tap/click that opened the menu doesn't
-        // immediately re-close it via the document listener
-        let onPointerDown: ((e: PointerEvent) => void) | null = null;
-
-        const id = setTimeout(() => {
-            onPointerDown = (e: PointerEvent) => {
-                if (!ref.current?.contains(e.target as Node))
-                    setOpen(false);
-            };
-
-            document.addEventListener('pointerdown', onPointerDown);
-        }, 0);
-
-        return () => {
-            clearTimeout(id);
-
-            if (onPointerDown)
-                document.removeEventListener('pointerdown', onPointerDown);
+        const onOutsideClick = (e: MouseEvent) => {
+            if (!ref.current?.contains(e.target as Node))
+                setOpen(false);
         };
+
+        document.addEventListener('click', onOutsideClick);
+
+        return () => document.removeEventListener('click', onOutsideClick);
     }, [open]);
     
     const classes = ['mobile-dropdown', className]
@@ -46,7 +35,10 @@ export default function MobileDropdown({trigger, children, className}: Props) {
                 className="mobile-dropdown__trigger"
                 aria-expanded={open}
                 aria-haspopup="menu"
-                onClick={() => setOpen((v) => !v)}
+                onPointerUp={(e) => {
+                    e.currentTarget.focus();
+                    setOpen((v) => !v);
+                }}
             >
                 {trigger}
             </button>

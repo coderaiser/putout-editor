@@ -47,7 +47,8 @@
 
 .mobile-dropdown__menu {
     position: absolute;
-    bottom: 44px;
+    top: 44px;
+    bottom: auto;
     left: 0;
     min-width: 180px;
     margin: 0;
@@ -138,8 +139,15 @@
 /* ── Show correct menu per viewport ─────────────────────── */
 
 @media (max-width: 767px) {
-    #Toolbar {
+    /* Hide all toolbar content — keep only logo (h1) */
+    #Toolbar > *:not(h1) {
         display: none !important;
+    }
+
+    /* Make toolbar compact — just the info row */
+    #Toolbar {
+        flex-wrap: nowrap;
+        min-height: 0;
     }
 
     #MobileMenu {
