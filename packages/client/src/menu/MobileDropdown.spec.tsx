@@ -52,8 +52,12 @@ test('MobileDropdown: menu closes on second trigger click', (t) => {
 
 test('MobileDropdown: menu closes when item inside is clicked', (t) => {
     const {container, unmount} = renderDropdown();
-    act(() => { fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!); });
-    act(() => { fireEvent.click(container.querySelector('.mobile-dropdown__menu')!); });
+    act(() => {
+        fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
+    });
+    act(() => {
+        fireEvent.click(container.querySelector('.mobile-dropdown__menu')!);
+    });
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -62,8 +66,12 @@ test('MobileDropdown: menu closes when item inside is clicked', (t) => {
 
 test('MobileDropdown: menu closes on outside click', (t) => {
     const {container, unmount} = renderDropdown();
-    act(() => { fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!); });
-    act(() => { fireEvent.click(document.body); });
+    act(() => {
+        fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
+    });
+    act(() => {
+        fireEvent.click(document.body);
+    });
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
