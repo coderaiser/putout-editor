@@ -3,6 +3,7 @@ import {
     render,
     cleanup,
     fireEvent,
+    act,
 } from '@testing-library/react';
 import MobileDropdown from './MobileDropdown.tsx';
 
@@ -30,7 +31,7 @@ test('MobileDropdown: menu is hidden initially', (t) => {
 
 test('MobileDropdown: menu opens on trigger click', (t) => {
     const {container, unmount} = renderDropdown();
-    fireEvent.click(container.querySelector('.mobile-dropdown__trigger')!);
+    fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     t.ok(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -51,18 +52,18 @@ test('MobileDropdown: menu closes on second trigger click', (t) => {
 
 test('MobileDropdown: menu closes when item inside is clicked', (t) => {
     const {container, unmount} = renderDropdown();
-    fireEvent.click(container.querySelector('.mobile-dropdown__trigger')!);
-    fireEvent.click(container.querySelector('.mobile-dropdown__menu')!);
+    act(() => { fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!); });
+    act(() => { fireEvent.click(container.querySelector('.mobile-dropdown__menu')!); });
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
     t.end();
 });
 
-test('MobileDropdown: menu closes on outside pointerdown', (t) => {
+test('MobileDropdown: menu closes on outside click', (t) => {
     const {container, unmount} = renderDropdown();
-    fireEvent.click(container.querySelector('.mobile-dropdown__trigger')!);
-    fireEvent.pointerDown(document.body);
+    act(() => { fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!); });
+    act(() => { fireEvent.click(document.body); });
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -71,7 +72,7 @@ test('MobileDropdown: menu closes on outside pointerdown', (t) => {
 
 test('MobileDropdown: menu stays open on inside pointerdown', (t) => {
     const {container, unmount} = renderDropdown();
-    fireEvent.click(container.querySelector('.mobile-dropdown__trigger')!);
+    fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     fireEvent.pointerDown(container.querySelector('.mobile-dropdown__menu')!);
     t.ok(container.querySelector('.mobile-dropdown__menu'));
     unmount();
@@ -89,7 +90,7 @@ test('MobileDropdown: trigger has aria-expanded=false when closed', (t) => {
 
 test('MobileDropdown: trigger has aria-expanded=true when open', (t) => {
     const {container, unmount} = renderDropdown();
-    fireEvent.click(container.querySelector('.mobile-dropdown__trigger')!);
+    fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     t.equal(container.querySelector('.mobile-dropdown__trigger')!.getAttribute('aria-expanded'), 'true');
     unmount();
     cleanup();
@@ -117,7 +118,7 @@ test('MobileDropdown: applies className to wrapper', (t) => {
 
 test('MobileDropdown: renders children inside menu when open', (t) => {
     const {container, unmount} = renderDropdown();
-    fireEvent.click(container.querySelector('.mobile-dropdown__trigger')!);
+    fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     t.ok(container.querySelector('.mobile-dropdown__menu li'));
     unmount();
     cleanup();

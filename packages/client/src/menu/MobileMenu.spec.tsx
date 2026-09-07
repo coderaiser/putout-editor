@@ -89,7 +89,7 @@ test('MobileMenu: Snippet dropdown opens on trigger click', (t) => {
     const {container, unmount} = renderMenu();
     const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
     
-    fireEvent.click(triggers[0]);
+    fireEvent.pointerUp(triggers[0]);
     t.ok(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -98,7 +98,7 @@ test('MobileMenu: Snippet dropdown opens on trigger click', (t) => {
 
 test('MobileMenu: Snippet dropdown shows New item', (t) => {
     const {container, unmount} = renderMenu();
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     t.ok(container.textContent?.includes('New'));
     unmount();
     cleanup();
@@ -107,7 +107,7 @@ test('MobileMenu: Snippet dropdown shows New item', (t) => {
 
 test('MobileMenu: Snippet dropdown shows Save item', (t) => {
     const {container, unmount} = renderMenu();
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     t.ok(container.textContent?.includes('Save'));
     unmount();
     cleanup();
@@ -116,7 +116,7 @@ test('MobileMenu: Snippet dropdown shows Save item', (t) => {
 
 test('MobileMenu: Snippet dropdown shows Share item', (t) => {
     const {container, unmount} = renderMenu();
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     t.ok(container.textContent?.includes('Share'));
     unmount();
     cleanup();
@@ -128,7 +128,7 @@ test('MobileMenu: Snippet Save dispatches snippet/save payload=false', (t) => {
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const saveBtn = [...buttons].find((b) => b.textContent?.includes('Save'));
     
@@ -147,7 +147,7 @@ test('MobileMenu: Snippet Share dispatches openShareDialog', (t) => {
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const shareBtn = [...buttons].find((b) => b.textContent?.includes('Share'));
     
@@ -163,7 +163,7 @@ test('MobileMenu: Snippet Share dispatches openShareDialog', (t) => {
 
 test('MobileMenu: Snippet dropdown closes after item click', (t) => {
     const {container, unmount} = renderMenu();
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.click(container.querySelector('.mobile-dropdown__menu')!);
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
@@ -186,7 +186,7 @@ test('MobileMenu: Parser dropdown opens on trigger click', (t) => {
     const {container, unmount} = renderMenu();
     const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
     
-    fireEvent.click(triggers[1]);
+    fireEvent.pointerUp(triggers[1]);
     t.ok(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -195,7 +195,7 @@ test('MobileMenu: Parser dropdown opens on trigger click', (t) => {
 
 test('MobileMenu: Parser dropdown lists parsers', (t) => {
     const {container, unmount} = renderMenu();
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
     
     const items = container.querySelectorAll('.mobile-dropdown__menu li');
     
@@ -210,7 +210,7 @@ test('MobileMenu: Parser dropdown clicking parser dispatches setParser', (t) => 
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
     const firstParser = container.querySelector('.mobile-dropdown__menu button');
     
     fireEvent.click(firstParser!);
@@ -228,7 +228,7 @@ test('MobileMenu: Parser Settings dispatches openSettingsDialog', (t) => {
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const settingsBtn = [...buttons].find((b) => b.textContent?.includes('Settings'));
     
@@ -244,7 +244,7 @@ test('MobileMenu: Parser Settings dispatches openSettingsDialog', (t) => {
 
 test('MobileMenu: Parser dropdown closes after item click', (t) => {
     const {container, unmount} = renderMenu();
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
     fireEvent.click(container.querySelector('.mobile-dropdown__menu')!);
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
@@ -256,7 +256,7 @@ test('MobileMenu: Snippet New clears location hash', (t) => {
     globalThis.location.hash = '#/gist/abc';
     const {container, unmount} = renderMenu();
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const newBtn = [...buttons].find((b) => b.textContent?.includes('New'));
     
@@ -276,7 +276,7 @@ test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const newBtn = [...buttons].find((b) => b.textContent?.includes('New'));
     
@@ -301,7 +301,7 @@ test('MobileMenu: Snippet shows Fork when can fork and not save', (t) => {
     
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const forkBtn = [...buttons].find((b) => b.textContent?.includes('Fork'));
     
@@ -323,7 +323,7 @@ test('MobileMenu: Snippet Fork dispatches snippet/save payload=true', (t) => {
     
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const forkBtn = [...buttons].find((b) => b.textContent?.includes('Fork'));
     
@@ -344,7 +344,7 @@ test('MobileMenu: Snippet shows loader while saving', (t) => {
     
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const saveBtn = [...buttons].find((b) => b.textContent?.includes('Save'));
     
@@ -361,7 +361,7 @@ test('MobileMenu: Snippet save button disabled while saving', (t) => {
     
     const {container, unmount} = renderMenu(store);
     
-    fireEvent.click(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const saveBtn = [...buttons].find((b) => b.textContent?.includes('Save'));
     
