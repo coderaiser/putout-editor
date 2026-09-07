@@ -50,7 +50,8 @@ function App() {
                     <SettingsDialog/>
                     <ShareDialog/>
                     <div id="root">
-                        {isMobile ? <MobileMenu/> : <Menu/>}
+                        <Menu/>
+                        <MobileMenu/>
                         <GistBanner/>
                         <Layout
                             topLeft={<SourcePanel/>}

@@ -1,13 +1,13 @@
 /* ── Mobile layout ───────────────────────────────────────── */
 
 #MobileMenu {
-    display: flex;
+    display: none;
     flex-shrink: 0;
     height: 44px;
     background: var(--color-bg-toolbar);
     border-bottom: 1px solid var(--color-border);
-    position: relative;    /* anchor for dropdown absolute positioning */
-    z-index: 300;          /* above editor */
+    position: relative;
+    z-index: 300;
 }
 
 #MobileMenu > *,
@@ -132,5 +132,17 @@
         height: calc(48px + env(safe-area-inset-bottom));
         padding-bottom: env(safe-area-inset-bottom);
         flex-shrink: 0;
+    }
+}
+
+/* ── Show correct menu per viewport ─────────────────────── */
+
+@media (max-width: 767px) {
+    #Toolbar {
+        display: none !important;
+    }
+
+    #MobileMenu {
+        display: flex;
     }
 }
