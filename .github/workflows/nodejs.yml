@@ -52,8 +52,15 @@ jobs:
           message: "chore: ${{ env.NAME }}: actions: lint ☘️"
       - name: Coverage
         run: redrun coverage
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+        working-directory: packages/client
+      - name: Build for e2e
+        run: redrun build
+        working-directory: packages/client
       - name: E2E tests
         run: redrun test:e2e
+        working-directory: packages/client
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         continue-on-error: true
