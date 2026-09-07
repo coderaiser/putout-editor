@@ -121,18 +121,22 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     await page.locator(`[data-name="${EDITOR_SOURCE}"] .cm-content`).click();
     const {write, press, read} = await editor.get(EDITOR_SOURCE);
     await press('ControlOrMeta+A');
-    await write('    rules.push(element);\n}');
+    await write('for (const [index, element] of elements.entries()) {\n    if (compare(element, "heading(2, \\"Rules\\")")) {\n        rules.push(element);\n    }\n}');
     await press('Escape');
 
+    // go to line 4 (the "}"), yank 3 lines upward (v k k y), then paste below (p)
+    await write('4G');
     await press('0');
-    await write('f}');
-    await press('V');
+    await press('v');
+    await press('k');
+    await press('k');
     await press('y');
     await press('p');
 
     const lines = (await read()).split('\n');
-    const pasted = lines.findLast((line) => line === '}');
+    // the pasted block should preserve original indentation
+    const closingBraceLine = lines.find((line, idx) => idx > 4 && line.trim() === '}');
 
-    expect(pasted).toBe('}');
+    expect(closingBraceLine).toBe('}');
 });
 
