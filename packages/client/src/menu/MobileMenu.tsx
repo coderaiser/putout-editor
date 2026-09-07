@@ -151,7 +151,7 @@ export default function MobileMenu() {
                 type="button"
                 className="mobile-menu__theme"
                 onClick={toggleTheme}
-                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
             >
                 {theme === 'light' ? <TbMoon size={18}/> : <TbSun size={18}/>}
             </button>

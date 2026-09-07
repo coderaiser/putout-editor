@@ -43,7 +43,11 @@ export default function ThemeButton() {
             })}
             onMouseLeave={() => setForceClosed(false)}
         >
-            <button type="button" onClick={onTriggerClick}>
+            <button
+                type="button"
+                onClick={onTriggerClick}
+                aria-label="Toggle theme"
+            >
                 {theme === 'light' ? <TbMoon size={18}/> : <TbSun size={18}/>}
                 {theme}
             </button>
