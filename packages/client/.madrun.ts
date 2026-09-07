@@ -14,7 +14,8 @@ const env = {
 
 export default {
     'test': () => [testEnv, 'tape "src/**/*.spec.{js,ts,tsx}"'],
-    'test:e2e': () => 'echo "no e2e on client now"',
+    'test:e2e': () => 'playwright test',
+    'e2e': () => 'playwright test',
     'coverage': async () => [testEnv, `c8 tape "src/**/*.spec.{js,ts,tsx}"`],
     'test:dts': () => 'tsc --noEmit',
     'start': () => 'http-server ../../out',

@@ -146,6 +146,7 @@
   "scripts": {
     "test": "madrun test",
     "test:e2e": "madrun test:e2e",
+    "e2e": "madrun e2e",
     "coverage": "madrun coverage",
     "test:dts": "madrun test:dts",
     "start": "madrun start",
