@@ -1,3 +1,22 @@
+2026.09.07, v3.3.0
+
+fix:
+- 624f316 mobile menu
+- b3adc7f mobile menu
+- 3b60fbe client: mobile menu
+- 74c0495 mobile menu
+- 826cef8 client: mobile: bottom buttons
+- e5a3d32 client: tree/json toggle light on dark theme
+- bc4d637 client: json/ast toggle light
+- f47d6cb client: editor-ast-json: dark theme
+- 7309811 editor-ast: light on dark theme
+
+feature:
+- 32ffb2a client: mobile menu
+- 9ac039a client: menu: improve
+- 5dcd8a2 client: MobileDropdown: improve: revert
+- 8d05836 client: MobileDropdown: improve
+
 2026.09.05, v3.2.0
 
 fix:
