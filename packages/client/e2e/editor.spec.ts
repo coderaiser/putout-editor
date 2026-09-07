@@ -109,3 +109,32 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     const result = await read();
     expect(result).not.toContain('ihello');
 });
+
+test('vim paste preserves yanked line indentation', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+
+    if (await page.locator('.mobile-tabs').isVisible()) {
+        await page.getByRole('tab', {name: /source/i}).tap();
+    }
+
+    const {write, press, read} = await editor.get(EDITOR_SOURCE);
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write('    rules.push(element);');
+    await press('Enter');
+    await write('}');
+    await press('Escape');
+
+    await press('0');
+    await press('f}');
+    await press('V');
+    await press('y');
+    await press('p');
+
+    const lines = (await read()).split('\n');
+    const pasted = lines.findLast((line) => line === '}');
+
+    expect(pasted).toBe('}');
+});
+
