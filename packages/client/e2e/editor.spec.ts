@@ -2,6 +2,7 @@ import {test, expect} from '@playwright/test';
 import {
     createPutoutEditor,
     EDITOR_SOURCE,
+    EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
 async function replaceContent(page, text: string) {
@@ -25,11 +26,41 @@ async function replaceContent(page, text: string) {
     await page.waitForTimeout(400);
 }
 
+async function replaceTransform(page, text: string) {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+    
+    if (await page.locator('.mobile-tabs').isVisible())
+        await page
+            .getByRole('tab', {
+                name: /transform/i,
+            })
+            .tap();
+    
+    await page
+        .locator(`[data-name="${EDITOR_TRANSFORM}"] .cm-content`)
+        .click();
+    const {write, press} = await editor.get(EDITOR_TRANSFORM);
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write(text);
+    await page.waitForTimeout(400);
+}
+
 async function showAst(page) {
     if (await page.locator('.mobile-tabs').isVisible())
         await page
             .getByRole('tab', {
                 name: /ast/i,
+            })
+            .tap();
+}
+
+async function showTransform(page) {
+    if (await page.locator('.mobile-tabs').isVisible())
+        await page
+            .getByRole('tab', {
+                name: /transform/i,
             })
             .tap();
 }
@@ -42,23 +73,46 @@ test('typing in source editor updates AST', async ({page}) => {
         .first()).toContainText('VariableDeclaration');
 });
 
-test('syntax error renders an error message', async ({page}) => {
-    await replaceContent(page, 's/');
-    await showAst(page);
-    await expect(page
-        .locator('.output')
-        .first()
-        .locator('pre.parse-error')).toBeVisible();
-});
-
-test('syntax error contains useful information', async ({page}) => {
-    await replaceContent(page, 's/');
+test('syntax error in editor-source renders codeframe', async ({page}) => {
+    await replaceContent(page, 'function() {\n  \n}');
     await showAst(page);
     
     await expect(page
         .locator('.output')
         .first()
-        .locator('pre.parse-error')).toContainText(/Unexpected token/i);
+        .locator('.cm-editor')).toContainText('unknown: Unexpected token');
+});
+
+test('syntax error in editor-source does not show stack trace', async ({page}) => {
+    await replaceContent(page, 'function() {\n  \n}');
+    await showAst(page);
+    
+    await expect(page
+        .locator('.output')
+        .first()
+        .locator('.cm-editor')).not.toContainText('at ');
+});
+
+test('transform error in editor-transform renders codeframe', async ({page}) => {
+    await replaceContent(page, 'const x = 1;');
+    await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => ({ throw new Error("oops") });');
+    await showTransform(page);
+    
+    await expect(page
+        .locator('.output')
+        .last()
+        .locator('.cm-editor')).toBeVisible();
+});
+
+test('transform error in editor-transform shows error in codeframe not stack trace', async ({page}) => {
+    await replaceContent(page, 'const x = 1;');
+    await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => { throw new Error("oops"); };');
+    await showTransform(page);
+    
+    await expect(page
+        .locator('.output')
+        .last()
+        .locator('.cm-editor')).not.toContainText('at Object.<anonymous>');
 });
 
 test('theme toggle changes document theme', async ({page}) => {
@@ -101,24 +155,4 @@ test('switching AST view changes the output mode', async ({page}) => {
     await expect(page
         .locator('.output .cm-editor')
         .first()).toBeVisible();
-});
-
-test('syntax error shows codeframe', async ({page}) => {
-    await replaceContent(page, 'function() {\n  \n}');
-    await showAst(page);
-    
-    await expect(page
-        .locator('.output')
-        .first()
-        .locator('.cm-editor')).toContainText('unknown: Unexpected token');
-});
-
-test('syntax error does not show stack trace', async ({page}) => {
-    await replaceContent(page, 'function() {\n  \n}');
-    await showAst(page);
-    
-    await expect(page
-        .locator('.output')
-        .first()
-        .locator('.cm-editor')).not.toContainText('at ');
 });
