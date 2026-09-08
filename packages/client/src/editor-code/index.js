@@ -44,7 +44,7 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                     key="error"
                     lineNumbers={false}
                     readOnly={true}
-                    value={error.stack}
+                    value={error.message}
                 />
                 : <Editor
                     mode={mode}
