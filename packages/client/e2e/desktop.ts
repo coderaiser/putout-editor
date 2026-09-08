@@ -209,18 +209,27 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
     await press('p');
     
     const result = await read();
-    const lines = result.split('\n').filter(line => line.trim().length > 0);
+    const lines = result
+        .split('\n')
+        .filter((line) => line.trim().length > 0);
     
     // CONTENT has 4 lines. We yank lines 2-4 (the replace block) and paste below.
     // Result: line 1 + lines 2-4 (original) + lines 2-4 (pasted) = 7 lines
     const expected = [
-        lines[0],  // export const report...
-        lines[1],  // export const replace = () => ({
-        lines[2],  // '__a ? __b : __c':...
-        lines[3],  // }); (original)
-        lines[4],  // export const replace = () => ({ (pasted)
-        lines[5],  // '__a ? __b : __c':... (pasted)
-        lines[6],  // }); (pasted)
+        lines[0],
+        // export const report...
+        lines[1],
+        // export const replace = () => ({
+        lines[2],
+        // '__a ? __b : __c':...
+        lines[3],
+        // }); (original)
+        lines[4],
+        // export const replace = () => ({ (pasted)
+        lines[5],
+        // '__a ? __b : __c':... (pasted)
+        lines[6] // }); (pasted)
+        ,
     ].join('\n');
     
     expect(result).toBe(expected);
