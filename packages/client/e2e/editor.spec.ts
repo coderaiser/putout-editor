@@ -108,7 +108,7 @@ test('switching AST view changes the output mode', async ({page}) => {
 test('syntax error shows codeframe', async ({page}) => {
     await replaceContent(page, 'function() {\n  \n}');
     await showAst(page);
-
+    
     await expect(page
         .locator('.output')
         .first()
@@ -118,7 +118,7 @@ test('syntax error shows codeframe', async ({page}) => {
 test('syntax error does not show stack trace', async ({page}) => {
     await replaceContent(page, 'function() {\n  \n}');
     await showAst(page);
-
+    
     await expect(page
         .locator('.output')
         .first()
