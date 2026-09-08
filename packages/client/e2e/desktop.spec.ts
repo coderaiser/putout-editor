@@ -1,4 +1,5 @@
 import {test, expect} from '@playwright/test';
+import {montag} from 'montag';
 import {createPutoutEditor} from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
@@ -168,4 +169,46 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     const closingBraceLine = lines.find((line, idx) => idx > 4 && line.trim() === '}');
     
     expect(closingBraceLine).toBe('    }');
+});
+const CONTENT = montag`
+    export const report = () => \`Use 'if condition' instead of 'ternary expression'\`;
+    export const replace = () => ({
+        '__a ? __b : __c': 'if (__a) __b; else __c;',
+    });
+`;
+
+test('vim paste below preserves pasted block indentation', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+    
+    await page
+        .locator('[data-name="editor-source"] .cm-content')
+        .click();
+    const {
+        write,
+        press,
+        read,
+    } = await editor.get('editor-source');
+    
+    await press('Escape');
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write(CONTENT);
+    await press('Escape');
+    
+    // 2 V jj y jj p - yank replace block (lines 2-4), paste below its closing line
+    await press('2');
+    await press('g');
+    await press('g');
+    await press('V');
+    await press('j');
+    await press('j');
+    await press('y');
+    await press('j');
+    await press('j');
+    await press('p');
+    
+    const result = await read();
+    
+    expect(result).toBe(CONTENT + '\n' + CONTENT);
 });
