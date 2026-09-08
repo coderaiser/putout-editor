@@ -115,12 +115,16 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
 test('vim mode preserves indent after consecutive Enter presses', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
-
+    
     await page
         .locator('[data-name="editor-source"] .cm-content')
         .click();
-    const {write, press, read} = await editor.get('editor-source');
-
+    const {
+        write,
+        press,
+        read,
+    } = await editor.get('editor-source');
+    
     await press('i');
     await press('ControlOrMeta+A');
     await write('    hello');
@@ -128,7 +132,7 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
     await press('Enter');
     await write('X');
     await press('Escape');
-
+    
     const result = await read();
     expect(result).toContain('  X');
 });
@@ -136,16 +140,20 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
 test('vim paste preserves yanked line indentation', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
-
+    
     await page
         .locator('[data-name="editor-source"] .cm-content')
         .click();
-    const {write, press, read} = await editor.get('editor-source');
-
+    const {
+        write,
+        press,
+        read,
+    } = await editor.get('editor-source');
+    
     await press('ControlOrMeta+A');
     await write('for (const [index, element] of elements.entries()) {\n    if (compare(element, "heading(2, \\"Rules\\")")) {\n        rules.push(element);\n    }\n}');
     await press('Escape');
-
+    
     await press('4');
     await press('g');
     await press('g');
@@ -155,8 +163,9 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     await press('k');
     await press('y');
     await press('p');
-
+    
     const lines = (await read()).split('\n');
     const closingBraceLine = lines.find((line, idx) => idx > 4 && line.trim() === '}');
+    
     expect(closingBraceLine).toBe('    }');
 });
