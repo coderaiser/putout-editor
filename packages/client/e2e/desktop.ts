@@ -16,10 +16,15 @@ test('renders Putout Editor title', async ({page}) => {
 
 test('mobile menu is hidden on desktop', async ({page}) => {
     await page.goto('/');
+    
     // The mobile menu should be hidden on desktop (width > 767px)
+    
     // Using getByTestId but falling back to visibility check
     const mobileMenu = page.locator('[data-testid="mobile-menu"]');
-    const isVisible = await mobileMenu.isVisible().catch(() => false);
+    const isVisible = await mobileMenu
+        .isVisible()
+        .catch(() => false);
+    
     expect(isVisible).toBe(false);
 });
 
@@ -78,7 +83,9 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     await editor.goto();
     
     // Switch keymap to vim using getByTestId
-    await page.getByTestId('vim').click();
+    await page
+        .getByTestId('vim')
+        .click();
     
     await page
         .getByTestId('editor-source')
@@ -107,7 +114,8 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
     await editor.goto();
     
     await page
-        .getByTestId('editor-source').locator('.cm-content')
+        .getByTestId('editor-source')
+        .locator('.cm-content')
         .click();
     const {
         write,
@@ -132,7 +140,8 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     await editor.goto();
     
     await page
-        .getByTestId('editor-source').locator('.cm-content')
+        .getByTestId('editor-source')
+        .locator('.cm-content')
         .click();
     const {
         write,
@@ -171,7 +180,8 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
     await editor.goto();
     
     await page
-        .getByTestId('editor-source').locator('.cm-content')
+        .getByTestId('editor-source')
+        .locator('.cm-content')
         .click();
     const {
         write,
