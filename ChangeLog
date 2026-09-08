@@ -1,3 +1,17 @@
+2026.09.08, v3.3.1
+
+fix:
+- 5151cc3 client: editor-code: when syntax error - show message
+- af166b5 types
+- 9462338 client: editor: types
+
+feature:
+- b570c8d @putout/editor: client: code frame on error
+- 7e7f8e5 client: editor-source editor-transform: add data-name attribute
+- d718289 wire Playwright into e2e scripts
+- bd95565 add Playwright configuration
+- 055a5b0 add Playwright dependency
+
 2026.09.07, v3.3.0
 
 fix:
