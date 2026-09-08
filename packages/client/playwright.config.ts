@@ -4,7 +4,7 @@ export default defineConfig({
     testDir: './e2e',
     fullyParallel: true,
     forbidOnly: Boolean(process.env.CI),
-    reporter: 'dot',
+    reporter: 'list',
     use: {
         baseURL: 'http://localhost:8080',
     },
