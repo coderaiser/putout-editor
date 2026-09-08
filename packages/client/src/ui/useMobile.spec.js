@@ -48,3 +48,40 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
     t.ok(result.current);
     t.end();
 });
+
+test('useMobile: handleChange updates isMobile via maxTouchPoints when matches is false', (t) => {
+    globalThis.innerWidth = 1024;
+    
+    let handleChange;
+    const originalMatchMedia = globalThis.matchMedia;
+    const originalMaxTouchPoints = globalThis.navigator?.maxTouchPoints;
+    
+    globalThis.matchMedia = (query) => ({
+        matches: false,
+        media: query,
+        addEventListener: (type, listener) => {
+            handleChange = listener;
+        },
+        removeEventListener: noop,
+    });
+    
+    Object.defineProperty(globalThis.navigator, 'maxTouchPoints', {
+        configurable: true,
+        value: 2,
+    });
+    
+    const {result} = renderHook(() => useMobile());
+    
+    act(() => {
+        handleChange({matches: false});
+    });
+    
+    globalThis.matchMedia = originalMatchMedia;
+    Object.defineProperty(globalThis.navigator, 'maxTouchPoints', {
+        configurable: true,
+        value: originalMaxTouchPoints,
+    });
+    
+    t.ok(result.current);
+    t.end();
+});
