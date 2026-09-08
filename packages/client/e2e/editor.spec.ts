@@ -142,7 +142,7 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
         .locator('.mobile-tabs')
         .isVisible();
     
-    test(isMobile, 'mobile menu has no keymap control');
+    test.skip(isMobile, 'mobile menu has no keymap control');
     
     const editor = createPutoutEditor(page);
     await editor.goto();
@@ -209,7 +209,9 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     await press('Escape');
     
     // go to line 4 (the "}"), yank 3 lines upward (v k k y), then paste below (p)
-    await write('4G');
+    await press('4');
+    await press('g');
+    await press('g');
     await press('0');
     await press('v');
     await press('k');
@@ -219,8 +221,8 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     
     const lines = (await read()).split('\n');
     
-    // the pasted block should preserve original indentation
+    // the pasted "    }" should keep its original indent (4 spaces), not gain extra indent
     const closingBraceLine = lines.find((line, idx) => idx > 4 && line.trim() === '}');
     
-    expect(closingBraceLine).toBe('}');
+    expect(closingBraceLine).toBe('    }');
 });
