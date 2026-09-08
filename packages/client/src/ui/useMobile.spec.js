@@ -73,7 +73,9 @@ test('useMobile: handleChange updates isMobile via maxTouchPoints when matches i
     const {result} = renderHook(() => useMobile());
     
     act(() => {
-        handleChange({matches: false});
+        handleChange({
+            matches: false,
+        });
     });
     
     globalThis.matchMedia = originalMatchMedia;
