@@ -4,11 +4,9 @@ export default defineConfig({
     testDir: './e2e',
     fullyParallel: true,
     forbidOnly: Boolean(process.env.CI),
-    retries: process.env.CI ? 2 : 0,
-    reporter: process.env.CI ? 'github' : 'list',
+    reporter: 'dot',
     use: {
         baseURL: 'http://localhost:8080',
-        trace: 'on-first-retry',
     },
     projects: [{
         name: 'desktop-chrome',
