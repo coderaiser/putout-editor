@@ -46,7 +46,10 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                         lineNumbers={false}
                         mode="javascript"
                         readOnly={true}
-                        value={codeframe({source: transformCode, error})}
+                        value={codeframe({
+                            source: transformCode,
+                            error,
+                        })}
                     />
                 </div>
                 : <Editor

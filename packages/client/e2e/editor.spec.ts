@@ -54,7 +54,7 @@ test('syntax error renders an error message', async ({page}) => {
 test('syntax error contains useful information', async ({page}) => {
     await replaceContent(page, 's/');
     await showAst(page);
-
+    
     await expect(page
         .locator('.output')
         .first()

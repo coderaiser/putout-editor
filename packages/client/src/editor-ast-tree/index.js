@@ -2,9 +2,12 @@ import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import {codeframe} from 'putout';
 import {getParser} from '#parser';
-import {getParseResult, getCursor, getCode} from '#store';
-import {getFocusPath} from '#editor';
-import {Editor} from '#editor';
+import {
+    getParseResult,
+    getCursor,
+    getCode,
+} from '#store';
+import {getFocusPath, Editor} from '#editor';
 import visualizations from './visualization.js';
 import {Button} from './Button.js';
 
@@ -47,10 +50,12 @@ export default function EditorASTTree() {
                 readOnly={true}
                 lineNumbers={false}
                 mode="javascript"
-                value={codeframe({source: code, error: parseResult.error})}
+                value={codeframe({
+                    source: code,
+                    error: parseResult.error,
+                })}
             />
         </div>;
-
     else if (ast)
         output = <Visualization
             parseResult={parseResult}
