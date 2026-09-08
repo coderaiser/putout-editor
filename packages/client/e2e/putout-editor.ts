@@ -18,7 +18,7 @@ interface EditorHandle {
 
 export function createPutoutEditor(page: Page) {
     async function get(name: EditorName): Promise<EditorHandle> {
-        const locator = page.locator(`[data-name="${name}"] .cm-content`);
+        const locator = page.getByTestId(name).locator('.cm-content');
         
         return {
             locator,
@@ -36,9 +36,7 @@ export function createPutoutEditor(page: Page) {
     
     async function goto() {
         await page.goto('/');
-        await expect(page
-            .locator('.cm-editor')
-            .first()).toBeVisible();
+        await page.waitForSelector('[data-testid="editor-source"]', {state: 'visible'});
     }
     
     return {

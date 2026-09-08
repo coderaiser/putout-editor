@@ -4,31 +4,33 @@ import {createPutoutEditor} from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
     await page.goto('/');
-    await expect(page.locator('#Toolbar')).toBeVisible();
+    await expect(page.getByTestId('toolbar')).toBeVisible();
 });
 
 test('renders Putout Editor title', async ({page}) => {
     await page.goto('/');
-    await expect(page.locator('#Toolbar h1')).toContainText('Putout Editor');
+    await expect(page.getByRole('heading', {
+        name: '🐊Putout Editor',
+    })).toBeVisible();
 });
 
 test('mobile menu is hidden on desktop', async ({page}) => {
     await page.goto('/');
-    await expect(page.locator('#MobileMenu')).toBeHidden();
+    // The mobile menu should be hidden on desktop (width > 767px)
+    // Using getByTestId but falling back to visibility check
+    const mobileMenu = page.locator('[data-testid="mobile-menu"]');
+    const isVisible = await mobileMenu.isVisible().catch(() => false);
+    expect(isVisible).toBe(false);
 });
 
 test('source editor renders', async ({page}) => {
     await createPutoutEditor(page).goto();
-    await expect(page
-        .locator('.cm-editor')
-        .first()).toBeVisible();
+    await expect(page.getByTestId('editor-source')).toBeVisible();
 });
 
 test('AST output renders', async ({page}) => {
     await page.goto('/');
-    await expect(page
-        .locator('.output')
-        .first()).toBeVisible();
+    await expect(page.getByTestId('ast-output')).toBeVisible();
 });
 
 test('AST view controls render', async ({page}) => {
@@ -44,12 +46,12 @@ test('AST view controls render', async ({page}) => {
 test('desktop parser menu opens and changes parser', async ({page}) => {
     await page.goto('/');
     await expect(page
-        .locator('#Toolbar')
+        .getByTestId('toolbar')
         .getByText('acorn', {
             exact: true,
         })).toBeHidden();
     await page
-        .locator('#Toolbar')
+        .getByTestId('toolbar')
         .getByText('babel', {
             exact: true,
         })
@@ -64,7 +66,7 @@ test('desktop parser menu opens and changes parser', async ({page}) => {
         })
         .click();
     await expect(page
-        .locator('#Toolbar')
+        .getByTestId('toolbar')
         .getByText('acorn', {
             exact: true,
         })
@@ -75,19 +77,12 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
     
-    // Switch keymap to vim
-    await page
-        .locator('#Toolbar #ToolbarKeyMap')
-        .hover();
-    await page
-        .getByRole('button', {
-            name: 'vim',
-        })
-        .first()
-        .click();
+    // Switch keymap to vim using getByTestId
+    await page.getByTestId('vim').click();
     
     await page
-        .locator('[data-name="editor-source"] .cm-content')
+        .getByTestId('editor-source')
+        .locator('.cm-content')
         .click();
     
     const {
@@ -112,7 +107,7 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
     await editor.goto();
     
     await page
-        .locator('[data-name="editor-source"] .cm-content')
+        .getByTestId('editor-source').locator('.cm-content')
         .click();
     const {
         write,
@@ -137,7 +132,7 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
     await editor.goto();
     
     await page
-        .locator('[data-name="editor-source"] .cm-content')
+        .getByTestId('editor-source').locator('.cm-content')
         .click();
     const {
         write,
@@ -176,7 +171,7 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
     await editor.goto();
     
     await page
-        .locator('[data-name="editor-source"] .cm-content')
+        .getByTestId('editor-source').locator('.cm-content')
         .click();
     const {
         write,

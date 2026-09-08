@@ -89,7 +89,7 @@ export default function MobileMenu() {
     const toggleTheme = () => setTheme((t) => t === 'light' ? 'dark' : 'light');
     
     return (
-        <div id="MobileMenu">
+        <div data-testid="mobile-menu">
             {/* ── Snippet ──────────────────────────────────── */}
             <MobileDropdown trigger={<><TbFileCode size={18}/> Snippet</>}>
                 <li role="menuitem">

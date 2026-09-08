@@ -106,7 +106,7 @@ export default function Toolbar() {
     }
     
     return (
-        <div id="Toolbar">
+        <div data-testid="toolbar">
             <h1>🐊Putout Editor</h1>
             <SnippetButton
                 canSave={canSave}
@@ -135,7 +135,6 @@ export default function Toolbar() {
                 onTransformChange={onTransformChange}
             />
             <KeyMapButton
-                id="ToolbarKeyMap"
                 data-testid="keymap"
                 keyMap={keyMap}
                 onKeyMapChange={onKeyMapChange}

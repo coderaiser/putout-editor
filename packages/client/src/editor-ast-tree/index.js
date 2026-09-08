@@ -72,7 +72,7 @@ export default function EditorASTTree() {
     }));
     
     return (
-        <div className="output highlight">
+        <div className="output highlight" data-testid="ast-output">
             <div className="toolbar">
                 {buttons}
                 <span className="time">

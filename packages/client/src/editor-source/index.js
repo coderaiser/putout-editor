@@ -25,7 +25,7 @@ export default function EditorSource() {
     const dispatch = useDispatch();
     
     return (
-        <div data-name="editor-source">
+        <div data-name="editor-source" data-testid="editor-source">
             <Editor
                 keyMap={keyMap}
                 value={value}
