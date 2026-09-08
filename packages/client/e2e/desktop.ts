@@ -102,6 +102,7 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     await press('Escape');
     
     const result = await read();
+    
     // Test that vim mode is functional - 'hello' should be typed
     expect(result).toContain('hello');
 });
