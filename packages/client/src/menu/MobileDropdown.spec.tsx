@@ -52,6 +52,7 @@ test('MobileDropdown: menu closes on second trigger click', (t) => {
 
 test('MobileDropdown: menu closes when item inside is clicked', (t) => {
     const {container, unmount} = renderDropdown();
+    
     act(() => {
         fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     });
@@ -66,6 +67,7 @@ test('MobileDropdown: menu closes when item inside is clicked', (t) => {
 
 test('MobileDropdown: menu closes on outside click', (t) => {
     const {container, unmount} = renderDropdown();
+    
     act(() => {
         fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     });

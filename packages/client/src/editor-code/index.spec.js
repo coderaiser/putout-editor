@@ -131,5 +131,3 @@ test('EditorResult: reuses cached transformer promise', async (t) => {
     t.notOk(loadTransformer.called);
     t.end();
 });
-
-
