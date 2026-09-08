@@ -120,6 +120,7 @@ export default function Toolbar() {
                 onShareButtonClick={onShareButtonClick}
             />
             <ParserButton
+                data-testid="parser"
                 parser={parser}
                 category={parser.category}
                 onParserChange={onParserChange}
@@ -127,6 +128,7 @@ export default function Toolbar() {
             />
             <TransformButton
                 id="ToolbarTransform"
+                data-testid="transform"
                 category={parser.category}
                 transformer={transformer}
                 showTransformer={showTransformerVal}
@@ -134,6 +136,7 @@ export default function Toolbar() {
             />
             <KeyMapButton
                 id="ToolbarKeyMap"
+                data-testid="keymap"
                 keyMap={keyMap}
                 onKeyMapChange={onKeyMapChange}
             />

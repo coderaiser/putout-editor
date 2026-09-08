@@ -27,6 +27,7 @@ export default function KeyMapButton({id, keyMap, onKeyMapChange}) {
     return (
         <div
             id={id}
+            data-testid="keymap"
             className={cx({
                 'button': true,
                 'menuButton': true,
@@ -48,7 +49,7 @@ export default function KeyMapButton({id, keyMap, onKeyMapChange}) {
                         disabled={keyMap === keyMapItem}
                         onClick={() => onItemClick(keyMapItem)}
                     >
-                        <button type="button">
+                        <button type="button" data-testid={keyMapItem}>
                             {keyMapItem}
                         </button>
                     </li>

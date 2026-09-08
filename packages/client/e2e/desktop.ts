@@ -79,7 +79,6 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     await page
         .locator('#Toolbar #ToolbarKeyMap')
         .hover();
-    // Click 'vim' in the dropdown - use first() to avoid strict mode violation
     await page
         .getByRole('button', {
             name: 'vim',
