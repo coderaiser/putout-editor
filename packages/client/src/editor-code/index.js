@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import {codeframe} from 'putout';
 import {Editor} from '#editor';
 
 async function runTransform(transformer, transformCode, code, parser) {
@@ -39,13 +40,15 @@ export default function EditorResult({transformer, transformCode, code, mode, is
     return (
         <div className="output highlight">
             {error
-                ? <Editor
-                    highlight={false}
-                    key="error"
-                    lineNumbers={false}
-                    readOnly={true}
-                    value={error.message}
-                />
+                ? <div className="container">
+                    <Editor
+                        key="error"
+                        lineNumbers={false}
+                        mode="javascript"
+                        readOnly={true}
+                        value={codeframe({source: transformCode, error})}
+                    />
+                </div>
                 : <Editor
                     mode={mode}
                     key="output"

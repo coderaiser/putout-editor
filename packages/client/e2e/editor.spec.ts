@@ -54,13 +54,11 @@ test('syntax error renders an error message', async ({page}) => {
 test('syntax error contains useful information', async ({page}) => {
     await replaceContent(page, 's/');
     await showAst(page);
-    const error = page
+
+    await expect(page
         .locator('.output')
         .first()
-        .locator('pre.parse-error');
-    
-    await expect(error).toBeVisible();
-    await expect(error).toContainText(/Unexpected token/i);
+        .locator('pre.parse-error')).toContainText(/Unexpected token/i);
 });
 
 test('theme toggle changes document theme', async ({page}) => {
@@ -112,7 +110,7 @@ test('syntax error shows codeframe', async ({page}) => {
     await expect(page
         .locator('.output')
         .first()
-        .locator('pre.parse-error')).toContainText('unknown: Unexpected token');
+        .locator('.cm-editor')).toContainText('unknown: Unexpected token');
 });
 
 test('syntax error does not show stack trace', async ({page}) => {
@@ -122,5 +120,5 @@ test('syntax error does not show stack trace', async ({page}) => {
     await expect(page
         .locator('.output')
         .first()
-        .locator('pre.parse-error')).not.toContainText('at ');
+        .locator('.cm-editor')).not.toContainText('at ');
 });

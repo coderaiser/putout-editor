@@ -1,8 +1,10 @@
 import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
+import {codeframe} from 'putout';
 import {getParser} from '#parser';
-import {getParseResult, getCursor} from '#store';
+import {getParseResult, getCursor, getCode} from '#store';
 import {getFocusPath} from '#editor';
+import {Editor} from '#editor';
 import visualizations from './visualization.js';
 import {Button} from './Button.js';
 
@@ -26,6 +28,7 @@ export default function EditorASTTree() {
     const parser = useSelector(getParser);
     const parseResult = useSelector(getParseResult) || {};
     const cursor = useSelector(getCursor);
+    const code = useSelector(getCode);
     const [selectedOutput, setSelectedOutput] = useState(0);
     const {ast = null} = parseResult;
     const Visualization = visualizations[selectedOutput];
@@ -38,7 +41,16 @@ export default function EditorASTTree() {
     let output;
     
     if (parseResult.error)
-        output = <pre className="parse-error">{parseResult.error.message}</pre>;
+        output = <div className="container">
+            <Editor
+                key="error"
+                readOnly={true}
+                lineNumbers={false}
+                mode="javascript"
+                value={codeframe({source: code, error: parseResult.error})}
+            />
+        </div>;
+
     else if (ast)
         output = <Visualization
             parseResult={parseResult}
