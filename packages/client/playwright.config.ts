@@ -10,11 +10,11 @@ export default defineConfig({
     },
     projects: [{
         name: 'desktop-chrome',
-        testMatch: ['**/desktop.spec.ts', '**/editor.spec.ts'],
+        testMatch: ['**/desktop.ts', '**/editor.ts'],
         use: devices['Desktop Chrome'],
     }, {
         name: 'mobile-safari',
-        testMatch: ['**/mobile.spec.ts', '**/editor.spec.ts'],
+        testMatch: ['**/mobile.ts', '**/editor.ts'],
         use: devices['iPhone 14'],
     }, {
         name: 'mobile-chrome',
