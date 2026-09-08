@@ -22,7 +22,7 @@ export default defineConfig({
         use: devices['Pixel 7'],
     }],
     webServer: {
-        command: 'npm run start',
+        command: 'NODE_NO_WARNINGS=1 npm run start --silent',
         url: 'http://localhost:8080',
         reuseExistingServer: !process.env.CI,
     },
