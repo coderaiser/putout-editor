@@ -108,12 +108,12 @@ test('switching AST view changes the output mode', async ({page}) => {
 test('syntax error shows codeframe not stack trace', async ({page}) => {
     await replaceContent(page, 'function() {\n  \n}');
     await showAst(page);
-
+    
     const error = page
         .locator('.output')
         .first()
         .locator('pre.parse-error');
-
+    
     await expect(error).toBeVisible();
     await expect(error).toContainText('unknown: Unexpected token');
     await expect(error).not.toContainText('at ');
