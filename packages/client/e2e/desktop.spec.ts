@@ -69,3 +69,41 @@ test('desktop parser menu opens and changes parser', async ({page}) => {
         })
         .first()).toBeVisible();
 });
+
+test('vim mode works after switching keymap away and back', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+
+    await page
+        .locator('#Toolbar #ToolbarKeyMap')
+        .hover();
+    await page
+        .getByRole('button', {
+            name: 'default',
+        })
+        .click();
+    await page.mouse.move(0, 0);
+
+    await page
+        .locator('#Toolbar #ToolbarKeyMap')
+        .hover();
+    await page
+        .getByRole('button', {
+            name: 'vim',
+        })
+        .click();
+    await page.mouse.move(0, 0);
+
+    await page
+        .locator(`[data-name="editor-source"] .cm-content`)
+        .click();
+
+    const {write, press, read} = await editor.get('editor-source');
+
+    await press('Escape');
+    await write('ihello');
+    await press('Escape');
+
+    const result = await read();
+    expect(result).not.toContain('ihello');
+});
