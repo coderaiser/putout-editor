@@ -137,7 +137,6 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
     expect(result).toContain('  X');
 });
 
-
 test('vim paste preserves yanked line indentation', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
