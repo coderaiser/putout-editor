@@ -1,12 +1,15 @@
 import {defineConfig, devices} from '@playwright/test';
 
 export default defineConfig({
+    workers: 1,
     testDir: './e2e',
     fullyParallel: true,
     forbidOnly: Boolean(process.env.CI),
     reporter: 'list',
     use: {
         baseURL: 'http://localhost:8080',
+        // Ensure each test starts with a fresh context by clearing storage
+        storageState: undefined,
     },
     projects: [{
         name: 'desktop-chrome',

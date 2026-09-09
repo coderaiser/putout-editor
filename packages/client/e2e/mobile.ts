@@ -1,13 +1,10 @@
-import {test, expect} from '@playwright/test';
+import {test, expect} from './test.ts';
 
 test('mobile menu is visible', async ({page}) => {
-    await page.goto('/');
     await expect(page.locator('#MobileMenu')).toBeVisible();
 });
 
 test('desktop toolbar controls are hidden on mobile', async ({page}) => {
-    await page.goto('/');
-    
     // the compact toolbar info row remains
     await expect(page.locator('#Toolbar')).toBeVisible();
     
@@ -24,12 +21,10 @@ test('desktop toolbar controls are hidden on mobile', async ({page}) => {
 });
 
 test('logo is visible', async ({page}) => {
-    await page.goto('/');
     await expect(page.locator('#Toolbar h1')).toBeVisible();
 });
 
 test('snippet dropdown opens', async ({page}) => {
-    await page.goto('/');
     const snippet = page.getByRole('button', {
         name: /snippet/i,
     });
@@ -41,7 +36,6 @@ test('snippet dropdown opens', async ({page}) => {
 });
 
 test('snippet dropdown exposes accessible semantics', async ({page}) => {
-    await page.goto('/');
     const snippet = page.getByRole('button', {
         name: /snippet/i,
     });
@@ -53,7 +47,6 @@ test('snippet dropdown exposes accessible semantics', async ({page}) => {
 });
 
 test('parser dropdown opens', async ({page}) => {
-    await page.goto('/');
     const parser = page.getByRole('button', {
         name: /babel/i,
     });
@@ -65,7 +58,6 @@ test('parser dropdown opens', async ({page}) => {
 });
 
 test('dropdown closes on outside tap', async ({page}) => {
-    await page.goto('/');
     const snippet = page.getByRole('button', {
         name: /snippet/i,
     });
@@ -86,12 +78,10 @@ test('dropdown closes on outside tap', async ({page}) => {
 });
 
 test('mobile tabs render', async ({page}) => {
-    await page.goto('/');
     await expect(page.locator('.mobile-tabs')).toBeVisible();
 });
 
 test('mobile tabs contain four controls', async ({page}) => {
-    await page.goto('/');
     const tabs = page
         .locator('.mobile-tabs')
         .getByRole('tab');
@@ -100,7 +90,6 @@ test('mobile tabs contain four controls', async ({page}) => {
 });
 
 test('source tab opens the editor', async ({page}) => {
-    await page.goto('/');
     await page
         .getByRole('tab', {
             name: /source/i,
@@ -112,7 +101,6 @@ test('source tab opens the editor', async ({page}) => {
 });
 
 test('ast tab opens the AST output', async ({page}) => {
-    await page.goto('/');
     await page
         .getByRole('tab', {
             name: /ast/i,

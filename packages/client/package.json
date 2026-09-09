@@ -49,6 +49,7 @@
     "@supertape/loader-jsx": "^1.0.3",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.20.2",
     "@types/prop-types": "^15.7.15",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
@@ -146,6 +147,7 @@
   "scripts": {
     "test": "madrun test",
     "test:e2e": "madrun test:e2e",
+    "test:e2e:desktop": "madrun test:e2e:desktop",
     "e2e": "madrun e2e",
     "coverage": "madrun coverage",
     "test:dts": "madrun test:dts",

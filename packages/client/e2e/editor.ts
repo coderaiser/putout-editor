@@ -1,17 +1,21 @@
-import {test, expect} from '@playwright/test';
+import {
+    test,
+    expect,
+    type Page,
+} from './test.ts';
 import {
     createPutoutEditor,
     EDITOR_SOURCE,
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
-async function isMobileLayout(page) {
+async function isMobileLayout(page: Page) {
     return await page
         .getByTestId('mobile-menu')
         .isVisible();
 }
 
-async function tapTab(page, name) {
+async function tapTab(page: Page, name: RegExp) {
     if (!await isMobileLayout(page))
         return;
     
@@ -22,9 +26,8 @@ async function tapTab(page, name) {
         .tap();
 }
 
-async function replaceContent(page, text: string) {
+async function replaceContent(page: Page, text: string) {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await tapTab(page, /source/i);
     
@@ -39,9 +42,8 @@ async function replaceContent(page, text: string) {
     await page.waitForTimeout(400);
 }
 
-async function replaceTransform(page, text: string) {
+async function replaceTransform(page: Page, text: string) {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await tapTab(page, /transform/i);
     
@@ -56,11 +58,11 @@ async function replaceTransform(page, text: string) {
     await page.waitForTimeout(400);
 }
 
-async function showAst(page) {
+async function showAst(page: Page) {
     await tapTab(page, /ast/i);
 }
 
-async function showResult(page) {
+async function showResult(page: Page) {
     await tapTab(page, /code/i);
 }
 
@@ -109,7 +111,6 @@ test('transform error in editor-transform shows error in codeframe not stack tra
 });
 
 test('theme toggle changes document theme', async ({page}) => {
-    await page.goto('/');
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
@@ -126,7 +127,6 @@ test('theme toggle changes document theme', async ({page}) => {
 });
 
 test('switching AST view changes the output mode', async ({page}) => {
-    await page.goto('/');
     await showAst(page);
     
     await expect(page.getByTestId('ast-output')).toBeVisible();

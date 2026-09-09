@@ -1,4 +1,4 @@
-import {test, expect} from '@playwright/test';
+import {test, expect} from './test.ts';
 import {montag} from 'montag';
 import {
     createPutoutEditor,
@@ -7,33 +7,30 @@ import {
 } from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
-    await page.goto('/');
     await expect(page.getByTestId('toolbar')).toBeVisible();
 });
 
 test('renders Putout Editor title', async ({page}) => {
-    await page.goto('/');
     await expect(page.getByRole('heading', {
         name: '🐊Putout Editor',
     })).toBeVisible();
 });
 
-test('mobile menu is hidden on desktop', async () => {});
+test('mobile menu is hidden on desktop', async ({page}) => {
+    await expect(page.locator('#MobileMenu')).toBeHidden();
+});
 
 test('source editor renders', async ({page}) => {
-    await createPutoutEditor(page).goto();
     await expect(page
         .getByTestId('editor-source')
         .getByRole('textbox')).toBeVisible();
 });
 
 test('AST output renders', async ({page}) => {
-    await page.goto('/');
     await expect(page.getByTestId('ast-output')).toBeVisible();
 });
 
 test('AST view controls render', async ({page}) => {
-    await page.goto('/');
     await expect(page.getByRole('button', {
         name: /tree/i,
     })).toBeVisible();
@@ -43,7 +40,6 @@ test('AST view controls render', async ({page}) => {
 });
 
 test('desktop parser menu opens and changes parser', async ({page}) => {
-    await page.goto('/');
     await expect(page
         .getByTestId('toolbar')
         .getByText('acorn', {
@@ -74,10 +70,8 @@ test('desktop parser menu opens and changes parser', async ({page}) => {
 
 test('vim mode works after switching keymap away and back', async ({page}) => {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     // switch keymap: hover opens the dropdown, mouse.move resets
-    
     // the force-closed state so it can be reopened
     const keymap = page.getByTestId('keymap');
     
@@ -122,7 +116,6 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
 
 test('vim mode preserves indent after consecutive Enter presses', async ({page}) => {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await page
         .getByTestId('editor-source')
@@ -148,7 +141,6 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
 
 test('vim paste preserves yanked line indentation', async ({page}) => {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await page
         .getByTestId('editor-source')
@@ -188,7 +180,6 @@ const CONTENT = montag`
 
 test('vim paste below preserves pasted block indentation', async ({page}) => {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await page
         .getByTestId('editor-source')
