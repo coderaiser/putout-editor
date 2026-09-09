@@ -9,6 +9,16 @@ import {
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
+// Ensure test isolation by clearing localStorage before each test
+test.beforeEach(async ({page}) => {
+    // Clear localStorage to ensure clean state for each test
+    await page.addInitScript(() => {
+        localStorage.clear();
+        document.documentElement.removeAttribute('data-theme');
+    });
+    await page.goto('/');
+});
+
 async function isMobileLayout(page: Page) {
     return await page
         .getByTestId('mobile-menu')
@@ -28,7 +38,6 @@ async function tapTab(page: Page, name: RegExp) {
 
 async function replaceContent(page: Page, text: string) {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await tapTab(page, /source/i);
     
@@ -45,7 +54,6 @@ async function replaceContent(page: Page, text: string) {
 
 async function replaceTransform(page: Page, text: string) {
     const editor = createPutoutEditor(page);
-    await editor.goto();
     
     await tapTab(page, /transform/i);
     
@@ -113,7 +121,6 @@ test('transform error in editor-transform shows error in codeframe not stack tra
 });
 
 test('theme toggle changes document theme', async ({page}) => {
-    await page.goto('/');
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
@@ -130,7 +137,6 @@ test('theme toggle changes document theme', async ({page}) => {
 });
 
 test('switching AST view changes the output mode', async ({page}) => {
-    await page.goto('/');
     await showAst(page);
     
     await expect(page.getByTestId('ast-output')).toBeVisible();

@@ -8,6 +8,8 @@ export default defineConfig({
     reporter: 'list',
     use: {
         baseURL: 'http://localhost:8080',
+        // Ensure each test starts with a fresh context by clearing storage
+        storageState: undefined,
     },
     projects: [{
         name: 'desktop-chrome',
