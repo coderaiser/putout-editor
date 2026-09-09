@@ -5,14 +5,14 @@ import {
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
-function isMobileLayout(page) {
-    return page
+async function isMobileLayout(page) {
+    return await page
         .getByTestId('mobile-menu')
         .isVisible();
 }
 
 async function tapTab(page, name) {
-    if (!isMobileLayout(page))
+    if (!await isMobileLayout(page))
         return;
     
     await page
@@ -113,7 +113,7 @@ test('theme toggle changes document theme', async ({page}) => {
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
-    const container = isMobileLayout(page)
+    const container = await isMobileLayout(page)
         ? page.getByTestId('mobile-menu')
         : page.getByTestId('toolbar');
     
