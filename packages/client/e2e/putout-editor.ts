@@ -1,4 +1,4 @@
-import {type Page, type Locator} from '@playwright/test';
+import {type Page, type Locator, expect} from '@playwright/test';
 
 export const EDITOR_SOURCE = 'editor-source';
 export const EDITOR_TRANSFORM = 'editor-transform';
@@ -34,9 +34,10 @@ export function createPutoutEditor(page: Page) {
     
     async function goto() {
         await page.goto('/');
-        await page.waitForSelector('[data-testid="editor-source"]', {
-            state: 'visible',
-        });
+        await expect(page
+            .getByRole('textbox')
+            .first())
+            .toBeVisible();
     }
     
     return {

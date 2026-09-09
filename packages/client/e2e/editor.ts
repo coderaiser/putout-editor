@@ -5,19 +5,28 @@ import {
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
+async function isMobileLayout(page) {
+    return page.getByTestId('mobile-menu').isVisible();
+}
+
+async function tapTab(page, name) {
+    if (await isMobileLayout(page))
+        await page
+            .getByRole('tab', {
+                name,
+            })
+            .tap();
+}
+
 async function replaceContent(page, text: string) {
     const editor = createPutoutEditor(page);
     await editor.goto();
     
-    if (await page.locator('.mobile-tabs').isVisible())
-        await page
-            .getByRole('tab', {
-                name: /source/i,
-            })
-            .tap();
+    await tapTab(page, /source/i);
     
     await page
-        .locator(`[data-name="${EDITOR_SOURCE}"] .cm-content`)
+        .getByTestId('editor-source')
+        .locator('.cm-content')
         .click();
     const {write, press} = await editor.get(EDITOR_SOURCE);
     await press('i');
@@ -30,15 +39,11 @@ async function replaceTransform(page, text: string) {
     const editor = createPutoutEditor(page);
     await editor.goto();
     
-    if (await page.locator('.mobile-tabs').isVisible())
-        await page
-            .getByRole('tab', {
-                name: /transform/i,
-            })
-            .tap();
+    await tapTab(page, /transform/i);
     
     await page
-        .locator(`[data-name="${EDITOR_TRANSFORM}"] .cm-content`)
+        .getByTestId('editor-transform')
+        .locator('.cm-content')
         .click();
     const {write, press} = await editor.get(EDITOR_TRANSFORM);
     await press('i');
@@ -48,29 +53,22 @@ async function replaceTransform(page, text: string) {
 }
 
 async function showAst(page) {
-    if (await page.locator('.mobile-tabs').isVisible())
-        await page
-            .getByRole('tab', {
-                name: /ast/i,
-            })
-            .tap();
+    await tapTab(page, /ast/i);
 }
 
-async function showTransform(page) {
-    if (await page.locator('.mobile-tabs').isVisible())
-        await page
-            .getByRole('tab', {
-                name: /transform/i,
-            })
-            .tap();
+// the transform result (where transform errors render) lives
+// in the code panel, which on mobile is mounted only when
+// the Code tab is active
+async function showResult(page) {
+    await tapTab(page, /code/i);
 }
 
 test('typing in source editor updates AST', async ({page}) => {
     await replaceContent(page, 'const x = 1;');
     await showAst(page);
     await expect(page
-        .locator('.output')
-        .first()).toContainText('VariableDeclaration');
+        .getByTestId('ast-output'))
+        .toContainText('VariableDeclaration');
 });
 
 test('syntax error in editor-source renders codeframe', async ({page}) => {
@@ -78,9 +76,8 @@ test('syntax error in editor-source renders codeframe', async ({page}) => {
     await showAst(page);
     
     await expect(page
-        .locator('.output')
-        .first()
-        .locator('.cm-editor')).toContainText('unknown: Unexpected token');
+        .getByTestId('ast-output')
+        .getByRole('textbox')).toContainText('Unexpected token');
 });
 
 test('syntax error in editor-source does not show stack trace', async ({page}) => {
@@ -88,45 +85,40 @@ test('syntax error in editor-source does not show stack trace', async ({page}) =
     await showAst(page);
     
     await expect(page
-        .locator('.output')
-        .first()
-        .locator('.cm-editor')).not.toContainText('at ');
+        .getByTestId('ast-output')
+        .getByRole('textbox')).not.toContainText('at ');
 });
 
 test('transform error in editor-transform renders codeframe', async ({page}) => {
     await replaceContent(page, 'const x = 1;');
     await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => ({ throw new Error("oops") });');
-    await showTransform(page);
+    await showResult(page);
     
     await expect(page
-        .locator('.output')
-        .last()
-        .locator('.cm-editor')).toBeVisible();
+        .getByTestId('editor-transform-output')
+        .getByRole('textbox')).toBeVisible();
 });
 
 test('transform error in editor-transform shows error in codeframe not stack trace', async ({page}) => {
     await replaceContent(page, 'const x = 1;');
     await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => { throw new Error("oops"); };');
-    await showTransform(page);
+    await showResult(page);
     
     await expect(page
-        .locator('.output')
-        .last()
-        .locator('.cm-editor')).not.toContainText('at Object.<anonymous>');
+        .getByTestId('editor-transform-output')
+        .getByRole('textbox')).not.toContainText('at Object.<anonymous>');
 });
 
 test('theme toggle changes document theme', async ({page}) => {
     await page.goto('/');
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
-    const container = await page
-        .locator('#MobileMenu')
-        .isVisible()
-        ? '#MobileMenu'
-        : '#Toolbar';
     
-    await page
-        .locator(container)
+    const container = await isMobileLayout(page)
+        ? page.getByTestId('mobile-menu')
+        : page.getByTestId('toolbar');
+    
+    await container
         .getByRole('button', {
             name: /theme/i,
         })
@@ -136,23 +128,17 @@ test('theme toggle changes document theme', async ({page}) => {
 
 test('switching AST view changes the output mode', async ({page}) => {
     await page.goto('/');
-    
-    if (await page.locator('.mobile-tabs').isVisible())
-        await page
-            .getByRole('tab', {
-                name: /ast/i,
-            })
-            .tap();
+    await showAst(page);
     
     await expect(page
-        .locator('.output')
-        .first()).toBeVisible();
+        .getByTestId('ast-output')).toBeVisible();
     await page
         .getByRole('button', {
             name: /json/i,
         })
         .click();
     await expect(page
-        .locator('.output .cm-editor')
-        .first()).toBeVisible();
+        .getByTestId('ast-output')
+        .getByRole('textbox'))
+        .toBeVisible();
 });

@@ -38,7 +38,7 @@ export default function EditorResult({transformer, transformCode, code, mode, is
     ]);
     
     return (
-        <div className="output highlight">
+        <div className="output highlight" data-testid="editor-transform-output">
             {error
                 ? <div className="container">
                     <Editor

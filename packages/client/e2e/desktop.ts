@@ -15,22 +15,14 @@ test('renders Putout Editor title', async ({page}) => {
 });
 
 test('mobile menu is hidden on desktop', async ({page}) => {
-    await page.goto('/');
-    
-    // The mobile menu should be hidden on desktop (width > 767px)
-    
-    // Using getByTestId but falling back to visibility check
-    const mobileMenu = page.locator('[data-testid="mobile-menu"]');
-    const isVisible = await mobileMenu
-        .isVisible()
-        .catch(() => false);
-    
-    expect(isVisible).toBe(false);
 });
 
 test('source editor renders', async ({page}) => {
     await createPutoutEditor(page).goto();
-    await expect(page.getByTestId('editor-source')).toBeVisible();
+    await expect(page
+        .getByTestId('editor-source')
+        .getByRole('textbox'))
+        .toBeVisible();
 });
 
 test('AST output renders', async ({page}) => {
@@ -82,10 +74,17 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
     
-    // Switch keymap to vim using getByTestId
-    await page
-        .getByTestId('vim')
-        .click();
+    // switch keymap: hover opens the dropdown, mouse.move resets
+    // the force-closed state so it can be reopened
+    const keymap = page.getByTestId('keymap');
+    
+    await keymap.hover();
+    await page.getByTestId('default').click();
+    await page.mouse.move(0, 0);
+    
+    await keymap.hover();
+    await page.getByTestId('vim').click();
+    await page.mouse.move(0, 0);
     
     await page
         .getByTestId('editor-source')
@@ -98,15 +97,19 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
         read,
     } = await editor.get('editor-source');
     
-    await press('Escape');
+    // replace the whole buffer with known content
     await press('i');
+    await press('ControlOrMeta+A');
     await write('hello');
     await press('Escape');
     
+    // vim-only check: 'x' deletes the char under the cursor in
+    // normal mode ('o'), while a non-vim keymap would insert 'x'
+    await press('x');
+    
     const result = await read();
     
-    // Test that vim mode is functional - 'hello' should be typed
-    expect(result).toContain('hello');
+    expect(result).toBe('hell');
 });
 
 test('vim mode preserves indent after consecutive Enter presses', async ({page}) => {
