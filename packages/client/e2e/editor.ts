@@ -5,12 +5,14 @@ import {
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
-async function isMobileLayout(page) {
-    return page.getByTestId('mobile-menu').isVisible();
+function isMobileLayout(page) {
+    return page
+        .getByTestId('mobile-menu')
+        .isVisible();
 }
 
 async function tapTab(page, name) {
-    if (await isMobileLayout(page))
+    if (isMobileLayout(page))
         await page
             .getByRole('tab', {
                 name,
@@ -66,9 +68,7 @@ async function showResult(page) {
 test('typing in source editor updates AST', async ({page}) => {
     await replaceContent(page, 'const x = 1;');
     await showAst(page);
-    await expect(page
-        .getByTestId('ast-output'))
-        .toContainText('VariableDeclaration');
+    await expect(page.getByTestId('ast-output')).toContainText('VariableDeclaration');
 });
 
 test('syntax error in editor-source renders codeframe', async ({page}) => {
@@ -114,7 +114,7 @@ test('theme toggle changes document theme', async ({page}) => {
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
-    const container = await isMobileLayout(page)
+    const container = isMobileLayout(page)
         ? page.getByTestId('mobile-menu')
         : page.getByTestId('toolbar');
     
@@ -130,8 +130,7 @@ test('switching AST view changes the output mode', async ({page}) => {
     await page.goto('/');
     await showAst(page);
     
-    await expect(page
-        .getByTestId('ast-output')).toBeVisible();
+    await expect(page.getByTestId('ast-output')).toBeVisible();
     await page
         .getByRole('button', {
             name: /json/i,
@@ -139,6 +138,5 @@ test('switching AST view changes the output mode', async ({page}) => {
         .click();
     await expect(page
         .getByTestId('ast-output')
-        .getByRole('textbox'))
-        .toBeVisible();
+        .getByRole('textbox')).toBeVisible();
 });

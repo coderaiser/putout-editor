@@ -14,15 +14,13 @@ test('renders Putout Editor title', async ({page}) => {
     })).toBeVisible();
 });
 
-test('mobile menu is hidden on desktop', async ({page}) => {
-});
+test('mobile menu is hidden on desktop', async () => {});
 
 test('source editor renders', async ({page}) => {
     await createPutoutEditor(page).goto();
     await expect(page
         .getByTestId('editor-source')
-        .getByRole('textbox'))
-        .toBeVisible();
+        .getByRole('textbox')).toBeVisible();
 });
 
 test('AST output renders', async ({page}) => {
@@ -75,15 +73,20 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     await editor.goto();
     
     // switch keymap: hover opens the dropdown, mouse.move resets
+    
     // the force-closed state so it can be reopened
     const keymap = page.getByTestId('keymap');
     
     await keymap.hover();
-    await page.getByTestId('default').click();
+    await page
+        .getByTestId('default')
+        .click();
     await page.mouse.move(0, 0);
     
     await keymap.hover();
-    await page.getByTestId('vim').click();
+    await page
+        .getByTestId('vim')
+        .click();
     await page.mouse.move(0, 0);
     
     await page
@@ -104,6 +107,7 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     await press('Escape');
     
     // vim-only check: 'x' deletes the char under the cursor in
+    
     // normal mode ('o'), while a non-vim keymap would insert 'x'
     await press('x');
     
