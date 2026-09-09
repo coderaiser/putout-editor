@@ -78,7 +78,6 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     const editor = createPutoutEditor(page);
     
     // switch keymap: hover opens the dropdown, mouse.move resets
-    
     // the force-closed state so it can be reopened
     const keymap = page.getByTestId('keymap');
     
