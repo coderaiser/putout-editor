@@ -1,17 +1,21 @@
-import {test, expect} from '@playwright/test';
+import {
+    test,
+    expect,
+    type Page,
+} from '@playwright/test';
 import {
     createPutoutEditor,
     EDITOR_SOURCE,
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
 
-async function isMobileLayout(page) {
+async function isMobileLayout(page: Page) {
     return await page
         .getByTestId('mobile-menu')
         .isVisible();
 }
 
-async function tapTab(page, name) {
+async function tapTab(page: Page, name: RegExp) {
     if (!await isMobileLayout(page))
         return;
     
@@ -22,7 +26,7 @@ async function tapTab(page, name) {
         .tap();
 }
 
-async function replaceContent(page, text: string) {
+async function replaceContent(page: Page, text: string) {
     const editor = createPutoutEditor(page);
     await editor.goto();
     
@@ -39,7 +43,7 @@ async function replaceContent(page, text: string) {
     await page.waitForTimeout(400);
 }
 
-async function replaceTransform(page, text: string) {
+async function replaceTransform(page: Page, text: string) {
     const editor = createPutoutEditor(page);
     await editor.goto();
     
@@ -56,11 +60,11 @@ async function replaceTransform(page, text: string) {
     await page.waitForTimeout(400);
 }
 
-async function showAst(page) {
+async function showAst(page: Page) {
     await tapTab(page, /ast/i);
 }
 
-async function showResult(page) {
+async function showResult(page: Page) {
     await tapTab(page, /code/i);
 }
 
