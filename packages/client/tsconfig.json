@@ -15,6 +15,10 @@
         "allowJs": true,
         "checkJs": false
     },
-    "include": ["src/**/*", "./playwright.config.ts", "./e2e/**/*.ts"],
+    "include": [
+        "src/**/*",
+        "./playwright.config.ts",
+        "./e2e/**/*.ts"
+    ],
     "exclude": ["node_modules"]
 }
