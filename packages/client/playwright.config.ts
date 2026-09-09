@@ -1,6 +1,7 @@
 import {defineConfig, devices} from '@playwright/test';
 
 export default defineConfig({
+    workers: 4,
     testDir: './e2e',
     fullyParallel: true,
     forbidOnly: Boolean(process.env.CI),
