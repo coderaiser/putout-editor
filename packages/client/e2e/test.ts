@@ -1,4 +1,5 @@
 import {test as base} from '@playwright/test';
+
 export {type Page} from 'playwright';
 
 // Custom fixture that provides an isolated page with clean state

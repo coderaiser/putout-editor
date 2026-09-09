@@ -1,5 +1,5 @@
-import {test, expect} from './test.ts';
 import {montag} from 'montag';
+import {test, expect} from './test.ts';
 import {createPutoutEditor} from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
