@@ -2,22 +2,12 @@ import {
     test,
     expect,
     type Page,
-} from '@playwright/test';
+} from './test.ts';
 import {
     createPutoutEditor,
     EDITOR_SOURCE,
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
-
-// Ensure test isolation by clearing localStorage before each test
-test.beforeEach(async ({page}) => {
-    // Clear localStorage to ensure clean state for each test
-    await page.addInitScript(() => {
-        localStorage.clear();
-        document.documentElement.removeAttribute('data-theme');
-    });
-    await page.goto('/');
-});
 
 async function isMobileLayout(page: Page) {
     return await page

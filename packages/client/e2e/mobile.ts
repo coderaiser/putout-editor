@@ -1,14 +1,4 @@
-import {test, expect} from '@playwright/test';
-
-// Ensure test isolation by clearing localStorage before each test
-test.beforeEach(async ({page}) => {
-    // Clear localStorage to ensure clean state for each test
-    await page.addInitScript(() => {
-        localStorage.clear();
-        document.documentElement.removeAttribute('data-theme');
-    });
-    await page.goto('/');
-});
+import {test, expect} from './test.ts';
 
 test('mobile menu is visible', async ({page}) => {
     await expect(page.locator('#MobileMenu')).toBeVisible();

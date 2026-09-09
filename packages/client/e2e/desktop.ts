@@ -1,16 +1,6 @@
-import {test, expect} from '@playwright/test';
+import {test, expect} from './test.ts';
 import {montag} from 'montag';
 import {createPutoutEditor} from './putout-editor.ts';
-
-// Ensure test isolation by clearing localStorage before each test
-test.beforeEach(async ({page}) => {
-    // Clear localStorage to ensure clean state for each test
-    await page.addInitScript(() => {
-        localStorage.clear();
-        document.documentElement.removeAttribute('data-theme');
-    });
-    await page.goto('/');
-});
 
 test('renders the editor application', async ({page}) => {
     await expect(page.getByTestId('toolbar')).toBeVisible();
