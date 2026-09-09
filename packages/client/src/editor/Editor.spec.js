@@ -636,4 +636,204 @@ test('Editor: Tab indents the current line', (t) => {
     
     t.equal(result, expected);
     t.end();
+
+test('Editor: calls onKeyDown on Escape', (t) => {
+    const calls = [];
+    const {container} = render(
+        <Editor
+            value="abc"
+            onKeyDown={(event) => calls.push(event)}
+        />,
+    );
+    
+    const content = container.querySelector('.cm-content');
+    
+    act(() => {
+        fireEvent.keyDown(content, {
+            key: 'Escape',
+            code: 'Escape',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
+    
+    cleanup();
+    
+    t.equal(calls.length, 1);
+    t.equal(calls[0].key, 'Escape');
+    t.end();
+});
+
+test('Editor: does not call onKeyDown for printable keys', (t) => {
+    let called = false;
+    const {container} = render(
+        <Editor
+            value="abc"
+            onKeyDown={() => {
+                called = true;
+            }}
+        />,
+    );
+    
+    const content = container.querySelector('.cm-content');
+    
+    act(() => {
+        fireEvent.keyDown(content, {
+            key: 'l',
+            code: 'KeyL',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
+    
+    cleanup();
+    
+    t.notOk(called);
+    t.end();
+});
+
+test('Editor: flushes content change on keydown', (t) => {
+    const changes = [];
+    const {container} = render(
+        <Editor
+            value="abc"
+            onContentChange={(change) => changes.push(change)}
+        />,
+    );
+    
+    const view = getView(container);
+    const content = container.querySelector('.cm-content');
+    
+    act(() => {
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: 3,
+                insert: 'hello',
+            },
+        });
+    });
+    
+    act(() => {
+        fireEvent.keyDown(content, {
+            key: 'Escape',
+            code: 'Escape',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
+    
+    const result = changes.at(-1);
+    
+    cleanup();
+    
+    t.equal(result.value, 'hello');
+    t.equal(typeof result.cursor, 'number');
+    t.end();
+});
+
+test('Editor: flushes content change on printable keydown', (t) => {
+    const changes = [];
+    const {container} = render(
+        <Editor
+            value="abc"
+            onContentChange={(change) => changes.push(change)}
+        />,
+    );
+    
+    const view = getView(container);
+    const content = container.querySelector('.cm-content');
+    
+    act(() => {
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: 3,
+                insert: 'hello',
+            },
+        });
+    });
+    
+    act(() => {
+        fireEvent.keyDown(content, {
+            key: 'l',
+            code: 'KeyL',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
+    
+    const result = changes.at(-1);
+    
+    cleanup();
+    
+    t.equal(result.value, 'hello');
+    t.end();
+});
+
+test('Editor: focuses editor when autoFocus is set', (t) => {
+    const {container} = render(
+        <Editor value="abc" autoFocus/>,
+    );
+    
+    const content = container.querySelector('.cm-content');
+    const result = document.activeElement;
+    
+    cleanup();
+    
+    t.equal(result, content);
+    t.end();
+});
+
+test('Editor: applies external value change with minimal diff keeping cursor line', (t) => {
+    const {container, rerender} = render(
+        <Editor value="const x=1"/>,
+    );
+    
+    const view = getView(container);
+    
+    act(() => {
+        view.dispatch({
+            selection: {
+                anchor: 9,
+            },
+        });
+    });
+    
+    act(() => {
+        rerender(
+            <Editor value="const x = 1;"/>,
+        );
+    });
+    
+    const doc = view.state.doc.toString();
+    const line = view.state.doc.lineAt(view.state.selection.main.head).number;
+    
+    cleanup();
+    
+    t.equal(doc, 'const x = 1;');
+    t.equal(line, 1);
+    t.end();
+});
+
+test('Editor: does not touch doc when value prop did not change', (t) => {
+    const {container, rerender} = render(
+        <Editor value="abc"/>,
+    );
+    
+    act(() => {
+        rerender(
+            <Editor value="abc"/>,
+        );
+    });
+    
+    const view = getView(container);
+    const result = view.state.doc.toString();
+    
+    cleanup();
+    
+    t.equal(result, 'abc');
+    t.end();
+});
+
 });

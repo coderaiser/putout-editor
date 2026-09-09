@@ -12,7 +12,8 @@ import {
     startSave,
     endSave,
     setCursor,
-    editorBlur,
+    editorKeydown,
+    transformKeydown,
     setCode,
     reset,
     setSnippet,
@@ -639,12 +640,23 @@ test('reducers: clearHighlight with non-matching range preserves it', (t) => {
     t.end();
 });
 
-test('reducers: editorBlur is a no-op', (t) => {
+test('reducers: editorKeydown is a no-op', (t) => {
     const before = putoutEditor(undefined, {
         type: '@@INIT',
     });
     
-    const after = putoutEditor(before, editorBlur());
+    const after = putoutEditor(before, editorKeydown());
+    
+    t.equal(after, before);
+    t.end();
+});
+
+test('reducers: transformKeydown is a no-op', (t) => {
+    const before = putoutEditor(undefined, {
+        type: '@@INIT',
+    });
+    
+    const after = putoutEditor(before, transformKeydown());
     
     t.equal(after, before);
     t.end();

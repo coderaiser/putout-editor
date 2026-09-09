@@ -8,7 +8,7 @@ import {
     getHighlightRange,
     setCode,
     setCursor,
-    editorBlur,
+    editorKeydown,
 } from '#store';
 
 export default function EditorSource() {
@@ -32,12 +32,13 @@ export default function EditorSource() {
                 mode={mode}
                 error={error}
                 highlightRange={highlightRange}
+                autoFocus
                 onContentChange={({value, cursor}) => dispatch(setCode({
                     code: value,
                     cursor,
                 }))}
                 onActivity={(cursor) => dispatch(setCursor(cursor))}
-                onBlur={() => dispatch(editorBlur())}
+                onKeyDown={() => dispatch(editorKeydown())}
             />
         </div>
     );

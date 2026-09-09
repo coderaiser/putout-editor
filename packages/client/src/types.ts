@@ -75,5 +75,5 @@ export interface EditorProps {
     highlightRange: SourceRange | null;
     onContentChange: (change: ContentChange) => void;
     onActivity: (cursor: CharOffset) => void;
-    onBlur: () => void;
+    onKeyDown: (event: KeyboardEvent) => void;
 }

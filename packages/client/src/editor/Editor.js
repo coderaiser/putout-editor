@@ -1,7 +1,8 @@
 import {useRef, useEffect} from 'react';
+import {StateEffect} from '@codemirror/state';
+import {highlightActiveLine} from '@codemirror/view';
 import {
     createEditor,
-    setValue,
     setOption,
     getValue,
     addLineClass,
@@ -16,6 +17,7 @@ import {
     posFromIndex as adapterPosFromIndex,
     indexFromPos as adapterIndexFromPos,
 } from './position.js';
+import {getDocChanges} from './changes.ts';
 
 const returns = (a) => () => a;
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
@@ -34,7 +36,8 @@ export default function Editor(props) {
         highlightRange = null,
         onContentChange = noop,
         onActivity = noop,
-        onBlur = noop,
+        onKeyDown = noop,
+        autoFocus = false,
         posFromIndex: posFromIndexProp,
     } = props;
     
@@ -90,6 +93,13 @@ export default function Editor(props) {
         
         editorRef.current = editor;
         
+        editor.dispatch({
+            effects: StateEffect.appendConfig.of(highlightActiveLine()),
+        });
+        
+        if (autoFocus)
+            editor.focus();
+        
         const themeObserver = new MutationObserver(() => {
             setOption(editor, 'theme', getCMTheme());
         });
@@ -99,12 +109,34 @@ export default function Editor(props) {
             attributeFilter: ['data-theme'],
         });
         
+        const handleKeyDown = (event) => {
+            // Flush the debounced content change so the store is fresh
+            // when the keydown formatting runs.
+            clearTimeout(timerRef.current);
+            
+            const currentValue = getValue(editor);
+            const cursor = getCursorIndex(editor);
+            
+            valueRef.current = currentValue;
+            onContentChange({
+                value: currentValue,
+                cursor,
+            });
+            
+            // Do not reformat while typing printable characters,
+            // only when editing pauses (Escape, arrows, Enter...).
+            if (event.key.length === 1)
+                return;
+            
+            onKeyDown(event);
+        };
+        
         const cleanupResize = observeResize(editor, containerRef.current);
-        const [blurEv, blurFn] = on(editor, 'blur', onBlur);
+        const [keyDownEv, keyDownFn] = on(editor, 'keydown', handleKeyDown);
         
         return () => {
             clearTimeout(timerRef.current);
-            off(editor, blurEv, blurFn);
+            off(editor, keyDownEv, keyDownFn);
             themeObserver.disconnect();
             cleanupResize();
             editor.destroy();
@@ -113,10 +145,13 @@ export default function Editor(props) {
     }, []);
     
     useEffect(() => {
-        if (editorRef.current && value !== valueRef.current) {
-            valueRef.current = value;
-            setValue(editorRef.current, value);
-        }
+        const changes = getDocChanges(valueRef.current, value);
+        
+        if (!changes)
+            return;
+        
+        valueRef.current = value;
+        editorRef.current.dispatch({changes});
     }, [value]);
     
     useEffect(() => {

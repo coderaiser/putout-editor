@@ -1,51 +1,62 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {
     type RootState,
-    editorBlur,
-    transformBlur,
+    editorKeydown,
+    transformKeydown,
     setCode,
     setTransformState,
 } from './reducers.ts';
 import {
-    getParseResult,
     getCode,
     getTransformCode,
 } from './selectors.ts';
 import {formatInput, formatRule} from '../editor/format.ts';
+
+const noop = () => {};
+
+// Warm up the printer so the first format on keydown does not wait for the chunk.
+import('@putout/printer').catch(noop);
 
 export const formatListener = createListenerMiddleware();
 
 const startAppListening = formatListener.startListening.withTypes<RootState>();
 
 startAppListening({
-    actionCreator: editorBlur,
+    actionCreator: editorKeydown,
     effect: async (_, api) => {
         const state = api.getState();
-        const {ast} = getParseResult(state);
         const source = getCode(state);
+        const {parseResult} = state.workbench;
+        const {ast} = parseResult || {};
         
-        const [error, formatted] = await formatInput(source, ast);
+        const [formatError, formatted] = await formatInput(source, ast);
         
-        if (error)
+        if (formatError)
+            return;
+        
+        // Staleness check — bail out if the code changed while formatting
+        if (getCode(api.getState()) !== source)
             return;
         
         api.dispatch(setCode({
             code: formatted,
-            cursor: 0,
         }));
     },
 });
 
-const startFormatListening = formatListener.startListening.withTypes<RootState>();
-
-startFormatListening({
-    actionCreator: transformBlur,
+startAppListening({
+    actionCreator: transformKeydown,
     effect: async (_, api) => {
         const state = api.getState();
         const source = getTransformCode(state);
+        
         const [error, code] = await formatRule(source);
         
         if (error)
+            return;
+        
+        // Staleness check — bail out if the code changed while formatting
+        if (getTransformCode(api.getState()) !== source)
             return;
         
         api.dispatch(setTransformState({

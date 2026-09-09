@@ -2,6 +2,13 @@ import {type Node} from '@putout/babel';
 import {tryCatch} from 'try-catch';
 import {normalizeRule} from './normalizeRule.ts';
 
+const adaptTrailingNewline = (source: string, printed: string) => {
+    if (source.endsWith('\n'))
+        return printed;
+    
+    return printed.replace(/\n+$/, '');
+};
+
 export const formatInput = async (source: string, ast: Node) => {
     if (!ast)
         return [
@@ -10,7 +17,7 @@ export const formatInput = async (source: string, ast: Node) => {
     
     const {print} = await import('@putout/printer');
     
-    const formatted = print(ast);
+    const formatted = adaptTrailingNewline(source, print(ast));
     
     if (formatted === source)
         return [
@@ -38,8 +45,7 @@ export const formatRule = async (source: string) => {
         return [error];
     
     const {print} = await import('@putout/printer');
-    const formatted = print(ast);
-    
+    const formatted = adaptTrailingNewline(source, print(ast));
     const normalized = normalizeRule(formatted);
     
     return [null, normalized];

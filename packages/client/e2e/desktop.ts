@@ -1,6 +1,10 @@
 import {test, expect} from '@playwright/test';
 import {montag} from 'montag';
-import {createPutoutEditor} from './putout-editor.ts';
+import {
+    createPutoutEditor,
+    EDITOR_SOURCE,
+    EDITOR_TRANSFORM,
+} from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
     await page.goto('/');
@@ -239,4 +243,75 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
     ].join('\n');
     
     expect(result).toBe(expected);
+});
+
+test('editor-source: cursor stays on same line after format on keydown', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+    const {write, press, cursorLine} = await editor.get(EDITOR_SOURCE);
+
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write('const x = 1;\nconst y = 2;\nconst z = 3;');
+    await press('Escape');
+
+    await press('j');
+    await press('j');
+
+    const lineBefore = await cursorLine();
+
+    await press('l');
+
+    const lineAfter = await cursorLine();
+
+    expect(lineAfter).toBe(lineBefore);
+});
+
+test('editor-source: content is formatted after keydown', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+    const {write, press, read} = await editor.get(EDITOR_SOURCE);
+
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write('const x=1');
+    await press('Escape');
+    await press('l');
+
+    expect(await read()).toBe('const x = 1;');
+});
+
+test('editor-transform: cursor stays on same line after format on keydown', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+    const {write, press, cursorLine} = await editor.get(EDITOR_TRANSFORM);
+
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write('export const report=()=>\'error\';\nexport const replace=()=>({});');
+    await press('Escape');
+
+    await press('j');
+
+    const lineBefore = await cursorLine();
+
+    await press('l');
+
+    const lineAfter = await cursorLine();
+
+    expect(lineAfter).toBe(lineBefore);
+});
+
+test('editor-transform: content is formatted after keydown', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    await editor.goto();
+    const {write, press, read} = await editor.get(EDITOR_TRANSFORM);
+
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write('export const report=()=>\'error\';\nexport const replace=()=>({});');
+    await press('Escape');
+    await press('l');
+
+    expect(await read()).toContain('report = ()');
 });

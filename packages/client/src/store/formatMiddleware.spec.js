@@ -1,18 +1,31 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
-import {montag} from 'montag';
 import {formatListener} from './formatMiddleware.ts';
 import {
     putoutEditor,
-    editorBlur,
-    transformBlur,
+    editorKeydown,
+    transformKeydown,
+    setCode,
+    setTransformState,
     setParseResult,
 } from './reducers.ts';
 
 const getInitState = () => putoutEditor(undefined, {
     type: '@@INIT',
 });
+
+const settle = async (count = 10) => {
+    for (let i = 0; i < count; i++)
+        await setImmediate();
+};
+
+const waitFor = async (fn, ms = 3000) => {
+    const start = Date.now();
+    
+    while (!fn() && Date.now() - start < ms)
+        await setImmediate();
+};
 
 function makeStore(overrides = {}) {
     const state = getInitState();
@@ -33,99 +46,129 @@ function makeStore(overrides = {}) {
     });
 }
 
-const makeAST = () => ({
-    type: 'File',
-    program: {
-        type: 'Program',
-        sourceType: 'module',
-        body: [{
-            type: 'VariableDeclaration',
-            kind: 'const',
-            declarations: [{
-                type: 'VariableDeclarator',
-                id: {
-                    type: 'Identifier',
-                    name: 'x',
-                },
-                init: {
-                    type: 'NumericLiteral',
-                    value: 1,
-                },
-            }],
-        }],
-        directives: [],
-    },
-});
-
-// ─── editorBlur ───────────────────────────────────────────────────────────────
-test('formatMiddleware: editorBlur with valid ast formats code', async (t) => {
-    const store = makeStore();
-    const ast = makeAST();
-    
+const setASTFor = (store) => {
     store.dispatch(setParseResult({
-        ast,
+        ast: {
+            type: 'File',
+            program: {
+                type: 'Program',
+                sourceType: 'module',
+                body: [{
+                    type: 'VariableDeclaration',
+                    kind: 'const',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'x',
+                        },
+                        init: {
+                            type: 'UnaryExpression',
+                            operator: '-',
+                            prefix: true,
+                            argument: {
+                                type: 'NumericLiteral',
+                                value: 1,
+                            },
+                        },
+                    }],
+                }],
+                directives: [],
+            },
+        },
         error: null,
         time: 1,
         treeAdapter: null,
     }));
-    store.dispatch(editorBlur());
-    
-    await setImmediate();
-    
-    t.equal(store.getState().workbench.code, 'const x = 1;\n');
-    t.end();
-});
+};
 
-test('formatMiddleware: editorBlur without ast does nothing', async (t) => {
+// ─── editorKeydown ────────────────────────────────────────────────────────────
+test('formatMiddleware: editorKeydown formats code', async (t) => {
     const store = makeStore({
         workbench: {
-            parseResult: {
-                ast: null,
-                error: null,
-            },
+            code: 'const x=-1',
         },
     });
     
-    const before = store.getState().workbench.code;
+    setASTFor(store);
+    store.dispatch(editorKeydown());
     
-    store.dispatch(editorBlur());
+    await waitFor(() => store.getState().workbench.code === 'const x = -1;');
     
-    await setImmediate();
-    
-    t.equal(store.getState().workbench.code, before);
+    t.equal(store.getState().workbench.code, 'const x = -1;');
     t.end();
 });
 
-test('formatMiddleware: editorBlur does not dispatch when formatted equals code', async (t) => {
-    const store = makeStore();
-    const ast = makeAST();
+test('formatMiddleware: editorKeydown keeps trailing newline', async (t) => {
+    const store = makeStore({
+        workbench: {
+            code: 'const x=-1;\n',
+        },
+    });
     
-    store.dispatch(setParseResult({
-        ast,
-        error: null,
-        time: 1,
-        treeAdapter: null,
-    }));
-    store.dispatch(editorBlur());
-    await setImmediate();
+    setASTFor(store);
+    store.dispatch(editorKeydown());
     
-    const before = store.getState().workbench.code;
+    await waitFor(() => store.getState().workbench.code === 'const x = -1;\n');
     
-    store.dispatch(setParseResult({
-        ast,
-        error: null,
-        time: 1,
-        treeAdapter: null,
-    }));
-    store.dispatch(editorBlur());
-    await setImmediate();
-    
-    t.equal(store.getState().workbench.code, before);
+    t.equal(store.getState().workbench.code, 'const x = -1;\n');
     t.end();
 });
 
-// ─── transformBlur ────────────────────────────────────────────────────────────
-test('formatMiddleware: transformBlur with valid code formats transform', async (t) => {
+test('formatMiddleware: editorKeydown does nothing without ast', async (t) => {
+    const store = makeStore({
+        workbench: {
+            code: 'const x=-1',
+        },
+    });
+    
+    store.dispatch(editorKeydown());
+    
+    await settle();
+    
+    t.equal(store.getState().workbench.code, 'const x=-1');
+    t.end();
+});
+
+test('formatMiddleware: editorKeydown does nothing when already formatted', async (t) => {
+    const formatted = 'const x = -1;';
+    const store = makeStore({
+        workbench: {
+            code: formatted,
+        },
+    });
+    
+    setASTFor(store);
+    store.dispatch(editorKeydown());
+    
+    await settle();
+    
+    t.equal(store.getState().workbench.code, formatted);
+    t.end();
+});
+
+test('formatMiddleware: editorKeydown bails out when code changed while formatting', async (t) => {
+    const store = makeStore({
+        workbench: {
+            code: 'const x=-1',
+        },
+    });
+    
+    setASTFor(store);
+    store.dispatch(editorKeydown());
+    store.dispatch(setCode({
+        code: 'const changed = 1;',
+        cursor: 0,
+    }));
+    
+    await settle();
+    
+    t.equal(store.getState().workbench.code, 'const changed = 1;');
+    t.end();
+});
+
+// ─── transformKeydown ─────────────────────────────────────────────────────────
+test('formatMiddleware: transformKeydown formats code', async (t) => {
     const store = makeStore({
         workbench: {
             transform: {
@@ -136,16 +179,15 @@ test('formatMiddleware: transformBlur with valid code formats transform', async 
         },
     });
     
-    store.dispatch(transformBlur());
-    await setImmediate();
+    store.dispatch(transformKeydown());
     
-    const {code} = store.getState().workbench.transform;
+    await waitFor(() => store.getState().workbench.transform.code === 'export const replace = () => ({});');
     
-    t.equal(code, 'export const replace = () => ({});\n');
+    t.equal(store.getState().workbench.transform.code, 'export const replace = () => ({});');
     t.end();
 });
 
-test('formatMiddleware: transformBlur with empty code does nothing', async (t) => {
+test('formatMiddleware: transformKeydown with empty code does nothing', async (t) => {
     const store = makeStore({
         workbench: {
             transform: {
@@ -156,14 +198,15 @@ test('formatMiddleware: transformBlur with empty code does nothing', async (t) =
         },
     });
     
-    store.dispatch(transformBlur());
-    await setImmediate();
+    store.dispatch(transformKeydown());
+    
+    await settle();
     
     t.equal(store.getState().workbench.transform.code, '');
     t.end();
 });
 
-test('formatMiddleware: transformBlur with invalid code does nothing', async (t) => {
+test('formatMiddleware: transformKeydown with invalid code does nothing', async (t) => {
     const bad = 'export const = 1';
     const store = makeStore({
         workbench: {
@@ -175,79 +218,30 @@ test('formatMiddleware: transformBlur with invalid code does nothing', async (t)
         },
     });
     
-    store.dispatch(transformBlur());
-    await setImmediate();
+    store.dispatch(transformKeydown());
+    
+    await settle();
     
     t.equal(store.getState().workbench.transform.code, bad);
     t.end();
 });
 
-test('formatMiddleware: transformBlur does not dispatch when formatted equals code', async (t) => {
+test('formatMiddleware: transformKeydown does nothing when already formatted', async (t) => {
+    const formatted = 'export const replace = () => ({});';
     const store = makeStore({
         workbench: {
             transform: {
-                code: 'export const replace = () => ({});\n',
+                code: formatted,
                 initialCode: '',
                 transformer: 'putout',
             },
         },
     });
     
-    store.dispatch(transformBlur());
-    await setImmediate();
+    store.dispatch(transformKeydown());
     
-    t.equal(store.getState().workbench.transform.code, 'export const replace = () => ({});\n');
-    t.end();
-});
-
-test('formatMiddleware: transformBlur inserts blank line after comment when missing', async (t) => {
-    const store = makeStore({
-        workbench: {
-            transform: {
-                code: '// https://git.io/JqcMn\nexport const report = () => `Use const`;',
-                cursor: 0,
-                initialCode: '',
-            },
-        },
-    });
+    await settle();
     
-    store.dispatch(transformBlur());
-    await setImmediate();
-    
-    const {code} = store.getState().workbench.transform;
-    const expected = montag`
-        // https://git.io/JqcMn
-        
-        export const report = () => \`Use const\`;
-   
-   `;
-    
-    t.equal(code, expected);
-    t.end();
-});
-
-test('formatMiddleware: transformBlur does not duplicate blank line when already present', async (t) => {
-    const store = makeStore({
-        workbench: {
-            transform: {
-                code: '// https://git.io/JqcMn\n\nexport const report = () => `Use const`;',
-                cursor: 0,
-                initialCode: '',
-            },
-        },
-    });
-    
-    store.dispatch(transformBlur());
-    await setImmediate();
-    
-    const {code} = store.getState().workbench.transform;
-    const expected = montag`
-        // https://git.io/JqcMn
-        
-        export const report = () => \`Use const\`;
-    
-    `;
-    
-    t.equal(code, expected);
+    t.equal(store.getState().workbench.transform.code, formatted);
     t.end();
 });

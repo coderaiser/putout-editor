@@ -3,12 +3,19 @@ import {
     render,
     cleanup,
     act,
+    fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {putoutEditor, revive} from '#store';
 import {getView} from '#editor';
 import EditorSource from './index.js';
+
+const recordActions = (actions) => () => (next) => (action) => {
+    actions.push(action);
+    
+    return next(action);
+};
 
 function renderWithStore(overrides = {}) {
     const base = putoutEditor(undefined, {
@@ -24,9 +31,14 @@ function renderWithStore(overrides = {}) {
         },
     };
     
+    const actions = [];
+    
     const store = configureStore({
         reducer: putoutEditor,
         preloadedState: revive(state),
+        middleware: (getDefault) => getDefault({
+            serializableCheck: false,
+        }).prepend(recordActions(actions)),
     });
     
     render(
@@ -35,7 +47,10 @@ function renderWithStore(overrides = {}) {
         </Provider>,
     );
     
-    return store;
+    return {
+        store,
+        actions,
+    };
 }
 
 test('EditorSource: renders editor container', (t) => {
@@ -66,7 +81,7 @@ test('EditorSource: renders value from store', (t) => {
 });
 
 test('EditorSource: dispatches setCode when editor content changes', async (t) => {
-    const store = renderWithStore();
+    const {store} = renderWithStore();
     
     await act(async () => {
         const view = getView(document.body);
@@ -91,7 +106,7 @@ test('EditorSource: dispatches setCode when editor content changes', async (t) =
 });
 
 test('EditorSource: dispatches setCursor when cursor moves', async (t) => {
-    const store = renderWithStore();
+    const {store} = renderWithStore();
     
     await act(async () => {
         const view = getView(document.body);
@@ -113,16 +128,23 @@ test('EditorSource: dispatches setCursor when cursor moves', async (t) => {
     t.end();
 });
 
-test('EditorSource: dispatches editorBlur when editor blurs', (t) => {
-    const store = renderWithStore();
+test('EditorSource: dispatches editorKeydown when key pressed', (t) => {
+    const {actions} = renderWithStore();
     const view = getView(document.body);
     
-    view.contentDOM.dispatchEvent(new FocusEvent('blur'));
+    act(() => {
+        fireEvent.keyDown(view.contentDOM, {
+            key: 'Escape',
+            code: 'Escape',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
     
     cleanup();
     
-    const result = store.getState().workbench.cursor;
+    const result = actions.some(({type}) => type === 'putoutEditor/editorKeydown');
     
-    t.notOk(result);
+    t.ok(result);
     t.end();
 });

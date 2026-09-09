@@ -190,8 +190,8 @@ const slice = createSlice({
             state.showTransformPanel = false;
         },
         
-        editorBlur: noop,
-        transformBlur: noop,
+        editorKeydown: noop,
+        transformKeydown: noop,
         setCode: (state, {payload: {code, cursor}}) => {
             state.workbench.code = code;
             
@@ -334,8 +334,8 @@ export const {
     clearHighlight,
     setKeyMap,
     setCursor,
-    editorBlur,
-    transformBlur,
+    editorKeydown,
+    transformKeydown,
     setCode,
     setParseResult,
     setParserSettings,

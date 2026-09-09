@@ -3,6 +3,7 @@ import {
     render,
     cleanup,
     act,
+    fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
@@ -105,16 +106,23 @@ test('EditorPlugin: dispatches setTransformState when editor content changes', a
     t.end();
 });
 
-test('EditorPlugin: dispatches transformBlur when editor blurs', (t) => {
+test('EditorPlugin: dispatches transformKeydown when key pressed', (t) => {
     const {actions, store} = renderWithStore();
     const container = renderTransformer(store);
     const view = getView(container);
     
-    view.contentDOM.dispatchEvent(new FocusEvent('blur'));
+    act(() => {
+        fireEvent.keyDown(view.contentDOM, {
+            key: 'Escape',
+            code: 'Escape',
+            bubbles: true,
+            cancelable: true,
+        });
+    });
     
     cleanup();
     
-    const result = actions.some(({type}) => type === 'putoutEditor/transformBlur');
+    const result = actions.some(({type}) => type === 'putoutEditor/transformKeydown');
     
     t.ok(result);
     t.end();

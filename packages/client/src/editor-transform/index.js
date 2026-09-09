@@ -2,7 +2,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {Editor} from '#editor';
 import {
     setTransformState,
-    transformBlur,
+    transformKeydown,
     getTransformCode,
     getKeyMap,
 } from '#store';
@@ -21,7 +21,7 @@ export default function EditorPlugin() {
                     code: value,
                     cursor,
                 }))}
-                onBlur={() => dispatch(transformBlur())}
+                onKeyDown={() => dispatch(transformKeydown())}
                 keyMap={keyMap}
             />
         </div>

@@ -13,6 +13,7 @@ interface EditorHandle {
     write(text: string): Promise<void>;
     press(key: string): Promise<void>;
     read(): Promise<string>;
+    cursorLine(): Promise<number>;
     locator: Locator;
 }
 
@@ -32,6 +33,18 @@ export function createPutoutEditor(page: Page) {
             },
             async read() {
                 return locator.innerText();
+            },
+            async cursorLine() {
+                const editor = page.getByTestId(name).locator('.cm-editor');
+                const lines = editor.locator('.cm-line');
+                const active = editor.locator('.cm-activeLine');
+                const allLines = await lines.all();
+                
+                for (let i = 0; i < allLines.length; i++)
+                    if (await allLines[i].evaluate((el, a) => el === a, await active.elementHandle()))
+                        return i + 1;
+                
+                return -1;
             },
         };
     }
