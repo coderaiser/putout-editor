@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "types": ["node"],
         "allowImportingTsExtensions": true,
         "rewriteRelativeImportExtensions": true,
         "module": "NodeNext",
@@ -14,6 +15,6 @@
         "allowJs": true,
         "checkJs": false
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "./playwright.config.ts", "./e2e/**/*.ts"],
     "exclude": ["node_modules"]
 }
