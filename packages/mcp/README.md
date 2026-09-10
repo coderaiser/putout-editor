@@ -1,6 +1,8 @@
 # @putout/mcp
 
-MCP server for putout-editor — write putout rules with Claude.
+MCP server for writing putout rules with Claude. Runs in two modes:
+- **Local** (default): calls `putout` functions directly — no server needed
+- **Remote** (opt-in): calls the putout-editor HTTP API
 
 ## Installation
 
@@ -10,7 +12,7 @@ npm install @putout/mcp
 
 ## Usage
 
-### Claude Desktop config
+### Claude Desktop config (local mode, default)
 
 ```json
 {
@@ -23,7 +25,7 @@ npm install @putout/mcp
 }
 ```
 
-Production:
+### Remote mode (HTTP API)
 
 ```json
 {
@@ -32,6 +34,7 @@ Production:
             "command": "node",
             "args": ["/absolute/path/to/packages/mcp/dist/index.js"],
             "env": {
+                "USE_HTTP": "true",
                 "BASE_URL": "https://putout.cloudcmd.io"
             }
         }
@@ -50,7 +53,8 @@ Production:
 
 ### Environment
 
-- `BASE_URL` — API base URL (default: `http://localhost:8080`)
+- `USE_HTTP` — Set to `true` to use the HTTP API (default: `false`, direct putout calls)
+- `BASE_URL` — API base URL, only used when `USE_HTTP=true` (default: `http://localhost:8080`)
 
 ## Development
 
@@ -65,6 +69,8 @@ npm run coverage
 npm run lint
 # Fix lint
 npm run fix:lint
+# Type-check
+npm run test:dts
 # Build
 npm run build
 ```

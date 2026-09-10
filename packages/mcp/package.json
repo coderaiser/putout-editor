@@ -20,7 +20,10 @@
     "test:dts": "madrun test:dts"
   },
   "dependencies": {
+    "@babel/parser": "^8.0.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "putout": "^42.8.0",
+    "redput": "^4.8.0",
     "try-catch": "^4.0.0",
     "try-to-catch": "^4.1.0",
     "zod": "^3.25.0"
@@ -33,7 +36,6 @@
     "eslint": "^10.7.0",
     "eslint-plugin-putout": "^31.2.0",
     "madrun": "^13.0.2",
-    "putout": "^42.8.0",
     "redlint": "^6.9.2",
     "superc8": "^12.7.0",
     "supertape": "^13.6.0",
