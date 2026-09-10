@@ -6,7 +6,6 @@ import {GistModule} from './gist/gist.module.ts';
 import {ParseModule} from './parse/parse.module.ts';
 import {TransformModule} from './transform/transform.module.ts';
 import {InfoModule} from './info/info.module.ts';
-import {LlmsModule} from './llms/llms.module.ts';
 
 // STATIC is resolved relative to the process working directory, matching
 // how the npm "start" script invokes the app (`cd server && STATIC=../out
@@ -28,7 +27,6 @@ export function getStaticModules() {
         ParseModule,
         TransformModule,
         InfoModule,
-        LlmsModule,
         ...getStaticModules(),
     ],
 })

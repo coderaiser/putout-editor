@@ -2,7 +2,7 @@
   "name": "@putout/mcp",
   "version": "1.0.0",
   "type": "module",
-  "description": "MCP server for putout-editor — write putout rules with Claude",
+  "description": "MCP server for putout-editor \u2014 write putout rules with Claude",
   "bin": {
     "putout-mcp": "dist/index.js"
   },
@@ -23,7 +23,7 @@
     "@babel/parser": "^8.0.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "putout": "^42.8.0",
-    "redput": "^4.8.0",
+    "redput": "^4.8.1",
     "try-catch": "^4.0.0",
     "try-to-catch": "^4.1.0",
     "zod": "^3.25.0"

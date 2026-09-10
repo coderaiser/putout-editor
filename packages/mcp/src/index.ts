@@ -1,10 +1,6 @@
-import process from 'node:process';
 import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
 import {createServer} from './server.ts';
-
-const USE_HTTP = process.env.USE_HTTP === 'true';
-
-const api = USE_HTTP ? await import('./remote/index.ts') : await import('./local/index.ts');
+import * as api from './local/index.ts';
 
 const server = createServer();
 
