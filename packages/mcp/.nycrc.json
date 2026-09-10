@@ -1,0 +1,20 @@
+{
+    "skipFull": false,
+    "checkCoverage": true,
+    "all": true,
+    "exclude": [
+        "**/*.spec.*",
+        "**/*.types.ts",
+        "**/*.config.*",
+        "**/*.d.ts",
+        "**/.*.*",
+        "**/test/**",
+        "src/index.ts",
+        "dist",
+        "coverage"
+    ],
+    "branches": 100,
+    "lines": 100,
+    "functions": 100,
+    "statements": 100
+}

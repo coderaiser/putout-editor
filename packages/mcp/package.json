@@ -1,0 +1,42 @@
+{
+    "name": "@putout/mcp",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "MCP server for putout-editor — write putout rules with Claude",
+    "bin": {
+        "putout-mcp": "dist/index.js"
+    },
+    "engines": {
+        "node": ">=22"
+    },
+    "scripts": {
+        "start":    "madrun start",
+        "start:ts": "madrun start:ts",
+        "build":    "madrun build",
+        "test":     "madrun test",
+        "coverage": "madrun coverage",
+        "lint":     "madrun lint",
+        "fix:lint": "madrun fix:lint",
+        "test:dts": "madrun test:dts"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.30.0",
+        "try-catch": "^4.0.0",
+        "try-to-catch": "^4.1.0",
+        "zod": "^3.25.0"
+    },
+    "devDependencies": {
+        "@putout/eslint-flat": "^4.0.1",
+        "@supertape/loader-ts": "^1.0.0",
+        "@types/node": "^26.0.0",
+        "escover": "^6.5.2",
+        "eslint": "^10.7.0",
+        "eslint-plugin-putout": "^31.2.0",
+        "madrun": "^13.0.2",
+        "putout": "^42.8.0",
+        "redlint": "^6.9.2",
+        "superc8": "^12.7.0",
+        "supertape": "^13.6.0",
+        "typescript": "^6.0.0"
+    }
+}
