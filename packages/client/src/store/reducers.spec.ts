@@ -79,7 +79,7 @@ test('reducers: persist: strips cursor', (t) => {
     
     const result = persist(state);
     
-    t.notOk(result.cursor);
+    t.notOk((result as {cursor?: unknown}).cursor);
     t.end();
 });
 
@@ -98,7 +98,7 @@ test('reducers: persist: strips parseResult', (t) => {
     
     const result = persist(state);
     
-    t.notOk(result.workbench.parseResult);
+    t.notOk((result.workbench as {parseResult?: unknown}).parseResult);
     t.end();
 });
 
@@ -226,7 +226,7 @@ test('reducers: start save with fork unsets saving', (t) => {
 
 test('reducers: end save unsets saving', (t) => {
     const saving = putoutEditor(getInitState(), startSave(false));
-    const state = putoutEditor(saving, endSave(false));
+    const state = putoutEditor(saving, endSave());
     
     t.notOk(state.saving);
     t.end();
@@ -294,7 +294,7 @@ test('reducers: set error', (t) => {
 test('reducers: set error message', (t) => {
     const state = putoutEditor(getInitState(), setError(Error('test error')));
     
-    t.equal(state.error.message, 'test error');
+    t.equal(state.error!.message, 'test error');
     t.end();
 });
 
@@ -617,7 +617,7 @@ test('reducers: setHighlight with undefined payload does not crash', (t) => {
 
 test('reducers: clearHighlight with no args sets highlightRange to null', (t) => {
     const withHighlight = putoutEditor(getInitState(), setHighlight([0, 5]));
-    const state = putoutEditor(withHighlight, clearHighlight());
+    const state = putoutEditor(withHighlight, clearHighlight(undefined as unknown as number[]));
     
     t.notOk(state.highlightRange);
     t.end();

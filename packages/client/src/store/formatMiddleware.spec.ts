@@ -14,7 +14,9 @@ const getInitState = () => putoutEditor(undefined, {
     type: '@@INIT',
 });
 
-function makeStore(overrides = {}) {
+function makeStore(overrides: {
+    workbench?: Record<string, any> | undefined;
+} = {}) {
     const state = getInitState();
     
     return configureStore({

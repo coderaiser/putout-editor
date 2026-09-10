@@ -22,6 +22,7 @@ import {
     startSave,
     endSave,
     setHighlight,
+    type State,
 } from './reducers.ts';
 
 // --- helpers ---
@@ -36,7 +37,7 @@ const makeStorage = () => ({
     updateHash: () => {},
 });
 
-function makeStore(preload = {}) {
+function makeStore(preload: Record<string, any> = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -59,9 +60,9 @@ function makeStore(preload = {}) {
     });
 }
 
-const getState = (store) => store.getState();
+const getState = (store: ReturnType<typeof makeStore>) => store.getState();
 
-function dispatch(store, action) {
+function dispatch(store: ReturnType<typeof makeStore>, action: any) {
     store.dispatch(action);
 }
 
@@ -381,6 +382,7 @@ test('store: revive sets workbench.initialCode from stored code', (t) => {
             keyMap: 'vim',
             transform: {
                 code: '',
+                initialCode: '',
                 transformer: 'putout',
             },
             parser: 'babel',
@@ -388,7 +390,7 @@ test('store: revive sets workbench.initialCode from stored code', (t) => {
         showTransformPanel: true,
         parserSettings: {},
         parserPerCategory: {},
-    });
+    } as State);
     
     t.equal(stored.workbench.initialCode, 'const z = 3');
     t.end();
@@ -401,6 +403,7 @@ test('store: revive sets workbench.transform.initialCode from stored transform c
             keyMap: 'vim',
             transform: {
                 code: 'y',
+                initialCode: '',
                 transformer: 'putout',
             },
             parser: 'babel',
@@ -408,7 +411,7 @@ test('store: revive sets workbench.transform.initialCode from stored transform c
         showTransformPanel: true,
         parserSettings: {},
         parserPerCategory: {},
-    });
+    } as State);
     
     t.equal(stored.workbench.transform.initialCode, 'y');
     t.end();

@@ -14,10 +14,10 @@ const noop = () => {};
 // --- mock factory ---
 // Build the minimum mock parser needed for parseCode.
 // Tests override specific methods by spreading.
-const makeMockParser = (overrides = {}) => ({
+const makeMockParser = (overrides: Record<string, any> = {}) => ({
     _promise: null,
-    loadParser: (resolve) => resolve({}),
-    parse: () => ({
+    loadParser: (resolve: (value: unknown) => void) => resolve({}),
+    parse: (_: unknown, code: string, settings: unknown) => ({
         type: 'File',
         body: [],
     }),
@@ -93,7 +93,7 @@ test('operations: parseCode: uses provided parserSettings', async (t) => {
         getDefaultOptions: () => ({
             default: true,
         }),
-        parse: (_, code, settings) => {
+        parse: (_: unknown, code: string, settings: unknown) => {
             receivedSettings = settings;
             return {
                 type: 'File',
@@ -121,7 +121,7 @@ test('operations: parseCode: falls back to getDefaultOptions when no settings', 
         getDefaultOptions: () => ({
             default: true,
         }),
-        parse: (_, code, settings) => {
+        parse: (_: unknown, code: string, settings: unknown) => {
             receivedSettings = settings;
             return {
                 type: 'File',
@@ -145,7 +145,7 @@ test('operations: parseCode: reuses existing parser._promise', async (t) => {
     let loadCount = 0;
     const parser = makeMockParser({
         _promise: null,
-        loadParser: (resolve) => {
+        loadParser: (resolve: (value: unknown) => void) => {
             loadCount++;
             resolve({});
         },
@@ -268,7 +268,7 @@ test('operations: saveRevision: calls fork even when revision is null', async (t
 test('operations: saveRevision: passes data to create', async (t) => {
     let receivedData;
     const adapter = {
-        create: (data) => {
+        create: (data: unknown) => {
             receivedData = data;
         },
     };
@@ -291,7 +291,7 @@ test('operations: saveRevision: passes revision and data to update', async (t) =
     };
     
     const adapter = {
-        update: (rev) => {
+        update: (rev: unknown) => {
             receivedRevision = rev;
         },
     };

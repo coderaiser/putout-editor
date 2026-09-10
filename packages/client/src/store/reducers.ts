@@ -6,7 +6,7 @@ import {
     getTransformerByID,
 } from '../parser/parsers/index.js';
 
-interface Revision {
+export interface Revision {
     canSave(): boolean;
     getSnippetID(): string;
     getRevisionID(): string;
@@ -23,13 +23,13 @@ interface Revision {
     };
 }
 
-interface TransformState {
+export interface TransformState {
     code: string;
     initialCode: string;
     transformer: string;
 }
 
-interface WorkbenchState {
+export interface WorkbenchState {
     parser: string;
     parserSettings: any;
     parseError: any;
@@ -40,7 +40,7 @@ interface WorkbenchState {
     transform: TransformState;
 }
 
-interface State {
+export interface State {
     showSettingsDialog: boolean;
     showShareDialog: boolean;
     loadingSnippet: boolean;
