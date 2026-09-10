@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
-import {request} from '../client.ts';
+import {type ParserOptions, parse} from '@babel/parser';
+import {queryAST} from './query.ts';
 
 export const name = 'parse';
 
@@ -23,17 +24,20 @@ export const schema = {
         ),
 };
 
+const parseOptions: ParserOptions = {
+    sourceType: 'module',
+    strictMode: false,
+    allowImportExportEverywhere: true,
+    allowReturnOutsideFunction: true,
+    plugins: [
+        'jsx',
+        'typescript',
+        'importMeta',
+    ],
+};
+
 export async function handler({source, query}: {source: string;query?: string;}) {
-    const path = query
-        ? `/api/v1/parse?query=${encodeURIComponent(query)}`
-        : '/api/v1/parse';
-    
-    // responseType defaults to 'json' — no need to specify
-    const [error, result] = await tryToCatch(request, path, {
-        body: {
-            source,
-        },
-    });
+    const [error, ast] = await tryToCatch(parse, source, parseOptions);
     
     if (error)
         return {
@@ -43,10 +47,21 @@ export async function handler({source, query}: {source: string;query?: string;})
             }],
         };
     
+    if (query) {
+        const nodes = queryAST(ast, query);
+        
+        return {
+            content: [{
+                type: 'text' as const,
+                text: JSON.stringify(nodes, null, 2),
+            }],
+        };
+    }
+    
     return {
         content: [{
             type: 'text' as const,
-            text: JSON.stringify(result, null, 2),
+            text: JSON.stringify(ast, null, 2),
         }],
     };
 }

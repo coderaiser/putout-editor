@@ -10,6 +10,8 @@
         "**/.*.*",
         "**/test/**",
         "src/index.ts",
+        "src/local/index.ts",
+        "src/remote/index.ts",
         "dist",
         "coverage"
     ],

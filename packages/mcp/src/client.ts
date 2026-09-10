@@ -38,7 +38,6 @@ export async function request(path: string, options: RequestOptions = {}): Promi
         throw new RequestError(networkError.message, 0, networkError);
     
     if (!response.ok) {
-        // Read body once as text — Response stream is one-shot
         const text = await response.text();
         const [, parsed] = tryCatch(JSON.parse, text);
         

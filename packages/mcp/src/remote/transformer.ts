@@ -34,7 +34,6 @@ export async function handler({fixture, plugin}: {fixture: string;plugin: string
             }],
         };
     
-    // result is plain string — no JSON.stringify
     return {
         content: [{
             type: 'text' as const,

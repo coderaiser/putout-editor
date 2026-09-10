@@ -7,40 +7,39 @@ import {
     RequestError,
 } from './client.ts';
 
-// Helper: 2xx JSON response
+type FetchStub = ReturnType<typeof stub>;
+
 const okJson = (data: unknown) => stub().resolves({
     ok: true,
     json: stub().resolves(data),
     text: stub().resolves(''),
-});
+}) as unknown as typeof fetch;
 
-// Helper: 2xx text response
 const okText = (text: string) => stub().resolves({
     ok: true,
     text: stub().resolves(text),
     json: stub().resolves(null),
-});
+}) as unknown as typeof fetch;
 
-// Helper: error response with text body
 const errResponse = (status: number, text: string) => stub().resolves({
     ok: false,
     status,
     statusText: 'Error',
     text: stub().resolves(text),
-});
+}) as unknown as typeof fetch;
 
 test('client: uses DEFAULT_BASE_URL when BASE_URL env not set', async (t) => {
     delete process.env.BASE_URL;
     const fetchStub = okJson({});
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await request('/api/v1/parse', {
         body: {
             source: 'x',
         },
     });
-    const result = (fetchStub.args[0][0] as string).startsWith(DEFAULT_BASE_URL);
+    const result = ((fetchStub as unknown as FetchStub).args[0][0] as string).startsWith(DEFAULT_BASE_URL);
     
     t.ok(result);
     t.end();
@@ -50,14 +49,14 @@ test('client: uses BASE_URL from env when set', async (t) => {
     process.env.BASE_URL = 'https://putout.cloudcmd.io';
     const fetchStub = okJson({});
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await request('/api/v1/parse', {
         body: {
             source: 'x',
         },
     });
-    const result = (fetchStub.args[0][0] as string).startsWith('https://putout.cloudcmd.io');
+    const result = ((fetchStub as unknown as FetchStub).args[0][0] as string).startsWith('https://putout.cloudcmd.io');
     delete process.env.BASE_URL;
     
     t.ok(result);
@@ -65,20 +64,22 @@ test('client: uses BASE_URL from env when set', async (t) => {
 });
 
 test('client: sends GET when no body in options', async (t) => {
-    globalThis.fetch = okText('# docs');
+    const fetchStub = okText('# docs');
+    
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await request('/llms-full.txt', {
         responseType: 'text',
     });
     
-    t.equal((globalThis.fetch as ReturnType<typeof stub>).args[0][1].method, 'GET');
+    t.equal(((fetchStub as unknown as FetchStub).args[0][1] as RequestInit).method, 'GET');
     t.end();
 });
 
 test('client: sends PUT when body in options', async (t) => {
     const fetchStub = okJson({});
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await request('/api/v1/parse', {
         body: {
@@ -86,29 +87,30 @@ test('client: sends PUT when body in options', async (t) => {
         },
     });
     
-    t.equal((fetchStub.args[0][1] as RequestInit).method, 'PUT');
+    t.equal(((fetchStub as unknown as FetchStub).args[0][1] as RequestInit).method, 'PUT');
     t.end();
 });
 
 test('client: sets Content-Type application/json on PUT', async (t) => {
     const fetchStub = okJson({});
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await request('/api/v1/parse', {
         body: {
             source: 'x',
         },
     });
+    const headers = ((fetchStub as unknown as FetchStub).args[0][1] as RequestInit).headers as Record<string, string>;
     
-    t.equal((fetchStub.args[0][1] as RequestInit).headers['Content-Type'], 'application/json');
+    t.equal(headers['Content-Type'], 'application/json');
     t.end();
 });
 
 test('client: serialises body as JSON string', async (t) => {
     const fetchStub = okJson({});
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await request('/api/v1/parse', {
         body: {
@@ -116,7 +118,7 @@ test('client: serialises body as JSON string', async (t) => {
         },
     });
     
-    t.equal((fetchStub.args[0][1] as RequestInit).body, JSON.stringify({
+    t.equal(((fetchStub as unknown as FetchStub).args[0][1] as RequestInit).body, JSON.stringify({
         source: 'x',
     }));
     t.end();
@@ -132,6 +134,7 @@ test('client: returns parsed JSON when responseType is json (default)', async (t
             source: 'x',
         },
     });
+    
     const expected = {
         type: 'File',
     };
@@ -226,19 +229,18 @@ test('client: reads error body only once (text, then tryCatch JSON.parse)', asyn
         status: 400,
         statusText: 'Bad Request',
         text: textStub,
-    });
+    }) as unknown as typeof fetch;
     
     await tryToCatch(request, '/api/v1/transform', {
         body: {},
     });
     
-    // text() called exactly once — no second read attempt
     t.calledOnce(textStub);
     t.end();
 });
 
 test('client: throws RequestError with status 0 on network failure', async (t) => {
-    globalThis.fetch = stub().rejects(Error('ECONNREFUSED'));
+    globalThis.fetch = stub().rejects(Error('ECONNREFUSED')) as unknown as typeof fetch;
     
     const [error] = await tryToCatch(request, '/api/v1/transform', {
         body: {},
@@ -251,7 +253,7 @@ test('client: throws RequestError with status 0 on network failure', async (t) =
 test('client: RequestError body is original Error on network failure', async (t) => {
     const networkError = Error('ECONNREFUSED');
     
-    globalThis.fetch = stub().rejects(networkError);
+    globalThis.fetch = stub().rejects(networkError) as unknown as typeof fetch;
     
     const [error] = await tryToCatch(request, '/api/v1/transform', {
         body: {},
