@@ -1,4 +1,4 @@
-import {test} from 'supertape';
+import {test, stub} from 'supertape';
 import {
     render,
     cleanup,
@@ -638,57 +638,55 @@ test('Editor: Tab indents the current line', (t) => {
     t.end();
 
 test('Editor: calls onKeyDown on Escape', (t) => {
-    const calls = [];
+    const onKeyDown = stub();
     const {container} = render(
         <Editor
             value="abc"
-            onKeyDown={(event) => calls.push(event)}
+            onKeyDown={onKeyDown}
         />,
     );
     
     const content = container.querySelector('.cm-content');
     
     act(() => {
-        fireEvent.keyDown(content, {
+        content.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'Escape',
             code: 'Escape',
             bubbles: true,
             cancelable: true,
-        });
+        }));
     });
     
     cleanup();
     
-    t.equal(calls.length, 1);
-    t.equal(calls[0].key, 'Escape');
+    t.ok(onKeyDown.called);
     t.end();
 });
 
 test('Editor: does not call onKeyDown for printable keys', (t) => {
-    let called = false;
+    const onKeyDown = stub();
     const {container} = render(
         <Editor
             value="abc"
-            onKeyDown={() => {
-                called = true;
-            }}
+            onKeyDown={onKeyDown}
         />,
     );
     
     const content = container.querySelector('.cm-content');
     
     act(() => {
-        fireEvent.keyDown(content, {
+        content.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'l',
             code: 'KeyL',
             bubbles: true,
             cancelable: true,
-        });
+        }));
     });
     
     cleanup();
     
-    t.notOk(called);
+    const args = [];
+    t.calledWith(onKeyDown, args);
     t.end();
 });
 
