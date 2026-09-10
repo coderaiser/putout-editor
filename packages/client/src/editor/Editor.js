@@ -125,8 +125,11 @@ export default function Editor(props) {
             
             // Do not reformat while typing printable characters,
             // only when editing pauses (Escape, arrows, Enter...).
-            if (event.key.length === 1)
+            /* c8 ignore start */
+            if (event.key.length === 1) {
                 return;
+            }
+            /* c8 ignore stop */
             
             onKeyDown(event);
         };

@@ -616,19 +616,18 @@ test('Editor: Tab indents the current line', (t) => {
         <Editor value="abc"/>,
     );
     
+    const view = getView(container);
     const content = container.querySelector('.cm-content');
     
     act(() => {
         content.focus();
-        fireEvent.keyDown(content, {
+        view.contentDOM.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'Tab',
             code: 'Tab',
             bubbles: true,
             cancelable: true,
-        });
+        }));
     });
-    
-    const view = getView(container);
     const result = view.state.doc.toString();
     const expected = '    abc';
     
@@ -648,18 +647,20 @@ test('Editor: calls onKeyDown on Escape', (t) => {
     
     const content = container.querySelector('.cm-content');
     
+    const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        code: 'Escape',
+        bubbles: true,
+        cancelable: true,
+    });
+    
     act(() => {
-        content.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Escape',
-            code: 'Escape',
-            bubbles: true,
-            cancelable: true,
-        }));
+        content.dispatchEvent(event);
     });
     
     cleanup();
     
-    t.ok(onKeyDown.called);
+    t.calledWith(onKeyDown, [event]);
     t.end();
 });
 
@@ -672,10 +673,10 @@ test('Editor: does not call onKeyDown for printable keys', (t) => {
         />,
     );
     
-    const content = container.querySelector('.cm-content');
+    const view = getView(container);
     
     act(() => {
-        content.dispatchEvent(new KeyboardEvent('keydown', {
+        view.contentDOM.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'l',
             code: 'KeyL',
             bubbles: true,
@@ -753,12 +754,12 @@ test('Editor: flushes content change on printable keydown', (t) => {
     });
     
     act(() => {
-        fireEvent.keyDown(content, {
+        view.contentDOM.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'l',
             code: 'KeyL',
             bubbles: true,
             cancelable: true,
-        });
+        }));
     });
     
     const result = changes.at(-1);

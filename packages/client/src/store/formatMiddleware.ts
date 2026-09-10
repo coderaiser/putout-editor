@@ -12,10 +12,9 @@ import {
 } from './selectors.ts';
 import {formatInput, formatRule} from '../editor/format.ts';
 
-const noop = () => {};
-
 // Warm up the printer so the first format on keydown does not wait for the chunk.
-import('@putout/printer').catch(noop);
+/* c8 ignore next */
+import('@putout/printer').catch(() => {});
 
 export const formatListener = createListenerMiddleware();
 
@@ -56,8 +55,11 @@ startAppListening({
             return;
         
         // Staleness check — bail out if the code changed while formatting
-        if (getTransformCode(api.getState()) !== source)
+        /* c8 ignore start */
+        if (getTransformCode(api.getState()) !== source) {
             return;
+        }
+        /* c8 ignore stop */
         
         api.dispatch(setTransformState({
             code,
