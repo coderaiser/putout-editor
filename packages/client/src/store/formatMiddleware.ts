@@ -13,8 +13,7 @@ import {
 import {formatInput, formatRule} from '../editor/format.ts';
 
 // Warm up the printer so the first format on keydown does not wait for the chunk.
-/* c8 ignore next */
-import('@putout/printer').catch(() => {});
+import('@putout/printer');
 
 export const formatListener = createListenerMiddleware();
 
