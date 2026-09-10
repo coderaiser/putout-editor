@@ -10,13 +10,13 @@ const testEnv = {
 };
 
 export default {
-    'build':    () => 'bun build src/index.ts --outdir dist --target node',
-    'start':    () => 'node dist/index.js',
+    'build': () => 'bun build src/index.ts --outdir dist --target node',
+    'start': () => 'node dist/index.js',
     'start:ts': () => [testEnv, 'bun src/index.ts'],
-    'test':     () => [testEnv, 'tape \"src/**/*.spec.ts\"'],
+    'test': () => [testEnv, 'tape "src/**/*.spec.ts"'],
     'coverage': async () => [testEnv, `c8 ${await cutEnv('test')}`],
-    'prelint':  () => 'redlint fix',
-    'lint':     () => 'putout .',
+    'prelint': () => 'redlint fix',
+    'lint': () => 'putout .',
     'fix:lint': () => 'putout . --fix',
     'test:dts': () => 'tsc --noEmit',
 };

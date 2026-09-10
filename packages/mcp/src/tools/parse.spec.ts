@@ -1,5 +1,10 @@
 import {test, stub} from 'supertape';
-import {handler, name, description, schema} from './parse.ts';
+import {
+    handler,
+    name,
+    description,
+    schema,
+} from './parse.ts';
 
 test('parse tool: name is \'parse\'', (t) => {
     t.equal(name, 'parse');
@@ -7,7 +12,10 @@ test('parse tool: name is \'parse\'', (t) => {
 });
 
 test('parse tool: description is a string', (t) => {
-    t.equal(typeof description, 'string');
+    const result = typeof description;
+    const expected = 'string';
+    
+    t.equal(result, expected);
     t.end();
 });
 
@@ -26,11 +34,15 @@ test('parse tool: calls /api/v1/parse when query absent', async (t) => {
         ok: true,
         json: stub().resolves({}),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({source: 'const x = 1;'});
-
+    
+    await handler({
+        source: 'const x = 1;',
+    });
+    
     const url = fetchStub.args[0][0] as string;
+    
     t.equal(url, 'http://localhost:8080/api/v1/parse');
     t.end();
 });
@@ -40,12 +52,17 @@ test('parse tool: does not append query param when query absent', async (t) => {
         ok: true,
         json: stub().resolves({}),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({source: 'const x = 1;'});
-
+    
+    await handler({
+        source: 'const x = 1;',
+    });
+    
     const url = fetchStub.args[0][0] as string;
-    t.notOk(url.includes('query='));
+    const result = url.includes('query=');
+    
+    t.notOk(result);
     t.end();
 });
 
@@ -54,12 +71,18 @@ test('parse tool: appends query param when query provided', async (t) => {
         ok: true,
         json: stub().resolves([]),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({source: 'x', query: 'VariableDeclaration,Identifier'});
-
+    
+    await handler({
+        source: 'x',
+        query: 'VariableDeclaration,Identifier',
+    });
+    
     const url = fetchStub.args[0][0] as string;
-    t.ok(url.includes('?query='));
+    const result = url.includes('?query=');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -68,12 +91,18 @@ test('parse tool: encodes query param value', async (t) => {
         ok: true,
         json: stub().resolves([]),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({source: 'x', query: 'VariableDeclaration,Identifier'});
-
+    
+    await handler({
+        source: 'x',
+        query: 'VariableDeclaration,Identifier',
+    });
+    
     const url = fetchStub.args[0][0] as string;
-    t.ok(url.includes('VariableDeclaration%2CIdentifier'));
+    const result = url.includes('VariableDeclaration%2CIdentifier');
+    
+    t.ok(result);
     t.end();
 });
 
@@ -82,11 +111,15 @@ test('parse tool: sends source in request body', async (t) => {
         ok: true,
         json: stub().resolves({}),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({source: 'const x = 1;'});
-
+    
+    await handler({
+        source: 'const x = 1;',
+    });
+    
     const body = JSON.parse((fetchStub.args[0][1] as RequestInit).body as string);
+    
     t.equal(body.source, 'const x = 1;');
     t.end();
 });
@@ -96,38 +129,51 @@ test('parse tool: sends PUT request', async (t) => {
         ok: true,
         json: stub().resolves({}),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({source: 'const x = 1;'});
-
-    const method = (fetchStub.args[0][1] as RequestInit).method;
+    
+    await handler({
+        source: 'const x = 1;',
+    });
+    
+    const {method} = fetchStub.args[0][1] as RequestInit;
+    
     t.equal(method, 'PUT');
     t.end();
 });
 
 test('parse tool: uses default responseType json', async (t) => {
-    const jsonStub = stub().resolves({type: 'File'});
+    const jsonStub = stub().resolves({
+        type: 'File',
+    });
+    
     globalThis.fetch = stub().resolves({
         ok: true,
         json: jsonStub,
     });
-
-    await handler({source: 'const x = 1;'});
-
+    
+    await handler({
+        source: 'const x = 1;',
+    });
+    
     // json() was called — confirms responseType:'json' default
-    t.equal(jsonStub.callCount, 1);
+    t.calledOnce(jsonStub);
     t.end();
 });
 
 test('parse tool: returns JSON stringified AST on success', async (t) => {
     globalThis.fetch = stub().resolves({
         ok: true,
-        json: stub().resolves({type: 'File'}),
+        json: stub().resolves({
+            type: 'File',
+        }),
     });
-
-    const result = await handler({source: 'const x = 1;'});
-
-    t.ok(result.content[0].text.includes('"type"'));
+    
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
+    t.match(result.content[0].text, '"type"');
     t.end();
 });
 
@@ -136,20 +182,27 @@ test('parse tool: returns error text on 4xx response', async (t) => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: stub().resolves(JSON.stringify({kind: 'plugin_syntax', message: 'bad'})),
+        text: stub().resolves(JSON.stringify({
+            kind: 'plugin_syntax',
+            message: 'bad',
+        })),
     });
-
-    const result = await handler({source: 'const x = 1;'});
-
+    
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });
 
 test('parse tool: returns error text on network failure', async (t) => {
-    globalThis.fetch = stub().rejects(new Error('ECONNREFUSED'));
-
-    const result = await handler({source: 'const x = 1;'});
-
+    globalThis.fetch = stub().rejects(Error('ECONNREFUSED'));
+    
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });

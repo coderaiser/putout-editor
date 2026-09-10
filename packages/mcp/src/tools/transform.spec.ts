@@ -1,5 +1,10 @@
 import {test, stub} from 'supertape';
-import {handler, name, description, schema} from './transform.ts';
+import {
+    handler,
+    name,
+    description,
+    schema,
+} from './transform.ts';
 
 test('transform tool: name is \'transform\'', (t) => {
     t.equal(name, 'transform');
@@ -7,7 +12,10 @@ test('transform tool: name is \'transform\'', (t) => {
 });
 
 test('transform tool: description is a string', (t) => {
-    t.equal(typeof description, 'string');
+    const result = typeof description;
+    const expected = 'string';
+    
+    t.equal(result, expected);
     t.end();
 });
 
@@ -26,11 +34,16 @@ test('transform tool: calls /api/v1/transform', async (t) => {
         ok: true,
         text: stub().resolves('const x = 1;'),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     const url = fetchStub.args[0][0] as string;
+    
     t.equal(url, 'http://localhost:8080/api/v1/transform');
     t.end();
 });
@@ -40,11 +53,16 @@ test('transform tool: sends fixture in body', async (t) => {
         ok: true,
         text: stub().resolves('const x = 1;'),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     const body = JSON.parse((fetchStub.args[0][1] as RequestInit).body as string);
+    
     t.equal(body.fixture, 'var x = 1;');
     t.end();
 });
@@ -54,11 +72,16 @@ test('transform tool: sends plugin in body', async (t) => {
         ok: true,
         text: stub().resolves('const x = 1;'),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     const body = JSON.parse((fetchStub.args[0][1] as RequestInit).body as string);
+    
     t.equal(body.plugin, '...');
     t.end();
 });
@@ -68,25 +91,34 @@ test('transform tool: sends PUT request', async (t) => {
         ok: true,
         text: stub().resolves('const x = 1;'),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
-    const method = (fetchStub.args[0][1] as RequestInit).method;
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
+    const {method} = fetchStub.args[0][1] as RequestInit;
+    
     t.equal(method, 'PUT');
     t.end();
 });
 
 test('transform tool: uses responseType text', async (t) => {
     const textStub = stub().resolves('const x = 1;');
+    
     globalThis.fetch = stub().resolves({
         ok: true,
         text: textStub,
     });
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
-    t.equal(textStub.callCount, 1);
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
+    t.calledOnce(textStub);
     t.end();
 });
 
@@ -95,9 +127,12 @@ test('transform tool: returns transformed code as plain string', async (t) => {
         ok: true,
         text: stub().resolves('const x = 1;'),
     });
-
-    const result = await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    const result = await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     t.equal(result.content[0].text, 'const x = 1;');
     t.end();
 });
@@ -107,9 +142,12 @@ test('transform tool: does not JSON.stringify the result', async (t) => {
         ok: true,
         text: stub().resolves('const x = 1;'),
     });
-
-    const result = await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    const result = await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     // If JSON.stringify were applied the result would be '"const x = 1;"'
     t.notOk(result.content[0].text.startsWith('"'));
     t.end();
@@ -120,11 +158,17 @@ test('transform tool: returns error text on plugin_syntax error', async (t) => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: stub().resolves(JSON.stringify({kind: 'plugin_syntax', message: 'bad syntax'})),
+        text: stub().resolves(JSON.stringify({
+            kind: 'plugin_syntax',
+            message: 'bad syntax',
+        })),
     });
-
-    const result = await handler({fixture: 'x', plugin: 'broken'});
-
+    
+    const result = await handler({
+        fixture: 'x',
+        plugin: 'broken',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });
@@ -134,20 +178,29 @@ test('transform tool: returns error text on plugin_error', async (t) => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: stub().resolves(JSON.stringify({kind: 'plugin_error', message: 'plugin error'})),
+        text: stub().resolves(JSON.stringify({
+            kind: 'plugin_error',
+            message: 'plugin error',
+        })),
     });
-
-    const result = await handler({fixture: 'x', plugin: 'broken'});
-
+    
+    const result = await handler({
+        fixture: 'x',
+        plugin: 'broken',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });
 
 test('transform tool: returns error text on network failure', async (t) => {
-    globalThis.fetch = stub().rejects(new Error('ECONNREFUSED'));
-
-    const result = await handler({fixture: 'x', plugin: '...'});
-
+    globalThis.fetch = stub().rejects(Error('ECONNREFUSED'));
+    
+    const result = await handler({
+        fixture: 'x',
+        plugin: '...',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });

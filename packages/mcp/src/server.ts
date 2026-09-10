@@ -9,11 +9,11 @@ export function createServer(): McpServer {
         name: 'putout-editor',
         version: '1.0.0',
     });
-
+    
     server.tool(docs.name, docs.description, docs.schema, docs.handler);
     server.tool(parse.name, parse.description, parse.schema, parse.handler);
     server.tool(findPlaces.name, findPlaces.description, findPlaces.schema, findPlaces.handler);
     server.tool(transform.name, transform.description, transform.schema, transform.handler);
-
+    
     return server;
 }

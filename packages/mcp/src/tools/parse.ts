@@ -11,23 +11,42 @@ export const description =
     'Use this before writing a plugin to identify the node types to target.';
 
 export const schema = {
-    source: z.string().describe('JavaScript or TypeScript source code to parse'),
-    query: z.string().optional().describe(
-        'Comma-separated Babel node types, e.g. "VariableDeclaration,Identifier". ' +
+    source: z
+        .string()
+        .describe('JavaScript or TypeScript source code to parse'),
+    query: z
+        .string()
+        .optional()
+        .describe(
+            'Comma-separated Babel node types, e.g. "VariableDeclaration,Identifier". ' +
         'When set, returns node positions instead of the full AST.',
-    ),
+        ),
 };
 
-export async function handler({source, query}: {source: string; query?: string}) {
+export async function handler({source, query}: {source: string;query?: string;}) {
     const path = query
         ? `/api/v1/parse?query=${encodeURIComponent(query)}`
         : '/api/v1/parse';
-
+    
     // responseType defaults to 'json' — no need to specify
-    const [error, result] = await tryToCatch(request, path, {body: {source}});
-
+    const [error, result] = await tryToCatch(request, path, {
+        body: {
+            source,
+        },
+    });
+    
     if (error)
-        return {content: [{type: 'text' as const, text: `Error: ${error.message}`}]};
-
-    return {content: [{type: 'text' as const, text: JSON.stringify(result, null, 2)}]};
+        return {
+            content: [{
+                type: 'text' as const,
+                text: `Error: ${error.message}`,
+            }],
+        };
+    
+    return {
+        content: [{
+            type: 'text' as const,
+            text: JSON.stringify(result, null, 2),
+        }],
+    };
 }

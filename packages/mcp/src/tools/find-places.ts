@@ -10,23 +10,38 @@ export const description =
     'Typical loop: write plugin → find_places → fix → repeat → transform.';
 
 export const schema = {
-    fixture: z.string().describe('Source code to search for matches'),
-    plugin: z.string().describe(
-        'Putout plugin as an ESM string. Must export report and one of: replace, traverse, include. ' +
+    fixture: z
+        .string()
+        .describe('Source code to search for matches'),
+    plugin: z
+        .string()
+        .describe(
+            'Putout plugin as an ESM string. Must export report and one of: replace, traverse, include. ' +
         'Example: export const report = () => "use const"; ' +
         'export const replace = () => ({ "var __x = __y": "const __x = __y" });',
-    ),
+        ),
 };
 
-export async function handler({fixture, plugin}: {fixture: string; plugin: string}) {
-    const [error, result] = await tryToCatch(
-        request,
-        '/api/v1/find-places',
-        {body: {fixture, plugin}},
-    );
-
+export async function handler({fixture, plugin}: {fixture: string;plugin: string;}) {
+    const [error, result] = await tryToCatch(request, '/api/v1/find-places', {
+        body: {
+            fixture,
+            plugin,
+        },
+    });
+    
     if (error)
-        return {content: [{type: 'text' as const, text: `Error: ${error.message}`}]};
-
-    return {content: [{type: 'text' as const, text: JSON.stringify(result, null, 2)}]};
+        return {
+            content: [{
+                type: 'text' as const,
+                text: `Error: ${error.message}`,
+            }],
+        };
+    
+    return {
+        content: [{
+            type: 'text' as const,
+            text: JSON.stringify(result, null, 2),
+        }],
+    };
 }

@@ -31,7 +31,9 @@ Production:
         "putout": {
             "command": "node",
             "args": ["/absolute/path/to/packages/mcp/dist/index.js"],
-            "env": {"BASE_URL": "https://putout.cloudcmd.io"}
+            "env": {
+                "BASE_URL": "https://putout.cloudcmd.io"
+            }
         }
     }
 }
@@ -39,12 +41,12 @@ Production:
 
 ### Tools
 
-| Tool | Description | Inputs | Response type |
-|------|-------------|--------|--------------|
-| `docs` | Full putout-editor reference | none | text |
-| `parse` | Parse source → Babel AST | `source`, `query?` | json |
-| `find_places` | Find plugin matches without modifying | `fixture`, `plugin` | json |
-| `transform` | Apply plugin, return transformed code | `fixture`, `plugin` | text |
+| Tool          | Description                           | Inputs              | Response type |
+|---------------|---------------------------------------|---------------------|---------------|
+| `docs`        | Full putout-editor reference          | none                | text          |
+| `parse`       | Parse source → Babel AST              | `source`, `query?`  | json          |
+| `find_places` | Find plugin matches without modifying | `fixture`, `plugin` | json          |
+| `transform`   | Apply plugin, return transformed code | `fixture`, `plugin` | text          |
 
 ### Environment
 
@@ -55,19 +57,14 @@ Production:
 ```bash
 # Install dependencies
 npm install
-
 # Run tests
 npm test
-
 # Run coverage
 npm run coverage
-
 # Lint
 npm run lint
-
 # Fix lint
 npm run fix:lint
-
 # Build
 npm run build
 ```

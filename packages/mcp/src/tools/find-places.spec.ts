@@ -1,5 +1,10 @@
 import {test, stub} from 'supertape';
-import {handler, name, description, schema} from './find-places.ts';
+import {
+    handler,
+    name,
+    description,
+    schema,
+} from './find-places.ts';
 
 test('find-places tool: name is \'find_places\'', (t) => {
     t.equal(name, 'find_places');
@@ -7,7 +12,10 @@ test('find-places tool: name is \'find_places\'', (t) => {
 });
 
 test('find-places tool: description is a string', (t) => {
-    t.equal(typeof description, 'string');
+    const result = typeof description;
+    const expected = 'string';
+    
+    t.equal(result, expected);
     t.end();
 });
 
@@ -26,11 +34,16 @@ test('find-places tool: calls /api/v1/find-places', async (t) => {
         ok: true,
         json: stub().resolves([]),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     const url = fetchStub.args[0][0] as string;
+    
     t.equal(url, 'http://localhost:8080/api/v1/find-places');
     t.end();
 });
@@ -40,11 +53,16 @@ test('find-places tool: sends fixture in body', async (t) => {
         ok: true,
         json: stub().resolves([]),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
     const body = JSON.parse((fetchStub.args[0][1] as RequestInit).body as string);
+    
     t.equal(body.fixture, 'var x = 1;');
     t.end();
 });
@@ -54,11 +72,16 @@ test('find-places tool: sends plugin in body', async (t) => {
         ok: true,
         json: stub().resolves([]),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
     
     const body = JSON.parse((fetchStub.args[0][1] as RequestInit).body as string);
+    
     t.equal(body.plugin, '...');
     t.end();
 });
@@ -68,37 +91,52 @@ test('find-places tool: sends PUT request', async (t) => {
         ok: true,
         json: stub().resolves([]),
     });
+    
     globalThis.fetch = fetchStub;
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
-    const method = (fetchStub.args[0][1] as RequestInit).method;
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
+    const {method} = fetchStub.args[0][1] as RequestInit;
+    
     t.equal(method, 'PUT');
     t.end();
 });
 
 test('find-places tool: uses default responseType json', async (t) => {
     const jsonStub = stub().resolves([]);
+    
     globalThis.fetch = stub().resolves({
         ok: true,
         json: jsonStub,
     });
-
-    await handler({fixture: 'var x = 1;', plugin: '...'});
-
-    t.equal(jsonStub.callCount, 1);
+    
+    await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
+    t.calledOnce(jsonStub);
     t.end();
 });
 
 test('find-places tool: returns stringified places array on success', async (t) => {
     globalThis.fetch = stub().resolves({
         ok: true,
-        json: stub().resolves([{rule: 'test', message: 'test'}]),
+        json: stub().resolves([{
+            rule: 'test',
+            message: 'test',
+        }]),
     });
-
-    const result = await handler({fixture: 'var x = 1;', plugin: '...'});
-
-    t.ok(result.content[0].text.includes('rule'));
+    
+    const result = await handler({
+        fixture: 'var x = 1;',
+        plugin: '...',
+    });
+    
+    t.match(result.content[0].text, 'rule');
     t.end();
 });
 
@@ -107,11 +145,17 @@ test('find-places tool: returns error text on plugin_syntax error', async (t) =>
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: stub().resolves(JSON.stringify({kind: 'plugin_syntax', message: 'bad syntax'})),
+        text: stub().resolves(JSON.stringify({
+            kind: 'plugin_syntax',
+            message: 'bad syntax',
+        })),
     });
-
-    const result = await handler({fixture: 'x', plugin: 'broken'});
-
+    
+    const result = await handler({
+        fixture: 'x',
+        plugin: 'broken',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });
@@ -121,20 +165,29 @@ test('find-places tool: returns error text on plugin_error', async (t) => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: stub().resolves(JSON.stringify({kind: 'plugin_error', message: 'plugin error'})),
+        text: stub().resolves(JSON.stringify({
+            kind: 'plugin_error',
+            message: 'plugin error',
+        })),
     });
-
-    const result = await handler({fixture: 'x', plugin: 'broken'});
-
+    
+    const result = await handler({
+        fixture: 'x',
+        plugin: 'broken',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });
 
 test('find-places tool: returns error text on network failure', async (t) => {
-    globalThis.fetch = stub().rejects(new Error('ECONNREFUSED'));
-
-    const result = await handler({fixture: 'x', plugin: '...'});
-
+    globalThis.fetch = stub().rejects(Error('ECONNREFUSED'));
+    
+    const result = await handler({
+        fixture: 'x',
+        plugin: '...',
+    });
+    
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });

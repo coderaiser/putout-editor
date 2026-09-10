@@ -10,15 +10,23 @@ export const description =
 
 export const schema = {};
 
-export async function handler(_args: Record<string, never>) {
-    const [error, text] = await tryToCatch(
-        request,
-        '/llms-full.txt',
-        {responseType: 'text'},
-    );
-
+export async function handler() {
+    const [error, text] = await tryToCatch(request, '/llms-full.txt', {
+        responseType: 'text',
+    });
+    
     if (error)
-        return {content: [{type: 'text' as const, text: `Error: ${error.message}`}]};
-
-    return {content: [{type: 'text' as const, text: text as string}]};
+        return {
+            content: [{
+                type: 'text' as const,
+                text: `Error: ${error.message}`,
+            }],
+        };
+    
+    return {
+        content: [{
+            type: 'text' as const,
+            text: text as string,
+        }],
+    };
 }
