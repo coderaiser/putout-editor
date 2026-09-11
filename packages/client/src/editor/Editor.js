@@ -15,7 +15,7 @@ import {
 import {
     posFromIndex as adapterPosFromIndex,
     indexFromPos as adapterIndexFromPos,
-} from './position.js';
+} from './position.ts';
 
 const returns = (a) => () => a;
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';

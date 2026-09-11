@@ -1,14 +1,15 @@
 import {test} from 'supertape';
 import {EditorState} from '@codemirror/state';
-import {posFromIndex, indexFromPos} from './position.js';
+import type {EditorView} from '@codemirror/view';
+import {posFromIndex, indexFromPos} from './position.ts';
 
 const state = EditorState.create({
     doc: 'hello world\nsecond line',
 });
 
-const view = {
+const view = ({
     state,
-};
+} as unknown) as EditorView;
 
 const {doc} = state;
 
@@ -46,14 +47,14 @@ test('posFromIndex: returns null for NaN index', (t) => {
 test('posFromIndex: returns zero line for index zero', (t) => {
     const result = posFromIndex(view, 0);
     
-    t.equal(result.line, 0);
+    t.equal(result!.line, 0);
     t.end();
 });
 
 test('posFromIndex: returns zero ch for index zero', (t) => {
     const result = posFromIndex(view, 0);
     
-    t.equal(result.ch, 0);
+    t.equal(result!.ch, 0);
     t.end();
 });
 
