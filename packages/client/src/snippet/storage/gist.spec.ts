@@ -6,7 +6,8 @@ import {
     create,
     update,
     fork,
-} from './gist.js';
+    Revision,
+} from './gist.ts';
 
 const noop = () => {};
 
@@ -317,7 +318,7 @@ test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
     });
     globalThis.location.hash = '#/gist/gist123';
     
-    const result = await fetchFromURL();
+    const result = await fetchFromURL() as Revision;
     
     globalThis.location.hash = origHash;
     globalThis.fetch = origFetch;
@@ -402,7 +403,7 @@ test('gist: update: returns Revision instance', async (t) => {
     
     globalThis.fetch = origFetch;
     
-    const {Revision} = await import('./gist.js');
+    const {Revision} = await import('./gist.ts');
     
     t.ok(result instanceof Revision);
     t.end();

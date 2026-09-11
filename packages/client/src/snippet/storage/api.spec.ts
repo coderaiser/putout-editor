@@ -1,5 +1,5 @@
 import {test, stub} from 'supertape';
-import api from './api.js';
+import api from './api.ts';
 
 test('api: calls fetch with correct path and default options', async (t) => {
     const originalFetch = globalThis.fetch;

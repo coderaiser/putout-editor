@@ -1,10 +1,16 @@
-import api from './api.js';
+import api from './api.ts';
 import {
     getTransformerByID,
     getParserByID,
 } from '../../parser/parsers/index.js';
+import type {Revision as StoreRevision} from '../../store/reducers.ts';
 
-function getIDAndRevisionFromHash() {
+type URLParameters = {
+    id: string;
+    rev: string | number;
+};
+
+function getIDAndRevisionFromHash(): URLParameters | null {
     const match = globalThis.location.hash.match(/^#\/(?!gist\/)([^/]+)(?:\/(latest|\d*))?/);
     
     if (match)
@@ -16,7 +22,7 @@ function getIDAndRevisionFromHash() {
     return null;
 }
 
-async function fetchSnippet(snippetID, revisionID = 'latest') {
+async function fetchSnippet(snippetID: string, revisionID: string | number) {
     const response = await api(`/parse/${snippetID}/${revisionID}`);
     
     if (response.ok)
@@ -31,13 +37,24 @@ async function fetchSnippet(snippetID, revisionID = 'latest') {
     }
 }
 
-export const owns = (snippet) => snippet instanceof Revision;
+type RevisionData = {
+    snippetID?: string;
+    revisionID?: string;
+    toolID?: string;
+    parserID?: string;
+    code?: string;
+    transform?: string;
+    settings?: Record<string, string> | null;
+    [key: string]: unknown;
+};
+
+export const owns = (snippet: unknown) => snippet instanceof Revision;
 
 export function matchesURL() {
     return getIDAndRevisionFromHash() !== null;
 }
 
-export function updateHash(revision) {
+export function updateHash(revision: StoreRevision) {
     const rev = revision.getRevisionID();
     globalThis.location.hash = '/' + revision.getSnippetID() + (rev ? `/${rev}` : '');
 }
@@ -52,36 +69,38 @@ export async function fetchFromURL() {
 }
 
 // Note: create/update/fork intentionally absent.
-// parse.js is a read-only backend. StorageHandler routes update/fork
-// via _owns() which will never resolve to parse.js for write operations.
-// create() always goes to gist.js via StorageHandler._first().
-export class Revision {
-    constructor(data) {
+// parse.ts is a read-only backend. StorageHandler routes update/fork
+// via _owns() which will never resolve to parse.ts for write operations.
+// create() always goes to gist.ts via StorageHandler._first().
+export class Revision implements StoreRevision {
+    _data: RevisionData;
+    
+    constructor(data: RevisionData) {
         this._data = data;
     }
     
-    canSave() {
+    canSave(): boolean {
         return false;
     }
     
-    getPath() {
+    getPath(): string {
         const rev = this.getRevisionID();
         return '/' + this.getSnippetID() + (rev ? `/${rev}` : '');
     }
     
-    getSnippetID() {
-        return this._data.snippetID;
+    getSnippetID(): string {
+        return this._data.snippetID as string;
     }
     
-    getRevisionID() {
-        return this._data.revisionID;
+    getRevisionID(): string {
+        return this._data.revisionID as string;
     }
     
-    getTransformerID() {
-        return this._data.toolID;
+    getTransformerID(): string | null {
+        return this._data.toolID ?? null;
     }
     
-    getTransformCode() {
+    getTransformCode(): string {
         const {transform} = this._data;
         
         if (transform)
@@ -93,21 +112,25 @@ export class Revision {
         return '';
     }
     
-    getParserID() {
+    getParserID(): string {
         const transformerID = this.getTransformerID();
         
         if (transformerID)
             return getTransformerByID(transformerID).defaultParserID;
         
-        return this._data.parserID;
+        return this._data.parserID ?? '';
     }
     
-    getCode() {
+    getCode(): string {
         const parserID = this.getParserID();
-        return this._data.code || getParserByID(parserID).category.codeExample;
+        
+        if (this._data.code)
+            return this._data.code;
+        
+        return getParserByID(parserID).category.codeExample;
     }
     
-    getParserSettings() {
+    getParserSettings(): any {
         const {settings} = this._data;
         
         if (!settings)
@@ -115,10 +138,14 @@ export class Revision {
         
         const parserSettings = settings[this.getParserID()];
         
-        return parserSettings && JSON.parse(parserSettings);
+        return parserSettings ? JSON.parse(parserSettings) : null;
     }
     
-    getShareData() {
+    getShareData(): {
+        versionedURL: string;
+        latestURL: string | null;
+        embedURL: string | null;
+    } {
         const snippetID = this.getSnippetID();
         const revisionID = this.getRevisionID();
         

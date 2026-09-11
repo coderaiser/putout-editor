@@ -18,8 +18,8 @@ export interface Revision {
     getPath(): string;
     getShareData(): {
         versionedURL: string;
-        latestURL: string;
-        embedURL: string;
+        latestURL: string | null;
+        embedURL: string | null;
     };
 }
 

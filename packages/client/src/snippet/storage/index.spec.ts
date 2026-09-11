@@ -1,6 +1,6 @@
 import {test, stub} from 'supertape';
 import {tryToCatch} from 'try-to-catch';
-import StorageHandler from './index.js';
+import StorageHandler from './index.ts';
 
 test('StorageHandler: fetchFromURL: empty hash returns null', async (t) => {
     const originalHash = globalThis.location.hash;
@@ -106,7 +106,7 @@ test('StorageHandler: update: delegates to owning backend', async (t) => {
     };
     
     const backend = {
-        owns: (rev) => rev._type === 'gist',
+        owns: (rev: any) => rev._type === 'gist',
         update: stub().resolves('updated'),
     };
     
@@ -126,7 +126,7 @@ test('StorageHandler: fork: delegates to owning backend', async (t) => {
     };
     
     const backend = {
-        owns: (rev) => rev._type === 'gist',
+        owns: (rev: any) => rev._type === 'gist',
         fork: stub().resolves('forked'),
     };
     
@@ -146,7 +146,7 @@ test('StorageHandler: _owns: returns backend when found', (t) => {
     };
     
     const backend = {
-        owns(rev) {
+        owns(rev: any) {
             return rev.id === 'r1';
         },
     };

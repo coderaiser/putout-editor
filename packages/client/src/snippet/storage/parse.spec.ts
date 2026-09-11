@@ -5,7 +5,7 @@ import {
     owns,
     updateHash,
     Revision,
-} from './parse.js';
+} from './parse.ts';
 
 test('parse: matchesURL: true for snippet hash', (t) => {
     const orig = globalThis.location.hash;
@@ -207,6 +207,19 @@ test('parse: Revision: getParserID from data', (t) => {
     
     const result = rev.getParserID();
     const expected = 'babel';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('parse: Revision: getParserID returns empty string when parserID not set', (t) => {
+    const rev = new Revision({
+        snippetID: 'x',
+        revisionID: 'y',
+    });
+    
+    const result = rev.getParserID();
+    const expected = '';
     
     t.equal(result, expected);
     t.end();
