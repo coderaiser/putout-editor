@@ -14,6 +14,8 @@ const STRIPPED_KEYS = new Set([
 
 type ASTNode = Record<string, unknown>;
 
+const isNotNull = (child: unknown) => child !== null;
+
 function compactNode(node: unknown): unknown {
     if (!node || typeof node !== 'object')
         return node;
@@ -21,7 +23,7 @@ function compactNode(node: unknown): unknown {
     if (Array.isArray(node))
         return node
             .map(compactNode)
-            .filter((child) => child !== null);
+            .filter(isNotNull);
     
     const typed = node as ASTNode;
     

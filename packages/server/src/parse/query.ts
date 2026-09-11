@@ -1,4 +1,5 @@
 const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
+const trim = (type: string) => type.trim();
 
 type Position = {
     line: number;
@@ -21,6 +22,8 @@ type ASTNode = {
     loc?: NodeLocation;
     [key: string]: unknown;
 };
+
+const byStart = (first: QueryMatch, second: QueryMatch) => first.start - second.start;
 
 function walkAST(node: unknown, nodeTypes: Set<string>, results: QueryMatch[]): void {
     if (!node || typeof node !== 'object')
@@ -50,12 +53,12 @@ function walkAST(node: unknown, nodeTypes: Set<string>, results: QueryMatch[]): 
 export function queryAST(ast: unknown, query: string): QueryMatch[] {
     const nodeTypes = new Set(query
         .split(',')
-        .map((type) => type.trim())
+        .map(trim)
         .filter(Boolean));
     
     const results: QueryMatch[] = [];
     
     walkAST(ast, nodeTypes, results);
     
-    return results.sort((first, second) => first.start - second.start);
+    return results.sort(byStart);
 }
