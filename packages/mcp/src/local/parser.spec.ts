@@ -50,6 +50,17 @@ test('local parse: returns node positions when query provided', async (t) => {
     t.end();
 });
 
+test('local parse: query result includes source text of matched node', async (t) => {
+    const result = await handler({
+        source: 'var x = 1;',
+        query: 'VariableDeclaration',
+    });
+    const nodes = JSON.parse(result.content[0].text);
+    
+    t.equal(nodes[0].text, 'var x = 1;');
+    t.end();
+});
+
 test('local parse: returns error text on invalid source', async (t) => {
     const result = await handler({
         source: '{{{{ invalid',

@@ -15,16 +15,18 @@ const parseOptions: ParserOptions = {
 };
 
 test('local query: finds VariableDeclaration nodes', (t) => {
-    const ast = parse('var x = 1;', parseOptions);
-    const nodes = queryAST(ast, 'VariableDeclaration');
+    const source = 'var x = 1;';
+    const ast = parse(source, parseOptions);
+    const nodes = queryAST(ast, 'VariableDeclaration', source);
     
     t.equal(nodes[0].type, 'VariableDeclaration');
     t.end();
 });
 
 test('local query: returns empty array for no match', (t) => {
-    const ast = parse('var x = 1;', parseOptions);
-    const result = queryAST(ast, 'FunctionDeclaration');
+    const source = 'var x = 1;';
+    const ast = parse(source, parseOptions);
+    const result = queryAST(ast, 'FunctionDeclaration', source);
     const expected: unknown[] = [];
     
     t.deepEqual(result, expected);
@@ -32,22 +34,43 @@ test('local query: returns empty array for no match', (t) => {
 });
 
 test('local query: trims and ignores empty types', (t) => {
-    const ast = parse('var x = 1;', parseOptions);
-    const nodes = queryAST(ast, ' VariableDeclaration , ');
+    const source = 'var x = 1;';
+    const ast = parse(source, parseOptions);
+    const nodes = queryAST(ast, ' VariableDeclaration , ', source);
     
     t.equal(nodes[0].type, 'VariableDeclaration');
     t.end();
 });
 
 test('local query: sorts matches by start', (t) => {
-    const ast = parse('var x = 1;\nvar y = 2;', parseOptions);
-    const nodes = queryAST(ast, 'VariableDeclaration');
+    const source = 'var x = 1;\nvar y = 2;';
+    const ast = parse(source, parseOptions);
+    const nodes = queryAST(ast, 'VariableDeclaration', source);
     
     t.ok(nodes[0].start < nodes[1].start);
     t.end();
 });
 
+test('local query: includes source text of matched node', (t) => {
+    const source = 'var x = 1;';
+    const ast = parse(source, parseOptions);
+    const nodes = queryAST(ast, 'VariableDeclaration', source);
+    
+    t.equal(nodes[0].text, 'var x = 1;');
+    t.end();
+});
+
+test('local query: text matches slice of source by start and end', (t) => {
+    const source = 'const a = 1; const b = 2;';
+    const ast = parse(source, parseOptions);
+    const nodes = queryAST(ast, 'VariableDeclaration', source);
+    
+    t.equal(nodes[1].text, 'const b = 2;');
+    t.end();
+});
+
 test('local query: walks nested arrays', (t) => {
+    const source = 'x';
     const ast = {
         body: [{
             type: 'Program',
@@ -66,20 +89,21 @@ test('local query: walks nested arrays', (t) => {
         }],
     };
     
-    const nodes = queryAST(ast, 'Program');
+    const nodes = queryAST(ast, 'Program', source);
     
     t.equal(nodes.length, 1);
     t.end();
 });
 
 test('local query: skips primitives and incomplete nodes', (t) => {
+    const source = 'x';
     const ast = {
         junk: [{
             type: 'Program',
         }, null, 5, 'text'],
     };
     
-    const result = queryAST(ast, 'Program');
+    const result = queryAST(ast, 'Program', source);
     const expected: unknown[] = [];
     
     t.deepEqual(result, expected);

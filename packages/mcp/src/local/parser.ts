@@ -48,7 +48,7 @@ export async function handler({source, query}: {source: string;query?: string;})
         };
     
     if (query) {
-        const nodes = queryAST(ast, query);
+        const nodes = queryAST(ast, query, source);
         
         return {
             content: [{

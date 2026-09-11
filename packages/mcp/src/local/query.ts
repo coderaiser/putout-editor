@@ -13,6 +13,7 @@ type QueryMatch = {
     start: number;
     end: number;
     loc: NodeLocation;
+    text: string;
 };
 type ASTNode = {
     type?: string;
@@ -22,13 +23,13 @@ type ASTNode = {
     [key: string]: unknown;
 };
 
-function walkAST(node: unknown, nodeTypes: Set<string>, results: QueryMatch[]): void {
+function walkAST(node: unknown, nodeTypes: Set<string>, results: QueryMatch[], source: string): void {
     if (!node || typeof node !== 'object')
         return;
     
     if (Array.isArray(node)) {
         for (const child of node)
-            walkAST(child, nodeTypes, results);
+            walkAST(child, nodeTypes, results, source);
         
         return;
     }
@@ -41,13 +42,14 @@ function walkAST(node: unknown, nodeTypes: Set<string>, results: QueryMatch[]): 
             start: typed.start,
             end: typed.end,
             loc: typed.loc,
+            text: source.slice(typed.start, typed.end),
         });
     
     for (const value of Object.values(typed))
-        walkAST(value, nodeTypes, results);
+        walkAST(value, nodeTypes, results, source);
 }
 
-export function queryAST(ast: unknown, query: string): QueryMatch[] {
+export function queryAST(ast: unknown, query: string, source: string): QueryMatch[] {
     const nodeTypes = new Set(query
         .split(',')
         .map((type) => type.trim())
@@ -55,7 +57,7 @@ export function queryAST(ast: unknown, query: string): QueryMatch[] {
     
     const results: QueryMatch[] = [];
     
-    walkAST(ast, nodeTypes, results);
+    walkAST(ast, nodeTypes, results, source);
     
     return results.sort((first, second) => first.start - second.start);
 }
