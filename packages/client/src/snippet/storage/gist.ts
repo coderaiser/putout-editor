@@ -129,7 +129,7 @@ export async function fork(revision: Revision, data: unknown) {
 export class RevisionClass {
     _gist: GistData;
     _config: GistConfig;
-    _code: string;
+    _code!: string;
     constructor(gist: GistData) {
         this._gist = gist;
         this._config = JSON.parse(gist.files['astexplorer.json'].content);

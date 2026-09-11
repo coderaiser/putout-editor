@@ -17,7 +17,7 @@ const noop = () => {};
 const makeMockParser = (overrides: Record<string, any> = {}) => ({
     _promise: null,
     loadParser: (resolve: (value: unknown) => void) => resolve({}),
-    parse: (_: unknown, code: string, settings: unknown) => ({
+    parse: () => ({
         type: 'File',
         body: [],
     }),

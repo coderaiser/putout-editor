@@ -37,8 +37,7 @@ export default class StorageHandler {
         
         for (const backend of this._backends) {
             if (backend.matchesURL?.()) {
-                const result = backend.fetchFromURL!();
-                return result;
+                return backend.fetchFromURL!();
             }
         }
         

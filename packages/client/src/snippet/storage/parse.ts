@@ -97,7 +97,7 @@ export class Revision implements StoreRevision {
     }
     
     getTransformerID(): string | null {
-        return this._data.toolID ?? null;
+        return this._data.toolID || null;
     }
     
     getTransformCode(): string {
@@ -118,7 +118,7 @@ export class Revision implements StoreRevision {
         if (transformerID)
             return getTransformerByID(transformerID).defaultParserID;
         
-        return this._data.parserID ?? '';
+        return this._data.parserID || '';
     }
     
     getCode(): string {
