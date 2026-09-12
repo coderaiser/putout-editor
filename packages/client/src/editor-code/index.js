@@ -1,6 +1,18 @@
 import {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {codeframe} from 'putout';
+
+const PARSE_ERRORS = new Set(['SyntaxError', 'ParseError']);
+
+function formatError(error, transformCode) {
+    if (!PARSE_ERRORS.has(error.constructor.name))
+        return error.toString();
+    
+    return codeframe({
+        source: transformCode,
+        error,
+    });
+}
 import {Editor} from '#editor';
 
 async function runTransform(transformer, transformCode, code, parser) {
@@ -46,10 +58,7 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                         lineNumbers={false}
                         mode="javascript"
                         readOnly={true}
-                        value={codeframe({
-                            source: transformCode,
-                            error,
-                        })}
+                        value={formatError(error, transformCode)}
                     />
                 </div>
                 : <Editor

@@ -131,3 +131,36 @@ test('EditorResult: reuses cached transformer promise', async (t) => {
     t.notOk(loadTransformer.called);
     t.end();
 });
+
+test('EditorResult: renders codeframe when transform throws SyntaxError with loc', async (t) => {
+    const syntaxError = Object.assign(new SyntaxError('Unexpected token'), {
+        loc: {line: 1, column: 0},
+    });
+    const transformer = {
+        _promise: null,
+        loadTransformer: (resolve) => resolve({}),
+        transform: () => { throw syntaxError; },
+    };
+    
+    let container;
+    
+    await act(async () => {
+        ({container} = render(
+            <EditorResult
+                transformer={transformer}
+                transformCode="const x ="
+                code="const x = 1"
+                mode="javascript"
+                isLoading={false}
+            />,
+        ));
+        await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    
+    const editor = container.querySelector('.output .editor');
+    
+    cleanup();
+    
+    t.ok(editor);
+    t.end();
+});
