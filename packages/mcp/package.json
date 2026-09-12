@@ -39,6 +39,6 @@
     "redlint": "^6.9.2",
     "superc8": "^12.7.0",
     "supertape": "^13.6.0",
-    "typescript": "^6.0.0"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }
