@@ -1,3 +1,32 @@
+2026.09.12, v3.3.2
+
+fix:
+- 1332610 client: editor-code: ReferenceError in editor-code
+- 441e7a3 mcp: types
+- 86a23c6 mcp: Rule -> type Rule
+- 9a6fbee client: lint/dts gate fixes for snippet-storage migration (test-results ignore, type initializers, null-safe code)
+
+feature:
+- 8689c90 parsers/js babel+esprima+estree-interface, putout-transformer, LocalStorage, useMobile, debounce.spec: migrate to ts
+- 3b1a9eb parser/parsers + parser/store + snippet/snippetMiddleware.spec + url.spec: migrate to ts
+- 8e4f6d9 parser/TreeAdapter + shims/jest-validate: migrate to ts
+- 638b138 editor/position + resolvePositionFromIndex + stringify.spec: migrate to ts
+- b775082 mcp: parser: returns source
+- c8d1bdf snippet-storage: migrate to ts
+- f625020 store: migrate to ts
+- 5c51efd mcp: rm useless
+- 1792217 mcp: restructure into local/remote hybrid with startup mode selection
+- 9bb5f68 mcp: add README with usage instructions and tool documentation
+- 13cd77c mcp: add index entry point with stdio server transport
+- e737c6f mcp: add MCP server with all four tools registered
+- c5fbaec mcp: add transform tool for applying plugins to source code
+- a0b5940 mcp: add find-places tool for finding plugin matches
+- f7aee38 mcp: add parse tool for parsing source to Babel AST
+- a7c428e mcp: add docs tool that fetches full putout-editor reference
+- 49e2e9b mcp: add client module with HTTP request handling and tests
+- c54ad95 mcp: add configuration files (package.json, tsconfig.json, .madrun.ts, .nycrc.json, eslint.config.ts)
+- b4195da client: e2e: types: editor: add
+
 2026.09.08, v3.3.1
 
 fix:
