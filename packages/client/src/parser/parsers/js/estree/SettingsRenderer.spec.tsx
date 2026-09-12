@@ -4,7 +4,7 @@ import {
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import SettingsRenderer from './SettingsRenderer.js';
+import SettingsRenderer from './SettingsRenderer.tsx';
 
 test('SettingsRenderer: renders checkbox for string field', (t) => {
     render(
@@ -38,7 +38,7 @@ test('SettingsRenderer: renders checkbox checked when value is true', (t) => {
         />,
     );
     
-    const checkbox = document.querySelector('input[type="checkbox"]');
+    const checkbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
     
     cleanup();
     
@@ -60,7 +60,7 @@ test('SettingsRenderer: checkbox disabled when field is required', (t) => {
         />,
     );
     
-    const checkbox = document.querySelector('input[type="checkbox"]');
+    const checkbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
     
     cleanup();
     
@@ -80,11 +80,11 @@ test('SettingsRenderer: renders title when provided', (t) => {
         />,
     );
     
-    const title = document.querySelector('h4');
+    const title = document.querySelector('h4') as HTMLHeadingElement;
     
     cleanup();
     
-    t.equal(title.textContent, 'My Title');
+    t.equal(title!.textContent, 'My Title');
     t.end();
 });
 
@@ -106,7 +106,7 @@ test('SettingsRenderer: renders select for array field', (t) => {
         />,
     );
     
-    const select = document.querySelector('select');
+    const select = document.querySelector('select') as HTMLSelectElement;
     
     cleanup();
     
@@ -121,7 +121,7 @@ test('SettingsRenderer: renders nested settings for object field', (t) => {
                 fields: [{
                     key: 'nested',
                     fields: ['opt1'],
-                    settings: (settings) => settings.nested,
+                    settings: (settings: any) => settings.nested,
                 }],
             }}
             parserSettings={{
@@ -158,7 +158,7 @@ test('SettingsRenderer: onChange called when checkbox toggled', (t) => {
     
     const checkbox = document.querySelector('input[type="checkbox"]');
     
-    fireEvent.click(checkbox);
+    fireEvent.click(checkbox!);
     
     cleanup();
     
@@ -184,7 +184,7 @@ test('SettingsRenderer: renders values from map options', (t) => {
         />,
     );
     
-    const select = document.querySelector('select');
+    const select = document.querySelector('select') as HTMLSelectElement;
     
     cleanup();
     
@@ -209,7 +209,7 @@ test('SettingsRenderer: select onChange calls update with converter', (t) => {
         />,
     );
     
-    const select = document.querySelector('select');
+    const select = document.querySelector('select') as HTMLSelectElement;
     
     fireEvent.change(select, {
         target: {
@@ -237,7 +237,7 @@ test('SettingsRenderer: onChange with nested object updates parent settings', (t
                     key: 'plugins',
                     title: 'Plugins',
                     fields: ['jsx', 'typescript'],
-                    settings: (settings) => settings.plugins || {},
+                    settings: (settings: any) => settings.plugins || {},
                 }],
             }}
             parserSettings={{}}
@@ -247,7 +247,7 @@ test('SettingsRenderer: onChange with nested object updates parent settings', (t
     
     const checkbox = document.querySelector('input[type="checkbox"]');
     
-    fireEvent.click(checkbox);
+    fireEvent.click(checkbox!);
     
     cleanup();
     
@@ -289,7 +289,7 @@ test('SettingsRenderer: array update strategy add value', (t) => {
     
     const checkbox = document.querySelector('input[type="checkbox"]');
     
-    fireEvent.click(checkbox);
+    fireEvent.click(checkbox!);
     
     cleanup();
     
@@ -315,7 +315,7 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
     
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     
-    fireEvent.click(checkboxes[0]);
+    fireEvent.click(checkboxes[0] as HTMLInputElement);
     
     cleanup();
     
@@ -343,13 +343,13 @@ test('SettingsRenderer: select with default identity converter', (t) => {
         />,
     );
     
-    const select = document.querySelector('select');
+    const select = document.querySelector('select') as HTMLSelectElement;
     
     fireEvent.change(select, {
         target: {
             value: 'js',
         },
-    });
+    } as unknown as Event);
     
     cleanup();
     

@@ -5,7 +5,11 @@ import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
 
 const ID = 'acorn';
 
-const isNumber = (a) => typeof a === 'number';
+const isNumber = (a: unknown): a is number => typeof a === 'number';
+
+type AcornMod = any;
+type AcornLooseMod = any;
+type AcornJsxMod = any;
 
 export default {
     ...defaultParserInterface,
@@ -20,7 +24,7 @@ export default {
         'end',
     ]),
     
-    loadParser(callback) {
+    loadParser(callback: (value: {acorn: AcornMod; acornLoose: AcornLooseMod; acornJsx: AcornJsxMod}) => void) {
         Promise
             .all([
                 import('acorn'),
@@ -29,27 +33,30 @@ export default {
             ])
             .then(([acornMod, acornLooseMod, acornJsxMod]) => {
                 callback({
-                    acorn: acornMod.default || acornMod,
-                    acornLoose: acornLooseMod.default || acornLooseMod,
-                    acornJsx: acornJsxMod.default || acornJsxMod,
+                    acorn: acornMod as any,
+                    acornLoose: acornLooseMod as any,
+                    acornJsx: acornJsxMod as any,
                 });
             });
     },
     
-    parse(parsers, code, options = {}) {
-        let parser;
+    parse(parsers: {acorn: AcornMod; acornLoose: AcornLooseMod; acornJsx: AcornJsxMod}, code: string, options: Record<string, any> = {}) {
+        let parser: ((code: string, options: Record<string, any>) => any) | undefined;
         
         if (options['plugins.jsx'] && !options.loose) {
-            const cls = parsers.acorn.Parser.extend(parsers.acornJsx());
+            const cls = parsers.acorn.JSXParser;
             parser = cls.parse.bind(cls);
         } else {
-            parser = options.loose ? parsers.acornLoose.parse : parsers.acorn.parse;
+            if (options.loose)
+                parser = parsers.acornLoose.parse;
+            else
+                parser = parsers.acorn.parse;
         }
         
-        return parser(code, options);
+        return parser!(code, options);
     },
     
-    nodeToRange(node) {
+    nodeToRange(node: any) {
         if (isNumber(node.start))
             return [
                 node.start,
@@ -103,7 +110,7 @@ export default {
         };
     },
     
-    renderSettings(parserSettings, onChange) {
+    renderSettings(parserSettings: any, onChange: (settings: any) => void) {
         return (
             <div>
                 <p>

@@ -5,7 +5,9 @@ import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
 
 const ID = 'espree';
 
-const isNumber = (a) => typeof a === 'number';
+const isNumber = (a: unknown): a is number => typeof a === 'number';
+
+type EspreeMod = any;
 
 export default {
     ...defaultParserInterface,
@@ -20,15 +22,15 @@ export default {
         'end',
     ]),
     
-    loadParser(callback) {
-        import('espree').then((mod) => callback(mod.default || mod));
+    loadParser(callback: (value: EspreeMod) => void) {
+        import('espree').then((mod: EspreeMod) => callback(mod.default || mod));
     },
     
-    parse(espree, code, options) {
+    parse(espree: EspreeMod, code: string, options: Record<string, any>) {
         return espree.parse(code, options);
     },
     
-    nodeToRange(node) {
+    nodeToRange(node: any) {
         if (isNumber(node.start))
             return [
                 node.start,
@@ -81,13 +83,13 @@ export default {
                     key: 'ecmaFeatures',
                     title: 'ecmaFeatures',
                     fields: Object.keys(defaultOptions.ecmaFeatures),
-                    settings: (settings) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
+                    settings: (settings: any) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
                 },
             ],
         };
     },
     
-    renderSettings(parserSettings, onChange) {
+    renderSettings(parserSettings: any, onChange: (settings: any) => void) {
         return (
             <div>
                 <p>

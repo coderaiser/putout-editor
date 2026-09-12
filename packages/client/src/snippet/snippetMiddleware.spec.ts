@@ -173,7 +173,7 @@ test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
 });
 
 test('snippetMiddleware: stale load request skips resolve', async (t) => {
-    let resolveFirst: (value: unknown) => void;
+    let resolveFirst: (value: unknown) => void = () => {};
     const firstPromise = new Promise((r) => {
         resolveFirst = r;
     });

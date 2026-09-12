@@ -225,7 +225,7 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
 });
 
 test('parserMiddleware: code change during parse discards stale result', async (t) => {
-    let resolveParse: (value: unknown) => void;
+    let resolveParse: (value: unknown) => void = () => {};
     const promise = new Promise((r) => {
         resolveParse = r;
     });
@@ -260,7 +260,7 @@ test('parserMiddleware: code change during parse discards stale result', async (
 });
 
 test('parserMiddleware: parser settings change during parse discards stale result', async (t) => {
-    let resolveParse: (value: unknown) => void;
+    let resolveParse: (value: unknown) => void = () => {};
     const promise = new Promise((r) => {
         resolveParse = r;
     });
@@ -340,7 +340,7 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
 });
 
 test('parserMiddleware: code change during async discards stale parse', async (t) => {
-    let resolveParse: (value: unknown) => void;
+    let resolveParse: (value: unknown) => void = () => {};
     const slowPromise = new Promise((resolve) => {
         resolveParse = resolve;
     });
@@ -389,7 +389,7 @@ test('parserMiddleware: code change during async discards stale parse', async (t
 });
 
 test('parserMiddleware: parser change during async discards stale parse', async (t) => {
-    let resolveParse: (value: unknown) => void;
+    let resolveParse: (value: unknown) => void = () => {};
     const slowPromise = new Promise((resolve) => {
         resolveParse = resolve;
     });

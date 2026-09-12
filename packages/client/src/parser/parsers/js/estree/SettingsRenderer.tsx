@@ -1,47 +1,62 @@
-import PropTypes from 'prop-types';
+const identity = (v: any) => v;
 
-const identity = (v) => v;
+const isString = (a: unknown): a is string => typeof a === 'string';
 
-const isString = (a) => typeof a === 'string';
+interface SettingsConfig {
+    title?: string;
+    fields: any[];
+    required?: Set<string>;
+    update?: (settings: any, name: string, value: any) => any;
+    values?: (settings: any) => any;
+    key?: string;
+    settings?: (settings: any) => any;
+    [option: string]: any;
+}
 
-function valuesFromArray(settings) {
-    return settings.reduce((obj, name) => {
+function valuesFromArray(settings: string[]) {
+    return settings.reduce((obj: Record<string, boolean>, name: string) => {
         obj[name] = settings.indexOf(name) > -1;
         return obj;
     }, {});
 }
 
-function getValuesFromSettings(settings) {
+function getValuesFromSettings(settings: any) {
     if (Array.isArray(settings))
         return valuesFromArray(settings);
     
     return settings;
 }
 
-const defaultUpdater = (settings, name, value) => ({
+const defaultUpdater = (settings: any, name: string, value: any) => ({
     ...settings,
     [name]: value,
 });
 
-function arrayUpdater(settings, name, value) {
-    settings = new Set(settings);
+function arrayUpdater(settings: string[], name: string, value: boolean) {
+    const set = new Set(settings);
     
     if (value)
-        settings.add(name);
+        set.add(name);
     else
-        settings.delete(name);
+        set.delete(name);
     
-    return Array.from(settings);
+    return Array.from(set);
 }
 
-function getUpdateStrategy(settings) {
+function getUpdateStrategy(settings: any): (settings: any, name: string, value: any) => any {
     if (Array.isArray(settings))
         return arrayUpdater;
     
     return defaultUpdater;
 }
 
-export default function SettingsRenderer(props) {
+type SettingsRendererProps = {
+    settingsConfiguration: SettingsConfig;
+    parserSettings: any;
+    onChange: (settings: any) => void;
+};
+
+export default function SettingsRenderer(props: SettingsRendererProps) {
     const {
         settingsConfiguration,
         parserSettings,
@@ -130,11 +145,3 @@ export default function SettingsRenderer(props) {
     );
 }
 
-SettingsRenderer.propTypes = {
-    settingsConfiguration: PropTypes.object.isRequired,
-    parserSettings: PropTypes.oneOfType([
-        PropTypes.object,
-        PropTypes.array,
-    ]).isRequired,
-    onChange: PropTypes.func.isRequired,
-};

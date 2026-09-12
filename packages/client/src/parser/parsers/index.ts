@@ -1,8 +1,8 @@
 import codeExample from './js/codeExample.ts';
 import babelParser from './js/babel.ts';
-import espreeParser from './js/espree.js';
+import espreeParser from './js/espree.tsx';
 import esprima from './js/esprima.ts';
-import acorn from './js/acorn.js';
+import acorn from './js/acorn.tsx';
 import putoutTransformer from './js/transformers/putout/index.ts';
 import putoutDefaultTransform from './js/transformers/putout/codeExample.ts';
 import {
