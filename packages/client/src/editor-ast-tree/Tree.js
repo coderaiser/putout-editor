@@ -4,7 +4,7 @@ import {useDispatch} from 'react-redux';
 import React from 'react';
 import Element from './tree/Element.js';
 import {logEvent} from '../snippet/logger.ts';
-import {treeAdapterFromParseResult} from '../parser/TreeAdapter.js';
+import {treeAdapterFromParseResult} from '../parser/TreeAdapter.ts';
 import {clearHighlight} from '../store/reducers.ts';
 
 const {useReducer, useMemo} = React;

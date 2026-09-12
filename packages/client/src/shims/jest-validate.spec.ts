@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import jestValidate from './jest-validate.js';
+import jestValidate from './jest-validate.ts';
 
 test('jest-validate: exports validate function', (t) => {
     const result = typeof jestValidate.validate;

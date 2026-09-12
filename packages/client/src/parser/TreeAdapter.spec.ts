@@ -7,9 +7,9 @@ import {
     emptyKeysFilter,
     typeKeysFilter,
     treeAdapterFromParseResult,
-} from './TreeAdapter.js';
+} from './TreeAdapter.ts';
 
-const isUndefined = (a) => typeof a === 'undefined';
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
 
 const noop = () => {};
 
@@ -19,35 +19,35 @@ test('TreeAdapter: ignoreKeysFilter: filters key in set', (t) => {
         'end',
     ]));
     
-    t.ok(filter.test(null, 'start'));
+    t.ok(filter.test?.(null, 'start'));
     t.end();
 });
 
 test('TreeAdapter: ignoreKeysFilter: passes key not in set', (t) => {
     const filter = ignoreKeysFilter(new Set(['start']));
     
-    t.notOk(filter.test(null, 'type'));
+    t.notOk(filter.test?.(null, 'type'));
     t.end();
 });
 
 test('TreeAdapter: ignoreKeysFilter: empty set passes everything', (t) => {
     const filter = ignoreKeysFilter();
     
-    t.notOk(filter.test(null, 'anything'));
+    t.notOk(filter.test?.(null, 'anything'));
     t.end();
 });
 
 test('TreeAdapter: functionFilter: filters function values', (t) => {
     const filter = functionFilter();
     
-    t.ok(filter.test(noop, 'fn'));
+    t.ok(filter.test?.(noop, 'fn'));
     t.end();
 });
 
 test('TreeAdapter: functionFilter: passes non-function values', (t) => {
     const filter = functionFilter();
     
-    t.notOk(filter.test('string', 'key'));
+    t.notOk(filter.test?.('string', 'key'));
     t.end();
 });
 
@@ -57,17 +57,17 @@ test('TreeAdapter: functionFilter: key is hideFunctions', (t) => {
 });
 
 test('TreeAdapter: emptyKeysFilter: filters null', (t) => {
-    t.ok(emptyKeysFilter().test(null, 'k'));
+    t.ok(emptyKeysFilter().test?.(null, 'k'));
     t.end();
 });
 
 test('TreeAdapter: emptyKeysFilter: filters undefined', (t) => {
-    t.ok(emptyKeysFilter().test(undefined, 'k'));
+    t.ok(emptyKeysFilter().test?.(undefined, 'k'));
     t.end();
 });
 
 test('TreeAdapter: emptyKeysFilter: passes non-empty value', (t) => {
-    t.notOk(emptyKeysFilter().test(0, 'k'));
+    t.notOk(emptyKeysFilter().test?.(0, 'k'));
     t.end();
 });
 
@@ -521,6 +521,83 @@ test('TreeAdapter: treeAdapterFromParseResult: createTreeAdapter with unknown ty
     t.end();
 });
 
+test('TreeAdapter: getRange returns cached result on second call without recompute', (t) => {
+    let calls = 0;
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToRange(node: unknown) {
+                    calls++;
+                    const target = node as {
+                        range?: [
+                            number,
+                            number,
+                        ];
+                    };
+                    
+                    if (target.range)
+                        return target.range;
+                    
+                    return null;
+                },
+                *walkNode() {},
+                nodeToName: () => 'Node',
+            },
+        },
+    }, {});
+    
+    const node = {
+        range: [0, 5],
+    };
+    
+    const first = adapter.getRange(node);
+    const second = adapter.getRange(node);
+    const result = [first, second, calls];
+    const expected = [[0, 5], [0, 5], 1];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('TreeAdapter: walkNode returns empty when adapter has no filters', async (t) => {
+    const adapter = treeAdapterFromParseResult({
+        treeAdapter: {
+            type: 'default',
+            options: {
+                nodeToName: () => 'Node',
+                nodeToRange: () => null,
+                walkNode: function*() {
+                    yield {
+                        value: 1,
+                        key: 'child',
+                        computed: false,
+                    };
+                },
+            },
+        },
+    }, {});
+    
+    const [error, results] = await tryToCatch(() => [
+        ...adapter.walkNode({
+            type: 'Program',
+        }),
+    ]);
+    
+    const result = [error, results];
+    const expected = [
+        null,
+        [{
+            value: 1,
+            key: 'child',
+            computed: false,
+        }],
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 test('TreeAdapter: getRange with cached range returns cached', (t) => {
     const adapter = treeAdapterFromParseResult({
         treeAdapter: {
@@ -563,8 +640,8 @@ test('TreeAdapter: getConfigurableFilters with default adapter returns empty arr
         },
     }, {});
     
-    const result = adapter.getConfigurableFilters();
-    const expected = [];
+    const result: unknown[] = adapter.getConfigurableFilters();
+    const expected: unknown[] = [];
     
     t.deepEqual(result, expected);
     t.end();
@@ -742,7 +819,7 @@ test('TreeAdapter: typeKeysFilter with keys set filters matching keys', (t) => {
         'kind',
     ]));
     
-    t.ok(filter.test(null, 'type'));
+    t.ok(filter.test?.(null, 'type'));
     t.end();
 });
 
@@ -752,7 +829,7 @@ test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
         'kind',
     ]));
     
-    t.notOk(filter.test(null, 'value'));
+    t.notOk(filter.test?.(null, 'value'));
     t.end();
 });
 
@@ -817,7 +894,7 @@ test('TreeAdapter: treeAdapterFromParseResult: opensByDefault returns false for 
     
     const result = adapter.opensByDefault({
         type: 'Program',
-    });
+    }, 'key');
     
     t.notOk(result);
     t.end();

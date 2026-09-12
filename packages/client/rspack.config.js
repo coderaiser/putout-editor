@@ -42,7 +42,7 @@ const plugins = [
     }),
     // More shims
     // Doesn't look like jest-validate is useful in our case (prettier uses it)
-    new rspack.NormalModuleReplacementPlugin(/jest-validate/, `${__dirname}/src/shims/jest-validate.js`),
+    new rspack.NormalModuleReplacementPlugin(/jest-validate/, `${__dirname}/src/shims/jest-validate.ts`),
     // Hack to disable dynamic requires so we don't end up
     // bundling the entire directory including files we don't need.
     // https://github.com/webpack/webpack/issues/198

@@ -7,7 +7,7 @@ import {
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import Element from './Element.js';
-import {treeAdapterFromParseResult} from '../../parser/TreeAdapter.js';
+import {treeAdapterFromParseResult} from '../../parser/TreeAdapter.ts';
 import {putoutEditor} from '../../store/reducers.ts';
 
 const noop = () => {};
