@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,7 +7,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import ShareDialog from './ShareDialog.js';
+import ShareDialog from './ShareDialog.tsx';
 import {putoutEditor, revive} from '../../store/reducers.ts';
 
 const makeSnippet = () => ({

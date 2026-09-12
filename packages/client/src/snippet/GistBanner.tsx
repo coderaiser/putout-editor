@@ -1,4 +1,5 @@
-/*
+/* eslint-disable */
+/**
  * Data storage is moved from Parse to Gists. It won't be possible anymore to
  * save new revisions of existing Parse snippets. We let the visitor know.
  */
@@ -12,18 +13,22 @@ import {connect} from 'react-redux';
 import {TbX} from 'react-icons/tb';
 import {getRevision} from '../store/selectors.ts';
 
-const buttonStyle = {
+const buttonStyle: React.CSSProperties = {
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
-    float: 'left',
+    float: 'left' as any,
     fontSize: 14,
     margin: 0,
     padding: 0,
     paddingRight: 10,
 };
 
-function GistBanner({revision}) {
+interface GistBannerProps {
+    revision: any;
+}
+
+function GistBanner({revision}: GistBannerProps) {
     const [visible, setVisible] = useState(true);
     const prevRevisionRef = useRef(revision);
     
@@ -57,6 +62,6 @@ GistBanner.propTypes = {
     revision: PropTypes.object,
 };
 
-export default connect((state) => ({
+export default connect((state: any) => ({
     revision: getRevision(state),
 }))(GistBanner);

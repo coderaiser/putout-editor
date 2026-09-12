@@ -9,9 +9,19 @@ import {
 import ForkButton from './ForkButton.tsx';
 import NewButton from './NewButton.tsx';
 import SaveButton from './SaveButton.tsx';
-import ShareButton from './ShareButton.js';
+import ShareButton from './ShareButton.tsx';
 
-export default function SnippetButton(props) {
+interface SnippetButtonProps {
+    canFork: boolean;
+    canSave: boolean;
+    saving: boolean;
+    forking: boolean;
+    onFork: () => void;
+    onSave: () => void;
+    onShare?: () => void;
+}
+
+export default function SnippetButton(props: SnippetButtonProps) {
     const [forceClosed, setForceClosed] = useState(false);
     const {
         canFork,

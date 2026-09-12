@@ -5,20 +5,19 @@ import {
     getRevision,
 } from '../../store/selectors.ts';
 
-export default function ShareDialog() {
-    const visible = useSelector(showShareDialog);
-    const snippet = useSelector(getRevision);
+interface ShareDialogProps {
+    snippet: any;
+}
+
+function ShareDialogInner({snippet}: ShareDialogProps) {
     const dispatch = useDispatch();
     
     const onWantToClose = () => dispatch(closeShareDialog());
     
-    const onOuterClick = (event) => {
+    const onOuterClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.target === document.getElementById('ShareDialog'))
             onWantToClose();
     };
-    
-    if (!visible)
-        return null;
     
     const {
         versionedURL,
@@ -40,16 +39,16 @@ export default function ShareDialog() {
                         <dl>
                             <dt>Current Revision</dt>
                             <dd>
-                                <input readOnly={true} onFocus={(e) => e.target.select()} value={versionedURL}/>
+                                <input readOnly={true} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} value={versionedURL}/>
                             </dd>
                             {latestURL
                                 ? <dd>
-                                    <input readOnly={true} onFocus={(e) => e.target.select()} value={latestURL}/>
+                                    <input readOnly={true} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} value={latestURL}/>
                                 </dd>
                                 : null}
                             {embedURL
                                 ? <dd>
-                                    <input readOnly={true} onFocus={(e) => e.target.select()} value={embedURL}/>
+                                    <input readOnly={true} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} value={embedURL}/>
                                 </dd>
                                 : null}
                         </dl>
@@ -61,4 +60,14 @@ export default function ShareDialog() {
             </div>
         </div>
     );
+}
+
+export default function ShareDialog() {
+    const visible = useSelector(showShareDialog);
+    const snippet = useSelector(getRevision);
+    
+    if (!visible)
+        return null;
+    
+    return <ShareDialogInner snippet={snippet}/>;
 }

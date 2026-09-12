@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test, stub} from 'supertape';
 import {Provider} from 'react-redux';
 import {
@@ -6,7 +7,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import GistBanner from './GistBanner.js';
+import GistBanner from './GistBanner.tsx';
 
 const noop = () => {};
 

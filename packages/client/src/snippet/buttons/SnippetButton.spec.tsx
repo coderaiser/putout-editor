@@ -1,10 +1,11 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import SnippetButton from './SnippetButton.js';
+import SnippetButton from './SnippetButton.tsx';
 
 const noop = () => {};
 

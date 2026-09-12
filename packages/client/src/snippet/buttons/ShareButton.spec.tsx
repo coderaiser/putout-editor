@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test, stub} from 'supertape';
 import {
     render,
@@ -5,7 +6,7 @@ import {
     fireEvent,
     cleanup,
 } from '@testing-library/react';
-import ShareButton from './ShareButton.js';
+import ShareButton from './ShareButton.tsx';
 
 test('ShareButton: no snippet: disabled', (t) => {
     render(
