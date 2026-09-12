@@ -1,9 +1,9 @@
 import {test} from 'supertape';
 import {estreeToBabel} from 'estree-to-babel';
 import * as babylon from '@babel/parser';
-import babelParser from './babel.js';
+import babelParser from './babel.ts';
 
-const isNumber = (a) => !Number.isNaN(a) && typeof a === 'number';
+const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
 const code = 'const hello = world(1);';
 
@@ -13,7 +13,7 @@ function parse() {
     return estreeToBabel(ast);
 }
 
-function walkNodes(node, visit, seen = new WeakSet()) {
+function walkNodes(node: any, visit: (node: any) => void, seen = new WeakSet<object>()) {
     if (!node || typeof node !== 'object' || seen.has(node))
         return;
     

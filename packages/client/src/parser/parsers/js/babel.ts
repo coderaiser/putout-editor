@@ -3,10 +3,10 @@ import pkg from '@babel/parser/package.json' with {
 };
 import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
-import defaultParserInterface from './estree/defaultESTreeParserInterface.js';
+import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
 
-const isString = (a) => typeof a === 'string';
-const isNumber = (a) => typeof a === 'number';
+const isString = (a: unknown): a is string => typeof a === 'string';
+const isNumber = (a: unknown): a is number => typeof a === 'number';
 const {keys} = Object;
 
 const availablePlugins = [
@@ -48,7 +48,7 @@ const availablePlugins = [
 
 const ID = 'babel';
 
-export const defaultOptions = {
+export const defaultOptions: Record<string, any> = {
     ...options,
     sourceType: 'module',
     ranges: false,
@@ -70,8 +70,8 @@ export const parserSettingsConfiguration = {
             key: 'plugins',
             title: 'Plugins',
             fields: availablePlugins,
-            settings: (settings) => settings.plugins || defaultOptions.plugins,
-            values: (plugins) => availablePlugins.reduce((obj, name) => {
+            settings: (settings: any) => settings.plugins || defaultOptions.plugins,
+            values: (plugins: any) => availablePlugins.reduce((obj: Record<string, boolean>, name: string) => {
                 obj[name] = plugins.includes(name);
                 return obj;
             }, {}),
@@ -92,17 +92,17 @@ export default {
         'end',
     ]),
     
-    loadParser(callback) {
-        import('@babel/parser').then((mod) => callback(mod.default || mod));
+    loadParser(callback: (value: any) => void) {
+        import('@babel/parser').then((mod: any) => callback(mod.default || mod));
     },
     
-    parse(babylon, code, options) {
+    parse(babylon: any, code: string, options: any) {
         options = {
             ...options,
         };
         
         options.plugins = options.plugins
-            .map((plugin) => {
+            .map((plugin: any) => {
                 if (plugin === 'decorators')
                     return ['decorators', {
                         decoratorsBeforeExport: false,
@@ -128,12 +128,12 @@ export default {
                 
                 return plugin;
             })
-            .filter((name) => name !== 'recordAndTuple');
+            .filter((name: any) => name !== 'recordAndTuple');
         
         return babylon.parse(code, options);
     },
     
-    getNodeName(node) {
+    getNodeName(node: any) {
         if (isString(node.type))
             return node.type;
         
@@ -141,7 +141,7 @@ export default {
             return `Token (${node.type.label})`;
     },
     
-    nodeToRange(node) {
+    nodeToRange(node: any) {
         if (isNumber(node.start) && isNumber(node.end))
             return [
                 node.start,

@@ -1,6 +1,6 @@
 import {test} from 'supertape';
 import {renderHook, act} from '@testing-library/react';
-import {useMobile} from './useMobile.js';
+import {useMobile} from './useMobile.ts';
 
 const noop = () => {};
 
@@ -23,17 +23,21 @@ test('useMobile: returns true when window is narrower than breakpoint', (t) => {
 test('useMobile: handleChange updates isMobile when media query matches', (t) => {
     globalThis.innerWidth = 1024;
     
-    let handleChange;
+    let handleChange!: (event: {matches: boolean}) => void;
     const originalMatchMedia = globalThis.matchMedia;
     
-    globalThis.matchMedia = (query) => ({
-        matches: false,
-        media: query,
-        addEventListener: (type, listener) => {
-            handleChange = listener;
-        },
-        removeEventListener: noop,
-    });
+    function mockMatchMedia(query: string): MediaQueryList {
+        return {
+            matches: false,
+            media: query,
+            addEventListener: (_type: string, listener: any) => {
+                handleChange = listener;
+            },
+            removeEventListener: noop,
+        } as unknown as MediaQueryList;
+    }
+    
+    globalThis.matchMedia = mockMatchMedia;
     
     const {result} = renderHook(() => useMobile());
     
@@ -52,18 +56,22 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
 test('useMobile: handleChange updates isMobile via maxTouchPoints when matches is false', (t) => {
     globalThis.innerWidth = 1024;
     
-    let handleChange;
+    let handleChange!: (event: {matches: boolean}) => void;
     const originalMatchMedia = globalThis.matchMedia;
     const originalMaxTouchPoints = globalThis.navigator?.maxTouchPoints;
     
-    globalThis.matchMedia = (query) => ({
-        matches: false,
-        media: query,
-        addEventListener: (type, listener) => {
-            handleChange = listener;
-        },
-        removeEventListener: noop,
-    });
+    function mockMatchMedia(query: string): MediaQueryList {
+        return {
+            matches: false,
+            media: query,
+            addEventListener: (_type: string, listener: any) => {
+                handleChange = listener;
+            },
+            removeEventListener: noop,
+        } as unknown as MediaQueryList;
+    }
+    
+    globalThis.matchMedia = mockMatchMedia;
     
     Object.defineProperty(globalThis.navigator, 'maxTouchPoints', {
         configurable: true,

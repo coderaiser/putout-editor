@@ -1,11 +1,11 @@
 import pkg from 'esprima/package.json' with {
     type: 'json',
 };
-import defaultParserInterface from './estree/defaultESTreeParserInterface.js';
+import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
 
 const ID = 'esprima';
 
-const isFn = (a) => typeof a === 'function';
+const isFn = (a: unknown): a is Function => typeof a === 'function';
 
 export default {
     ...defaultParserInterface,
@@ -18,15 +18,15 @@ export default {
         'loc',
     ]),
     
-    loadParser(callback) {
+    loadParser(callback: (value: any) => void) {
         import('esprima').then((mod) => callback(mod.default || mod));
     },
     
-    parse(esprima, code, options) {
+    parse(esprima: any, code: string, options: any) {
         return esprima.parse(code, options);
     },
     
-    *forEachProperty(node) {
+    *forEachProperty(node: any) {
         for (const prop in node) {
             if (isFn(node[prop]))
                 continue;

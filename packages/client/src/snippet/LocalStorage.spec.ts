@@ -1,5 +1,5 @@
 import {test, stub} from 'supertape';
-import {readState, writeState} from './LocalStorage.js';
+import {readState, writeState} from './LocalStorage.ts';
 
 const {stringify} = JSON;
 

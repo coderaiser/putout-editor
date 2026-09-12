@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import defaultESTreeParserInterface from './defaultESTreeParserInterface.js';
+import defaultESTreeParserInterface from './defaultESTreeParserInterface.ts';
 
 test('defaultESTreeParserInterface: opensByDefault returns true for Program node', (t) => {
     const result = defaultESTreeParserInterface.opensByDefault({type: 'Program'}, 'body');

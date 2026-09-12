@@ -2,7 +2,7 @@ import defaultParserInterface from './defaultParserInterface.js';
 
 export default {
     ...defaultParserInterface,
-    opensByDefault(node, key) {
+    opensByDefault(node: any, key: string) {
         return node
             && node.type === 'Program'
             || key === 'body'

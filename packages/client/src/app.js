@@ -9,7 +9,7 @@ import TransformPanel from '#panel-transform';
 import AppLayout from '#layout';
 import {useMobile} from '#ui';
 import MobileLayout from '#layout-mobile';
-import * as LocalStorage from './snippet/LocalStorage.js';
+import * as LocalStorage from './snippet/LocalStorage.ts';
 import ErrorMessage from './ui/ErrorMessage.js';
 import GistBanner from './snippet/GistBanner.js';
 import LoadingIndicator from './ui/LoadingIndicator.js';

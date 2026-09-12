@@ -17,7 +17,7 @@ export default {
     
     defaultParserID: 'babel',
     
-    loadTransformer(callback) {
+    loadTransformer(callback: (value: any) => void) {
         Promise
             .all([
                 import('putout'),
@@ -41,7 +41,7 @@ export default {
             }));
     },
     
-    transform({putout, acorn, babel, espree, esprima}, transformCode, source, parserName) {
+    transform({putout, acorn, babel, espree, esprima}: any, transformCode: string, source: string, parserName: string) {
         const parser = chooseParser(parserName, {
             acorn,
             babel,
@@ -50,7 +50,7 @@ export default {
         });
         
         const plugin = compileRule(transformCode, {
-            require: (name) => {
+            require: (name: string) => {
                 if (name === 'path' || name === 'node:path')
                     return path;
                 
@@ -75,7 +75,7 @@ export default {
     },
 };
 
-function chooseParser(parserName, {acorn, babel, espree, esprima}) {
+function chooseParser(parserName: string, {acorn, babel, espree, esprima}: any) {
     if (parserName === 'acorn')
         return acorn;
     
@@ -86,7 +86,7 @@ function chooseParser(parserName, {acorn, babel, espree, esprima}) {
         return esprima;
     
     return {
-        parse: (source, options) => {
+        parse: (source: string, options: any) => {
             return babel.parse(source, {
                 ...options,
                 isRecovery: true,

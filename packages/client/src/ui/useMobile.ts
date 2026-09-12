@@ -14,7 +14,7 @@ export function useMobile() {
         const {matchMedia, navigator} = globalThis;
         const mediaQuery = matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
         
-        const handleChange = (event) => setIsMobile(event.matches || navigator?.maxTouchPoints > 0);
+        const handleChange = (event: MediaQueryListEvent) => setIsMobile(event.matches || navigator?.maxTouchPoints > 0);
         
         mediaQuery.addEventListener('change', handleChange);
         

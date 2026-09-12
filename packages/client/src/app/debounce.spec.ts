@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import debounce from './debounce.ts';
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 test('debounce: uses default timeout', async (t) => {
     let called = false;
