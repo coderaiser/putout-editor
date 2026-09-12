@@ -1,7 +1,10 @@
 import {test} from 'supertape';
 import resolvePositionFromIndex, {SourceMapLike} from './resolvePositionFromIndex.ts';
 
-const makeSourceMap = (sourceContent: string, positionResult: {line: number | null; column: number | null;}): SourceMapLike => ({
+const makeSourceMap = (sourceContent: string, positionResult: {
+    line: number | null;
+    column: number | null;
+}): SourceMapLike => ({
     sourcesContent: [sourceContent],
     sources: ['a.js'],
     generatedPositionFor: () => positionResult,

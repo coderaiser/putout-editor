@@ -585,6 +585,7 @@ test('TreeAdapter: walkNode returns empty when adapter has no filters', async (t
     ]);
     
     const result = [error, results];
+    
     const expected = [
         null,
         [{

@@ -21,10 +21,7 @@ import {
     canSaveTransform,
     getHighlightRange,
 } from './selectors.ts';
-import {
-    putoutEditor,
-    type RootState,
-} from './reducers.ts';
+import {putoutEditor, type RootState} from './reducers.ts';
 
 function makeState(overrides: Record<string, any> = {}): RootState {
     const base = putoutEditor(undefined, {

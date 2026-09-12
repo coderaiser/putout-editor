@@ -33,6 +33,7 @@ test('local parse: returns AST for valid source', async (t) => {
     const result = await handler({
         source: 'const x = 1;',
     });
+    
     const ast = JSON.parse(result.content[0].text);
     
     t.equal(ast.type, 'File');
@@ -44,6 +45,7 @@ test('local parse: returns node positions when query provided', async (t) => {
         source: 'var x = 1;',
         query: 'VariableDeclaration',
     });
+    
     const nodes = JSON.parse(result.content[0].text);
     
     t.equal(nodes[0].type, 'VariableDeclaration');
@@ -55,6 +57,7 @@ test('local parse: query result includes source text of matched node', async (t)
         source: 'var x = 1;',
         query: 'VariableDeclaration',
     });
+    
     const nodes = JSON.parse(result.content[0].text);
     
     t.equal(nodes[0].text, 'var x = 1;');

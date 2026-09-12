@@ -74,7 +74,6 @@ export async function fetchFromURL() {
 // create() always goes to gist.ts via StorageHandler._first().
 export class Revision implements StoreRevision {
     _data: RevisionData;
-    
     constructor(data: RevisionData) {
         this._data = data;
     }

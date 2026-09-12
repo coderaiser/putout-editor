@@ -1,4 +1,4 @@
-import {parse} from '@babel/parser';
+import {parse, type ParserPlugin} from '@babel/parser';
 import {tryToCatch} from 'try-to-catch';
 import {
     Inject,
@@ -73,7 +73,7 @@ export class ParseService {
                 'jsx',
                 'typescript',
                 'importMeta',
-            ],
+            ] as ParserPlugin[],
         });
         
         if (error)

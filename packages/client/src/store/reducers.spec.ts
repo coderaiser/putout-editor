@@ -79,7 +79,9 @@ test('reducers: persist: strips cursor', (t) => {
     
     const result = persist(state);
     
-    t.notOk((result as {cursor?: unknown}).cursor);
+    t.notOk((result as {
+        cursor?: unknown;
+    }).cursor);
     t.end();
 });
 
@@ -98,7 +100,9 @@ test('reducers: persist: strips parseResult', (t) => {
     
     const result = persist(state);
     
-    t.notOk((result.workbench as {parseResult?: unknown}).parseResult);
+    t.notOk((result.workbench as {
+        parseResult?: unknown;
+    }).parseResult);
     t.end();
 });
 

@@ -1,6 +1,7 @@
 # @putout/mcp
 
 MCP server for writing putout rules with Claude. Runs in two modes:
+
 - **Local** (default): calls `putout` functions directly — no server needed
 - **Remote** (opt-in): calls the putout-editor HTTP API
 
