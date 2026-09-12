@@ -1,7 +1,11 @@
-// @ts-nocheck
-import PropTypes from 'prop-types';
+type CompactArrayViewProps = {
+    array: unknown[] | {
+        length: number;
+    };
+    onClick?: () => void;
+};
 
-export default function CompactArrayView({array, onClick}) {
+export default function CompactArrayView({array, onClick}: CompactArrayViewProps) {
     const count = array.length;
     
     if (!count)
@@ -19,13 +23,3 @@ export default function CompactArrayView({array, onClick}) {
         </span>
     );
 }
-
-CompactArrayView.propTypes = {
-    /**
-     * The array of elements to represent.
-     */
-    array: PropTypes.oneOfType([PropTypes.array, PropTypes.shape({
-        length: PropTypes.number,
-    })]).isRequired,
-    onClick: PropTypes.func,
-};

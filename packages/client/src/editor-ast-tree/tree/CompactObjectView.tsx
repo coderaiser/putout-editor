@@ -1,7 +1,9 @@
-// @ts-nocheck
-import PropTypes from 'prop-types';
+type CompactObjectViewProps = {
+    keys: string[];
+    onClick?: () => void;
+};
 
-export default function CompactObjectView({keys, onClick}) {
+export default function CompactObjectView({keys, onClick}: CompactObjectViewProps) {
     if (!keys.length)
         return (
             <span className="p">{'{ }'}</span>
@@ -22,8 +24,3 @@ export default function CompactObjectView({keys, onClick}) {
         </span>
     );
 }
-
-CompactObjectView.propTypes = {
-    keys: PropTypes.arrayOf(PropTypes.string).isRequired,
-    onClick: PropTypes.func,
-};

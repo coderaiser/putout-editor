@@ -1,28 +1,35 @@
-// @ts-nocheck
 import {
     useEffect,
     useRef,
     useState,
 } from 'react';
+import type {ComponentType} from 'react';
+import type {ElementSettings} from './types.ts';
 
-function shouldAutoFocus({value, settings, focusPath}) {
+type AutoFocusProps = {
+    value: unknown;
+    settings: ElementSettings;
+    focusPath: unknown[];
+};
+
+function shouldAutoFocus({value, settings, focusPath}: AutoFocusProps) {
     return settings.autofocus && focusPath.indexOf(value) > -1;
 }
 
-export default function RecursiveTreeElement(Element) {
-    const openValues = new WeakMap();
+export default function RecursiveTreeElement(Element: ComponentType<any>) {
+    const openValues = new WeakMap<object, number>();
     
-    function addValue(value) {
+    function addValue(value: object) {
         if (openValues.has(value)) {
-            openValues.set(value, openValues.get(value) + 1);
+            openValues.set(value, openValues.get(value)! + 1);
             return;
         }
         
         openValues.set(value, 1);
     }
     
-    function removeValue(value) {
-        const n = openValues.get(value) - 1;
+    function removeValue(value: object) {
+        const n = openValues.get(value)! - 1;
         
         if (!n) {
             openValues.delete(value);
@@ -33,7 +40,7 @@ export default function RecursiveTreeElement(Element) {
     }
     
     return function RecursiveElement(props: any) {
-        const previousValue = useRef(null);
+        const previousValue = useRef<unknown>(null);
         const [state, setState] = useState(() => {
             const {deepOpen} = props;
             const open = shouldAutoFocus(props);

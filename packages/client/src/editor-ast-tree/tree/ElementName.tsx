@@ -1,12 +1,16 @@
-// @ts-nocheck
-import PropTypes from 'prop-types';
+type ElementNameProps = {
+    name?: string | null;
+    computed?: boolean;
+    showToggler?: boolean;
+    onClick?: () => void;
+};
 
-export default function ElementName({name, computed, showToggler, onClick}) {
+export default function ElementName({name, computed, showToggler, onClick}: ElementNameProps) {
     if (!name)
         return null;
     
     return (
-        <span className="key" onClick={showToggler ? onClick : null}>
+        <span className="key" onClick={showToggler ? onClick : undefined}>
             <span className="name nb">
                 {computed ? <span title="computed">*{name}</span> : name}
             </span>
@@ -14,10 +18,3 @@ export default function ElementName({name, computed, showToggler, onClick}) {
         </span>
     );
 }
-
-ElementName.propTypes = {
-    name: PropTypes.string,
-    computed: PropTypes.bool,
-    showToggler: PropTypes.bool,
-    onClick: PropTypes.func,
-};

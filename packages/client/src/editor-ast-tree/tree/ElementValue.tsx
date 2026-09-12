@@ -1,15 +1,26 @@
-// @ts-nocheck
-import PropTypes from 'prop-types';
 import {TbAlertTriangle} from 'react-icons/tb';
-import CompactArrayView from './CompactArrayView.js';
-import CompactObjectView from './CompactObjectView.js';
+import CompactArrayView from './CompactArrayView.tsx';
+import CompactObjectView from './CompactObjectView.tsx';
 import stringify from '../../editor/stringify.ts';
+import type {TreeAdapterChild} from './types.ts';
 
-const isFn = (a) => typeof a === 'function';
+const isFn = (a: unknown): a is Function => typeof a === 'function';
 
-const isNumber = (value) => typeof value === 'number';
+const isNumber = (value: unknown): value is number => typeof value === 'number';
 
-function renderError(error) {
+type ElementValueProps = {
+    value: unknown;
+    open: boolean;
+    error: Error | null;
+    nodeName: string | null;
+    showAsSelected: boolean;
+    children: TreeAdapterChild[];
+    onClick: () => void;
+    onExecFunction: () => void;
+    createSubElement: (key: string, value: unknown, name: string | null | undefined, computed: boolean) => React.ReactNode;
+};
+
+function renderError(error: Error) {
     return (
         <span>
             {' '}
@@ -18,11 +29,21 @@ function renderError(error) {
     );
 }
 
-export default function ElementValue({value, open, error, nodeName, showAsSelected, children, onClick, onExecFunction, createSubElement}) {
-    let valueOutput = null;
-    let content = null;
-    let prefix = null;
-    let suffix = null;
+export default function ElementValue({
+    value,
+    open,
+    error,
+    nodeName,
+    showAsSelected,
+    children,
+    onClick,
+    onExecFunction,
+    createSubElement,
+}: ElementValueProps) {
+    let valueOutput: React.ReactNode = null;
+    let content: React.ReactNode = null;
+    let prefix: string | null = null;
+    let suffix: string | null = null;
     
     if (nodeName)
         valueOutput = <span className="tokenName nc" onClick={onClick}>
@@ -39,9 +60,13 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
                 : null}
         </span>;
     
-    if (value && typeof value === 'object')
-        if (isNumber(value.length)) {
-            if (value.length > 0 && open) {
+    if (value && typeof value === 'object') {
+        const item = value as {
+            length?: unknown;
+        };
+        
+        if (isNumber(item.length)) {
+            if (item.length > 0 && open) {
                 prefix = '[';
                 suffix = ']';
                 const elements = children
@@ -58,7 +83,7 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
                 valueOutput = <span>
                     {valueOutput}
                     <CompactArrayView
-                        array={value}
+                        array={value as unknown[]}
                         onClick={onClick}
                     />
                 </span>;
@@ -74,7 +99,7 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
             
             content = <ul className="value-body">{elements}</ul>;
         } else {
-            const keys = [];
+            const keys: string[] = [];
             
             for (const {key} of children) {
                 keys.push(key);
@@ -88,8 +113,7 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
                 />
             </span>;
         }
-    
-    else if (isFn(value))
+    } else if (isFn(value))
         valueOutput = <span
             className="ge invokeable"
             title="Click to invoke function"
@@ -115,15 +139,3 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
         </>
     );
 }
-
-ElementValue.propTypes = {
-    value: PropTypes.any,
-    open: PropTypes.bool,
-    error: PropTypes.object,
-    nodeName: PropTypes.string,
-    showAsSelected: PropTypes.bool,
-    children: PropTypes.array,
-    onClick: PropTypes.func,
-    onExecFunction: PropTypes.func,
-    createSubElement: PropTypes.func,
-};

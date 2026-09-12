@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Describes the result of a parse process. Only exists here for documentation
  * purposes.

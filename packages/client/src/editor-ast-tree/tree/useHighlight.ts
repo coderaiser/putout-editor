@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {useDispatch} from 'react-redux';
 import {setHighlight, clearHighlight} from '../../store/reducers.ts';
 import type {TreeAdapter} from './types.ts';

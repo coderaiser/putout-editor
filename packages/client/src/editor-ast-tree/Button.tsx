@@ -1,7 +1,11 @@
-// @ts-nocheck
 import cx from 'classnames';
 
-export const Button = ({selectedOutput, setSelectedOutput}) => (name, index) => (
+type ButtonProps = {
+    selectedOutput: number;
+    setSelectedOutput: (index: number) => void;
+};
+
+export const Button = ({selectedOutput, setSelectedOutput}: ButtonProps) => (name: React.ReactNode, index: number) => (
     <button
         key={index}
         value={index}
