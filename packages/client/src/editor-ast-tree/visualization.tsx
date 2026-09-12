@@ -1,8 +1,16 @@
-// @ts-nocheck
 import EditorASTJson from '#editor-ast-json';
 import Tree from './Tree.tsx';
 
-Tree.displayName = 'Tree';
-EditorASTJson.displayName = 'JSON';
+type WithName = typeof Tree & {
+    displayName?: string;
+};
 
-export default [Tree, EditorASTJson];
+const TreeWithName = Tree as WithName;
+const JsonWithName = EditorASTJson as typeof EditorASTJson & {
+    displayName?: string;
+};
+
+TreeWithName.displayName = 'Tree';
+JsonWithName.displayName = 'JSON';
+
+export default [TreeWithName, JsonWithName];
