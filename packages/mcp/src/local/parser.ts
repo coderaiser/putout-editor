@@ -33,7 +33,7 @@ const parseOptions: ParserOptions = {
         'jsx',
         'typescript',
         'importMeta',
-    ],
+    ] as ParserOptions['plugins'],
 };
 
 export async function handler({source, query}: {source: string;query?: string;}) {

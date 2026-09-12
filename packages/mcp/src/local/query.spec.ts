@@ -11,7 +11,7 @@ const parseOptions: ParserOptions = {
         'jsx',
         'typescript',
         'importMeta',
-    ],
+    ] as ParserOptions['plugins'],
 };
 
 test('local query: finds VariableDeclaration nodes', (t) => {

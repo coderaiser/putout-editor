@@ -1,6 +1,6 @@
 import {createRequire} from 'node:module';
 import {tryCatch} from 'try-catch';
-import {compileRule} from 'redput/compile-rule';
+import {compileRule, type Rule} from 'redput/compile-rule';
 
 export {type Rule} from 'redput/compile-rule';
 
