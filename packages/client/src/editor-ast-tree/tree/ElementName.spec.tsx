@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import ElementName from './ElementName.js';

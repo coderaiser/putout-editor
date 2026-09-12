@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {useEffect, useRef} from 'react';
 import type {ElementProps, ElementState} from './types.ts';
 

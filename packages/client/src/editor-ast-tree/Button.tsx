@@ -1,3 +1,4 @@
+// @ts-nocheck
 import cx from 'classnames';
 
 export const Button = ({selectedOutput, setSelectedOutput}) => (name, index) => (

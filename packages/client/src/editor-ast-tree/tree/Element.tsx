@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
     useEffect,
     useRef,
@@ -7,9 +8,9 @@ import {useDispatch} from 'react-redux';
 import cx from 'classnames';
 import {setCursor, setHighlight} from '#store';
 import ElementName from './ElementName.js';
-import ElementValue from './ElementValue.js';
+import ElementValue from './ElementValue.tsx';
 import isFocused from './isFocused.ts';
-import RecursiveTreeElement from './RecursiveTreeElement.js';
+import RecursiveTreeElement from './RecursiveTreeElement.tsx';
 import useElementState from './useElementState.ts';
 import useFocusEffect from './useFocusEffect.ts';
 import useHighlight from './useHighlight.ts';

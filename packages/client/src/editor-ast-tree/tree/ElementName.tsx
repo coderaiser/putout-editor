@@ -1,3 +1,4 @@
+// @ts-nocheck
 import PropTypes from 'prop-types';
 
 export default function ElementName({name, computed, showToggler, onClick}) {

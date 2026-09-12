@@ -1,5 +1,5 @@
 import {ErrorBoundary} from 'react-error-boundary';
-import EditorASTTree from '../editor-ast-tree/index.js';
+import EditorASTTree from '../editor-ast-tree/index.tsx';
 
 function ErrorFallback({error}) {
     return (

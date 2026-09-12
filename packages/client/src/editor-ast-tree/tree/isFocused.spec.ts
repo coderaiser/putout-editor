@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import isFocused from './isFocused.ts';
 

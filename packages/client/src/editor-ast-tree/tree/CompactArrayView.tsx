@@ -1,3 +1,4 @@
+// @ts-nocheck
 import PropTypes from 'prop-types';
 
 export default function CompactArrayView({array, onClick}) {

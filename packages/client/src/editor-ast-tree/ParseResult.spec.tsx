@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {ParseResult} from './ParseResult.js';
 

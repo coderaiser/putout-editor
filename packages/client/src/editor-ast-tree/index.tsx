@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import {codeframe} from 'putout';
@@ -8,8 +9,8 @@ import {
     getCode,
 } from '#store';
 import {getFocusPath, Editor} from '#editor';
-import visualizations from './visualization.js';
-import {Button} from './Button.js';
+import visualizations from './visualization.tsx';
+import {Button} from './Button.tsx';
 
 const getName = (a) => a.displayName || a.name;
 

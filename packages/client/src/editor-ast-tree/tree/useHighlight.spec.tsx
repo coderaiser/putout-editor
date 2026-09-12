@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test, stub} from 'supertape';
 import {
     render,

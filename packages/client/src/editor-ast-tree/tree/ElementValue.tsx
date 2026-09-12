@@ -1,3 +1,4 @@
+// @ts-nocheck
 import PropTypes from 'prop-types';
 import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.js';

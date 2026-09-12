@@ -1,8 +1,9 @@
+// @ts-nocheck
 import './css/tree.css';
 import PropTypes from 'prop-types';
 import {useDispatch} from 'react-redux';
 import React from 'react';
-import Element from './tree/Element.js';
+import Element from './tree/Element.tsx';
 import {logEvent} from '../snippet/logger.ts';
 import {treeAdapterFromParseResult} from '../parser/TreeAdapter.ts';
 import {clearHighlight} from '../store/reducers.ts';

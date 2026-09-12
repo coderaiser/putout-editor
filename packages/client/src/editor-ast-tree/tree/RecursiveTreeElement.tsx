@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
     useEffect,
     useRef,
@@ -31,7 +32,7 @@ export default function RecursiveTreeElement(Element) {
         openValues.set(value, n);
     }
     
-    return function RecursiveElement(props) {
+    return function RecursiveElement(props: any) {
         const previousValue = useRef(null);
         const [state, setState] = useState(() => {
             const {deepOpen} = props;
