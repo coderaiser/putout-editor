@@ -76,18 +76,22 @@ test('syntax error in editor-source renders codeframe', async ({page}) => {
     await replaceContent(page, 'function() {\n  \n}');
     await showAst(page);
     
-    await expect(page
-        .getByTestId('ast-output')
-        .getByRole('textbox')).toContainText('Unexpected token');
+    await expect(
+        page
+            .getByTestId('ast-output')
+            .getByRole('textbox'),
+    ).toContainText('Unexpected token');
 });
 
 test('syntax error in editor-source does not show stack trace', async ({page}) => {
     await replaceContent(page, 'function() {\n  \n}');
     await showAst(page);
     
-    await expect(page
-        .getByTestId('ast-output')
-        .getByRole('textbox')).not.toContainText('at ');
+    await expect(
+        page
+            .getByTestId('ast-output')
+            .getByRole('textbox'),
+    ).not.toContainText('at ');
 });
 
 test('transform error in editor-transform renders codeframe', async ({page}) => {
@@ -95,9 +99,11 @@ test('transform error in editor-transform renders codeframe', async ({page}) => 
     await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => ({ throw new Error("oops") });');
     await showResult(page);
     
-    await expect(page
-        .getByTestId('editor-transform-output')
-        .getByRole('textbox')).toBeVisible();
+    await expect(
+        page
+            .getByTestId('editor-transform-output')
+            .getByRole('textbox'),
+    ).toBeVisible();
 });
 
 test('transform error in editor-transform shows error in codeframe not stack trace', async ({page}) => {
@@ -105,9 +111,11 @@ test('transform error in editor-transform shows error in codeframe not stack tra
     await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => { throw new Error("oops"); };');
     await showResult(page);
     
-    await expect(page
-        .getByTestId('editor-transform-output')
-        .getByRole('textbox')).not.toContainText('at Object.<anonymous>');
+    await expect(
+        page
+            .getByTestId('editor-transform-output')
+            .getByRole('textbox'),
+    ).not.toContainText('at Object.<anonymous>');
 });
 
 test('theme toggle changes document theme', async ({page}) => {
@@ -135,7 +143,9 @@ test('switching AST view changes the output mode', async ({page}) => {
             name: /json/i,
         })
         .click();
-    await expect(page
-        .getByTestId('ast-output')
-        .getByRole('textbox')).toBeVisible();
+    await expect(
+        page
+            .getByTestId('ast-output')
+            .getByRole('textbox'),
+    ).toBeVisible();
 });

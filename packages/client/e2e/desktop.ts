@@ -17,9 +17,11 @@ test('mobile menu is hidden on desktop', async ({page}) => {
 });
 
 test('source editor renders', async ({page}) => {
-    await expect(page
-        .getByTestId('editor-source')
-        .getByRole('textbox')).toBeVisible();
+    await expect(
+        page
+            .getByTestId('editor-source')
+            .getByRole('textbox'),
+    ).toBeVisible();
 });
 
 test('AST output renders', async ({page}) => {
@@ -36,11 +38,13 @@ test('AST view controls render', async ({page}) => {
 });
 
 test('desktop parser menu opens and changes parser', async ({page}) => {
-    await expect(page
-        .getByTestId('toolbar')
-        .getByText('acorn', {
-            exact: true,
-        })).toBeHidden();
+    await expect(
+        page
+            .getByTestId('toolbar')
+            .getByText('acorn', {
+                exact: true,
+            }),
+    ).toBeHidden();
     await page
         .getByTestId('toolbar')
         .getByText('babel', {
@@ -56,12 +60,14 @@ test('desktop parser menu opens and changes parser', async ({page}) => {
             name: /acorn/i,
         })
         .click();
-    await expect(page
-        .getByTestId('toolbar')
-        .getByText('acorn', {
-            exact: true,
-        })
-        .first()).toBeVisible();
+    await expect(
+        page
+            .getByTestId('toolbar')
+            .getByText('acorn', {
+                exact: true,
+            })
+            .first(),
+    ).toBeVisible();
 });
 
 test('vim mode works after switching keymap away and back', async ({page}) => {

@@ -23,7 +23,9 @@ const getInitState = () => putoutEditor(undefined, {
     type: '@@INIT',
 });
 
-function makeStore(overrides: {workbench?: Record<string, unknown>} & Record<string, unknown> = {}, storage = makeStorage()) {
+function makeStore(overrides: {
+    workbench?: Record<string, unknown>;
+} & Record<string, unknown> = {}, storage = makeStorage()) {
     const state = getInitState();
     const listener = createSnippetListener(storage);
     
@@ -67,7 +69,9 @@ test('snippetMiddleware: load while saving passes through without loading', asyn
     });
     await setImmediate();
     await setImmediate();
-    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
+    const {loadingSnippet} = store.getState() as {
+        loadingSnippet: boolean;
+    };
     
     t.notOk(loadingSnippet);
     t.end();
@@ -84,7 +88,9 @@ test('snippetMiddleware: load while forking passes through without loading', asy
     });
     await setImmediate();
     await setImmediate();
-    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
+    const {loadingSnippet} = store.getState() as {
+        loadingSnippet: boolean;
+    };
     
     t.notOk(loadingSnippet);
     t.end();
@@ -158,14 +164,16 @@ test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
     await setImmediate();
     await setImmediate();
     await Promise.resolve();
-    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
+    const {loadingSnippet} = store.getState() as {
+        loadingSnippet: boolean;
+    };
     
     t.notOk(loadingSnippet);
     t.end();
 });
 
 test('snippetMiddleware: stale load request skips resolve', async (t) => {
-    let resolveFirst!: (value: unknown) => void;
+    let resolveFirst: (value: unknown) => void;
     const firstPromise = new Promise((r) => {
         resolveFirst = r;
     });
@@ -194,7 +202,9 @@ test('snippetMiddleware: stale load request skips resolve', async (t) => {
     resolveFirst(null);
     await setImmediate();
     await setImmediate();
-    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
+    const {loadingSnippet} = store.getState() as {
+        loadingSnippet: boolean;
+    };
     
     t.ok(loadingSnippet);
     t.end();

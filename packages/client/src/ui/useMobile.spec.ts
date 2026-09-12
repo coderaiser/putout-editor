@@ -23,18 +23,20 @@ test('useMobile: returns true when window is narrower than breakpoint', (t) => {
 test('useMobile: handleChange updates isMobile when media query matches', (t) => {
     globalThis.innerWidth = 1024;
     
-    let handleChange!: (event: {matches: boolean}) => void;
+    let handleChange: (event: {
+        matches: boolean;
+    }) => void;
     const originalMatchMedia = globalThis.matchMedia;
     
     function mockMatchMedia(query: string): MediaQueryList {
-        return {
+        return ({
             matches: false,
             media: query,
             addEventListener: (_type: string, listener: any) => {
                 handleChange = listener;
             },
             removeEventListener: noop,
-        } as unknown as MediaQueryList;
+        } as unknown) as MediaQueryList;
     }
     
     globalThis.matchMedia = mockMatchMedia;
@@ -56,19 +58,21 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
 test('useMobile: handleChange updates isMobile via maxTouchPoints when matches is false', (t) => {
     globalThis.innerWidth = 1024;
     
-    let handleChange!: (event: {matches: boolean}) => void;
+    let handleChange: (event: {
+        matches: boolean;
+    }) => void;
     const originalMatchMedia = globalThis.matchMedia;
     const originalMaxTouchPoints = globalThis.navigator?.maxTouchPoints;
     
     function mockMatchMedia(query: string): MediaQueryList {
-        return {
+        return ({
             matches: false,
             media: query,
             addEventListener: (_type: string, listener: any) => {
                 handleChange = listener;
             },
             removeEventListener: noop,
-        } as unknown as MediaQueryList;
+        } as unknown) as MediaQueryList;
     }
     
     globalThis.matchMedia = mockMatchMedia;

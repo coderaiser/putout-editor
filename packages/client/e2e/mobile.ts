@@ -9,12 +9,14 @@ test('desktop toolbar controls are hidden on mobile', async ({page}) => {
     await expect(page.locator('#Toolbar')).toBeVisible();
     
     // desktop menu triggers are hidden on mobile
-    await expect(page
-        .locator('#Toolbar')
-        .getByText('babel', {
-            exact: true,
-        })
-        .first()).toBeHidden();
+    await expect(
+        page
+            .locator('#Toolbar')
+            .getByText('babel', {
+                exact: true,
+            })
+            .first(),
+    ).toBeHidden();
     
     // mobile menu is shown instead
     await expect(page.locator('#MobileMenu')).toBeVisible();
@@ -30,9 +32,11 @@ test('snippet dropdown opens', async ({page}) => {
     });
     
     await snippet.tap();
-    await expect(page
-        .getByRole('menu')
-        .first()).toBeVisible();
+    await expect(
+        page
+            .getByRole('menu')
+            .first(),
+    ).toBeVisible();
 });
 
 test('snippet dropdown exposes accessible semantics', async ({page}) => {
@@ -52,9 +56,11 @@ test('parser dropdown opens', async ({page}) => {
     });
     
     await parser.tap();
-    await expect(page
-        .getByRole('menu')
-        .first()).toBeVisible();
+    await expect(
+        page
+            .getByRole('menu')
+            .first(),
+    ).toBeVisible();
 });
 
 test('dropdown closes on outside tap', async ({page}) => {
@@ -63,18 +69,22 @@ test('dropdown closes on outside tap', async ({page}) => {
     });
     
     await snippet.tap();
-    await expect(page
-        .getByRole('menu')
-        .first()).toBeVisible();
+    await expect(
+        page
+            .getByRole('menu')
+            .first(),
+    ).toBeVisible();
     
     // tapping the editor closes the dropdown
     await page
         .locator('.cm-editor')
         .first()
         .tap();
-    await expect(page
-        .getByRole('menu')
-        .first()).toBeHidden();
+    await expect(
+        page
+            .getByRole('menu')
+            .first(),
+    ).toBeHidden();
 });
 
 test('mobile tabs render', async ({page}) => {
@@ -95,9 +105,11 @@ test('source tab opens the editor', async ({page}) => {
             name: /source/i,
         })
         .tap();
-    await expect(page
-        .locator('.cm-editor')
-        .first()).toBeVisible();
+    await expect(
+        page
+            .locator('.cm-editor')
+            .first(),
+    ).toBeVisible();
 });
 
 test('ast tab opens the AST output', async ({page}) => {
@@ -106,7 +118,9 @@ test('ast tab opens the AST output', async ({page}) => {
             name: /ast/i,
         })
         .tap();
-    await expect(page
-        .locator('.output')
-        .first()).toBeVisible();
+    await expect(
+        page
+            .locator('.output')
+            .first(),
+    ).toBeVisible();
 });

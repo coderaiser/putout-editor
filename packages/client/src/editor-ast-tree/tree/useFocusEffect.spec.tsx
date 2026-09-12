@@ -50,7 +50,9 @@ test('useFocusEffect: does not open when value not in focusPath', async (t) => {
         <TestHook props={makeProps()}/>,
     );
     
-    await act(stub().resolves());
+    await act(
+        stub().resolves(),
+    );
     const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();
@@ -142,7 +144,9 @@ test('useFocusEffect: scrolls on initial render when autofocus and leaf in focus
         />,
     );
     
-    await act(stub().resolves());
+    await act(
+        stub().resolves(),
+    );
     const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();

@@ -38,9 +38,11 @@ export function createPutoutEditor(page: Page) {
     
     async function goto() {
         await page.goto('/');
-        await expect(page
-            .getByRole('textbox')
-            .first()).toBeVisible();
+        await expect(
+            page
+                .getByRole('textbox')
+                .first(),
+        ).toBeVisible();
     }
     
     return {
