@@ -2,13 +2,22 @@ import {useState} from 'react';
 import cx from 'classnames';
 import {TbCode, TbSettings} from 'react-icons/tb';
 import {getParserByID} from '../parsers/index.ts';
+import type {ParserInfo, ParserCategory} from '../parsers/index.ts';
 
-export default function ParserButton({parser, category, onParserChange, onParserSettingsButtonClick}) {
+interface ParserButtonProps {
+    parser: ParserInfo;
+    category: ParserCategory;
+    onParserChange: (parser: ParserInfo | undefined) => void;
+    onParserSettingsButtonClick: () => void;
+}
+
+export default function ParserButton({parser, category, onParserChange, onParserSettingsButtonClick}: ParserButtonProps) {
     const [forceClosed, setForceClosed] = useState(false);
-    const parsers = category.parsers.filter((p) => p.showInMenu);
+    const parsers = category.parsers.filter((p: ParserInfo) => p.showInMenu);
     
-    const onItemClick = ({currentTarget}) => {
-        const parserID = currentTarget.getAttribute('data-id');
+    const onItemClick = (event: React.MouseEvent<HTMLLIElement>) => {
+        const currentTarget = event.currentTarget;
+        const parserID = currentTarget.getAttribute('data-id') ?? '';
         onParserChange(getParserByID(parserID));
         setForceClosed(true);
     };
@@ -35,7 +44,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
                 {parser.displayName}
             </span>
             <ul>
-                {parsers.map((parserItem) => (
+                {parsers.map((parserItem: ParserInfo) => (
                     <li key={parserItem.id} onClick={onItemClick} data-id={parserItem.id}>
                         <button type="button">
                             {parserItem.displayName}

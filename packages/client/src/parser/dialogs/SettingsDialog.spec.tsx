@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
@@ -7,7 +8,7 @@ import {
     fireEvent,
     act,
 } from '@testing-library/react';
-import SettingsDialog from './SettingsDialog.js';
+import SettingsDialog from './SettingsDialog.tsx';
 import {
     putoutEditor,
     revive,

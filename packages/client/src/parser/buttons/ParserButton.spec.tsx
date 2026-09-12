@@ -1,10 +1,11 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import ParserButton from './ParserButton.js';
+import ParserButton from './ParserButton.tsx';
 
 const mockParser = {
     id: 'babel',

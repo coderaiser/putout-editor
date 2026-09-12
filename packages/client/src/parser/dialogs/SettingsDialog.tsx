@@ -9,10 +9,15 @@ import {
     getParserSettings,
 } from '../../store/selectors.ts';
 import {getParser} from '../store/parserSelectors.ts';
+import type {ParserInfo} from '../parsers/index.ts';
+
+interface ParserWithRenderSettings extends ParserInfo {
+    renderSettings?: (settings: Record<string, unknown>, onChange: (settings: Record<string, unknown>) => void) => React.ReactElement | null;
+}
 
 export default function SettingsDialog() {
     const visible = useSelector(showSettingsDialog);
-    const parser = useSelector(getParser);
+    const parser = useSelector(getParser) as ParserWithRenderSettings | undefined;
     const parserSettings = useSelector(getParserSettings);
     const dispatch = useDispatch();
     
@@ -22,12 +27,12 @@ export default function SettingsDialog() {
         setLocalSettings(parserSettings);
     }, [parserSettings]);
     
-    function handleOuterClick(event) {
+    function handleOuterClick(event: React.MouseEvent<HTMLDivElement>) {
         if (event.target === document.getElementById('SettingsDialog'))
             handleSaveAndClose();
     }
     
-    function handleChange(newSettings) {
+    function handleChange(newSettings: Record<string, unknown>) {
         setLocalSettings(newSettings);
     }
     
@@ -40,7 +45,7 @@ export default function SettingsDialog() {
         setLocalSettings({});
     }
     
-    if (visible && parser.renderSettings)
+    if (visible && parser?.renderSettings)
         return (
             <div id="SettingsDialog" className="dialog" onClick={handleOuterClick}>
                 <div className="inner">
