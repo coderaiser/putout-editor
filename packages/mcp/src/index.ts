@@ -9,7 +9,7 @@ server.registerTool(api.docs.name, {
     inputSchema: api.docs.schema,
 }, api.docs.handler);
 
-// @ts-ignore — TS2589: type instantiation is excessively deep
+// @ts-expect-error — TS2589: type instantiation is excessively deep
 server.registerTool(api.parse.name, {
     description: api.parse.description,
     inputSchema: api.parse.schema,
