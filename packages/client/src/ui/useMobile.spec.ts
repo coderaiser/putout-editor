@@ -26,6 +26,7 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
     let handleChange: (event: {
         matches: boolean;
     }) => void;
+    
     const originalMatchMedia = globalThis.matchMedia;
     
     function mockMatchMedia(query: string): MediaQueryList {
@@ -61,6 +62,7 @@ test('useMobile: handleChange updates isMobile via maxTouchPoints when matches i
     let handleChange: (event: {
         matches: boolean;
     }) => void;
+    
     const originalMatchMedia = globalThis.matchMedia;
     const originalMaxTouchPoints = globalThis.navigator?.maxTouchPoints;
     

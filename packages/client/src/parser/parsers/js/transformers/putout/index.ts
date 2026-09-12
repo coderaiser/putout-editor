@@ -1,13 +1,10 @@
-import path from 'node:path';
 import pkg from 'putout/package.json' with {
     type: 'json',
 };
-import {compileRule} from 'redput/compile-rule';
+import {initPlugin} from './init-plugin.ts';
 
 const ID = 'putout';
 const displayName = '🐊Putout';
-
-const noop = () => {};
 
 export default {
     id: ID,
@@ -49,16 +46,7 @@ export default {
             esprima,
         });
         
-        const plugin = compileRule(transformCode, {
-            require: (name: string) => {
-                if (name === 'path' || name === 'node:path')
-                    return path;
-                
-                return putout;
-            },
-        });
-        
-        plugin.report = plugin.report || noop;
+        const plugin = initPlugin(transformCode);
         
         const {code} = putout(source, {
             parser,
