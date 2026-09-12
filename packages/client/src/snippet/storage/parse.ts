@@ -2,7 +2,7 @@ import api from './api.ts';
 import {
     getTransformerByID,
     getParserByID,
-} from '../../parser/parsers/index.js';
+} from '../../parser/parsers/index.ts';
 import type {Revision as StoreRevision} from '../../store/reducers.ts';
 
 type URLParameters = {
@@ -106,7 +106,7 @@ export class Revision implements StoreRevision {
             return transform;
         
         if (this._data.toolID)
-            return getTransformerByID(this._data.toolID).defaultTransform;
+            return getTransformerByID(this._data.toolID)!.defaultTransform as string;
         
         return '';
     }
@@ -115,7 +115,7 @@ export class Revision implements StoreRevision {
         const transformerID = this.getTransformerID();
         
         if (transformerID)
-            return getTransformerByID(transformerID).defaultParserID;
+            return getTransformerByID(transformerID)!.defaultParserID as string;
         
         return this._data.parserID || '';
     }
@@ -126,7 +126,7 @@ export class Revision implements StoreRevision {
         if (this._data.code)
             return this._data.code;
         
-        return getParserByID(parserID).category.codeExample;
+        return getParserByID(parserID)!.category!.codeExample;
     }
     
     getParserSettings(): any {

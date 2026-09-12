@@ -2,7 +2,7 @@ import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {configureStore} from '@reduxjs/toolkit';
 import {parserListener} from './parserMiddleware.ts';
-import {getParserByID} from '../parsers/index.js';
+import {getParserByID} from '../parsers/index.ts';
 import {
     putoutEditor,
     setCode,
@@ -23,7 +23,9 @@ const getInitState = () => putoutEditor(undefined, {
     type: '@@INIT',
 });
 
-function makeStore(overrides = {}) {
+function makeStore(overrides: {
+    workbench?: Record<string, unknown>;
+} = {}) {
     const state = getInitState();
     
     return configureStore({
@@ -42,9 +44,11 @@ function makeStore(overrides = {}) {
     });
 }
 
-const getParseResult = (store) => store.getState().workbench.parseResult;
+const getParseResult = (store: {
+    getState: () => any;
+}) => store.getState().workbench.parseResult;
 
-const stubBabel = (overrides = {}) => {
+const stubBabel = (overrides: Record<string, any> = {}) => {
     const {
         parse = () => makeMockParseResult(),
         opensByDefault,
@@ -53,7 +57,7 @@ const stubBabel = (overrides = {}) => {
         }),
     } = overrides;
     
-    const babel = getParserByID('babel');
+    const babel = getParserByID('babel')!;
     const originalPromise = babel._promise;
     const originalParse = babel.parse;
     const originalOpens = babel.opensByDefault;
@@ -221,7 +225,7 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
 });
 
 test('parserMiddleware: code change during parse discards stale result', async (t) => {
-    let resolveParse;
+    let resolveParse!: (value: unknown) => void;
     const promise = new Promise((r) => {
         resolveParse = r;
     });
@@ -256,7 +260,7 @@ test('parserMiddleware: code change during parse discards stale result', async (
 });
 
 test('parserMiddleware: parser settings change during parse discards stale result', async (t) => {
-    let resolveParse;
+    let resolveParse!: (value: unknown) => void;
     const promise = new Promise((r) => {
         resolveParse = r;
     });
@@ -289,14 +293,14 @@ test('parserMiddleware: parser settings change during parse discards stale resul
 });
 
 test('parserMiddleware: parse with fresh _promise', async (t) => {
-    const babel = getParserByID('babel');
+    const babel = getParserByID('babel')!;
     const originalPromise = babel._promise;
     const originalParse = babel.parse;
     const originalLoad = babel.loadParser;
     
     babel._promise = undefined;
     babel.parse = () => makeMockParseResult();
-    babel.loadParser = (cb) => cb({
+    babel.loadParser = (cb: (value: unknown) => void) => cb({
         parse: () => makeMockParseResult(),
     });
     
@@ -336,7 +340,7 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
 });
 
 test('parserMiddleware: code change during async discards stale parse', async (t) => {
-    let resolveParse;
+    let resolveParse!: (value: unknown) => void;
     const slowPromise = new Promise((resolve) => {
         resolveParse = resolve;
     });
@@ -385,7 +389,7 @@ test('parserMiddleware: code change during async discards stale parse', async (t
 });
 
 test('parserMiddleware: parser change during async discards stale parse', async (t) => {
-    let resolveParse;
+    let resolveParse!: (value: unknown) => void;
     const slowPromise = new Promise((resolve) => {
         resolveParse = resolve;
     });
@@ -411,7 +415,7 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     // Code stays the same, so the code staleness check would pass.
     
     // Parser is now different, so the parser staleness check should return early.
-    store.dispatch(setParser(getParserByID('espree')));
+    store.dispatch(setParser(getParserByID('espree')!));
     
     // Resolve the first parse — listener will now do the staleness check
     resolveParse({

@@ -5,7 +5,7 @@ import {
     canSave,
 } from './parserSelectors.ts';
 
-const state = (overrides = {}) => ({
+const state = (overrides: Record<string, unknown> = {}): any => ({
     activeRevision: null,
     workbench: {
         parser: 'babel',
@@ -23,12 +23,12 @@ const state = (overrides = {}) => ({
 });
 
 test('parserSelectors: getParser: returns parser by id', (t) => {
-    t.equal(getParser(state()).id, 'babel');
+    t.equal(getParser(state())!.id, 'babel');
     t.end();
 });
 
 test('parserSelectors: getTransformer: returns transformer by id', (t) => {
-    t.equal(getTransformer(state()).id, 'putout');
+    t.equal(getTransformer(state())!.id, 'putout');
     t.end();
 });
 

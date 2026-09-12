@@ -150,7 +150,7 @@ function buildSaveData(state: RootState) {
         versions: {
             [parser.id]: parser.version,
         },
-        filename: `source.${parser.category.fileExtension}`,
+        filename: `source.${parser.category!.fileExtension}`,
         code,
     };
     

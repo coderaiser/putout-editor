@@ -23,7 +23,7 @@ const getInitState = () => putoutEditor(undefined, {
     type: '@@INIT',
 });
 
-function makeStore(overrides = {}, storage = makeStorage()) {
+function makeStore(overrides: {workbench?: Record<string, unknown>} & Record<string, unknown> = {}, storage = makeStorage()) {
     const state = getInitState();
     const listener = createSnippetListener(storage);
     
@@ -67,7 +67,7 @@ test('snippetMiddleware: load while saving passes through without loading', asyn
     });
     await setImmediate();
     await setImmediate();
-    const {loadingSnippet} = store.getState();
+    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
     
     t.notOk(loadingSnippet);
     t.end();
@@ -84,7 +84,7 @@ test('snippetMiddleware: load while forking passes through without loading', asy
     });
     await setImmediate();
     await setImmediate();
-    const {loadingSnippet} = store.getState();
+    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
     
     t.notOk(loadingSnippet);
     t.end();
@@ -158,14 +158,14 @@ test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
     await setImmediate();
     await setImmediate();
     await Promise.resolve();
-    const {loadingSnippet} = store.getState();
+    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
     
     t.notOk(loadingSnippet);
     t.end();
 });
 
 test('snippetMiddleware: stale load request skips resolve', async (t) => {
-    let resolveFirst;
+    let resolveFirst!: (value: unknown) => void;
     const firstPromise = new Promise((r) => {
         resolveFirst = r;
     });
@@ -191,10 +191,10 @@ test('snippetMiddleware: stale load request skips resolve', async (t) => {
     store.dispatch({
         type: 'snippet/load',
     });
-    resolveFirst();
+    resolveFirst(null);
     await setImmediate();
     await setImmediate();
-    const {loadingSnippet} = store.getState();
+    const {loadingSnippet} = store.getState() as {loadingSnippet: boolean};
     
     t.ok(loadingSnippet);
     t.end();
@@ -303,7 +303,7 @@ test('snippetMiddleware: save fork=true calls fork', async (t) => {
 test('snippetMiddleware: save with showTransformPanel adds tool data', async (t) => {
     let savedData = null;
     const storage = makeStorage({
-        update: (_revision, data) => {
+        update: (_revision: unknown, data: unknown) => {
             savedData = data;
             return Promise.resolve({
                 id: 'updated-id',
@@ -330,7 +330,7 @@ test('snippetMiddleware: save with showTransformPanel adds tool data', async (t)
 test('snippetMiddleware: save create with showTransformPanel', async (t) => {
     let createdData = null;
     const storage = makeStorage({
-        create: (data) => {
+        create: (data: unknown) => {
             createdData = data;
             return Promise.resolve({
                 id: 'new-id',

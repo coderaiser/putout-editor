@@ -1,5 +1,5 @@
 import api from './api.ts';
-import {getParserByID} from '../../parser/parsers/index.js';
+import {getParserByID} from '../../parser/parsers/index.ts';
 
 type URLParameters = {
     id: string;
@@ -129,7 +129,7 @@ export async function fork(revision: Revision, data: unknown) {
 export class RevisionClass {
     _gist: GistData;
     _config: GistConfig;
-    _code: string;
+    _code!: string;
     constructor(gist: GistData) {
         this._gist = gist;
         this._config = JSON.parse(gist.files['astexplorer.json'].content);
@@ -194,7 +194,7 @@ function getSource(config: GistConfig, gist: GistData): string | undefined {
         return gist.files['code.js'].content;
     
     if (config.v === 2) {
-        const ext = getParserByID(config.parserID).category.fileExtension;
+        const ext = getParserByID(config.parserID)!.category!.fileExtension;
         return gist.files[`source.${ext}`].content;
     }
 }

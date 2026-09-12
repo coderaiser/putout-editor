@@ -12,7 +12,7 @@ import {
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
 import MobileDropdown from './MobileDropdown.tsx';
-import {getParserByID} from '../parser/parsers/index.js';
+import {getParserByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import * as parserSelectors from '../parser/store/parserSelectors.ts';
 import {logEvent} from '../snippet/logger.ts';
@@ -46,7 +46,7 @@ export default function MobileMenu() {
         applyTheme(theme);
     }, [theme]);
     
-    const parsers = parser.category.parsers.filter((p: any) => p.showInMenu);
+    const parsers = (parser as any).category.parsers.filter((p: any) => p.showInMenu);
     
     const canForkAndNotSave = canFork && !canSave;
     const savingOrForking = saving || forking;
@@ -120,7 +120,7 @@ export default function MobileMenu() {
             {/* ── Parser ───────────────────────────────────── */}
             <MobileDropdown
                 trigger={<><TbCode size={18}/>
-                    {parser.displayName}</>}
+                    {(parser as any).displayName}</>}
             >
                 {parsers.map((p: any) => (
                     <li key={p.id} role="menuitem">
@@ -135,7 +135,7 @@ export default function MobileMenu() {
                 <li role="menuitem">
                     <button
                         type="button"
-                        disabled={!parser.hasSettings()}
+                        disabled={!(parser as any).hasSettings?.()}
                         onClick={onParserSettings}
                     >
                         <TbSettings size={16}/> Settings

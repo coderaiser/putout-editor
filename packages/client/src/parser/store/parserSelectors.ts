@@ -1,10 +1,12 @@
 import {createSelector} from '@reduxjs/toolkit';
 import isEqual from 'lodash.isequal';
+import type {RootState} from '../../store/reducers.ts';
 import {
     getParserByID,
     getTransformerByID,
-} from '../parsers/index.js';
-import type {RootState} from '../../store/reducers.ts';
+    type ParserInfo,
+    type TransformerInfo,
+} from '../parsers/index.ts';
 import {
     getParserSettings,
     getRevision,
@@ -12,11 +14,11 @@ import {
     canSaveTransform,
 } from '../../store/selectors.ts';
 
-export function getParser(state: RootState) {
-    return getParserByID(state.workbench.parser);
+export function getParser(state: RootState): ParserInfo {
+    return getParserByID(state.workbench.parser)!;
 }
 
-export function getTransformer(state: RootState) {
+export function getTransformer(state: RootState): TransformerInfo | undefined {
     return getTransformerByID(state.workbench.transform.transformer);
 }
 

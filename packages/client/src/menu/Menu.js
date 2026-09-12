@@ -6,7 +6,7 @@ import TransformButton from '../editor-transform/TransformButton.js';
 import KeyMapButton from './KeyMapButton.js';
 import ThemeButton from './ThemeButton.js';
 import Funding from './Funding.js';
-import {getTransformerByID} from '../parser/parsers/index.js';
+import {getTransformerByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import * as parserSelectors from '../parser/store/parserSelectors.ts';
 import {logEvent} from '../snippet/logger.ts';

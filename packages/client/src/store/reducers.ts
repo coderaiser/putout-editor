@@ -4,7 +4,8 @@ import {
     getDefaultParser,
     getParserByID,
     getTransformerByID,
-} from '../parser/parsers/index.js';
+    type ParserCategory,
+} from '../parser/parsers/index.ts';
 
 export interface Revision {
     canSave(): boolean;
@@ -59,8 +60,8 @@ export interface State {
 
 const noop = () => {};
 
-const defaultParser = getDefaultParser(getCategoryByID('javascript'));
-const defaultTransformer = getTransformerByID('putout');
+const defaultParser = getDefaultParser(getCategoryByID('javascript')!)!;
+const defaultTransformer = getTransformerByID('putout')!;
 
 const initialState: State = {
     // UI related state
@@ -84,12 +85,12 @@ const initialState: State = {
         parserSettings: null,
         parseError: null,
         parseResult: null,
-        code: defaultParser.category.codeExample,
+        code: defaultParser.category!.codeExample,
         keyMap: 'vim',
-        initialCode: defaultParser.category.codeExample,
+        initialCode: defaultParser.category!.codeExample,
         transform: {
-            code: defaultTransformer.defaultTransform,
-            initialCode: defaultParser.category.codeExample,
+            code: defaultTransformer.defaultTransform!,
+            initialCode: defaultParser.category!.codeExample,
             transformer: defaultTransformer.id,
         },
     },
@@ -276,7 +277,7 @@ const slice = createSlice({
         },
         
         dropText: (state, {payload: {text, categoryId}}) => {
-            const category = getCategoryByID(categoryId);
+            const category = getCategoryByID(categoryId)!;
             
             selectParserFromCategory(state, category);
             state.workbench.code = text;
@@ -286,20 +287,20 @@ const slice = createSlice({
 });
 
 function resetWorkbenchFromParser(state: RootState) {
-    const parser = getParserByID(state.workbench.parser);
+    const parser = getParserByID(state.workbench.parser)!;
     const hadTransformer = state.activeRevision?.getTransformerID();
     
     state.activeRevision = null;
     state.cursor = null;
     state.showTransformPanel = true;
     state.workbench.parserSettings = state.parserSettings[state.workbench.parser] || null;
-    state.workbench.code = parser.category.codeExample;
-    state.workbench.initialCode = parser.category.codeExample;
+    state.workbench.code = parser.category!.codeExample;
+    state.workbench.initialCode = parser.category!.codeExample;
     
     if (hadTransformer || state.workbench.transform.transformer)
         state.workbench.transform = {
-            code: defaultTransformer.defaultTransform,
-            initialCode: defaultParser.category.codeExample,
+            code: defaultTransformer.defaultTransform!,
+            initialCode: defaultParser.category!.codeExample,
             transformer: defaultTransformer.id,
         };
 }
@@ -313,7 +314,7 @@ type Category = {
 };
 
 function selectParserFromCategory(state: RootState, category: Category) {
-    const parserId = state.parserPerCategory[category.id] || getDefaultParser(category).id;
+    const parserId = state.parserPerCategory[category.id] || getDefaultParser(category as ParserCategory)!.id;
     
     state.workbench.parser = parserId;
     state.workbench.parserSettings = state.parserSettings[parserId] || null;
