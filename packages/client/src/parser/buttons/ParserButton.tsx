@@ -58,7 +58,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
                 style={{
                     minWidth: 0,
                 }}
-                disabled={!parser.hasSettings()}
+                disabled={!parser.hasSettings?.()}
                 onClick={onParserSettingsButtonClick}
             >
                 <TbSettings size={18}/>

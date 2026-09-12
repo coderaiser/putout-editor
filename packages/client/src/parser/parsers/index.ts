@@ -31,6 +31,7 @@ export interface ParserInfo {
     defaultTransform?: string;
     category?: ParserCategory;
     showInMenu?: boolean;
+    hasSettings?: () => boolean;
     [option: string]: unknown;
 }
 
