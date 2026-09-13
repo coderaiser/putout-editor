@@ -325,12 +325,6 @@ test('ParserButton: settings button enabled when parser has settings', (t) => {
     t.end();
 });
 
-<<<<<<< HEAD
-test('ParserButton: settings button disabled when parser has no hasSettings method', (t) => {
-    const parserWithoutSettings = {
-        ...mockParser,
-        hasSettings: undefined,
-=======
 test('ParserButton: clicking parser item calls onParserChange with undefined for unknown parser', (t) => {
     let changedParser;
     
@@ -347,7 +341,6 @@ test('ParserButton: clicking parser item calls onParserChange with undefined for
     
     render(
         <ParserButton
-            onParserChange={noop}
             parser={mockParser}
             category={categoryWithUnknownParser}
             onParserChange={(parser) => {
@@ -357,8 +350,9 @@ test('ParserButton: clicking parser item calls onParserChange with undefined for
         />,
     );
     
-    const buttons = document.querySelectorAll('button');
-    const settingsBtn = [...buttons].at(-1);
+    const items = document.querySelectorAll('li');
+    
+    fireEvent.click(items[1]);
     
     cleanup();
     
