@@ -20,8 +20,12 @@ export default defineConfig([
             'react-compiler/react-compiler': 'error',
             'n/no-unsupported-features/node-builtins': 'off',
             'putout/no-unresolved': 'off',
-            // Editor AST tree is mid-way through a partial TypeScript migration,
-            // `@ts-nocheck` marks files not yet fully typed.
+        },
+    }, {
+        // Editor AST tree is mid-way through a partial TypeScript migration,
+        // `@ts-nocheck` marks files not yet fully typed.
+        files: ['**/*.ts', '**/*.tsx'],
+        rules: {
             '@typescript-eslint/ban-ts-comment': ['error', {
                 'ts-nocheck': false,
             }],
