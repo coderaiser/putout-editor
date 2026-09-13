@@ -1,6 +1,6 @@
 import {montag} from 'montag';
 import {test, expect} from './test.ts';
-import {createPutoutEditor} from './putout-editor.ts';
+import {createPutoutEditor, EDITOR_SOURCE, EDITOR_TRANSFORM} from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
     await expect(page.getByTestId('toolbar')).toBeVisible();
