@@ -30,7 +30,7 @@ test('defaultParserInterface: typeProps is Set with type', (t) => {
 });
 
 test('defaultParserInterface: opensByDefault returns false', (t) => {
-    const result = defaultParserInterface.opensByDefault({} as any, '');
+    const result = defaultParserInterface.opensByDefault();
     
     t.notOk(result);
     t.end();

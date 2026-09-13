@@ -7,7 +7,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import Element from './Element.js';
+import Element from './Element.tsx';
 import {treeAdapterFromParseResult} from '../../parser/TreeAdapter.ts';
 import {putoutEditor} from '../../store/reducers.ts';
 
