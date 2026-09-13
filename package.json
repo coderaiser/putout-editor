@@ -8,7 +8,7 @@
   },
   "type": "module",
   "bin": {
-    "putout-editor": "./bin/putout-editor.js"
+    "putout-editor": "bin/putout-editor.js"
   },
   "scripts": {
     "build": "madrun build",
@@ -37,15 +37,11 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
-  "trustedDependencies": [
-    "husky"
-  ],
+  "trustedDependencies": ["husky"],
   "engines": {
     "node": ">=22"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "dependencies": {},
   "publishConfig": {
     "access": "public"

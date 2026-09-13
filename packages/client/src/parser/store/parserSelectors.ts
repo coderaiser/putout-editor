@@ -1,6 +1,6 @@
+import {isDeepStrictEqual} from 'node:util';
 import {createSelector} from '@reduxjs/toolkit';
-import isEqual from 'lodash.isequal';
-import type {RootState} from '../../store/reducers.ts';
+import {RootState} from '#store';
 import {
     getParserByID,
     getTransformerByID,
@@ -32,7 +32,7 @@ const didParserSettingsChange = createSelector([
     return revision
         && (parser.id !== revision.getParserID()
         || savedParserSettings
-        && !isEqual(parserSettings, savedParserSettings));
+        && !isDeepStrictEqual(parserSettings, savedParserSettings));
 });
 
 export const canSave = createSelector([
@@ -46,3 +46,4 @@ export const canSave = createSelector([
     
     return canSaveCodeVal || canSaveTransformVal || didParserSettingsChange;
 });
+

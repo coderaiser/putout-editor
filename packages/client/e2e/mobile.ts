@@ -126,19 +126,24 @@ test('ast tab opens the AST output', async ({page}) => {
 });
 
 test('updating transform editor changes source output', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    
     await page
         .getByRole('tab', {
             name: /transform/i,
         })
         .tap();
     
-    const transform = page
+    await page
         .getByTestId('editor-transform')
-        .locator('.cm-content');
+        .locator('.cm-content')
+        .click();
     
-    await transform.tap();
-    await page.keyboard.press('Control+A');
-    await transform.pressSequentially(`export const replace = () => ({'"use strict"': ''});`);
+    const {write, press} = await editor.get(EDITOR_TRANSFORM);
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write(`export const replace = () => ({'"use strict"': ''});`);
+    await page.waitForTimeout(400);
     
     await page
         .getByRole('tab', {
@@ -154,19 +159,24 @@ test('updating transform editor changes source output', async ({page}) => {
 });
 
 test('updating transform editor changes code output', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    
     await page
         .getByRole('tab', {
             name: /transform/i,
         })
         .tap();
     
-    const transform = page
+    await page
         .getByTestId('editor-transform')
-        .locator('.cm-content');
+        .locator('.cm-content')
+        .click();
     
-    await transform.tap();
-    await page.keyboard.press('Control+A');
-    await transform.pressSequentially(`export const replace = () => ({'"use strict"': ''});`);
+    const {write, press} = await editor.get(EDITOR_TRANSFORM);
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write(`export const replace = () => ({'"use strict": ''});`);
+    await page.waitForTimeout(400);
     
     await page
         .getByRole('tab', {
