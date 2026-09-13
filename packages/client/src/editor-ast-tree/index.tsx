@@ -8,6 +8,7 @@ import {
     getCode,
 } from '#store';
 import {getFocusPath, Editor} from '#editor';
+import {type AstNode} from '../types.ts';
 import visualizations from './visualization.tsx';
 import {Button} from './Button.tsx';
 
@@ -16,7 +17,7 @@ const getName = (a: {
     name?: string;
 }) => a.displayName || a.name || '';
 
-function formatTime(time: number) {
+function formatTime(time: number | null | undefined) {
     if (!time)
         return null;
     
@@ -32,21 +33,21 @@ const clearName = (a: string) => a
 
 export default function EditorASTTree() {
     const parser = useSelector(getParser);
-    const parseResult = useSelector(getParseResult) || {};
+    const parseResult = useSelector(getParseResult);
     const cursor = useSelector(getCursor);
     const code = useSelector(getCode);
     const [selectedOutput, setSelectedOutput] = useState(0);
-    const {ast = null} = parseResult;
+    const ast: AstNode | null = (parseResult?.ast as AstNode) || null;
     const Visualization = visualizations[selectedOutput] as React.ComponentType<any>;
     
     if (!parser)
         throw Error('Parser not found');
     
-    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(parseResult.ast, cursor, parser as any) : [], [ast, cursor, parser]);
+    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(ast, cursor, parser as any) : [], [ast, cursor, parser]);
     
     let output: React.ReactNode;
     
-    if (parseResult.error)
+    if (parseResult?.error)
         output = (
             <div className="container">
                 <Editor
@@ -83,7 +84,7 @@ export default function EditorASTTree() {
             <div className="toolbar">
                 {buttons}
                 <span className="time">
-                    {formatTime(parseResult.time)}
+                    {formatTime(parseResult?.time)}
                 </span>
             </div>
             {output}

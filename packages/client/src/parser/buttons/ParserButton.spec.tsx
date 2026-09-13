@@ -176,7 +176,7 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
 
 test('ParserButton: clicking parser item without data-id passes undefined', (t) => {
     let called = false;
-
+    
     const onParserChange = () => {
         called = true;
     };

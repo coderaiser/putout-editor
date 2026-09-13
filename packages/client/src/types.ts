@@ -32,6 +32,8 @@ export interface AstNode {
 export type ParseResult = {
     ast: AstNode;
     error: Error | null;
+    time?: number;
+    source?: string;
 };
 
 // Parser ID as used in store and URLs — e.g. 'babel', 'acorn', 'espree'

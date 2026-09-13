@@ -19,6 +19,7 @@ async function importEscodegen(): Promise<Escodegen> {
     const escodegen = await import('escodegen') as Escodegen & {
         default?: Escodegen;
     };
+    
     return escodegen.default || escodegen;
 }
 
@@ -188,4 +189,3 @@ export default function PasteDropTarget({children, ...props}: PasteDropTargetPro
         </div>
     );
 }
-

@@ -25,7 +25,6 @@ test('putout-editor: client: parsers: putout: initPlugin: putout', (t) => {
         });
     `);
     
-    // @ts-expect-error replace not typed
     const result = replace()['const __a = 3']();
     
     t.equal(result, 'function');

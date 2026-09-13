@@ -1,4 +1,5 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
+import type {Node} from '@putout/babel';
 import {
     type RootState,
     editorBlur,
@@ -12,7 +13,6 @@ import {
     getTransformCode,
 } from './selectors.ts';
 import {formatInput, formatRule} from '../editor/format.ts';
-import type {Node} from '@putout/babel';
 
 export const formatListener = createListenerMiddleware();
 

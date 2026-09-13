@@ -21,10 +21,10 @@ export default function SettingsDialog() {
     const parserSettings = useSelector(getParserSettings);
     const dispatch = useDispatch();
     
-    const [localSettings, setLocalSettings] = useState<Record<string, unknown>>(parserSettings ?? {});
+    const [localSettings, setLocalSettings] = useState<Record<string, unknown>>(parserSettings || {});
     
     useEffect(() => {
-        setLocalSettings(parserSettings ?? {});
+        setLocalSettings(parserSettings || {});
     }, [parserSettings]);
     
     function handleOuterClick(event: React.MouseEvent<HTMLDivElement>) {

@@ -256,14 +256,23 @@ test('MobileMenu: Parser dropdown lists parsers from category', (t) => {
     const {container, unmount} = renderMenu();
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
     
-    const parserItems = [...container.querySelectorAll('.mobile-dropdown__menu li')]
-        .filter((li) => !li.textContent?.includes('Settings'));
-    const names = parserItems.map((li) => li.textContent?.trim());
+    const parserItems = [...container.querySelectorAll('.mobile-dropdown__menu li')].filter((li) => !li.textContent?.includes('Settings'));
+    
+    const names = [];
+    
+    for (const li of parserItems) {
+        names.push(li.textContent?.trim());
+    }
     
     unmount();
     cleanup();
     
-    t.deepEqual(names, ['babel', 'espree', 'esprima', 'acorn']);
+    t.deepEqual(names, [
+        'babel',
+        'espree',
+        'esprima',
+        'acorn',
+    ]);
     t.end();
 });
 

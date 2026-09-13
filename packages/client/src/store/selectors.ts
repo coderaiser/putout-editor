@@ -22,11 +22,9 @@ export const isForking = (state: RootState) => state.forking;
 
 export const isSaving = (state: RootState) => state.saving;
 
-export const getParserSettings = (state: RootState): ParserSettings =>
-    state.workbench.parserSettings;
+export const getParserSettings = (state: RootState): ParserSettings => state.workbench.parserSettings;
 
-export const getParseResult = (state: RootState): ParseResult =>
-    state.workbench.parseResult;
+export const getParseResult = (state: RootState): ParseResult => state.workbench.parseResult;
 
 // Code related
 export function getRevision(state: RootState) {

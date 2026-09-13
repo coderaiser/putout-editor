@@ -7,6 +7,8 @@ import {
 } from '@testing-library/react';
 import ShareButton from './ShareButton.tsx';
 
+const noop = () => {};
+
 test('ShareButton: no snippet: disabled', (t) => {
     render(
         <ShareButton snippet={null}/>,
@@ -64,11 +66,16 @@ test('ShareButton: click calls onClick handler when provided', (t) => {
     let clicked = false;
     
     render(
-        <ShareButton 
-            onShareButtonClick={() => { clicked = true; }} 
-            snippet={{}}/>,
+        <ShareButton
+            onShareButtonClick={() => {
+                clicked = true;
+            }}
+            snippet={{}}
+        />,
     );
-    screen.getByRole('button').click();
+    screen
+        .getByRole('button')
+        .click();
     
     cleanup();
     
@@ -80,11 +87,16 @@ test('ShareButton: click calls onShare when onShareButtonClick not provided', (t
     let called = false;
     
     render(
-        <ShareButton 
-            onShare={() => { called = true; }} 
-            snippet={{}}/>,
+        <ShareButton
+            onShare={() => {
+                called = true;
+            }}
+            snippet={{}}
+        />,
     );
-    screen.getByRole('button').click();
+    screen
+        .getByRole('button')
+        .click();
     
     cleanup();
     
@@ -94,15 +106,19 @@ test('ShareButton: click calls onShare when onShareButtonClick not provided', (t
 
 test('ShareButton: onShareButtonClick takes precedence over onShare', (t) => {
     let shareButtonClicked = false;
-    let onShareCalled = false;
     
     render(
-        <ShareButton 
-            onShareButtonClick={() => { shareButtonClicked = true; }} 
-            onShare={() => { onShareCalled = true; }} 
-            snippet={{}}/>,
+        <ShareButton
+            onShareButtonClick={() => {
+                shareButtonClicked = true;
+            }}
+            onShare={noop}
+            snippet={{}}
+        />,
     );
-    screen.getByRole('button').click();
+    screen
+        .getByRole('button')
+        .click();
     
     cleanup();
     
