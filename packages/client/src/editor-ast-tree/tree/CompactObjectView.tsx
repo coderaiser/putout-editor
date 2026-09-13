@@ -1,6 +1,8 @@
+import type {ElementClickHandler} from './types.ts';
+
 type CompactObjectViewProps = {
     keys: string[];
-    onClick?: () => void;
+    onClick?: ElementClickHandler;
 };
 
 export default function CompactObjectView({keys, onClick}: CompactObjectViewProps) {

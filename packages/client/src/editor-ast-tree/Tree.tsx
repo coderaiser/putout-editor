@@ -1,18 +1,17 @@
-// @ts-nocheck
 import './css/tree.css';
-import PropTypes from 'prop-types';
 import {useDispatch} from 'react-redux';
 import React from 'react';
 import Element from './tree/Element.tsx';
 import {logEvent} from '../snippet/logger.ts';
 import {treeAdapterFromParseResult} from '../parser/TreeAdapter.ts';
 import {clearHighlight} from '../store/reducers.ts';
+import type {ElementSettings} from './tree/types.ts';
 
 const {useReducer, useMemo} = React;
 
 const STORAGE_KEY = 'tree_settings';
 
-function initSettings() {
+function initSettings(): ElementSettings {
     const storedSettings = globalThis.localStorage.getItem(STORAGE_KEY);
     
     return storedSettings ? JSON.parse(storedSettings) : {
@@ -24,7 +23,10 @@ function initSettings() {
     };
 }
 
-function reducer(state, element) {
+function reducer(state: ElementSettings, element: {
+    name: string;
+    checked: boolean;
+}) {
     const newState = {
         ...state,
         [element.name]: element.checked,
@@ -36,7 +38,10 @@ function reducer(state, element) {
     return newState;
 }
 
-function makeCheckbox(name, settings, updateSettings) {
+function makeCheckbox(name: string, settings: ElementSettings, updateSettings: (element: {
+    name: string;
+    checked: boolean;
+}) => void) {
     return (
         <input
             type="checkbox"
@@ -47,9 +52,20 @@ function makeCheckbox(name, settings, updateSettings) {
     );
 }
 
-export default function Tree({focusPath, parseResult}) {
+type TreeProps = {
+    focusPath: unknown[];
+    parseResult: {
+        ast: unknown;
+        treeAdapter?: {
+            type: string;
+            options: Record<string, unknown>;
+        } | null;
+    };
+};
+
+export default function Tree({focusPath, parseResult}: TreeProps) {
     const [settings, updateSettings] = useReducer(reducer, null, initSettings);
-    const treeAdapter = useMemo(() => treeAdapterFromParseResult(parseResult, settings), [parseResult.treeAdapter, settings]);
+    const treeAdapter = useMemo(() => treeAdapterFromParseResult(parseResult, settings as Record<string, boolean>), [parseResult.treeAdapter, settings]);
     const dispatch = useDispatch();
     
     return (
@@ -65,7 +81,7 @@ export default function Tree({focusPath, parseResult}) {
                     .map((filter) => (
                         <span key={filter.key}>
                             <label>
-                                {makeCheckbox(filter.key, settings, updateSettings)}
+                                {makeCheckbox(filter.key ?? '', settings, updateSettings)}
                                 {filter.label}
                             </label>
                             ​
@@ -74,23 +90,17 @@ export default function Tree({focusPath, parseResult}) {
             </div>
             <ul
                 onMouseLeave={() => {
-                    dispatch(clearHighlight());
+                    dispatch(clearHighlight({}));
                 }}
             >
                 <Element
                     focusPath={focusPath}
                     value={parseResult.ast}
                     level={0}
-                    treeAdapter={treeAdapter}
+                    treeAdapter={treeAdapter as any}
                     settings={settings}
                 />
             </ul>
         </div>
     );
 }
-
-Tree.propTypes = {
-    focusPath: PropTypes.array,
-    parseResult: PropTypes.object,
-    parser: PropTypes.object,
-};

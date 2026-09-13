@@ -22,19 +22,24 @@ export type ElementSettings = {
     hideEmptyKeys?: boolean;
     hideLocationData?: boolean;
     hideTypeKeys?: boolean;
+    [key: string]: boolean | undefined;
 };
+
+export type ElementClickHandler = (event: {
+    shiftKey: boolean;
+}) => void;
 
 export type ElementProps = {
     value: unknown;
-    name: string | null;
+    name?: string | null;
     focusPath: unknown[];
     level: number;
-    open: boolean;
-    deepOpen: boolean;
-    computed: boolean;
+    open?: boolean;
+    deepOpen?: boolean;
+    computed?: boolean;
     treeAdapter: TreeAdapter;
     settings: ElementSettings;
-    parent: unknown;
+    parent?: unknown;
 };
 
 export type ElementState = {

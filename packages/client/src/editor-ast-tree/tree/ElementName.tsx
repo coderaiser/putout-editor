@@ -1,8 +1,10 @@
+import type {ElementClickHandler} from './types.ts';
+
 type ElementNameProps = {
     name?: string | null;
     computed?: boolean;
     showToggler?: boolean;
-    onClick?: () => void;
+    onClick?: ElementClickHandler;
 };
 
 export default function ElementName({name, computed, showToggler, onClick}: ElementNameProps) {

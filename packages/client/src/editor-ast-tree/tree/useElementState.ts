@@ -22,8 +22,8 @@ export default function useElementState(props: ElementProps, treeAdapter: TreeAd
     const openFromFocusPath = isInFocusPath && !isLeafInFocusPath;
     
     const [state, setState] = useState<ElementState>({
-        open: open || !level || deepOpen || openFromFocusPath || Boolean(value && treeAdapter.opensByDefault(value, props.name)),
-        deepOpen,
+        open: open || !level || deepOpen || openFromFocusPath || Boolean(value && treeAdapter.opensByDefault(value, props.name ?? null)),
+        deepOpen: deepOpen ?? false,
         value,
         error: null,
     });
@@ -35,7 +35,7 @@ export default function useElementState(props: ElementProps, treeAdapter: TreeAd
         setState((current) => ({
             ...current,
             open: open || props.deepOpen || current.open,
-            deepOpen: props.deepOpen,
+            deepOpen: props.deepOpen ?? false,
             value: props.value,
         }));
     }

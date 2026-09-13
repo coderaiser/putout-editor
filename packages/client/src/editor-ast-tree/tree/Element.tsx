@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
     useEffect,
     useRef,
@@ -14,12 +13,15 @@ import RecursiveTreeElement from './RecursiveTreeElement.tsx';
 import useElementState from './useElementState.ts';
 import useFocusEffect from './useFocusEffect.ts';
 import useHighlight from './useHighlight.ts';
+import type {ElementProps} from './types.ts';
 
 const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
-let lastClickedElement = null;
+let lastClickedElement: {
+    trigger: () => void;
+} | null = null;
 
-function Element(props) {
+function Element(props: ElementProps) {
     const {
         treeAdapter,
         focusPath,
@@ -27,7 +29,7 @@ function Element(props) {
     } = props;
     
     const dispatch = useDispatch();
-    const container = useRef(null);
+    const container = useRef<HTMLLIElement | null>(null);
     const [, setRenderVersion] = useState(0);
     
     const selfHandle = useRef({
@@ -43,7 +45,9 @@ function Element(props) {
             lastClickedElement = null;
     }, []);
     
-    function toggleClick({shiftKey}) {
+    function toggleClick({shiftKey}: {
+        shiftKey: boolean;
+    }) {
         const open = shiftKey || !state.open;
         
         // Get range for this AST node and dispatch cursor/highlight updates
@@ -57,9 +61,9 @@ function Element(props) {
         const update = () => {
             // Make AST node accessible
             if (open)
-                globalThis.$node = state.value;
+                (globalThis as Record<string, unknown>).$node = state.value;
             else
-                delete globalThis.$node;
+                delete (globalThis as Record<string, unknown>).$node;
             
             setState((current) => ({
                 ...current,
@@ -85,14 +89,17 @@ function Element(props) {
     const {onMouseOver, onMouseLeave} = useHighlight(treeAdapter, state.value);
     
     function execFunction() {
-        const update = {
+        const update: {
+            error?: Error | null;
+            value?: unknown;
+        } = {
             error: null,
         };
         
         try {
-            update.value = state.value.call(props.parent);
+            update.value = (state.value as Function).call(props.parent);
         } catch(err) {
-            update.error = err;
+            update.error = err as Error;
         }
         
         setState((current) => ({
@@ -101,7 +108,7 @@ function Element(props) {
         }));
     }
     
-    function createSubElement(key, value, name, computed) {
+    function createSubElement(key: string, value: unknown, name: string | null | undefined, computed: boolean) {
         return (
             <Element
                 key={key}
@@ -134,8 +141,12 @@ function Element(props) {
     
     const showToggler = !isObject
         ? false
-        : isNumber(value.length)
-            ? value.length > 0
+        : isNumber((value as {
+            length?: number;
+        }).length)
+            ? ((value as {
+                length?: number;
+            }).length ?? 0) > 0
             : children.length > 0;
     
     const showAsSelected = lastClickedElement === selfHandle.current;
@@ -151,8 +162,8 @@ function Element(props) {
         <li
             ref={container}
             className={classNames}
-            onMouseOver={enableHighlight ? onMouseOver : null}
-            onMouseLeave={enableHighlight ? onMouseLeave : null}
+            onMouseOver={enableHighlight ? onMouseOver : undefined}
+            onMouseLeave={enableHighlight ? onMouseLeave : undefined}
         >
             <ElementName
                 name={props.name}

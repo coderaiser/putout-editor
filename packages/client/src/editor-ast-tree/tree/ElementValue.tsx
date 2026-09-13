@@ -2,7 +2,7 @@ import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.tsx';
 import CompactObjectView from './CompactObjectView.tsx';
 import stringify from '../../editor/stringify.ts';
-import type {TreeAdapterChild} from './types.ts';
+import type {TreeAdapterChild, ElementClickHandler} from './types.ts';
 
 const isFn = (a: unknown): a is Function => typeof a === 'function';
 
@@ -15,7 +15,7 @@ type ElementValueProps = {
     nodeName: string | null;
     showAsSelected: boolean;
     children: TreeAdapterChild[];
-    onClick: () => void;
+    onClick?: ElementClickHandler;
     onExecFunction: () => void;
     createSubElement: (key: string, value: unknown, name: string | null | undefined, computed: boolean) => React.ReactNode;
 };

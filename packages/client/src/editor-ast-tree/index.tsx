@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import {codeframe} from 'putout';
@@ -12,9 +11,12 @@ import {getFocusPath, Editor} from '#editor';
 import visualizations from './visualization.tsx';
 import {Button} from './Button.tsx';
 
-const getName = (a) => a.displayName || a.name;
+const getName = (a: {
+    displayName?: string;
+    name?: string;
+}) => a.displayName || a.name || '';
 
-function formatTime(time) {
+function formatTime(time: number) {
     if (!time)
         return null;
     
@@ -24,9 +26,9 @@ function formatTime(time) {
     return `${(time / 1000).toFixed(2)}s`;
 }
 
-const clearName = (a) => a
+const clearName = (a: string) => a
     .split('_')
-    .pop();
+    .pop() || '';
 
 export default function EditorASTTree() {
     const parser = useSelector(getParser);
@@ -35,14 +37,14 @@ export default function EditorASTTree() {
     const code = useSelector(getCode);
     const [selectedOutput, setSelectedOutput] = useState(0);
     const {ast = null} = parseResult;
-    const Visualization = visualizations[selectedOutput];
+    const Visualization = visualizations[selectedOutput] as React.ComponentType<any>;
     
     if (!parser)
         throw Error('Parser not found');
     
-    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(parseResult.ast, cursor, parser) : [], [ast, cursor, parser]);
+    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(parseResult.ast, cursor, parser as any) : [], [ast, cursor, parser]);
     
-    let output;
+    let output: React.ReactNode;
     
     if (parseResult.error)
         output = (

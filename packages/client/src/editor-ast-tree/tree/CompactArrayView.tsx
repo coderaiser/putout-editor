@@ -1,8 +1,10 @@
+import type {ElementClickHandler} from './types.ts';
+
 type CompactArrayViewProps = {
     array: unknown[] | {
         length: number;
     };
-    onClick?: () => void;
+    onClick?: ElementClickHandler;
 };
 
 export default function CompactArrayView({array, onClick}: CompactArrayViewProps) {
