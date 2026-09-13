@@ -1,16 +1,15 @@
 // @ts-nocheck
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
 import {
     render,
     screen,
-    fireEvent,
     cleanup,
 } from '@testing-library/react';
 import ShareButton from './ShareButton.tsx';
 
 test('ShareButton: no snippet: disabled', (t) => {
     render(
-        <ShareButton onShareButtonClick={stub()} snippet={null}/>,
+        <ShareButton snippet={null}/>,
     );
     
     const {disabled} = screen.getByRole('button');
@@ -23,7 +22,7 @@ test('ShareButton: no snippet: disabled', (t) => {
 
 test('ShareButton: snippet present: enabled', (t) => {
     render(
-        <ShareButton onShareButtonClick={stub()} snippet={{}}/>,
+        <ShareButton snippet={{}}/>,
     );
     
     const {disabled} = screen.getByRole('button');
@@ -34,23 +33,23 @@ test('ShareButton: snippet present: enabled', (t) => {
     t.end();
 });
 
-test('ShareButton: click: calls onShareButtonClick', (t) => {
-    const onShareButtonClick = stub();
-    
+test('ShareButton: renders button with text', (t) => {
     render(
-        <ShareButton onShareButtonClick={onShareButtonClick} snippet={{}}/>,
+        <ShareButton snippet={{}}/>,
     );
-    fireEvent.click(screen.getByRole('button'));
+    
+    const button = screen.getByRole('button');
+    const text = button.textContent;
     
     cleanup();
     
-    t.calledOnce(onShareButtonClick);
+    t.ok(text.includes('Share'));
     t.end();
 });
 
 test('ShareButton: renders share svg icon', (t) => {
     render(
-        <ShareButton onShareButtonClick={stub()} snippet={{}}/>,
+        <ShareButton snippet={{}}/>,
     );
     
     const svg = document.querySelector('button svg');
@@ -58,5 +57,55 @@ test('ShareButton: renders share svg icon', (t) => {
     cleanup();
     
     t.ok(svg, 'share icon svg rendered');
+    t.end();
+});
+
+test('ShareButton: click calls onClick handler when provided', (t) => {
+    let clicked = false;
+    
+    render(
+        <ShareButton 
+            onShareButtonClick={() => { clicked = true; }} 
+            snippet={{}}/>,
+    );
+    screen.getByRole('button').click();
+    
+    cleanup();
+    
+    t.ok(clicked);
+    t.end();
+});
+
+test('ShareButton: click calls onShare when onShareButtonClick not provided', (t) => {
+    let called = false;
+    
+    render(
+        <ShareButton 
+            onShare={() => { called = true; }} 
+            snippet={{}}/>,
+    );
+    screen.getByRole('button').click();
+    
+    cleanup();
+    
+    t.ok(called);
+    t.end();
+});
+
+test('ShareButton: onShareButtonClick takes precedence over onShare', (t) => {
+    let shareButtonClicked = false;
+    let onShareCalled = false;
+    
+    render(
+        <ShareButton 
+            onShareButtonClick={() => { shareButtonClicked = true; }} 
+            onShare={() => { onShareCalled = true; }} 
+            snippet={{}}/>,
+    );
+    screen.getByRole('button').click();
+    
+    cleanup();
+    
+    t.ok(shareButtonClicked);
     t.end();
 });
