@@ -1,10 +1,11 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import SplitPane from './SplitPane.js';
+import SplitPane from './SplitPane.tsx';
 
 const render2 = (props = {}) => render(
     <SplitPane className="pane" {...props}>

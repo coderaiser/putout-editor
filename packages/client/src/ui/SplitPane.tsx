@@ -1,28 +1,35 @@
-import {useState, useCallback} from 'react';
+import {useState, useCallback, type ReactNode, type CSSProperties} from 'react';
 
-const baseStyleHorizontal = {
+const baseStyleHorizontal: CSSProperties = {
     position: 'absolute',
     top: 0,
     bottom: 0,
     boxSizing: 'border-box',
 };
 
-const baseStyleVertical = {
+const baseStyleVertical: CSSProperties = {
     position: 'absolute',
     left: 0,
     right: 0,
     boxSizing: 'border-box',
 };
 
-export default function SplitPane({vertical, className, children, onResize}) {
+type SplitPaneProps = {
+    vertical?: boolean;
+    className?: string;
+    children?: ReactNode;
+    onResize?: () => void;
+};
+
+export default function SplitPane({vertical, className, children, onResize}: SplitPaneProps) {
     const [dividerPosition, setDividerPosition] = useState(50);
     
     const onPointerDown = useCallback(() => {
         const max = vertical ? globalThis.innerHeight : globalThis.innerWidth;
-        
+
         globalThis.document.body.style.cursor = vertical ? 'row-resize' : 'col-resize';
-        
-        const moveHandler = (event) => {
+
+        const moveHandler = (event: PointerEvent) => {
             event.preventDefault();
             setDividerPosition((vertical ? event.pageY : event.pageX) / max * 100);
         };
@@ -59,9 +66,9 @@ export default function SplitPane({vertical, className, children, onResize}) {
             </div>
         );
     
-    let styleA;
-    let styleB;
-    let dividerStyle;
+    let styleA: CSSProperties;
+    let styleB: CSSProperties;
+    let dividerStyle: CSSProperties;
     
     if (vertical) {
         styleA = {

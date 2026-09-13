@@ -1,4 +1,4 @@
-export {default as SplitPane} from './SplitPane.js';
-export {default as LoadingIndicator} from './LoadingIndicator.js';
-export {default as ErrorMessage} from './ErrorMessage.js';
+export {default as SplitPane} from './SplitPane.tsx';
+export {default as LoadingIndicator} from './LoadingIndicator.tsx';
+export {default as ErrorMessage} from './ErrorMessage.tsx';
 export {useMobile} from './useMobile.ts';

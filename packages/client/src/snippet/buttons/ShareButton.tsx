@@ -4,9 +4,8 @@ import {TbShare2} from 'react-icons/tb';
 const noop = () => {};
 
 interface ShareButtonProps {
-    onShareButtonClick?: () => void;
-    onShare?: () => void;
-    snippet?: any;
+    onShareButtonClick: () => void;
+    snippet: any;
 }
 
 export default function ShareButton({onShareButtonClick, onShare, snippet}: ShareButtonProps) {
@@ -16,7 +15,7 @@ export default function ShareButton({onShareButtonClick, onShare, snippet}: Shar
         <button
             type="button"
             disabled={!snippet}
-            onClick={onClick}
+            onClick={onShareButtonClick}
         >
             <TbShare2 size={18}/> Share...
         </button>
@@ -24,7 +23,6 @@ export default function ShareButton({onShareButtonClick, onShare, snippet}: Shar
 }
 
 ShareButton.propTypes = {
-    onShareButtonClick: PropTypes.func,
-    onShare: PropTypes.func,
+    onShareButtonClick: PropTypes.func.isRequired,
     snippet: PropTypes.object,
 };

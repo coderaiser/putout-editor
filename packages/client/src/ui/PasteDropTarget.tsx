@@ -2,16 +2,22 @@ import {
     useState,
     useEffect,
     useRef,
+    type ReactNode,
+    type CSSProperties,
 } from 'react';
 import {useDispatch} from 'react-redux';
 import {tryCatch} from 'try-catch';
 import {setError, dropText} from '#store';
 import {categories} from '#parser';
 
+type Escodegen = {
+    generate: (ast: unknown, options?: unknown) => string;
+};
+
 const noop = () => {};
 
-async function importEscodegen() {
-    const escodegen = await import('escodegen');
+async function importEscodegen(): Promise<Escodegen> {
+    const escodegen = await import('escodegen') as Escodegen & {default?: Escodegen};
     return escodegen.default || escodegen;
 }
 
@@ -24,12 +30,12 @@ for (const {id, mimeTypes} of categories)
     for (const mimeType of mimeTypes)
         acceptedFileTypes.set(mimeType, id);
 
-function jsonToCode(json) {
+function jsonToCode(json: string): Promise<string> {
     const [error, parsedAst] = tryCatch(JSON.parse, json);
-    
+
     if (error)
         return Promise.resolve(json);
-    
+
     return importEscodegen().then((escodegen) => escodegen.generate(parsedAst, {
         format: {
             indent: {
@@ -39,90 +45,98 @@ function jsonToCode(json) {
     }));
 }
 
-export default function PasteDropTarget({children, ...props}) {
+type PasteDropTargetProps = {
+    children?: ReactNode;
+} & Record<string, unknown>;
+
+type RemoveListener = () => void;
+
+export default function PasteDropTarget({children, ...props}: PasteDropTargetProps) {
     const dispatch = useDispatch();
     const [dragging, setDragging] = useState(false);
-    const containerRef = useRef(null);
-    
-    function onText(action, code) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    function onText(action: string, code: string) {
         dispatch(dropText({
             text: code,
             categoryId: 'javascript',
         }));
     }
-    
-    function onError(error) {
+
+    function onError(error: unknown) {
         dispatch(setError(error));
     }
-    
-    function handleASTError(exception) {
-        onError(`Cannot process pasted AST: ${exception.message}`);
+
+    function handleASTError(exception: unknown) {
+        onError(`Cannot process pasted AST: ${(exception as Error).message}`);
     }
-    
+
     useEffect(() => {
-        const removeListeners = [];
+        const removeListeners: RemoveListener[] = [];
         const container = containerRef.current;
-        
-        function bindListener(element, eventName, listener, capture) {
+
+        function bindListener(element: Document | HTMLElement, eventName: string, listener: EventListener, capture?: boolean) {
             for (const singleEvent of eventName.split(/\s+/)) {
                 element.addEventListener(singleEvent, listener, capture);
                 removeListeners.push(() => element.removeEventListener(singleEvent, listener, capture));
             }
         }
-        
+
         bindListener(document, 'paste', (event) => {
-            if (!event.clipboardData)
+            const clipboardEvent = event as ClipboardEvent;
+            if (!clipboardEvent.clipboardData)
                 return;
-            
-            const {clipboardData} = event;
-            
-            if (!clipboardData.types.indexOf || !clipboardData.types.indexOf('text/plain') > -1)
+
+            const {clipboardData} = clipboardEvent;
+
+            if (!clipboardData.types.indexOf || !(clipboardData.types.indexOf('text/plain') > -1))
                 return;
-            
-            event.stopPropagation();
-            event.preventDefault();
-            
+
+            clipboardEvent.stopPropagation();
+            clipboardEvent.preventDefault();
+
             jsonToCode(clipboardData.getData('text/plain'))
                 .then((code) => onText('paste', code))
                 .catch(() => {
-                    if (event.target.nodeName !== 'TEXTAREA')
+                    if ((clipboardEvent.target as HTMLElement)?.nodeName !== 'TEXTAREA')
                         handleASTError('paste');
                 });
         }, true);
-        
-        let dragTimer;
-        
-        bindListener(container, 'dragenter', (event) => {
+
+        let dragTimer: ReturnType<typeof setTimeout> | undefined;
+
+        bindListener(container!, 'dragenter', (event) => {
             clearTimeout(dragTimer);
             event.preventDefault();
             setDragging(true);
         }, true);
-        
-        bindListener(container, 'dragover', (event) => {
+
+        bindListener(container!, 'dragover', (event) => {
             clearTimeout(dragTimer);
             event.preventDefault();
-            event.dataTransfer.dropEffect = 'copy';
+            (event as DragEvent).dataTransfer!.dropEffect = 'copy';
         }, true);
-        
-        bindListener(container, 'drop', (event) => {
+
+        bindListener(container!, 'drop', (event) => {
+            const dragEvent = event as DragEvent;
             setDragging(false);
-            
-            const [file] = event.dataTransfer.files;
-            let categoryId = acceptedFileTypes.get(file.type);
-            
+
+            const [file] = dragEvent.dataTransfer!.files;
+            let categoryId: string | undefined = acceptedFileTypes.get(file.type);
+
             if (!categoryId || !onText)
                 return;
-            
-            event.preventDefault();
-            event.stopPropagation();
-            
+
+            dragEvent.preventDefault();
+            dragEvent.stopPropagation();
+
             const reader = new FileReader();
-            
+
             reader.onload = (readerEvent) => {
-                let text = readerEvent.target.result;
-                
+                let text: string | Promise<string | null> | null = (readerEvent.target as FileReader).result as string;
+
                 if (categoryId === 'JSON' || categoryId === 'TEXT')
-                    text = jsonToCode(text)
+                    text = jsonToCode(text as string)
                         .then((code) => {
                             categoryId = 'javascript';
                             return code;
@@ -130,37 +144,37 @@ export default function PasteDropTarget({children, ...props}) {
                         .catch(() => {
                             if (categoryId === 'JSON')
                                 handleASTError('drop');
-                            
+
                             return null;
                         });
-                
+
                 Promise
                     .resolve(text)
                     .then((code) => {
                         if (!code)
                             return;
-                        
+
                         onText('drop', code);
                     })
                     .catch(noop);
             };
-            
+
             reader.readAsText(file);
         }, true);
-        
-        bindListener(container, 'dragleave', () => {
+
+        bindListener(container!, 'dragleave', () => {
             clearTimeout(dragTimer);
             dragTimer = setTimeout(() => setDragging(false), 50);
         }, true);
-        
+
         return () => {
             for (const removeListener of removeListeners)
                 removeListener();
         };
     }, []);
-    
+
     return (
-        <div ref={containerRef} {...props}>
+        <div ref={containerRef} {...props as CSSProperties extends infer _ ? Record<string, unknown> : never}>
             {dragging && (
                 <div className="dropIndicator">
                     <div>Drop the code or (JSON-encoded) AST file here</div>

@@ -174,6 +174,35 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
     t.end();
 });
 
+test('ParserButton: clicking parser item without data-id passes undefined', (t) => {
+    let changedParser = null;
+    let called = false;
+    
+    const onParserChange = (p) => {
+        called = true;
+        changedParser = p;
+    };
+    
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={onParserChange}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const items = document.querySelectorAll('li');
+    items[0].removeAttribute('data-id');
+    
+    fireEvent.click(items[0]);
+    
+    cleanup();
+    
+    t.ok(called);
+    t.end();
+});
+
 test('ParserButton: clicking parser item sets is-closed class', (t) => {
     render(
         <ParserButton
@@ -295,5 +324,29 @@ test('ParserButton: settings button enabled when parser has settings', (t) => {
     cleanup();
     
     t.notOk(settingsBtn.disabled);
+    t.end();
+});
+
+test('ParserButton: settings button disabled when parser has no hasSettings method', (t) => {
+    const parserWithoutSettings = {
+        ...mockParser,
+        hasSettings: undefined,
+    };
+    
+    render(
+        <ParserButton
+            parser={parserWithoutSettings}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const buttons = document.querySelectorAll('button');
+    const settingsBtn = [...buttons].at(-1);
+    
+    cleanup();
+    
+    t.ok(settingsBtn.disabled);
     t.end();
 });

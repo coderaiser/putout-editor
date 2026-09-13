@@ -18,7 +18,9 @@ interface SnippetButtonProps {
     forking: boolean;
     onFork: () => void;
     onSave: () => void;
-    onShare?: () => void;
+    onNew?: () => void;
+    onShareButtonClick: () => void;
+    snippet: any;
 }
 
 export default function SnippetButton(props: SnippetButtonProps) {

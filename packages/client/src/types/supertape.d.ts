@@ -4,6 +4,7 @@ declare module 'supertape' {
 }
 
 declare module '*.css'
+declare module 'escodegen';
 
 declare module 'try-catch'
 

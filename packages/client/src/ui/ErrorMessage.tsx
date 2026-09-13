@@ -4,12 +4,12 @@ import {clearError} from '../store/reducers.ts';
 import {getError} from '../store/selectors.ts';
 
 export default function ErrorMessage() {
-    const error = useSelector(getError);
+    const error: Error | null = useSelector(getError);
     const dispatch = useDispatch();
-    
+
     if (!error)
         return null;
-    
+
     return (
         <div className="cover">
             <div className="errorMessage">
@@ -35,3 +35,4 @@ export default function ErrorMessage() {
         </div>
     );
 }
+

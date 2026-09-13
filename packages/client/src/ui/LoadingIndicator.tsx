@@ -3,8 +3,8 @@ import {TbLoader2} from 'react-icons/tb';
 import {isLoadingSnippet} from '../store/selectors.ts';
 
 export default function LoadingIndicator() {
-    const visible = useSelector(isLoadingSnippet);
-    
+    const visible: boolean = useSelector(isLoadingSnippet);
+
     return visible
         ? <div
             className="loadingIndicator cover"
@@ -15,3 +15,4 @@ export default function LoadingIndicator() {
         </div>
         : null;
 }
+

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {test} from 'supertape';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
@@ -7,7 +8,7 @@ import {
     fireEvent,
     cleanup,
 } from '@testing-library/react';
-import ErrorMessage from './ErrorMessage.js';
+import ErrorMessage from './ErrorMessage.tsx';
 import {putoutEditor, revive} from '../store/reducers.ts';
 
 function renderWithStore(overrides = {}) {

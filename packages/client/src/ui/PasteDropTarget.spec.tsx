@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {
@@ -7,7 +8,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import PasteDropTarget from './PasteDropTarget.js';
+import PasteDropTarget from './PasteDropTarget.tsx';
 import {putoutEditor, revive} from '../store/reducers.ts';
 
 function makeStore(overrides = {}) {
