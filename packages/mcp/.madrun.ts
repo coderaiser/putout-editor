@@ -10,7 +10,7 @@ const testEnv = {
 };
 
 export default {
-    'build': () => 'bun build src/index.ts --outdir dist --target node',
+    'build': () => 'bun build src/index.ts --outdir dist --target node > /dev/null',
     'start': () => 'node dist/index.js',
     'start:ts': () => [testEnv, 'bun src/index.ts'],
     'test': () => [testEnv, 'tape "src/**/*.spec.ts"'],
