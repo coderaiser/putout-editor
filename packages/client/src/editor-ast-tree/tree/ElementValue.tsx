@@ -36,19 +36,21 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
     let suffix: string | null = null;
     
     if (nodeName)
-        valueOutput = (<span className="tokenName nc" onClick={onClick}>
-            {nodeName}{' '}
-            {showAsSelected
-                ? <span
-                    className="ge"
-                    style={{
-                        fontSize: '0.8em',
-                    }}
-                >
-                    {' = $node'}
-                </span>
-                : null}
-        </span>);
+        valueOutput = (
+            <span className="tokenName nc" onClick={onClick}>
+                {nodeName}{' '}
+                {showAsSelected
+                    ? <span
+                        className="ge"
+                        style={{
+                            fontSize: '0.8em',
+                        }}
+                    >
+                        {' = $node'}
+                    </span>
+                    : null}
+            </span>
+        );
     
     if (value && typeof value === 'object') {
         const item = value as {
@@ -70,13 +72,15 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
                 
                 content = <ul className="value-body">{elements}</ul>;
             } else {
-                valueOutput = (<span>
-                    {valueOutput}
-                    <CompactArrayView
-                        array={value as unknown[]}
-                        onClick={onClick}
-                    />
-                </span>);
+                valueOutput = (
+                    <span>
+                        {valueOutput}
+                        <CompactArrayView
+                            array={value as unknown[]}
+                            onClick={onClick}
+                        />
+                    </span>
+                );
             }
         } else if (open) {
             prefix = '{';
@@ -95,22 +99,26 @@ export default function ElementValue({value, open, error, nodeName, showAsSelect
                 keys.push(key);
             }
             
-            valueOutput = (<span>
-                {valueOutput}
-                <CompactObjectView
-                    onClick={onClick}
-                    keys={keys}
-                />
-            </span>);
+            valueOutput = (
+                <span>
+                    {valueOutput}
+                    <CompactObjectView
+                        onClick={onClick}
+                        keys={keys}
+                    />
+                </span>
+            );
         }
     } else if (isFn(value)) {
-        valueOutput = (<span
-            className="ge invokeable"
-            title="Click to invoke function"
-            onClick={onExecFunction}
-        >
-            (...)
-        </span>);
+        valueOutput = (
+            <span
+                className="ge invokeable"
+                title="Click to invoke function"
+                onClick={onExecFunction}
+            >
+                (...)
+            </span>
+        );
     } else {
         valueOutput = <span className="s">{stringify(value)}</span>;
     }

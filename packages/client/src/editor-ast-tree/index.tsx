@@ -45,23 +45,27 @@ export default function EditorASTTree() {
     let output;
     
     if (parseResult.error)
-        output = (<div className="container">
-            <Editor
-                key="error"
-                readOnly={true}
-                lineNumbers={false}
-                mode="javascript"
-                value={codeframe({
-                    source: code,
-                    error: parseResult.error,
-                })}
-            />
-        </div>);
+        output = (
+            <div className="container">
+                <Editor
+                    key="error"
+                    readOnly={true}
+                    lineNumbers={false}
+                    mode="javascript"
+                    value={codeframe({
+                        source: code,
+                        error: parseResult.error,
+                    })}
+                />
+            </div>
+        );
     else if (ast)
-        output = (<Visualization
-            parseResult={parseResult}
-            focusPath={focusPath}
-        />);
+        output = (
+            <Visualization
+                parseResult={parseResult}
+                focusPath={focusPath}
+            />
+        );
     
     const names = visualizations
         .map(getName)
