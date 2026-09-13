@@ -144,4 +144,3 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
         </div>
     );
 }
-

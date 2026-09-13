@@ -45,7 +45,7 @@ export default function EditorASTTree() {
     let output;
     
     if (parseResult.error)
-        output = <div className="container">
+        output = (<div className="container">
             <Editor
                 key="error"
                 readOnly={true}
@@ -56,12 +56,12 @@ export default function EditorASTTree() {
                     error: parseResult.error,
                 })}
             />
-        </div>;
+        </div>);
     else if (ast)
-        output = <Visualization
+        output = (<Visualization
             parseResult={parseResult}
             focusPath={focusPath}
-        />;
+        />);
     
     const names = visualizations
         .map(getName)

@@ -15,7 +15,7 @@ import useElementState from './useElementState.ts';
 import useFocusEffect from './useFocusEffect.ts';
 import useHighlight from './useHighlight.ts';
 
-const isNumber = (a) => !Number.isNaN(a) && typeof a === 'number';
+const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
 let lastClickedElement = null;
 

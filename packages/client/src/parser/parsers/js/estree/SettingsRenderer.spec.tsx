@@ -345,11 +345,11 @@ test('SettingsRenderer: select with default identity converter', (t) => {
     
     const select = document.querySelector('select') as HTMLSelectElement;
     
-    fireEvent.change(select, {
+    fireEvent.change(select, ({
         target: {
             value: 'js',
         },
-    } as unknown as Event);
+    } as unknown) as Event);
     
     cleanup();
     

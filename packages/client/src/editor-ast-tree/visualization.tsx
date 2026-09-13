@@ -6,6 +6,7 @@ type WithName = typeof Tree & {
 };
 
 const TreeWithName = Tree as WithName;
+
 const JsonWithName = EditorASTJson as typeof EditorASTJson & {
     displayName?: string;
 };

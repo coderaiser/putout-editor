@@ -1,6 +1,8 @@
 import {test} from 'supertape';
 import defaultParserInterface from './defaultParserInterface.tsx';
 
+const noop = () => {};
+
 test('defaultParserInterface: showInMenu is true', (t) => {
     t.ok(defaultParserInterface.showInMenu);
     t.end();
@@ -28,7 +30,7 @@ test('defaultParserInterface: typeProps is Set with type', (t) => {
 });
 
 test('defaultParserInterface: opensByDefault returns false', (t) => {
-    const result = defaultParserInterface.opensByDefault({} as any, "");;
+    const result = defaultParserInterface.opensByDefault({} as any, '');
     
     t.notOk(result);
     t.end();
@@ -179,7 +181,7 @@ test('defaultParserInterface: renderSettings returns null when no config', (t) =
         },
     };
     
-    const result = obj.renderSettings(null as any, () => {});
+    const result = obj.renderSettings(null as any, noop);
     
     t.notOk(result);
     t.end();
@@ -200,7 +202,7 @@ test('defaultParserInterface: renderSettings with null settings renders Settings
         },
     };
     
-    const result = obj.renderSettings(null as any, () => {});
+    const result = obj.renderSettings(null as any, noop);
     
     t.ok(result);
     t.end();
@@ -224,8 +226,8 @@ test('defaultParserInterface: renderSettings with provided settings merges with 
     
     const result = obj.renderSettings({
         opt1: true,
-    }, () => {});
-
+    }, noop);
+    
     t.ok(result);
     t.end();
 });

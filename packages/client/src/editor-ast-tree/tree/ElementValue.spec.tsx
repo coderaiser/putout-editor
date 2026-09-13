@@ -5,7 +5,7 @@ import ElementValue from './ElementValue.js';
 
 const noop = () => {};
 
-const isUndefined = (a) => typeof a === 'undefined';
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
 
 const renderSubElement = (key, value, name) => (
     <span key={key} data-el-key={key} data-el-name={name}>{String(value)}</span>

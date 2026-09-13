@@ -24,7 +24,11 @@ export default {
         'end',
     ]),
     
-    loadParser(callback: (value: {acorn: AcornMod; acornLoose: AcornLooseMod; acornJsx: AcornJsxMod}) => void) {
+    loadParser(callback: (value: {
+        acorn: AcornMod;
+        acornLoose: AcornLooseMod;
+        acornJsx: AcornJsxMod;
+    }) => void) {
         Promise
             .all([
                 import('acorn'),
@@ -40,7 +44,11 @@ export default {
             });
     },
     
-    parse(parsers: {acorn: AcornMod; acornLoose: AcornLooseMod; acornJsx: AcornJsxMod}, code: string, options: Record<string, any> = {}) {
+    parse(parsers: {
+        acorn: AcornMod;
+        acornLoose: AcornLooseMod;
+        acornJsx: AcornJsxMod;
+    }, code: string, options: Record<string, any> = {}) {
         let parser: ((code: string, options: Record<string, any>) => any) | undefined;
         
         if (options['plugins.jsx'] && !options.loose) {

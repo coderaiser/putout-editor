@@ -20,9 +20,14 @@ export function createServer(): McpServer {
         name: 'putout-editor',
         version: '1.0.0',
     });
-
-    for (const {name, description, schema, handler} of [docs, parse, findPlaces, transform] as unknown as ToolDef[])
+    
+    for (const {name, description, schema, handler} of [
+        docs,
+        parse,
+        findPlaces,
+        transform,
+    ] as unknown as ToolDef[])
         server.registerTool(name, {description, inputSchema: schema}, handler);
-
+    
     return server;
 }

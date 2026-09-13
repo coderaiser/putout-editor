@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import {TbShare2} from 'react-icons/tb';
 
+const noop = () => {};
+
 interface ShareButtonProps {
     onShareButtonClick?: () => void;
     onShare?: () => void;
@@ -8,7 +10,8 @@ interface ShareButtonProps {
 }
 
 export default function ShareButton({onShareButtonClick, onShare, snippet}: ShareButtonProps) {
-    const onClick = onShareButtonClick || onShare || (() => {});
+    const onClick = onShareButtonClick || onShare || noop;
+    
     return (
         <button
             type="button"

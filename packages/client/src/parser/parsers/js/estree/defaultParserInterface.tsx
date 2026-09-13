@@ -51,7 +51,7 @@ export default {
    */
     typeProps: new Set(['type']), /**
    * Whether or not the provided node should be automatically expanded.
-   */opensByDefault(node: any, key: string) {
+   */opensByDefault() {
         return false;
     },
     

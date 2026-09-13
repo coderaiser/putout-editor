@@ -127,7 +127,9 @@ test('ast tab opens the AST output', async ({page}) => {
 
 test('updating transform editor changes source output', async ({page}) => {
     await page
-        .getByRole('tab', {name: /transform/i})
+        .getByRole('tab', {
+            name: /transform/i,
+        })
         .tap();
     
     const transform = page
@@ -136,10 +138,12 @@ test('updating transform editor changes source output', async ({page}) => {
     
     await transform.tap();
     await page.keyboard.press('Control+A');
-    await transform.pressSequentially("export const replace = () => ({'\"use strict\"': ''});");
+    await transform.pressSequentially(`export const replace = () => ({'"use strict"': ''});`);
     
     await page
-        .getByRole('tab', {name: /source/i})
+        .getByRole('tab', {
+            name: /source/i,
+        })
         .tap();
     
     const source = page
@@ -151,7 +155,9 @@ test('updating transform editor changes source output', async ({page}) => {
 
 test('updating transform editor changes code output', async ({page}) => {
     await page
-        .getByRole('tab', {name: /transform/i})
+        .getByRole('tab', {
+            name: /transform/i,
+        })
         .tap();
     
     const transform = page
@@ -160,10 +166,12 @@ test('updating transform editor changes code output', async ({page}) => {
     
     await transform.tap();
     await page.keyboard.press('Control+A');
-    await transform.pressSequentially("export const replace = () => ({'\"use strict\"': ''});");
+    await transform.pressSequentially(`export const replace = () => ({'"use strict"': ''});`);
     
     await page
-        .getByRole('tab', {name: /code/i})
+        .getByRole('tab', {
+            name: /code/i,
+        })
         .tap();
     
     const output = page.getByTestId('editor-transform-output');

@@ -29,24 +29,14 @@ function renderError(error: Error) {
     );
 }
 
-export default function ElementValue({
-    value,
-    open,
-    error,
-    nodeName,
-    showAsSelected,
-    children,
-    onClick,
-    onExecFunction,
-    createSubElement,
-}: ElementValueProps) {
-    let valueOutput: React.ReactNode = null;
-    let content: React.ReactNode = null;
+export default function ElementValue({value, open, error, nodeName, showAsSelected, children, onClick, onExecFunction, createSubElement}: ElementValueProps) {
+    let valueOutput = null;
+    let content = null;
     let prefix: string | null = null;
     let suffix: string | null = null;
     
     if (nodeName)
-        valueOutput = <span className="tokenName nc" onClick={onClick}>
+        valueOutput = (<span className="tokenName nc" onClick={onClick}>
             {nodeName}{' '}
             {showAsSelected
                 ? <span
@@ -58,7 +48,7 @@ export default function ElementValue({
                     {' = $node'}
                 </span>
                 : null}
-        </span>;
+        </span>);
     
     if (value && typeof value === 'object') {
         const item = value as {
@@ -80,13 +70,13 @@ export default function ElementValue({
                 
                 content = <ul className="value-body">{elements}</ul>;
             } else {
-                valueOutput = <span>
+                valueOutput = (<span>
                     {valueOutput}
                     <CompactArrayView
                         array={value as unknown[]}
                         onClick={onClick}
                     />
-                </span>;
+                </span>);
             }
         } else if (open) {
             prefix = '{';
@@ -105,24 +95,25 @@ export default function ElementValue({
                 keys.push(key);
             }
             
-            valueOutput = <span>
+            valueOutput = (<span>
                 {valueOutput}
                 <CompactObjectView
                     onClick={onClick}
                     keys={keys}
                 />
-            </span>;
+            </span>);
         }
-    } else if (isFn(value))
-        valueOutput = <span
+    } else if (isFn(value)) {
+        valueOutput = (<span
             className="ge invokeable"
             title="Click to invoke function"
             onClick={onExecFunction}
         >
             (...)
-        </span>;
-    else
+        </span>);
+    } else {
         valueOutput = <span className="s">{stringify(value)}</span>;
+    }
     
     return (
         <>

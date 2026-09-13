@@ -2,8 +2,8 @@ import {
     useEffect,
     useRef,
     useState,
+    type ComponentType,
 } from 'react';
-import type {ComponentType} from 'react';
 import type {ElementSettings} from './types.ts';
 
 type AutoFocusProps = {

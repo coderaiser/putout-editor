@@ -1,6 +1,10 @@
 import {montag} from 'montag';
 import {test, expect} from './test.ts';
-import {createPutoutEditor, EDITOR_SOURCE, EDITOR_TRANSFORM} from './putout-editor.ts';
+import {
+    createPutoutEditor,
+    EDITOR_SOURCE,
+    EDITOR_TRANSFORM,
+} from './putout-editor.ts';
 
 test('renders the editor application', async ({page}) => {
     await expect(page.getByTestId('toolbar')).toBeVisible();
@@ -241,8 +245,12 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
 test('Tab key indents in editor-source', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
-    const {write, press, read} = await editor.get(EDITOR_SOURCE);
-
+    const {
+        write,
+        press,
+        read,
+    } = await editor.get(EDITOR_SOURCE);
+    
     await press('i');
     await press('ControlOrMeta+A');
     await write('const x = 1;');
@@ -250,22 +258,26 @@ test('Tab key indents in editor-source', async ({page}) => {
     await page.keyboard.press('Tab');
     await write('const y = 2;');
     await press('Escape');
-
+    
     expect(await read()).toContain('    const y = 2;');
 });
 
 test('Tab key indents in editor-transform', async ({page}) => {
     const editor = createPutoutEditor(page);
     await editor.goto();
-    const {write, press, read} = await editor.get(EDITOR_TRANSFORM);
-
+    const {
+        write,
+        press,
+        read,
+    } = await editor.get(EDITOR_TRANSFORM);
+    
     await press('i');
     await press('ControlOrMeta+A');
     await write('export const replace = () => ({');
     await press('Enter');
     await page.keyboard.press('Tab');
-    await write("'__a': '__b',");
+    await write(`'__a': '__b',`);
     await press('Escape');
-
-    expect(await read()).toContain("    '__a': '__b',");
+    
+    expect(await read()).toContain(`    '__a': '__b',`);
 });

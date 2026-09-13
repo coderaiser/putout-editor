@@ -52,8 +52,8 @@ function GistBanner({revision}: GistBannerProps) {
             This snippet is <strong>read-only</strong>. You can still save changes
             by forking it.
             <button style={buttonStyle} onClick={() => setVisible(false)}>
-                <TbX size={14}/>
-            </button>
+            <TbX size={14}/>
+        </button>
         </div>
     );
 }

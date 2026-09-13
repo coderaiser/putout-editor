@@ -69,5 +69,7 @@ export default function ShareDialog() {
     if (!visible)
         return null;
     
-    return <ShareDialogInner snippet={snippet}/>;
+    return (
+        <ShareDialogInner snippet={snippet}/>
+    );
 }
