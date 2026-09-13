@@ -46,7 +46,7 @@ export default function MobileMenu() {
         applyTheme(theme);
     }, [theme]);
     
-    const parsers = (parser as any).category.parsers.filter((p: any) => p.showInMenu);
+    const parsers = parser.category.parsers.filter((p) => p.showInMenu);
     
     const canForkAndNotSave = canFork && !canSave;
     const savingOrForking = saving || forking;
@@ -120,9 +120,9 @@ export default function MobileMenu() {
             {/* ── Parser ───────────────────────────────────── */}
             <MobileDropdown
                 trigger={<><TbCode size={18}/>
-                    {(parser as any).displayName}</>}
+                    {parser.displayName}</>}
             >
-                {parsers.map((p: any) => (
+                {parsers.map((p) => (
                     <li key={p.id} role="menuitem">
                         <button
                             type="button"
@@ -135,7 +135,7 @@ export default function MobileMenu() {
                 <li role="menuitem">
                     <button
                         type="button"
-                        disabled={!(parser as any).hasSettings?.()}
+                        disabled={!parser.hasSettings?.()}
                         onClick={onParserSettings}
                     >
                         <TbSettings size={16}/> Settings

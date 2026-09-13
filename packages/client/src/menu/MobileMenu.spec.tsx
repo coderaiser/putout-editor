@@ -252,6 +252,35 @@ test('MobileMenu: Parser dropdown closes after item click', (t) => {
     t.end();
 });
 
+test('MobileMenu: Parser dropdown lists parsers from category', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
+    
+    const parserItems = [...container.querySelectorAll('.mobile-dropdown__menu li')]
+        .filter((li) => !li.textContent?.includes('Settings'));
+    const names = parserItems.map((li) => li.textContent?.trim());
+    
+    unmount();
+    cleanup();
+    
+    t.deepEqual(names, ['babel', 'espree', 'esprima', 'acorn']);
+    t.end();
+});
+
+test('MobileMenu: parser Settings button enabled when hasSettings returns true', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
+    
+    const buttons = [...container.querySelectorAll('.mobile-dropdown__menu button')];
+    const settingsBtn = buttons.find((b) => b.textContent?.includes('Settings'));
+    
+    unmount();
+    cleanup();
+    
+    t.notOk((settingsBtn as HTMLButtonElement | undefined)?.disabled);
+    t.end();
+});
+
 test('MobileMenu: Snippet New clears location hash', (t) => {
     globalThis.location.hash = '#/gist/abc';
     const {container, unmount} = renderMenu();
