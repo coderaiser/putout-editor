@@ -55,11 +55,12 @@ test('StorageHandler: fetchFromURL: rejects for unknown URL format', async (t) =
     const handler = new StorageHandler([]);
     
     globalThis.location.hash = '#/unknown/format';
-    const [error] = await tryToCatch(() => handler.fetchFromURL());
+    const fetchFromURL = handler.fetchFromURL.bind(handler);
+    const [error] = await tryToCatch(fetchFromURL);
     
     globalThis.location.hash = originalHash;
     
-    t.equal(error.message, 'Unknown URL format.');
+    t.equal(error!.message, 'Unknown URL format.');
     t.end();
 });
 

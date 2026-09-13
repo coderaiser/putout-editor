@@ -43,21 +43,21 @@ test('operations: parseCode: returns result object on valid input', async (t) =>
 test('operations: parseCode: result contains ast', async (t) => {
     const [, result] = await tryToCatch(parseCode, makeMockParser(), 'const x = 1', null);
     
-    t.ok(result.ast);
+    t.ok(result!.ast);
     t.end();
 });
 
 test('operations: parseCode: result contains treeAdapter', async (t) => {
     const [, result] = await tryToCatch(parseCode, makeMockParser(), 'const x = 1', null);
     
-    t.ok(result.treeAdapter);
+    t.ok(result!.treeAdapter);
     t.end();
 });
 
 test('operations: parseCode: treeAdapter type is default', async (t) => {
     const [, result] = await tryToCatch(parseCode, makeMockParser(), 'const x = 1', null);
     
-    t.equal(result.treeAdapter.type, 'default');
+    t.equal(result!.treeAdapter.type, 'default');
     t.end();
 });
 
@@ -83,7 +83,7 @@ test('operations: parseCode: error message matches parser error', async (t) => {
     
     const [error] = await tryToCatch(parseCode, parser, '!!!', null);
     
-    t.equal(error.message, 'unexpected token');
+    t.equal(error!.message, 'unexpected token');
     t.end();
 });
 
