@@ -45,9 +45,7 @@ function Element(props: ElementProps) {
             lastClickedElement = null;
     }, []);
     
-    function toggleClick({shiftKey}: {
-        shiftKey: boolean;
-    }) {
+    function toggleClick({shiftKey}: {shiftKey: boolean;}) {
         const open = shiftKey || !state.open;
         
         // Get range for this AST node and dispatch cursor/highlight updates
@@ -144,9 +142,9 @@ function Element(props: ElementProps) {
         : isNumber((value as {
             length?: number;
         }).length)
-            ? ((value as {
+            ? (value as {
                 length?: number;
-            }).length ?? 0) > 0
+            }).length || 0 > 0
             : children.length > 0;
     
     const showAsSelected = lastClickedElement === selfHandle.current;

@@ -81,7 +81,7 @@ export default function Tree({focusPath, parseResult}: TreeProps) {
                     .map((filter) => (
                         <span key={filter.key}>
                             <label>
-                                {makeCheckbox(filter.key ?? '', settings, updateSettings)}
+                                {makeCheckbox(filter.key || '', settings, updateSettings)}
                                 {filter.label}
                             </label>
                             ​

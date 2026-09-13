@@ -2,7 +2,10 @@ import {TbAlertTriangle} from 'react-icons/tb';
 import CompactArrayView from './CompactArrayView.tsx';
 import CompactObjectView from './CompactObjectView.tsx';
 import stringify from '../../editor/stringify.ts';
-import type {TreeAdapterChild, ElementClickHandler} from './types.ts';
+import type {
+    TreeAdapterChild,
+    ElementClickHandler,
+} from './types.ts';
 
 const isFn = (a: unknown): a is Function => typeof a === 'function';
 
