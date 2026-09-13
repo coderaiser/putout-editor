@@ -19,7 +19,7 @@ export default {
     ]),
     
     loadParser(callback: (value: any) => void) {
-        import('esprima').then((mod) => callback(mod.default || mod));
+        import('@putout/engine-parser/esprima').then((mod) => callback(mod.default || mod));
     },
     
     parse(esprima: any, code: string, options: any) {
