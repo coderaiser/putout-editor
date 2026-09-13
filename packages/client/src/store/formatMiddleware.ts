@@ -12,6 +12,7 @@ import {
     getTransformCode,
 } from './selectors.ts';
 import {formatInput, formatRule} from '../editor/format.ts';
+import type {Node} from '@putout/babel';
 
 export const formatListener = createListenerMiddleware();
 
@@ -21,10 +22,10 @@ startAppListening({
     actionCreator: editorBlur,
     effect: async (_, api) => {
         const state = api.getState();
-        const {ast} = getParseResult(state);
+        const ast = getParseResult(state)?.ast;
         const source = getCode(state);
         
-        const [error, formatted] = await formatInput(source, ast);
+        const [error, formatted] = await formatInput(source, ast as Node);
         
         if (error)
             return;

@@ -386,7 +386,7 @@ test('parserMiddleware: code change during async discards stale parse', async (t
     // The stale result from the first parse must not have been dispatched.
     
     // A second parse fires for the new code — its result has no .stale property.
-    t.notOk(store.getState().workbench.parseResult?.stale);
+    t.notOk((store.getState().workbench.parseResult as {stale?: unknown} | null)?.stale);
     t.end();
 });
 
@@ -432,6 +432,6 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     // The stale result from the first parse must not have been dispatched.
     
     // A second parse fires for the new parser — its result has no .stale property.
-    t.notOk(store.getState().workbench.parseResult?.stale);
+    t.notOk((store.getState().workbench.parseResult as {stale?: unknown} | null)?.stale);
     t.end();
 });

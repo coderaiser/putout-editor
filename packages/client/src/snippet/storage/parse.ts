@@ -3,7 +3,10 @@ import {
     getTransformerByID,
     getParserByID,
 } from '../../parser/parsers/index.ts';
-import type {Revision as StoreRevision} from '../../store/reducers.ts';
+import type {
+    ParserSettings,
+    Revision as StoreRevision,
+} from '../../store/reducers.ts';
 
 type URLParameters = {
     id: string;
@@ -129,7 +132,7 @@ export class Revision implements StoreRevision {
         return getParserByID(parserID)!.category!.codeExample;
     }
     
-    getParserSettings(): any {
+    getParserSettings(): ParserSettings {
         const {settings} = this._data;
         
         if (!settings)

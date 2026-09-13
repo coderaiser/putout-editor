@@ -1,5 +1,9 @@
 import {createSelector} from '@reduxjs/toolkit';
-import type {RootState} from './reducers.ts';
+import type {
+    ParserSettings,
+    ParseResult,
+    RootState,
+} from './reducers.ts';
 
 // UI related
 export const getCursor = (state: RootState) => state.cursor;
@@ -18,9 +22,11 @@ export const isForking = (state: RootState) => state.forking;
 
 export const isSaving = (state: RootState) => state.saving;
 
-export const getParserSettings = (state: RootState) => state.workbench.parserSettings;
+export const getParserSettings = (state: RootState): ParserSettings =>
+    state.workbench.parserSettings;
 
-export const getParseResult = (state: RootState) => state.workbench.parseResult;
+export const getParseResult = (state: RootState): ParseResult =>
+    state.workbench.parseResult;
 
 // Code related
 export function getRevision(state: RootState) {

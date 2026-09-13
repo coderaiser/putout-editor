@@ -1,4 +1,5 @@
 import {createSlice, type configureStore} from '@reduxjs/toolkit';
+import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
 import {
     getCategoryByID,
     getDefaultParser,
@@ -6,6 +7,34 @@ import {
     getTransformerByID,
     type ParserCategory,
 } from '../parser/parsers/index.ts';
+
+/**
+ * Result of parsing the current code with the active parser.
+ * `null` is the initial state before anything has been parsed.
+ *
+ * On success: `{ast, treeAdapter, time, source, error: null}`.
+ * On failure: `{ast: null, treeAdapter: null, time: null, source: null, error}`.
+ *
+ * `ast` stays `unknown` — the AST shape depends on the active parser
+ * (Babel, Acorn, Esprima all differ). Consumers narrow it explicitly.
+ *
+ * `treeAdapter` is the raw parse-result config `{type, options}`, not a
+ * `TreeAdapter` instance — the instance is built later by
+ * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
+ */
+export type ParseResult = {
+    ast: unknown;
+    treeAdapter: NonNullable<TreeAdapterParseResult['treeAdapter']> | null;
+    time: number | null;
+    source: string | null;
+    error: Error | null;
+} | null;
+
+/**
+ * Parser-specific config object (babel options, acorn options, ...).
+ * There is no shared schema across parsers — `null` is the "no settings" state.
+ */
+export type ParserSettings = Record<string, unknown> | null;
 
 export interface Revision {
     canSave(): boolean;
@@ -15,7 +44,7 @@ export interface Revision {
     getTransformCode(): string;
     getParserID(): string;
     getCode(): string;
-    getParserSettings(): any;
+    getParserSettings(): ParserSettings;
     getPath(): string;
     getShareData(): {
         versionedURL: string;
@@ -32,9 +61,9 @@ export interface TransformState {
 
 export interface WorkbenchState {
     parser: string;
-    parserSettings: any;
-    parseError: any;
-    parseResult: any;
+    parserSettings: ParserSettings;
+    parseError: Error | null;
+    parseResult: ParseResult;
     code: string;
     keyMap: string;
     initialCode: string;
@@ -51,9 +80,9 @@ export interface State {
     error: Error | null;
     highlightRange: number[] | null;
     showTransformPanel: boolean;
-    selectedRevision: any;
+    selectedRevision: null;
     activeRevision: Revision | null;
-    parserSettings: Record<string, any>;
+    parserSettings: Record<string, ParserSettings>;
     parserPerCategory: Record<string, string>;
     workbench: WorkbenchState;
 }
