@@ -1,4 +1,9 @@
-import {useState, useCallback, type ReactNode, type CSSProperties} from 'react';
+import {
+    useState,
+    useCallback,
+    type ReactNode,
+    type CSSProperties,
+} from 'react';
 
 const baseStyleHorizontal: CSSProperties = {
     position: 'absolute',
@@ -26,9 +31,9 @@ export default function SplitPane({vertical, className, children, onResize}: Spl
     
     const onPointerDown = useCallback(() => {
         const max = vertical ? globalThis.innerHeight : globalThis.innerWidth;
-
+        
         globalThis.document.body.style.cursor = vertical ? 'row-resize' : 'col-resize';
-
+        
         const moveHandler = (event: PointerEvent) => {
             event.preventDefault();
             setDividerPosition((vertical ? event.pageY : event.pageX) / max * 100);

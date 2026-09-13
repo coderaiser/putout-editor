@@ -175,12 +175,10 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
 });
 
 test('ParserButton: clicking parser item without data-id passes undefined', (t) => {
-    let changedParser = null;
     let called = false;
-    
-    const onParserChange = (p) => {
+
+    const onParserChange = () => {
         called = true;
-        changedParser = p;
     };
     
     render(

@@ -4,7 +4,7 @@ import {isLoadingSnippet} from '../store/selectors.ts';
 
 export default function LoadingIndicator() {
     const visible: boolean = useSelector(isLoadingSnippet);
-
+    
     return visible
         ? <div
             className="loadingIndicator cover"

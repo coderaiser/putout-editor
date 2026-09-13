@@ -142,9 +142,9 @@ function Element(props: ElementProps) {
         : isNumber((value as {
             length?: number;
         }).length)
-            ? (value as {
+            ? Boolean((value as {
                 length?: number;
-            }).length || 0 > 0
+            }).length)
             : children.length > 0;
     
     const showAsSelected = lastClickedElement === selfHandle.current;
@@ -187,3 +187,4 @@ function Element(props: ElementProps) {
 Element.displayName = 'Element';
 
 export default RecursiveTreeElement(Element);
+
