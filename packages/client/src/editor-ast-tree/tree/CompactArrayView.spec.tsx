@@ -5,7 +5,7 @@ import {
     fireEvent,
     cleanup,
 } from '@testing-library/react';
-import CompactArrayView from './CompactArrayView.js';
+import CompactArrayView from './CompactArrayView.tsx';
 
 test('CompactArrayView: empty array renders empty brackets', (t) => {
     render(
