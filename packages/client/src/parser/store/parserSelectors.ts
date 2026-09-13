@@ -4,7 +4,7 @@ import type {RootState} from '../../store/reducers.ts';
 import {
     getParserByID,
     getTransformerByID,
-    type ParserInfo,
+    type ParserInfoWithCategory,
     type TransformerInfo,
 } from '../parsers/index.ts';
 import {
@@ -14,8 +14,8 @@ import {
     canSaveTransform,
 } from '../../store/selectors.ts';
 
-export function getParser(state: RootState): ParserInfo {
-    return getParserByID(state.workbench.parser)!;
+export function getParser(state: RootState): ParserInfoWithCategory {
+    return getParserByID(state.workbench.parser)! as ParserInfoWithCategory;
 }
 
 export function getTransformer(state: RootState): TransformerInfo | undefined {

@@ -18,6 +18,7 @@ export interface ParserCategory {
     mimeTypes: string[];
     fileExtension: string;
     codeExample: string;
+    editorMode?: string;
     parsers: ParserInfo[];
     transformers?: TransformerInfo[];
 }
@@ -34,6 +35,14 @@ export interface ParserInfo {
     hasSettings?: () => boolean;
     [option: string]: unknown;
 }
+
+/**
+ * A parser that has been through the category assignment loop in `parsers/index.ts`.
+ * Every parser is guaranteed to have a `category`, so we can require it.
+ */
+export type ParserInfoWithCategory = ParserInfo & {
+    category: ParserCategory;
+};
 
 export interface TransformerInfo {
     id: string;
