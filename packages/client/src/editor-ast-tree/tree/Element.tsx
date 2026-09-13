@@ -7,7 +7,7 @@ import {
 import {useDispatch} from 'react-redux';
 import cx from 'classnames';
 import {setCursor, setHighlight} from '#store';
-import ElementName from './ElementName.js';
+import ElementName from './ElementName.tsx';
 import ElementValue from './ElementValue.tsx';
 import isFocused from './isFocused.ts';
 import RecursiveTreeElement from './RecursiveTreeElement.tsx';
