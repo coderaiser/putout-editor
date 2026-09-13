@@ -1,5 +1,6 @@
 import {useDispatch} from 'react-redux';
 import {tryCatch} from 'try-catch';
+import {print} from '@putout/engine-parser';
 import {
     useState,
     useEffect,
@@ -9,19 +10,7 @@ import {
 import {setError, dropText} from '#store';
 import {categories} from '#parser';
 
-type Escodegen = {
-    generate: (ast: unknown, options?: unknown) => string;
-};
-
 const noop = () => {};
-
-async function importEscodegen(): Promise<Escodegen> {
-    const escodegen = await import('escodegen') as Escodegen & {
-        default?: Escodegen;
-    };
-    
-    return escodegen.default || escodegen;
-}
 
 const acceptedFileTypes = new Map([
     ['application/json', 'JSON'],
@@ -38,13 +27,7 @@ function jsonToCode(json: string): Promise<string> {
     if (error)
         return Promise.resolve(json);
     
-    return importEscodegen().then((escodegen) => escodegen.generate(parsedAst, {
-        format: {
-            indent: {
-                style: '    ',
-            },
-        },
-    }));
+    return Promise.resolve(print(parsedAst));
 }
 
 type PasteDropTargetProps = {
