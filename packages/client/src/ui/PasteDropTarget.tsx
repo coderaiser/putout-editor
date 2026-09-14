@@ -22,12 +22,17 @@ for (const {id, mimeTypes} of categories)
         acceptedFileTypes.set(mimeType, id);
 
 function jsonToCode(json: string): Promise<string> {
-    const [error, parsedAst] = tryCatch(JSON.parse, json);
+    const [parseError, parsedAst] = tryCatch(JSON.parse, json);
     
-    if (error)
+    if (parseError)
         return Promise.resolve(json);
     
-    return Promise.resolve(print(parsedAst));
+    const [printError, code] = tryCatch(print, parsedAst);
+    
+    if (printError)
+        return Promise.reject(printError);
+    
+    return Promise.resolve(code);
 }
 
 type PasteDropTargetProps = {
