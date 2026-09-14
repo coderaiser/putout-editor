@@ -1,4 +1,2 @@
-import {setupServer} from 'msw/node';
-import {handlers} from './handlers/index.ts';
-
-export const server = setupServer(...handlers);
+// Re-export from setup.ts which handles happy-dom fetch patching
+export {server} from '../setup.ts';

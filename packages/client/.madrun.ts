@@ -1,15 +1,12 @@
 import {run} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
-const testEnv = {
-    ...defineEnv({
-        dom: true,
-        css: true,
-        ts: true,
-        jsx: true,
-    }),
-    API_HOST: 'http://localhost',
-};
+const testEnv = defineEnv({
+    dom: true,
+    css: true,
+    ts: true,
+    jsx: true,
+});
 
 const env = {
     NODE_OPTIONS: '--max_old_space_size=5048',
