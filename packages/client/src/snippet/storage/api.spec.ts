@@ -9,7 +9,10 @@ test('api: calls fetch with correct path and default options', async (t) => {
     await api('/gist');
     globalThis.fetch = originalFetch;
     
-    t.calledWith(fetch, ['http://localhost/api/v1/gist', undefined]);
+    t.calledWith(fetch, [
+        'http://localhost/api/v1/gist',
+        undefined,
+    ]);
     t.end();
 });
 
