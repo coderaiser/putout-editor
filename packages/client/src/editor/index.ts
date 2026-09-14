@@ -22,7 +22,7 @@ export {
 export {posFromIndex, indexFromPos} from './position.ts';
 
 // Existing exports
-export {default as Editor} from './Editor.js';
+export {default as Editor} from './Editor.tsx';
 export {default as getFocusPath} from './getFocusPath.ts';
 export {default as resolvePositionFromIndex} from './resolvePositionFromIndex.ts';
 export {default as stringify} from './stringify.ts';

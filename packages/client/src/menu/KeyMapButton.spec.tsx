@@ -1,0 +1,139 @@
+// @ts-nocheck
+import {test} from 'supertape';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
+import KeyMapButton from './KeyMapButton.tsx';
+
+const noop = () => {};
+
+test('KeyMapButton: renders current keyMap text', (t) => {
+    render(
+        <KeyMapButton keyMap="vim" onKeyMapChange={noop}/>,
+    );
+
+    const trigger = document.querySelector('.menuButton > button');
+
+    cleanup();
+    const result = trigger.textContent.includes('vim');
+
+    t.ok(result);
+    t.end();
+});
+
+test('KeyMapButton: renders keyboard svg icon', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+
+    const svg = document.querySelector('.menuButton > button svg');
+
+    cleanup();
+
+    t.ok(svg, 'keyboard icon svg rendered');
+    t.end();
+});
+
+test('KeyMapButton: renders four key map options', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+
+    const items = document.querySelectorAll('li button');
+
+    cleanup();
+
+    t.equal(items.length, 3);
+    t.end();
+});
+
+test('KeyMapButton: click on item calls onKeyMapChange', (t) => {
+    let changed;
+
+    const onKeyMapChange = (v) => {
+        changed = v;
+    };
+
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={onKeyMapChange}/>,
+    );
+
+    const items = document.querySelectorAll('li');
+
+    fireEvent.click(items[1]);
+
+    cleanup();
+
+    t.equal(changed, 'vim');
+    t.end();
+});
+
+test('KeyMapButton: item with matching keyMap has disabled attribute set', (t) => {
+    render(
+        <KeyMapButton keyMap="emacs" onKeyMapChange={noop}/>,
+    );
+
+    const items = document.querySelectorAll('li');
+
+    cleanup();
+    const result = items[2].className.includes('disabled');
+
+    t.ok(result);
+    t.end();
+});
+
+test('KeyMapButton: clicking item sets is-closed class', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+
+    const div = document.querySelector('.menuButton');
+    const item = document.querySelector('li');
+
+    fireEvent.click(item);
+
+    const result = div.className.includes('is-closed');
+
+    cleanup();
+
+    t.ok(result);
+    t.end();
+});
+
+test('KeyMapButton: clicking trigger button sets is-closed class', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+
+    const div = document.querySelector('.menuButton');
+    const trigger = document.querySelector('.menuButton > button');
+
+    fireEvent.click(trigger);
+
+    const result = div.className.includes('is-closed');
+
+    cleanup();
+
+    t.ok(result);
+    t.end();
+});
+
+test('KeyMapButton: mouseleave clears is-closed class', (t) => {
+    render(
+        <KeyMapButton keyMap="default" onKeyMapChange={noop}/>,
+    );
+
+    const div = document.querySelector('.menuButton');
+
+    fireEvent.click(document.querySelector('.menuButton > button'));
+    fireEvent.mouseLeave(div);
+
+    const result = div.className.includes('is-closed');
+
+    cleanup();
+
+    t.notOk(result);
+    t.end();
+});
