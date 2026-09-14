@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import {test} from 'supertape';
 import {http, HttpResponse} from 'msw';
+=======
+import {test, stub} from 'supertape';
+>>>>>>> 6b8f62f (test: client: msw)
 import {
     matchesURL,
     fetchFromURL,
@@ -7,11 +11,16 @@ import {
     updateHash,
     Revision,
 } from './parse.ts';
+<<<<<<< HEAD
 import {server} from '../../../test/msw/server.ts';
 
 server.listen({
     onUnhandledRequest: 'bypass',
 });
+=======
+
+const createFetchStub = (result: unknown) => stub().resolves(result) as unknown as typeof fetch;
+>>>>>>> 6b8f62f (test: client: msw)
 
 test('parse: matchesURL: true for snippet hash', (t) => {
     const orig = globalThis.location.hash;
@@ -70,12 +79,21 @@ test('parse: fetchFromURL: resolves null when hash is empty', async (t) => {
 
 test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
     const origHash = globalThis.location.hash;
+    const origFetch = globalThis.fetch;
     
+    globalThis.fetch = createFetchStub({
+        ok: true,
+        json: stub().resolves({
+            snippetID: 'abc',
+            revisionID: '1',
+            parserID: 'babel',
+        }),
+    });
     globalThis.location.hash = '#/abc123';
     const result = await fetchFromURL();
     
     globalThis.location.hash = origHash;
-    server.resetHandlers();
+    globalThis.fetch = origFetch;
     
     t.ok(result instanceof Revision);
     t.end();
@@ -83,15 +101,23 @@ test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
 
 test('parse: fetchFromURL: 404 returns error message', async (t) => {
     const origHash = globalThis.location.hash;
+    const origFetch = globalThis.fetch;
     
+<<<<<<< HEAD
     server.use(http.get('*/api/v1/parse/:snippetId/:revisionId', () => new HttpResponse(null, {
         status: 404,
     })));
+=======
+    globalThis.fetch = createFetchStub({
+        ok: false,
+        status: 404,
+    });
+>>>>>>> 6b8f62f (test: client: msw)
     globalThis.location.hash = '#/nonexistent';
     const result = await fetchFromURL().catch((e) => e);
     
     globalThis.location.hash = origHash;
-    server.resetHandlers();
+    globalThis.fetch = origFetch;
     
     t.match(result.message, 'doesn\'t exist');
     t.end();
@@ -99,15 +125,23 @@ test('parse: fetchFromURL: 404 returns error message', async (t) => {
 
 test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
     const origHash = globalThis.location.hash;
+    const origFetch = globalThis.fetch;
     
+<<<<<<< HEAD
     server.use(http.get('*/api/v1/parse/:snippetId/:revisionId', () => new HttpResponse(null, {
         status: 500,
     })));
+=======
+    globalThis.fetch = createFetchStub({
+        ok: false,
+        status: 500,
+    });
+>>>>>>> 6b8f62f (test: client: msw)
     globalThis.location.hash = '#/error';
     const result = await fetchFromURL().catch((e) => e);
     
     globalThis.location.hash = origHash;
-    server.resetHandlers();
+    globalThis.fetch = origFetch;
     
     t.match(result.message, 'Unknown error');
     t.end();
@@ -428,5 +462,3 @@ test('parse: Revision: getTransformCode returns defaultTransform when toolID set
     t.ok(code.length > 0);
     t.end();
 });
-
-server.close();
