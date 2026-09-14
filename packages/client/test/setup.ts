@@ -1,8 +1,8 @@
 // Setup file to patch fetch for MSW in happy-dom environment
 // This must be loaded before any tests
-
 import {handlers as defaultHandlers} from './msw/handlers/index.ts';
 
+const isString = (a: unknown): a is string => typeof a === 'string';
 // Clone default handlers
 const handlers = [...defaultHandlers];
 
@@ -11,26 +11,32 @@ const originalFetch = globalThis.fetch;
 
 // Create MSW-compatible fetch mock
 export async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    const url = isString(input) ? input : input instanceof URL ? input.href : input.url;
     const method = init?.method || 'GET';
     
     // Parse the URL
-    const parsedUrl = new URL(url, 'http://localhost');
-    const pathname = parsedUrl.pathname;
+    const {pathname} = new URL(url, 'http://localhost');
     
     // Find matching handler using MSW's matching
     for (const handler of handlers) {
         // Use MSW's built-in matching
-        const match = (handler as any).match?.({url: pathname, method});
+        const match = (handler as any).match?.({
+            url: pathname,
+            method,
+        });
         
         if (match) {
             const request = new Request(url, init);
+            
             try {
-                const response = await (handler as any).run({request, params: match.params});
-                if (response) {
+                const response = await (handler as any).run({
+                    request,
+                    params: match.params,
+                });
+                
+                if (response)
                     return response;
-                }
-            } catch (e) {
+            } catch {
                 // Handler didn't match, continue
             }
         }
