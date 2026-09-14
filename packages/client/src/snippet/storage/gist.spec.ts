@@ -1,4 +1,5 @@
 import {test} from 'supertape';
+import {http, HttpResponse} from 'msw';
 import {
     matchesURL,
     fetchFromURL,
@@ -9,12 +10,13 @@ import {
     Revision,
 } from './gist.ts';
 import {server} from '../../../test/msw/server.ts';
-import {http, HttpResponse} from 'msw';
 import {makeGistResponse} from '../../../test/msw/fixtures/gist.ts';
 
 const noop = () => {};
 
-server.listen({onUnhandledRequest: 'bypass'});
+server.listen({
+    onUnhandledRequest: 'bypass',
+});
 
 const mockRevision = {
     getSnippetID: () => 'abc',
@@ -50,12 +52,12 @@ test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
     
     let capturedURL = '';
     
-    server.use(
-        http.get('*/api/v1/gist/:id/:revision', ({request}) => {
-            capturedURL = request.url;
-            return new HttpResponse(null, {status: 404});
-        }),
-    );
+    server.use(http.get('*/api/v1/gist/:id/:revision', ({request}) => {
+        capturedURL = request.url;
+        return new HttpResponse(null, {
+            status: 404,
+        });
+    }));
     
     globalThis.location.hash = '#/gist/abc123/rev456';
     
@@ -63,8 +65,9 @@ test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
     
     globalThis.location.hash = origHash;
     server.resetHandlers();
+    const result = capturedURL.includes('rev456');
     
-    t.ok(capturedURL.includes('rev456'));
+    t.ok(result);
     t.end();
 });
 
@@ -102,10 +105,9 @@ test('gist: fetchFromURL: resolves null when hash does not match', async (t) => 
 test('gist: fetchFromURL: 404 throws with snippet id in message', async (t) => {
     const origHash = globalThis.location.hash;
     
-    server.use(
-        http.get('*/api/v1/gist/:id/:revision', () =>
-            new HttpResponse(null, {status: 404})),
-    );
+    server.use(http.get('*/api/v1/gist/:id/:revision', () => new HttpResponse(null, {
+        status: 404,
+    })));
     globalThis.location.hash = '#/gist/missing123';
     
     const result = await fetchFromURL().catch((e) => e);
@@ -120,10 +122,9 @@ test('gist: fetchFromURL: 404 throws with snippet id in message', async (t) => {
 test('gist: fetchFromURL: non-404 error throws Unknown error', async (t) => {
     const origHash = globalThis.location.hash;
     
-    server.use(
-        http.get('*/api/v1/gist/:id/:revision', () =>
-            new HttpResponse(null, {status: 500})),
-    );
+    server.use(http.get('*/api/v1/gist/:id/:revision', () => new HttpResponse(null, {
+        status: 500,
+    })));
     globalThis.location.hash = '#/gist/someid';
     
     const result = await fetchFromURL().catch((e) => e);
@@ -136,13 +137,12 @@ test('gist: fetchFromURL: non-404 error throws Unknown error', async (t) => {
 });
 
 test('gist: create: ok response resolves Revision', async (t) => {
-    server.use(
-        http.post('*/api/v1/gist', () =>
-            HttpResponse.json(makeGistResponse({
-                id: 'new-gist',
-                settings: {babel: {}},
-            }))),
-    );
+    server.use(http.post('*/api/v1/gist', () => HttpResponse.json(makeGistResponse({
+        id: 'new-gist',
+        settings: {
+            babel: {},
+        },
+    }))));
     
     const result = await create({
         parserID: 'babel',
@@ -157,10 +157,9 @@ test('gist: create: ok response resolves Revision', async (t) => {
 });
 
 test('gist: create: error response throws', async (t) => {
-    server.use(
-        http.post('*/api/v1/gist', () =>
-            new HttpResponse(null, {status: 500})),
-    );
+    server.use(http.post('*/api/v1/gist', () => new HttpResponse(null, {
+        status: 500,
+    })));
     
     const result = await create({}).catch((e) => e);
     
@@ -171,10 +170,9 @@ test('gist: create: error response throws', async (t) => {
 });
 
 test('gist: fork: error response throws', async (t) => {
-    server.use(
-        http.post('*/api/v1/gist/:id/:revision', () =>
-            new HttpResponse(null, {status: 500})),
-    );
+    server.use(http.post('*/api/v1/gist/:id/:revision', () => new HttpResponse(null, {
+        status: 500,
+    })));
     
     const fakeRevision = {
         getSnippetID: () => 'abc',
@@ -192,12 +190,10 @@ test('gist: fork: error response throws', async (t) => {
 test('gist: update: sends exactly one request', async (t) => {
     let callCount = 0;
     
-    server.use(
-        http.patch('*/api/v1/gist/:id', () => {
-            callCount += 1;
-            return HttpResponse.json(makeGistResponse());
-        }),
-    );
+    server.use(http.patch('*/api/v1/gist/:id', () => {
+        ++callCount;
+        return HttpResponse.json(makeGistResponse());
+    }));
     
     await update(mockRevision, {
         parserID: 'babel',
@@ -211,12 +207,13 @@ test('gist: update: sends exactly one request', async (t) => {
 });
 
 test('gist: update: sends PATCH method', async (t) => {
-    server.use(
-        http.patch('*/api/v1/gist/:id', ({request}) => {
-            t.equal(request.method, 'PATCH');
-            return HttpResponse.json(makeGistResponse({id: 'gist123', version: 'sha1ver'}));
-        }),
-    );
+    server.use(http.patch('*/api/v1/gist/:id', ({request}) => {
+        t.equal(request.method, 'PATCH');
+        return HttpResponse.json(makeGistResponse({
+            id: 'gist123',
+            version: 'sha1ver',
+        }));
+    }));
     
     await update(mockRevision, {
         parserID: 'babel',
@@ -230,10 +227,10 @@ test('gist: update: sends PATCH method', async (t) => {
 test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
     const origHash = globalThis.location.hash;
     
-    server.use(
-        http.get('*/api/v1/gist/:id/:revision', () =>
-            HttpResponse.json(makeGistResponse({id: 'gist123', version: 'sha1ver'}))),
-    );
+    server.use(http.get('*/api/v1/gist/:id/:revision', () => HttpResponse.json(makeGistResponse({
+        id: 'gist123',
+        version: 'sha1ver',
+    }))));
     globalThis.location.hash = '#/gist/gist123';
     
     const result = await fetchFromURL() as Revision;
@@ -246,10 +243,10 @@ test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
 });
 
 test('gist: fork: ok response resolves Revision', async (t) => {
-    server.use(
-        http.post('*/api/v1/gist/:id/:revision', () =>
-            HttpResponse.json(makeGistResponse({id: 'gist123', version: 'sha1ver'}))),
-    );
+    server.use(http.post('*/api/v1/gist/:id/:revision', () => HttpResponse.json(makeGistResponse({
+        id: 'gist123',
+        version: 'sha1ver',
+    }))));
     
     const fakeRevision = {
         getSnippetID: () => 'abc',
@@ -279,10 +276,9 @@ test('gist: update: returns Revision instance', async (t) => {
 });
 
 test('gist: update: throws on non-ok response', async (t) => {
-    server.use(
-        http.patch('*/api/v1/gist/:id', () =>
-            new HttpResponse(null, {status: 500})),
-    );
+    server.use(http.patch('*/api/v1/gist/:id', () => new HttpResponse(null, {
+        status: 500,
+    })));
     
     const {tryToCatch} = await import('try-to-catch');
     
@@ -335,28 +331,26 @@ test('gist: v1 source format: getCode returns correct content', (t) => {
 
 test('gist: Revision: canSave returns true', (t) => {
     const rev = new Revision({
-            id: 'gist-can-save',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-can-save',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     t.ok(rev.canSave());
     t.end();
@@ -364,27 +358,26 @@ test('gist: Revision: canSave returns true', (t) => {
 
 test('gist: Revision: getPath returns correct path', (t) => {
     const rev = new Revision({
-            id: 'gist-path',
-            history: [{
-                version: 'sha1ver',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-path',
+        history: [{
+            version: 'sha1ver',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getPath();
     const expected = '/gist/gist-path/sha1ver';
@@ -395,27 +388,26 @@ test('gist: Revision: getPath returns correct path', (t) => {
 
 test('gist: Revision: getSnippetID returns correct id', (t) => {
     const rev = new Revision({
-            id: 'gist-sid',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-sid',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getSnippetID();
     const expected = 'gist-sid';
@@ -426,27 +418,26 @@ test('gist: Revision: getSnippetID returns correct id', (t) => {
 
 test('gist: Revision: getRevisionID returns correct version', (t) => {
     const rev = new Revision({
-            id: 'gist-revid',
-            history: [{
-                version: 'v42',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-revid',
+        history: [{
+            version: 'v42',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getRevisionID();
     const expected = 'v42';
@@ -457,27 +448,26 @@ test('gist: Revision: getRevisionID returns correct version', (t) => {
 
 test('gist: Revision: getTransformerID returns toolID when set', (t) => {
     const rev = new Revision({
-            id: 'gist-tool',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: 'putout',
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const x = 1;',
-                },
+        id: 'gist-tool',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: 'putout',
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const x = 1;',
+            },
+        },
+    });
     
     const result = rev.getTransformerID();
     const expected = 'putout';
@@ -488,27 +478,26 @@ test('gist: Revision: getTransformerID returns toolID when set', (t) => {
 
 test('gist: Revision: getTransformerID returns null when not set', (t) => {
     const rev = new Revision({
-            id: 'gist-notool',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-notool',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getTransformerID();
     
@@ -518,30 +507,29 @@ test('gist: Revision: getTransformerID returns null when not set', (t) => {
 
 test('gist: Revision: getTransformCode returns content when transform file exists', (t) => {
     const rev = new Revision({
-            id: 'gist-tc',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const x = 1;',
-                },
-                'transform.js': {
-                    content: 'module.exports = function() {}',
-                },
+        id: 'gist-tc',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const x = 1;',
+            },
+            'transform.js': {
+                content: 'module.exports = function() {}',
+            },
+        },
+    });
     
     const result = rev.getTransformCode();
     const expected = 'module.exports = function() {}';
@@ -552,27 +540,26 @@ test('gist: Revision: getTransformCode returns content when transform file exist
 
 test('gist: Revision: getTransformCode returns empty string when no transform file', (t) => {
     const rev = new Revision({
-            id: 'gist-notransform',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-notransform',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getTransformCode();
     const expected = '';
@@ -583,27 +570,26 @@ test('gist: Revision: getTransformCode returns empty string when no transform fi
 
 test('gist: Revision: getParserID returns correct parserID', (t) => {
     const rev = new Revision({
-            id: 'gist-parserid',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'espree',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            espree: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-parserid',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'espree',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        espree: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getParserID();
     const expected = 'espree';
@@ -614,30 +600,28 @@ test('gist: Revision: getParserID returns correct parserID', (t) => {
 
 test('gist: Revision: getParserSettings returns correct settings', (t) => {
     const rev = new Revision({
-            id: 'gist-parser-settings',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {
-                                sourceType: 'module',
-                            },
+        id: 'gist-parser-settings',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {
+                            sourceType: 'module',
                         },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+                    },
+                }),
             },
-        });
-    
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     t.equal(rev.getParserSettings().sourceType, 'module');
     t.end();
@@ -645,27 +629,26 @@ test('gist: Revision: getParserSettings returns correct settings', (t) => {
 
 test('gist: Revision: getCode returns content for v2 source format', (t) => {
     const rev = new Revision({
-            id: 'gist-v2',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const b = 2;',
-                },
+        id: 'gist-v2',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const b = 2;',
+            },
+        },
+    });
     
     const result = rev.getCode();
     const expected = 'const b = 2;';
@@ -676,27 +659,26 @@ test('gist: Revision: getCode returns content for v2 source format', (t) => {
 
 test('gist: Revision: getCode returns empty string for unknown config version', (t) => {
     const rev = new Revision({
-            id: 'gist-unknown-v',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 3,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-unknown-v',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 3,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev.getCode();
     const expected = '';
@@ -707,28 +689,26 @@ test('gist: Revision: getCode returns empty string for unknown config version', 
 
 test('gist: Revision: getCode caches result', (t) => {
     const rev = new Revision({
-            id: 'gist-cache',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const cached = true;',
-                },
+        id: 'gist-cache',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
-    
+            'source.js': {
+                content: 'const cached = true;',
+            },
+        },
+    });
     
     rev.getCode();
     const second = rev.getCode();
@@ -739,28 +719,26 @@ test('gist: Revision: getCode caches result', (t) => {
 
 test('gist: Revision: getShareData returns object', (t) => {
     const rev = new Revision({
-            id: 'gist-share',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-share',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     t.ok(rev.getShareData());
     t.end();
@@ -768,27 +746,26 @@ test('gist: Revision: getShareData returns object', (t) => {
 
 test('gist: Revision: getShareData versionedURL contains snippetID', (t) => {
     const rev = new Revision({
-            id: 'gist-share',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-share',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev
         .getShareData()
@@ -801,27 +778,26 @@ test('gist: Revision: getShareData versionedURL contains snippetID', (t) => {
 
 test('gist: Revision: getShareData versionedURL contains revisionID', (t) => {
     const rev = new Revision({
-            id: 'gist-share',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-share',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev
         .getShareData()
@@ -834,27 +810,26 @@ test('gist: Revision: getShareData versionedURL contains revisionID', (t) => {
 
 test('gist: Revision: getShareData latestURL contains snippetID', (t) => {
     const rev = new Revision({
-            id: 'gist-share',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-share',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev
         .getShareData()
@@ -867,27 +842,26 @@ test('gist: Revision: getShareData latestURL contains snippetID', (t) => {
 
 test('gist: Revision: getShareData has no double slash in latestURL', (t) => {
     const rev = new Revision({
-            id: 'gist-share',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-share',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = rev
         .getShareData()
@@ -901,27 +875,26 @@ test('gist: Revision: getShareData has no double slash in latestURL', (t) => {
 
 test('gist: Revision: getShareData embedURL is a string', (t) => {
     const rev = new Revision({
-            id: 'gist-share',
-            history: [{
-                version: 'v1',
-            }],
-            files: {
-                'astexplorer.json': {
-                    content: JSON.stringify({
-                        parserID: 'babel',
-                        toolID: null,
-                        v: 2,
-                        settings: {
-                            babel: {},
-                        },
-                    }),
-                },
-                'source.js': {
-                    content: 'const a = 1;',
-                },
+        id: 'gist-share',
+        history: [{
+            version: 'v1',
+        }],
+        files: {
+            'astexplorer.json': {
+                content: JSON.stringify({
+                    parserID: 'babel',
+                    toolID: null,
+                    v: 2,
+                    settings: {
+                        babel: {},
+                    },
+                }),
             },
-        });
-    
+            'source.js': {
+                content: 'const a = 1;',
+            },
+        },
+    });
     
     const result = typeof rev.getShareData().embedURL;
     const expected = 'string';

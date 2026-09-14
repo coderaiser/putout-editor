@@ -150,16 +150,22 @@ test('Editor: rerenders without error when keyMap prop changes', async (t) => {
 
 test('Editor: rerenders without error when error prop changes', async (t) => {
     const {container, rerender} = render(
-        <Editor value="x" error={{
-            message: 'oops',
-        }}/>,
+        <Editor
+            value="x"
+            error={{
+                message: 'oops',
+            }}
+        />,
     );
     
     await act(() => {
         rerender(
-            <Editor value="x" error={{
-                message: 'new error',
-            }}/>,
+            <Editor
+                value="x"
+                error={{
+                    message: 'new error',
+                }}
+            />,
         );
     });
     const result = container.querySelector('.editor');
