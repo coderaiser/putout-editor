@@ -7,8 +7,7 @@ import {
     Revision,
 } from './parse.ts';
 
-const createFetchStub = (result: unknown) => stub()
-    .resolves(result) as unknown as typeof fetch;
+const createFetchStub = (result: unknown) => stub().resolves(result) as unknown as typeof fetch;
 
 test('parse: matchesURL: true for snippet hash', (t) => {
     const orig = globalThis.location.hash;

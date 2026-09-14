@@ -9,8 +9,7 @@ import {
     Revision,
 } from './gist.ts';
 
-const createFetchStub = (result: unknown) => stub()
-    .resolves(result) as unknown as typeof fetch;
+const createFetchStub = (result: unknown) => stub().resolves(result) as unknown as typeof fetch;
 
 const noop = () => {};
 

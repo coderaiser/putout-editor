@@ -106,7 +106,7 @@ export function createSnippetListener(storageAdapter: StorageAdapter) {
             const data = buildSaveData(state);
             const [error, newRevision] = await tryToCatch(
                 saveRevision,
-                fork ?? false,
+                fork || false,
                 data,
                 getRevision(state),
                 storageAdapter,
