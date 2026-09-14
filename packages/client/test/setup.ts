@@ -3,6 +3,7 @@
 import {handlers as defaultHandlers} from './msw/handlers/index.ts';
 
 const isString = (a: unknown): a is string => typeof a === 'string';
+
 // Clone default handlers
 const handlers = [...defaultHandlers];
 

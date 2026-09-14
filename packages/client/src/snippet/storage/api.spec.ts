@@ -8,8 +8,9 @@ test('api: calls fetch with correct path and default options', async (t) => {
     globalThis.fetch = fetch as unknown as typeof globalThis.fetch;
     await api('/gist');
     globalThis.fetch = originalFetch;
+    const result = fetch.args[0][0].endsWith('/api/v1/gist');
     
-    t.ok(fetch.args[0][0].endsWith('/api/v1/gist'));
+    t.ok(result);
     t.end();
 });
 
