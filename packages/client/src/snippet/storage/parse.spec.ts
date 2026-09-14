@@ -1,4 +1,5 @@
 import {test} from 'supertape';
+import {http, HttpResponse} from 'msw';
 import {
     matchesURL,
     fetchFromURL,
@@ -7,9 +8,10 @@ import {
     Revision,
 } from './parse.ts';
 import {server} from '../../../test/msw/server.ts';
-import {http, HttpResponse} from 'msw';
 
-server.listen({onUnhandledRequest: 'bypass'});
+server.listen({
+    onUnhandledRequest: 'bypass',
+});
 
 test('parse: matchesURL: true for snippet hash', (t) => {
     const orig = globalThis.location.hash;
@@ -82,10 +84,9 @@ test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
 test('parse: fetchFromURL: 404 returns error message', async (t) => {
     const origHash = globalThis.location.hash;
     
-    server.use(
-        http.get('*/api/v1/parse/:snippetId/:revisionId', () =>
-            new HttpResponse(null, {status: 404})),
-    );
+    server.use(http.get('*/api/v1/parse/:snippetId/:revisionId', () => new HttpResponse(null, {
+        status: 404,
+    })));
     globalThis.location.hash = '#/nonexistent';
     const result = await fetchFromURL().catch((e) => e);
     
@@ -99,10 +100,9 @@ test('parse: fetchFromURL: 404 returns error message', async (t) => {
 test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
     const origHash = globalThis.location.hash;
     
-    server.use(
-        http.get('*/api/v1/parse/:snippetId/:revisionId', () =>
-            new HttpResponse(null, {status: 500})),
-    );
+    server.use(http.get('*/api/v1/parse/:snippetId/:revisionId', () => new HttpResponse(null, {
+        status: 500,
+    })));
     globalThis.location.hash = '#/error';
     const result = await fetchFromURL().catch((e) => e);
     
