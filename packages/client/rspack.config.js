@@ -263,7 +263,7 @@ export default {
     },
     
     entry: {
-        app: './src/app.js',
+        app: './src/app.tsx',
     },
     
     output: {
