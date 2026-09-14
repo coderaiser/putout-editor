@@ -1,3 +1,5 @@
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
+
 export interface GistFixture {
     id?: string;
     version?: string;
@@ -9,29 +11,43 @@ export interface GistFixture {
     transformCode?: string;
 }
 
-export function makeGistResponse({
-    id = 'gist-id',
-    version = 'sha1',
-    parserID = 'babel',
-    toolID = null,
-    v = 2,
-    settings = {babel: {}},
-    sourceCode = 'const x = 1;',
-    transformCode,
-}: GistFixture = {}) {
+export function makeGistResponse(overrides = {}) {
+    const {
+        id = 'gist-id',
+        version = 'sha1',
+        parserID = 'babel',
+        toolID = null,
+        v = 2,
+        settings = {
+            babel: {},
+        },
+        sourceCode = 'const x = 1;',
+        transformCode,
+    }: GistFixture = overrides;
     const files: Record<string, {content: string}> = {
         'astexplorer.json': {
-            content: JSON.stringify({parserID, toolID, v, settings}),
+            content: JSON.stringify({
+                parserID,
+                toolID,
+                v,
+                settings,
+            }),
         },
-        'source.js': {content: sourceCode},
+        'source.js': {
+            content: sourceCode,
+        },
     };
     
-    if (transformCode !== undefined)
-        files['transform.js'] = {content: transformCode};
+    if (!isUndefined(transformCode))
+        files['transform.js'] = {
+            content: transformCode,
+        };
     
     return {
         id,
-        history: [{version}],
+        history: [{
+            version,
+        }],
         files,
     };
 }
