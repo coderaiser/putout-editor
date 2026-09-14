@@ -24,24 +24,24 @@ test('AstPanel: renders without crashing', (t) => {
             <AstPanel/>
         </Provider>,
     );
-
+    
     const result = container.firstChild;
-
+    
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });
 
 test('AstPanel: renders error boundary fallback on tree error', (t) => {
     const originalError = console.error;
-
+    
     console.error = noop;
-
+    
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
-
+    
     const store = configureStore({
         reducer: putoutEditor,
         preloadedState: revive({
@@ -61,19 +61,19 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
             serializableCheck: false,
         }),
     });
-
+    
     const {container} = render(
         <Provider store={store}>
             <AstPanel/>
         </Provider>,
     );
-
+    
     console.error = originalError;
-
+    
     const result = container.querySelector('.error-boundary');
-
+    
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });

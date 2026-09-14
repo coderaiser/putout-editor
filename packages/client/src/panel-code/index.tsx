@@ -3,7 +3,6 @@ import EditorResult from '#editor-code';
 import {
     getTransformCode,
     getCode,
-    getKeyMap,
     isLoadingSnippet,
 } from '#store';
 import {
@@ -17,10 +16,10 @@ export default function CodePanel() {
     const transformer = useSelector(getTransformer) || getTransformerByID('putout')!;
     const transformCode = useSelector(getTransformCode);
     const code = useSelector(getCode);
-    const keyMap = useSelector(getKeyMap);
+    
     const isLoading = useSelector(isLoadingSnippet);
     const mode = parser.category.editorMode || parser.category.id;
-
+    
     return (
         <EditorResult
             transformer={transformer!}

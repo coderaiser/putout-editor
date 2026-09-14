@@ -1,8 +1,11 @@
 import {useState} from 'react';
 import cx from 'classnames';
 import {TbToggleLeft, TbToggleRight} from 'react-icons/tb';
-import {getTransformerByID} from '#parser';
-import type {ParserCategory, TransformerInfo} from '#parser';
+import {
+    getTransformerByID,
+    type ParserCategory,
+    type TransformerInfo,
+} from '#parser';
 
 interface TransformButtonProps {
     id?: string;
@@ -14,31 +17,32 @@ interface TransformButtonProps {
 
 export default function TransformButton({id, category, transformer, showTransformer, onTransformChange}: TransformButtonProps) {
     const [forceClosed, setForceClosed] = useState(false);
-
+    
     const onTriggerClick = () => {
         if (transformer)
             onTransformChange(null);
-
+        
         setForceClosed(true);
     };
-
+    
     const onClick = ({target}: React.MouseEvent<HTMLLIElement>) => {
         let transformID: string;
-
+        
         const targetElement = target as HTMLElement;
+        
         if (targetElement.nodeName.toLowerCase() === 'li')
             transformID = (targetElement.children[0] as HTMLButtonElement).value;
         else
             transformID = (targetElement as HTMLButtonElement).value;
-
+        
         onTransformChange(getTransformerByID(transformID)!);
         setForceClosed(true);
     };
-
+    
     const onMouseLeave = () => {
         setForceClosed(false);
     };
-
+    
     return (
         <div
             id={id}

@@ -1,15 +1,21 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {TbQuestionMark} from 'react-icons/tb';
+import type {ReactElement} from 'react';
 import ParserButton from '../parser/buttons/ParserButton.tsx';
 import SnippetButton from '../snippet/buttons/SnippetButton.tsx';
 import TransformButton from '../editor-transform/TransformButton.tsx';
 import KeyMapButton from './KeyMapButton.tsx';
 import ThemeButton from './ThemeButton.tsx';
 import Funding from './Funding.tsx';
-import {getTransformerByID} from '../parser/parsers/index.ts';
+import {
+    getTransformerByID,
+    type TransformerInfo,
+    type ParserInfo,
+} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import * as parserSelectors from '../parser/store/parserSelectors.ts';
 import {logEvent} from '../snippet/logger.ts';
+import type {KeyMap} from '../types.ts';
 import {
     openSettingsDialog,
     openShareDialog,
@@ -19,9 +25,6 @@ import {
     reset,
     setKeyMap,
 } from '../store/reducers.ts';
-import type {ReactElement} from 'react';
-import type {ParserInfoWithCategory, TransformerInfo, ParserInfo} from '../parser/parsers/index.ts';
-import type {KeyMap} from '../types.ts';
 
 export default function Toolbar() {
     const forking = useSelector(selectors.isForking);
@@ -34,80 +37,80 @@ export default function Toolbar() {
     const showTransformerVal = useSelector(selectors.showTransformer);
     const snippet = useSelector(selectors.getRevision);
     const dispatch = useDispatch();
-
+    
     const onParserChange = (parser: ParserInfo | undefined) => {
         if (parser) {
             dispatch(setParser(parser));
             logEvent('parser', 'select', parser.id);
         }
     };
-
+    
     const onParserSettingsButtonClick = () => {
         dispatch(openSettingsDialog());
         logEvent('parser', 'open_settings');
     };
-
+    
     const onShareButtonClick = () => {
         dispatch(openShareDialog());
         logEvent('ui', 'open_share');
     };
-
+    
     const onTransformChange = (transformer: TransformerInfo | null) => {
         dispatch(transformer ? selectTransformer(transformer) : hideTransformer());
-
+        
         if (transformer)
             logEvent('tool', 'select', transformer.id);
     };
-
+    
     const onKeyMapChange = (keyMap: string | null) => {
         dispatch(setKeyMap(keyMap));
-
+        
         if (keyMap)
             logEvent('keyMap', keyMap);
     };
-
+    
     const onSave = () => dispatch({
         type: 'snippet/save',
         payload: false,
     });
-
+    
     const onFork = () => dispatch({
         type: 'snippet/save',
         payload: true,
     });
-
+    
     const onNew = () => {
         if (globalThis.location.hash) {
             globalThis.location.hash = '';
             return;
         }
-
+        
         dispatch(reset());
     };
-
+    
     let parserInfo: string | ReactElement = parser.displayName!;
     let transformerInfo: string | ReactElement = '';
-
+    
     if (parser.version)
         parserInfo += '-' + parser.version;
-
+    
     if (parser.homepage)
         parserInfo = <a href={parser.homepage} target="_blank" rel="noopener noreferrer">{parserInfo}</a>;
-
+    
     if (showTransformerVal) {
         const displayTransformer = transformer || getTransformerByID('putout')!;
-
+        
         transformerInfo = displayTransformer.displayName!;
-
+        
         if (displayTransformer.version)
             transformerInfo += '-' + displayTransformer.version;
-
+        
         if (displayTransformer.homepage)
             transformerInfo = <a href={displayTransformer.homepage} target="_blank" rel="noopener noreferrer">{transformerInfo}</a>;
-
+        
         transformerInfo = <span>Transformer: {transformerInfo}</span>;
     }
-
+    
     return (
         <div id="Toolbar" data-testid="toolbar">
             <h1>🐊Putout Editor</h1>

@@ -10,7 +10,7 @@ function makeStore(showTransformPanel = false) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
-
+    
     return configureStore({
         reducer: putoutEditor,
         preloadedState: revive({
@@ -29,9 +29,9 @@ test('TransformPanel: renders null when showTransformPanel is false', (t) => {
             <TransformPanel/>
         </Provider>,
     );
-
+    
     cleanup();
-
+    
     t.notOk(container.firstChild);
     t.end();
 });
@@ -42,11 +42,11 @@ test('TransformPanel: renders EditorPlugin when showTransformPanel is true', (t)
             <TransformPanel/>
         </Provider>,
     );
-
+    
     const result = container.firstChild;
-
+    
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });

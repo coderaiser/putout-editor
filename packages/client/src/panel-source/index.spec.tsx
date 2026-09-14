@@ -22,7 +22,7 @@ const makeBrokenStore = () => {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
-
+    
     return configureStore({
         reducer: putoutEditor,
         preloadedState: revive({
@@ -44,32 +44,32 @@ test('SourcePanel: renders without crashing', (t) => {
             <SourcePanel/>
         </Provider>,
     );
-
+    
     const result = container.querySelector('.editor');
-
+    
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });
 
 test('SourcePanel: renders error boundary fallback on editor error', (t) => {
     const originalError = console.error;
-
+    
     console.error = noop;
-
+    
     const {container} = render(
         <Provider store={makeBrokenStore()}>
             <SourcePanel/>
         </Provider>,
     );
-
+    
     console.error = originalError;
-
+    
     const result = container.querySelector('.error-boundary');
-
+    
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });

@@ -1,5 +1,4 @@
-import {useState} from 'react';
-import type {ReactNode} from 'react';
+import {useState, type ReactNode} from 'react';
 
 const TABS = [{
     label: 'Transform',
@@ -24,14 +23,14 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({topLeft, topRight, bottomLeft, bottomRight}: MobileLayoutProps) {
     const [activeKey, setActiveKey] = useState('transform');
-
+    
     const panels: Record<string, ReactNode> = {
         transform: bottomLeft,
         source: topLeft,
         ast: topRight,
         code: bottomRight,
     };
-
+    
     return (
         <div className="mobile-layout">
             <div className="mobile-panel">

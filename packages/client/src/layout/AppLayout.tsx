@@ -1,5 +1,5 @@
-import {SplitPane} from '#ui';
 import type {ReactNode} from 'react';
+import {SplitPane} from '#ui';
 
 interface AppLayoutProps {
     topLeft: ReactNode;

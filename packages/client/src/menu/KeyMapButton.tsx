@@ -17,20 +17,20 @@ interface KeyMapButtonProps {
 
 export default function KeyMapButton({id, keyMap, onKeyMapChange}: KeyMapButtonProps) {
     const [forceClosed, setForceClosed] = useState(false);
-
+    
     const onItemClick = (key: KeyMap) => {
         onKeyMapChange(key);
         setForceClosed(true);
     };
-
+    
     const onTriggerClick = () => {
         setForceClosed(true);
     };
-
+    
     const onMouseLeave = () => {
         setForceClosed(false);
     };
-
+    
     return (
         <div
             id={id}
@@ -53,7 +53,9 @@ export default function KeyMapButton({id, keyMap, onKeyMapChange}: KeyMapButtonP
                 {keyMappings.map((keyMapItem) => (
                     <li
                         key={keyMapItem}
-                        className={cx({disabled: keyMap === keyMapItem})}
+                        className={cx({
+                            disabled: keyMap === keyMapItem,
+                        })}
                         onClick={() => onItemClick(keyMapItem)}
                     >
                         <button type="button" data-testid={keyMapItem}>

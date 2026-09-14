@@ -24,6 +24,7 @@ export function makeGistResponse(overrides = {}) {
         sourceCode = 'const x = 1;',
         transformCode,
     }: GistFixture = overrides;
+    
     const files: Record<string, {content: string}> = {
         'astexplorer.json': {
             content: JSON.stringify({

@@ -20,22 +20,22 @@ const applyTheme = (next: string): void => {
 export default function ThemeButton() {
     const [theme, setTheme] = useState(readTheme);
     const [forceClosed, setForceClosed] = useState(false);
-
+    
     useEffect(() => {
         applyTheme(theme);
     }, [theme]);
-
+    
     const onTriggerClick = () => {
         const next = theme === 'light' ? 'dark' : 'light';
         setTheme(next);
         setForceClosed(true);
     };
-
+    
     const onItemClick = (next: string) => {
         setTheme(next);
         setForceClosed(true);
     };
-
+    
     return (
         <div
             className={cx('button', 'menuButton', {

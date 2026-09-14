@@ -11,13 +11,13 @@ export default function EditorPlugin() {
     const transformCode = useSelector(getTransformCode);
     const keyMap = useSelector(getKeyMap);
     const dispatch = useDispatch();
-
+    
     return (
         <div data-name="editor-transform" data-testid="editor-transform">
             <Editor
                 highlight={false}
                 value={transformCode}
-                onContentChange={({value, cursor}: {value: string; cursor: number}) => dispatch(setTransformState({
+                onContentChange={({value, cursor}: {value: string;cursor: number;}) => dispatch(setTransformState({
                     code: value,
                     cursor,
                 }))}

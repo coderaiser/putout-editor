@@ -22,12 +22,12 @@ test('CodePanel: renders without crashing', async (t) => {
             <CodePanel/>
         </Provider>,
     );
-
+    
     await new Promise(setImmediate);
-
+    
     const result = container.querySelector('.output');
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });
@@ -36,7 +36,7 @@ test('CodePanel: falls back to default transformer when transformer unknown', as
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
-
+    
     const store = configureStore({
         reducer: putoutEditor,
         preloadedState: revive({
@@ -53,18 +53,18 @@ test('CodePanel: falls back to default transformer when transformer unknown', as
             serializableCheck: false,
         }),
     });
-
+    
     const {container} = render(
         <Provider store={store}>
             <CodePanel/>
         </Provider>,
     );
-
+    
     await new Promise(setImmediate);
-
+    
     const result = container.querySelector('.output');
     cleanup();
-
+    
     t.ok(result);
     t.end();
 });

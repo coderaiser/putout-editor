@@ -37,10 +37,10 @@ import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 
 function App() {
     const hasError = useSelector((s: any) => Boolean(s.error));
-
+    
     const isMobile = useMobile();
     const Layout = isMobile ? MobileLayout : AppLayout;
-
+    
     return (
         <div>
             <ErrorMessage/>
@@ -82,7 +82,7 @@ const store = configureStore({
 
 store.subscribe(debounce(() => {
     const state = store.getState();
-
+    
     // We are not persisting the state while looking at an existing revision
     if (!getRevision(state))
         LocalStorage.writeState(persist(state));
@@ -113,7 +113,7 @@ if (location.hash.length > 1)
 
 globalThis.onbeforeunload = () => {
     const state = store.getState();
-
+    
     if (canSaveTransform(state))
         return 'You have unsaved transform code. Do you really want to leave?';
 };
