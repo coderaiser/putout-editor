@@ -21,6 +21,7 @@
         "src/types.ts",
         "e2e/**",
         "lib/**",
+        "test/**",
         "src/editor-ast-tree/tree/**",
         "src/parser/parsers/js/**",
         "coverage"
