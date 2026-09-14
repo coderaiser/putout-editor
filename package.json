@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@putout/eslint-flat": "^4.0.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "^10.0.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-putout": "^31.0.0",
@@ -30,11 +31,11 @@
     "jiti": "^2.7.0",
     "madfork": "^1.0.1",
     "madrun": "^13.0.3",
+    "msw": "^2.15.0",
     "oxlint": "^1.35.0",
     "redlint": "^6.0.0",
     "superc8": "^12.0.0",
     "supertape": "^13.0.0",
-    "@typescript/native": "npm:typescript@^7.0.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "trustedDependencies": [
@@ -46,7 +47,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
   "publishConfig": {
     "access": "public"
   }
