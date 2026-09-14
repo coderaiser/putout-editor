@@ -678,7 +678,7 @@ test('TreeAdapter: default adapter throws on nodeToName', async (t) => {
     
     const [error] = await tryToCatch(() => adapter.getNodeName({}));
     
-    t.match(error.message, 'nodeToName must be passed');
+    t.match(error!.message, 'nodeToName must be passed');
     t.end();
 });
 
@@ -694,7 +694,7 @@ test('TreeAdapter: default adapter throws on walkNode', async (t) => {
         ...adapter.walkNode({}),
     ]);
     
-    t.match(error.message, 'walkNode must be passed');
+    t.match(error!.message, 'walkNode must be passed');
     t.end();
 });
 

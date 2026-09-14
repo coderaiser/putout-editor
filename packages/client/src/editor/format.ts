@@ -1,4 +1,5 @@
 import {type Node} from '@putout/babel';
+import {type ParserPlugin} from '@babel/parser';
 import {tryCatch} from 'try-catch';
 import {normalizeRule} from './normalizeRule.ts';
 
@@ -31,7 +32,7 @@ export const formatRule = async (source: string) => {
     
     const [error, ast] = tryCatch(parse, source, {
         sourceType: 'module',
-        plugins,
+        plugins: (plugins as ParserPlugin[]),
     });
     
     if (error)

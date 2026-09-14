@@ -9,6 +9,9 @@ import {
     Revision,
 } from './gist.ts';
 
+const createFetchStub = (result: unknown) => stub()
+    .resolves(result) as unknown as typeof fetch;
+
 const noop = () => {};
 
 const mockRevision = {
@@ -49,7 +52,7 @@ test('gist: fetchFromURL: passes specific revision to fetch', async (t) => {
         status: 404,
     });
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     globalThis.location.hash = '#/gist/abc123/rev456';
     
     await fetchFromURL().catch(noop);
@@ -97,7 +100,7 @@ test('gist: fetchFromURL: 404 throws with snippet id in message', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 404,
     });
@@ -116,7 +119,7 @@ test('gist: fetchFromURL: non-404 error throws Unknown error', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 500,
     });
@@ -134,7 +137,7 @@ test('gist: fetchFromURL: non-404 error throws Unknown error', async (t) => {
 test('gist: create: ok response resolves Revision', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'new-gist',
@@ -174,7 +177,7 @@ test('gist: create: ok response resolves Revision', async (t) => {
 test('gist: create: error response throws', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 500,
     });
@@ -190,7 +193,7 @@ test('gist: create: error response throws', async (t) => {
 test('gist: fork: error response throws', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 500,
     });
@@ -235,7 +238,7 @@ test('gist: update: sends exactly one request', async (t) => {
         }),
     });
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await update(mockRevision, {
         parserID: 'babel',
@@ -275,7 +278,7 @@ test('gist: update: sends PATCH method', async (t) => {
         }),
     });
     
-    globalThis.fetch = fetchStub;
+    globalThis.fetch = fetchStub as unknown as typeof fetch;
     
     await update(mockRevision, {
         parserID: 'babel',
@@ -292,7 +295,7 @@ test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist123',
@@ -330,7 +333,7 @@ test('gist: fetchFromURL: ok response resolves Revision', async (t) => {
 test('gist: fork: ok response resolves Revision', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist123',
@@ -371,7 +374,7 @@ test('gist: fork: ok response resolves Revision', async (t) => {
 test('gist: update: returns Revision instance', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist123',
@@ -412,7 +415,7 @@ test('gist: update: returns Revision instance', async (t) => {
 test('gist: update: throws on non-ok response', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 500,
     });
@@ -432,7 +435,7 @@ test('gist: update: throws on non-ok response', async (t) => {
 test('gist: owns: returns true for Revision instance', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'owns-test',
@@ -469,7 +472,7 @@ test('gist: owns: returns true for Revision instance', async (t) => {
 test('gist: v1 source format: getCode returns correct content', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-v1',
@@ -504,7 +507,7 @@ test('gist: v1 source format: getCode returns correct content', async (t) => {
 test('gist: Revision: canSave returns true', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-can-save',
@@ -540,7 +543,7 @@ test('gist: Revision: canSave returns true', async (t) => {
 test('gist: Revision: getPath returns correct path', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-path',
@@ -578,7 +581,7 @@ test('gist: Revision: getPath returns correct path', async (t) => {
 test('gist: Revision: getSnippetID returns correct id', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-sid',
@@ -616,7 +619,7 @@ test('gist: Revision: getSnippetID returns correct id', async (t) => {
 test('gist: Revision: getRevisionID returns correct version', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-revid',
@@ -654,7 +657,7 @@ test('gist: Revision: getRevisionID returns correct version', async (t) => {
 test('gist: Revision: getTransformerID returns toolID when set', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-tool',
@@ -692,7 +695,7 @@ test('gist: Revision: getTransformerID returns toolID when set', async (t) => {
 test('gist: Revision: getTransformerID returns null when not set', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-notool',
@@ -729,7 +732,7 @@ test('gist: Revision: getTransformerID returns null when not set', async (t) => 
 test('gist: Revision: getTransformCode returns content when transform file exists', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-tc',
@@ -770,7 +773,7 @@ test('gist: Revision: getTransformCode returns content when transform file exist
 test('gist: Revision: getTransformCode returns empty string when no transform file', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-notransform',
@@ -808,7 +811,7 @@ test('gist: Revision: getTransformCode returns empty string when no transform fi
 test('gist: Revision: getParserID returns correct parserID', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-parserid',
@@ -846,7 +849,7 @@ test('gist: Revision: getParserID returns correct parserID', async (t) => {
 test('gist: Revision: getParserSettings returns correct settings', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-parser-settings',
@@ -884,7 +887,7 @@ test('gist: Revision: getParserSettings returns correct settings', async (t) => 
 test('gist: Revision: getCode returns content for v2 source format', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-v2',
@@ -922,7 +925,7 @@ test('gist: Revision: getCode returns content for v2 source format', async (t) =
 test('gist: Revision: getCode returns empty string for unknown config version', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-unknown-v',
@@ -960,7 +963,7 @@ test('gist: Revision: getCode returns empty string for unknown config version', 
 test('gist: Revision: getCode caches result', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-cache',
@@ -999,7 +1002,7 @@ test('gist: Revision: getCode caches result', async (t) => {
 test('gist: Revision: getShareData returns object', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-share',
@@ -1035,7 +1038,7 @@ test('gist: Revision: getShareData returns object', async (t) => {
 test('gist: Revision: getShareData versionedURL contains snippetID', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-share',
@@ -1075,7 +1078,7 @@ test('gist: Revision: getShareData versionedURL contains snippetID', async (t) =
 test('gist: Revision: getShareData versionedURL contains revisionID', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-share',
@@ -1115,7 +1118,7 @@ test('gist: Revision: getShareData versionedURL contains revisionID', async (t) 
 test('gist: Revision: getShareData latestURL contains snippetID', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-share',
@@ -1155,7 +1158,7 @@ test('gist: Revision: getShareData latestURL contains snippetID', async (t) => {
 test('gist: Revision: getShareData has no double slash in latestURL', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-share',
@@ -1196,7 +1199,7 @@ test('gist: Revision: getShareData has no double slash in latestURL', async (t) 
 test('gist: Revision: getShareData embedURL is a string', async (t) => {
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             id: 'gist-share',

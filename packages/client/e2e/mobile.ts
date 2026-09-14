@@ -1,4 +1,8 @@
 import {test, expect} from './test.ts';
+import {
+    createPutoutEditor,
+    EDITOR_TRANSFORM,
+} from './putout-editor.ts';
 
 test('mobile menu is visible', async ({page}) => {
     await expect(page.locator('#MobileMenu')).toBeVisible();

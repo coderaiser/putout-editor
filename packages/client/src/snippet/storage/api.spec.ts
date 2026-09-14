@@ -5,7 +5,7 @@ test('api: calls fetch with correct path and default options', async (t) => {
     const originalFetch = globalThis.fetch;
     const fetch = stub();
     
-    globalThis.fetch = fetch;
+    globalThis.fetch = fetch as unknown as typeof globalThis.fetch;
     await api('/gist');
     globalThis.fetch = originalFetch;
     
@@ -17,7 +17,7 @@ test('api: calls fetch with custom options', async (t) => {
     const originalFetch = globalThis.fetch;
     const fetch = stub();
     
-    globalThis.fetch = fetch;
+    globalThis.fetch = fetch as unknown as typeof globalThis.fetch;
     await api('/gist', {
         method: 'POST',
     });

@@ -7,6 +7,9 @@ import {
     Revision,
 } from './parse.ts';
 
+const createFetchStub = (result: unknown) => stub()
+    .resolves(result) as unknown as typeof fetch;
+
 test('parse: matchesURL: true for snippet hash', (t) => {
     const orig = globalThis.location.hash;
     
@@ -66,7 +69,7 @@ test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: true,
         json: stub().resolves({
             snippetID: 'abc',
@@ -88,7 +91,7 @@ test('parse: fetchFromURL: 404 returns error message', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 404,
     });
@@ -106,7 +109,7 @@ test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
     const origHash = globalThis.location.hash;
     const origFetch = globalThis.fetch;
     
-    globalThis.fetch = stub().resolves({
+    globalThis.fetch = createFetchStub({
         ok: false,
         status: 500,
     });

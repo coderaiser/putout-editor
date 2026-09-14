@@ -24,5 +24,5 @@ export function readState(storage: any = globalThis.localStorage) {
         return console.warn('Unable to read from local storage.');
     
     if (state)
-        return JSON.parse(state);
+        return JSON.parse(state as string);
 }
