@@ -1,10 +1,11 @@
 import {useSelector} from 'react-redux';
 import EditorPlugin from '../editor-transform/index.tsx';
+import {showTransformer} from '#store';
 
 export default function TransformPanel() {
-    const showTransformer = useSelector((state: any) => state.showTransformPanel);
+    const show = useSelector(showTransformer);
     
-    if (!showTransformer)
+    if (!show)
         return null;
     
     return (

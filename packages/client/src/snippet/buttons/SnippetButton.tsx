@@ -10,6 +10,7 @@ import ForkButton from './ForkButton.tsx';
 import NewButton from './NewButton.tsx';
 import SaveButton from './SaveButton.tsx';
 import ShareButton from './ShareButton.tsx';
+import type {Revision} from '../../store/reducers.ts';
 
 interface SnippetButtonProps {
     canFork: boolean;
@@ -20,7 +21,7 @@ interface SnippetButtonProps {
     onSave: () => void;
     onNew?: () => void;
     onShareButtonClick: () => void;
-    snippet: any;
+    snippet: Revision | null;
 }
 
 export default function SnippetButton(props: SnippetButtonProps) {

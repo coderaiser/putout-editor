@@ -9,6 +9,7 @@ import {
     setCode,
     setCursor,
     editorBlur,
+    type RootState,
 } from '#store';
 
 export default function EditorSource() {
@@ -20,7 +21,7 @@ export default function EditorSource() {
         throw Error('Parser not found');
     
     const mode = parser.category.editorMode || parser.category.id;
-    const error = useSelector((state: any) => (getParseResult(state) || {}).error);
+    const error = useSelector((state: RootState) => (getParseResult(state) || {}).error);
     const highlightRange = useSelector(getHighlightRange);
     const dispatch = useDispatch();
     

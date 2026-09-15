@@ -4,7 +4,7 @@ import {
     useState,
     type ComponentType,
 } from 'react';
-import type {ElementSettings} from './types.ts';
+import type {ElementSettings, ElementProps} from './types.ts';
 
 type AutoFocusProps = {
     value: unknown;
@@ -16,7 +16,7 @@ function shouldAutoFocus({value, settings, focusPath}: AutoFocusProps) {
     return settings.autofocus && focusPath.indexOf(value) > -1;
 }
 
-export default function RecursiveTreeElement(Element: ComponentType<any>) {
+export default function RecursiveTreeElement(Element: ComponentType<ElementProps>) {
     const openValues = new WeakMap<object, number>();
     
     function addValue(value: object) {
@@ -39,7 +39,7 @@ export default function RecursiveTreeElement(Element: ComponentType<any>) {
         openValues.set(value, n);
     }
     
-    return function RecursiveElement(props: any) {
+    return function RecursiveElement(props: ElementProps) {
         const previousValue = useRef<unknown>(null);
         const [state, setState] = useState(() => {
             const {deepOpen} = props;

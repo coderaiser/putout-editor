@@ -23,6 +23,7 @@ import {
     putoutEditor,
     persist,
     revive,
+    type RootState,
 } from './store/reducers.ts';
 import {
     canSaveTransform,
@@ -36,7 +37,7 @@ import {formatListener} from './store/formatMiddleware.ts';
 import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 
 function App() {
-    const hasError = useSelector((s: any) => Boolean(s.error));
+    const hasError = useSelector((state: RootState) => Boolean(state.error));
     
     const isMobile = useMobile();
     const Layout = isMobile ? MobileLayout : AppLayout;

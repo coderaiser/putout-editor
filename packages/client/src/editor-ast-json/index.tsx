@@ -9,6 +9,7 @@ import {
     observeResize,
     setOption,
 } from '#editor';
+import type {QwordEditorView} from 'qword/client';
 
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
 
@@ -20,7 +21,7 @@ interface EditorASTJsonProps {
 
 export default function EditorASTJson({value = '', parseResult = null, className = ''}: EditorASTJsonProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const editorRef = useRef<any>(null);
+    const editorRef = useRef<QwordEditorView | null>(null);
     
     const resolvedValue = parseResult
         ? JSON.stringify(parseResult.ast, null, 4)

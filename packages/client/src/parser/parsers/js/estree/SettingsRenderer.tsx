@@ -1,16 +1,39 @@
-const identity = (v: any) => v;
+const identity = (value: unknown) => value;
 
 const isString = (a: unknown): a is string => typeof a === 'string';
 
+export type SettingsObject = Record<string, unknown>;
+export type SettingsUpdater = (settings: SettingsObject, name: string, value: unknown) => unknown;
+
+export type SettingsFieldValue =
+    | string
+    | number
+    | boolean
+    | ((value: unknown) => unknown);
+
+export type SettingsField =
+    | string
+    | readonly unknown[]
+    | SettingsConfig
+    | {
+        key: string;
+        label?: string;
+        title?: string;
+        values?: (settings: SettingsObject) => string[];
+        update?: SettingsUpdater;
+        settings?: (settings: SettingsObject) => unknown;
+        [option: string]: unknown;
+    };
+
 interface SettingsConfig {
     title?: string;
-    fields: any[];
+    fields: SettingsField[];
     required?: Set<string>;
-    update?: (settings: any, name: string, value: any) => any;
-    values?: (settings: any) => any;
+    update?: SettingsUpdater;
+    values?: (settings: SettingsObject) => SettingsObject;
     key?: string;
-    settings?: (settings: any) => any;
-    [option: string]: any;
+    settings?: (settings: SettingsObject) => unknown;
+    [option: string]: unknown;
 }
 
 function valuesFromArray(settings: string[]) {
@@ -20,14 +43,14 @@ function valuesFromArray(settings: string[]) {
     }, {});
 }
 
-function getValuesFromSettings(settings: any) {
+function getValuesFromSettings(settings: SettingsObject) {
     if (Array.isArray(settings))
         return valuesFromArray(settings);
     
     return settings;
 }
 
-const defaultUpdater = (settings: any, name: string, value: any) => ({
+const defaultUpdater = (settings: SettingsObject, name: string, value: unknown): SettingsObject => ({
     ...settings,
     [name]: value,
 });
@@ -43,17 +66,17 @@ function arrayUpdater(settings: string[], name: string, value: boolean) {
     return Array.from(set);
 }
 
-function getUpdateStrategy(settings: any): (settings: any, name: string, value: any) => any {
+function getUpdateStrategy(settings: unknown): SettingsUpdater {
     if (Array.isArray(settings))
-        return arrayUpdater;
+        return arrayUpdater as SettingsUpdater;
     
     return defaultUpdater;
 }
 
 type SettingsRendererProps = {
     settingsConfiguration: SettingsConfig;
-    parserSettings: any;
-    onChange: (settings: any) => void;
+    parserSettings: SettingsObject;
+    onChange: (settings: SettingsObject) => void;
 };
 
 export default function SettingsRenderer(props: SettingsRendererProps) {
@@ -85,12 +108,12 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                                         type="checkbox"
                                         readOnly={required.has(setting)}
                                         disabled={required.has(setting)}
-                                        checked={values[setting]}
+                                        checked={Boolean(values[setting])}
                                         onChange={({target}) => onChange(update(
                                             parserSettings,
                                             setting,
                                             target.checked,
-                                        ))}
+                                        ) as SettingsObject)}
                                     />
                                     {setting}
                                 </label>
@@ -98,7 +121,7 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                         );
                     
                     if (Array.isArray(setting)) {
-                        const [fieldName, options, converter = identity] = setting;
+                        const [fieldName, options, converter = identity] = setting as [string, unknown, ((value: unknown) => unknown)?];
                         
                         return (
                             <li key={fieldName}>
@@ -107,19 +130,19 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                                     <select
                                         onChange={({target}) => onChange(update(
                                             parserSettings,
-                                            fieldName,
+                                            fieldName as string,
                                             converter(target.value),
-                                        ))}
-                                        value={values[fieldName]}
+                                        ) as SettingsObject)}
+                                        value={values[fieldName as string] as string}
                                     >
                                         {Array.isArray(options)
-                                            ? options.map((o) => (
-                                                <option key={o} value={o}>{o}</option>
+                                            ? (options as unknown[]).map((o) => (
+                                                <option key={String(o)} value={String(o)}>{String(o)}</option>
                                             ))
                                             : Object
-                                                .keys(options)
+                                                .keys(options as Record<string, unknown>)
                                                 .map((key) => (
-                                                    <option key={key} value={options[key]}>{key}</option>
+                                                    <option key={key} value={String((options as Record<string, unknown>)[key])}>{key}</option>
                                                 ))}
                                     </select>
                                 </label>
@@ -127,18 +150,20 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                         );
                     }
                     
-                    if (setting && typeof setting === 'object')
+                    if (setting && typeof setting === 'object') {
+                        const nested = setting as SettingsConfig;
                         return (
                             <SettingsRenderer
-                                key={setting.key}
-                                settingsConfiguration={setting}
-                                parserSettings={setting.settings(parserSettings)}
+                                key={nested.key}
+                                settingsConfiguration={nested}
+                                parserSettings={(nested.settings?.(parserSettings) ?? {}) as SettingsObject}
                                 onChange={(settings) => onChange({
                                     ...parserSettings,
-                                    [setting.key]: settings,
+                                    [nested.key as string]: settings,
                                 })}
                             />
                         );
+                    }
                 })}
             </ul>
         </div>

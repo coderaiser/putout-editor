@@ -2,6 +2,7 @@ import {
     parseSourceRange,
     type SourceRange,
 } from './contract.ts';
+import type {AstNode} from '../types.ts';
 
 const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
 const isNumber = (a: unknown): a is number => typeof a === 'number';
@@ -23,9 +24,9 @@ export interface TreeAdapterFilter {
 export interface TreeAdapterOptions {
     filters?: TreeAdapterFilter[];
     openByDefault?: (node: unknown, key: string) => boolean;
-    nodeToName?: (node: any) => string | null;
-    nodeToRange?: (node: any) => unknown;
-    walkNode?: (node: any) => Iterable<TreeAdapterChild>;
+    nodeToName?: (node: unknown) => string | null;
+    nodeToRange?: (node: unknown) => unknown;
+    walkNode?: (node: unknown) => Iterable<TreeAdapterChild>;
     [option: string]: unknown;
 }
 
@@ -37,12 +38,12 @@ export interface TreeAdapterChild {
 
 export interface TreeAdapterConfig {
     filters?: TreeAdapterFilter[];
-    openByDefault?: (node: any, key: string) => boolean;
+    openByDefault?: (node: unknown, key: string) => boolean;
     openByDefaultNodes?: Set<string>;
     openByDefaultKeys?: Set<string>;
-    nodeToName: (node: any) => string | null;
-    nodeToRange: (node: any) => unknown;
-    walkNode: (node: any) => Iterable<TreeAdapterChild>;
+    nodeToName: (node: unknown) => string | null;
+    nodeToRange: (node: unknown) => unknown;
+    walkNode: (node: unknown) => Iterable<TreeAdapterChild>;
     [option: string]: unknown;
 }
 
@@ -109,8 +110,8 @@ export class TreeAdapter {
                 last = next.value?.value;
             }
             
-            const rangeFirst = validateRange(!isUndefined(first) && nodeToRange ? nodeToRange(first as any) : null);
-            const rangeLast = validateRange(!isUndefined(last) && nodeToRange ? nodeToRange(last as any) : null);
+            const rangeFirst = validateRange(!isUndefined(first) && nodeToRange ? nodeToRange(first) : null);
+            const rangeLast = validateRange(!isUndefined(last) && nodeToRange ? nodeToRange(last) : null);
             
             if (rangeFirst && rangeLast)
                 range = [
@@ -211,22 +212,26 @@ const TreeAdapterConfigs: Record<string, TreeAdapterConfig> = {
             
             return Boolean(target && this.openByDefaultNodes?.has(target.type as string) || this.openByDefaultKeys?.has(key));
         },
-        nodeToRange(node: any) {
-            if (node.range)
-                return node.range;
+        nodeToRange(node: unknown) {
+            const astNode = node as AstNode;
             
-            if (isNumber(node.start) && isNumber(node.end))
-                return [node.start, node.end];
+            if (astNode.range)
+                return astNode.range;
+            
+            if (isNumber(astNode.start) && isNumber(astNode.end))
+                return [astNode.start, astNode.end];
             
             return null;
         },
-        nodeToName(node: any) {
-            return node.type;
+        nodeToName(node: unknown) {
+            return (node as AstNode).type as string;
         },
-        *walkNode(node: any) {
-            for (const prop in node) {
+        *walkNode(node: unknown) {
+            const astNode = node as AstNode;
+            
+            for (const prop in astNode) {
                 yield {
-                    value: node[prop],
+                    value: astNode[prop],
                     key: prop,
                     computed: false,
                 };

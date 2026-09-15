@@ -5,7 +5,7 @@ import Element from './tree/Element.tsx';
 import {logEvent} from '../snippet/logger.ts';
 import {treeAdapterFromParseResult} from '../parser/TreeAdapter.ts';
 import {clearHighlight} from '../store/reducers.ts';
-import type {ElementSettings} from './tree/types.ts';
+import type {ElementSettings, TreeAdapter} from './tree/types.ts';
 
 const {useReducer, useMemo} = React;
 
@@ -97,7 +97,7 @@ export default function Tree({focusPath, parseResult}: TreeProps) {
                     focusPath={focusPath}
                     value={parseResult.ast}
                     level={0}
-                    treeAdapter={treeAdapter as any}
+                    treeAdapter={treeAdapter as unknown as TreeAdapter}
                     settings={settings}
                 />
             </ul>

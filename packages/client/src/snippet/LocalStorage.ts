@@ -2,22 +2,31 @@ import {tryCatch} from 'try-catch';
 
 const key = 'explorerSettingsV1';
 
-export function writeState(state: unknown, storage: any = globalThis.localStorage) {
-    if (!storage)
+interface LocalStorageLike {
+    getItem: (key: string) => string | null;
+    setItem: (key: string, value: string) => void;
+}
+
+export function writeState(state: unknown, storage?: Partial<LocalStorageLike> | null) {
+    const resolved = storage ?? globalThis.localStorage;
+    
+    if (!resolved?.setItem)
         return;
     
-    const setItem = storage.setItem.bind(storage);
+    const setItem = resolved.setItem.bind(resolved);
     const [error] = tryCatch(setItem, key, JSON.stringify(state));
     
     if (error)
         console.warn('Unable to write to local storage.');
 }
 
-export function readState(storage: any = globalThis.localStorage) {
-    if (!storage)
+export function readState(storage?: Partial<LocalStorageLike> | null) {
+    const resolved = storage ?? globalThis.localStorage;
+    
+    if (!resolved?.getItem)
         return;
     
-    const getItem = storage.getItem.bind(storage);
+    const getItem = resolved.getItem.bind(resolved);
     const [error, state] = tryCatch(getItem, key);
     
     if (error)

@@ -8,8 +8,9 @@ import {
     getCode,
 } from '#store';
 import {getFocusPath, Editor} from '#editor';
+import type {Parser as FocusPathParser} from '../editor/getFocusPath.ts';
 import {type AstNode} from '../types.ts';
-import visualizations from './visualization.tsx';
+import visualizations, {type VisualizationProps} from './visualization.tsx';
 import {Button} from './Button.tsx';
 
 const getName = (a: {
@@ -38,12 +39,12 @@ export default function EditorASTTree() {
     const code = useSelector(getCode);
     const [selectedOutput, setSelectedOutput] = useState(0);
     const ast: AstNode | null = (parseResult?.ast as AstNode) || null;
-    const Visualization = visualizations[selectedOutput] as React.ComponentType<any>;
+    const Visualization = visualizations[selectedOutput] as React.ComponentType<VisualizationProps>;
     
     if (!parser)
         throw Error('Parser not found');
     
-    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(ast, cursor, parser as any) : [], [ast, cursor, parser]);
+    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(ast, cursor, parser as unknown as FocusPathParser) : [], [ast, cursor, parser]);
     
     let output: React.ReactNode;
     

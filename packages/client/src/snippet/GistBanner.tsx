@@ -12,12 +12,13 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {TbX} from 'react-icons/tb';
 import {getRevision} from '../store/selectors.ts';
+import type {RootState, Revision} from '../store/reducers.ts';
 
 const buttonStyle: React.CSSProperties = {
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
-    float: 'left' as any,
+    float: 'left',
     fontSize: 14,
     margin: 0,
     padding: 0,
@@ -25,7 +26,7 @@ const buttonStyle: React.CSSProperties = {
 };
 
 interface GistBannerProps {
-    revision: any;
+    revision: Revision | null;
 }
 
 function GistBanner({revision}: GistBannerProps) {
@@ -62,6 +63,6 @@ GistBanner.propTypes = {
     revision: PropTypes.object,
 };
 
-export default connect((state: any) => ({
+export default connect((state: RootState) => ({
     revision: getRevision(state),
 }))(GistBanner);

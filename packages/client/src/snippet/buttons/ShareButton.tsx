@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import {TbShare2} from 'react-icons/tb';
+import type {Revision} from '../../store/reducers.ts';
 
 interface ShareButtonProps {
     onShareButtonClick?: () => void;
     onShare?: () => void;
-    snippet: any;
+    snippet: Revision | null;
 }
 
 export default function ShareButton({onShareButtonClick, onShare, snippet}: ShareButtonProps) {

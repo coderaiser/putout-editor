@@ -1,12 +1,12 @@
 import {useSelector, useDispatch} from 'react-redux';
-import {closeShareDialog} from '../../store/reducers.ts';
+import {closeShareDialog, type Revision} from '../../store/reducers.ts';
 import {
     showShareDialog,
     getRevision,
 } from '../../store/selectors.ts';
 
 interface ShareDialogProps {
-    snippet: any;
+    snippet: Revision;
 }
 
 function ShareDialogInner({snippet}: ShareDialogProps) {

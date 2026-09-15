@@ -1,4 +1,5 @@
-import SettingsRenderer from './SettingsRenderer.tsx';
+import SettingsRenderer, {type SettingsField, type SettingsObject} from './SettingsRenderer.tsx';
+import type {AstNode} from '../../../types.ts';
 
 /**
  * The minimal interface that every parser must implement. This object provides
@@ -59,13 +60,13 @@ export default {
    * The start and end indices of the node in the source text. The return value
    * is an array of form `[start, end]`. This is used for highlighting source
    * text and focusing nodes in the tree.
-   */nodeToRange(node: any) {
+   */nodeToRange(node: AstNode) {
         return node.range;
     },
     
     /**
    * A more or less human readable name of the node.
-   */getNodeName(node: any) {
+   */getNodeName(node: AstNode) {
         return node.type;
     },
     
@@ -73,7 +74,7 @@ export default {
    * A generator to iterate over each "property" of the node. Overwriting this
    * function allows a parser to expose information from a node if the node
    * is not implemented as plain JavaScript object.
-   */*forEachProperty(node: any) {
+   */*forEachProperty(node: AstNode) {
         for (const prop in node) {
             if (this._ignoredProperties.has(prop))
                 continue;
@@ -126,7 +127,7 @@ export default {
    *   - a settings configuration object: Same structured as described above,
    *                                      used to describe nested options.
    *
-   */_getSettingsConfiguration(defaultOptions: any) {
+   */_getSettingsConfiguration(defaultOptions: Record<string, unknown>) {
         const keys = Object.keys(defaultOptions);
         
         return keys.length > 0 ? {
@@ -150,7 +151,7 @@ export default {
    * not seem necessary, we don't know which version of the options are stored
    * in a snippet or the client browser, so this function is called to ensure
    * that all options are set.
-   */_mergeDefaultOptions(currentOptions: any, defaultOptions: any) {
+   */_mergeDefaultOptions(currentOptions: Record<string, unknown>, defaultOptions: Record<string, unknown>) {
         return {
             ...defaultOptions,
             ...currentOptions,
@@ -161,7 +162,7 @@ export default {
    * This method is called when the settingds UI is rendered. It is passed the
    * current parser settings and a callback that should be called with the
    * updated settings object.
-   */renderSettings(settings: any, onChange: (settings: any) => void) {
+   */renderSettings(settings: SettingsObject, onChange: (settings: SettingsObject) => void) {
         const defaultOptions = this.getDefaultOptions();
         const settingsConfiguration = this._getSettingsConfiguration(defaultOptions);
         
