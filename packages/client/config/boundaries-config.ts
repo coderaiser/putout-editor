@@ -3,7 +3,7 @@ import {buildBoundaries} from './boundaries-dsl.ts';
 
 const config = buildBoundaries({
     'editor': ['parser'],
-    'store': ['editor', 'parser'],
+    'store': ['editor', 'parser', 'snippet'],
     'parser': ['editor', 'store'],
     'snippet': ['editor', 'store', 'parser'],
     'ui': ['editor', 'store', 'parser'],
