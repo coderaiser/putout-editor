@@ -7,7 +7,7 @@ const PARSE_ERRORS = new Set([
     'ParseError',
 ]);
 
-export type Transformer = {
+export type EditorTransformer = {
     _promise?: Promise<unknown> | null;
     loadTransformer: (callback: (value: unknown) => void) => void;
     transform: (realTransformer: unknown, transformCode: string, code: string, parser: string) => string;
@@ -23,7 +23,7 @@ function formatError(error: Error, transformCode: string): string {
     });
 }
 
-async function runTransform(transformer: Transformer, transformCode: string, code: string, parser: string): Promise<string> {
+async function runTransform(transformer: EditorTransformer, transformCode: string, code: string, parser: string): Promise<string> {
     if (!transformer._promise)
         transformer._promise = new Promise((resolve) => transformer.loadTransformer(resolve));
     
@@ -33,7 +33,7 @@ async function runTransform(transformer: Transformer, transformCode: string, cod
 }
 
 interface EditorResultProps {
-    transformer: Transformer;
+    transformer: EditorTransformer;
     transformCode: string;
     code: string;
     mode: string;

@@ -66,7 +66,7 @@ export default function ShareDialog() {
     const visible = useSelector(showShareDialog);
     const snippet = useSelector(getRevision);
     
-    if (!visible)
+    if (!visible || !snippet)
         return null;
     
     return (

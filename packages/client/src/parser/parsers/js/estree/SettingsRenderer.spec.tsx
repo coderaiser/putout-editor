@@ -4,7 +4,7 @@ import {
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import SettingsRenderer from './SettingsRenderer.tsx';
+import SettingsRenderer, {type SettingsObject} from './SettingsRenderer.tsx';
 
 test('SettingsRenderer: renders checkbox for string field', (t) => {
     render(
@@ -261,7 +261,7 @@ test('SettingsRenderer: array parserSettings uses valuesFromArray', (t) => {
             settingsConfiguration={{
                 fields: ['jsx', 'typescript'],
             }}
-            parserSettings={['jsx']}
+            parserSettings={['jsx'] as unknown as SettingsObject}
             onChange={stub()}
         />,
     );
@@ -282,7 +282,7 @@ test('SettingsRenderer: array update strategy add value', (t) => {
             settingsConfiguration={{
                 fields: ['jsx'],
             }}
-            parserSettings={[]}
+            parserSettings={[] as unknown as SettingsObject}
             onChange={onChange}
         />,
     );
@@ -308,7 +308,7 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
             parserSettings={[
                 'jsx',
                 'typescript',
-            ]}
+            ] as unknown as SettingsObject}
             onChange={onChange}
         />,
     );

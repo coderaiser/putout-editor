@@ -1,5 +1,5 @@
 import SettingsRenderer, {type SettingsField, type SettingsObject} from './SettingsRenderer.tsx';
-import type {AstNode} from '../../../types.ts';
+import type {AstNode} from '../../../../types.ts';
 
 /**
  * The minimal interface that every parser must implement. This object provides

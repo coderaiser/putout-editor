@@ -54,9 +54,7 @@ export default {
             isJSX: true,
             isTS: true,
             fixCount: 1,
-            plugins: [{
-                plugin,
-            }],
+            plugins: [plugin],
         });
         
         return code;

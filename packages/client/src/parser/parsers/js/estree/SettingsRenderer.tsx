@@ -55,15 +55,15 @@ const defaultUpdater = (settings: SettingsObject, name: string, value: unknown):
     [name]: value,
 });
 
-function arrayUpdater(settings: string[], name: string, value: boolean) {
-    const set = new Set(settings);
+function arrayUpdater(settings: SettingsObject, name: string, value: boolean): SettingsObject {
+    const set = new Set<string>(settings as unknown as string[]);
     
     if (value)
         set.add(name);
     else
         set.delete(name);
     
-    return Array.from(set);
+    return Array.from(set) as unknown as SettingsObject;
 }
 
 function getUpdateStrategy(settings: unknown): SettingsUpdater {

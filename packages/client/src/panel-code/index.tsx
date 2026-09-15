@@ -1,5 +1,5 @@
 import {useSelector} from 'react-redux';
-import EditorResult from '#editor-code';
+import EditorResult, {type EditorTransformer} from '#editor-code';
 import {
     getTransformCode,
     getCode,
@@ -22,7 +22,7 @@ export default function CodePanel() {
     
     return (
         <EditorResult
-            transformer={transformer!}
+            transformer={(transformer ?? getTransformerByID('putout')!) as unknown as EditorTransformer}
             transformCode={transformCode}
             code={code}
             mode={mode}

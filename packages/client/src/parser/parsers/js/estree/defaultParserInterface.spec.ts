@@ -38,6 +38,7 @@ test('defaultParserInterface: opensByDefault returns false', (t) => {
 
 test('defaultParserInterface: nodeToRange returns node.range', (t) => {
     const result = defaultParserInterface.nodeToRange({
+        type: '',
         range: [1, 5],
     });
     
@@ -80,6 +81,7 @@ test('defaultParserInterface: forEachProperty yields each non-ignored property',
 
 test('defaultParserInterface: forEachProperty skips ignored properties', (t) => {
     const node = {
+        type: '',
         foo: 1,
         bar: 2,
     };
