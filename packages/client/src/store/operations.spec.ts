@@ -316,3 +316,15 @@ test('operations: saveRevision: returns new revision from create', async (t) => 
     t.equal(result, newRevision);
     t.end();
 });
+
+test('operations: parseCode: works when parser has null ignoredProperties', async (t) => {
+    const parser = {
+        ...makeMockParser(),
+        _ignoredProperties: null as unknown as Iterable<unknown>,
+    };
+    
+    const [error] = await tryToCatch(parseCode, parser, 'const x = 1', null);
+    
+    t.notOk(error);
+    t.end();
+});
