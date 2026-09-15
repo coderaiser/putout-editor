@@ -150,6 +150,7 @@
     "test:e2e:desktop": "madrun test:e2e:desktop",
     "e2e": "madrun e2e",
     "coverage": "madrun coverage",
+    "coverage:json": "madrun coverage:json",
     "test:dts": "madrun test:dts",
     "start": "madrun start",
     "build": "madrun build",
