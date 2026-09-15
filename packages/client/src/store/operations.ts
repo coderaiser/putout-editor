@@ -1,4 +1,6 @@
 import {estreeToBabel} from 'estree-to-babel';
+import type {ParserSettings} from './reducers.ts';
+import type {StorageData} from '../snippet/storage/index.ts';
 import {
     ignoreKeysFilter,
     locationInformationFilter,
@@ -7,17 +9,52 @@ import {
     typeKeysFilter,
 } from '../parser/TreeAdapter.ts';
 
-const returns = (a: any) => () => a;
+/**
+ * The storage adapter surface used by the store. Types are intentionally
+ * permissive: production passes `StorageHandler` (see `snippet/storage`),
+ * tests pass structural doubles implementing a single method.
+ */
+export type StorageAdapter = {
+    fetchFromURL?(): unknown;
+    create?(data: StorageData): unknown;
+    update?(revision: unknown, data: StorageData): unknown;
+    fork?(revision: unknown, data: StorageData): unknown;
+};
+
+type ParserChild = {
+    value: unknown;
+    key: string;
+    computed: boolean;
+};
+
+type ParserWithLoader = {
+    nodeToRange: (node: unknown) => unknown;
+    forEachProperty: (node: unknown) => Iterable<ParserChild> | void;
+    _promise?: Promise<unknown> | null;
+    loadParser: (callback: (value: unknown) => void) => void;
+    parse: (realParser: unknown, code: string, settings: ParserSettings) => unknown;
+    getDefaultOptions: () => ParserSettings;
+    opensByDefault?: (node: unknown, key: string) => boolean;
+    getNodeName: (node: unknown) => string | null;
+    _ignoredProperties: Iterable<unknown>;
+    locationProps?: Iterable<string> | null;
+    typeProps?: Iterable<string> | null;
+};
+
+const returns = <T,>(a: T) => () => a;
+
+// Parsers describe these as either `Set` or plain arrays — normalize for the filters.
+const toSet = (value: Iterable<unknown> | null | undefined): Set<string> => new Set([...value ?? []].map(String));
 
 /**
  * Parse code with the given parser and settings.
  * Returns { ast, treeAdapter } on success. Throws on parse error.
  */
-export async function parseCode(parser: any, code: string, parserSettings: any) {
+export async function parseCode(parser: ParserWithLoader, code: string, parserSettings: ParserSettings) {
     const settings = parserSettings || parser.getDefaultOptions();
     
     if (!parser._promise)
-        parser._promise = new Promise(parser.loadParser);
+        parser._promise = new Promise((resolve) => parser.loadParser(resolve));
     
     const realParser = await parser._promise;
     const ast = parser.parse(realParser, code, settings);
@@ -30,17 +67,17 @@ export async function parseCode(parser: any, code: string, parserSettings: any) 
             nodeToName: parser.getNodeName.bind(parser),
             walkNode: parser.forEachProperty.bind(parser),
             filters: [
-                ignoreKeysFilter(parser._ignoredProperties),
+                ignoreKeysFilter(toSet(parser._ignoredProperties)),
                 functionFilter(),
                 emptyKeysFilter(),
-                locationInformationFilter(parser.locationProps),
-                typeKeysFilter(parser.typeProps),
+                locationInformationFilter(toSet(parser.locationProps)),
+                typeKeysFilter(toSet(parser.typeProps)),
             ],
         },
     };
     
     return {
-        ast: estreeToBabel(ast),
+        ast: estreeToBabel(ast as Parameters<typeof estreeToBabel>[0]),
         treeAdapter,
     };
 }
@@ -49,7 +86,7 @@ export async function parseCode(parser: any, code: string, parserSettings: any) 
  * Fetch a snippet revision from the URL hash via storageAdapter.
  * Returns revision object or null.
  */
-export const loadSnippetFromURL = (storageAdapter: any) => storageAdapter.fetchFromURL();
+export const loadSnippetFromURL = (storageAdapter: StorageAdapter) => storageAdapter.fetchFromURL!();
 
 /**
  * Save, update, or fork a snippet revision via storageAdapter.
@@ -58,12 +95,12 @@ export const loadSnippetFromURL = (storageAdapter: any) => storageAdapter.fetchF
  * fork=false + no revision → storageAdapter.create(data)
  * Returns new revision or undefined.
  */
-export function saveRevision(fork: boolean, data: any, revision: any, storageAdapter: any) {
+export function saveRevision(fork: boolean, data: StorageData, revision: unknown, storageAdapter: StorageAdapter) {
     if (fork)
-        return storageAdapter.fork(revision, data);
+        return storageAdapter.fork!(revision, data);
     
     if (revision)
-        return storageAdapter.update(revision, data);
+        return storageAdapter.update!(revision, data);
     
-    return storageAdapter.create(data);
+    return storageAdapter.create!(data);
 }

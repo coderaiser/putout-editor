@@ -3,10 +3,12 @@ import {tryToCatch} from 'try-to-catch';
 import {
     loadSnippetFromURL,
     saveRevision,
+    type StorageAdapter,
 } from '../store/operations.ts';
 import {logEvent, logError} from './logger.ts';
 import {
     type RootState,
+    type Revision as StoreRevision,
     setError,
     clearError,
     startLoadingSnippet,
@@ -16,6 +18,7 @@ import {
     startSave,
     endSave,
 } from '../store/reducers.ts';
+import type {StorageData} from './storage/index.ts';
 import {
     getParserSettings,
     getCode,
@@ -27,15 +30,11 @@ import {
 } from '../store/selectors.ts';
 import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
 
-type StorageAdapter = {
-    fetchFromURL: () => Promise<unknown>;
-    fork: (revision: unknown, data: unknown) => Promise<unknown>;
-    update: (revision: unknown, data: unknown) => Promise<unknown>;
-    create: (data: unknown) => Promise<unknown>;
-    updateHash: (revision: unknown) => void;
+type StorageAdapterWithHash = StorageAdapter & {
+    updateHash(revision: StoreRevision): void;
 };
 
-export function createSnippetListener(storageAdapter: StorageAdapter) {
+export function createSnippetListener(storageAdapter: StorageAdapterWithHash) {
     const listener = createListenerMiddleware<RootState>();
     
     let requestId = 0;
@@ -116,7 +115,7 @@ export function createSnippetListener(storageAdapter: StorageAdapter) {
                 logError(error.message);
                 api.dispatch(setError(error));
             } else if (newRevision) {
-                storageAdapter.updateHash(newRevision);
+                storageAdapter.updateHash(newRevision as StoreRevision);
             }
             
             api.dispatch(endSave());

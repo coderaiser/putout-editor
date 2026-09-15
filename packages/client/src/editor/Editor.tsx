@@ -12,10 +12,28 @@ import {
     off,
     observeResize,
 } from 'qword/client';
+import type {Text} from '@codemirror/state';
+import type {
+    QwordEditorView,
+    CreateEditorOptions,
+    MarkHandle,
+    SourcePosition,
+} from 'qword/client';
 import {
     posFromIndex as adapterPosFromIndex,
     indexFromPos as adapterIndexFromPos,
 } from './position.ts';
+
+type UpdateListener = NonNullable<CreateEditorOptions['updateListener']> extends (update: infer U) => void ? U : never;
+
+// Parser errors carry line information in various, parser-specific shapes
+type ParseErrorLike = Error & {
+    lineNumber?: number;
+    line?: number;
+    loc?: {
+        line?: number;
+    };
+};
 
 const returns = (a?: () => void) => () => a;
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? /* c8 ignore next */'nord' : 'default';
@@ -40,10 +58,7 @@ interface EditorProps {
     }) => void;
     onActivity?: (cursor: number) => void;
     onBlur?: () => void;
-    posFromIndex?: (doc: any, index: number) => {
-        line: number;
-        ch: number;
-    } | null;
+    posFromIndex?: (doc: Text, index: number) => SourcePosition | null;
 }
 
 export default function Editor(props: EditorProps) {
@@ -63,24 +78,27 @@ export default function Editor(props: EditorProps) {
     } = props;
     
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const editorRef = useRef<any>(null);
+    const editorRef = useRef<QwordEditorView | null>(null);
     const valueRef = useRef(value);
     const errorRef = useRef(error);
-    const markRef = useRef<any>(null);
-    const markerRangeRef = useRef<any>(null);
-    const timerRef = useRef<any>(null);
-    const activityRef = useRef<any>(null);
+    const markRef = useRef<MarkHandle | null>(null);
+    const markerRangeRef = useRef<[
+        number,
+        number,
+    ] | null>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const activityRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const programmaticSelectionRef = useRef(false);
     
     useEffect(() => {
         const editor = createEditor(containerRef.current!, {
-            keyMap: keyMap as any,
+            keyMap: keyMap as CreateEditorOptions['keyMap'],
             value,
             mode,
             lineNumbers,
             readOnly,
             theme: getCMTheme(),
-            updateListener: (update: any) => {
+            updateListener: (update: UpdateListener) => {
                 if (update.docChanged) {
                     clearTimeout(timerRef.current);
                     timerRef.current = setTimeout(() => {
@@ -157,16 +175,16 @@ export default function Editor(props: EditorProps) {
     
     useEffect(() => {
         const editor = editorRef.current;
-        const getLine = (error: any) => error && (error.lineNumber || error.line || error.loc?.line);
+        const getLine = (error: ParseErrorLike | null) => error && (error.lineNumber || error.line || error.loc?.line);
         
         const oldLine = getLine(errorRef.current);
         
-        if (oldLine)
+        if (editor && oldLine)
             removeLineClass(editor, oldLine - 1, 'text', 'errorMarker');
         
         const newLine = getLine(error);
         
-        if (newLine)
+        if (editor && newLine)
             addLineClass(editor, newLine - 1, 'text', 'errorMarker');
         
         errorRef.current = error;
@@ -221,7 +239,7 @@ export default function Editor(props: EditorProps) {
             return adapterPosFromIndex(editor, idx);
         };
         
-        const toOffset = (pos: any) => {
+        const toOffset = (pos: SourcePosition | null) => {
             if (!pos)
                 return null;
             

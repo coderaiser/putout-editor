@@ -879,7 +879,7 @@ test('gist: Revision: getParserSettings returns correct settings', async (t) => 
     
     globalThis.fetch = origFetch;
     
-    t.equal(rev.getParserSettings().sourceType, 'module');
+    t.equal((rev.getParserSettings() as Record<string, unknown>).sourceType, 'module');
     t.end();
 });
 

@@ -1,5 +1,6 @@
 import api from './api.ts';
 import {getParserByID} from '../../parser/parsers/index.ts';
+import type {StorageRevision, StorageData} from './index.ts';
 
 type URLParameters = {
     id: string;
@@ -19,11 +20,7 @@ type GistConfig = {
     v?: 1 | 2;
     toolID?: string;
     parserID: string;
-    settings: Record<string, any>;
-};
-type Revision = {
-    getSnippetID(): string;
-    getRevisionID(): string;
+    settings: Record<string, unknown>;
 };
 
 function getIDAndRevisionFromHash(): URLParameters | null {
@@ -73,7 +70,7 @@ export async function fetchFromURL() {
 /**
  * Create a new snippet.
  */
-export async function create(data: unknown) {
+export async function create(data: StorageData) {
     const response = await api('/gist', {
         method: 'POST',
         headers: {
@@ -93,8 +90,8 @@ export async function create(data: unknown) {
  * Caller is responsible for setting data.transform = null when
  * transformer was removed (buildSaveData in snippetMiddleware handles this).
  */
-export async function update(revision: Revision, data: unknown) {
-    const response = await api(`/gist/${revision.getSnippetID()}`, {
+export async function update(revision: StorageRevision, data: StorageData) {
+    const response = await api(`/gist/${revision.getSnippetID!()}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -111,8 +108,8 @@ export async function update(revision: Revision, data: unknown) {
 /**
  * Fork an existing snippet.
  */
-export async function fork(revision: Revision, data: unknown) {
-    const response = await api(`/gist/${revision.getSnippetID()}/${revision.getRevisionID()}`, {
+export async function fork(revision: StorageRevision, data: StorageData) {
+    const response = await api(`/gist/${revision.getSnippetID!()}/${revision.getRevisionID!()}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
