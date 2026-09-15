@@ -10,7 +10,9 @@ import {
 import {getFocusPath, Editor} from '#editor';
 import type {Parser as FocusPathParser} from '../editor/getFocusPath.ts';
 import {type AstNode} from '../types.ts';
-import visualizations, {type VisualizationProps} from './visualization.tsx';
+import visualizations, {
+    type VisualizationProps,
+} from './visualization.tsx';
 import {Button} from './Button.tsx';
 
 const getName = (a: {

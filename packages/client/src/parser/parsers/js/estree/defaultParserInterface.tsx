@@ -1,4 +1,4 @@
-import SettingsRenderer, {type SettingsField, type SettingsObject} from './SettingsRenderer.tsx';
+import SettingsRenderer, {type SettingsObject} from './SettingsRenderer.tsx';
 import type {AstNode} from '../../../../types.ts';
 
 /**

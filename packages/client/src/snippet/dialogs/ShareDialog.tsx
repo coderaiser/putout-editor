@@ -1,5 +1,8 @@
 import {useSelector, useDispatch} from 'react-redux';
-import {closeShareDialog, type Revision} from '../../store/reducers.ts';
+import {
+    closeShareDialog,
+    type Revision,
+} from '../../store/reducers.ts';
 import {
     showShareDialog,
     getRevision,

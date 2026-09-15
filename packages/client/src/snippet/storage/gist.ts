@@ -1,6 +1,9 @@
 import api from './api.ts';
 import {getParserByID} from '../../parser/parsers/index.ts';
-import type {StorageRevision, StorageData} from './index.ts';
+import type {
+    StorageRevision,
+    StorageData,
+} from './index.ts';
 
 type URLParameters = {
     id: string;

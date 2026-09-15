@@ -434,20 +434,25 @@ test('TreeAdapter: treeAdapterFromParseResult: getRange derives range from child
             options: {
                 nodeToRange(node) {
                     const n = node as Record<string, unknown>;
+                    
                     if (n.range)
-                        return n.range as [number, number];
+                        return n.range as [
+                            number,
+                            number,
+                        ];
                     
                     return null;
                 },
                 *walkNode(node) {
                     const n = node as Record<string, unknown>;
+                    
                     if (n.children)
                         for (const child of n.children as unknown[]) {
-                            yield {
+                            yield ({
                                 value: child,
                                 key: 'child',
                                 computed: false,
-                            } as const;
+                            } as const);
                         }
                 },
                 nodeToName(node) {
@@ -728,20 +733,25 @@ test('TreeAdapter: getRange from children fails when first child has no range', 
             options: {
                 nodeToRange(node) {
                     const n = node as Record<string, unknown>;
+                    
                     if (n.range)
-                        return n.range as [number, number];
+                        return n.range as [
+                            number,
+                            number,
+                        ];
                     
                     return null;
                 },
                 *walkNode(node) {
                     const n = node as Record<string, unknown>;
+                    
                     if (n.children)
                         for (const child of n.children as unknown[]) {
-                            yield {
+                            yield ({
                                 value: child,
                                 key: 'child',
                                 computed: false,
-                            } as const;
+                            } as const);
                         }
                 },
                 nodeToName(node) {
@@ -774,20 +784,25 @@ test('TreeAdapter: getRange from children fails when last child has no range', (
             options: {
                 nodeToRange(node) {
                     const n = node as Record<string, unknown>;
+                    
                     if (n.range)
-                        return n.range as [number, number];
+                        return n.range as [
+                            number,
+                            number,
+                        ];
                     
                     return null;
                 },
                 *walkNode(node) {
                     const n = node as Record<string, unknown>;
+                    
                     if (n.children)
                         for (const child of n.children as unknown[]) {
-                            yield {
+                            yield ({
                                 value: child,
                                 key: 'child',
                                 computed: false,
-                            } as const;
+                            } as const);
                         }
                 },
                 nodeToName(node) {
@@ -930,6 +945,7 @@ const makeBabelLikeAdapter = () => treeAdapterFromParseResult({
             openByDefault: () => false,
             nodeToRange(node) {
                 const n = node as Record<string, unknown>;
+                
                 if (!isUndefined(n.start))
                     return [n.start as number, n.end as number];
             },

@@ -4,7 +4,10 @@ import {
     useState,
     type ComponentType,
 } from 'react';
-import type {ElementSettings, ElementProps} from './types.ts';
+import type {
+    ElementSettings,
+    ElementProps,
+} from './types.ts';
 
 type AutoFocusProps = {
     value: unknown;

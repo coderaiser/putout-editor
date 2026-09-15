@@ -1,4 +1,5 @@
 import {useRef, useEffect} from 'react';
+import type {Text} from '@codemirror/state';
 import {
     createEditor,
     setValue,
@@ -11,21 +12,20 @@ import {
     on,
     off,
     observeResize,
-} from 'qword/client';
-import type {Text} from '@codemirror/state';
-import type {
-    QwordEditorView,
-    CreateEditorOptions,
-    MarkHandle,
-    SourcePosition,
+    type QwordEditorView,
+    type CreateEditorOptions,
+    type MarkHandle,
+    type SourcePosition,
 } from 'qword/client';
 import {
     posFromIndex as adapterPosFromIndex,
     indexFromPos as adapterIndexFromPos,
 } from './position.ts';
 
-type UpdateListener = NonNullable<CreateEditorOptions['updateListener']> extends (update: infer U) => void ? U : never;
-
+type UpdateListener =
+    NonNullable<CreateEditorOptions['updateListener']> extends (update: infer U) => void
+        ? U
+        : never;
 // Parser errors carry line information in various, parser-specific shapes
 type ParseErrorLike = Error & {
     lineNumber?: number;
@@ -82,10 +82,12 @@ export default function Editor(props: EditorProps) {
     const valueRef = useRef(value);
     const errorRef = useRef(error);
     const markRef = useRef<MarkHandle | null>(null);
+    
     const markerRangeRef = useRef<[
         number,
         number,
     ] | null>(null);
+    
     const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const activityRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const programmaticSelectionRef = useRef(false);

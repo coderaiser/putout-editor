@@ -3,6 +3,7 @@ const identity = (value: unknown) => value;
 const isString = (a: unknown): a is string => typeof a === 'string';
 
 export type SettingsObject = Record<string, unknown>;
+
 export type SettingsUpdater = (settings: SettingsObject, name: string, value: unknown) => unknown;
 
 export type SettingsFieldValue =
@@ -109,11 +110,7 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                                         readOnly={required.has(setting)}
                                         disabled={required.has(setting)}
                                         checked={Boolean(values[setting])}
-                                        onChange={({target}) => onChange(update(
-                                            parserSettings,
-                                            setting,
-                                            target.checked,
-                                        ) as SettingsObject)}
+                                        onChange={({target}) => onChange(update(parserSettings, setting, target.checked) as SettingsObject)}
                                     />
                                     {setting}
                                 </label>
@@ -152,11 +149,12 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                     
                     if (setting && typeof setting === 'object') {
                         const nested = setting as SettingsConfig;
+                        
                         return (
                             <SettingsRenderer
                                 key={nested.key}
                                 settingsConfiguration={nested}
-                                parserSettings={(nested.settings?.(parserSettings) ?? {}) as SettingsObject}
+                                parserSettings={nested.settings?.(parserSettings) || {} as SettingsObject}
                                 onChange={(settings) => onChange({
                                     ...parserSettings,
                                     [nested.key as string]: settings,

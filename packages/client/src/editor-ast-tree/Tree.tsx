@@ -5,7 +5,10 @@ import Element from './tree/Element.tsx';
 import {logEvent} from '../snippet/logger.ts';
 import {treeAdapterFromParseResult} from '../parser/TreeAdapter.ts';
 import {clearHighlight} from '../store/reducers.ts';
-import type {ElementSettings, TreeAdapter} from './tree/types.ts';
+import type {
+    ElementSettings,
+    TreeAdapter,
+} from './tree/types.ts';
 
 const {useReducer, useMemo} = React;
 

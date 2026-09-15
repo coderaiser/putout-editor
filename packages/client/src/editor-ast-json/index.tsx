@@ -1,4 +1,5 @@
 import {useRef, useEffect} from 'react';
+import type {QwordEditorView} from 'qword/client';
 import type {ParseResult} from '#store';
 import {
     createEditor,
@@ -9,7 +10,6 @@ import {
     observeResize,
     setOption,
 } from '#editor';
-import type {QwordEditorView} from 'qword/client';
 
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'nord' : 'default';
 

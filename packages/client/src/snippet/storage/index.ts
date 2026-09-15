@@ -1,5 +1,3 @@
-import type {Revision as StoreRevision} from '../../store/reducers.ts';
-
 /** Minimal revision shape needed to build a URL hash — `parse`/`gist` both satisfy it. */
 export type RevisionLike = {
     getPath(): string;
@@ -14,13 +12,11 @@ export type StorageData = {
 
 /** Revision shape used by write operations — both backends only read IDs/path. */
 export type StorageRevision = {
-    getPath?(): string;
-    getSnippetID?(): string;
-    getRevisionID?(): string;
+    getPath(): string;
+    getSnippetID(): string;
+    getRevisionID(): string;
     [key: string]: unknown;
 };
-
-const isObject = (a: unknown): a is object => Boolean(a) && typeof a === 'object';
 
 type StorageBackend = {
     owns?: (revision: unknown) => boolean;

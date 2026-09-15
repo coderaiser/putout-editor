@@ -8,7 +8,7 @@ interface LocalStorageLike {
 }
 
 export function writeState(state: unknown, storage?: Partial<LocalStorageLike> | null) {
-    const resolved = storage ?? globalThis.localStorage;
+    const resolved = storage || globalThis.localStorage;
     
     if (!resolved?.setItem)
         return;
@@ -21,7 +21,7 @@ export function writeState(state: unknown, storage?: Partial<LocalStorageLike> |
 }
 
 export function readState(storage?: Partial<LocalStorageLike> | null) {
-    const resolved = storage ?? globalThis.localStorage;
+    const resolved = storage || globalThis.localStorage;
     
     if (!resolved?.getItem)
         return;

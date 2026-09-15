@@ -18,7 +18,6 @@ import {
     startSave,
     endSave,
 } from '../store/reducers.ts';
-import type {StorageData} from './storage/index.ts';
 import {
     getParserSettings,
     getCode,
