@@ -141,9 +141,9 @@ test('valid plugin with report and replace shows transformed code', async ({page
         });
     `);
     await showResult(page);
-
-     const result = page.getByTestId('editor-transform-output');
-     const expected = montag`
+    
+    const result = page.getByTestId('editor-transform-output');
+    const expected = montag`
          if (a)
              b;
          else
