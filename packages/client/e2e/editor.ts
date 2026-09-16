@@ -146,6 +146,7 @@ test('valid plugin with report and replace shows transformed code', async ({page
 });
 
 test('theme toggle changes document theme', async ({page}) => {
+    const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
     const container = await isMobileLayout(page)
