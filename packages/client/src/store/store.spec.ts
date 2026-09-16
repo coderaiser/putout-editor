@@ -1,8 +1,5 @@
 import {test, stub} from 'supertape';
-import {
-    configureStore,
-    type UnknownAction,
-} from '@reduxjs/toolkit';
+import {configureStore, type UnknownAction} from '@reduxjs/toolkit';
 import {
     putoutEditor,
     revive,

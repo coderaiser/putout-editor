@@ -116,7 +116,9 @@ test('StorageHandler: update: delegates to owning backend', async (t) => {
     };
     
     const backend = {
-        owns: (rev: unknown) => (rev as {_type?: string})._type === 'gist',
+        owns: (rev: unknown) => (rev as {
+            _type?: string;
+        })._type === 'gist',
         update: stub().resolves('updated'),
     };
     
@@ -145,7 +147,9 @@ test('StorageHandler: fork: delegates to owning backend', async (t) => {
     };
     
     const backend = {
-        owns: (rev: unknown) => (rev as {_type?: string})._type === 'gist',
+        owns: (rev: unknown) => (rev as {
+            _type?: string;
+        })._type === 'gist',
         fork: stub().resolves('forked'),
     };
     
@@ -166,7 +170,9 @@ test('StorageHandler: _owns: returns backend when found', (t) => {
     
     const backend = {
         owns(rev: unknown) {
-            return (rev as {id?: string}).id === 'r1';
+            return (rev as {
+                id?: string;
+            }).id === 'r1';
         },
     };
     

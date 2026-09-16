@@ -146,7 +146,10 @@ export default {
             }).label)})`;
     },
     
-    nodeToRange(node: {start?: unknown; end?: unknown}) {
+    nodeToRange(node: {
+        start?: unknown;
+        end?: unknown;
+    }) {
         if (isNumber(node.start) && isNumber(node.end))
             return [
                 node.start,
