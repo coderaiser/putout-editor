@@ -1,3 +1,4 @@
+import {montag} from 'montag';
 import {
     test,
     expect,
@@ -118,8 +119,33 @@ test('transform error in editor-transform shows error in codeframe not stack tra
     ).not.toContainText('at Object.<anonymous>');
 });
 
+test('valid plugin with report and replace does not show cannot determine error', async ({page}) => {
+    await replaceContent(page, 'const x = a ? b : c;');
+    await replaceTransform(page, montag`
+        export const report = () => \`Use 'if condition' instead of 'ternary expression'\`;
+        export const replace = () => ({
+            '__a ? __b : __c': 'if (__a) __b; else __c;',
+        });
+    `);
+    await showResult(page);
+    
+    await expect(page.getByTestId('editor-transform-output')).not.toContainText('Cannot determine type of plugin');
+});
+
+test('valid plugin with report and replace shows transformed code', async ({page}) => {
+    await replaceContent(page, 'const x = a ? b : c;');
+    await replaceTransform(page, montag`
+        export const report = () => \`Use 'if condition' instead of 'ternary expression'\`;
+        export const replace = () => ({
+            '__a ? __b : __c': 'if (__a) __b; else __c;',
+        });
+    `);
+    await showResult(page);
+    
+    await expect(page.getByTestId('editor-transform-output')).toContainText('if (a) b; else c;');
+});
+
 test('theme toggle changes document theme', async ({page}) => {
-    const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
     const container = await isMobileLayout(page)
