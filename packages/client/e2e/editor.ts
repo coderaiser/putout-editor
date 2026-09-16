@@ -133,7 +133,7 @@ test('valid plugin with report and replace does not show cannot determine error'
 });
 
 test('valid plugin with report and replace shows transformed code', async ({page}) => {
-    await replaceContent(page, 'const x = a ? b : c;');
+    await replaceContent(page, 'a ? b : c;');
     await replaceTransform(page, montag`
         export const report = () => \`Use 'if condition' instead of 'ternary expression'\`;
         export const replace = () => ({
