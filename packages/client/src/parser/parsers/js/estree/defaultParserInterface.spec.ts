@@ -91,6 +91,10 @@ test('defaultParserInterface: forEachProperty skips ignored properties', (t) => 
     }, node)];
     
     const expected = [{
+        value: '',
+        key: 'type',
+        computed: false,
+    }, {
         value: 2,
         key: 'bar',
         computed: false,
