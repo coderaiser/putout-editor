@@ -50,11 +50,12 @@ export default {
         
         const {code} = putout(source, {
             parser,
-            cache: false,
             isJSX: true,
             isTS: true,
             fixCount: 1,
-            plugins: [plugin],
+            plugins: [
+                ['transform', plugin],
+            ],
         });
         
         return code;
