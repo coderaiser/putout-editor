@@ -120,7 +120,7 @@ test('transform error in editor-transform shows error in codeframe not stack tra
 });
 
 test('valid plugin with report and replace does not show cannot determine error', async ({page}) => {
-    await replaceContent(page, 'const x = a ? b : c;');
+    await replaceContent(page, 'a ? b : c;');
     await replaceTransform(page, montag`
         export const report = () => \`Use 'if condition' instead of 'ternary expression'\`;
         export const replace = () => ({
