@@ -187,7 +187,7 @@ test('defaultParserInterface: renderSettings returns null when no config', (t) =
         },
     };
     
-    const result = obj.renderSettings(null as any, noop);
+    const result = obj.renderSettings(null, noop);
     
     t.notOk(result);
     t.end();
@@ -208,7 +208,7 @@ test('defaultParserInterface: renderSettings with null settings renders Settings
         },
     };
     
-    const result = obj.renderSettings(null as any, noop);
+    const result = obj.renderSettings(null, noop);
     
     t.ok(result);
     t.end();

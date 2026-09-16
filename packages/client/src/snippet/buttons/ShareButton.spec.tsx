@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,38 +5,57 @@ import {
     cleanup,
 } from '@testing-library/react';
 import ShareButton from './ShareButton.tsx';
+import type {Revision} from '../../store/reducers.ts';
 
 const noop = () => {};
+
+const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
+    canSave: () => true,
+    getSnippetID: () => 'snippet-id',
+    getRevisionID: () => 'revision-id',
+    getTransformerID: () => null,
+    getTransformCode: () => '',
+    getParserID: () => 'babel',
+    getCode: () => 'const x = 1',
+    getParserSettings: () => null,
+    getPath: () => '/gist/snippet-id/revision-id',
+    getShareData: () => ({
+        versionedURL: 'https://example.com/v1',
+        latestURL: null,
+        embedURL: null,
+    }),
+    ...overrides,
+});
 
 test('ShareButton: no snippet: disabled', (t) => {
     render(
         <ShareButton snippet={null}/>,
     );
     
-    const {disabled} = screen.getByRole('button');
+    const button = screen.getByRole('button');
     
     cleanup();
     
-    t.ok(disabled);
+    t.ok(button.hasAttribute('disabled'));
     t.end();
 });
 
 test('ShareButton: snippet present: enabled', (t) => {
     render(
-        <ShareButton snippet={{}}/>,
+        <ShareButton snippet={makeRevision()}/>,
     );
     
-    const {disabled} = screen.getByRole('button');
+    const button = screen.getByRole('button');
     
     cleanup();
     
-    t.notOk(disabled);
+    t.notOk(button.hasAttribute('disabled'));
     t.end();
 });
 
 test('ShareButton: renders button with text', (t) => {
     render(
-        <ShareButton snippet={{}}/>,
+        <ShareButton snippet={makeRevision()}/>,
     );
     
     const button = screen.getByRole('button');
@@ -51,7 +69,7 @@ test('ShareButton: renders button with text', (t) => {
 
 test('ShareButton: renders share svg icon', (t) => {
     render(
-        <ShareButton snippet={{}}/>,
+        <ShareButton snippet={makeRevision()}/>,
     );
     
     const svg = document.querySelector('button svg');
@@ -70,7 +88,7 @@ test('ShareButton: click calls onClick handler when provided', (t) => {
             onShareButtonClick={() => {
                 clicked = true;
             }}
-            snippet={{}}
+            snippet={makeRevision()}
         />,
     );
     screen
@@ -91,7 +109,7 @@ test('ShareButton: click calls onShare when onShareButtonClick not provided', (t
             onShare={() => {
                 called = true;
             }}
-            snippet={{}}
+            snippet={makeRevision()}
         />,
     );
     screen
@@ -113,7 +131,7 @@ test('ShareButton: onShareButtonClick takes precedence over onShare', (t) => {
                 shareButtonClicked = true;
             }}
             onShare={noop}
-            snippet={{}}
+            snippet={makeRevision()}
         />,
     );
     screen

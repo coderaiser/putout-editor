@@ -121,7 +121,7 @@ test('SettingsRenderer: renders nested settings for object field', (t) => {
                 fields: [{
                     key: 'nested',
                     fields: ['opt1'],
-                    settings: (settings: any) => settings.nested,
+                    settings: (settings: SettingsObject) => settings.nested,
                 }],
             }}
             parserSettings={{
@@ -262,7 +262,7 @@ test('SettingsRenderer: onChange with nested object updates parent settings', (t
                     key: 'plugins',
                     title: 'Plugins',
                     fields: ['jsx', 'typescript'],
-                    settings: (settings: any) => settings.plugins || {},
+                    settings: (settings: SettingsObject) => settings.plugins || {},
                 }],
             }}
             parserSettings={{}}

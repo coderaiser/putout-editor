@@ -162,7 +162,7 @@ export default {
    * This method is called when the settingds UI is rendered. It is passed the
    * current parser settings and a callback that should be called with the
    * updated settings object.
-   */renderSettings(settings: SettingsObject, onChange: (settings: SettingsObject) => void) {
+   */renderSettings(settings: SettingsObject | null, onChange: (settings: SettingsObject) => void) {
         const defaultOptions = this.getDefaultOptions();
         const settingsConfiguration = this._getSettingsConfiguration(defaultOptions);
         

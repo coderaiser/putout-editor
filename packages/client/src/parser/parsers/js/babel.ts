@@ -146,7 +146,7 @@ export default {
             }).label)})`;
     },
     
-    nodeToRange(node: AstNode) {
+    nodeToRange(node: {start?: unknown; end?: unknown}) {
         if (isNumber(node.start) && isNumber(node.end))
             return [
                 node.start,

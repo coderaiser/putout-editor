@@ -2,6 +2,7 @@ import {test} from 'supertape';
 import {estreeToBabel} from 'estree-to-babel';
 import * as babylon from '@babel/parser';
 import babelParser from './babel.ts';
+import {type AstNode} from '../../../types.ts';
 
 const isNumber = (a: unknown): a is number => !Number.isNaN(a) && typeof a === 'number';
 
@@ -13,7 +14,7 @@ function parse() {
     return estreeToBabel(ast as Parameters<typeof estreeToBabel>[0]);
 }
 
-function walkNodes(node: any, visit: (node: any) => void, seen = new WeakSet<object>()) {
+function walkNodes(node: unknown, visit: (node: AstNode) => void, seen = new WeakSet<object>()) {
     if (!node || typeof node !== 'object' || seen.has(node))
         return;
     
@@ -26,10 +27,11 @@ function walkNodes(node: any, visit: (node: any) => void, seen = new WeakSet<obj
         return;
     }
     
-    visit(node);
+    const record = node as Record<string, unknown>;
+    visit(record as AstNode);
     
-    for (const key of Object.keys(node))
-        walkNodes(node[key], visit, seen);
+    for (const key of Object.keys(record))
+        walkNodes(record[key], visit, seen);
 }
 
 test('babel: nodeToRange returns start/end for node with numeric positions', (t) => {
