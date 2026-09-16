@@ -193,7 +193,7 @@ test('updating transform editor changes code output', async ({page}) => {
     await expect(output).toBeVisible();
 });
 
-test('updating transform editor changes code output', async ({page}) => {
+test('@putout/editor: client: mobile: updating transform editor changes code output: no "use strict"', async ({page}) => {
     const editor = createPutoutEditor(page);
     
     await page
