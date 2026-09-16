@@ -21,7 +21,7 @@ export function writeState(state: unknown, storage?: Partial<LocalStorageLike> |
 }
 
 export function readState(storage?: Partial<LocalStorageLike> | null) {
-    if (storage == null)
+    if (storage === null)
         return;
     
     const resolved = storage || globalThis.localStorage;
