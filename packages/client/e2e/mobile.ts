@@ -191,5 +191,35 @@ test('updating transform editor changes code output', async ({page}) => {
     const output = page.getByTestId('editor-transform-output');
     
     await expect(output).toBeVisible();
+});
+
+test('updating transform editor changes code output', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    
+    await page
+        .getByRole('tab', {
+            name: /transform/i,
+        })
+        .tap();
+    
+    await page
+        .getByTestId('editor-transform')
+        .locator('.cm-content')
+        .click();
+    
+    const {write, press} = await editor.get(EDITOR_TRANSFORM);
+    await press('i');
+    await press('ControlOrMeta+A');
+    await write(`export const replace = () => ({'"use strict"': ''});`);
+    await page.waitForTimeout(400);
+    
+    await page
+        .getByRole('tab', {
+            name: /code/i,
+        })
+        .tap();
+    
+    const output = page.getByTestId('editor-transform-output');
+    
     await expect(output).not.toContainText('"use strict"');
 });
