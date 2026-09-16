@@ -6,8 +6,8 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
+import {putoutEditor, revive} from '#store';
 import MobileMenu from './MobileMenu.tsx';
-import {putoutEditor, revive} from '../store/reducers.ts';
 
 const recordActions = (actions: any[]) => () => (next: any) => (action: any) => {
     actions.push(action);
@@ -441,3 +441,4 @@ test('MobileMenu: theme button toggles back to light', (t) => {
     t.equal(theme, 'light');
     t.end();
 });
+
