@@ -5,16 +5,25 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, revive} from '#store';
+import {
+    configureStore,
+    type Middleware,
+    type UnknownAction,
+} from '@reduxjs/toolkit';
 import MobileMenu from './MobileMenu.tsx';
+import {
+    putoutEditor,
+    revive,
+    type RootState,
+    type Revision,
+} from '../store/reducers.ts';
 
-const recordActions = (actions: any[]) => () => (next: any) => (action: any) => {
-    actions.push(action);
+const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
+    actions.push(action as UnknownAction);
     return next(action);
 };
 
-function makeStore(overrides: any = {}, actions: any[] = []) {
+function makeStore(overrides: Partial<RootState> = {}, actions: UnknownAction[] = []) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -36,6 +45,24 @@ function makeStore(overrides: any = {}, actions: any[] = []) {
         }).prepend(recordActions(actions)),
     });
 }
+
+const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
+    canSave: () => true,
+    getSnippetID: () => 'snippet-id',
+    getRevisionID: () => 'revision-id',
+    getTransformerID: () => null,
+    getTransformCode: () => '',
+    getParserID: () => 'babel',
+    getCode: () => 'const x = 1',
+    getParserSettings: () => null,
+    getPath: () => '/gist/snippet-id/revision-id',
+    getShareData: () => ({
+        versionedURL: 'https://example.com/v1',
+        latestURL: null,
+        embedURL: null,
+    }),
+    ...overrides,
+});
 
 function renderMenu(store = makeStore()) {
     return render(
@@ -124,7 +151,7 @@ test('MobileMenu: Snippet dropdown shows Share item', (t) => {
 });
 
 test('MobileMenu: Snippet Save dispatches snippet/save payload=false', (t) => {
-    const actions: any[] = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
@@ -143,7 +170,7 @@ test('MobileMenu: Snippet Save dispatches snippet/save payload=false', (t) => {
 });
 
 test('MobileMenu: Snippet Share dispatches openShareDialog', (t) => {
-    const actions: any[] = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
@@ -206,7 +233,7 @@ test('MobileMenu: Parser dropdown lists parsers', (t) => {
 });
 
 test('MobileMenu: Parser dropdown clicking parser dispatches setParser', (t) => {
-    const actions: any[] = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
@@ -224,7 +251,7 @@ test('MobileMenu: Parser dropdown clicking parser dispatches setParser', (t) => 
 });
 
 test('MobileMenu: Parser Settings dispatches openSettingsDialog', (t) => {
-    const actions: any[] = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
@@ -310,7 +337,7 @@ test('MobileMenu: Snippet New clears location hash', (t) => {
 
 test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
     globalThis.location.hash = '';
-    const actions: any[] = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
     
@@ -330,11 +357,9 @@ test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
 
 test('MobileMenu: Snippet shows Fork when can fork and not save', (t) => {
     const store = makeStore({
-        activeRevision: {
-            getParserID: () => 'babel',
-            getParserSettings: () => ({}),
+        activeRevision: makeRevision({
             canSave: () => false,
-        },
+        }),
     });
     
     const {container, unmount} = renderMenu(store);
@@ -350,13 +375,11 @@ test('MobileMenu: Snippet shows Fork when can fork and not save', (t) => {
 });
 
 test('MobileMenu: Snippet Fork dispatches snippet/save payload=true', (t) => {
-    const actions: any[] = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({
-        activeRevision: {
-            getParserID: () => 'babel',
-            getParserSettings: () => ({}),
+        activeRevision: makeRevision({
             canSave: () => false,
-        },
+        }),
     }, actions);
     
     const {container, unmount} = renderMenu(store);

@@ -4,8 +4,27 @@ import {
     getTransformer,
     canSave,
 } from './parserSelectors.ts';
+import {type RootState, type Revision} from '../../store/reducers.ts';
 
-const state = (overrides: Record<string, unknown> = {}): any => ({
+const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
+    canSave: () => true,
+    getSnippetID: () => 'snippet-id',
+    getRevisionID: () => 'revision-id',
+    getTransformerID: () => null,
+    getTransformCode: () => '',
+    getParserID: () => 'babel',
+    getCode: () => 'const x = 1',
+    getParserSettings: () => null,
+    getPath: () => '/gist/snippet-id/revision-id',
+    getShareData: () => ({
+        versionedURL: 'https://example.com/v1',
+        latestURL: null,
+        embedURL: null,
+    }),
+    ...overrides,
+});
+
+const state = (overrides: Partial<RootState> = {}): RootState => ({
     activeRevision: null,
     workbench: {
         parser: 'babel',
@@ -20,7 +39,7 @@ const state = (overrides: Record<string, unknown> = {}): any => ({
     },
     showTransformPanel: false,
     ...overrides,
-});
+} as RootState);
 
 test('parserSelectors: getParser: returns parser by id', (t) => {
     t.equal(getParser(state())!.id, 'babel');
@@ -66,11 +85,9 @@ test('parserSelectors: canSave: true when no revision and code differs from init
 
 test('parserSelectors: canSave: false when revision.canSave() is false', (t) => {
     const result = canSave(state({
-        activeRevision: {
+        activeRevision: makeRevision({
             canSave: () => false,
-            getParserID: () => 'babel',
-            getParserSettings: () => null,
-        },
+        }),
     }));
     
     t.notOk(result);
@@ -96,11 +113,10 @@ test('parserSelectors: canSave: true when transform code changed', (t) => {
 
 test('parserSelectors: canSave: true when parser changed vs revision', (t) => {
     const result = canSave(state({
-        activeRevision: {
+        activeRevision: makeRevision({
             canSave: () => true,
             getParserID: () => 'espree',
-            getParserSettings: () => null,
-        },
+        }),
     }));
     
     t.ok(result);
@@ -109,13 +125,12 @@ test('parserSelectors: canSave: true when parser changed vs revision', (t) => {
 
 test('parserSelectors: canSave: true when parserSettings changed vs revision', (t) => {
     const result = canSave(state({
-        activeRevision: {
+        activeRevision: makeRevision({
             canSave: () => true,
-            getParserID: () => 'babel',
             getParserSettings: () => ({
                 plugins: ['flow'],
             }),
-        },
+        }),
         workbench: {
             ...state().workbench,
             parserSettings: {

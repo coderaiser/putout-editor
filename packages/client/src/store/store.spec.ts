@@ -1,5 +1,8 @@
 import {test, stub} from 'supertape';
-import {configureStore} from '@reduxjs/toolkit';
+import {
+    configureStore,
+    type UnknownAction,
+} from '@reduxjs/toolkit';
 import {
     putoutEditor,
     revive,
@@ -37,7 +40,7 @@ const makeStorage = () => ({
     updateHash: () => {},
 });
 
-function makeStore(preload: Record<string, any> = {}) {
+function makeStore(preload: Partial<State> = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -62,7 +65,7 @@ function makeStore(preload: Record<string, any> = {}) {
 
 const getState = (store: ReturnType<typeof makeStore>) => store.getState();
 
-function dispatch(store: ReturnType<typeof makeStore>, action: any) {
+function dispatch(store: ReturnType<typeof makeStore>, action: UnknownAction) {
     store.dispatch(action);
 }
 

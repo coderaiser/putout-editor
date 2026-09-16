@@ -23,9 +23,7 @@ test('useMobile: returns true when window is narrower than breakpoint', (t) => {
 test('useMobile: handleChange updates isMobile when media query matches', (t) => {
     globalThis.innerWidth = 1024;
     
-    let handleChange: (event: {
-        matches: boolean;
-    }) => void;
+    let handleChange: (event: MediaQueryListEvent) => void;
     
     const originalMatchMedia = globalThis.matchMedia;
     
@@ -33,7 +31,7 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
         return ({
             matches: false,
             media: query,
-            addEventListener: (_type: string, listener: any) => {
+            addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
                 handleChange = listener;
             },
             removeEventListener: noop,
@@ -47,7 +45,7 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
     act(() => {
         handleChange({
             matches: true,
-        });
+        } as MediaQueryListEvent);
     });
     
     globalThis.matchMedia = originalMatchMedia;
@@ -59,9 +57,7 @@ test('useMobile: handleChange updates isMobile when media query matches', (t) =>
 test('useMobile: handleChange updates isMobile via maxTouchPoints when matches is false', (t) => {
     globalThis.innerWidth = 1024;
     
-    let handleChange: (event: {
-        matches: boolean;
-    }) => void;
+    let handleChange: (event: MediaQueryListEvent) => void;
     
     const originalMatchMedia = globalThis.matchMedia;
     const originalMaxTouchPoints = globalThis.navigator?.maxTouchPoints;
@@ -70,7 +66,7 @@ test('useMobile: handleChange updates isMobile via maxTouchPoints when matches i
         return ({
             matches: false,
             media: query,
-            addEventListener: (_type: string, listener: any) => {
+            addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
                 handleChange = listener;
             },
             removeEventListener: noop,
@@ -89,7 +85,7 @@ test('useMobile: handleChange updates isMobile via maxTouchPoints when matches i
     act(() => {
         handleChange({
             matches: false,
-        });
+        } as MediaQueryListEvent);
     });
     
     globalThis.matchMedia = originalMatchMedia;
