@@ -1,4 +1,4 @@
-import {isDeepStrictEqual} from 'node:util';
+import isDeepStrictEqual from '@gilbarbara/deep-equal';
 import {createSelector} from '@reduxjs/toolkit';
 import {RootState} from '#store';
 import {

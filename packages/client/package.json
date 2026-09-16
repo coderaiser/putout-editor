@@ -34,6 +34,7 @@
     "@babel/preset-env": "^8.0.2",
     "@babel/preset-react": "^8.0.1",
     "@eslint/compat": "^2.0.0",
+    "@gilbarbara/deep-equal": "^0.4.1",
     "@playwright/test": "^1.63.0",
     "@putout/engine-parser": "^15.0.2",
     "@putout/plugin-convert-assignment-to-declaration": "^2.0.0",
