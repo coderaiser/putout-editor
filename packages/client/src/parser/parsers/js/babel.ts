@@ -102,35 +102,38 @@ export default {
             ...options,
         };
         
-        opts.plugins = (opts.plugins as unknown[]).map((plugin: unknown) => {
-            if (plugin === 'decorators')
-                return ['decorators', {
-                    decoratorsBeforeExport: false,
-                }];
-            
-            if (plugin === 'discardBinding')
-                return ['discardBinding', {
-                    syntaxType: 'void',
-                }];
-            
-            if (plugin === 'pipelineOperator')
-                return ['pipelineOperator', {
-                    proposal: 'minimal',
-                }];
-            
-            if (plugin === 'optionalChainingAssign')
-                return ['optionalChainingAssign', {
-                    version: '2023-07',
-                }];
-            
-            if (isString(plugin) && plugin.startsWith('recordAndTuple'))
-                return 'recordAndTuple';
-            
-            return plugin;
-        })
+        opts.plugins = (opts.plugins as unknown[])
+            .map((plugin: unknown) => {
+                if (plugin === 'decorators')
+                    return ['decorators', {
+                        decoratorsBeforeExport: false,
+                    }];
+                
+                if (plugin === 'discardBinding')
+                    return ['discardBinding', {
+                        syntaxType: 'void',
+                    }];
+                
+                if (plugin === 'pipelineOperator')
+                    return ['pipelineOperator', {
+                        proposal: 'minimal',
+                    }];
+                
+                if (plugin === 'optionalChainingAssign')
+                    return ['optionalChainingAssign', {
+                        version: '2023-07',
+                    }];
+                
+                if (isString(plugin) && plugin.startsWith('recordAndTuple'))
+                    return 'recordAndTuple';
+                
+                return plugin;
+            })
             .filter((name: unknown) => name !== 'recordAndTuple');
         
-        return (babylon as {parse: (code: string, options: Record<string, unknown>) => unknown}).parse(code, opts);
+        return (babylon as {
+            parse: (code: string, options: Record<string, unknown>) => unknown;
+        }).parse(code, opts);
     },
     
     getNodeName(node: AstNode) {
@@ -138,7 +141,9 @@ export default {
             return node.type;
         
         if (typeof node.type === 'object' && node.type != null)
-            return `Token (${String((node.type as {label?: unknown}).label)})`;
+            return `Token (${String((node.type as {
+                label?: unknown;
+            }).label)})`;
     },
     
     nodeToRange(node: AstNode) {

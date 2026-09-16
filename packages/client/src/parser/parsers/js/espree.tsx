@@ -29,7 +29,9 @@ export default {
     },
     
     parse(espree: EspreeMod, code: string, options: Record<string, unknown>) {
-        return (espree as {parse: (code: string, options: Record<string, unknown>) => unknown}).parse(code, options);
+        return (espree as {
+            parse: (code: string, options: Record<string, unknown>) => unknown;
+        }).parse(code, options);
     },
     
     nodeToRange(node: AstNode) {

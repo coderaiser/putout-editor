@@ -24,7 +24,9 @@ export default {
     },
     
     parse(esprima: unknown, code: string, options: Record<string, unknown>) {
-        return (esprima as {parse: (code: string, options: Record<string, unknown>) => unknown}).parse(code, options);
+        return (esprima as {
+            parse: (code: string, options: Record<string, unknown>) => unknown;
+        }).parse(code, options);
     },
     
     *forEachProperty(node: AstNode) {

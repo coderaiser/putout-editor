@@ -12,7 +12,6 @@ const isNumber = (a: unknown): a is number => typeof a === 'number';
 type AcornMod = unknown;
 type AcornLooseMod = unknown;
 type AcornJsxMod = unknown;
-
 type AcornParser = (code: string, options: Record<string, unknown>) => unknown;
 
 export default {
@@ -56,13 +55,21 @@ export default {
         let parser: AcornParser | undefined;
         
         if (options['plugins.jsx'] && !options.loose) {
-            const {JSXParser} = parsers.acorn as {JSXParser: {parse: AcornParser}};
+            const {JSXParser} = parsers.acorn as {
+                JSXParser: {
+                    parse: AcornParser;
+                };
+            };
             parser = JSXParser.parse.bind(JSXParser);
         } else {
             if (options.loose)
-                parser = (parsers.acornLoose as {parse: AcornParser}).parse;
+                parser = (parsers.acornLoose as {
+                    parse: AcornParser;
+                }).parse;
             else
-                parser = (parsers.acorn as {parse: AcornParser}).parse;
+                parser = (parsers.acorn as {
+                    parse: AcornParser;
+                }).parse;
         }
         
         return parser!(code, options);

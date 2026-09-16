@@ -91,7 +91,9 @@ function chooseParser(parserName: string, {acorn, babel, espree, esprima}: Parse
     
     return {
         parse: (source: string, options: Record<string, unknown>) => {
-            return (babel as {parse: (source: string, options: Record<string, unknown>) => unknown}).parse(source, {
+            return (babel as {
+                parse: (source: string, options: Record<string, unknown>) => unknown;
+            }).parse(source, {
                 ...options,
                 isRecovery: true,
             });
