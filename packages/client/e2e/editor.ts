@@ -141,8 +141,16 @@ test('valid plugin with report and replace shows transformed code', async ({page
         });
     `);
     await showResult(page);
+
+     const result = page.getByTestId('editor-transform-output');
+     const expected = montag`
+         if (a)
+             b;
+         else
+             c;
+     `;
     
-    await expect(page.getByTestId('editor-transform-output')).toContainText('if (a) b; else c;');
+    await expect(result).toContainText(expected);
 });
 
 test('theme toggle changes document theme', async ({page}) => {
