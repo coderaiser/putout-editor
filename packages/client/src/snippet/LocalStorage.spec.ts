@@ -117,3 +117,17 @@ test('LocalStorage: readState: getItem throws: warns', (t) => {
     t.calledWith(warn, ['Unable to read from local storage.']);
     t.end();
 });
+
+test('LocalStorage: readState: empty storage object: returns undefined', (t) => {
+    const result = readState({});
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('LocalStorage: writeState: empty storage object: returns undefined', (t) => {
+    const result = writeState({a: 1}, {});
+    
+    t.notOk(result);
+    t.end();
+});

@@ -141,6 +141,31 @@ test('SettingsRenderer: renders nested settings for object field', (t) => {
     t.end();
 });
 
+test('SettingsRenderer: renders nested settings with undefined settings function result', (t) => {
+    render(
+        <SettingsRenderer
+            settingsConfiguration={{
+                fields: [{
+                    key: 'nested',
+                    fields: ['opt1'],
+                    settings: () => undefined,
+                }],
+            }}
+            parserSettings={{
+                nested: undefined,
+            }}
+            onChange={stub()}
+        />,
+    );
+    
+    const checkbox = document.querySelector('input[type="checkbox"]');
+    
+    cleanup();
+    
+    t.ok(checkbox);
+    t.end();
+});
+
 test('SettingsRenderer: onChange called when checkbox toggled', (t) => {
     const onChange = stub();
     
