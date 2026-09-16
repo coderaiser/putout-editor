@@ -24,7 +24,7 @@ export default function CodePanel() {
     
     return (
         <EditorResult
-            transformer={transformer || getTransformerByID('putout')! as unknown as EditorTransformer}
+            transformer={transformer as unknown as EditorTransformer}
             transformCode={transformCode}
             code={code}
             mode={mode}
