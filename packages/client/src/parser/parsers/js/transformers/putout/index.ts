@@ -6,6 +6,23 @@ import {initPlugin} from './init-plugin.ts';
 const ID = 'putout';
 const displayName = '🐊Putout';
 
+interface ParserSet {
+    acorn: unknown;
+    babel: unknown;
+    espree: unknown;
+    esprima: unknown;
+}
+
+interface Transformer {
+    putout: (source: string, options: Record<string, unknown>) => {
+        code: string;
+    };
+    acorn: unknown;
+    babel: unknown;
+    espree: unknown;
+    esprima: unknown;
+}
+
 export default {
     id: ID,
     displayName,
@@ -14,7 +31,7 @@ export default {
     
     defaultParserID: 'babel',
     
-    loadTransformer(callback: (value: any) => void) {
+    loadTransformer(callback: (value: Transformer) => void) {
         Promise
             .all([
                 import('putout'),
@@ -38,7 +55,7 @@ export default {
             }));
     },
     
-    transform({putout, acorn, babel, espree, esprima}: any, transformCode: string, source: string, parserName: string) {
+    transform({putout, acorn, babel, espree, esprima}: Transformer, transformCode: string, source: string, parserName: string) {
         const parser = chooseParser(parserName, {
             acorn,
             babel,
@@ -62,7 +79,7 @@ export default {
     },
 };
 
-function chooseParser(parserName: string, {acorn, babel, espree, esprima}: any) {
+function chooseParser(parserName: string, {acorn, babel, espree, esprima}: ParserSet) {
     if (parserName === 'acorn')
         return acorn;
     
@@ -73,8 +90,8 @@ function chooseParser(parserName: string, {acorn, babel, espree, esprima}: any) 
         return esprima;
     
     return {
-        parse: (source: string, options: any) => {
-            return babel.parse(source, {
+        parse: (source: string, options: Record<string, unknown>) => {
+            return (babel as {parse: (source: string, options: Record<string, unknown>) => unknown}).parse(source, {
                 ...options,
                 isRecovery: true,
             });

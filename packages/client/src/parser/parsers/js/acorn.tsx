@@ -2,14 +2,18 @@ import pkg from 'acorn/package.json' with {
     type: 'json',
 };
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
+import {type SettingsObject} from './estree/SettingsRenderer.tsx';
+import type {AstNode} from '../../../types.ts';
 
 const ID = 'acorn';
 
 const isNumber = (a: unknown): a is number => typeof a === 'number';
 
-type AcornMod = any;
-type AcornLooseMod = any;
-type AcornJsxMod = any;
+type AcornMod = unknown;
+type AcornLooseMod = unknown;
+type AcornJsxMod = unknown;
+
+type AcornParser = (code: string, options: Record<string, unknown>) => unknown;
 
 export default {
     ...defaultParserInterface,
@@ -37,9 +41,9 @@ export default {
             ])
             .then(([acornMod, acornLooseMod, acornJsxMod]) => {
                 callback({
-                    acorn: acornMod as any,
-                    acornLoose: acornLooseMod as any,
-                    acornJsx: acornJsxMod as any,
+                    acorn: acornMod,
+                    acornLoose: acornLooseMod,
+                    acornJsx: acornJsxMod,
                 });
             });
     },
@@ -48,23 +52,23 @@ export default {
         acorn: AcornMod;
         acornLoose: AcornLooseMod;
         acornJsx: AcornJsxMod;
-    }, code: string, options: Record<string, any> = {}) {
-        let parser: ((code: string, options: Record<string, any>) => any) | undefined;
+    }, code: string, options: Record<string, unknown> = {}) {
+        let parser: AcornParser | undefined;
         
         if (options['plugins.jsx'] && !options.loose) {
-            const cls = parsers.acorn.JSXParser;
-            parser = cls.parse.bind(cls);
+            const {JSXParser} = parsers.acorn as {JSXParser: {parse: AcornParser}};
+            parser = JSXParser.parse.bind(JSXParser);
         } else {
             if (options.loose)
-                parser = parsers.acornLoose.parse;
+                parser = (parsers.acornLoose as {parse: AcornParser}).parse;
             else
-                parser = parsers.acorn.parse;
+                parser = (parsers.acorn as {parse: AcornParser}).parse;
         }
         
         return parser!(code, options);
     },
     
-    nodeToRange(node: any) {
+    nodeToRange(node: AstNode) {
         if (isNumber(node.start))
             return [
                 node.start,
@@ -118,7 +122,7 @@ export default {
         };
     },
     
-    renderSettings(parserSettings: any, onChange: (settings: any) => void) {
+    renderSettings(parserSettings: SettingsObject, onChange: (settings: SettingsObject) => void) {
         return (
             <div>
                 <p>

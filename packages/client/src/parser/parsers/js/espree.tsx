@@ -2,12 +2,14 @@ import pkg from 'espree/package.json' with {
     type: 'json',
 };
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
+import {type SettingsObject} from './estree/SettingsRenderer.tsx';
+import type {AstNode} from '../../../types.ts';
 
 const ID = 'espree';
 
 const isNumber = (a: unknown): a is number => typeof a === 'number';
 
-type EspreeMod = any;
+type EspreeMod = unknown;
 
 export default {
     ...defaultParserInterface,
@@ -23,14 +25,14 @@ export default {
     ]),
     
     loadParser(callback: (value: EspreeMod) => void) {
-        import('espree').then((mod: EspreeMod) => callback(mod.default || mod));
+        import('espree').then((mod: unknown) => callback(mod && (mod as Record<string, unknown>).default || mod));
     },
     
-    parse(espree: EspreeMod, code: string, options: Record<string, any>) {
-        return espree.parse(code, options);
+    parse(espree: EspreeMod, code: string, options: Record<string, unknown>) {
+        return (espree as {parse: (code: string, options: Record<string, unknown>) => unknown}).parse(code, options);
     },
     
-    nodeToRange(node: any) {
+    nodeToRange(node: AstNode) {
         if (isNumber(node.start))
             return [
                 node.start,
@@ -83,13 +85,13 @@ export default {
                     key: 'ecmaFeatures',
                     title: 'ecmaFeatures',
                     fields: Object.keys(defaultOptions.ecmaFeatures),
-                    settings: (settings: any) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
+                    settings: (settings: SettingsObject) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
                 },
             ],
         };
     },
     
-    renderSettings(parserSettings: any, onChange: (settings: any) => void) {
+    renderSettings(parserSettings: SettingsObject, onChange: (settings: SettingsObject) => void) {
         return (
             <div>
                 <p>

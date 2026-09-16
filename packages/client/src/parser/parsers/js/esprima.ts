@@ -2,6 +2,7 @@ import pkg from 'esprima/package.json' with {
     type: 'json',
 };
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
+import type {AstNode} from '../../../types.ts';
 
 const ID = 'esprima';
 
@@ -18,15 +19,15 @@ export default {
         'loc',
     ]),
     
-    loadParser(callback: (value: any) => void) {
+    loadParser(callback: (value: unknown) => void) {
         import('@putout/engine-parser/esprima').then((mod) => callback(mod.default || mod));
     },
     
-    parse(esprima: any, code: string, options: any) {
-        return esprima.parse(code, options);
+    parse(esprima: unknown, code: string, options: Record<string, unknown>) {
+        return (esprima as {parse: (code: string, options: Record<string, unknown>) => unknown}).parse(code, options);
     },
     
-    *forEachProperty(node: any) {
+    *forEachProperty(node: AstNode) {
         for (const prop in node) {
             if (isFn(node[prop]))
                 continue;

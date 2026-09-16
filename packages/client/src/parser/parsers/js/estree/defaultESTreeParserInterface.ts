@@ -1,8 +1,9 @@
 import defaultParserInterface from './defaultParserInterface.tsx';
+import type {AstNode} from '../../../../types.ts';
 
 export default {
     ...defaultParserInterface,
-    opensByDefault(node: any, key: string) {
+    opensByDefault(node: AstNode | null, key: string) {
         return node
             && node.type === 'Program'
             || key === 'body'

@@ -4,6 +4,7 @@ import pkg from '@babel/parser/package.json' with {
 import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
+import type {AstNode} from '../../../types.ts';
 
 const isString = (a: unknown): a is string => typeof a === 'string';
 const isNumber = (a: unknown): a is number => typeof a === 'number';
@@ -48,7 +49,7 @@ const availablePlugins = [
 
 const ID = 'babel';
 
-export const defaultOptions: Record<string, any> = {
+export const defaultOptions: Record<string, unknown> = {
     ...options,
     sourceType: 'module',
     ranges: false,
@@ -70,8 +71,8 @@ export const parserSettingsConfiguration = {
             key: 'plugins',
             title: 'Plugins',
             fields: availablePlugins,
-            settings: (settings: any) => settings.plugins || defaultOptions.plugins,
-            values: (plugins: any) => availablePlugins.reduce((obj: Record<string, boolean>, name: string) => {
+            settings: (settings: Record<string, unknown>) => settings.plugins || defaultOptions.plugins,
+            values: (plugins: string[]) => availablePlugins.reduce((obj: Record<string, boolean>, name: string) => {
                 obj[name] = plugins.includes(name);
                 return obj;
             }, {}),
@@ -92,56 +93,55 @@ export default {
         'end',
     ]),
     
-    loadParser(callback: (value: any) => void) {
-        import('@babel/parser').then((mod: any) => callback(mod.default || mod));
+    loadParser(callback: (value: unknown) => void) {
+        import('@babel/parser').then((mod: unknown) => callback(mod && (mod as Record<string, unknown>).default || mod));
     },
     
-    parse(babylon: any, code: string, options: any) {
-        options = {
+    parse(babylon: unknown, code: string, options: Record<string, unknown>) {
+        const opts: Record<string, unknown> = {
             ...options,
         };
         
-        options.plugins = options.plugins
-            .map((plugin: any) => {
-                if (plugin === 'decorators')
-                    return ['decorators', {
-                        decoratorsBeforeExport: false,
-                    }];
-                
-                if (plugin === 'discardBinding')
-                    return ['discardBinding', {
-                        syntaxType: 'void',
-                    }];
-                
-                if (plugin === 'pipelineOperator')
-                    return ['pipelineOperator', {
-                        proposal: 'minimal',
-                    }];
-                
-                if (plugin === 'optionalChainingAssign')
-                    return ['optionalChainingAssign', {
-                        version: '2023-07',
-                    }];
-                
-                if (plugin[0] === 'recordAndTuple')
-                    return 'recordAndTuple';
-                
-                return plugin;
-            })
-            .filter((name: any) => name !== 'recordAndTuple');
+        opts.plugins = (opts.plugins as unknown[]).map((plugin: unknown) => {
+            if (plugin === 'decorators')
+                return ['decorators', {
+                    decoratorsBeforeExport: false,
+                }];
+            
+            if (plugin === 'discardBinding')
+                return ['discardBinding', {
+                    syntaxType: 'void',
+                }];
+            
+            if (plugin === 'pipelineOperator')
+                return ['pipelineOperator', {
+                    proposal: 'minimal',
+                }];
+            
+            if (plugin === 'optionalChainingAssign')
+                return ['optionalChainingAssign', {
+                    version: '2023-07',
+                }];
+            
+            if (isString(plugin) && plugin.startsWith('recordAndTuple'))
+                return 'recordAndTuple';
+            
+            return plugin;
+        })
+            .filter((name: unknown) => name !== 'recordAndTuple');
         
-        return babylon.parse(code, options);
+        return (babylon as {parse: (code: string, options: Record<string, unknown>) => unknown}).parse(code, opts);
     },
     
-    getNodeName(node: any) {
+    getNodeName(node: AstNode) {
         if (isString(node.type))
             return node.type;
         
-        if (typeof node.type === 'object')
-            return `Token (${node.type.label})`;
+        if (typeof node.type === 'object' && node.type != null)
+            return `Token (${String((node.type as {label?: unknown}).label)})`;
     },
     
-    nodeToRange(node: any) {
+    nodeToRange(node: AstNode) {
         if (isNumber(node.start) && isNumber(node.end))
             return [
                 node.start,

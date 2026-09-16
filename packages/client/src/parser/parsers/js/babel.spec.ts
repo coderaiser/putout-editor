@@ -10,7 +10,7 @@ const code = 'const hello = world(1);';
 function parse() {
     const ast = babelParser.parse(babylon, code, babelParser.getDefaultOptions());
     
-    return estreeToBabel(ast);
+    return estreeToBabel(ast as Parameters<typeof estreeToBabel>[0]);
 }
 
 function walkNodes(node: any, visit: (node: any) => void, seen = new WeakSet<object>()) {
@@ -36,7 +36,7 @@ test('babel: nodeToRange returns start/end for node with numeric positions', (t)
     const ast = parse();
     const [node] = ast.program.body;
     
-    const result = babelParser.nodeToRange(node);
+    const result = babelParser.nodeToRange(node as Parameters<typeof babelParser.nodeToRange>[0]);
     const expected = [0, code.length];
     
     t.deepEqual(result, expected);
@@ -57,7 +57,7 @@ test('babel: nodeToRange returns undefined for loc object', (t) => {
         },
     };
     
-    const result = babelParser.nodeToRange(loc);
+    const result = babelParser.nodeToRange(loc as unknown as Parameters<typeof babelParser.nodeToRange>[0]);
     
     t.notOk(result);
     t.end();
