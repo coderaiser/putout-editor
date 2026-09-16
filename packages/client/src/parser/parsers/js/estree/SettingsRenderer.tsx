@@ -150,13 +150,12 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                     if (setting && typeof setting === 'object') {
                         const nested = setting as SettingsConfig;
                         const settingsResult = nested.settings?.(parserSettings);
-                        const parserSettingsValue: SettingsObject = settingsResult != null ? settingsResult : {};
                         
                         return (
                             <SettingsRenderer
                                 key={nested.key}
                                 settingsConfiguration={nested}
-                                parserSettings={parserSettingsValue}
+                                parserSettings={settingsResult != null ? settingsResult : Object.create(null)}
                                 onChange={(settings) => onChange({
                                     ...parserSettings,
                                     [nested.key as string]: settings,
