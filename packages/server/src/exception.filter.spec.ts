@@ -187,7 +187,7 @@ function createHost(response: MockResponse): ArgumentsHost {
     };
     
     return {
-        getArgs<T extends any[] = any[]>() {
+        getArgs<T extends unknown[] = unknown[]>() {
             return [] as unknown as T;
         },
         
