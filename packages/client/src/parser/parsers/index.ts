@@ -44,7 +44,11 @@ export type ParserInfoWithCategory = ParserInfo & {
     category: ParserCategory;
 };
 
-export interface TransformerInfo {
+import type {EditorTransformer} from '#editor-code';
+
+// ... existing imports ...
+
+export interface TransformerInfo extends EditorTransformer {
     id: string;
     displayName?: string;
     version?: string;
@@ -92,7 +96,7 @@ const buildTuple = (a: ParserInfo | TransformerInfo) => [a.id, a] as const;
 const isShowInMenu = ({showInMenu}: ParserInfo) => showInMenu;
 
 const parserByID: Record<string, ParserInfo> = Object.fromEntries(parsers.map(buildTuple));
-const transformerByID: Record<string, TransformerInfo> = Object.fromEntries(transformers.map(buildTuple));
+const transformerByID: Record<string, TransformerInfo> = Object.fromEntries(transformers.map((t) => [t.id, t] as const));
 
 export const categories = [jsCategory];
 export const getCategoryByID = (id: string): ParserCategory | undefined => categoryByID[id];

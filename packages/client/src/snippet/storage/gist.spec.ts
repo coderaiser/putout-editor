@@ -14,6 +14,9 @@ const createFetchStub = (result: unknown) => stub().resolves(result) as unknown 
 const noop = () => {};
 
 const mockRevision = {
+    getPath() {
+        return `/gist/${this.getSnippetID()}/${this.getRevisionID()}`;
+    },
     getSnippetID: () => 'abc',
     getRevisionID: () => 'sha1',
 };
@@ -198,6 +201,9 @@ test('gist: fork: error response throws', async (t) => {
     });
     
     const fakeRevision = {
+        getPath() {
+            return `/gist/${this.getSnippetID()}/${this.getRevisionID()}`;
+        },
         getSnippetID: () => 'abc',
         getRevisionID: () => 'sha1',
     };
@@ -358,6 +364,9 @@ test('gist: fork: ok response resolves Revision', async (t) => {
     });
     
     const fakeRevision = {
+        getPath() {
+            return `/gist/${this.getSnippetID()}/${this.getRevisionID()}`;
+        },
         getSnippetID: () => 'abc',
         getRevisionID: () => 'sha1',
     };

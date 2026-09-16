@@ -104,6 +104,15 @@ test('StorageHandler: create: delegates to first backend', async (t) => {
 test('StorageHandler: update: delegates to owning backend', async (t) => {
     const revision = {
         _type: 'gist',
+        getPath() {
+            return '/gist/abc/sha1';
+        },
+        getSnippetID() {
+            return 'abc';
+        },
+        getRevisionID() {
+            return 'sha1';
+        },
     };
     
     const backend = {
@@ -124,6 +133,15 @@ test('StorageHandler: update: delegates to owning backend', async (t) => {
 test('StorageHandler: fork: delegates to owning backend', async (t) => {
     const revision = {
         _type: 'gist',
+        getPath() {
+            return '/gist/abc/sha1';
+        },
+        getSnippetID() {
+            return 'abc';
+        },
+        getRevisionID() {
+            return 'sha1';
+        },
     };
     
     const backend = {

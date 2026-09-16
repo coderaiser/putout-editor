@@ -15,10 +15,10 @@ import {
  * tests pass structural doubles implementing a single method.
  */
 export type StorageAdapter = {
-    fetchFromURL(): unknown;
-    create(data: StorageData): unknown;
-    update(revision: unknown, data: StorageData): unknown;
-    fork(revision: unknown, data: StorageData): unknown;
+    fetchFromURL?(): unknown;
+    create?(data: StorageData): unknown;
+    update?(revision: unknown, data: StorageData): unknown;
+    fork?(revision: unknown, data: StorageData): unknown;
 };
 
 type ParserChild = {
