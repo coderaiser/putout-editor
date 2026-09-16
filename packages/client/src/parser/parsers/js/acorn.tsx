@@ -60,6 +60,7 @@ export default {
                     parse: AcornParser;
                 };
             };
+            
             parser = JSXParser.parse.bind(JSXParser);
         } else {
             if (options.loose)
