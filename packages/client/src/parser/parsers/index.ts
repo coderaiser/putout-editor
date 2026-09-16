@@ -1,3 +1,13 @@
+/**
+ * A parser that has been through the category assignment loop in `parsers/index.ts`.
+ * Every parser is guaranteed to have a `category`, so we can require it.
+ */
+import type {EditorTransformer} from '#editor-code';
+
+/**
+ * A parser that has been through the category assignment loop in `parsers/index.ts`.
+ * Every parser is guaranteed to have a `category`, so we can require it.
+ */
 import codeExample from './js/codeExample.ts';
 import babelParser from './js/babel.ts';
 import espreeParser from './js/espree.tsx';
@@ -12,6 +22,7 @@ import {
     fileExtension,
 } from './js/index.ts';
 
+// ... existing imports ...
 export interface ParserCategory {
     id: string;
     displayName: string;
@@ -22,7 +33,6 @@ export interface ParserCategory {
     parsers: ParserInfo[];
     transformers?: TransformerInfo[];
 }
-
 export interface ParserInfo {
     id: string;
     displayName?: string;
@@ -35,19 +45,11 @@ export interface ParserInfo {
     hasSettings?: () => boolean;
     [option: string]: unknown;
 }
-
-/**
- * A parser that has been through the category assignment loop in `parsers/index.ts`.
- * Every parser is guaranteed to have a `category`, so we can require it.
- */
 export type ParserInfoWithCategory = ParserInfo & {
     category: ParserCategory;
 };
 
-import type {EditorTransformer} from '#editor-code';
-
 // ... existing imports ...
-
 export interface TransformerInfo extends EditorTransformer {
     id: string;
     displayName?: string;

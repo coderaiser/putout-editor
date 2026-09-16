@@ -150,7 +150,7 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                     if (setting && typeof setting === 'object') {
                         const nested = setting as SettingsConfig;
                         const settingsResult = nested.settings?.(parserSettings);
-                        const parserSettingsValue: SettingsObject = settingsResult != null ? settingsResult : Object.assign({});
+                        const parserSettingsValue: SettingsObject = settingsResult != null ? settingsResult : {};
                         
                         return (
                             <SettingsRenderer
