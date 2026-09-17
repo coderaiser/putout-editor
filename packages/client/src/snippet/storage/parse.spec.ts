@@ -86,7 +86,7 @@ test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
     });
     server.use(...parseHandlers);
     
-    const result = await withHash('#/abc123', async () => fetchFromURL());
+    const result = await withHash('#/abc123', async () => await fetchFromURL());
     
     server.close();
     
