@@ -2,7 +2,7 @@ import {resolve, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {Injectable, HttpException} from '@nestjs/common';
 import {tryToCatch} from 'try-to-catch';
-import Piscina from 'piscina';
+import {Piscina} from 'piscina';
 import type {
     TransformRequest,
     Place,
@@ -15,15 +15,9 @@ type WorkerResult = {
 type PiscinaPool = {
     run(task: TransformRequest): Promise<WorkerResult>;
 };
-type PiscinaConstructor = new (options: {
-    filename: string;
-    idleTimeout: number;
-    minThreads: number;
-}) => PiscinaPool;
-
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 
-const createPool = (): PiscinaPool => new (Piscina as unknown as PiscinaConstructor)({
+const createPool = (): PiscinaPool => new Piscina<TransformRequest, WorkerResult>({
     filename: resolve(currentDirectory, './find-places.worker.js'),
     idleTimeout: 5000,
     minThreads: 0,
