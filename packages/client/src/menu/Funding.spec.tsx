@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -28,7 +27,7 @@ test('Funding: first option is patreon', (t) => {
     const buttons = document.querySelectorAll('li button');
     
     cleanup();
-    const result = buttons[0].textContent.includes('patreon');
+    const result = buttons[0]?.textContent.includes('patreon') || false;
     
     t.ok(result);
     t.end();
@@ -36,10 +35,11 @@ test('Funding: first option is patreon', (t) => {
 
 test('Funding: click calls globalThis.open', (t) => {
     const origOpen = globalThis.open;
-    let openedUrl;
+    let openedUrl: string | URL | null | undefined;
     
-    globalThis.open = (url) => {
+    globalThis.open = (url?: string | URL | undefined): Window | null => {
         openedUrl = url;
+        return null;
     };
     
     render(

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -46,7 +45,7 @@ test('ThemeButton: sets dark theme on click', (t) => {
         <ThemeButton/>,
     );
     
-    fireEvent.click(document.querySelector('button'));
+    fireEvent.click(document.querySelector('button')!);
     
     const {theme} = document.documentElement.dataset;
     
@@ -62,7 +61,7 @@ test('ThemeButton: persists theme to localStorage', (t) => {
         <ThemeButton/>,
     );
     
-    fireEvent.click(document.querySelector('button'));
+    fireEvent.click(document.querySelector('button')!);
     
     const stored = localStorage.getItem('theme');
     
@@ -93,7 +92,7 @@ test('ThemeButton: toggles back to light on second click', (t) => {
         <ThemeButton/>,
     );
     
-    const button = document.querySelector('button');
+    const button = document.querySelector('button')!;
     
     fireEvent.click(button);
     fireEvent.click(button);
@@ -114,7 +113,7 @@ test('ThemeButton: sets theme via menu item click', (t) => {
     
     const [, darkItem] = document.querySelectorAll('li');
     
-    fireEvent.click(darkItem);
+    fireEvent.click(darkItem!);
     
     const {theme} = document.documentElement.dataset;
     
@@ -132,7 +131,7 @@ test('ThemeButton: menu item click persists to localStorage', (t) => {
     
     const [, darkItem] = document.querySelectorAll('li');
     
-    fireEvent.click(darkItem);
+    fireEvent.click(darkItem!);
     
     const stored = localStorage.getItem('theme');
     
@@ -148,7 +147,7 @@ test('ThemeButton: mouseLeave resets forceClosed', (t) => {
         <ThemeButton/>,
     );
     
-    const div = container.querySelector('div');
+    const div = container.querySelector('div')!;
     
     fireEvent.mouseLeave(div);
     

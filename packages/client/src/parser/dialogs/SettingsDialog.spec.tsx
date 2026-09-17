@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
@@ -13,9 +12,15 @@ import {
     putoutEditor,
     revive,
     setParserSettings,
+    type RootState,
+    type WorkbenchState,
 } from '../../store/reducers.ts';
 
-function makeStore(overrides = {}) {
+type StoreOverrides = Omit<Partial<RootState>, 'workbench'> & {
+    workbench?: Partial<WorkbenchState>;
+};
+
+function makeStore(overrides: StoreOverrides = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -52,7 +57,7 @@ function makeSettingsStore() {
     });
 }
 
-function renderDialog(store) {
+function renderDialog(store: ReturnType<typeof makeStore>) {
     render(
         <Provider store={store}>
             <SettingsDialog/>
@@ -106,7 +111,7 @@ test('SettingsDialog: renders parser displayName in header', (t) => {
     
     renderDialog(store);
     
-    const result = document.querySelector('h3').textContent;
+    const result = document.querySelector('h3')?.textContent || '';
     
     cleanup();
     
@@ -175,7 +180,7 @@ test('SettingsDialog: settings change saved on close', (t) => {
     
     renderDialog(store);
     
-    const checkbox = document.querySelector('input[type="checkbox"]');
+    const checkbox = document.querySelector('input[type="checkbox"]')!;
     
     fireEvent.click(checkbox);
     
@@ -185,7 +190,7 @@ test('SettingsDialog: settings change saved on close', (t) => {
     
     cleanup();
     
-    const result = store.getState().workbench.parserSettings.range;
+    const result = store.getState().workbench.parserSettings?.range;
     
     t.notOk(result);
     t.end();
@@ -196,7 +201,7 @@ test('SettingsDialog: outer click on backdrop closes dialog', (t) => {
     
     renderDialog(store);
     
-    fireEvent.click(document.querySelector('#SettingsDialog'));
+    fireEvent.click(document.querySelector('#SettingsDialog')!);
     
     cleanup();
     
@@ -211,7 +216,7 @@ test('SettingsDialog: inner click does not close dialog', (t) => {
     
     renderDialog(store);
     
-    fireEvent.click(document.querySelector('.inner'));
+    fireEvent.click(document.querySelector('.inner')!);
     
     cleanup();
     
@@ -243,7 +248,7 @@ test('SettingsDialog: syncs parserSettings from store', async (t) => {
     });
     
     const selects = document.querySelectorAll('.settings select');
-    const result = selects[1].value;
+    const result = (selects[1] as HTMLSelectElement).value;
     
     cleanup();
     

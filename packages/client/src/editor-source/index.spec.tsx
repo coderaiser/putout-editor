@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -7,11 +6,20 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, revive} from '#store';
 import {getView} from '#editor';
+import {
+    putoutEditor,
+    revive,
+    type RootState,
+    type WorkbenchState,
+} from '#store';
 import EditorSource from './index.tsx';
 
-function renderWithStore(overrides = {}) {
+type Overrides = Omit<Partial<RootState>, 'workbench'> & {
+    workbench?: Partial<WorkbenchState>;
+};
+
+function renderWithStore(overrides: Overrides = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -57,7 +65,7 @@ test('EditorSource: renders value from store', (t) => {
         },
     });
     
-    const view = getView(document.body);
+    const view = getView(document.body)!;
     const result = view.state.doc.toString();
     
     cleanup();
@@ -70,7 +78,7 @@ test('EditorSource: dispatches setCode when editor content changes', async (t) =
     const store = renderWithStore();
     
     await act(async () => {
-        const view = getView(document.body);
+        const view = getView(document.body)!;
         
         view.dispatch({
             changes: {
@@ -95,7 +103,7 @@ test('EditorSource: dispatches setCursor when cursor moves', async (t) => {
     const store = renderWithStore();
     
     await act(async () => {
-        const view = getView(document.body);
+        const view = getView(document.body)!;
         
         view.dispatch({
             selection: {
@@ -116,13 +124,13 @@ test('EditorSource: dispatches setCursor when cursor moves', async (t) => {
 
 test('EditorSource: dispatches editorBlur when editor blurs', (t) => {
     const store = renderWithStore();
-    const view = getView(document.body);
+    const view = getView(document.body)!;
     
     view.contentDOM.dispatchEvent(new FocusEvent('blur'));
     
     cleanup();
     
-    const result = store.getState().workbench.cursor;
+    const result = store.getState().cursor;
     
     t.notOk(result);
     t.end();

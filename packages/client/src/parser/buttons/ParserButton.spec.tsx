@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,15 +5,24 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import ParserButton from './ParserButton.tsx';
+import type {
+    ParserInfo,
+    ParserCategory,
+} from '../parsers/index.ts';
 
-const mockParser = {
+const mockParser: ParserInfo = {
     id: 'babel',
     displayName: 'Babel',
     showInMenu: true,
     hasSettings: () => false,
 };
 
-const mockCategory = {
+const mockCategory: ParserCategory = {
+    id: 'javascript',
+    displayName: 'JavaScript',
+    mimeTypes: ['text/javascript'],
+    fileExtension: '.js',
+    codeExample: '',
     parsers: [
         mockParser, {
             id: 'acorn',
@@ -40,7 +48,7 @@ test('ParserButton: renders parser display name', (t) => {
     const spanText = document.querySelector('.menuButton span');
     
     cleanup();
-    const result = spanText.textContent.includes('Babel');
+    const result = spanText?.textContent?.includes('Babel');
     
     t.ok(result);
     t.end();
@@ -93,7 +101,7 @@ test('ParserButton: settings button disabled when parser has no settings', (t) =
     );
     
     const buttons = document.querySelectorAll('button');
-    const settingsBtn = [...buttons].at(-1);
+    const settingsBtn = [...buttons].at(-1)!;
     
     cleanup();
     
@@ -120,7 +128,8 @@ test('ParserButton: menu items always rendered (visible on hover via CSS)', (t) 
 });
 
 test('ParserButton: only parsers with showInMenu are rendered', (t) => {
-    const categoryWithHidden = {
+    const categoryWithHidden: ParserCategory = {
+        ...mockCategory,
         parsers: [
             mockParser, {
                 id: 'hidden',
@@ -149,9 +158,9 @@ test('ParserButton: only parsers with showInMenu are rendered', (t) => {
 });
 
 test('ParserButton: clicking parser item calls onParserChange', (t) => {
-    let changedParser;
+    let changedParser: ParserInfo | undefined;
     
-    const onParserChange = (p) => {
+    const onParserChange = (p: ParserInfo | undefined) => {
         changedParser = p;
     };
     
@@ -170,7 +179,7 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
     
     cleanup();
     
-    t.equal(changedParser.id, 'acorn');
+    t.equal(changedParser?.id, 'acorn');
     t.end();
 });
 
@@ -212,11 +221,11 @@ test('ParserButton: clicking parser item sets is-closed class', (t) => {
     );
     
     const div = document.querySelector('.menuButton');
-    const item = document.querySelector('li');
+    const item = document.querySelector('li')!;
     
     fireEvent.click(item);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed');
     
     cleanup();
     
@@ -234,12 +243,12 @@ test('ParserButton: clicking trigger span sets is-closed class', (t) => {
         />,
     );
     
-    const span = document.querySelector('.menuButton span');
+    const span = document.querySelector('.menuButton span')!;
     const div = document.querySelector('.menuButton');
     
     fireEvent.click(span);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed');
     
     cleanup();
     
@@ -257,8 +266,8 @@ test('ParserButton: mouseleave clears is-closed class', (t) => {
         />,
     );
     
-    const span = document.querySelector('.menuButton span');
-    const div = document.querySelector('.menuButton');
+    const span = document.querySelector('.menuButton span')!;
+    const div = document.querySelector('.menuButton')!;
     
     fireEvent.click(span);
     fireEvent.mouseLeave(div);
@@ -291,7 +300,7 @@ test('ParserButton: settings button calls onParserSettingsButtonClick', (t) => {
     );
     
     const buttons = document.querySelectorAll('button');
-    const settingsBtn = [...buttons].at(-1);
+    const settingsBtn = [...buttons].at(-1)!;
     
     fireEvent.click(settingsBtn);
     
@@ -317,7 +326,7 @@ test('ParserButton: settings button enabled when parser has settings', (t) => {
     );
     
     const buttons = document.querySelectorAll('button');
-    const settingsBtn = [...buttons].at(-1);
+    const settingsBtn = [...buttons].at(-1)!;
     
     cleanup();
     
@@ -326,9 +335,10 @@ test('ParserButton: settings button enabled when parser has settings', (t) => {
 });
 
 test('ParserButton: clicking parser item calls onParserChange with undefined for unknown parser', (t) => {
-    let changedParser;
+    let changedParser: ParserInfo | undefined;
     
-    const categoryWithUnknownParser = {
+    const categoryWithUnknownParser: ParserCategory = {
+        ...mockCategory,
         parsers: [
             mockParser, {
                 id: 'unknown-parser',

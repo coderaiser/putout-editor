@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,17 +5,26 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
+import {
+    configureStore,
+    type Middleware,
+    type UnknownAction,
+} from '@reduxjs/toolkit';
 import Menu from './Menu.tsx';
-import {putoutEditor, revive} from '../store/reducers.ts';
+import {
+    putoutEditor,
+    revive,
+    type RootState,
+    type Revision,
+} from '../store/reducers.ts';
 
-const recordActions = (actions) => () => (next) => (action) => {
-    actions.push(action);
+const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
+    actions.push(action as UnknownAction);
     
     return next(action);
 };
 
-function makeStore(overrides = {}, actions = []) {
+function makeStore(overrides: Partial<RootState> = {}, actions: UnknownAction[] = []) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -39,7 +47,25 @@ function makeStore(overrides = {}, actions = []) {
     });
 }
 
-function renderMenu(store) {
+const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
+    canSave: () => true,
+    getSnippetID: () => 'snippet-id',
+    getRevisionID: () => 'revision-id',
+    getTransformerID: () => null,
+    getTransformCode: () => '',
+    getParserID: () => 'babel',
+    getCode: () => 'const x = 1',
+    getParserSettings: () => null,
+    getPath: () => '/gist/snippet-id/revision-id',
+    getShareData: () => ({
+        versionedURL: 'https://example.com/v1',
+        latestURL: null,
+        embedURL: null,
+    }),
+    ...overrides,
+});
+
+function renderMenu(store: ReturnType<typeof makeStore>) {
     render(
         <Provider store={store}>
             <Menu/>
@@ -79,7 +105,7 @@ test('Menu: parser info shows parser name', (t) => {
     renderMenu(store);
     
     const info = document.querySelector('#info');
-    const result = info.textContent.includes('babel');
+    const result = info?.textContent.includes('babel') || false;
     
     cleanup();
     
@@ -106,7 +132,7 @@ test('Menu: transformer info shown when showTransformer', (t) => {
     renderMenu(store);
     
     const info = document.querySelector('#info');
-    const result = info.textContent.includes('Transformer') && info.textContent.includes('🐊Putout');
+    const result = info?.textContent.includes('Transformer') && info?.textContent.includes('🐊Putout');
     
     cleanup();
     
@@ -122,7 +148,7 @@ test('Menu: no transformer info when showTransformer false', (t) => {
     renderMenu(store);
     
     const info = document.querySelector('#info');
-    const result = info.textContent.includes('Transformer');
+    const result = info?.textContent.includes('Transformer') || false;
     
     cleanup();
     
@@ -138,7 +164,7 @@ test('Menu: keyMap menu item dispatches setKeyMap', (t) => {
     const items = document.querySelectorAll('#Toolbar li');
     const vimItem = [...items].find((item) => item.textContent === 'vim');
     
-    fireEvent.click(vimItem);
+    fireEvent.click(vimItem!);
     
     cleanup();
     
@@ -149,7 +175,7 @@ test('Menu: keyMap menu item dispatches setKeyMap', (t) => {
 });
 
 test('Menu: save button dispatches snippet/save', (t) => {
-    const actions = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     
     renderMenu(store);
@@ -157,7 +183,7 @@ test('Menu: save button dispatches snippet/save', (t) => {
     const buttons = document.querySelectorAll('#Toolbar button');
     const saveButton = [...buttons].find((button) => button.textContent.trim() === 'Save');
     
-    fireEvent.click(saveButton);
+    fireEvent.click(saveButton!);
     
     cleanup();
     
@@ -177,7 +203,7 @@ test('Menu: new button clears location hash', (t) => {
     const buttons = document.querySelectorAll('#Toolbar button');
     const newButton = [...buttons].find((button) => button.textContent.includes('New'));
     
-    fireEvent.click(newButton);
+    fireEvent.click(newButton!);
     
     cleanup();
     
@@ -188,16 +214,16 @@ test('Menu: new button clears location hash', (t) => {
 });
 
 test('Menu: fork button dispatches snippet/save with payload true', (t) => {
-    const actions = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     
     renderMenu(store);
     
     // The save button is the last button in the toolbar (from SnippetButton)
     const buttons = document.querySelectorAll('#Toolbar button');
-    const forkButton = [...buttons].find((button) => button.title === 'Save');
+    const forkButton = [...buttons].find((button) => (button as HTMLElement).title === 'Save');
     
-    fireEvent.click(forkButton);
+    fireEvent.click(forkButton!);
     
     cleanup();
     
@@ -208,15 +234,11 @@ test('Menu: fork button dispatches snippet/save with payload true', (t) => {
 });
 
 test('Menu: share button dispatches openShareDialog', (t) => {
-    const actions = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({
-        activeRevision: {
+        activeRevision: makeRevision({
             getSnippetID: () => 'test-id',
             getRevisionID: () => 'r1',
-            getTransformerID: () => null,
-            getTransformCode: () => '',
-            getParserID: () => 'babel',
-            getCode: () => 'const x = 1;',
             getParserSettings: () => ({}),
             getPath: () => '/test',
             getShareData: () => ({
@@ -224,8 +246,8 @@ test('Menu: share button dispatches openShareDialog', (t) => {
                 latestURL: 'http://test.com',
                 embedURL: 'http://test.com',
             }),
-            canSave: () => true,
-        },
+            getCode: () => 'const x = 1;',
+        }),
     }, actions);
     
     renderMenu(store);
@@ -234,7 +256,7 @@ test('Menu: share button dispatches openShareDialog', (t) => {
     const buttons = document.querySelectorAll('#Toolbar button');
     const shareButton = [...buttons].find((button) => button.textContent.includes('Share'));
     
-    fireEvent.click(shareButton);
+    fireEvent.click(shareButton!);
     
     cleanup();
     
@@ -245,7 +267,7 @@ test('Menu: share button dispatches openShareDialog', (t) => {
 });
 
 test('Menu: transform button dispatches selectTransformer', (t) => {
-    const actions = [];
+    const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     
     renderMenu(store);
@@ -253,6 +275,6 @@ test('Menu: transform button dispatches selectTransformer', (t) => {
     // Find the transform button (it's a select-like component)
     cleanup();
     
-    t.pass();
+    t.pass('transform button');
     t.end();
 });

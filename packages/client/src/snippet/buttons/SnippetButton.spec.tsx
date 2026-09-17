@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,6 +5,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import SnippetButton from './SnippetButton.tsx';
+import type {Revision} from '../../store/reducers.ts';
 
 const noop = () => {};
 
@@ -18,7 +18,7 @@ const defaultProps = {
     onFork: noop,
     onNew: noop,
     onShareButtonClick: noop,
-    snippet: null,
+    snippet: null as Revision | null,
 };
 
 test('SnippetButton: renders Snippet label in span', (t) => {
@@ -29,7 +29,7 @@ test('SnippetButton: renders Snippet label in span', (t) => {
     const span = document.querySelector('.menuButton > span');
     
     cleanup();
-    const result = span.textContent.includes('Snippet');
+    const result = span?.textContent.includes('Snippet') || false;
     
     t.ok(result);
     t.end();
@@ -56,9 +56,9 @@ test('SnippetButton: clicking span sets is-closed class', (t) => {
     const div = document.querySelector('.menuButton');
     const span = document.querySelector('.menuButton > span');
     
-    fireEvent.click(span);
+    fireEvent.click(span!);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed') || false;
     
     cleanup();
     
@@ -74,9 +74,9 @@ test('SnippetButton: clicking ul sets is-closed class', (t) => {
     const div = document.querySelector('.menuButton');
     const ul = document.querySelector('ul');
     
-    fireEvent.click(ul);
+    fireEvent.click(ul!);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed') || false;
     
     cleanup();
     
@@ -92,10 +92,10 @@ test('SnippetButton: mouseleave clears is-closed class', (t) => {
     const div = document.querySelector('.menuButton');
     const span = document.querySelector('.menuButton > span');
     
-    fireEvent.click(span);
-    fireEvent.mouseLeave(div);
+    fireEvent.click(span!);
+    fireEvent.mouseLeave(div!);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed') || false;
     
     cleanup();
     
@@ -108,11 +108,11 @@ test('SnippetButton: quick-save button title is Save when canSave and not canFor
         <SnippetButton {...defaultProps} canSave={true} canFork={false}/>,
     );
     
-    const btn = document.querySelector('.menuButton > button');
+    const btn = document.querySelector('.menuButton > button') as HTMLButtonElement | null;
     
     cleanup();
     
-    t.equal(btn.title, 'Save');
+    t.equal(btn?.title, 'Save');
     t.end();
 });
 
@@ -121,11 +121,11 @@ test('SnippetButton: quick-save button title is Fork when canFork and not canSav
         <SnippetButton {...defaultProps} canSave={false} canFork={true}/>,
     );
     
-    const btn = document.querySelector('.menuButton > button');
+    const btn = document.querySelector('.menuButton > button') as HTMLButtonElement | null;
     
     cleanup();
     
-    t.equal(btn.title, 'Fork');
+    t.equal(btn?.title, 'Fork');
     t.end();
 });
 
@@ -134,11 +134,11 @@ test('SnippetButton: quick-save button disabled when saving', (t) => {
         <SnippetButton {...defaultProps} saving={true}/>,
     );
     
-    const btn = document.querySelector('.menuButton > button');
+    const btn = document.querySelector('.menuButton > button') as HTMLButtonElement | null;
     
     cleanup();
     
-    t.ok(btn.disabled);
+    t.ok(btn?.disabled);
     t.end();
 });
 
@@ -147,11 +147,11 @@ test('SnippetButton: quick-save button disabled when forking', (t) => {
         <SnippetButton {...defaultProps} forking={true}/>,
     );
     
-    const btn = document.querySelector('.menuButton > button');
+    const btn = document.querySelector('.menuButton > button') as HTMLButtonElement | null;
     
     cleanup();
     
-    t.ok(btn.disabled);
+    t.ok(btn?.disabled);
     t.end();
 });
 
@@ -160,11 +160,11 @@ test('SnippetButton: quick-save button disabled when neither canSave nor canFork
         <SnippetButton {...defaultProps} canSave={false} canFork={false}/>,
     );
     
-    const btn = document.querySelector('.menuButton > button');
+    const btn = document.querySelector('.menuButton > button') as HTMLButtonElement | null;
     
     cleanup();
     
-    t.ok(btn.disabled);
+    t.ok(btn?.disabled);
     t.end();
 });
 
@@ -182,7 +182,7 @@ test('SnippetButton: quick-save button calls onSave when canSave', (t) => {
         />,
     );
     
-    fireEvent.click(document.querySelector('.menuButton > button'));
+    fireEvent.click(document.querySelector('.menuButton > button')!);
     
     cleanup();
     
@@ -204,7 +204,7 @@ test('SnippetButton: quick-save button calls onFork when canFork and not canSave
         />,
     );
     
-    fireEvent.click(document.querySelector('.menuButton > button'));
+    fireEvent.click(document.querySelector('.menuButton > button')!);
     
     cleanup();
     

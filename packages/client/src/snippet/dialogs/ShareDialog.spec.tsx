@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -8,9 +7,23 @@ import {
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import ShareDialog from './ShareDialog.tsx';
-import {putoutEditor, revive} from '../../store/reducers.ts';
+import {
+    putoutEditor,
+    revive,
+    type RootState,
+    type Revision,
+} from '../../store/reducers.ts';
 
-const makeSnippet = () => ({
+const makeSnippet = (): Revision => ({
+    canSave: () => true,
+    getSnippetID: () => 'snippet-id',
+    getRevisionID: () => 'revision-id',
+    getTransformerID: () => null,
+    getTransformCode: () => '',
+    getParserID: () => 'babel',
+    getCode: () => 'const x = 1',
+    getParserSettings: () => null,
+    getPath: () => '/gist/snippet-id/revision-id',
     getShareData: () => ({
         versionedURL: '#/gist/abc',
         latestURL: '#/gist/abc/latest',
@@ -18,7 +31,7 @@ const makeSnippet = () => ({
     }),
 });
 
-function makeStore(overrides = {}) {
+function makeStore(overrides: Partial<RootState> = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -41,7 +54,7 @@ function makeStore(overrides = {}) {
     });
 }
 
-function renderDialog(store) {
+function renderDialog(store: ReturnType<typeof makeStore>) {
     render(
         <Provider store={store}>
             <ShareDialog/>
@@ -87,7 +100,7 @@ test('ShareDialog: visible: renders share data from snippet', (t) => {
     renderDialog(store);
     
     const input = document.querySelector('.body input');
-    const result = input.value;
+    const result = input instanceof HTMLInputElement ? input.value : '';
     
     cleanup();
     
@@ -99,6 +112,15 @@ test('ShareDialog: renders one input when latest and embed URLs are missing', (t
     const store = makeStore({
         showShareDialog: true,
         activeRevision: {
+            canSave: () => true,
+            getSnippetID: () => 'snippet-id',
+            getRevisionID: () => 'revision-id',
+            getTransformerID: () => null,
+            getTransformCode: () => '',
+            getParserID: () => 'babel',
+            getCode: () => 'const x = 1',
+            getParserSettings: () => null,
+            getPath: () => '/gist/snippet-id/revision-id',
             getShareData: () => ({
                 versionedURL: '#/gist/abc',
                 latestURL: null,
@@ -127,11 +149,12 @@ test('ShareDialog: focus on input selects value', (t) => {
     
     const inputs = document.querySelectorAll('.body input');
     
-    inputs.forEach(fireEvent.focus);
+    for (const input of inputs)
+        fireEvent.focus(input);
     
     const selected = Array
         .from(inputs)
-        .every((input) => input.value === '#/gist/abc' || input.value === '#/gist/abc/latest' || input.value.startsWith('<script'));
+        .every((input) => (input as HTMLInputElement).value === '#/gist/abc' || (input as HTMLInputElement).value === '#/gist/abc/latest' || (input as HTMLInputElement).value.startsWith('<script'));
     
     cleanup();
     
@@ -147,7 +170,7 @@ test('ShareDialog: click on outer dialog: closes', (t) => {
     
     renderDialog(store);
     
-    const dialog = document.getElementById('ShareDialog');
+    const dialog = document.getElementById('ShareDialog')!;
     fireEvent.click(dialog);
     
     cleanup();
@@ -166,7 +189,7 @@ test('ShareDialog: click on inner dialog: does not close', (t) => {
     
     renderDialog(store);
     
-    const inner = document.querySelector('.inner');
+    const inner = document.querySelector('.inner')!;
     fireEvent.click(inner);
     
     cleanup();

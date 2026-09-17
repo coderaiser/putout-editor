@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,6 +5,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import KeyMapButton from './KeyMapButton.tsx';
+import type {KeyMap} from '../types.ts';
 
 const noop = () => {};
 
@@ -17,7 +17,7 @@ test('KeyMapButton: renders current keyMap text', (t) => {
     const trigger = document.querySelector('.menuButton > button');
     
     cleanup();
-    const result = trigger.textContent.includes('vim');
+    const result = trigger?.textContent.includes('vim') || false;
     
     t.ok(result);
     t.end();
@@ -50,9 +50,9 @@ test('KeyMapButton: renders four key map options', (t) => {
 });
 
 test('KeyMapButton: click on item calls onKeyMapChange', (t) => {
-    let changed;
+    let changed: KeyMap | undefined;
     
-    const onKeyMapChange = (v) => {
+    const onKeyMapChange = (v: KeyMap) => {
         changed = v;
     };
     
@@ -62,7 +62,7 @@ test('KeyMapButton: click on item calls onKeyMapChange', (t) => {
     
     const items = document.querySelectorAll('li');
     
-    fireEvent.click(items[1]);
+    fireEvent.click(items[1]!);
     
     cleanup();
     
@@ -78,7 +78,7 @@ test('KeyMapButton: item with matching keyMap has disabled attribute set', (t) =
     const items = document.querySelectorAll('li');
     
     cleanup();
-    const result = items[2].className.includes('disabled');
+    const result = items[2]?.className.includes('disabled') || false;
     
     t.ok(result);
     t.end();
@@ -92,9 +92,9 @@ test('KeyMapButton: clicking item sets is-closed class', (t) => {
     const div = document.querySelector('.menuButton');
     const item = document.querySelector('li');
     
-    fireEvent.click(item);
+    fireEvent.click(item!);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed') || false;
     
     cleanup();
     
@@ -110,9 +110,9 @@ test('KeyMapButton: clicking trigger button sets is-closed class', (t) => {
     const div = document.querySelector('.menuButton');
     const trigger = document.querySelector('.menuButton > button');
     
-    fireEvent.click(trigger);
+    fireEvent.click(trigger!);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed') || false;
     
     cleanup();
     
@@ -127,10 +127,10 @@ test('KeyMapButton: mouseleave clears is-closed class', (t) => {
     
     const div = document.querySelector('.menuButton');
     
-    fireEvent.click(document.querySelector('.menuButton > button'));
-    fireEvent.mouseLeave(div);
+    fireEvent.click(document.querySelector('.menuButton > button')!);
+    fireEvent.mouseLeave(div!);
     
-    const result = div.className.includes('is-closed');
+    const result = div?.className.includes('is-closed') || false;
     
     cleanup();
     

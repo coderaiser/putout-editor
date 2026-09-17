@@ -1,10 +1,17 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import EditorASTJson from '#editor-ast-json';
 import {getView, getValue} from '#editor';
 
 const {stringify} = JSON;
+
+const makeParseResult = (ast: unknown) => ({
+    ast,
+    treeAdapter: null,
+    time: null,
+    source: null,
+    error: null,
+});
 
 test('EditorASTJson: renders container element', (t) => {
     const {container} = render(
@@ -48,11 +55,9 @@ test('EditorASTJson: renders with className', (t) => {
 test('EditorASTJson: renders with parseResult uses ast value', (t) => {
     const {container} = render(
         <EditorASTJson
-            parseResult={{
-                ast: {
-                    type: 'File',
-                },
-            }}
+            parseResult={makeParseResult({
+                type: 'File',
+            })}
         />,
     );
     
@@ -140,9 +145,7 @@ test('EditorASTJson: renders AST as proper JSON with indentation', (t) => {
     
     const {container} = render(
         <EditorASTJson
-            parseResult={{
-                ast,
-            }}
+            parseResult={makeParseResult(ast)}
         />,
     );
     
@@ -169,14 +172,12 @@ test('EditorASTJson: handles nested objects correctly', (t) => {
     
     const {container} = render(
         <EditorASTJson
-            parseResult={{
-                ast,
-            }}
+            parseResult={makeParseResult(ast)}
         />,
     );
     
     const editor = getView(container);
-    const result = editor ? getValue(editor) : null;
+    const result = editor ? getValue(editor) : '';
     
     cleanup();
     

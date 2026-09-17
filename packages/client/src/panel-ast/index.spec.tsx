@@ -1,10 +1,13 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {configureStore} from '@reduxjs/toolkit';
 import {Provider} from 'react-redux';
 import AstPanel from '#panel-ast';
-import {putoutEditor, revive} from '#store';
+import {
+    putoutEditor,
+    revive,
+    type ParseResult,
+} from '#store';
 
 const noop = () => {};
 
@@ -54,7 +57,11 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
                     ast: {
                         type: 'Program',
                     },
-                },
+                    treeAdapter: null,
+                    time: null,
+                    source: null,
+                    error: null,
+                } satisfies NonNullable<ParseResult>,
             },
         }),
         middleware: (get) => get({

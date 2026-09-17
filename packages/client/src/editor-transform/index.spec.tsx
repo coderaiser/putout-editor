@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -6,18 +5,34 @@ import {
     act,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, revive} from '#store';
+import {
+    configureStore,
+    type Middleware,
+    type UnknownAction,
+} from '@reduxjs/toolkit';
 import {getView} from '#editor';
+import {
+    putoutEditor,
+    revive,
+    type RootState,
+    type WorkbenchState,
+    type TransformState,
+} from '#store';
 import EditorPlugin from './index.tsx';
 
-const recordActions = (actions) => () => (next) => (action) => {
-    actions.push(action);
+const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
+    actions.push(action as UnknownAction);
     
     return next(action);
 };
 
-function renderWithStore(overrides = {}) {
+type Overrides = Omit<Partial<RootState>, 'workbench'> & {
+    workbench?: Partial<Omit<WorkbenchState, 'transform'>> & {
+        transform?: Partial<TransformState>;
+    };
+};
+
+function renderWithStore(overrides: Overrides = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -35,7 +50,7 @@ function renderWithStore(overrides = {}) {
         },
     };
     
-    const actions = [];
+    const actions: UnknownAction[] = [];
     
     const store = configureStore({
         reducer: putoutEditor,
@@ -51,7 +66,7 @@ function renderWithStore(overrides = {}) {
     };
 }
 
-function renderTransformer(store) {
+function renderTransformer(store: ReturnType<typeof renderWithStore>['store']) {
     const {container} = render(
         <Provider store={store}>
             <EditorPlugin/>
@@ -71,7 +86,7 @@ test('EditorPlugin: renders transform code from store', (t) => {
     });
     
     const container = renderTransformer(store);
-    const view = getView(container);
+    const view = getView(container)!;
     const result = view.state.doc.toString();
     
     cleanup();
@@ -85,7 +100,7 @@ test('EditorPlugin: dispatches setTransformState when editor content changes', a
     const container = renderTransformer(store);
     
     await act(async () => {
-        const view = getView(container);
+        const view = getView(container)!;
         
         view.dispatch({
             changes: {
@@ -109,7 +124,7 @@ test('EditorPlugin: dispatches setTransformState when editor content changes', a
 test('EditorPlugin: dispatches transformBlur when editor blurs', (t) => {
     const {actions, store} = renderWithStore();
     const container = renderTransformer(store);
-    const view = getView(container);
+    const view = getView(container)!;
     
     view.contentDOM.dispatchEvent(new FocusEvent('blur'));
     

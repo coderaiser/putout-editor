@@ -1,6 +1,6 @@
-// @ts-nocheck
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
 import {Provider} from 'react-redux';
+import {configureStore} from '@reduxjs/toolkit';
 import {
     render,
     fireEvent,
@@ -8,26 +8,47 @@ import {
     act,
 } from '@testing-library/react';
 import GistBanner from './GistBanner.tsx';
+import {
+    putoutEditor,
+    setSnippet,
+    type Revision,
+} from '#store';
 
-const noop = () => {};
+const createStore = (revision: Revision | null = null) => {
+    const store = configureStore({
+        reducer: putoutEditor,
+    });
+    
+    if (revision)
+        store.dispatch(setSnippet(revision));
+    
+    return store;
+};
 
-const createStore = (activeRevision) => ({
-    getState: () => ({
-        activeRevision,
-    }),
-    subscribe: () => stub(),
-    dispatch: stub(),
-});
-
-const makeRevision = (overrides = {}) => {
+const makeRevision = (overrides: {
+    snippetID?: string;
+    canSave?: boolean;
+} = {}): Revision => {
     const {
         snippetID = '1',
         canSave = false,
     } = overrides;
     
     return {
-        getSnippetID: () => snippetID,
         canSave: () => canSave,
+        getSnippetID: () => snippetID,
+        getRevisionID: () => 'revision-id',
+        getTransformerID: () => null,
+        getTransformCode: () => '',
+        getParserID: () => 'babel',
+        getCode: () => 'const x = 1',
+        getParserSettings: () => null,
+        getPath: () => `/gist/${snippetID}/revision-id`,
+        getShareData: () => ({
+            versionedURL: 'https://example.com/v1',
+            latestURL: null,
+            embedURL: null,
+        }),
     };
 };
 
@@ -110,7 +131,7 @@ test('GistBanner: hides on close button click', (t) => {
         </Provider>,
     );
     
-    fireEvent.click(document.querySelector('button'));
+    fireEvent.click(document.querySelector('button')!);
     
     const banner = document.querySelector('.banner');
     
@@ -121,21 +142,9 @@ test('GistBanner: hides on close button click', (t) => {
 });
 
 test('GistBanner: hides banner after close click', (t) => {
-    const currentRevision = makeRevision({
+    const store = createStore(makeRevision({
         snippetID: '1',
-    });
-    
-    const store = {
-        getState: () => ({
-            activeRevision: currentRevision,
-        }),
-        listeners: [],
-        subscribe(fn) {
-            store.listeners.push(fn);
-            return noop;
-        },
-        dispatch: stub(),
-    };
+    }));
     
     render(
         <Provider store={store}>
@@ -143,7 +152,7 @@ test('GistBanner: hides banner after close click', (t) => {
         </Provider>,
     );
     
-    fireEvent.click(document.querySelector('button'));
+    fireEvent.click(document.querySelector('button')!);
     
     const banner = document.querySelector('.banner');
     
@@ -154,21 +163,9 @@ test('GistBanner: hides banner after close click', (t) => {
 });
 
 test('GistBanner: reappears when snippet ID changes', (t) => {
-    let currentRevision = makeRevision({
+    const store = createStore(makeRevision({
         snippetID: '1',
-    });
-    
-    const store = {
-        getState: () => ({
-            activeRevision: currentRevision,
-        }),
-        listeners: [],
-        subscribe(fn) {
-            store.listeners.push(fn);
-            return noop;
-        },
-        dispatch: stub(),
-    };
+    }));
     
     render(
         <Provider store={store}>
@@ -176,14 +173,12 @@ test('GistBanner: reappears when snippet ID changes', (t) => {
         </Provider>,
     );
     
-    fireEvent.click(document.querySelector('button'));
+    fireEvent.click(document.querySelector('button')!);
     
     act(() => {
-        currentRevision = makeRevision({
+        store.dispatch(setSnippet(makeRevision({
             snippetID: '2',
-        });
-        for (const fn of store.listeners)
-            fn();
+        })));
     });
     
     const banner = document.querySelector('.banner');

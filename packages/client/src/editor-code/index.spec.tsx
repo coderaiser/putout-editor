@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
 import {
@@ -6,11 +5,13 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import EditorResult from '#editor-code';
+import EditorResult, {
+    type EditorTransformer,
+} from '#editor-code';
 
-const makeTransformer = (result = 'const x = 1;', shouldFail = false) => ({
+const makeTransformer = (result = 'const x = 1;', shouldFail = false): EditorTransformer => ({
     _promise: null,
-    loadTransformer: (resolve) => resolve({}),
+    loadTransformer: (resolve: (value: unknown) => void) => resolve({}),
     transform: () => {
         if (shouldFail)
             throw Error('transform failed');
@@ -26,6 +27,7 @@ test('EditorResult: renders output container', async (t) => {
             transformCode=""
             code="const x = 1"
             mode="javascript"
+            parser="babel"
             isLoading={false}
         />,
     );
@@ -41,9 +43,9 @@ test('EditorResult: renders output container', async (t) => {
 
 test('EditorResult: does not call transform when isLoading is true', async (t) => {
     const transform = stub().returns('');
-    const transformer = {
+    const transformer: EditorTransformer = {
         _promise: null,
-        loadTransformer: (resolve) => resolve({}),
+        loadTransformer: (resolve: (value: unknown) => void) => resolve({}),
         transform,
     };
     
@@ -53,6 +55,7 @@ test('EditorResult: does not call transform when isLoading is true', async (t) =
             transformCode=""
             code="const x = 1"
             mode="javascript"
+            parser="babel"
             isLoading={true}
         />,
     );
@@ -65,7 +68,7 @@ test('EditorResult: does not call transform when isLoading is true', async (t) =
 });
 
 test('EditorResult: renders editor when transform throws', async (t) => {
-    let container;
+    let container: HTMLElement | undefined;
     
     await act(async () => {
         ({container} = render(
@@ -74,13 +77,14 @@ test('EditorResult: renders editor when transform throws', async (t) => {
                 transformCode=""
                 code="const x = 1"
                 mode="javascript"
+                parser="babel"
                 isLoading={false}
             />,
         ));
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 50));
     });
     
-    const editor = container.querySelector('.output .editor');
+    const editor = container?.querySelector('.output .editor');
     
     cleanup();
     
@@ -95,6 +99,7 @@ test('EditorResult: renders string result in editor', async (t) => {
             transformCode=""
             code="const x = 1"
             mode="javascript"
+            parser="babel"
             isLoading={false}
         />,
     );
@@ -109,9 +114,9 @@ test('EditorResult: renders string result in editor', async (t) => {
 });
 
 test('EditorResult: reuses cached transformer promise', async (t) => {
-    const loadTransformer = stub().resolves();
-    const transformer = {
-        _promise: new Promise((resolve) => resolve({})),
+    const loadTransformer = stub((callback: (value: unknown) => void) => callback({}));
+    const transformer: EditorTransformer = {
+        _promise: new Promise((resolve: (value: unknown) => void) => resolve({})),
         loadTransformer,
         transform: () => 'const x = 1;',
     };
@@ -122,6 +127,7 @@ test('EditorResult: reuses cached transformer promise', async (t) => {
             transformCode=""
             code="const x = 1"
             mode="javascript"
+            parser="babel"
             isLoading={false}
         />,
     );
@@ -141,15 +147,15 @@ test('EditorResult: renders codeframe when transform throws SyntaxError with loc
         },
     });
     
-    const transformer = {
+    const transformer: EditorTransformer = {
         _promise: null,
-        loadTransformer: (resolve) => resolve({}),
+        loadTransformer: (resolve: (value: unknown) => void) => resolve({}),
         transform: () => {
             throw syntaxError;
         },
     };
     
-    let container;
+    let container: HTMLElement | undefined;
     
     await act(async () => {
         ({container} = render(
@@ -158,13 +164,14 @@ test('EditorResult: renders codeframe when transform throws SyntaxError with loc
                 transformCode="const x ="
                 code="const x = 1"
                 mode="javascript"
+                parser="babel"
                 isLoading={false}
             />,
         ));
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 50));
     });
     
-    const editor = container.querySelector('.output .editor');
+    const editor = container?.querySelector('.output .editor');
     
     cleanup();
     

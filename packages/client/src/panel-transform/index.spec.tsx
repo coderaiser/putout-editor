@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';

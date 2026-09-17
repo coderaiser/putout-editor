@@ -1,6 +1,5 @@
-// @ts-nocheck
 import {test} from 'supertape';
-import {getView} from 'qword/client';
+import {getView, type SourcePosition} from 'qword/client';
 import {
     render,
     cleanup,
@@ -8,6 +7,11 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import Editor from './Editor.tsx';
+
+const resolvePos = (_doc: unknown, idx: number): SourcePosition | null => ({
+    line: 0,
+    ch: idx,
+});
 
 test('Editor: renders .editor container', (t) => {
     const {container} = render(
@@ -37,6 +41,7 @@ test('Editor: renders with default props', (t) => {
 
 test('Editor: renders with error prop', (t) => {
     const error = {
+        name: 'SyntaxError',
         loc: {
             line: 1,
         },
@@ -153,6 +158,7 @@ test('Editor: rerenders without error when error prop changes', async (t) => {
         <Editor
             value="x"
             error={{
+                name: 'Error',
                 message: 'oops',
             }}
         />,
@@ -163,6 +169,7 @@ test('Editor: rerenders without error when error prop changes', async (t) => {
             <Editor
                 value="x"
                 error={{
+                    name: 'Error',
                     message: 'new error',
                 }}
             />,
@@ -177,7 +184,10 @@ test('Editor: rerenders without error when error prop changes', async (t) => {
 });
 
 test('Editor: onContentChange called when content changes', async (t) => {
-    let received;
+    let received: {
+        value: string;
+        cursor: number;
+    } | undefined;
     
     const {container} = render(
         <Editor
@@ -194,19 +204,19 @@ test('Editor: onContentChange called when content changes', async (t) => {
     await act(async () => {
         const view = getView(container);
         
-        view.dispatch({
+        view?.dispatch({
             changes: {
                 from: 0,
                 to: view.state.doc.length,
                 insert: 'hello',
             },
         });
-        await new Promise((resolve) => setTimeout(resolve, 250));
+        await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 250));
     });
     
     cleanup();
     
-    const result = received.value;
+    const result = received?.value;
     const expected = 'hello';
     
     t.equal(result, expected);
@@ -214,7 +224,7 @@ test('Editor: onContentChange called when content changes', async (t) => {
 });
 
 test('Editor: onActivity called when cursor moves', async (t) => {
-    let received;
+    let received: number | undefined;
     
     const {container} = render(
         <Editor
@@ -237,15 +247,15 @@ test('Editor: onActivity called when cursor moves', async (t) => {
                 <Editor
                     value="const x = 1;"
                     highlightRange={[0, 5]}
-                    posFromIndex={(_, idx) => ({
-                        line: 0,
-                        ch: idx,
-                    })}
+                    posFromIndex={resolvePos}
                 />,
             );
         });
         
-        const {anchor, head} = view.state.selection.main;
+        const {anchor, head} = view?.state.selection.main || {
+            anchor: 1,
+            head: 1,
+        };
         
         cleanup();
         
@@ -318,15 +328,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         const {container} = render(
             <Editor
                 value="const x = 1;"
-                highlightRange={[{
-                    column: 0,
-                    index: 0,
-                    line: 1,
-                }, {
-                    column: 5,
-                    index: 5,
-                    line: 1,
-                }]}
+                highlightRange={[0, 5]}
             />,
         );
         
@@ -343,7 +345,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
             <Editor value="abc"/>,
         );
         
-        const content = container.querySelector('.cm-content');
+        const content = container.querySelector('.cm-content') as HTMLElement;
         
         act(() => {
             content.focus();
@@ -356,7 +358,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         });
         
         const view = getView(container);
-        const result = view.state.doc.toString();
+        const result = view?.state.doc.toString();
         const expected = '    abc';
         
         cleanup();
@@ -384,7 +386,11 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         });
         
         const view = getView(container);
-        const {anchor, head} = view.state.selection.main;
+        
+        const {anchor, head} = view?.state.selection.main || {
+            anchor: 1,
+            head: 1,
+        };
         
         cleanup();
         
@@ -408,7 +414,11 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         });
         
         const view = getView(container);
-        const {anchor, head} = view.state.selection.main;
+        
+        const {anchor, head} = view?.state.selection.main || {
+            anchor: 1,
+            head: 1,
+        };
         
         cleanup();
         
@@ -435,7 +445,11 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         });
         
         const view = getView(container);
-        const {anchor, head} = view.state.selection.main;
+        
+        const {anchor, head} = view?.state.selection.main || {
+            anchor: 1,
+            head: 1,
+        };
         
         cleanup();
         
@@ -462,7 +476,11 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         });
         
         const view = getView(container);
-        const {anchor, head} = view.state.selection.main;
+        
+        const {anchor, head} = view?.state.selection.main || {
+            anchor: 1,
+            head: 1,
+        };
         
         cleanup();
         
@@ -473,12 +491,12 @@ test('Editor: onActivity called when cursor moves', async (t) => {
     await act(async () => {
         const view = getView(container);
         
-        view.dispatch({
+        view?.dispatch({
             selection: {
                 anchor: 3,
             },
         });
-        await new Promise((r) => setTimeout(r, 150));
+        await new Promise((r: (value: undefined) => void) => setTimeout(r, 150));
     });
     cleanup();
     
