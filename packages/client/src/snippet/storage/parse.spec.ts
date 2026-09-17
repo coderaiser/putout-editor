@@ -101,7 +101,7 @@ test('parse: fetchFromURL: requests the hash-derived path with latest revision',
     
     server.close();
     
-    t.equal(result.getRevisionID(), 'latest');
+    t.equal(result!.getRevisionID(), 'latest');
     t.end();
 });
 
@@ -114,7 +114,7 @@ test('parse: fetchFromURL: requests the hash-derived path with numeric revision'
     
     server.close();
     
-    t.equal(result.getRevisionID(), '3');
+    t.equal(result!.getRevisionID(), '3');
     t.end();
 });
 
@@ -127,7 +127,7 @@ test('parse: fetchFromURL: defaults revision to 0 when hash has no revision', as
     
     server.close();
     
-    t.equal(result.getRevisionID(), '0');
+    t.equal(result!.getRevisionID(), '0');
     t.end();
 });
 
@@ -140,7 +140,7 @@ test('parse: fetchFromURL: echoes the requested snippetID', async (t) => {
     
     server.close();
     
-    t.equal(result.getSnippetID(), 'snippet42');
+    t.equal(result!.getSnippetID(), 'snippet42');
     t.end();
 });
 

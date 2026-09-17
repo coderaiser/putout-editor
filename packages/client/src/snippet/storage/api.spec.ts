@@ -1,4 +1,4 @@
-import {test, stub} from 'supertape';
+import {test, stub, Stub} from 'supertape';
 import api from './api.ts';
 
 /**
@@ -9,7 +9,7 @@ import api from './api.ts';
  * The double is always restored in `finally` — supertape runs every spec file
  * in one process, so a leaked `globalThis.fetch` breaks every later spec.
  */
-const withFetchStub = async <T>(run: (fetch: ReturnType<typeof stub>) => Promise<T>): Promise<T> => {
+const withFetchStub = async <T>(run: (fetch: Stub<any[], Promise<Response>>) => Promise<T>): Promise<T> => {
     const originalFetch = globalThis.fetch;
     const fetchStub = stub().resolves(new Response('{}'));
     
