@@ -25,11 +25,11 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install
+      - name: Install globals
         run: |
           bun i redrun madrun palabra -g --no-save
           palabra i kubeconform
-      - name: Install
+      - name: Install dependencies
         run: bun i --no-save
       - name: Init Madrun
         run: madrun --init
