@@ -1,4 +1,10 @@
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
+import '../../../test/msw/env.ts';
+import {server} from '../../../test/msw/server.ts';
+import {
+    parseHandlers,
+    parseErrorHandler,
+} from '../../../test/msw/handlers/parse.ts';
 import {
     matchesURL,
     fetchFromURL,
@@ -7,7 +13,17 @@ import {
     Revision,
 } from './parse.ts';
 
-const createFetchStub = (result: unknown) => stub().resolves(result) as unknown as typeof fetch;
+const withHash = async <T>(hash: string, run: () => Promise<T>): Promise<T> => {
+    const orig = globalThis.location.hash;
+    
+    globalThis.location.hash = hash;
+    
+    try {
+        return await run();
+    } finally {
+        globalThis.location.hash = orig;
+    }
+};
 
 test('parse: matchesURL: true for snippet hash', (t) => {
     const orig = globalThis.location.hash;
@@ -65,58 +81,106 @@ test('parse: fetchFromURL: resolves null when hash is empty', async (t) => {
 });
 
 test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
-    const origHash = globalThis.location.hash;
-    const origFetch = globalThis.fetch;
+    server.listen({onUnhandledRequest: 'error'});
+    server.use(...parseHandlers);
     
-    globalThis.fetch = createFetchStub({
-        ok: true,
-        json: stub().resolves({
-            snippetID: 'abc',
-            revisionID: '1',
-            parserID: 'babel',
-        }),
-    });
-    globalThis.location.hash = '#/abc123';
-    const result = await fetchFromURL();
+    const result = await withHash('#/abc123', async () => await fetchFromURL());
     
-    globalThis.location.hash = origHash;
-    globalThis.fetch = origFetch;
+    server.close();
     
     t.ok(result instanceof Revision);
     t.end();
 });
 
-test('parse: fetchFromURL: 404 returns error message', async (t) => {
-    const origHash = globalThis.location.hash;
-    const origFetch = globalThis.fetch;
+test('parse: fetchFromURL: requests the hash-derived path with latest revision', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
     
-    globalThis.fetch = createFetchStub({
-        ok: false,
-        status: 404,
+    const result = await withHash('#/abc123/latest', async () => {
+        return await fetchFromURL();
     });
-    globalThis.location.hash = '#/nonexistent';
-    const result = await fetchFromURL().catch((e) => e);
     
-    globalThis.location.hash = origHash;
-    globalThis.fetch = origFetch;
+    server.close();
+    
+    t.equal(result.getRevisionID(), 'latest');
+    t.end();
+});
+
+test('parse: fetchFromURL: requests the hash-derived path with numeric revision', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
+    
+    const result = await withHash('#/abc123/3', async () => {
+        return await fetchFromURL();
+    });
+    
+    server.close();
+    
+    t.equal(result.getRevisionID(), '3');
+    t.end();
+});
+
+test('parse: fetchFromURL: defaults revision to 0 when hash has no revision', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
+    
+    const result = await withHash('#/abc123', async () => {
+        return await fetchFromURL();
+    });
+    
+    server.close();
+    
+    t.equal(result.getRevisionID(), '0');
+    t.end();
+});
+
+test('parse: fetchFromURL: echoes the requested snippetID', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
+    
+    const result = await withHash('#/snippet42/latest', async () => {
+        return await fetchFromURL();
+    });
+    
+    server.close();
+    
+    t.equal(result.getSnippetID(), 'snippet42');
+    t.end();
+});
+
+test('parse: fetchFromURL: 404 returns error message', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
+    server.use(...parseErrorHandler(404));
+    
+    const result = await withHash('#/nonexistent', async () => {
+        return await fetchFromURL().catch((e) => e);
+    });
+    
+    server.close();
     
     t.match(result.message, 'doesn\'t exist');
     t.end();
 });
 
-test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
-    const origHash = globalThis.location.hash;
-    const origFetch = globalThis.fetch;
+test('parse: fetchFromURL: 404 message names snippet and revision', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
+    server.use(...parseErrorHandler(404));
     
-    globalThis.fetch = createFetchStub({
-        ok: false,
-        status: 500,
+    const result = await withHash('#/gone/7', async () => {
+        return await fetchFromURL().catch((e) => e);
     });
-    globalThis.location.hash = '#/error';
-    const result = await fetchFromURL().catch((e) => e);
     
-    globalThis.location.hash = origHash;
-    globalThis.fetch = origFetch;
+    server.close();
+    
+    t.match(result.message, 'gone/7');
+    t.end();
+});
+
+test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
+    server.listen({onUnhandledRequest: 'error'});
+    server.use(...parseErrorHandler(500));
+    
+    const result = await withHash('#/error', async () => {
+        return await fetchFromURL().catch((e) => e);
+    });
+    
+    server.close();
     
     t.match(result.message, 'Unknown error');
     t.end();
