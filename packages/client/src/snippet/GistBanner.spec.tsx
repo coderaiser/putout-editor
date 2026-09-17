@@ -17,6 +17,9 @@ import GistBanner from './GistBanner.tsx';
 const createStore = (revision: Revision | null = null) => {
     const store = configureStore({
         reducer: putoutEditor,
+        middleware: (getDefault) => getDefault({
+            serializableCheck: false,
+        }),
     });
     
     if (revision)
