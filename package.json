@@ -19,7 +19,8 @@
     "coverage": "madrun coverage",
     "lint": "madrun lint",
     "test:dts": "madrun test:dts",
-    "fix:lint": "madrun fix:lint"
+    "fix:lint": "madrun fix:lint",
+    "report": "madrun report"
   },
   "devDependencies": {
     "@putout/eslint-flat": "^4.0.0",

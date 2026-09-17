@@ -52,7 +52,7 @@ jobs:
         with:
           message: "chore: ${{ env.NAME }}: actions: lint ☘️"
       - name: Coverage
-        run: redrun coverage
+        run: redrun coverage report
       - name: Install Playwright browsers
         run: playwright install --with-deps chromium webkit
         working-directory: packages/client
@@ -66,4 +66,5 @@ jobs:
         uses: coverallsapp/github-action@v2
         continue-on-error: true
         with:
+          base-path: './packages/client'
           github-token: ${{ secrets.GITHUB_TOKEN }}

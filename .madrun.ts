@@ -28,4 +28,5 @@ export default {
     'test:dts': () => 'madfork test:dts',
     'prefix:lint': () => run('prelint', '--fix'),
     'fix:lint': () => 'madfork fix:lint',
+    'report': () => 'cd packages/client && c8 report --reporter=lcov',
 };
