@@ -21,8 +21,8 @@ Web editor for the simplest declarative plugins for 🐊[**Putout**](https://git
 And of course 🐊[**Putout Runner**](https://github.com/coderaiser/putout/tree/master/packages/engine-runner#readme) with:
 
 - ✅ [@putout/plugin-putout](https://github.com/coderaiser/putout/tree/master/packages/plugin-putout#readme)
-- ✅ [@putout/convert-esm-to-commonjs](https://github.com/coderaiser/putout/tree/master/packages/plugin-convert-esm-to-commonjs#readme)
-- ✅ [@putout/declare-undefined-variables](https://github.com/coderaiser/putout/tree/master/packages/plugin-declare-undefined-variables#readme)
+- ✅ [@putout/plugin-convert-esm-to-commonjs](https://github.com/coderaiser/putout/tree/master/packages/plugin-convert-esm-to-commonjs#readme)
+- ✅ [@putout/plugin-declare](https://github.com/coderaiser/putout/tree/master/packages/plugin-declare#readme)
 
 enabled. For other then **JavaScript** languages and other transformations please use marvelous [astexplorer](https://astexplorer.net/).
 
