@@ -5,10 +5,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import ParserButton from './ParserButton.tsx';
-import type {
-    ParserInfo,
-    ParserCategory,
-} from '../parsers/index.ts';
+import type {ParserInfo, ParserCategory} from '../parsers/index.ts';
 
 const mockParser: ParserInfo = {
     id: 'babel',

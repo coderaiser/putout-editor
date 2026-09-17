@@ -7,12 +7,12 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import GistBanner from './GistBanner.tsx';
 import {
     putoutEditor,
     setSnippet,
     type Revision,
 } from '#store';
+import GistBanner from './GistBanner.tsx';
 
 const createStore = (revision: Revision | null = null) => {
     const store = configureStore({
