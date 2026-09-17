@@ -1,12 +1,27 @@
 import {createSlice, type configureStore} from '@reduxjs/toolkit';
-import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
 import {
     getCategoryByID,
     getDefaultParser,
     getParserByID,
     getTransformerByID,
     type ParserCategory,
-} from '../parser/parsers/index.ts';
+} from '#parser';
+
+/**
+ * Result of parsing the current code with the active parser.
+ * `null` is the initial state before anything has been parsed.
+ *
+ * On success: `{ast, treeAdapter, time, source, error: null}`.
+ * On failure: `{ast: null, treeAdapter: null, time: null, source: null, error}`.
+ *
+ * `ast` stays `unknown` — the AST shape depends on the active parser
+ * (Babel, Acorn, Esprima all differ). Consumers narrow it explicitly.
+ *
+ * `treeAdapter` is the raw parse-result config `{type, options}`, not a
+ * `TreeAdapter` instance — the instance is built later by
+ * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
+ */
+import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
 
 /**
  * Result of parsing the current code with the active parser.
