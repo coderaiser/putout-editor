@@ -1,4 +1,4 @@
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
 import '../../../test/msw/env.ts';
 import {server} from '../../../test/msw/server.ts';
 import {
