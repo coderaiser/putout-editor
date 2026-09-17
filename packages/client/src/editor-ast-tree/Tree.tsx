@@ -69,6 +69,24 @@ type TreeProps = {
 export default function Tree({focusPath, parseResult}: TreeProps) {
     const [settings, updateSettings] = useReducer(reducer, null, initSettings);
     const treeAdapter = useMemo(() => treeAdapterFromParseResult(parseResult, settings as Record<string, boolean>), [parseResult.treeAdapter, settings]);
+    
+    const elementAdapter = useMemo<TreeAdapter>(() => ({
+        getRange(value) {
+            const range = treeAdapter.getRange(value);
+            return range ? [range[0], range[1]] : null;
+        },
+        getNodeName: (value) => treeAdapter.getNodeName(value) || null,
+        *walkNode(value) {
+            for (const child of treeAdapter.walkNode(value)) {
+                yield {
+                    ...child,
+                    computed: child.computed || false,
+                };
+            }
+        },
+        opensByDefault: (value, name) => Boolean(treeAdapter.opensByDefault(value, name)),
+    }), [treeAdapter]);
+    
     const dispatch = useDispatch();
     
     return (
@@ -93,14 +111,14 @@ export default function Tree({focusPath, parseResult}: TreeProps) {
             </div>
             <ul
                 onMouseLeave={() => {
-                    dispatch(clearHighlight({}));
+                    dispatch(clearHighlight());
                 }}
             >
                 <Element
                     focusPath={focusPath}
                     value={parseResult.ast}
                     level={0}
-                    treeAdapter={treeAdapter as unknown as TreeAdapter}
+                    treeAdapter={elementAdapter}
                     settings={settings}
                 />
             </ul>

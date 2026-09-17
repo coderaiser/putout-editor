@@ -8,6 +8,8 @@ import {
     setCode,
     setParser,
     setParserSettings,
+    type ParserSettings,
+    type RootState,
 } from '../../store/reducers.ts';
 
 const noop = () => {};
@@ -47,10 +49,14 @@ function makeStore(overrides: {
 }
 
 const getParseResult = (store: {
-    getState: () => any;
+    getState: () => RootState;
 }) => store.getState().workbench.parseResult;
 
-const stubBabel = (overrides: Record<string, any> = {}) => {
+const stubBabel = (overrides: {
+    parse?: (realParser: unknown, code: string, settings: ParserSettings) => unknown;
+    opensByDefault?: (node: unknown, key: string) => boolean;
+    promise?: Promise<unknown>;
+} = {}) => {
     const {
         parse = () => makeMockParseResult(),
         opensByDefault,
@@ -89,7 +95,7 @@ test('parserMiddleware: INIT triggers parse and sets parseResult ast', async (t)
     
     stub.restore();
     
-    t.ok(getParseResult(store).ast);
+    t.ok(getParseResult(store)?.ast);
     t.end();
 });
 
@@ -106,7 +112,7 @@ test('parserMiddleware: code change triggers parse', async (t) => {
     
     stub.restore();
     
-    t.ok(getParseResult(store).ast);
+    t.ok(getParseResult(store)?.ast);
     t.end();
 });
 
@@ -127,7 +133,7 @@ test('parserMiddleware: parse error sets parseResult error', async (t) => {
     
     stub.restore();
     
-    t.ok(getParseResult(store).error);
+    t.ok(getParseResult(store)?.error);
     t.end();
 });
 
@@ -141,7 +147,10 @@ test('parserMiddleware: no change skips parse', async (t) => {
                 },
                 time: 5,
                 error: null,
-                treeAdapter: {},
+                treeAdapter: {
+                    type: 'default',
+                    options: {},
+                },
             },
         },
     });
@@ -154,7 +163,7 @@ test('parserMiddleware: no change skips parse', async (t) => {
     
     stub.restore();
     
-    t.equal(getParseResult(store).time, 5);
+    t.equal(getParseResult(store)?.time, 5);
     t.end();
 });
 
@@ -222,7 +231,7 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
     
     stub.restore();
     
-    t.ok(getParseResult(store).ast);
+    t.ok(getParseResult(store)?.ast);
     t.end();
 });
 
@@ -257,7 +266,9 @@ test('parserMiddleware: code change during parse discards stale result', async (
     
     stub.restore();
     
-    t.notOk(getParseResult(store).stale);
+    const result = getParseResult(store);
+    
+    t.notOk(result && 'stale' in result);
     t.end();
 });
 
@@ -290,7 +301,9 @@ test('parserMiddleware: parser settings change during parse discards stale resul
     
     stub.restore();
     
-    t.notOk(getParseResult(store).stale);
+    const result = getParseResult(store);
+    
+    t.notOk(result && 'stale' in result);
     t.end();
 });
 
@@ -318,13 +331,13 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
     babel.parse = originalParse;
     babel.loadParser = originalLoad;
     
-    t.ok(getParseResult(store).ast);
+    t.ok(getParseResult(store)?.ast);
     t.end();
 });
 
 test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     const stub = stubBabel({
-        opensByDefault: false,
+        opensByDefault: () => false,
     });
     
     const store = makeStore();
@@ -337,7 +350,7 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     
     stub.restore();
     
-    t.ok(getParseResult(store).ast);
+    t.ok(getParseResult(store)?.ast);
     t.end();
 });
 

@@ -1,5 +1,4 @@
-// @ts-nocheck
-import {test, stub} from 'supertape';
+import {test} from 'supertape';
 import {
     render,
     cleanup,
@@ -23,7 +22,12 @@ const makeProps = (overrides: Partial<ElementProps> = {}): ElementProps => ({
     open: false,
     deepOpen: false,
     computed: false,
-    treeAdapter: ({} as never),
+    treeAdapter: {
+        getRange: () => null,
+        getNodeName: () => null,
+        walkNode: () => [],
+        opensByDefault: () => false,
+    },
     settings: {
         autofocus: false,
     },
@@ -51,9 +55,7 @@ test('useFocusEffect: does not open when value not in focusPath', async (t) => {
         <TestHook props={makeProps()}/>,
     );
     
-    await act(
-        stub().resolves(),
-    );
+    await act(async () => {});
     const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();
@@ -145,9 +147,7 @@ test('useFocusEffect: scrolls on initial render when autofocus and leaf in focus
         />,
     );
     
-    await act(
-        stub().resolves(),
-    );
+    await act(async () => {});
     const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
     
     cleanup();

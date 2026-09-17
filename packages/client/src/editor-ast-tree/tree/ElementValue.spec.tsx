@@ -1,17 +1,28 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import ElementValue from './ElementValue.tsx';
+import type {TreeAdapterChild} from './types.ts';
 
 const noop = () => {};
 
 const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
 
-const renderSubElement = (key, value, name) => (
+const renderSubElement = (key: string, value: unknown, name: string | null | undefined) => (
     <span key={key} data-el-key={key} data-el-name={name}>{String(value)}</span>
 );
 
-const makeElement = (value, options = {}) => (
+type ElementOptions = {
+    open?: boolean;
+    error?: Error | null;
+    nodeName?: string | null;
+    showAsSelected?: boolean;
+    children?: TreeAdapterChild[];
+    onClick?: () => void;
+    onExecFunction?: () => void;
+    createSubElement?: typeof renderSubElement;
+};
+
+const makeElement = (value: unknown, options: ElementOptions = {}) => (
     <ElementValue
         value={value}
         open={options.open || false}
@@ -19,8 +30,8 @@ const makeElement = (value, options = {}) => (
         nodeName={options.nodeName || null}
         showAsSelected={options.showAsSelected || false}
         children={isUndefined(options.children) ? [] : options.children}
-        onClick={options.onClick || null}
-        onExecFunction={options.onExecFunction || null}
+        onClick={options.onClick}
+        onExecFunction={options.onExecFunction || noop}
         createSubElement={options.createSubElement || renderSubElement}
     />
 );
@@ -28,7 +39,7 @@ const makeElement = (value, options = {}) => (
 test('ElementValue: renders primitive string in s span', (t) => {
     render(makeElement('hello'));
     
-    const result = document.querySelector('.s');
+    const result = document.querySelector('.s')!;
     
     cleanup();
     
@@ -39,7 +50,7 @@ test('ElementValue: renders primitive string in s span', (t) => {
 test('ElementValue: renders null as stringified null', (t) => {
     render(makeElement(null));
     
-    const result = document.querySelector('.s');
+    const result = document.querySelector('.s')!;
     
     cleanup();
     
@@ -50,7 +61,7 @@ test('ElementValue: renders null as stringified null', (t) => {
 test('ElementValue: renders function with invokeable class', (t) => {
     render(makeElement(noop));
     
-    const result = document.querySelector('.invokeable');
+    const result = document.querySelector('.invokeable')!;
     
     cleanup();
     
@@ -63,7 +74,7 @@ test('ElementValue: renders error triangle when error present', (t) => {
         error: Error('boom'),
     }));
     
-    const result = document.querySelector('svg title');
+    const result = document.querySelector('svg title')!;
     
     cleanup();
     
@@ -74,7 +85,7 @@ test('ElementValue: renders error triangle when error present', (t) => {
 test('ElementValue: renders no error triangle when error absent', (t) => {
     render(makeElement({}));
     
-    const result = document.querySelector('svg');
+    const result = document.querySelector('svg')!;
     
     cleanup();
     
@@ -96,7 +107,7 @@ test('ElementValue: expanded array renders prefix bracket', (t) => {
         }],
     }));
     
-    const prefix = document.querySelector('.prefix');
+    const prefix = document.querySelector('.prefix')!;
     
     cleanup();
     
@@ -118,7 +129,7 @@ test('ElementValue: expanded array renders suffix bracket', (t) => {
         }],
     }));
     
-    const suffix = document.querySelector('.suffix');
+    const suffix = document.querySelector('.suffix')!;
     
     cleanup();
     
@@ -140,7 +151,7 @@ test('ElementValue: expanded array renders sub elements', (t) => {
         }],
     }));
     
-    const body = document.querySelector('.value-body');
+    const body = document.querySelector('.value-body')!;
     
     cleanup();
     
@@ -153,7 +164,7 @@ test('ElementValue: renders compact array view when closed', (t) => {
         children: [],
     }));
     
-    const result = document.querySelector('.compact');
+    const result = document.querySelector('.compact')!;
     
     cleanup();
     
@@ -171,7 +182,7 @@ test('ElementValue: expanded object renders prefix brace', (t) => {
         }],
     }));
     
-    const prefix = document.querySelector('.prefix');
+    const prefix = document.querySelector('.prefix')!;
     
     cleanup();
     
@@ -189,7 +200,7 @@ test('ElementValue: expanded object renders suffix brace', (t) => {
         }],
     }));
     
-    const suffix = document.querySelector('.suffix');
+    const suffix = document.querySelector('.suffix')!;
     
     cleanup();
     
@@ -207,7 +218,7 @@ test('ElementValue: expanded object renders sub elements', (t) => {
         }],
     }));
     
-    const body = document.querySelector('.value-body');
+    const body = document.querySelector('.value-body')!;
     
     cleanup();
     
@@ -224,7 +235,7 @@ test('ElementValue: renders compact object view when closed', (t) => {
         }],
     }));
     
-    const result = document.querySelector('.compact');
+    const result = document.querySelector('.compact')!;
     
     cleanup();
     
@@ -237,7 +248,7 @@ test('ElementValue: renders nodeName token when provided', (t) => {
         nodeName: 'Identifier',
     }));
     
-    const result = document.querySelector('.tokenName');
+    const result = document.querySelector('.tokenName')!;
     
     cleanup();
     
@@ -251,11 +262,11 @@ test('ElementValue: renders node marker when showAsSelected', (t) => {
         showAsSelected: true,
     }));
     
-    const token = document.querySelector('.tokenName');
-    const marker = token?.querySelector('.ge');
+    const token = document.querySelector('.tokenName')!;
+    const marker = token.querySelector('.ge')!;
     
     cleanup();
-    const result = marker.textContent.includes('$node');
+    const result = marker.textContent!.includes('$node');
     
     t.ok(result);
     t.end();

@@ -3,6 +3,7 @@
  * Every parser is guaranteed to have a `category`, so we can require it.
  */
 import type {EditorTransformer} from '#editor-code';
+import type {ParserWithLoader} from '../../store/operations.ts';
 
 /**
  * A parser that has been through the category assignment loop in `parsers/index.ts`.
@@ -45,8 +46,14 @@ export interface ParserInfo {
     hasSettings?: () => boolean;
     [option: string]: unknown;
 }
-export type ParserInfoWithCategory = ParserInfo & {
+export type ParserInfoWithCategory = ParserInfo & ParserWithLoader & {
     category: ParserCategory;
+    // Registered parsers all implement property traversal as a generator.
+    forEachProperty: (node: unknown) => Iterable<{
+        value: unknown;
+        key: string;
+        computed: boolean;
+    }>;
 };
 
 // ... existing imports ...

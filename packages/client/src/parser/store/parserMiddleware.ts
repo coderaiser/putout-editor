@@ -46,7 +46,7 @@ parserListener.startListening({
         
         const [error, result] = await tryToCatch(
             parseCode,
-            parser as unknown as Parameters<typeof parseCode>[0],
+            parser,
             code,
             parserSettings,
         );

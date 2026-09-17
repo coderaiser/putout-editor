@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import ElementName from './ElementName.tsx';
@@ -20,13 +19,13 @@ test('ElementName: returns nothing when name is falsy', (t) => {
 
 test('ElementName: renders name text', (t) => {
     render(
-        <ElementName name="id" showToggler={false} onClick={null}/>,
+        <ElementName name="id" showToggler={false}/>,
     );
     
-    const name = document.querySelector('.name');
+    const name = document.querySelector('.name')!;
     
     cleanup();
-    const result = name.textContent.includes('id');
+    const result = name.textContent!.includes('id');
     
     t.ok(result);
     t.end();
@@ -34,7 +33,7 @@ test('ElementName: renders name text', (t) => {
 
 test('ElementName: renders computed prefix', (t) => {
     render(
-        <ElementName name="x" computed={true} showToggler={false} onClick={null}/>,
+        <ElementName name="x" computed={true} showToggler={false}/>,
     );
     
     const computed = document.querySelector('[title="computed"]');
@@ -47,7 +46,7 @@ test('ElementName: renders computed prefix', (t) => {
 
 test('ElementName: does not render computed span when computed is false', (t) => {
     render(
-        <ElementName name="x" computed={false} showToggler={false} onClick={null}/>,
+        <ElementName name="x" computed={false} showToggler={false}/>,
     );
     
     const computed = document.querySelector('[title="computed"]');
@@ -60,13 +59,13 @@ test('ElementName: does not render computed span when computed is false', (t) =>
 
 test('ElementName: renders colon separator', (t) => {
     render(
-        <ElementName name="id" showToggler={false} onClick={null}/>,
+        <ElementName name="id" showToggler={false}/>,
     );
     
-    const separator = document.querySelector('.p');
+    const separator = document.querySelector('.p')!;
     
     cleanup();
-    const result = separator.textContent.includes(':');
+    const result = separator.textContent!.includes(':');
     
     t.ok(result);
     t.end();
@@ -77,10 +76,10 @@ test('ElementName: renders name text with toggler and click handler', (t) => {
         <ElementName name="id" showToggler={true} onClick={noop}/>,
     );
     
-    const name = document.querySelector('.name');
+    const name = document.querySelector('.name')!;
     
     cleanup();
-    const result = name.textContent.includes('id');
+    const result = name.textContent!.includes('id');
     
     t.ok(result);
     t.end();

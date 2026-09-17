@@ -14,7 +14,7 @@ import {
 } from './selectors.ts';
 import {formatInput, formatRule} from '../editor/format.ts';
 
-export const formatListener = createListenerMiddleware();
+export const formatListener = createListenerMiddleware<RootState>();
 
 const startAppListening = formatListener.startListening.withTypes<RootState>();
 

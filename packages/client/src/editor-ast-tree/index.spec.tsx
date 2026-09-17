@@ -1,13 +1,25 @@
-// @ts-nocheck
-// @ts-nocheck
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import EditorASTTree from './index.tsx';
-import {putoutEditor, revive} from '../store/reducers.ts';
+import {
+    putoutEditor,
+    revive,
+    type ParserSettings,
+    type ParseResult,
+} from '../store/reducers.ts';
 
-function renderWithStore(overrides = {}) {
+type Overrides = {
+    workbench?: {
+        code?: string | null;
+        parser?: string;
+        parserSettings?: ParserSettings;
+        parseResult?: Partial<NonNullable<ParseResult>> & {ast?: unknown};
+    };
+};
+
+function renderWithStore(overrides: Overrides = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -23,7 +35,7 @@ function renderWithStore(overrides = {}) {
     
     const store = configureStore({
         reducer: putoutEditor,
-        preloadedState: revive(state),
+        preloadedState: revive(state as typeof base),
     });
     
     render(
@@ -50,7 +62,7 @@ test('EditorASTTree: renders output element', (t) => {
         },
     });
     
-    const output = document.querySelector('.output');
+    const output = document.querySelector('.output')!;
     
     cleanup();
     
@@ -63,15 +75,13 @@ test('EditorASTTree: renders error message from store', (t) => {
         workbench: {
             parseResult: {
                 ast: null,
-                error: {
-                    message: 'parse failed',
-                },
+                error: Error('parse failed'),
                 time: 0,
             },
         },
     });
     
-    const output = document.querySelector('.output');
+    const output = document.querySelector('.output')!;
     const result = output.textContent.includes('parse failed');
     
     cleanup();
@@ -91,7 +101,7 @@ test('EditorASTTree: renders time from store', (t) => {
         },
     });
     
-    const time = document.querySelector('.time');
+    const time = document.querySelector('.time')!;
     const result = time.textContent;
     
     cleanup();

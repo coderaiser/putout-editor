@@ -26,7 +26,7 @@ type ParserChild = {
     key: string;
     computed: boolean;
 };
-type ParserWithLoader = {
+export type ParserWithLoader = {
     nodeToRange: (node: unknown) => unknown;
     forEachProperty: (node: unknown) => Iterable<ParserChild> | void;
     _promise?: Promise<unknown> | null;
@@ -35,7 +35,7 @@ type ParserWithLoader = {
     getDefaultOptions: () => ParserSettings;
     opensByDefault?: (node: unknown, key: string) => boolean;
     getNodeName: (node: unknown) => string | null;
-    _ignoredProperties: Iterable<unknown>;
+    _ignoredProperties: Iterable<unknown> | null;
     locationProps?: Iterable<string> | null;
     typeProps?: Iterable<string> | null;
 };

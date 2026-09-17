@@ -23,7 +23,7 @@ export interface TreeAdapterFilter {
 
 export interface TreeAdapterOptions {
     filters?: TreeAdapterFilter[];
-    openByDefault?: (node: unknown, key: string) => boolean;
+    openByDefault?: (node: unknown, key: string | null) => boolean;
     nodeToName?: (node: unknown) => string | null;
     nodeToRange?: (node: unknown) => unknown;
     walkNode?: (node: unknown) => Iterable<TreeAdapterChild>;
@@ -38,7 +38,7 @@ export interface TreeAdapterChild {
 
 export interface TreeAdapterConfig {
     filters?: TreeAdapterFilter[];
-    openByDefault?: (node: unknown, key: string) => boolean;
+    openByDefault?: (node: unknown, key: string | null) => boolean;
     openByDefaultNodes?: Set<string>;
     openByDefaultKeys?: Set<string>;
     nodeToName: (node: unknown) => string | null;
@@ -136,7 +136,7 @@ export class TreeAdapter {
     /**
    * Whether or not the provided node should be automatically expanded.
    */
-    opensByDefault(node: unknown, key: string) {
+    opensByDefault(node: unknown, key: string | null) {
         return this._adapterOptions.openByDefault?.(node, key);
     }
     
@@ -205,12 +205,12 @@ const TreeAdapterConfigs: Record<string, TreeAdapterConfig> = {
             'expression' // expression statements
             ,
         ]),
-        openByDefault(this: TreeAdapterConfig, node: unknown, key: string) {
+        openByDefault(this: TreeAdapterConfig, node: unknown, key: string | null) {
             const target = node as {
                 type?: string;
             } | null | undefined;
             
-            return Boolean(target && this.openByDefaultNodes?.has(target.type as string) || this.openByDefaultKeys?.has(key));
+            return Boolean(target && this.openByDefaultNodes?.has(target.type as string) || key !== null && this.openByDefaultKeys?.has(key));
         },
         nodeToRange(node: unknown) {
             const astNode = node as AstNode;

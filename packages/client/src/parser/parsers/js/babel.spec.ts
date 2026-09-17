@@ -1,4 +1,9 @@
 import {test} from 'supertape';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
 import {estreeToBabel} from 'estree-to-babel';
 import * as babylon from '@babel/parser';
 import babelParser from './babel.ts';
@@ -59,7 +64,7 @@ test('babel: nodeToRange returns undefined for loc object', (t) => {
         },
     };
     
-    const result = babelParser.nodeToRange(loc as unknown as Parameters<typeof babelParser.nodeToRange>[0]);
+    const result = babelParser.nodeToRange(loc);
     
     t.notOk(result);
     t.end();
@@ -91,5 +96,40 @@ test('babel: nodeToRange returns number pairs for every node of a real AST', (t)
     const result = invalid || count > 0;
     
     t.ok(result);
+    t.end();
+});
+
+test('babel: renderSettings preserves plugin arrays in values and updates', (t) => {
+    const updates: unknown[] = [];
+    const onChange = (settings: unknown) => updates.push(settings);
+    const plugins = ['jsx'];
+    
+    const settings = {
+        ...babelParser.getDefaultOptions(),
+        plugins,
+    };
+    
+    const view = render(babelParser.renderSettings(settings, onChange));
+    const checkbox = view.getByLabelText('jsx');
+    const checked = checkbox instanceof HTMLInputElement && checkbox.checked;
+    
+    fireEvent.click(checkbox);
+    cleanup();
+    
+    const result = {
+        checked,
+        updates,
+        plugins,
+    };
+    const expected = {
+        checked: true,
+        updates: [{
+            ...settings,
+            plugins: [],
+        }],
+        plugins: ['jsx'],
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });

@@ -1,12 +1,13 @@
 /**
  * Describes the result of a parse process. Only exists here for documentation
- * purposes.
+ * purposes. The field names mirror the real `ParseResult` type from
+ * `../store/reducers.ts` — keep them in sync.
  */
 export const ParseResult = {
     /**
    * The generated AST
    */
-    ast: 'any',
+    ast: 'AstNode',
     /**
    * An error object, if parsing resulted in an error
    */

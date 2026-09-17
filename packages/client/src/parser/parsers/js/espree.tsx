@@ -2,7 +2,7 @@ import pkg from 'espree/package.json' with {
     type: 'json',
 };
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
-import {type SettingsObject} from './estree/SettingsRenderer.tsx';
+import {type SettingsConfig, type Settings} from './estree/SettingsRenderer.tsx';
 import type {AstNode} from '../../../types.ts';
 
 const ID = 'espree';
@@ -61,7 +61,7 @@ export default {
         };
     },
     
-    _getSettingsConfiguration() {
+    _getSettingsConfiguration(): SettingsConfig {
         const defaultOptions = this.getDefaultOptions();
         
         return {
@@ -87,13 +87,13 @@ export default {
                     key: 'ecmaFeatures',
                     title: 'ecmaFeatures',
                     fields: Object.keys(defaultOptions.ecmaFeatures),
-                    settings: (settings: SettingsObject) => settings.ecmaFeatures || defaultOptions.ecmaFeatures,
+                    settings: (settings) => 'ecmaFeatures' in settings && settings.ecmaFeatures || defaultOptions.ecmaFeatures,
                 },
             ],
         };
     },
     
-    renderSettings(parserSettings: SettingsObject, onChange: (settings: SettingsObject) => void) {
+    renderSettings(parserSettings: Settings, onChange: (settings: Settings) => void) {
         return (
             <div>
                 <p>

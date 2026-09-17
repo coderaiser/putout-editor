@@ -38,7 +38,7 @@ type ParseErrorLike = Error & {
 const returns = (a?: () => void) => () => a;
 const getCMTheme = () => document.documentElement.getAttribute('data-theme') === 'dark' ? /* c8 ignore next */'nord' : 'default';
 
-const noop: () => void = returns() as unknown as () => void;
+const noop: () => void = returns();
 
 interface EditorProps {
     value?: string;

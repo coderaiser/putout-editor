@@ -16,7 +16,12 @@ export default function useHighlight(treeAdapter: TreeAdapter, value: unknown) {
     }
     
     function onMouseLeave() {
-        dispatch(clearHighlight(range));
+        if (range) {
+            dispatch(clearHighlight(range));
+            return;
+        }
+        
+        dispatch(clearHighlight());
     }
     
     return {

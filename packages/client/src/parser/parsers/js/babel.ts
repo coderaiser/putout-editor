@@ -4,6 +4,7 @@ import pkg from '@babel/parser/package.json' with {
 import plugins from '@putout/engine-parser/babel/plugins';
 import * as options from '@putout/engine-parser/babel/options';
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
+import type {SettingsConfig} from './estree/SettingsRenderer.tsx';
 import type {AstNode} from '../../../types.ts';
 
 const isString = (a: unknown): a is string => typeof a === 'string';
@@ -58,7 +59,7 @@ export const defaultOptions: Record<string, unknown> = {
     errorRecovery: false,
 };
 
-export const parserSettingsConfiguration = {
+export const parserSettingsConfiguration: SettingsConfig = {
     fields: [
         [
             'sourceType',
@@ -71,9 +72,9 @@ export const parserSettingsConfiguration = {
             key: 'plugins',
             title: 'Plugins',
             fields: availablePlugins,
-            settings: (settings: Record<string, unknown>) => settings.plugins || defaultOptions.plugins,
-            values: (plugins: string[]) => availablePlugins.reduce((obj: Record<string, boolean>, name: string) => {
-                obj[name] = plugins.includes(name);
+            settings: (settings) => 'plugins' in settings && settings.plugins || defaultOptions.plugins,
+            values: (plugins) => availablePlugins.reduce((obj: Record<string, boolean>, name: string) => {
+                obj[name] = Array.isArray(plugins) && plugins.includes(name);
                 return obj;
             }, {}),
         },

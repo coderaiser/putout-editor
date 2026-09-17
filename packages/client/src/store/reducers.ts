@@ -1,4 +1,9 @@
-import {createSlice, type configureStore} from '@reduxjs/toolkit';
+import {
+    createSlice,
+    type configureStore,
+    type PayloadAction,
+} from '@reduxjs/toolkit';
+import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
 import {
     getCategoryByID,
     getDefaultParser,
@@ -51,6 +56,14 @@ export type ParseResult = {
  */
 export type ParserSettings = Record<string, unknown> | null;
 
+/**
+ * A `[start, end]` source range highlighted in the editor.
+ */
+export type Range = [
+    number,
+    number,
+];
+
 export interface Revision {
     canSave(): boolean;
     getSnippetID(): string;
@@ -93,7 +106,7 @@ export interface State {
     saving: boolean;
     cursor: number | null;
     error: Error | null;
-    highlightRange: number[] | null;
+    highlightRange: Range | null;
     showTransformPanel: boolean;
     selectedRevision: null;
     activeRevision: Revision | null;
@@ -190,7 +203,7 @@ const slice = createSlice({
         clearError: (state) => {
             state.error = null;
         },
-        setHighlight: (state, {payload: range}) => {
+        setHighlight: (state, {payload: range}: PayloadAction<Range | null | undefined>) => {
             if (!range) {
                 state.highlightRange = null;
                 return;
@@ -201,10 +214,7 @@ const slice = createSlice({
             
             state.highlightRange = range;
         },
-        clearHighlight: (state, {payload: range} = {
-            payload: {},
-            type: '',
-        }) => {
+        clearHighlight: (state, {payload: range}: PayloadAction<Range | null | undefined>) => {
             if (!range || state.highlightRange && range[0] === state.highlightRange[0] && range[1] === state.highlightRange[1])
                 state.highlightRange = null;
         },

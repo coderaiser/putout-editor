@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {
@@ -11,7 +10,9 @@ import {configureStore} from '@reduxjs/toolkit';
 import PasteDropTarget from './PasteDropTarget.tsx';
 import {putoutEditor, revive} from '../store/reducers.ts';
 
-function makeStore(overrides = {}) {
+type Overrides = Partial<ReturnType<typeof putoutEditor>>;
+
+function makeStore(overrides: Overrides = {}) {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -31,7 +32,7 @@ function makeStore(overrides = {}) {
     });
 }
 
-function renderWithChildren(store) {
+function renderWithChildren(store: ReturnType<typeof makeStore>) {
     render(
         <Provider store={store}>
             <PasteDropTarget>
@@ -58,13 +59,12 @@ test('PasteDropTarget: drop of plain text sets code', async (t) => {
     const store = makeStore();
     const OriginalReader = globalThis.FileReader;
     
-    class StubReader {
+    class StubReader extends OriginalReader {
         readAsText() {
-            this.onload({
-                target: {
-                    result: 'dropped code',
-                },
+            Object.defineProperty(this, 'result', {
+                value: 'dropped code',
             });
+            this.dispatchEvent(new ProgressEvent('load'));
         }
     }
     globalThis.FileReader = StubReader;
@@ -72,7 +72,7 @@ test('PasteDropTarget: drop of plain text sets code', async (t) => {
     try {
         renderWithChildren(store);
         
-        fireEvent.drop(document.querySelector('#child-test').parentNode, {
+        fireEvent.drop(document.querySelector('#child-test')!.parentNode!, {
             dataTransfer: {
                 files: [{
                     type: 'text/plain',
@@ -98,13 +98,12 @@ test('PasteDropTarget: dropped invalid AST shows error', async (t) => {
     
     process.on('unhandledRejection', onUnhandledRejection);
     
-    class StubReader {
+    class StubReader extends OriginalReader {
         readAsText() {
-            this.onload({
-                target: {
-                    result: '{"type":"Bogus"}',
-                },
+            Object.defineProperty(this, 'result', {
+                value: '{"type":"Bogus"}',
             });
+            this.dispatchEvent(new ProgressEvent('load'));
         }
     }
     globalThis.FileReader = StubReader;
@@ -112,7 +111,7 @@ test('PasteDropTarget: dropped invalid AST shows error', async (t) => {
     try {
         renderWithChildren(store);
         
-        fireEvent.drop(document.querySelector('#child-test').parentNode, {
+        fireEvent.drop(document.querySelector('#child-test')!.parentNode!, {
             dataTransfer: {
                 files: [{
                     type: 'application/json',

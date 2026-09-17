@@ -2,7 +2,7 @@ import pkg from 'acorn/package.json' with {
     type: 'json',
 };
 import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
-import {type SettingsObject} from './estree/SettingsRenderer.tsx';
+import {type SettingsConfig, type Settings} from './estree/SettingsRenderer.tsx';
 import type {AstNode} from '../../../types.ts';
 
 const ID = 'acorn';
@@ -101,7 +101,7 @@ export default {
         };
     },
     
-    _getSettingsConfiguration() {
+    _getSettingsConfiguration(): SettingsConfig {
         return {
             fields: [
                 ['ecmaVersion', [
@@ -130,7 +130,7 @@ export default {
         };
     },
     
-    renderSettings(parserSettings: SettingsObject, onChange: (settings: SettingsObject) => void) {
+    renderSettings(parserSettings: Settings, onChange: (settings: Settings) => void) {
         return (
             <div>
                 <p>

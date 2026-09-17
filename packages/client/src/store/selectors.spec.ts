@@ -21,9 +21,38 @@ import {
     canSaveTransform,
     getHighlightRange,
 } from './selectors.ts';
-import {putoutEditor, type RootState} from './reducers.ts';
+import {
+    putoutEditor,
+    type ParseResult,
+    type RootState,
+} from './reducers.ts';
 
-function makeState(overrides: Record<string, any> = {}): RootState {
+function makeState(overrides: {
+    activeRevision?: object | null;
+    cursor?: number | null;
+    error?: unknown;
+    loadingSnippet?: boolean;
+    showSettingsDialog?: boolean;
+    showShareDialog?: boolean;
+    forking?: boolean;
+    saving?: boolean;
+    showTransformPanel?: boolean;
+    highlightRange?: readonly [
+        number,
+        number,
+    ] | null;
+    workbench?: {
+        code?: string;
+        initialCode?: string;
+        keyMap?: string;
+        parserSettings?: unknown;
+        parseResult?: Partial<ParseResult>;
+        transform?: {
+            code?: string;
+            initialCode?: string;
+        };
+    };
+} = {}): RootState {
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
@@ -34,12 +63,18 @@ function makeState(overrides: Record<string, any> = {}): RootState {
             ...overrides,
         } as RootState;
     
+    const {transform, ...workbenchRest} = overrides.workbench;
+    
     return {
         ...base,
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...overrides.workbench,
+            ...workbenchRest,
+            transform: {
+                ...base.workbench.transform,
+                ...transform,
+            },
         },
     } as RootState;
 }
@@ -195,17 +230,13 @@ test('selectors: getInitialCode', (t) => {
 test('selectors: getKeyMap', (t) => {
     const result = getKeyMap(makeState({
         workbench: {
-            keyMap: {
-                k: 1,
-            },
+            keyMap: 'emacs',
         },
     }));
     
-    const expected = {
-        k: 1,
-    };
+    const expected = 'emacs';
     
-    t.deepEqual(result, expected);
+    t.equal(result, expected);
     t.end();
 });
 

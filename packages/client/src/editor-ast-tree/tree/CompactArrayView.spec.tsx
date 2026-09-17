@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -12,7 +11,7 @@ test('CompactArrayView: empty array renders empty brackets', (t) => {
         <CompactArrayView array={[]}/>,
     );
     
-    const el = document.querySelector('.p');
+    const el = document.querySelector('.p')!;
     
     cleanup();
     
@@ -25,7 +24,7 @@ test('CompactArrayView: single element renders count', (t) => {
         <CompactArrayView array={['x']}/>,
     );
     
-    const placeholder = document.querySelector('.placeholder');
+    const placeholder = document.querySelector('.placeholder')!;
     
     cleanup();
     
@@ -38,7 +37,7 @@ test('CompactArrayView: multiple elements uses plural', (t) => {
         <CompactArrayView array={['a', 'b', 'c']}/>,
     );
     
-    const placeholder = document.querySelector('.placeholder');
+    const placeholder = document.querySelector('.placeholder')!;
     
     cleanup();
     
@@ -58,7 +57,7 @@ test('CompactArrayView: onClick called when placeholder clicked', (t) => {
         />,
     );
     
-    fireEvent.click(document.querySelector('.placeholder'));
+    fireEvent.click(document.querySelector('.placeholder')!);
     
     cleanup();
     
@@ -75,7 +74,7 @@ test('CompactArrayView: array-like object with length works', (t) => {
         />,
     );
     
-    const placeholder = document.querySelector('.placeholder');
+    const placeholder = document.querySelector('.placeholder')!;
     
     cleanup();
     

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -10,12 +9,17 @@ import {configureStore} from '@reduxjs/toolkit';
 import Element from './Element.tsx';
 import {treeAdapterFromParseResult} from '../../parser/TreeAdapter.ts';
 import {putoutEditor} from '../../store/reducers.ts';
+import type {
+    ElementProps,
+    ElementSettings,
+    TreeAdapter,
+} from './types.ts';
 
 const noop = () => {};
 
 globalThis.HTMLElement.prototype.scrollIntoView = noop;
 
-const settings = {
+const settings: ElementSettings = {
     autofocus: true,
     hideFunctions: true,
     hideEmptyKeys: false,
@@ -28,9 +32,13 @@ const treeAdapter = treeAdapterFromParseResult({
         type: 'estree',
         options: {},
     },
-}, settings);
+}, {
+    ...settings,
+} as Record<string, boolean>);
 
-function renderElement(props) {
+function renderElement(props: Partial<ElementProps> & {
+    value?: unknown;
+}) {
     const store = configureStore({
         reducer: putoutEditor,
         middleware: (getDefault) => getDefault({
@@ -38,18 +46,21 @@ function renderElement(props) {
         }),
     });
     
+    const elementProps = {
+        value: null as unknown,
+        focusPath: [] as unknown[],
+        level: 1,
+        treeAdapter: treeAdapter as TreeAdapter,
+        settings,
+        ...props,
+    } as ElementProps;
+    
     return {
         store,
         ...render(
             <Provider store={store}>
                 <ul>
-                    <Element
-                        treeAdapter={treeAdapter}
-                        settings={settings}
-                        focusPath={[]}
-                        level={1}
-                        {...props}
-                    />
+                    <Element {...elementProps}/>
                 </ul>
             </Provider>,
         ),
@@ -138,7 +149,7 @@ test('Element: dispatches setCursor when clicking on a node with range', (t) => 
         name: 'a',
     });
     
-    const keyElement = container.querySelector('.key');
+    const keyElement = container.querySelector('.key')! as HTMLElement;
     
     act(() => {
         keyElement.click();
@@ -165,7 +176,7 @@ test('Element: dispatches setHighlight when clicking on a node with range', (t) 
         name: 'a',
     });
     
-    const keyElement = container.querySelector('.key');
+    const keyElement = container.querySelector('.key')! as HTMLElement;
     
     act(() => {
         keyElement.click();
@@ -190,7 +201,7 @@ test('Element: does not dispatch setCursor when clicking on a node without range
         name: 'a',
     });
     
-    const keyElement = container.querySelector('.key');
+    const keyElement = container.querySelector('.key')! as HTMLElement;
     
     act(() => {
         keyElement.click();
@@ -215,7 +226,7 @@ test('Element: does not dispatch setHighlight when clicking on a node without ra
         name: 'a',
     });
     
-    const keyElement = container.querySelector('.key');
+    const keyElement = container.querySelector('.key')! as HTMLElement;
     
     act(() => {
         keyElement.click();

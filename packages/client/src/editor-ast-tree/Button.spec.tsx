@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -9,6 +8,8 @@ import {Button} from './Button.tsx';
 
 const noop = () => {};
 
+const getButton = () => document.querySelector('button')!;
+
 test('visualization: Button: renders button with name', (t) => {
     const Component = Button({
         selectedOutput: 1,
@@ -17,7 +18,7 @@ test('visualization: Button: renders button with name', (t) => {
     
     render(Component('Tree', 0));
     
-    const btn = document.querySelector('button');
+    const btn = getButton();
     
     cleanup();
     
@@ -33,7 +34,7 @@ test('visualization: Button: active class when index matches selectedOutput', (t
     
     render(Component('Tree', 0));
     
-    const btn = document.querySelector('button');
+    const btn = getButton();
     
     cleanup();
     const result = btn.className.includes('active');
@@ -50,7 +51,7 @@ test('visualization: Button: no active class when index differs from selectedOut
     
     render(Component('JSON', 0));
     
-    const btn = document.querySelector('button');
+    const btn = getButton();
     
     cleanup();
     const result = btn.className.includes('active');
@@ -60,7 +61,7 @@ test('visualization: Button: no active class when index differs from selectedOut
 });
 
 test('visualization: Button: click calls setSelectedOutput with value', (t) => {
-    const calls = [];
+    const calls: number[] = [];
     const setSelectedOutput = calls.push.bind(calls);
     
     const Component = Button({
@@ -70,7 +71,7 @@ test('visualization: Button: click calls setSelectedOutput with value', (t) => {
     
     render(Component('JSON', 2));
     
-    const btn = document.querySelector('button');
+    const btn = getButton();
     
     fireEvent.click(btn);
     

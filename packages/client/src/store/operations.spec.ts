@@ -4,6 +4,7 @@ import {
     parseCode,
     loadSnippetFromURL,
     saveRevision,
+    type ParserWithLoader,
 } from './operations.ts';
 
 // --- mock factory ---
@@ -14,7 +15,7 @@ const noop = () => {};
 // --- mock factory ---
 // Build the minimum mock parser needed for parseCode.
 // Tests override specific methods by spreading.
-const makeMockParser = (overrides: Record<string, any> = {}) => ({
+const makeMockParser = (overrides: Partial<ParserWithLoader> = {}): ParserWithLoader => ({
     _promise: null,
     loadParser: (resolve: (value: unknown) => void) => resolve({}),
     parse: () => ({
@@ -320,7 +321,7 @@ test('operations: saveRevision: returns new revision from create', async (t) => 
 test('operations: parseCode: works when parser has null ignoredProperties', async (t) => {
     const parser = {
         ...makeMockParser(),
-        _ignoredProperties: null as unknown as Iterable<unknown>,
+        _ignoredProperties: null,
     };
     
     const [error] = await tryToCatch(parseCode, parser, 'const x = 1', null);

@@ -1,4 +1,4 @@
-import SettingsRenderer, {type SettingsObject} from './SettingsRenderer.tsx';
+import SettingsRenderer, {type SettingsConfig, type Settings} from './SettingsRenderer.tsx';
 import type {AstNode} from '../../../../types.ts';
 
 /**
@@ -127,7 +127,7 @@ export default {
    *   - a settings configuration object: Same structured as described above,
    *                                      used to describe nested options.
    *
-   */_getSettingsConfiguration(defaultOptions: Record<string, unknown>) {
+   */_getSettingsConfiguration(defaultOptions: Record<string, unknown>): SettingsConfig | null {
         const keys = Object.keys(defaultOptions);
         
         return keys.length > 0 ? {
@@ -151,7 +151,7 @@ export default {
    * not seem necessary, we don't know which version of the options are stored
    * in a snippet or the client browser, so this function is called to ensure
    * that all options are set.
-   */_mergeDefaultOptions(currentOptions: Record<string, unknown>, defaultOptions: Record<string, unknown>) {
+   */_mergeDefaultOptions(currentOptions: Settings, defaultOptions: Record<string, unknown>) {
         return {
             ...defaultOptions,
             ...currentOptions,
@@ -162,7 +162,7 @@ export default {
    * This method is called when the settingds UI is rendered. It is passed the
    * current parser settings and a callback that should be called with the
    * updated settings object.
-   */renderSettings(settings: SettingsObject | null, onChange: (settings: SettingsObject) => void) {
+   */renderSettings(settings: Settings | null, onChange: (settings: Settings) => void) {
         const defaultOptions = this.getDefaultOptions();
         const settingsConfiguration = this._getSettingsConfiguration(defaultOptions);
         

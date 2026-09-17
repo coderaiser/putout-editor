@@ -4,7 +4,7 @@ import {
     cleanup,
     fireEvent,
 } from '@testing-library/react';
-import SettingsRenderer, {type SettingsObject} from './SettingsRenderer.tsx';
+import SettingsRenderer from './SettingsRenderer.tsx';
 
 test('SettingsRenderer: renders checkbox for string field', (t) => {
     render(
@@ -121,7 +121,7 @@ test('SettingsRenderer: renders nested settings for object field', (t) => {
                 fields: [{
                     key: 'nested',
                     fields: ['opt1'],
-                    settings: (settings: SettingsObject) => settings.nested,
+                    settings: (settings) => 'nested' in settings ? settings.nested : undefined,
                 }],
             }}
             parserSettings={{
@@ -262,7 +262,7 @@ test('SettingsRenderer: onChange with nested object updates parent settings', (t
                     key: 'plugins',
                     title: 'Plugins',
                     fields: ['jsx', 'typescript'],
-                    settings: (settings: SettingsObject) => settings.plugins || {},
+                    settings: (settings) => 'plugins' in settings && settings.plugins || {},
                 }],
             }}
             parserSettings={{}}
@@ -286,16 +286,17 @@ test('SettingsRenderer: array parserSettings uses valuesFromArray', (t) => {
             settingsConfiguration={{
                 fields: ['jsx', 'typescript'],
             }}
-            parserSettings={['jsx'] as unknown as SettingsObject}
+            parserSettings={['jsx']}
             onChange={stub()}
         />,
     );
     
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+    const checked = Array.from(checkboxes, ({checked}) => checked);
     
     cleanup();
     
-    t.equal(checkboxes.length, 2);
+    t.deepEqual(checked, [true, false]);
     t.end();
 });
 
@@ -307,7 +308,7 @@ test('SettingsRenderer: array update strategy add value', (t) => {
             settingsConfiguration={{
                 fields: ['jsx'],
             }}
-            parserSettings={[] as unknown as SettingsObject}
+            parserSettings={[]}
             onChange={onChange}
         />,
     );
@@ -318,7 +319,7 @@ test('SettingsRenderer: array update strategy add value', (t) => {
     
     cleanup();
     
-    t.calledOnce(onChange);
+    t.calledWith(onChange, [['jsx']]);
     t.end();
 });
 
@@ -333,7 +334,7 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
             parserSettings={[
                 'jsx',
                 'typescript',
-            ] as unknown as SettingsObject}
+            ]}
             onChange={onChange}
         />,
     );
@@ -344,7 +345,7 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
     
     cleanup();
     
-    t.calledOnce(onChange);
+    t.calledWith(onChange, [['typescript']]);
     t.end();
 });
 
@@ -370,11 +371,11 @@ test('SettingsRenderer: select with default identity converter', (t) => {
     
     const select = document.querySelector('select') as HTMLSelectElement;
     
-    fireEvent.change(select, ({
+    fireEvent.change(select, {
         target: {
             value: 'js',
         },
-    } as unknown) as Event);
+    });
     
     cleanup();
     
@@ -385,3 +386,28 @@ test('SettingsRenderer: select with default identity converter', (t) => {
     t.calledWith(onChange, args);
     t.end();
 });
+
+test('SettingsRenderer: custom values receives the original settings array', (t) => {
+    const parserSettings = ['jsx'];
+    let received;
+    
+    render(
+        <SettingsRenderer
+            settingsConfiguration={{
+                fields: ['jsx'],
+                values: (settings) => {
+                    received = settings;
+                    return {jsx: Array.isArray(settings) && settings.includes('jsx')};
+                },
+            }}
+            parserSettings={parserSettings}
+            onChange={stub()}
+        />,
+    );
+    
+    cleanup();
+    
+    t.equal(received, parserSettings);
+    t.end();
+});
+

@@ -7,7 +7,10 @@ import {
     putoutEditor,
     editorBlur,
     transformBlur,
+    revive,
     setParseResult,
+    type ParserSettings,
+    type WorkbenchState,
 } from './reducers.ts';
 
 const getInitState = () => putoutEditor(undefined, {
@@ -15,19 +18,33 @@ const getInitState = () => putoutEditor(undefined, {
 });
 
 function makeStore(overrides: {
-    workbench?: Record<string, any> | undefined;
+    workbench?: {
+        code?: string | null;
+        initialCode?: string;
+        parser?: string;
+        parserSettings?: ParserSettings;
+        parseResult?: Partial<NonNullable<WorkbenchState['parseResult']>> & {ast?: unknown};
+        keyMap?: string;
+        transform?: {
+            code?: string;
+            initialCode?: string;
+            transformer?: string;
+            cursor?: number | null;
+        };
+    };
 } = {}) {
     const state = getInitState();
+    const workbench = {
+        ...state.workbench,
+        ...overrides.workbench,
+    } as typeof state.workbench;
     
     return configureStore({
         reducer: putoutEditor,
-        preloadedState: {
+        preloadedState: revive({
             ...state,
-            workbench: {
-                ...state.workbench,
-                ...overrides.workbench,
-            },
-        },
+            workbench,
+        }),
         middleware: (getDefault) => getDefault({
             immutableCheck: false,
             serializableCheck: false,

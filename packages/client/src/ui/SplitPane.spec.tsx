@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {test} from 'supertape';
 import {
     render,
@@ -7,14 +6,20 @@ import {
 } from '@testing-library/react';
 import SplitPane from './SplitPane.tsx';
 
-const render2 = (props = {}) => render(
+type SplitPaneProps = {
+    className?: string;
+    vertical?: boolean;
+    onResize?: () => void;
+};
+
+const render2 = (props: SplitPaneProps = {}) => render(
     <SplitPane className="pane" {...props}>
         <div id="a">left</div>
         <div id="b">right</div>
     </SplitPane>,
 );
 
-const hasElem = (props = {}, query) => {
+const hasElem = (props: SplitPaneProps = {}, query: string) => {
     const {container} = render2(props);
     const result = container.querySelector(query);
     
@@ -93,10 +98,10 @@ test('SplitPane: single child is rendered', (t) => {
 
 test('SplitPane: pointerdown on divider does not throw', (t) => {
     const {container} = render2();
-    fireEvent.pointerDown(container.querySelector('.splitpane-divider'));
+    fireEvent.pointerDown(container.querySelector('.splitpane-divider')!);
     cleanup();
     
-    t.pass();
+    t.pass('ok');
     t.end();
 });
 
@@ -113,7 +118,7 @@ test('SplitPane: pointerup calls onResize', (t) => {
         </SplitPane>,
     );
     
-    fireEvent.pointerDown(container.querySelector('.splitpane-divider'));
+    fireEvent.pointerDown(container.querySelector('.splitpane-divider')!);
     fireEvent.pointerUp(document);
     cleanup();
     
@@ -123,17 +128,17 @@ test('SplitPane: pointerup calls onResize', (t) => {
 
 test('SplitPane: pointerup without onResize does not throw', (t) => {
     const {container} = render2();
-    fireEvent.pointerDown(container.querySelector('.splitpane-divider'));
+    fireEvent.pointerDown(container.querySelector('.splitpane-divider')!);
     fireEvent.pointerUp(document);
     cleanup();
     
-    t.pass();
+    t.pass('ok');
     t.end();
 });
 
 test('SplitPane: pointerup resets body cursor', (t) => {
     const {container} = render2();
-    fireEvent.pointerDown(container.querySelector('.splitpane-divider'));
+    fireEvent.pointerDown(container.querySelector('.splitpane-divider')!);
     fireEvent.pointerUp(document);
     cleanup();
     
@@ -143,7 +148,7 @@ test('SplitPane: pointerup resets body cursor', (t) => {
 
 test('SplitPane: pointermove changes divider position', (t) => {
     const {container} = render2();
-    const divider = container.querySelector('.splitpane-divider');
+    const divider = container.querySelector('.splitpane-divider')! as HTMLElement;
     const beforeStyle = divider.style.left;
     
     fireEvent.pointerDown(divider);
@@ -164,7 +169,7 @@ test('SplitPane: vertical pointermove uses pageY', (t) => {
         </SplitPane>,
     );
     
-    const divider = container.querySelector('.splitpane-divider');
+    const divider = container.querySelector('.splitpane-divider')! as HTMLElement;
     
     fireEvent.pointerDown(divider);
     fireEvent.pointerMove(document, {
@@ -173,6 +178,6 @@ test('SplitPane: vertical pointermove uses pageY', (t) => {
     fireEvent.pointerUp(document);
     cleanup();
     
-    t.pass();
+    t.pass('ok');
     t.end();
 });

@@ -8,7 +8,6 @@ import {
     getCode,
 } from '#store';
 import {getFocusPath, Editor} from '#editor';
-import type {Parser as FocusPathParser} from '../editor/getFocusPath.ts';
 import {type AstNode} from '../types.ts';
 import visualizations, {
     type VisualizationProps,
@@ -46,7 +45,7 @@ export default function EditorASTTree() {
     if (!parser)
         throw Error('Parser not found');
     
-    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(ast, cursor, parser as unknown as FocusPathParser) : [], [ast, cursor, parser]);
+    const focusPath = useMemo(() => ast && cursor != null ? getFocusPath(ast, cursor, parser) : [], [ast, cursor, parser]);
     
     let output: React.ReactNode;
     
