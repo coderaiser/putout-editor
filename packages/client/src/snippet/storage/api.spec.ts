@@ -1,4 +1,8 @@
-import {test, stub, Stub} from 'supertape';
+import {
+    test,
+    stub,
+    Stub,
+} from 'supertape';
 import api from './api.ts';
 
 /**
@@ -70,7 +74,9 @@ test('api: keeps the whole path after the version prefix', async (t) => {
         return fetchStub.args[0][0];
     });
     
-    t.ok(url.endsWith('/api/v1/gist/abc123/sha1'));
+    const result = url.endsWith('/api/v1/gist/abc123/sha1');
+    
+    t.ok(result);
     t.end();
 });
 

@@ -17,6 +17,8 @@ export const parseHandlers = makeParseHandlers();
 
 export function parseErrorHandler(status: number) {
     return [
-        http.get(parseURL, () => new HttpResponse(null, {status})),
+        http.get(parseURL, () => new HttpResponse(null, {
+            status,
+        })),
     ];
 }

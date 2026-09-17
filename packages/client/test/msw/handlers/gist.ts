@@ -1,6 +1,9 @@
 import {http, HttpResponse} from 'msw';
 import {apiURL} from '../env.ts';
-import {makeGistResponse, type GistFixture} from '../fixtures/gist.ts';
+import {
+    makeGistResponse,
+    type GistFixture,
+} from '../fixtures/gist.ts';
 
 export const gistURL = apiURL('/gist');
 export const gistRevisionURL = apiURL('/gist/:id/:revision');
@@ -23,10 +26,10 @@ export const makeGistHandler = makeGistHandlers;
 
 export function gistErrorHandler(status: number) {
     return [
-        http.get(gistRevisionURL, () => new HttpResponse(null, {status})),
+        http.get(gistRevisionURL, () => new HttpResponse(null, {
+            status,
+        })),
     ];
 }
 
-export function makeGistErrorHandlers(status: number) {
-    return gistErrorHandler(status);
-}
+export const makeGistErrorHandlers = (status: number) => gistErrorHandler(status);
