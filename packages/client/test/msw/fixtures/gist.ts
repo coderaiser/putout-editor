@@ -9,9 +9,23 @@ export interface GistFixture {
     settings?: Record<string, unknown>;
     sourceCode?: string;
     transformCode?: string;
+    code?: string;
+    noConfig?: boolean;
 }
 
-export function makeGistResponse(overrides = {}) {
+type GistFile = {
+    content: string;
+};
+
+export type GistResponse = {
+    id: string;
+    history: {
+        version: string;
+    }[];
+    files: Record<string, GistFile>;
+};
+
+export function makeGistResponse(overrides: GistFixture = {}): GistResponse {
     const {
         id = 'gist-id',
         version = 'sha1',
@@ -23,26 +37,37 @@ export function makeGistResponse(overrides = {}) {
         },
         sourceCode = 'const x = 1;',
         transformCode,
-    }: GistFixture = overrides;
+        code,
+        noConfig = false,
+    } = overrides;
     
-    const files: Record<string, {content: string}> = {
-        'astexplorer.json': {
+    const files: Record<string, GistFile> = {
+        'source.js': {
+            content: sourceCode,
+        },
+    };
+    
+    if (!noConfig)
+        files['astexplorer.json'] = {
             content: JSON.stringify({
                 parserID,
                 toolID,
                 v,
                 settings,
             }),
-        },
-        'source.js': {
-            content: sourceCode,
-        },
-    };
+        };
     
     if (!isUndefined(transformCode))
         files['transform.js'] = {
             content: transformCode,
         };
+    
+    if (!isUndefined(code)) {
+        delete files['source.js'];
+        files['code.js'] = {
+            content: code,
+        };
+    }
     
     return {
         id,
