@@ -1,16 +1,7 @@
 {
     "match": {
-        "src/components/PasteDropTarget.js": {
-            "variables/remove-unused": "off"
-        },
-        "src/core/ParseResult.js": {
-            "variables/remove-unused": "off"
-        },
-        "src/parsers/js/recast.js": {
-            "variables/remove-unused": "off"
-        },
-        "*.cjs": {
-            "nodejs/convert-esm-to-commonjs": "on"
+        "src/snippet/storage/parse.spec.ts": {
+            "tape/apply-stub": "off"
         }
     },
     "rules": {
