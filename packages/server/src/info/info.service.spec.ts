@@ -2,20 +2,6 @@ import {test, stub} from 'supertape';
 import {InfoService} from './info.service.ts';
 
 function makeInfoService() {
-    const transformService = {
-        documentation: stub().returns({
-            method: 'PUT',
-            url: '/api/v1/transform',
-        }),
-    };
-    
-    const findPlacesService = {
-        documentation: stub().returns({
-            method: 'PUT',
-            url: '/api/v1/find-places',
-        }),
-    };
-    
     const parseService = {
         documentation: stub().returns({
             method: 'PUT',
@@ -23,7 +9,7 @@ function makeInfoService() {
         }),
     };
     
-    return new InfoService(transformService as never, findPlacesService as never, parseService as never);
+    return new InfoService(parseService as never);
 }
 
 test('info service: name is string', (t) => {
@@ -34,7 +20,7 @@ test('info service: name is string', (t) => {
     t.end();
 });
 
-test('info service: description mentions putout', (t) => {
+test('info service: description mentions Putout', (t) => {
     const result = makeInfoService()
         .info()
         .description
@@ -56,11 +42,11 @@ test('info service: workflow has at least 5 steps', (t) => {
     t.end();
 });
 
-test('info service: workflow mentions find-places', (t) => {
+test('info service: workflow mentions find_places', (t) => {
     const result = makeInfoService()
         .info()
         .workflow
-        .some((step) => step.includes('find-places'));
+        .some((step) => step.includes('find_places'));
     
     t.ok(result);
     t.end();
@@ -81,13 +67,13 @@ test('info service: endpoints.parse exists', (t) => {
     t.end();
 });
 
-test('info service: endpoints.transform exists', (t) => {
-    t.ok(makeInfoService().info().endpoints.transform);
+test('info service: endpoints.transform mentions MCP', (t) => {
+    t.ok(makeInfoService().info().endpoints.transform.mcp);
     t.end();
 });
 
-test('info service: endpoints.findPlaces exists', (t) => {
-    t.ok(makeInfoService().info().endpoints.findPlaces);
+test('info service: endpoints.findPlaces mentions MCP', (t) => {
+    t.ok(makeInfoService().info().endpoints.findPlaces.mcp);
     t.end();
 });
 
@@ -141,65 +127,15 @@ test('info service: links.babelASTExplorer is string', (t) => {
     t.end();
 });
 
-test('info service: calls transform documentation', (t) => {
-    const transformService = {
-        documentation: stub().returns({}),
-    };
-    
-    const findPlacesService = {
-        documentation: stub().returns({}),
-    };
-    
-    const parseService = {
-        documentation: stub().returns({}),
-    };
-    
-    const service = new InfoService(transformService as never, findPlacesService as never, parseService as never);
-    
-    service.info();
-    
-    t.calledOnce(transformService.documentation);
-    t.end();
-});
-
 test('info service: calls parse documentation', (t) => {
-    const transformService = {
-        documentation: stub().returns({}),
-    };
-    
-    const findPlacesService = {
-        documentation: stub().returns({}),
-    };
-    
     const parseService = {
         documentation: stub().returns({}),
     };
     
-    const service = new InfoService(transformService as never, findPlacesService as never, parseService as never);
+    const service = new InfoService(parseService as never);
     
     service.info();
     
     t.calledOnce(parseService.documentation);
-    t.end();
-});
-
-test('info service: calls findPlaces documentation', (t) => {
-    const transformService = {
-        documentation: stub().returns({}),
-    };
-    
-    const findPlacesService = {
-        documentation: stub().returns({}),
-    };
-    
-    const parseService = {
-        documentation: stub().returns({}),
-    };
-    
-    const service = new InfoService(transformService as never, findPlacesService as never, parseService as never);
-    
-    service.info();
-    
-    t.calledOnce(findPlacesService.documentation);
     t.end();
 });

@@ -1,28 +1,32 @@
 import {Injectable} from '@nestjs/common';
-import {TransformService} from '../transform/transform.service.ts';
-import {FindPlacesService} from '../transform/find-places.service.ts';
 import {ParseService} from '../parse/parse.service.ts';
 
 @Injectable()
 export class InfoService {
-    constructor(private readonly transformService: TransformService, private readonly findPlacesService: FindPlacesService, private readonly parseService: ParseService) {}
+    constructor(private readonly parseService: ParseService) {}
     
     info() {
         return {
             name: 'putout-editor API',
-            description: 'API for parsing JavaScript/TypeScript ASTs and iteratively developing 🐊 Putout plugins via HTTP.',
+            description: 'API for parsing JavaScript/TypeScript ASTs and iteratively developing 🐊 Putout plugins via MCP.',
             workflow: [
                 '1. PUT /api/v1/parse — parse your fixture to inspect AST node types',
                 '2. PUT /api/v1/parse?query=NodeType — find specific node types and their positions',
                 '3. Write a putout plugin using replace, traverse, or include patterns',
-                '4. PUT /api/v1/find-places — check what your plugin matches without modifying code',
-                '5. Iterate on the plugin until find-places returns expected places',
-                '6. PUT /api/v1/transform — apply the plugin and get transformed code',
+                '4. Use MCP tool find_places — check what your plugin matches without modifying code',
+                '5. Iterate on the plugin until find_places returns expected places',
+                '6. Use MCP tool transform — apply the plugin and get transformed code',
             ],
             endpoints: {
                 parse: this.parseService.documentation(),
-                transform: this.transformService.documentation(),
-                findPlaces: this.findPlacesService.documentation(),
+                transform: {
+                    description: 'Moved to MCP — use the transform tool instead',
+                    mcp: true,
+                },
+                findPlaces: {
+                    description: 'Moved to MCP — use the find_places tool instead',
+                    mcp: true,
+                },
             },
             errorFormat: {
                 description: 'All errors return structured JSON with a kind field for programmatic handling',
