@@ -320,9 +320,7 @@ test('SettingsRenderer: array update strategy add value', (t) => {
     cleanup();
     
     t.calledWith(onChange, [
-        
-        ['jsx']
-        ,
+        ['jsx'],
     ]);
     t.end();
 });
@@ -350,9 +348,7 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
     cleanup();
     
     t.calledWith(onChange, [
-        
-        ['typescript']
-        ,
+        ['typescript'],
     ]);
     t.end();
 });
