@@ -53,6 +53,11 @@ jobs:
           message: "chore: ${{ env.NAME }}: actions: lint ☘️"
       - name: Coverage
         run: redrun coverage report
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('**/package.json') }}
       - name: Install Playwright browsers
         run: playwright install --with-deps chromium webkit
         working-directory: packages/client
