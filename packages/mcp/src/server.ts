@@ -17,12 +17,13 @@ export function createServer(): McpServer {
         version: '1.0.0',
     });
 
-    for (const {name, description, schema, handler} of [
-        docs,
-        parse,
-        findPlaces,
-        transform,
-    ] as unknown as ToolDef[])
+    const tools: ToolDef[] = [docs, parse, findPlaces, transform].map((tool) => ({
+        name: tool.name,
+        description: tool.description,
+        schema: tool.schema as ToolDef['schema'],
+        handler: tool.handler as ToolDef['handler'],
+    }));
+    for (const {name, description, schema, handler} of tools)
         server.registerTool(name, {description, inputSchema: schema}, handler);
 
     return server;

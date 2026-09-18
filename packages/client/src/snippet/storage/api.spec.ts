@@ -17,7 +17,7 @@ const withFetchStub = async <T>(run: (fetch: Stub<unknown[], Promise<Response>>)
     const originalFetch = globalThis.fetch;
     const fetchStub = stub().resolves(new Response('{}'));
     
-    globalThis.fetch = fetchStub as unknown as typeof globalThis.fetch;
+    globalThis.fetch = ((...args: Parameters<typeof globalThis.fetch>) => fetchStub(...args)) as typeof globalThis.fetch;
     
     try {
         return await run(fetchStub);

@@ -1,5 +1,5 @@
 import {HttpException, ArgumentsHost} from '@nestjs/common';
-import {test, stub} from 'supertape';
+import {test, stub, type Stub} from 'supertape';
 import {GlobalExceptionFilter} from './exception.filter.ts';
 
 const noop = () => {};
@@ -156,17 +156,15 @@ type MockResponse = {
 function createResponse() {
     const json = stub();
     
-    const status = stub<[
-        number,
-    ]>().returns({
+    const statusStub = stub().returns({
         json,
     });
     
     return {
         response: {
-            status: status as unknown as MockResponse['status'],
+            status: statusStub,
         },
-        status,
+        status: statusStub,
         json,
     };
 }
@@ -188,7 +186,7 @@ function createHost(response: MockResponse): ArgumentsHost {
     
     return {
         getArgs<T extends unknown[] = unknown[]>() {
-            return [] as unknown as T;
+            return [] as never as T;
         },
         
         getArgByIndex<T = unknown>() {
