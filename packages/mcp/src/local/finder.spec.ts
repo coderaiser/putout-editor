@@ -22,12 +22,12 @@ test('local find-places: description is a string', (t) => {
 });
 
 test('local find-places: schema has fixture field', (t) => {
-    t.ok('fixture' in schema);
+    t.ok('fixture' in schema.shape);
     t.end();
 });
 
 test('local find-places: schema has plugin field', (t) => {
-    t.ok('plugin' in schema);
+    t.ok('plugin' in schema.shape);
     t.end();
 });
 

@@ -22,12 +22,12 @@ test('local transform: description is a string', (t) => {
 });
 
 test('local transform: schema has fixture field', (t) => {
-    t.ok('fixture' in schema);
+    t.ok('fixture' in schema.shape);
     t.end();
 });
 
 test('local transform: schema has plugin field', (t) => {
-    t.ok('plugin' in schema);
+    t.ok('plugin' in schema.shape);
     t.end();
 });
 

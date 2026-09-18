@@ -20,12 +20,12 @@ test('local parse: description is a string', (t) => {
 });
 
 test('local parse: schema has source field', (t) => {
-    t.ok('source' in schema);
+    t.ok('source' in schema.shape);
     t.end();
 });
 
 test('local parse: schema has optional query field', (t) => {
-    t.ok('query' in schema);
+    t.ok('query' in schema.shape);
     t.end();
 });
 
