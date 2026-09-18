@@ -3,7 +3,6 @@ import {
     type configureStore,
     type PayloadAction,
 } from '@reduxjs/toolkit';
-import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
 import {
     getCategoryByID,
     getDefaultParser,
