@@ -11,8 +11,8 @@ import * as transform from './local/transformer.ts';
 type ToolDef = {
     name: string;
     description: string;
-    schema: never;
-    handler: never;
+    schema: typeof docs.schema | typeof parse.schema | typeof findPlaces.schema | typeof transform.schema;
+    handler: typeof docs.handler | typeof parse.handler | typeof findPlaces.handler | typeof transform.handler;
 };
 
 export function createServer(): McpServer {
