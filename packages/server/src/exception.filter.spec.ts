@@ -1,5 +1,5 @@
 import {HttpException, ArgumentsHost} from '@nestjs/common';
-import {test, stub, type Stub} from 'supertape';
+import {test, stub} from 'supertape';
 import {GlobalExceptionFilter} from './exception.filter.ts';
 
 const noop = () => {};

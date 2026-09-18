@@ -9,16 +9,16 @@ export const description =
     'Apply a putout plugin to source code and return the transformed result. ' +
     'Use find_places first to verify the plugin matches correctly, then call this to apply it.';
 
-export const schema = {
+export const schema = z.object({
     fixture: z
         .string()
         .describe('Source code to transform'),
     plugin: z
         .string()
         .describe('Putout plugin as an ESM string'),
-};
+});
 
-export async function handler({fixture, plugin}: {fixture: string;plugin: string;}) {
+export async function handler({fixture, plugin}: z.infer<typeof schema>) {
     const [error, result] = await tryToCatch(runTransform, fixture, plugin);
     
     if (error)

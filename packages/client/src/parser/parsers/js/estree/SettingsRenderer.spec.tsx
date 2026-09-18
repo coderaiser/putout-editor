@@ -319,7 +319,11 @@ test('SettingsRenderer: array update strategy add value', (t) => {
     
     cleanup();
     
-    t.calledWith(onChange, [['jsx']]);
+    t.calledWith(onChange, [
+        
+        ['jsx']
+        ,
+    ]);
     t.end();
 });
 
@@ -345,7 +349,11 @@ test('SettingsRenderer: array updater removes value on unchecked', (t) => {
     
     cleanup();
     
-    t.calledWith(onChange, [['typescript']]);
+    t.calledWith(onChange, [
+        
+        ['typescript']
+        ,
+    ]);
     t.end();
 });
 
@@ -397,7 +405,9 @@ test('SettingsRenderer: custom values receives the original settings array', (t)
                 fields: ['jsx'],
                 values: (settings) => {
                     received = settings;
-                    return {jsx: Array.isArray(settings) && settings.includes('jsx')};
+                    return {
+                        jsx: Array.isArray(settings) && settings.includes('jsx'),
+                    };
                 },
             }}
             parserSettings={parserSettings}
@@ -410,4 +420,3 @@ test('SettingsRenderer: custom values receives the original settings array', (t)
     t.equal(received, parserSettings);
     t.end();
 });
-

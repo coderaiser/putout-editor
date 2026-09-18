@@ -15,7 +15,9 @@ type Overrides = {
         code?: string | null;
         parser?: string;
         parserSettings?: ParserSettings;
-        parseResult?: Partial<NonNullable<ParseResult>> & {ast?: unknown};
+        parseResult?: Partial<NonNullable<ParseResult>> & {
+            ast?: unknown;
+        };
     };
 };
 

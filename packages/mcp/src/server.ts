@@ -4,27 +4,23 @@ import * as parse from './local/parser.ts';
 import * as findPlaces from './local/finder.ts';
 import * as transform from './local/transformer.ts';
 
-type ToolDef = {
-    name: string;
+type AnyRegister = (name: string, config: {
     description: string;
-    schema: typeof docs.schema | typeof parse.schema | typeof findPlaces.schema | typeof transform.schema;
-    handler: typeof docs.handler | typeof parse.handler | typeof findPlaces.handler | typeof transform.handler;
-};
+    inputSchema?: any;
+}, handler: (...args: any[]) => any) => void;
 
 export function createServer(): McpServer {
     const server = new McpServer({
         name: 'putout-editor',
         version: '1.0.0',
     });
-
-    const tools: ToolDef[] = [docs, parse, findPlaces, transform].map((tool) => ({
-        name: tool.name,
-        description: tool.description,
-        schema: tool.schema as ToolDef['schema'],
-        handler: tool.handler as ToolDef['handler'],
-    }));
-    for (const {name, description, schema, handler} of tools)
-        server.registerTool(name, {description, inputSchema: schema}, handler);
-
+    
+    const register = server.registerTool.bind(server) as AnyRegister;
+    
+    register(docs.name, {description: docs.description}, docs.handler);
+    register(parse.name, {description: parse.description, inputSchema: parse.schema}, parse.handler);
+    register(findPlaces.name, {description: findPlaces.description, inputSchema: findPlaces.schema}, findPlaces.handler);
+    register(transform.name, {description: transform.description, inputSchema: transform.schema}, transform.handler);
+    
     return server;
 }

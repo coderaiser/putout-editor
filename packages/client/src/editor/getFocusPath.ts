@@ -66,8 +66,7 @@ export default function getFocusPath(node: AstNode, pos: number, parser: Parser,
 
 type Range = SourceRange | null;
 
-export interface Parser {
-    // Parser-specific ranges are validated by parseSourceRange before use.
+export interface Parser { // Parser-specific ranges are validated by parseSourceRange before use.
     nodeToRange(node: AstNode): unknown;
     forEachProperty(node: AstNode): Iterable<{value: unknown}>;
 }

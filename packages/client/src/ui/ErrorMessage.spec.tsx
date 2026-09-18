@@ -8,10 +8,7 @@ import {
     cleanup,
 } from '@testing-library/react';
 import ErrorMessage from './ErrorMessage.tsx';
-import {
-    putoutEditor,
-    revive,
-} from '../store/reducers.ts';
+import {putoutEditor, revive} from '../store/reducers.ts';
 
 type Overrides = Partial<ReturnType<typeof putoutEditor>>;
 

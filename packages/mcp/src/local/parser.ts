@@ -11,7 +11,7 @@ export const description =
     'to return only matching node positions instead of the full AST. ' +
     'Use this before writing a plugin to identify the node types to target.';
 
-export const schema = {
+export const schema = z.object({
     source: z
         .string()
         .describe('JavaScript or TypeScript source code to parse'),
@@ -22,7 +22,7 @@ export const schema = {
             'Comma-separated Babel node types, e.g. "VariableDeclaration,Identifier". ' +
         'When set, returns node positions instead of the full AST.',
         ),
-};
+});
 
 const parseOptions: ParserOptions = {
     sourceType: 'module',
@@ -36,7 +36,7 @@ const parseOptions: ParserOptions = {
     ] as ParserOptions['plugins'],
 };
 
-export async function handler({source, query}: {source: string;query?: string;}) {
+export async function handler({source, query}: z.infer<typeof schema>) {
     const [error, ast] = await tryToCatch(parse, source, parseOptions);
     
     if (error)

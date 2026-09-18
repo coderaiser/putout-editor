@@ -71,6 +71,7 @@ test('msw handlers: gist GET returns the fixture', async (t) => {
             .replace(':id', 'handler-gist')
             .replace(':revision', 'handler-sha1'),
     );
+    
     const {id} = await response.json() as GistResponse;
     
     server.close();
@@ -163,6 +164,7 @@ test('msw handlers: parse handler echoes the requested params', async (t) => {
             .replace(':snippetId', 'abc')
             .replace(':revisionId', '3'),
     );
+    
     const {snippetID, revisionID} = await response.json() as {
         snippetID: string;
         revisionID: string;
@@ -198,6 +200,7 @@ test('msw fixtures: makeGistResponse default shape is a well-formed gist', (t) =
         history,
         files,
     } = makeGistResponse();
+    
     const result = Boolean(id && history.length && files['astexplorer.json'] && files['source.js']);
     
     t.ok(result);

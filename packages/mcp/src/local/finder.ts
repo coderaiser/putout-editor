@@ -10,7 +10,7 @@ export const description =
     'Returns matches with rule name, message, and line/column position. ' +
     'Typical loop: write plugin → find_places → fix → repeat → transform.';
 
-export const schema = {
+export const schema = z.object({
     fixture: z
         .string()
         .describe('Source code to search for matches'),
@@ -21,9 +21,9 @@ export const schema = {
         'Example: export const report = () => "use const"; ' +
         'export const replace = () => ({ "var __x = __y": "const __x = __y" });',
         ),
-};
+});
 
-export async function handler({fixture, plugin}: {fixture: string;plugin: string;}) {
+export async function handler({fixture, plugin}: z.infer<typeof schema>) {
     const [error, result] = await tryToCatch(runFindPlaces, fixture, plugin);
     
     if (error)

@@ -71,5 +71,5 @@ jobs:
         uses: coverallsapp/github-action@v2
         continue-on-error: true
         with:
-          base-path: './packages/client'
+          base-path: ./packages/client
           github-token: ${{ secrets.GITHUB_TOKEN }}

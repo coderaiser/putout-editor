@@ -17,7 +17,7 @@ const withFetchStub = async <T>(run: (fetch: Stub<unknown[], Promise<Response>>)
     const originalFetch = globalThis.fetch;
     const fetchStub = stub().resolves(new Response('{}'));
     
-    globalThis.fetch = ((...args: Parameters<typeof globalThis.fetch>) => fetchStub(...args)) as typeof globalThis.fetch;
+    globalThis.fetch = fetchStub as typeof globalThis.fetch;
     
     try {
         return await run(fetchStub);
@@ -44,7 +44,9 @@ test('api: calls fetch with custom options', async (t) => {
             method: 'POST',
         });
         
-        return fetchStub.args[0][1] as {method: string};
+        return fetchStub.args[0][1] as {
+            method: string;
+        };
     });
     
     t.equal(options.method, 'POST');

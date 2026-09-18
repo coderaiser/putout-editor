@@ -44,12 +44,7 @@ parserListener.startListening({
         
         const start = Date.now();
         
-        const [error, result] = await tryToCatch(
-            parseCode,
-            parser,
-            code,
-            parserSettings,
-        );
+        const [error, result] = await tryToCatch(parseCode, parser, code, parserSettings);
         
         // Staleness checks — bail if state changed during async
         const nowState = api.getState();

@@ -121,6 +121,7 @@ test('babel: renderSettings preserves plugin arrays in values and updates', (t) 
         updates,
         plugins,
     };
+    
     const expected = {
         checked: true,
         updates: [{

@@ -25,7 +25,9 @@ test('putout-editor: client: parsers: putout: initPlugin: putout', (t) => {
         });
     `);
     
-    const getReplacement = replace as () => {'const __a = 3': () => string};
+    const getReplacement = replace as () => {
+        'const __a = 3': () => string;
+    };
     const result = getReplacement()['const __a = 3']();
     
     t.equal(result, 'function');

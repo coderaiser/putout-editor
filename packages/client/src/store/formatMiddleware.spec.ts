@@ -23,7 +23,9 @@ function makeStore(overrides: {
         initialCode?: string;
         parser?: string;
         parserSettings?: ParserSettings;
-        parseResult?: Partial<NonNullable<WorkbenchState['parseResult']>> & {ast?: unknown};
+        parseResult?: Partial<NonNullable<WorkbenchState['parseResult']>> & {
+            ast?: unknown;
+        };
         keyMap?: string;
         transform?: {
             code?: string;

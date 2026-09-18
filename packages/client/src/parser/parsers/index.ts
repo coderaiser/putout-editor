@@ -48,6 +48,7 @@ export interface ParserInfo {
 }
 export type ParserInfoWithCategory = ParserInfo & ParserWithLoader & {
     category: ParserCategory;
+    
     // Registered parsers all implement property traversal as a generator.
     forEachProperty: (node: unknown) => Iterable<{
         value: unknown;

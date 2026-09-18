@@ -26,6 +26,7 @@ type ParserChild = {
     key: string;
     computed: boolean;
 };
+
 export type ParserWithLoader = {
     nodeToRange: (node: unknown) => unknown;
     forEachProperty: (node: unknown) => Iterable<ParserChild> | void;
