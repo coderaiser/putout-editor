@@ -23,8 +23,7 @@
     "#store": "./src/store/index.ts",
     "#parser": "./src/parser/index.ts",
     "#snippet": "./src/snippet/index.ts",
-    "#ui": "./src/ui/index.ts",
-    "#test": "./test/test.ts"
+    "#ui": "./src/ui/index.ts"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
