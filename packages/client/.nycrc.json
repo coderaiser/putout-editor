@@ -9,7 +9,6 @@
         "**/.madrun.*",
         "**/config",
         "src/app.tsx",
-        "scripts",
         "src/editor-ast-json/index.tsx",
         "src/editor-ast-tree/index.tsx",
         "src/editor-ast-tree/Tree.tsx",
