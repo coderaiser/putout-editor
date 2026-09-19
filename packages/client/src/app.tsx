@@ -1,4 +1,4 @@
-import '../css/style.css';
+import '../css/main.css';
 import {Provider, useSelector} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import {createRoot} from 'react-dom/client';
