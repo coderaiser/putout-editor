@@ -24,7 +24,20 @@
     --color-hover:           rgb(0 0 0 / 10%);
     --color-hover-strong:    rgb(0 0 0 / 30%);
     --color-selected:        rgb(0 0 0 / 5%);
+    --color-marked:          rgb(255 240 6 / 40%);
+    --color-marked-dark:     rgb(129 161 193 / 25%);
+    --color-toggler-open:    red;
+    --color-toggler-closed:  green;
     --toolbar-height:        32px;
+    --hl-comment:            #586e75;
+    --hl-base:               #93a1a1;
+    --hl-green:              #859900;
+    --hl-orange:             #cb4b16;
+    --hl-cyan:               #2aa198;
+    --hl-red:                #dc322f;
+    --hl-blue:               #268bd2;
+    --hl-yellow:             #b58900;
+    --hl-name:               #555;
 }
 
 [data-theme='dark'] {
@@ -55,6 +68,17 @@
     --color-hover:           rgb(255 255 255 / 8%);
     --color-hover-strong:    rgb(255 255 255 / 16%);
     --color-selected:        rgb(255 255 255 / 6%);
+    --color-marked:          rgb(255 240 6 / 40%);
+    --color-marked-dark:     rgb(129 161 193 / 25%);
+    --hl-comment:            #616e88;
+    --hl-base:               #d8dee9;
+    --hl-green:              #a3be8c;
+    --hl-orange:             #d08770;
+    --hl-cyan:               #88c0d0;
+    --hl-red:                #bf616a;
+    --hl-blue:               #81a1c1;
+    --hl-yellow:             #ebcb8b;
+    --hl-name:               #d8dee9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -87,5 +111,16 @@
         --color-hover:           rgb(255 255 255 / 8%);
         --color-hover-strong:    rgb(255 255 255 / 16%);
         --color-selected:        rgb(255 255 255 / 6%);
+        --color-marked:          rgb(255 240 6 / 40%);
+        --color-marked-dark:     rgb(129 161 193 / 25%);
+        --hl-comment:            #616e88;
+        --hl-base:               #d8dee9;
+        --hl-green:              #a3be8c;
+        --hl-orange:             #d08770;
+        --hl-cyan:               #88c0d0;
+        --hl-red:                #bf616a;
+        --hl-blue:               #81a1c1;
+        --hl-yellow:             #ebcb8b;
+        --hl-name:               #d8dee9;
     }
 }

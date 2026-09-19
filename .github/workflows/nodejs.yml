@@ -64,6 +64,9 @@ jobs:
       - name: Build for e2e
         run: redrun build
         working-directory: packages/client
+      - name: Check CSS architecture
+        run: node scripts/check-css.js
+        working-directory: packages/client
       - name: E2E tests
         run: redrun test:e2e
         working-directory: packages/client

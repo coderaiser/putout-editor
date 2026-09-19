@@ -16,6 +16,6 @@
     font-size: 13px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    color: var(--color-error, #e53e3e);
+    color: var(--color-error);
     background: transparent;
 }

@@ -25,12 +25,12 @@
 .cm-editor .marked,
 .entry.focused {
     border-radius: 2px;
-    background-color: rgb(255 240 6 / 40%);
+    background-color: var(--color-marked);
 }
 
 [data-theme='dark'] .cm-editor .marked,
 [data-theme='dark'] .entry.focused {
-    background-color: rgb(129 161 193 / 25%);
+    background-color: var(--color-marked-dark);
 }
 
 .cm-editor {

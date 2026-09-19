@@ -54,14 +54,14 @@ li.entry {
 
 .entry.toggable::before {
     content: '+';
-    color: green;
+    color: var(--color-toggler-closed);
     position: absolute;
     left: -10px;
 }
 
 .entry.toggable.open::before {
     content: '-';
-    color: red;
+    color: var(--color-toggler-open);
 }
 
 .entry .invokeable {

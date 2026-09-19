@@ -46,5 +46,5 @@ above map directly to what's inside.
 
 ## Automated checks
 
-Architecture rules are enforced by `scripts/check-css.mjs` (run as part of
+Architecture rules are enforced by `scripts/check-css.js` (run as part of
 CI). A failing check means a rule was broken — fix the CSS, not the check.
