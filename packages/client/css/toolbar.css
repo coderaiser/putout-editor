@@ -3,8 +3,8 @@
     flex-grow: 0;
     font-family: monospace;
     height: auto;
-    min-height: 32px;
-    line-height: 32px;
+    min-height: var(--toolbar-height);
+    line-height: var(--toolbar-height);
     border-bottom: 1px solid var(--color-border);
     color: var(--color-text);
     padding-left: 10px;
@@ -42,14 +42,14 @@
 }
 
 #Toolbar > * {
-    height: 32px;
+    height: var(--toolbar-height);
     border-right: 1px solid var(--color-border);
     vertical-align: top;
 }
 
 #Toolbar > #info {
     height: auto;
-    min-height: 32px;
+    min-height: var(--toolbar-height);
     line-height: 1.3em;
     padding-top: 4px;
     padding-bottom: 4px;
@@ -90,7 +90,7 @@
 #Toolbar .menuButton ul {
     position: absolute;
     left: -1px;
-    top: 32px;
+    top: var(--toolbar-height);
     padding: 0;
     margin: 0;
     list-style: none;
