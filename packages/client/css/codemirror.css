@@ -62,13 +62,6 @@
     color: var(--color-text);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) .cm-editor {
-        background-color: var(--color-bg-editor);
-        color: var(--color-text);
-    }
-}
-
 [data-theme='dark'] .cm-gutters {
     background-color: var(--color-bg-editor);
     border-right-color: var(--color-border);
