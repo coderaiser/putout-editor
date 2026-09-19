@@ -67,6 +67,15 @@ jobs:
       - name: E2E tests
         run: redrun test:e2e
         working-directory: packages/client
+      - name: Upload visual snapshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-snapshots
+          path: |
+            packages/client/e2e/snapshots/
+            packages/client/e2e/test-results/
+          retention-days: 14
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         continue-on-error: true

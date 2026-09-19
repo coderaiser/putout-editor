@@ -1,4 +1,6 @@
 **/coverage
+packages/client/e2e/snapshots/
+packages/client/e2e/test-results/
 
 *.swp
 *.lock
