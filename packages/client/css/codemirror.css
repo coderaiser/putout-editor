@@ -83,20 +83,20 @@
 }
 
 [data-theme='dark'] .cm-selectionBackground {
-    background: var(--color-active-bg) !important;
+    background: var(--color-selection-bg) !important;
 }
 
 [data-theme='dark'] .cm-focused .cm-selectionBackground {
-    background: #44403c !important;
+    background: var(--color-selection-focused) !important;
 }
 
 /* Links in dark theme */
 [data-theme='dark'] a {
-    color: #7dd3a8;
+    color: var(--color-link);
 }
 
 [data-theme='dark'] a:hover {
-    color: #a7f3d0;
+    color: var(--color-link-hover);
 }
 
 [data-theme='dark'] #Toolbar a {

@@ -17,6 +17,8 @@
     --color-active-bg:       #999;
     --color-active-text:     #f5f5f5;
     --color-error-bg:        #eb9494;
+    --color-error:           #e53e3e;
+    --color-link:            inherit;
     --color-overlay:         rgb(255 255 255 / 70%);
     --color-dialog-shadow:   #555;
     --color-hover:           rgb(0 0 0 / 10%);
@@ -43,6 +45,10 @@
     --color-active-bg:       #44403c;
     --color-active-text:     #d6d3d1;
     --color-error-bg:        #7f1d1d;
+    --color-error:           #f87171;
+    --color-link:            #7dd3a8;
+    --color-link-hover:      #a7f3d0;
+    --color-selection-focused: #44403c;
     --color-overlay:         rgb(12 10 9 / 80%);
     --color-dialog-shadow:   #000;
     --color-hover:           rgb(255 255 255 / 8%);
@@ -71,6 +77,10 @@
         --color-active-bg:       #44403c;
         --color-active-text:     #fafaf9;
         --color-error-bg:        #7f1d1d;
+        --color-error:           #f87171;
+        --color-link:            #7dd3a8;
+        --color-link-hover:      #a7f3d0;
+        --color-selection-focused: #44403c;
         --color-overlay:         rgb(12 10 9 / 80%);
         --color-dialog-shadow:   #000;
         --color-hover:           rgb(255 255 255 / 8%);
