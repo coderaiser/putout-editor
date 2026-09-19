@@ -10,6 +10,7 @@
         "**/config",
         "src/app.tsx",
         "src/app.js",
+        "scripts",
         "src/editor-ast-json/index.tsx",
         "src/editor-ast-json/index.js",
         "src/editor-ast-tree/index.tsx",
