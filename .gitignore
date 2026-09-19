@@ -1,6 +1,7 @@
 **/coverage
 packages/client/e2e/snapshots/
 packages/client/e2e/test-results/
+packages/client/e2e/visual.ts-snapshots/
 
 *.swp
 *.lock
