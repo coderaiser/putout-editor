@@ -1,3 +1,4 @@
+import './ErrorMessage.css';
 import {useSelector, useDispatch} from 'react-redux';
 import {TbAlertTriangle} from 'react-icons/tb';
 import {clearError} from '../store/reducers.ts';

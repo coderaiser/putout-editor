@@ -1,0 +1,8 @@
+.hasError {
+    filter: blur(3px);
+}
+
+.dropTarget {
+    position: absolute;
+    inset: 0 0 26px;
+}

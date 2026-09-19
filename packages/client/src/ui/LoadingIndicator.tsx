@@ -1,3 +1,4 @@
+import './LoadingIndicator.css';
 import {useSelector} from 'react-redux';
 import {TbLoader2} from 'react-icons/tb';
 import {isLoadingSnippet} from '../store/selectors.ts';

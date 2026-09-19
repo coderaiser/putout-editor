@@ -1,0 +1,11 @@
+.shareInfo dd {
+    margin: 0;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.shareInfo input {
+    font-size: 15px;
+    padding: 5px;
+    width: calc(100% - 10px);
+}

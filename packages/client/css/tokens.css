@@ -1,0 +1,80 @@
+:root {
+    --color-bg-page:         #fff;
+    --color-bg-toolbar:      #efefef;
+    --color-bg-contribution: #efefef;
+    --color-bg-editor:       #fff;
+    --color-bg-dialog:       #fff;
+    --color-text:            #454545;
+    --color-text-strong:     #333;
+    --color-text-muted:      #555;
+    --color-text-dim:        #888;
+    --color-text-info:       #898989;
+    --color-accent:          #c00;
+    --color-border:          #ddd;
+    --color-banner:          #b8dff7;
+    --color-divider:         #ddd;
+    --color-divider-hover:   #999;
+    --color-active-bg:       #999;
+    --color-active-text:     #f5f5f5;
+    --color-error-bg:        #eb9494;
+    --color-overlay:         rgb(255 255 255 / 70%);
+    --color-dialog-shadow:   #555;
+    --color-hover:           rgb(0 0 0 / 10%);
+    --color-hover-strong:    rgb(0 0 0 / 30%);
+    --color-selected:        rgb(0 0 0 / 5%);
+}
+
+[data-theme='dark'] {
+    --color-bg-page:         #1c1917;
+    --color-bg-toolbar:      #292524;
+    --color-bg-contribution: #292524;
+    --color-bg-editor:       #1c1917;
+    --color-bg-dialog:       #292524;
+    --color-text:            #a8a29e;
+    --color-text-strong:     #d6d3d1;
+    --color-text-muted:      #78716c;
+    --color-text-dim:        #57534e;
+    --color-text-info:       #57534e;
+    --color-accent:          #f87171;
+    --color-border:          #3f3935;
+    --color-banner:          #1c2a3a;
+    --color-divider:         #3f3935;
+    --color-divider-hover:   #57534e;
+    --color-active-bg:       #44403c;
+    --color-active-text:     #d6d3d1;
+    --color-error-bg:        #7f1d1d;
+    --color-overlay:         rgb(12 10 9 / 80%);
+    --color-dialog-shadow:   #000;
+    --color-hover:           rgb(255 255 255 / 8%);
+    --color-hover-strong:    rgb(255 255 255 / 16%);
+    --color-selected:        rgb(255 255 255 / 6%);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']),
+    :root:not([data-theme]) {
+        --color-bg-page:         #1c1917;
+        --color-bg-toolbar:      #292524;
+        --color-bg-contribution: #292524;
+        --color-bg-editor:       #1c1917;
+        --color-bg-dialog:       #292524;
+        --color-text:            #a8a29e;
+        --color-text-strong:     #d6d3d1;
+        --color-text-muted:      #78716c;
+        --color-text-dim:        #57534e;
+        --color-text-info:       #57534e;
+        --color-accent:          #f87171;
+        --color-border:          #3f3935;
+        --color-banner:          #1c2a3a;
+        --color-divider:         #3f3935;
+        --color-divider-hover:   #57534e;
+        --color-active-bg:       #44403c;
+        --color-active-text:     #fafaf9;
+        --color-error-bg:        #7f1d1d;
+        --color-overlay:         rgb(12 10 9 / 80%);
+        --color-dialog-shadow:   #000;
+        --color-hover:           rgb(255 255 255 / 8%);
+        --color-hover-strong:    rgb(255 255 255 / 16%);
+        --color-selected:        rgb(255 255 255 / 6%);
+    }
+}

@@ -38,3 +38,53 @@
     min-width: 300px;
     width: fit-content;
 }
+
+li.entry {
+    margin: 0;
+    list-style: none;
+    padding: 5px;
+    position: relative;
+    color: var(--color-text);
+}
+
+.entry > .value .s {
+    cursor: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.entry.toggable::before {
+    content: '+';
+    color: green;
+    position: absolute;
+    left: -10px;
+}
+
+.entry.toggable.open::before {
+    content: '-';
+    color: red;
+}
+
+.entry .invokeable {
+    cursor: pointer;
+}
+
+.entry .invokeable:hover {
+    text-decoration: underline;
+}
+
+.compact,
+.tokenName,
+.entry.toggable > .key {
+    cursor: pointer;
+}
+
+.compact:hover,
+.tokenName:hover,
+.entry.toggable > .key:hover > .name {
+    text-decoration: underline;
+}
+

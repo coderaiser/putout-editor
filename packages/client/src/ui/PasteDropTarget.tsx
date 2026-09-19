@@ -1,3 +1,4 @@
+import './PasteDropTarget.css';
 import {useDispatch} from 'react-redux';
 import {tryCatch} from 'try-catch';
 import {print} from '@putout/engine-parser';

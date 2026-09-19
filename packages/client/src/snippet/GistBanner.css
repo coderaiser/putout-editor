@@ -1,0 +1,6 @@
+.banner {
+    background-color: var(--color-banner);
+    border-right: 1px solid var(--color-border);
+    padding: 8px;
+    text-align: center;
+}

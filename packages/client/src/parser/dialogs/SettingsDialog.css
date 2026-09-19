@@ -1,0 +1,9 @@
+#SettingsDialog ul.settings {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#SettingsDialog ul.settings li {
+    padding: 3px 0;
+}

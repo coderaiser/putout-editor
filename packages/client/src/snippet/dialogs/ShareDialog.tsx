@@ -1,3 +1,4 @@
+import './ShareDialog.css';
 import {useSelector, useDispatch} from 'react-redux';
 import {
     closeShareDialog,

@@ -1,3 +1,4 @@
+import './GistBanner.css';
 /* eslint-disable */
 /**
  * Data storage is moved from Parse to Gists. It won't be possible anymore to

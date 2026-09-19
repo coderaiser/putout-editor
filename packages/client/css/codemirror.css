@@ -1,0 +1,108 @@
+#EditorASTJson .cm-editor {
+    font-size: inherit;
+}
+
+/* Light theme: transparent so page background shows through */
+:root:not([data-theme='dark']) #EditorASTJson .cm-editor {
+    background-color: transparent;
+    color: var(--color-text);
+}
+
+:root:not([data-theme='dark']) #EditorASTJson .cm-gutters {
+    background-color: transparent;
+}
+
+:root:not([data-theme='dark']) #EditorASTJson .cm-gutterElement {
+    color: var(--color-text-dim);
+}
+
+:root:not([data-theme='dark']) #EditorASTJson .cm-content {
+    color: var(--color-text);
+}
+
+/* Dark theme: let nord control all colors — no overrides */
+
+.cm-editor .marked,
+.entry.focused {
+    border-radius: 2px;
+    background-color: rgb(255 240 6 / 40%);
+}
+
+[data-theme='dark'] .cm-editor .marked,
+[data-theme='dark'] .entry.focused {
+    background-color: rgb(129 161 193 / 25%);
+}
+
+.cm-editor {
+    height: 100%;
+    font-family: 'Bitstream Vera Sans Mono', 'Courier', monospace;
+    font-size: 14px;
+}
+
+.cm-scroller {
+    overflow: auto;
+}
+
+.editor .cm-gutters {
+    background-color: var(--color-bg-editor);
+    border: none;
+    min-height: 100%;
+}
+
+.editor .cm-lineNumbers .cm-gutterElement {
+    color: var(--color-text-dim);
+    padding: 0 8px;
+    min-width: 2.5em;
+    text-align: right;
+}
+
+/* Dark theme overrides for CodeMirror 6 */
+[data-theme='dark'] .cm-editor {
+    background-color: var(--color-bg-editor);
+    color: var(--color-text);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .cm-editor {
+        background-color: var(--color-bg-editor);
+        color: var(--color-text);
+    }
+}
+
+[data-theme='dark'] .cm-gutters {
+    background-color: var(--color-bg-editor);
+    border-right-color: var(--color-border);
+}
+
+[data-theme='dark'] .cm-gutterElement {
+    color: var(--color-text-dim);
+}
+
+[data-theme='dark'] .cm-cursor {
+    border-left-color: var(--color-text);
+}
+
+[data-theme='dark'] .cm-selectionBackground {
+    background: var(--color-active-bg) !important;
+}
+
+[data-theme='dark'] .cm-focused .cm-selectionBackground {
+    background: #44403c !important;
+}
+
+/* Links in dark theme */
+[data-theme='dark'] a {
+    color: #7dd3a8;
+}
+
+[data-theme='dark'] a:hover {
+    color: #a7f3d0;
+}
+
+[data-theme='dark'] #Toolbar a {
+    color: inherit;
+}
+
+.cm-editor .errorMarker {
+    background-color: var(--color-error-bg);
+}

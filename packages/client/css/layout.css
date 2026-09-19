@@ -1,0 +1,101 @@
+#root {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - 26px);
+}
+
+#contribution {
+    color: var(--color-text-muted);
+    position: absolute;
+    height: 25px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    line-height: 25px;
+    background-color: var(--color-bg-contribution);
+    border-top: 1px solid var(--color-border);
+}
+
+.splitpane-content {
+    flex-grow: 2;
+    position: relative;
+    background-color: var(--color-bg-editor);
+}
+
+.splitpane {
+    position: absolute;
+    inset: 0;
+}
+
+.splitpane-divider {
+    background-color: var(--color-divider);
+}
+
+.splitpane-divider:hover {
+    background-color: var(--color-divider-hover);
+    cursor: col-resize;
+}
+
+.splitpane-divider.vertical:hover {
+    cursor: row-resize;
+}
+
+.output {
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: none;
+    background-color: var(--color-bg-editor);
+    color: var(--color-text);
+}
+
+.output .toolbar {
+    margin-left: -1px;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-bg-toolbar);
+}
+
+.output .toolbar > button {
+    margin: 0;
+    height: 100%;
+    min-width: 90px;
+    border: 1px solid transparent;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    background-color: transparent;
+    color: var(--color-text);
+    display: inline-block;
+    vertical-align: top;
+    outline: none;
+    cursor: pointer;
+}
+
+.output .toolbar > button.active {
+    border-color: var(--color-active-bg);
+    background-color: var(--color-active-bg);
+    color: var(--color-active-text);
+}
+
+.output .toolbar .time {
+    float: right;
+    margin-right: 10px;
+    font-size: 10px;
+    line-height: 25px;
+}
+
+.output > .container {
+    overflow: auto;
+    position: absolute;
+    inset: 25px 0 0;
+}
+
+.output > .no-toolbar {
+    top: 0;
+}
+
+.editor {
+    position: absolute;
+    inset: 0;
+}

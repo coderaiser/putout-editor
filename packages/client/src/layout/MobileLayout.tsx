@@ -1,3 +1,4 @@
+import './MobileLayout.css';
 import {useState, type ReactNode} from 'react';
 
 const TABS = [{

@@ -1,0 +1,152 @@
+#Toolbar {
+    flex-shrink: 0;
+    flex-grow: 0;
+    font-family: monospace;
+    height: auto;
+    min-height: 32px;
+    line-height: 32px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding-left: 10px;
+    background-color: var(--color-bg-toolbar);
+    z-index: 200;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#Toolbar,
+#Toolbar .menuButton ul {
+    background-color: var(--color-bg-toolbar);
+}
+
+#Toolbar > *,
+#Toolbar > .menuButton > span,
+#Toolbar button {
+    background-color: transparent;
+    box-sizing: border-box;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    min-width: 90px;
+    outline: none;
+}
+
+#Toolbar > .menuButton > span {
+    cursor: default;
+    padding: 0 6px;
+}
+
+#Toolbar > * {
+    height: 32px;
+    border-right: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+#Toolbar > #info {
+    height: auto;
+    min-height: 32px;
+    line-height: 1.3em;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+#Toolbar > * button {
+    height: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+#Toolbar > h1 {
+    padding: 0;
+    padding-right: 10px;
+    margin: 0;
+    font-size: 18px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#Toolbar > a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#Toolbar .menuButton {
+    position: relative;
+}
+
+#Toolbar .menuButton:hover > ul {
+    display: block;
+}
+
+#Toolbar .menuButton.is-closed > ul {
+    display: none !important;
+}
+
+#Toolbar .menuButton ul {
+    position: absolute;
+    left: -1px;
+    top: 32px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: none;
+    border: 1px solid var(--color-border);
+    border-top: none;
+    min-width: 100%;
+}
+
+#Toolbar .menuButton ul li {
+    white-space: nowrap;
+}
+
+#Toolbar .menuButton ul button {
+    line-height: 28px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    text-align: left;
+    width: 100%;
+}
+
+#Toolbar > *.disabled,
+#Toolbar button:disabled,
+#Toolbar button:disabled:hover,
+#Toolbar button:disabled:active {
+    background-color: transparent;
+    color: var(--color-text-dim);
+    cursor: default;
+}
+
+#Toolbar .menuButton li.selected {
+    background-color: var(--color-selected);
+}
+
+#Toolbar > a:hover,
+#Toolbar > .button:hover,
+#Toolbar ul button:hover {
+    background-color: var(--color-hover);
+}
+
+#Toolbar > a:active,
+#Toolbar button:active {
+    background-color: var(--color-hover-strong);
+}
+
+#info {
+    color: var(--color-text-info);
+    cursor: default;
+    margin-left: auto;
+    padding-right: 20px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+#info.small {
+    line-height: 1.3em;
+}
