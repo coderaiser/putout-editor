@@ -31,7 +31,7 @@ async function showAst(page: Page) {
     await page.waitForTimeout(300);
 }
 
-async function showResult(page: Page) {
+async function showResult() {
     // no-op on desktop: result panel is always visible
 }
 
@@ -66,7 +66,7 @@ test('syntax error in editor-source does not show stack trace', async ({page}) =
 test('transform error in editor-transform renders codeframe', async ({page}) => {
     await replaceContent(page, 'const x = 1;');
     await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => ({ throw new Error("oops") });');
-    await showResult(page);
+    await showResult();
     
     await expect(
         page
@@ -78,7 +78,7 @@ test('transform error in editor-transform renders codeframe', async ({page}) => 
 test('transform error in editor-transform shows error in codeframe not stack trace', async ({page}) => {
     await replaceContent(page, 'const x = 1;');
     await replaceTransform(page, 'export const report = () => "error";\nexport const traverse = () => { throw new Error("oops"); };');
-    await showResult(page);
+    await showResult();
     
     await expect(
         page
@@ -95,7 +95,7 @@ test('valid plugin with report and replace does not show cannot determine error'
             '__a ? __b : __c': 'if (__a) __b; else __c;',
         });
     `);
-    await showResult(page);
+    await showResult();
     
     await expect(page.getByTestId('editor-transform-output')).not.toContainText('Cannot determine type of plugin');
 });
@@ -108,7 +108,7 @@ test('valid plugin with report and replace shows transformed code', async ({page
             '__a ? __b : __c': 'if (__a) __b; else __c;',
         });
     `);
-    await showResult(page);
+    await showResult();
     
     const result = page.getByTestId('editor-transform-output');
     const expected = 'if (a)    b;else    c';
@@ -122,7 +122,9 @@ test('theme toggle changes document theme', async ({page}) => {
     
     await page
         .getByTestId('toolbar')
-        .getByRole('button', {name: /theme/i})
+        .getByRole('button', {
+            name: /theme/i,
+        })
         .click();
     
     await expect(html).toHaveAttribute('data-theme', 'dark');
@@ -131,7 +133,9 @@ test('theme toggle changes document theme', async ({page}) => {
 test('switching AST view changes the output mode', async ({page}) => {
     await expect(page.getByTestId('ast-output')).toBeVisible();
     await page
-        .getByRole('button', {name: /json/i})
+        .getByRole('button', {
+            name: /json/i,
+        })
         .click();
     
     await expect(

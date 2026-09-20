@@ -7,7 +7,9 @@ import {
 
 async function tapTab(page: Page, name: RegExp) {
     await page
-        .getByRole('tab', {name})
+        .getByRole('tab', {
+            name,
+        })
         .tap();
 }
 
@@ -133,7 +135,9 @@ test('theme toggle changes document theme', async ({page}) => {
     
     await page
         .getByTestId('mobile-menu')
-        .getByRole('button', {name: /theme/i})
+        .getByRole('button', {
+            name: /theme/i,
+        })
         .click();
     
     await expect(html).toHaveAttribute('data-theme', 'dark');
@@ -144,7 +148,9 @@ test('switching AST view changes the output mode', async ({page}) => {
     
     await expect(page.getByTestId('ast-output')).toBeVisible();
     await page
-        .getByRole('button', {name: /json/i})
+        .getByRole('button', {
+            name: /json/i,
+        })
         .click();
     
     await expect(

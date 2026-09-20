@@ -13,7 +13,11 @@ export default defineConfig({
     },
     projects: [{
         name: 'desktop-chrome',
-        testMatch: ['**/desktop.ts', '**/editor-desktop.ts', '**/visual.ts'],
+        testMatch: [
+            '**/desktop.ts',
+            '**/editor-desktop.ts',
+            '**/visual.ts',
+        ],
         use: {
             ...devices['Desktop Chrome'],
             colorScheme: 'light',
