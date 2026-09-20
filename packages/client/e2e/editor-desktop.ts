@@ -5,59 +5,34 @@ import {
     type Page,
 } from './test.ts';
 
-async function isMobileLayout(page: Page) {
-    return await page
-        .getByTestId('mobile-menu')
-        .isVisible();
-}
-
-async function tapTab(page: Page, name: RegExp) {
-    if (!await isMobileLayout(page))
-        return;
-    
-    await page
-        .getByRole('tab', {
-            name,
-        })
-        .tap();
-}
-
 async function replaceContent(page: Page, text: string) {
-    await tapTab(page, /source/i);
-    
     const cmContent = page
         .getByTestId('editor-source')
         .locator('.cm-content');
     
-    // tap() works on both mobile and desktop; click() fails on mobile Safari
-    await cmContent.tap();
+    await cmContent.click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type(text);
     await page.waitForTimeout(600);
 }
 
 async function replaceTransform(page: Page, text: string) {
-    await tapTab(page, /transform/i);
-    
     const cmContent = page
         .getByTestId('editor-transform')
         .locator('.cm-content');
     
-    await cmContent.tap();
+    await cmContent.click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type(text);
     await page.waitForTimeout(600);
 }
 
 async function showAst(page: Page) {
-    await tapTab(page, /ast/i);
-    
-    // Wait for AST panel to render after tab switch on mobile
     await page.waitForTimeout(300);
 }
 
 async function showResult(page: Page) {
-    await tapTab(page, /code/i);
+    // no-op on desktop: result panel is always visible
 }
 
 test('typing in source editor updates AST', async ({page}) => {
@@ -145,27 +120,20 @@ test('theme toggle changes document theme', async ({page}) => {
     const html = page.locator('html');
     await expect(html).toHaveAttribute('data-theme', 'light');
     
-    const container = await isMobileLayout(page)
-        ? page.getByTestId('mobile-menu')
-        : page.getByTestId('toolbar');
-    
-    await container
-        .getByRole('button', {
-            name: /theme/i,
-        })
+    await page
+        .getByTestId('toolbar')
+        .getByRole('button', {name: /theme/i})
         .click();
+    
     await expect(html).toHaveAttribute('data-theme', 'dark');
 });
 
 test('switching AST view changes the output mode', async ({page}) => {
-    await showAst(page);
-    
     await expect(page.getByTestId('ast-output')).toBeVisible();
     await page
-        .getByRole('button', {
-            name: /json/i,
-        })
+        .getByRole('button', {name: /json/i})
         .click();
+    
     await expect(
         page
             .getByTestId('ast-output')

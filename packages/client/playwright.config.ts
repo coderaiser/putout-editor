@@ -13,7 +13,7 @@ export default defineConfig({
     },
     projects: [{
         name: 'desktop-chrome',
-        testMatch: ['**/desktop.ts', '**/editor.ts', '**/visual.ts'],
+        testMatch: ['**/desktop.ts', '**/editor-desktop.ts', '**/visual.ts'],
         use: {
             ...devices['Desktop Chrome'],
             colorScheme: 'light',
@@ -27,7 +27,7 @@ export default defineConfig({
         },
     }, {
         name: 'mobile-safari',
-        testMatch: ['**/mobile.ts', '**/editor.ts'],
+        testMatch: ['**/mobile.ts', '**/editor-mobile.ts'],
         use: devices['iPhone 14'],
     }, {
         name: 'mobile-chrome',
