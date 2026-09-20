@@ -177,9 +177,12 @@ test('each tab is tappable and switches panel', async ({page}) => {
             page
                 .locator(selector)
                 .first(),
-        ).toBeVisible({timeout: 2000});
+        ).toBeVisible({
+            timeout: 2000,
+        });
     }
 });
+
 test('source tab opens the editor', async ({page}) => {
     await page
         .getByRole('tab', {
