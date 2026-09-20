@@ -14,6 +14,11 @@ export const test = base.extend({
         // Navigate to home page
         await page.goto('/');
         
+        // Hide the contribution footer so it doesn't intercept taps on mobile
+        await page.addStyleTag({
+            content: '#contribution { display: none !important; }',
+        });
+        
         // Provide the page to the test
         await use(page);
     },
