@@ -1,3 +1,44 @@
+2026.09.20, v3.4.0
+
+fix:
+- ad89ba0 @putout/editor: client: editor-code: higilight: rm
+- 5bea9f6 css: fix non-serif typo and remove dead vendor prefixes
+- b423591 mcp: check schema fields via shape
+- 8e4caae @putout/editor: client: transformers: putout
+- af34255 client: isDeepStrictEqual -> @gilbarbara/deep-equal
+- d2e9f96 localStorage
+- c5fdcb4 client: entry
+- 94d57a0 client: types
+- a28b086 client: types
+- b3fc926 editor-ast-tree: type Tree, index and related components
+- f2d07af server: ts
+- 70c1e0e client: types
+- ee8ee5d editor-ast-tree: type components and hooks to drop @ts-nocheck
+- ad0bc73 editor-ast-tree: drop @ts-nocheck from fully-typed files
+- c0f8260 types
+
+feature:
+- e3d62e5 rm endpoints transform, find places, we have mcp for this purpose
+- 4de24a1 client: get rid of any
+- 020d5cd client: migrate to ts
+- f68685c client: test: msw: add fixtures and handlers
+- 262bbf4 @putout/editor: client: esprima
+- 4b3408f @putout/editor: client: get rid of escodegen
+- ea34740 @putout/editor: clien: get rid of lodash
+- 10ae8bd migrate to ts
+- 6da2414 ui: migrate to ts
+- 9a67742 @putout/editor-client: @putout/printer v18.45.0
+- f767ab1 @putout/editor-client: @putout/plugin-putout v29.27.0
+- c1fbb21 @putout/editor-client: putout v42.15.0
+- c39257e @putout/editor-client: qword v1.1.21
+- 2b96344 ts7
+- c84ac0e editor-ast-tree: migrate to ts (partial)
+- 3ebe712 snippet: migrate to ts
+- 4b86630 mcp: zod types
+- 5624544 parser-ui: migrate ParserButton and SettingsDialog to ts
+- 2bc2dd1 parser-ui: migrate to ts
+- 4052e8f @putout/editor: client: transformers: init-plugin: add
+
 2026.09.12, v3.3.2
 
 fix:
