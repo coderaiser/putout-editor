@@ -22,7 +22,7 @@ async function replaceContent(page: Page, text: string) {
     
     await cmContent.tap();
     await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.type(text);
+    await page.keyboard.insertText(text);
     await page.waitForTimeout(600);
 }
 
@@ -35,7 +35,7 @@ async function replaceTransform(page: Page, text: string) {
     
     await cmContent.tap();
     await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.type(text);
+    await page.keyboard.insertText(text);
     await page.waitForTimeout(600);
 }
 
