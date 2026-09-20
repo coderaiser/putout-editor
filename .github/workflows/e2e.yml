@@ -30,12 +30,18 @@ jobs:
         id: playwright-version
         run: echo "version=$(playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
       - name: Cache Playwright browsers
+        id: playwright-cache
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-      - name: Install Playwright browsers
-        run: playwright install --with-deps chromium webkit
+      - name: Install Playwright browsers and deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium webkit
+        working-directory: packages/client
+      - name: Install Playwright system deps only
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium webkit
         working-directory: packages/client
       - name: Build for e2e
         run: redrun build

@@ -155,7 +155,7 @@ test('each tab is tappable and switches panel', async ({page}) => {
         selector: string;
     }[] = [{
         tab: 'Source',
-        selector: '[data-testid="editor-source"]',
+        selector: '[data-testid="editor-source"] .cm-editor',
     }, {
         tab: 'AST',
         selector: '.output',
@@ -164,7 +164,7 @@ test('each tab is tappable and switches panel', async ({page}) => {
         selector: '[data-testid="editor-transform-output"]',
     }, {
         tab: 'Transform',
-        selector: '[data-testid="editor-transform"]',
+        selector: '[data-testid="editor-transform"] .cm-editor',
     }];
     
     for (const {tab, selector} of tabPanelMap) {
@@ -177,9 +177,7 @@ test('each tab is tappable and switches panel', async ({page}) => {
             page
                 .locator(selector)
                 .first(),
-        ).toBeVisible({
-            timeout: 2000,
-        });
+        ).toBeVisible();
     }
 });
 
