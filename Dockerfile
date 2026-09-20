@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json ./
 COPY packages/client/package.json packages/client/package.json
 COPY packages/server/package.json packages/server/package.json
+COPY packages/mcp/package.json packages/mcp/package.json
 
 RUN bun install
 
@@ -26,6 +27,7 @@ WORKDIR /app
 COPY package.json ./
 COPY packages/client/package.json packages/client/package.json
 COPY packages/server/package.json packages/server/package.json
+COPY packages/mcp/package.json packages/mcp/package.json
 
 RUN bun install --production --no-lockfile
 
@@ -39,7 +41,9 @@ ENV PORT=8080
 
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=prod-deps /app/packages/server/node_modules ./packages/server/node_modules
+COPY --from=prod-deps /app/packages/mcp/node_modules ./packages/mcp/node_modules
 COPY --from=build /app/packages/server/dist ./packages/server/dist
+COPY --from=build /app/packages/mcp/dist ./packages/mcp/dist
 COPY --from=build /app/out ./out
 COPY package.json ./
 
