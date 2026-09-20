@@ -9,6 +9,7 @@ import {
     TbMoon,
     TbSun,
     TbQuestionMark,
+    TbShare2,
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
 import MobileDropdown from './MobileDropdown.tsx';
@@ -113,7 +114,7 @@ export default function MobileMenu() {
                 </li>
                 <li role="menuitem">
                     <button type="button" onClick={onShare}>
-                        Share
+                        <TbShare2 size={16}/> Share
                     </button>
                 </li>
             </MobileDropdown>
