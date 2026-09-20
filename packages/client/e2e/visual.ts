@@ -1,10 +1,12 @@
 import {test, expect} from './test.ts';
 
 test('parse error state renders pre element', async ({page}) => {
-    await page
+    const cmContent = page
         .getByTestId('editor-source')
-        .locator('.cm-content')
-        .click();
+        .locator('.cm-content');
+    
+    await cmContent.click();
+    await cmContent.focus();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('function() {}');
     await page.waitForTimeout(600);
@@ -47,10 +49,12 @@ test('parse error visible in dark mode', async ({page}) => {
         })
         .click();
     
-    await page
+    const cmContent = page
         .getByTestId('editor-source')
-        .locator('.cm-content')
-        .click();
+        .locator('.cm-content');
+    
+    await cmContent.click();
+    await cmContent.focus();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('function() {}');
     await page.waitForTimeout(600);

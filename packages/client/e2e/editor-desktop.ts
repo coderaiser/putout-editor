@@ -11,6 +11,7 @@ async function replaceContent(page: Page, text: string) {
         .locator('.cm-content');
     
     await cmContent.click();
+    await cmContent.focus();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type(text);
     await page.waitForTimeout(600);
@@ -22,6 +23,7 @@ async function replaceTransform(page: Page, text: string) {
         .locator('.cm-content');
     
     await cmContent.click();
+    await cmContent.focus();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type(text);
     await page.waitForTimeout(600);
