@@ -29,38 +29,39 @@ async function tapTab(page: Page, name: RegExp) {
 
 async function replaceContent(page: Page, text: string) {
     const editor = createPutoutEditor(page);
-    
+
     await tapTab(page, /source/i);
-    
-    await page
+
+    const cmContent = page
         .getByTestId('editor-source')
-        .locator('.cm-content')
-        .click();
-    const {write, press} = await editor.get(EDITOR_SOURCE);
-    await press('i');
-    await press('ControlOrMeta+A');
-    await write(text);
-    await page.waitForTimeout(400);
+        .locator('.cm-content');
+
+    // tap() works on both mobile and desktop; click() fails on mobile Safari
+    await cmContent.tap();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type(text);
+    await page.waitForTimeout(600);
 }
 
 async function replaceTransform(page: Page, text: string) {
     const editor = createPutoutEditor(page);
-    
+
     await tapTab(page, /transform/i);
-    
-    await page
+
+    const cmContent = page
         .getByTestId('editor-transform')
-        .locator('.cm-content')
-        .click();
-    const {write, press} = await editor.get(EDITOR_TRANSFORM);
-    await press('i');
-    await press('ControlOrMeta+A');
-    await write(text);
-    await page.waitForTimeout(400);
+        .locator('.cm-content');
+
+    await cmContent.tap();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type(text);
+    await page.waitForTimeout(600);
 }
 
 async function showAst(page: Page) {
     await tapTab(page, /ast/i);
+    // Wait for AST panel to render after tab switch on mobile
+    await page.waitForTimeout(300);
 }
 
 async function showResult(page: Page) {
