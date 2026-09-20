@@ -1,0 +1,49 @@
+name: E2E
+permissions:
+  contents: read
+on:
+  - push
+  - pull_request
+jobs:
+  e2e:
+    if: "!startsWith(github.event.head_commit.message, 'chore: deploy')"
+    runs-on: ubuntu-latest
+    env:
+      NAME: putout-editor
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          no-cache: true
+          bun-version: latest
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.x
+      - name: Install globals
+        run: bun i playwright redrun madrun -fg --no-save
+      - name: Install dependencies
+        run: bun i -f --no-save
+      - name: Init Madrun
+        run: madrun --init
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('**/package.json') }}
+      - name: Install Playwright browsers
+        run: playwright install --with-deps chromium webkit
+        working-directory: packages/client
+      - name: Build for e2e
+        run: redrun build
+        working-directory: packages/client
+      - name: E2E tests
+        run: redrun test:e2e
+        working-directory: packages/client
+      - name: Upload test results on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-test-results
+          path: packages/client/e2e/test-results/
+          retention-days: 14

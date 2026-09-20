@@ -28,7 +28,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install globals
         run: |
-          bun i playwright redrun madrun palabra -fg --no-save
+          bun i redrun madrun palabra -fg --no-save
           palabra i kubeconform
       - name: Install dependencies
         run: bun i -f --no-save
@@ -53,32 +53,9 @@ jobs:
           message: "chore: ${{ env.NAME }}: actions: lint ☘️"
       - name: Coverage
         run: redrun coverage report
-      - name: Cache Playwright browsers
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('**/package.json') }}
-      - name: Install Playwright browsers
-        run: playwright install --with-deps chromium webkit
-        working-directory: packages/client
-      - name: Build for e2e
-        run: redrun build
-        working-directory: packages/client
       - name: Check CSS architecture
         run: node scripts/check-css.js
         working-directory: packages/client
-      - name: E2E tests
-        run: redrun test:e2e
-        working-directory: packages/client
-      - name: Upload visual snapshots
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: visual-snapshots
-          path: |
-            packages/client/e2e/snapshots/
-            packages/client/e2e/test-results/
-          retention-days: 14
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         continue-on-error: true
