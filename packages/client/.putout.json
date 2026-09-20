@@ -1,12 +1,4 @@
 {
-    "match": {
-        "src/snippet/storage/parse.spec.ts": {
-            "tape/apply-stub": "off"
-        },
-        "src/snippet/storage/gist.spec.ts": {
-            "tape/apply-stub": "off"
-        }
-    },
     "rules": {
         "remove-console": "off",
         "esm/remove-empty-import": "off",
