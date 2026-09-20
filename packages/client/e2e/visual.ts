@@ -5,7 +5,9 @@ test('parse error state renders pre element', async ({page}) => {
         .getByTestId('editor-source')
         .locator('.cm-content');
     
-    await cmContent.click({clickCount: 3});
+    await cmContent.click({
+        clickCount: 3,
+    });
     await cmContent.pressSequentially('function() {}');
     await page.waitForTimeout(600);
     
@@ -51,7 +53,9 @@ test('parse error visible in dark mode', async ({page}) => {
         .getByTestId('editor-source')
         .locator('.cm-content');
     
-    await cmContent.click({clickCount: 3});
+    await cmContent.click({
+        clickCount: 3,
+    });
     await cmContent.pressSequentially('function() {}');
     await page.waitForTimeout(600);
     

@@ -1,6 +1,6 @@
 name: E2E
 permissions:
-  contents: read
+  contents: write
 on:
   - push
   - pull_request
@@ -44,7 +44,7 @@ jobs:
         run: redrun test:e2e
         working-directory: packages/client
       - name: Upload test results on failure
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-test-results
