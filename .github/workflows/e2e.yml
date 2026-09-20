@@ -45,5 +45,5 @@ jobs:
         if: failure()
         with:
           name: e2e-test-results
-          path: packages/client/e2e/test-results/
+          path: packages/client/test-results/
           retention-days: 14
