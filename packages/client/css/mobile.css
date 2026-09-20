@@ -113,6 +113,10 @@
         height: 100dvh;
     }
     
+    #contribution {
+        display: none;
+    }
+    
     .dropTarget {
         inset: 0;
     }

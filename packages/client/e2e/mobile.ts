@@ -103,6 +103,83 @@ test('mobile tabs contain four controls', async ({page}) => {
     await expect(tabs).toHaveCount(4);
 });
 
+test('all tab buttons are within the viewport', async ({page}) => {
+    const viewport = page.viewportSize()!;
+    const tabs = page
+        .locator('.mobile-tabs')
+        .getByRole('tab');
+    
+    for (const tab of await tabs.all()) {
+        const box = await tab.boundingBox();
+        
+        expect(box).not.toBeNull();
+        expect(box!.x).toBeGreaterThanOrEqual(0);
+        expect(box!.y).toBeGreaterThanOrEqual(0);
+        expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+        expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+    }
+});
+
+test('all tab buttons meet minimum tap target size', async ({page}) => {
+    const MIN_TAP_SIZE = 44;
+    const tabs = page
+        .locator('.mobile-tabs')
+        .getByRole('tab');
+    
+    for (const tab of await tabs.all()) {
+        const box = await tab.boundingBox();
+        
+        expect(box).not.toBeNull();
+        expect(box!.width).toBeGreaterThanOrEqual(MIN_TAP_SIZE);
+        expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP_SIZE);
+    }
+});
+
+test('contribution bar is not visible on mobile', async ({page}) => {
+    await expect(page.locator('#contribution')).toBeHidden();
+});
+
+test('contribution bar does not obscure tab buttons', async ({page}) => {
+    const tabs = page
+        .locator('.mobile-tabs')
+        .getByRole('tab');
+    
+    for (const tab of await tabs.all()) {
+        await expect(tab).toBeInViewport();
+    }
+});
+
+test('each tab is tappable and switches panel', async ({page}) => {
+    const tabPanelMap: {
+        tab: string;
+        selector: string;
+    }[] = [{
+        tab: 'Source',
+        selector: '[data-testid="editor-source"]',
+    }, {
+        tab: 'AST',
+        selector: '.output',
+    }, {
+        tab: 'Code',
+        selector: '[data-testid="editor-transform-output"]',
+    }, {
+        tab: 'Transform',
+        selector: '[data-testid="editor-transform"]',
+    }];
+    
+    for (const {tab, selector} of tabPanelMap) {
+        await page
+            .getByRole('tab', {
+                name: tab,
+            })
+            .tap();
+        await expect(
+            page
+                .locator(selector)
+                .first(),
+        ).toBeVisible({timeout: 2000});
+    }
+});
 test('source tab opens the editor', async ({page}) => {
     await page
         .getByRole('tab', {
