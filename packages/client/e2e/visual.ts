@@ -5,10 +5,8 @@ test('parse error state renders pre element', async ({page}) => {
         .getByTestId('editor-source')
         .locator('.cm-content');
     
-    await cmContent.click();
-    await cmContent.focus();
-    await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText('function() {}');
+    await cmContent.click({clickCount: 3});
+    await cmContent.pressSequentially('function() {}');
     await page.waitForTimeout(600);
     
     await expect(page.locator('pre.parse-error')).toBeVisible();
@@ -53,10 +51,8 @@ test('parse error visible in dark mode', async ({page}) => {
         .getByTestId('editor-source')
         .locator('.cm-content');
     
-    await cmContent.click();
-    await cmContent.focus();
-    await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText('function() {}');
+    await cmContent.click({clickCount: 3});
+    await cmContent.pressSequentially('function() {}');
     await page.waitForTimeout(600);
     
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
