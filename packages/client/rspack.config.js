@@ -258,7 +258,7 @@ export default {
             'process/browser': resolve('process/browser'),
             'tty': resolve('tty-browserify'),
             'process': resolve('process/browser'),
-            'util': resolve('util/'),
+            'util': resolve('util'),
         },
     },
     
