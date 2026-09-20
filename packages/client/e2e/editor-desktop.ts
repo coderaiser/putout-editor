@@ -72,7 +72,7 @@ test('transform error in editor-transform renders codeframe', async ({page}) => 
     
     await expect(
         page
-            .getByTestId('editor-transform-output')
+            .getByTestId('editor-code')
             .getByRole('textbox'),
     ).toBeVisible();
 });
@@ -84,7 +84,7 @@ test('transform error in editor-transform shows error in codeframe not stack tra
     
     await expect(
         page
-            .getByTestId('editor-transform-output')
+            .getByTestId('editor-code')
             .getByRole('textbox'),
     ).not.toContainText('at Object.<anonymous>');
 });
@@ -99,7 +99,7 @@ test('valid plugin with report and replace does not show cannot determine error'
     `);
     await showResult();
     
-    await expect(page.getByTestId('editor-transform-output')).not.toContainText('Cannot determine type of plugin');
+    await expect(page.getByTestId('editor-code')).not.toContainText('Cannot determine type of plugin');
 });
 
 test('valid plugin with report and replace shows transformed code', async ({page}) => {
@@ -112,7 +112,7 @@ test('valid plugin with report and replace shows transformed code', async ({page
     `);
     await showResult();
     
-    const result = page.getByTestId('editor-transform-output');
+    const result = page.getByTestId('editor-code');
     const expected = 'if (a)    b;else    c';
     
     await expect(result).toContainText(expected);

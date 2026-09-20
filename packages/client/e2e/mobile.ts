@@ -161,7 +161,7 @@ test('each tab is tappable and switches panel', async ({page}) => {
         selector: '.output',
     }, {
         tab: 'Code',
-        selector: '[data-testid="editor-transform-output"]',
+        selector: '[data-testid="editor-code"]',
     }, {
         tab: 'Transform',
         selector: '[data-testid="editor-transform"] .cm-editor',
@@ -266,7 +266,7 @@ test('updating transform editor changes code output', async ({page}) => {
         })
         .tap();
     
-    const output = page.getByTestId('editor-transform-output');
+    const output = page.getByTestId('editor-code');
     
     await expect(output).toBeVisible();
 });
@@ -297,7 +297,7 @@ test('@putout/editor: client: mobile: updating transform editor changes code out
         })
         .tap();
     
-    const output = page.getByTestId('editor-transform-output');
+    const output = page.getByTestId('editor-code');
     
     await expect(output).not.toContainText('"use strict"');
 });
