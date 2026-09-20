@@ -4,11 +4,6 @@ import {
     expect,
     type Page,
 } from './test.ts';
-import {
-    createPutoutEditor,
-    EDITOR_SOURCE,
-    EDITOR_TRANSFORM,
-} from './putout-editor.ts';
 
 async function isMobileLayout(page: Page) {
     return await page
@@ -28,14 +23,12 @@ async function tapTab(page: Page, name: RegExp) {
 }
 
 async function replaceContent(page: Page, text: string) {
-    const editor = createPutoutEditor(page);
-
     await tapTab(page, /source/i);
-
+    
     const cmContent = page
         .getByTestId('editor-source')
         .locator('.cm-content');
-
+    
     // tap() works on both mobile and desktop; click() fails on mobile Safari
     await cmContent.tap();
     await page.keyboard.press('ControlOrMeta+A');
@@ -44,14 +37,12 @@ async function replaceContent(page: Page, text: string) {
 }
 
 async function replaceTransform(page: Page, text: string) {
-    const editor = createPutoutEditor(page);
-
     await tapTab(page, /transform/i);
-
+    
     const cmContent = page
         .getByTestId('editor-transform')
         .locator('.cm-content');
-
+    
     await cmContent.tap();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type(text);
@@ -60,6 +51,7 @@ async function replaceTransform(page: Page, text: string) {
 
 async function showAst(page: Page) {
     await tapTab(page, /ast/i);
+    
     // Wait for AST panel to render after tab switch on mobile
     await page.waitForTimeout(300);
 }
