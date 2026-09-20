@@ -16,6 +16,7 @@ export default defineConfig({
         testMatch: [
             '**/desktop.ts',
             '**/editor-desktop.ts',
+            '**/snippet.ts',
             '**/visual.ts',
         ],
         use: {
