@@ -15,104 +15,63 @@ const getTransformCode = async (page: Page) => {
     return read();
 };
 
-test('snippet: New submenu lists 14 plugin templates', async ({page}) => {
-    await page
+const openSnippet = (page: Page) =>
+    page
         .getByTestId('toolbar')
-        .getByText('Snippet', {
-            exact: false,
-        })
+        .getByText('Snippet', {exact: false})
         .hover();
-    
-    const menu = page
-        .locator('#Toolbar .menuButton ul')
-        .first();
-    
-    await expect(menu.getByText('Replacer', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Includer', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Fixer', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Checker', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Watcher', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Lister', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Ignorer', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Decaler', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('EqualsTo', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Deleter', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Duplicater', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Counter', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Typer', {
-        exact: true,
-    })).toBeVisible();
-    await expect(menu.getByText('Finder', {
-        exact: true,
-    })).toBeVisible();
+
+const openNew = async (page: Page) => {
+    await openSnippet(page);
+    await page.getByTestId('new-menu').hover();
+};
+
+const pickTemplate = async (page: Page, label: string) => {
+    await openNew(page);
+    await page
+        .getByTestId('new-submenu')
+        .getByRole('menuitem', {name: label})
+        .click();
+};
+
+test('snippet: New submenu lists 15 plugin templates', async ({page}) => {
+    await openNew(page);
+    const items = page.getByTestId('new-submenu').getByRole('menuitem');
+    // 15 categories + 1 Default
+    await expect(items).toHaveCount(16);
 });
 
 test('snippet: New Replacer inserts ternary template', async ({page}) => {
-    await page
-        .getByTestId('toolbar')
-        .getByText('Snippet', {
-            exact: false,
-        })
-        .hover();
-    
-    await page
-        .locator('#Toolbar .menuButton ul')
-        .first()
-        .getByText('Replacer', {
-            exact: true,
-        })
-        .click();
+    await pickTemplate(page, 'Replacer');
     
     await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('convert-ternary-to-if');
+});
+
+test('snippet: New → Traverser inserts merge-duplicate-imports', async ({page}) => {
+    await pickTemplate(page, 'Traverser');
+    await expect(
+        page.getByTestId(EDITOR_TRANSFORM),
+    ).toContainText('merge-duplicate-imports');
+});
+
+test('snippet: New → Default resets to default template', async ({page}) => {
+    await pickTemplate(page, 'Replacer');
+    await pickTemplate(page, 'Default');
+    const code = await getTransformCode(page);
+    expect(code.includes('convert-ternary-to-if')).toBe(false);
 });
 
 test('snippet: New submenu selection is undoable', async ({page}) => {
     const editor = createPutoutEditor(page);
     const before = await (await editor.get(EDITOR_TRANSFORM)).read();
     
-    await page
-        .getByTestId('toolbar')
-        .getByText('Snippet', {
-            exact: false,
-        })
-        .hover();
-    
-    await page
-        .locator('#Toolbar .menuButton ul')
-        .first()
-        .getByText('Checker', {
-            exact: true,
-        })
-        .click();
+    await pickTemplate(page, 'Checker');
     
     const after = await getTransformCode(page);
     
     expect(after).not.toBe(before);
     
+    await page.getByTestId(EDITOR_TRANSFORM).locator('.cm-content').click();
     await page.keyboard.press('ControlOrMeta+Z');
     
     const undone = await getTransformCode(page);

@@ -321,8 +321,13 @@ const slice = createSlice({
             resetWorkbenchFromParser(state);
         },
         
-        reset: (state, {payload: template}: {payload?: string} = {}) => {
-            resetWorkbenchFromParser(state, template);
+        reset: {
+            reducer: (state, {payload: template}: PayloadAction<string | undefined>) => {
+                resetWorkbenchFromParser(state, template);
+            },
+            prepare: (template?: string) => ({
+                payload: template,
+            }),
         },
         
         selectCategory: (state, {payload: category}) => {
