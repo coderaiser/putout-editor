@@ -357,16 +357,16 @@ test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
 
 test('MobileMenu: Snippet Share renders share svg icon', (t) => {
     const {container, unmount} = renderMenu();
-
+    
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
     const shareBtn = [...buttons].find((b) => b.textContent?.includes('Share'));
-
+    
     const svg = shareBtn?.querySelector('svg');
-
+    
     unmount();
     cleanup();
-
+    
     t.ok(svg, 'share icon svg rendered');
     t.end();
 });

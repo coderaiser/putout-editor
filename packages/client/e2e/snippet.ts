@@ -1,5 +1,8 @@
-import {test, expect} from './test.ts';
-import type {Page} from './test.ts';
+import {
+    test,
+    expect,
+    type Page,
+} from './test.ts';
 import {
     createPutoutEditor,
     EDITOR_TRANSFORM,
@@ -20,22 +23,52 @@ test('snippet: New submenu lists 14 plugin templates', async ({page}) => {
         })
         .hover();
     
-    const menu = page.locator('#Toolbar .menuButton ul').first();
+    const menu = page
+        .locator('#Toolbar .menuButton ul')
+        .first();
     
-    await expect(menu.getByText('Replacer', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Includer', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Fixer', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Checker', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Watcher', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Lister', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Ignorer', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Decaler', {exact: true})).toBeVisible();
-    await expect(menu.getByText('EqualsTo', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Deleter', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Duplicater', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Counter', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Typer', {exact: true})).toBeVisible();
-    await expect(menu.getByText('Finder', {exact: true})).toBeVisible();
+    await expect(menu.getByText('Replacer', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Includer', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Fixer', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Checker', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Watcher', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Lister', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Ignorer', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Decaler', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('EqualsTo', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Deleter', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Duplicater', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Counter', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Typer', {
+        exact: true,
+    })).toBeVisible();
+    await expect(menu.getByText('Finder', {
+        exact: true,
+    })).toBeVisible();
 });
 
 test('snippet: New Replacer inserts ternary template', async ({page}) => {
@@ -49,7 +82,9 @@ test('snippet: New Replacer inserts ternary template', async ({page}) => {
     await page
         .locator('#Toolbar .menuButton ul')
         .first()
-        .getByText('Replacer', {exact: true})
+        .getByText('Replacer', {
+            exact: true,
+        })
         .click();
     
     await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('convert-ternary-to-if');
@@ -69,7 +104,9 @@ test('snippet: New submenu selection is undoable', async ({page}) => {
     await page
         .locator('#Toolbar .menuButton ul')
         .first()
-        .getByText('Checker', {exact: true})
+        .getByText('Checker', {
+            exact: true,
+        })
         .click();
     
     const after = await getTransformCode(page);

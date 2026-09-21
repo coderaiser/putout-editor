@@ -14,21 +14,23 @@ import counter from './counter.ts';
 import typer from './typer.ts';
 import finder from './finder.ts';
 
-export {replacer};
-export {traverser};
-export {includer};
-export {fixer};
-export {checker};
-export {watcher};
-export {lister};
-export {ignorer};
-export {declarer};
-export {equaler};
-export {deleter};
-export {duplicater};
-export {counter};
-export {typer};
-export {finder};
+export {
+    replacer,
+    traverser,
+    includer,
+    fixer,
+    checker,
+    watcher,
+    lister,
+    ignorer,
+    declarer,
+    equaler,
+    deleter,
+    duplicater,
+    counter,
+    typer,
+    finder,
+};
 
 export const categories = [
     'Replacer',
