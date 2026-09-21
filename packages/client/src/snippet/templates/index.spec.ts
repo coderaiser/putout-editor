@@ -37,13 +37,13 @@ const all = {
     finder,
 };
 
-test('snippet: templates: categories has 14 entries', (t) => {
-    t.equal(categories.length, 14);
+test('snippet: templates: categories has 15 entries', (t) => {
+    t.equal(categories.length, 15);
     t.end();
 });
 
-test('snippet: templates: templates map has 14 entries', (t) => {
-    t.equal(Object.keys(templates).length, 14);
+test('snippet: templates: templates map has 15 entries', (t) => {
+    t.equal(Object.keys(templates).length, 15);
     t.end();
 });
 
