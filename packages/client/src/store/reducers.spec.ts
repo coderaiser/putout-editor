@@ -378,6 +378,22 @@ test('reducers: reset clears activeRevision', (t) => {
     t.end();
 });
 
+test('reducers: reset: with template sets transform code', (t) => {
+    const template = '// my-plugin\nexport const replace = () => ({});';
+    
+    const state = putoutEditor(getInitState(), reset(template));
+    
+    t.equal(state.workbench.transform.code, template);
+    t.end();
+});
+
+test('reducers: reset: without template uses default transform', (t) => {
+    const state = putoutEditor(getInitState(), reset());
+    
+    t.ok(state.workbench.transform.code.includes('export const replace'));
+    t.end();
+});
+
 test('reducers: select category clears activeRevision', (t) => {
     const rev = makeRevision();
     const withRev = putoutEditor(getInitState(), setSnippet(rev));
