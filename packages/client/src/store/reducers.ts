@@ -321,8 +321,8 @@ const slice = createSlice({
             resetWorkbenchFromParser(state);
         },
         
-        reset: (state) => {
-            resetWorkbenchFromParser(state);
+        reset: (state, {payload: template}: {payload?: string} = {}) => {
+            resetWorkbenchFromParser(state, template);
         },
         
         selectCategory: (state, {payload: category}) => {
@@ -339,7 +339,7 @@ const slice = createSlice({
     },
 });
 
-function resetWorkbenchFromParser(state: RootState) {
+function resetWorkbenchFromParser(state: RootState, template?: string) {
     const parser = getParserByID(state.workbench.parser)!;
     const hadTransformer = state.activeRevision?.getTransformerID();
     
@@ -350,9 +350,9 @@ function resetWorkbenchFromParser(state: RootState) {
     state.workbench.code = parser.category!.codeExample;
     state.workbench.initialCode = parser.category!.codeExample;
     
-    if (hadTransformer || state.workbench.transform.transformer)
+    if (hadTransformer || state.workbench.transform.transformer || template)
         state.workbench.transform = {
-            code: defaultTransformer.defaultTransform!,
+            code: template ?? defaultTransformer.defaultTransform!,
             initialCode: defaultParser.category!.codeExample,
             transformer: defaultTransformer.id,
         };

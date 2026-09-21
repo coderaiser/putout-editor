@@ -79,13 +79,13 @@ export default function Toolbar() {
         payload: true,
     });
     
-    const onNew = () => {
+    const onNew = (template?: string) => {
         if (globalThis.location.hash) {
             globalThis.location.hash = '';
             return;
         }
         
-        dispatch(reset());
+        dispatch(reset(template));
     };
     
     let parserInfo: string | ReactElement = parser.displayName!;

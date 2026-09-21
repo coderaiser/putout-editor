@@ -34,6 +34,7 @@ export {
 
 export const categories = [
     'Replacer',
+    'Traverser',
     'Includer',
     'Fixer',
     'Checker',
@@ -53,6 +54,7 @@ export type SnippetCategory = typeof categories[number];
 
 export const templates: Record<SnippetCategory, string> = {
     Replacer: replacer,
+    Traverser: traverser,
     Includer: includer,
     Fixer: fixer,
     Checker: checker,

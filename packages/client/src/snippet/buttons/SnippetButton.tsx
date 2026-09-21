@@ -19,7 +19,7 @@ interface SnippetButtonProps {
     forking: boolean;
     onFork: () => void;
     onSave: () => void;
-    onNew?: () => void;
+    onNew?: (template?: string) => void;
     onShareButtonClick: () => void;
     snippet: Revision | null;
 }
