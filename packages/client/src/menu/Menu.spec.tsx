@@ -200,9 +200,9 @@ test('Menu: new button clears location hash', (t) => {
     
     renderMenu(store);
     
-    const newButton = document.querySelector('[data-testid="new-menu"] span') as HTMLElement;
+    const defaultItem = document.querySelector('[data-testid="new-submenu"] [role="menuitem"]') as HTMLElement;
     
-    fireEvent.click(newButton!);
+    fireEvent.click(defaultItem!);
     
     cleanup();
     
