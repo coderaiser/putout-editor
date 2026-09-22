@@ -35,6 +35,14 @@ const applyTheme = (theme: string): void => {
     globalThis.document?.documentElement.setAttribute('data-theme', theme);
 };
 
+const clearHash = (): boolean => {
+    if (!globalThis.location?.hash)
+        return false;
+    
+    globalThis.location.hash = '';
+    return true;
+};
+
 export default function MobileMenu() {
     const dispatch = useDispatch();
     const saving = useSelector(selectors.isSaving);
@@ -70,10 +78,8 @@ export default function MobileMenu() {
     });
     
     const onNew = (template?: string) => {
-        if (globalThis.location?.hash) {
-            globalThis.location.hash = '';
+        if (clearHash())
             return;
-        }
         
         dispatch(reset(template));
     };
