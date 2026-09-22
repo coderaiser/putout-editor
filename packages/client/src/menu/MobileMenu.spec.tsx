@@ -600,13 +600,27 @@ test('MobileMenu: clicking New trigger keeps submenu open', (t) => {
     t.end();
 });
 
+test('MobileMenu: second tap on New collapses submenu back to Snippet', (t) => {
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.notOk(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
 test('MobileMenu: picking Replacer closes the menus', (t) => {
     globalThis.location.hash = '';
     const {container, unmount} = renderMenu();
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Replacer'));
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
+        .find((b) => b.textContent?.includes('Replacer'));
     
     fireEvent.click(replacerBtn!);
     
