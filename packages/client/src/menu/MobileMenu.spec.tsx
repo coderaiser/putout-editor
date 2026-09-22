@@ -619,8 +619,7 @@ test('MobileMenu: picking Replacer closes the menus', (t) => {
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
-        .find((b) => b.textContent?.includes('Replacer'));
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Replacer'));
     
     fireEvent.click(replacerBtn!);
     

@@ -311,6 +311,7 @@ test('mobile: only one dropdown open at a time', async ({page}) => {
     await triggers
         .nth(0)
         .tap();
+    
     // open Snippet
     await triggers
         .nth(1)
