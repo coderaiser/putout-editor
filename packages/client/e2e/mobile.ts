@@ -332,7 +332,11 @@ test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
         .nth(0)
         .tap();
     
-    await expect(page.getByTestId('mobile-menu').getByTestId('new-trigger')).toBeVisible();
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-trigger'),
+    ).toBeVisible();
 });
 
 test('mobile: New submenu opens on New tap', async ({page}) => {
@@ -347,7 +351,11 @@ test('mobile: New submenu opens on New tap', async ({page}) => {
         .getByTestId('new-trigger')
         .tap();
     
-    await expect(page.getByTestId('mobile-menu').getByTestId('new-submenu')).toBeVisible();
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu'),
+    ).toBeVisible();
 });
 
 test('mobile: New submenu contains Replacer', async ({page}) => {
