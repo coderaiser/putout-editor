@@ -322,10 +322,11 @@ test('MobileMenu: Snippet New clears location hash', (t) => {
     const {container, unmount} = renderMenu();
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
-    const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
-    const newBtn = [...buttons].find((b) => b.textContent?.includes('New'));
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
+    const defaultBtn = [...buttons].find((b) => b.textContent?.includes('Default'));
     
-    fireEvent.click(newBtn!);
+    fireEvent.click(defaultBtn!);
     const {hash} = globalThis.location;
     
     unmount();
@@ -342,10 +343,11 @@ test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
-    const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
-    const newBtn = [...buttons].find((b) => b.textContent?.includes('New'));
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
+    const defaultBtn = [...buttons].find((b) => b.textContent?.includes('Default'));
     
-    fireEvent.click(newBtn!);
+    fireEvent.click(defaultBtn!);
     const action = actions.find((a) => a.type?.includes('reset'));
     
     unmount();
@@ -485,6 +487,99 @@ test('MobileMenu: active dropdown is the last one opened', (t) => {
     t.equal(triggers[1].getAttribute('aria-expanded'), 'true');
     unmount();
     cleanup();
+    t.end();
+});
+
+// ── New template submenu ─────────────────────────────────────
+test('MobileMenu: New trigger appears inside Snippet dropdown', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+
+    t.ok(container.textContent?.includes('New'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu opens on New trigger click', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+
+    t.ok(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Default item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+
+    t.ok(container.textContent?.includes('Default'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Replacer item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+
+    t.ok(container.textContent?.includes('Replacer'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Traverser item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+
+    t.ok(container.textContent?.includes('Traverser'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
+    const actions: UnknownAction[] = [];
+    const store = makeStore({}, actions);
+    const {container, unmount} = renderMenu(store);
+
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
+        .find((b) => b.textContent?.includes('Replacer'));
+
+    fireEvent.click(replacerBtn!);
+    const action = actions.find((a) => a.type?.includes('reset'));
+
+    unmount();
+    cleanup();
+    t.ok(action?.payload?.includes('convert-ternary-to-if'));
+    t.end();
+});
+
+test('MobileMenu: Default item dispatches reset with no template', (t) => {
+    const actions: UnknownAction[] = [];
+    const store = makeStore({}, actions);
+    const {container, unmount} = renderMenu(store);
+
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const defaultBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
+        .find((b) => b.textContent?.includes('Default'));
+
+    fireEvent.click(defaultBtn!);
+    const action = actions.find((a) => a.type?.includes('reset'));
+
+    unmount();
+    cleanup();
+    t.equal(action?.payload, undefined);
     t.end();
 });
 

@@ -92,6 +92,16 @@
     cursor: default;
 }
 
+.mobile-dropdown__menu--nested {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-editor);
+    max-height: 50dvh;
+    overflow-y: auto;
+}
+
 /* ── Help link + Theme button ────────────────────────────── */
 
 .mobile-menu__help,

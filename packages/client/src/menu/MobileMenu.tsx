@@ -2,6 +2,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {
     TbDeviceFloppy,
     TbFileCode,
+    TbFilePlus,
     TbGitFork,
     TbLoader2,
     TbCode,
@@ -13,6 +14,7 @@ import {
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
 import MobileDropdown from './MobileDropdown.tsx';
+import {categories, templates} from '../snippet/templates/index.ts';
 import {getParserByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import * as parserSelectors from '../parser/store/parserSelectors.ts';
@@ -42,9 +44,11 @@ export default function MobileMenu() {
     const parser = useSelector(parserSelectors.getParser);
     
     const [theme, setTheme] = useState(readTheme);
-    const [openMenu, setOpenMenu] = useState<'snippet' | 'parser' | null>(null);
+    const [openMenu, setOpenMenu] = useState<'snippet' | 'parser' | 'new' | null>(null);
     
     const toggleMenu = (id: 'snippet' | 'parser') => setOpenMenu((current) => current === id ? null : id);
+    
+    const toggleNew = () => setOpenMenu((current) => current === 'new' ? 'snippet' : 'new');
     
     useEffect(() => {
         applyTheme(theme);
@@ -65,13 +69,13 @@ export default function MobileMenu() {
         payload: true,
     });
     
-    const onNew = () => {
+    const onNew = (template?: string) => {
         if (globalThis.location?.hash) {
             globalThis.location.hash = '';
             return;
         }
         
-        dispatch(reset());
+        dispatch(reset(template));
     };
     
     const onParserChange = (id: string) => {
@@ -97,13 +101,44 @@ export default function MobileMenu() {
             {/* ── Snippet ──────────────────────────────────── */}
             <MobileDropdown
                 trigger={<><TbFileCode size={18}/> Snippet</>}
-                open={openMenu === 'snippet'}
+                open={openMenu === 'snippet' || openMenu === 'new'}
                 onToggle={() => toggleMenu('snippet')}
             >
                 <li role="menuitem">
-                    <button type="button" onClick={onNew}>
-                        New
+                    <button
+                        type="button"
+                        data-testid="new-trigger"
+                        className="mobile-dropdown__trigger"
+                        aria-expanded={openMenu === 'new'}
+                        aria-haspopup="menu"
+                        onPointerUp={toggleNew}
+                    >
+                        <TbFilePlus size={16}/> New
                     </button>
+                    {openMenu === 'new' && (
+                        <ul
+                            role="menu"
+                            data-testid="new-submenu"
+                            className="mobile-dropdown__menu mobile-dropdown__menu--nested"
+                            onClick={() => setOpenMenu(null)}
+                        >
+                            <li role="menuitem">
+                                <button type="button" onClick={() => onNew()}>
+                                    Default
+                                </button>
+                            </li>
+                            {categories.map((label) => (
+                                <li key={label} role="menuitem">
+                                    <button
+                                        type="button"
+                                        onClick={() => onNew(templates[label])}
+                                    >
+                                        {label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </li>
                 <li role="menuitem">
                     <button
