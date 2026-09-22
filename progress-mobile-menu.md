@@ -1,4 +1,4 @@
 # Mobile Menu Progress
-**Step:** §2 — New template submenu
-**Progress:** 65%
+**Step:** §3 — e2e mobile menu
+**Progress:** 100%
 **Status:** done
