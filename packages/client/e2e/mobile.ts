@@ -332,7 +332,7 @@ test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
         .nth(0)
         .tap();
     
-    await expect(page.getByTestId('new-trigger')).toBeVisible();
+    await expect(page.getByTestId('mobile-menu').getByTestId('new-trigger')).toBeVisible();
 });
 
 test('mobile: New submenu opens on New tap', async ({page}) => {
@@ -343,10 +343,11 @@ test('mobile: New submenu opens on New tap', async ({page}) => {
         .tap();
     
     await page
+        .getByTestId('mobile-menu')
         .getByTestId('new-trigger')
         .tap();
     
-    await expect(page.getByTestId('new-submenu')).toBeVisible();
+    await expect(page.getByTestId('mobile-menu').getByTestId('new-submenu')).toBeVisible();
 });
 
 test('mobile: New submenu contains Replacer', async ({page}) => {
@@ -357,11 +358,13 @@ test('mobile: New submenu contains Replacer', async ({page}) => {
         .tap();
     
     await page
+        .getByTestId('mobile-menu')
         .getByTestId('new-trigger')
         .tap();
     
     await expect(
         page
+            .getByTestId('mobile-menu')
             .getByTestId('new-submenu')
             .getByRole('menuitem', {
                 name: 'Replacer',
@@ -377,9 +380,11 @@ test('mobile: picking Replacer loads template into transform editor', async ({pa
         .tap();
     
     await page
+        .getByTestId('mobile-menu')
         .getByTestId('new-trigger')
         .tap();
     await page
+        .getByTestId('mobile-menu')
         .getByRole('menuitem', {
             name: 'Replacer',
         })
