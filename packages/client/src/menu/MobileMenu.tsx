@@ -119,6 +119,7 @@ export default function MobileMenu() {
                         aria-expanded={openMenu === 'new'}
                         aria-haspopup="menu"
                         onPointerUp={toggleNew}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <TbFilePlus size={16}/> New
                     </button>
@@ -127,7 +128,10 @@ export default function MobileMenu() {
                             role="menu"
                             data-testid="new-submenu"
                             className="mobile-dropdown__menu mobile-dropdown__menu--nested"
-                            onClick={() => setOpenMenu(null)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenu(null);
+                            }}
                         >
                             <li role="menuitem">
                                 <button type="button" onClick={() => onNew()}>

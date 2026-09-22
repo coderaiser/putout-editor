@@ -585,6 +585,36 @@ test('MobileMenu: Default item dispatches reset with no template', (t) => {
     t.end();
 });
 
+test('MobileMenu: clicking New trigger keeps submenu open', (t) => {
+    const {container, unmount} = renderMenu();
+
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    fireEvent.click(container.querySelector('[data-testid="new-trigger"]')!);
+
+    t.ok(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: picking Replacer closes the menus', (t) => {
+    globalThis.location.hash = '';
+    const {container, unmount} = renderMenu();
+
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
+        .find((b) => b.textContent?.includes('Replacer'));
+
+    fireEvent.click(replacerBtn!);
+
+    t.notOk(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
 // ── Theme ──────────────────────────────────────────────────
 test('MobileMenu: theme button toggles data-theme attribute', (t) => {
     globalThis.localStorage?.clear();

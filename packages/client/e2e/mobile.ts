@@ -303,9 +303,10 @@ test('@putout/editor: client: mobile: updating transform editor changes code out
 });
 
 test('mobile: only one dropdown open at a time', async ({page}) => {
+    // only top-level dropdowns: exclude the nested new-trigger button
     const triggers = page
         .getByTestId('mobile-menu')
-        .locator('.mobile-dropdown__trigger');
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger');
     
     await triggers
         .nth(0)
@@ -314,13 +315,17 @@ test('mobile: only one dropdown open at a time', async ({page}) => {
         .nth(1)
         .tap();
     // open Parser
-    await expect(page.locator('.mobile-dropdown__menu')).toHaveCount(1);
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .locator(':scope > .mobile-dropdown > .mobile-dropdown__menu'),
+    ).toHaveCount(1);
 });
 
 test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
     await page
         .getByTestId('mobile-menu')
-        .locator('.mobile-dropdown__trigger')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
         .nth(0)
         .tap();
     
@@ -330,7 +335,7 @@ test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
 test('mobile: New submenu opens on New tap', async ({page}) => {
     await page
         .getByTestId('mobile-menu')
-        .locator('.mobile-dropdown__trigger')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
         .nth(0)
         .tap();
     
@@ -344,7 +349,7 @@ test('mobile: New submenu opens on New tap', async ({page}) => {
 test('mobile: New submenu contains Replacer', async ({page}) => {
     await page
         .getByTestId('mobile-menu')
-        .locator('.mobile-dropdown__trigger')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
         .nth(0)
         .tap();
     
@@ -364,7 +369,7 @@ test('mobile: New submenu contains Replacer', async ({page}) => {
 test('mobile: picking Replacer loads template into transform editor', async ({page}) => {
     await page
         .getByTestId('mobile-menu')
-        .locator('.mobile-dropdown__trigger')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
         .nth(0)
         .tap();
     
