@@ -40,7 +40,7 @@ test('SnippetButton: renders four list items', (t) => {
         <SnippetButton {...defaultProps}/>,
     );
     
-    const items = document.querySelectorAll('ul > li');
+    const items = document.querySelectorAll('[data-testid="snippet-menu"] > li');
     
     cleanup();
     

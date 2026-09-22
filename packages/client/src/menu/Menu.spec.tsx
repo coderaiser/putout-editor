@@ -200,8 +200,7 @@ test('Menu: new button clears location hash', (t) => {
     
     renderMenu(store);
     
-    const buttons = document.querySelectorAll('#Toolbar button');
-    const newButton = [...buttons].find((button) => button.textContent.includes('New'));
+    const newButton = document.querySelector('[data-testid="new-menu"] span') as HTMLElement;
     
     fireEvent.click(newButton!);
     
@@ -215,13 +214,15 @@ test('Menu: new button clears location hash', (t) => {
 
 test('Menu: fork button dispatches snippet/save with payload true', (t) => {
     const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const store = makeStore({
+        activeRevision: makeRevision({
+            canFork: () => true,
+        }),
+    }, actions);
     
     renderMenu(store);
     
-    // The save button is the last button in the toolbar (from SnippetButton)
-    const buttons = document.querySelectorAll('#Toolbar button');
-    const forkButton = [...buttons].find((button) => (button as HTMLElement).title === 'Save');
+    const forkButton = document.querySelector('[title="Fork"]') as HTMLElement;
     
     fireEvent.click(forkButton!);
     

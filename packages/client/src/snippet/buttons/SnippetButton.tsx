@@ -63,7 +63,7 @@ export default function SnippetButton(props: SnippetButtonProps) {
                 <TbFileCode size={18}/>
                 Snippet
             </span>
-            <ul onClick={onItemClick}>
+            <ul data-testid="snippet-menu" onClick={onItemClick}>
                 <li><NewButton {...props}/></li>
                 <li><SaveButton {...props}/></li>
                 <li><ForkButton {...props}/></li>
