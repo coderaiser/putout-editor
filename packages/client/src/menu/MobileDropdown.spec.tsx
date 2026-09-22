@@ -7,6 +7,8 @@ import {
 } from '@testing-library/react';
 import MobileDropdown from './MobileDropdown.tsx';
 
+const noop = () => {};
+
 const renderDropdown = (props = {}) => render(
     <MobileDropdown trigger="Open" {...props}>
         <li><button type="button">Item</button></li>
@@ -137,10 +139,11 @@ test('MobileDropdown: renders children inside menu when open', (t) => {
 
 test('MobileDropdown: controlled — renders open when open=true', (t) => {
     const {container, unmount} = render(
-        <MobileDropdown trigger="Open" open={true} onToggle={() => {}}>
+        <MobileDropdown trigger="Open" open={true} onToggle={noop}>
             <li><button>Item</button></li>
         </MobileDropdown>,
     );
+    
     t.ok(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -149,10 +152,11 @@ test('MobileDropdown: controlled — renders open when open=true', (t) => {
 
 test('MobileDropdown: controlled — renders closed when open=false', (t) => {
     const {container, unmount} = render(
-        <MobileDropdown trigger="Open" open={false} onToggle={() => {}}>
+        <MobileDropdown trigger="Open" open={false} onToggle={noop}>
             <li><button>Item</button></li>
         </MobileDropdown>,
     );
+    
     t.notOk(container.querySelector('.mobile-dropdown__menu'));
     unmount();
     cleanup();
@@ -162,10 +166,13 @@ test('MobileDropdown: controlled — renders closed when open=false', (t) => {
 test('MobileDropdown: controlled — trigger calls onToggle', (t) => {
     let called = false;
     const {container, unmount} = render(
-        <MobileDropdown trigger="Open" open={false} onToggle={() => { called = true; }}>
+        <MobileDropdown trigger="Open" open={false} onToggle={() => {
+            called = true;
+        }}>
             <li><button>Item</button></li>
         </MobileDropdown>,
     );
+    
     fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
     t.ok(called);
     unmount();
@@ -176,10 +183,13 @@ test('MobileDropdown: controlled — trigger calls onToggle', (t) => {
 test('MobileDropdown: controlled — menu click calls onToggle', (t) => {
     let called = false;
     const {container, unmount} = render(
-        <MobileDropdown trigger="Open" open={true} onToggle={() => { called = true; }}>
+        <MobileDropdown trigger="Open" open={true} onToggle={() => {
+            called = true;
+        }}>
             <li><button>Item</button></li>
         </MobileDropdown>,
     );
+    
     fireEvent.click(container.querySelector('.mobile-dropdown__menu')!);
     t.ok(called);
     unmount();

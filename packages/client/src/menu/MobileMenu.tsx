@@ -40,6 +40,7 @@ const clearHash = (): boolean => {
         return false;
     
     globalThis.location.hash = '';
+    
     return true;
 };
 

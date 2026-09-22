@@ -306,13 +306,15 @@ test('mobile: only one dropdown open at a time', async ({page}) => {
     const triggers = page
         .getByTestId('mobile-menu')
         .locator('.mobile-dropdown__trigger');
-
-    await triggers.nth(0).tap(); // open Snippet
-    await triggers.nth(1).tap(); // open Parser
-
-    await expect(
-        page.locator('.mobile-dropdown__menu'),
-    ).toHaveCount(1);
+    
+    await triggers
+        .nth(0)
+        .tap(); // open Snippet
+    await triggers
+        .nth(1)
+        .tap();
+    // open Parser
+    await expect(page.locator('.mobile-dropdown__menu')).toHaveCount(1);
 });
 
 test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
@@ -321,10 +323,8 @@ test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
         .locator('.mobile-dropdown__trigger')
         .nth(0)
         .tap();
-
-    await expect(
-        page.getByTestId('new-trigger'),
-    ).toBeVisible();
+    
+    await expect(page.getByTestId('new-trigger')).toBeVisible();
 });
 
 test('mobile: New submenu opens on New tap', async ({page}) => {
@@ -333,12 +333,12 @@ test('mobile: New submenu opens on New tap', async ({page}) => {
         .locator('.mobile-dropdown__trigger')
         .nth(0)
         .tap();
-
-    await page.getByTestId('new-trigger').tap();
-
-    await expect(
-        page.getByTestId('new-submenu'),
-    ).toBeVisible();
+    
+    await page
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(page.getByTestId('new-submenu')).toBeVisible();
 });
 
 test('mobile: New submenu contains Replacer', async ({page}) => {
@@ -347,11 +347,17 @@ test('mobile: New submenu contains Replacer', async ({page}) => {
         .locator('.mobile-dropdown__trigger')
         .nth(0)
         .tap();
-
-    await page.getByTestId('new-trigger').tap();
-
+    
+    await page
+        .getByTestId('new-trigger')
+        .tap();
+    
     await expect(
-        page.getByTestId('new-submenu').getByRole('menuitem', {name: 'Replacer'}),
+        page
+            .getByTestId('new-submenu')
+            .getByRole('menuitem', {
+                name: 'Replacer',
+            }),
     ).toBeVisible();
 });
 
@@ -361,13 +367,25 @@ test('mobile: picking Replacer loads template into transform editor', async ({pa
         .locator('.mobile-dropdown__trigger')
         .nth(0)
         .tap();
-
-    await page.getByTestId('new-trigger').tap();
-    await page.getByRole('menuitem', {name: 'Replacer'}).tap();
-
-    await page.getByRole('tab', {name: /transform/i}).tap();
-
+    
+    await page
+        .getByTestId('new-trigger')
+        .tap();
+    await page
+        .getByRole('menuitem', {
+            name: 'Replacer',
+        })
+        .tap();
+    
+    await page
+        .getByRole('tab', {
+            name: /transform/i,
+        })
+        .tap();
+    
     await expect(
-        page.getByTestId('editor-transform').locator('.cm-content'),
+        page
+            .getByTestId('editor-transform')
+            .locator('.cm-content'),
     ).toContainText('convert-ternary-to-if');
 });

@@ -323,6 +323,7 @@ test('MobileMenu: Snippet New clears location hash', (t) => {
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
     const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
     const defaultBtn = [...buttons].find((b) => b.textContent?.includes('Default'));
     
@@ -344,6 +345,7 @@ test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
     const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
     const defaultBtn = [...buttons].find((b) => b.textContent?.includes('Default'));
     
@@ -454,10 +456,10 @@ test('MobileMenu: Snippet save button disabled while saving', (t) => {
 test('MobileMenu: opening Parser closes Snippet', (t) => {
     const {container, unmount} = renderMenu();
     const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
-
+    
     fireEvent.pointerUp(triggers[0]); // open Snippet
-    fireEvent.pointerUp(triggers[1]); // open Parser
-
+    fireEvent.pointerUp(triggers[1]);
+    // open Parser
     t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
     unmount();
     cleanup();
@@ -467,10 +469,10 @@ test('MobileMenu: opening Parser closes Snippet', (t) => {
 test('MobileMenu: opening Snippet closes Parser', (t) => {
     const {container, unmount} = renderMenu();
     const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
-
+    
     fireEvent.pointerUp(triggers[1]); // open Parser
-    fireEvent.pointerUp(triggers[0]); // open Snippet
-
+    fireEvent.pointerUp(triggers[0]);
+    // open Snippet
     t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
     unmount();
     cleanup();
@@ -480,10 +482,10 @@ test('MobileMenu: opening Snippet closes Parser', (t) => {
 test('MobileMenu: active dropdown is the last one opened', (t) => {
     const {container, unmount} = renderMenu();
     const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
-
+    
     fireEvent.pointerUp(triggers[0]);
     fireEvent.pointerUp(triggers[1]);
-
+    
     t.equal(triggers[1].getAttribute('aria-expanded'), 'true');
     unmount();
     cleanup();
@@ -494,7 +496,7 @@ test('MobileMenu: active dropdown is the last one opened', (t) => {
 test('MobileMenu: New trigger appears inside Snippet dropdown', (t) => {
     const {container, unmount} = renderMenu();
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
-
+    
     t.ok(container.textContent?.includes('New'));
     unmount();
     cleanup();
@@ -505,7 +507,7 @@ test('MobileMenu: New submenu opens on New trigger click', (t) => {
     const {container, unmount} = renderMenu();
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-
+    
     t.ok(container.querySelector('[data-testid="new-submenu"]'));
     unmount();
     cleanup();
@@ -516,7 +518,7 @@ test('MobileMenu: New submenu contains Default item', (t) => {
     const {container, unmount} = renderMenu();
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-
+    
     t.ok(container.textContent?.includes('Default'));
     unmount();
     cleanup();
@@ -527,7 +529,7 @@ test('MobileMenu: New submenu contains Replacer item', (t) => {
     const {container, unmount} = renderMenu();
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-
+    
     t.ok(container.textContent?.includes('Replacer'));
     unmount();
     cleanup();
@@ -538,7 +540,7 @@ test('MobileMenu: New submenu contains Traverser item', (t) => {
     const {container, unmount} = renderMenu();
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-
+    
     t.ok(container.textContent?.includes('Traverser'));
     unmount();
     cleanup();
@@ -549,17 +551,17 @@ test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
     const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
-
+    
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
-        .find((b) => b.textContent?.includes('Replacer'));
-
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Replacer'));
+    
     fireEvent.click(replacerBtn!);
     const action = actions.find((a) => a.type?.includes('reset'));
-
+    
     unmount();
     cleanup();
+    
     t.ok((action?.payload as string)?.includes('convert-ternary-to-if'));
     t.end();
 });
@@ -568,17 +570,17 @@ test('MobileMenu: Default item dispatches reset with no template', (t) => {
     const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
     const {container, unmount} = renderMenu(store);
-
+    
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-    const defaultBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
-        .find((b) => b.textContent?.includes('Default'));
-
+    const defaultBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Default'));
+    
     fireEvent.click(defaultBtn!);
     const action = actions.find((a) => a.type?.includes('reset'));
-
+    
     unmount();
     cleanup();
+    
     t.equal(action?.payload, undefined);
     t.end();
 });

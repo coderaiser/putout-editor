@@ -5,6 +5,8 @@ import {
     type ReactNode,
 } from 'react';
 
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
+
 type Props = {
     trigger: ReactNode;
     children: ReactNode;
@@ -15,22 +17,26 @@ type Props = {
 
 export default function MobileDropdown({trigger, children, className, open: openProp, onToggle}: Props) {
     const [openInternal, setOpenInternal] = useState(false);
-    const isControlled = openProp !== undefined;
+    const isControlled = !isUndefined(openProp);
     const open = isControlled ? openProp : openInternal;
     const ref = useRef<HTMLDivElement>(null);
     
     const toggle = () => {
-        if (isControlled)
+        if (isControlled) {
             onToggle?.();
-        else
-            setOpenInternal((v) => !v);
+            return;
+        }
+        
+        setOpenInternal((v) => !v);
     };
     
     const close = () => {
-        if (isControlled)
+        if (isControlled) {
             onToggle?.();
-        else
-            setOpenInternal(false);
+            return;
+        }
+        
+        setOpenInternal(false);
     };
     
     useEffect(() => {
