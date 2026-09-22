@@ -216,7 +216,7 @@ test('Menu: fork button dispatches snippet/save with payload true', (t) => {
     const actions: UnknownAction[] = [];
     const store = makeStore({
         activeRevision: makeRevision({
-            canFork: () => true,
+            canSave: () => false,
         }),
     }, actions);
     
