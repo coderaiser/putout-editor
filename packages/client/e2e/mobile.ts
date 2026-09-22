@@ -301,3 +301,73 @@ test('@putout/editor: client: mobile: updating transform editor changes code out
     
     await expect(output).not.toContainText('"use strict"');
 });
+
+test('mobile: only one dropdown open at a time', async ({page}) => {
+    const triggers = page
+        .getByTestId('mobile-menu')
+        .locator('.mobile-dropdown__trigger');
+
+    await triggers.nth(0).tap(); // open Snippet
+    await triggers.nth(1).tap(); // open Parser
+
+    await expect(
+        page.locator('.mobile-dropdown__menu'),
+    ).toHaveCount(1);
+});
+
+test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator('.mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+
+    await expect(
+        page.getByTestId('new-trigger'),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu opens on New tap', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator('.mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+
+    await page.getByTestId('new-trigger').tap();
+
+    await expect(
+        page.getByTestId('new-submenu'),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu contains Replacer', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator('.mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+
+    await page.getByTestId('new-trigger').tap();
+
+    await expect(
+        page.getByTestId('new-submenu').getByRole('menuitem', {name: 'Replacer'}),
+    ).toBeVisible();
+});
+
+test('mobile: picking Replacer loads template into transform editor', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator('.mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+
+    await page.getByTestId('new-trigger').tap();
+    await page.getByRole('menuitem', {name: 'Replacer'}).tap();
+
+    await page.getByRole('tab', {name: /transform/i}).tap();
+
+    await expect(
+        page.getByTestId('editor-transform').locator('.cm-content'),
+    ).toContainText('convert-ternary-to-if');
+});

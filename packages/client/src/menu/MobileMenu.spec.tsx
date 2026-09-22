@@ -560,7 +560,7 @@ test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
 
     unmount();
     cleanup();
-    t.ok(action?.payload?.includes('convert-ternary-to-if'));
+    t.ok((action?.payload as string)?.includes('convert-ternary-to-if'));
     t.end();
 });
 
