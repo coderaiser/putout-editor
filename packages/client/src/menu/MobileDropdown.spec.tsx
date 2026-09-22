@@ -166,9 +166,13 @@ test('MobileDropdown: controlled — renders closed when open=false', (t) => {
 test('MobileDropdown: controlled — trigger calls onToggle', (t) => {
     let called = false;
     const {container, unmount} = render(
-        <MobileDropdown trigger="Open" open={false} onToggle={() => {
-            called = true;
-        }}>
+        <MobileDropdown
+            trigger="Open"
+            open={false}
+            onToggle={() => {
+                called = true;
+            }}
+        >
             <li><button>Item</button></li>
         </MobileDropdown>,
     );
@@ -183,9 +187,13 @@ test('MobileDropdown: controlled — trigger calls onToggle', (t) => {
 test('MobileDropdown: controlled — menu click calls onToggle', (t) => {
     let called = false;
     const {container, unmount} = render(
-        <MobileDropdown trigger="Open" open={true} onToggle={() => {
-            called = true;
-        }}>
+        <MobileDropdown
+            trigger="Open"
+            open={true}
+            onToggle={() => {
+                called = true;
+            }}
+        >
             <li><button>Item</button></li>
         </MobileDropdown>,
     );

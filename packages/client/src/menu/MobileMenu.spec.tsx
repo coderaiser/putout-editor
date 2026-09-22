@@ -459,6 +459,7 @@ test('MobileMenu: opening Parser closes Snippet', (t) => {
     
     fireEvent.pointerUp(triggers[0]); // open Snippet
     fireEvent.pointerUp(triggers[1]);
+    
     // open Parser
     t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
     unmount();
@@ -472,6 +473,7 @@ test('MobileMenu: opening Snippet closes Parser', (t) => {
     
     fireEvent.pointerUp(triggers[1]); // open Parser
     fireEvent.pointerUp(triggers[0]);
+    
     // open Snippet
     t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
     unmount();
@@ -587,11 +589,11 @@ test('MobileMenu: Default item dispatches reset with no template', (t) => {
 
 test('MobileMenu: clicking New trigger keeps submenu open', (t) => {
     const {container, unmount} = renderMenu();
-
+    
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
     fireEvent.click(container.querySelector('[data-testid="new-trigger"]')!);
-
+    
     t.ok(container.querySelector('[data-testid="new-submenu"]'));
     unmount();
     cleanup();
@@ -601,14 +603,13 @@ test('MobileMenu: clicking New trigger keeps submenu open', (t) => {
 test('MobileMenu: picking Replacer closes the menus', (t) => {
     globalThis.location.hash = '';
     const {container, unmount} = renderMenu();
-
+    
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
-        .find((b) => b.textContent?.includes('Replacer'));
-
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Replacer'));
+    
     fireEvent.click(replacerBtn!);
-
+    
     t.notOk(container.querySelector('[data-testid="new-submenu"]'));
     unmount();
     cleanup();
