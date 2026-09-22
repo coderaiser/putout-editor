@@ -389,8 +389,9 @@ test('reducers: reset: with template sets transform code', (t) => {
 
 test('reducers: reset: without template uses default transform', (t) => {
     const state = putoutEditor(getInitState(), reset());
+    const result = state.workbench.transform.code.includes('export const replace');
     
-    t.ok(state.workbench.transform.code.includes('export const replace'));
+    t.ok(result);
     t.end();
 });
 

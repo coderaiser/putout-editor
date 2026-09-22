@@ -357,7 +357,7 @@ function resetWorkbenchFromParser(state: RootState, template?: string) {
     
     if (hadTransformer || state.workbench.transform.transformer || template)
         state.workbench.transform = {
-            code: template ?? defaultTransformer.defaultTransform!,
+            code: template || defaultTransformer.defaultTransform!,
             initialCode: defaultParser.category!.codeExample,
             transformer: defaultTransformer.id,
         };
