@@ -134,3 +134,55 @@ test('MobileDropdown: renders children inside menu when open', (t) => {
     cleanup();
     t.end();
 });
+
+test('MobileDropdown: controlled — renders open when open=true', (t) => {
+    const {container, unmount} = render(
+        <MobileDropdown trigger="Open" open={true} onToggle={() => {}}>
+            <li><button>Item</button></li>
+        </MobileDropdown>,
+    );
+    t.ok(container.querySelector('.mobile-dropdown__menu'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileDropdown: controlled — renders closed when open=false', (t) => {
+    const {container, unmount} = render(
+        <MobileDropdown trigger="Open" open={false} onToggle={() => {}}>
+            <li><button>Item</button></li>
+        </MobileDropdown>,
+    );
+    t.notOk(container.querySelector('.mobile-dropdown__menu'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileDropdown: controlled — trigger calls onToggle', (t) => {
+    let called = false;
+    const {container, unmount} = render(
+        <MobileDropdown trigger="Open" open={false} onToggle={() => { called = true; }}>
+            <li><button>Item</button></li>
+        </MobileDropdown>,
+    );
+    fireEvent.pointerUp(container.querySelector('.mobile-dropdown__trigger')!);
+    t.ok(called);
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileDropdown: controlled — menu click calls onToggle', (t) => {
+    let called = false;
+    const {container, unmount} = render(
+        <MobileDropdown trigger="Open" open={true} onToggle={() => { called = true; }}>
+            <li><button>Item</button></li>
+        </MobileDropdown>,
+    );
+    fireEvent.click(container.querySelector('.mobile-dropdown__menu')!);
+    t.ok(called);
+    unmount();
+    cleanup();
+    t.end();
+});

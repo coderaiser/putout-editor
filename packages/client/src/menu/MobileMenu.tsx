@@ -42,6 +42,9 @@ export default function MobileMenu() {
     const parser = useSelector(parserSelectors.getParser);
     
     const [theme, setTheme] = useState(readTheme);
+    const [openMenu, setOpenMenu] = useState<'snippet' | 'parser' | null>(null);
+    
+    const toggleMenu = (id: 'snippet' | 'parser') => setOpenMenu((current) => current === id ? null : id);
     
     useEffect(() => {
         applyTheme(theme);
@@ -92,7 +95,11 @@ export default function MobileMenu() {
     return (
         <div id="MobileMenu" data-testid="mobile-menu">
             {/* ── Snippet ──────────────────────────────────── */}
-            <MobileDropdown trigger={<><TbFileCode size={18}/> Snippet</>}>
+            <MobileDropdown
+                trigger={<><TbFileCode size={18}/> Snippet</>}
+                open={openMenu === 'snippet'}
+                onToggle={() => toggleMenu('snippet')}
+            >
                 <li role="menuitem">
                     <button type="button" onClick={onNew}>
                         New
@@ -122,6 +129,8 @@ export default function MobileMenu() {
             <MobileDropdown
                 trigger={<><TbCode size={18}/>
                     {parser.displayName}</>}
+                open={openMenu === 'parser'}
+                onToggle={() => toggleMenu('parser')}
             >
                 {parsers.map((p) => (
                     <li key={p.id} role="menuitem">

@@ -448,6 +448,46 @@ test('MobileMenu: Snippet save button disabled while saving', (t) => {
     t.end();
 });
 
+// ── Mutual exclusion ─────────────────────────────────────────
+test('MobileMenu: opening Parser closes Snippet', (t) => {
+    const {container, unmount} = renderMenu();
+    const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
+
+    fireEvent.pointerUp(triggers[0]); // open Snippet
+    fireEvent.pointerUp(triggers[1]); // open Parser
+
+    t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: opening Snippet closes Parser', (t) => {
+    const {container, unmount} = renderMenu();
+    const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
+
+    fireEvent.pointerUp(triggers[1]); // open Parser
+    fireEvent.pointerUp(triggers[0]); // open Snippet
+
+    t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: active dropdown is the last one opened', (t) => {
+    const {container, unmount} = renderMenu();
+    const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
+
+    fireEvent.pointerUp(triggers[0]);
+    fireEvent.pointerUp(triggers[1]);
+
+    t.equal(triggers[1].getAttribute('aria-expanded'), 'true');
+    unmount();
+    cleanup();
+    t.end();
+});
+
 // ── Theme ──────────────────────────────────────────────────
 test('MobileMenu: theme button toggles data-theme attribute', (t) => {
     globalThis.localStorage?.clear();
