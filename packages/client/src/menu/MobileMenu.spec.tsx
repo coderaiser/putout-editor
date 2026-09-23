@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import {
     render,
@@ -10,7 +11,6 @@ import {
     type Middleware,
     type UnknownAction,
 } from '@reduxjs/toolkit';
-import {readFileSync} from 'node:fs';
 import MobileMenu from './MobileMenu.tsx';
 import {
     putoutEditor,
@@ -624,8 +624,7 @@ test('MobileMenu: picking JSON dispatches reset with __json template', (t) => {
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
     fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
-    const jsonBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
-        .find((b) => b.textContent?.trim() === 'JSON');
+    const jsonBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.trim() === 'JSON');
     
     fireEvent.click(jsonBtn!);
     const action = actions.find((a) => a.type?.includes('reset'));
@@ -709,6 +708,7 @@ test('MobileMenu: new-trigger inside menu is left-aligned', (t) => {
     
     unmount();
     cleanup();
+    
     t.equal(justifyContent, 'flex-start');
     t.end();
 });
@@ -722,6 +722,7 @@ test('MobileMenu: top-level trigger stays centered', (t) => {
     
     unmount();
     cleanup();
+    
     t.equal(justifyContent, 'center');
     t.end();
 });
