@@ -380,6 +380,50 @@ test('mobile: New submenu contains Replacer', async ({page}) => {
     ).toBeVisible();
 });
 
+test('mobile: New submenu contains Declarator', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await page
+        .getByTestId('mobile-menu')
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu')
+            .getByRole('menuitem', {
+                name: 'Declarator',
+            }),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu contains JSON', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await page
+        .getByTestId('mobile-menu')
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu')
+            .getByRole('menuitem', {
+                name: 'JSON',
+            }),
+    ).toBeVisible();
+});
+
 test('mobile: picking Replacer loads template into transform editor', async ({page}) => {
     await page
         .getByTestId('mobile-menu')

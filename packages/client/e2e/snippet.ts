@@ -39,14 +39,14 @@ const pickTemplate = async (page: Page, label: string) => {
         .click();
 };
 
-test('snippet: New submenu lists 15 plugin templates', async ({page}) => {
+test('snippet: New submenu lists 13 plugin templates', async ({page}) => {
     await openNew(page);
     const items = page
         .getByTestId('new-submenu')
         .getByRole('menuitem');
     
-    // 15 categories + 1 Default
-    await expect(items).toHaveCount(16);
+    // 13 categories + 1 Default
+    await expect(items).toHaveCount(14);
 });
 
 test('snippet: New Replacer inserts ternary template', async ({page}) => {
@@ -68,11 +68,41 @@ test('snippet: New → Default resets to default template', async ({page}) => {
     expect(code.includes('convert-ternary-to-if')).toBe(false);
 });
 
+test('snippet: New → Declarator inserts declare export', async ({page}) => {
+    await pickTemplate(page, 'Declarator');
+    expect(await getTransformCode(page)).toContain('export const declare');
+});
+
+test('snippet: New → Scanner inserts scan export', async ({page}) => {
+    await pickTemplate(page, 'Scanner');
+    expect(await getTransformCode(page)).toContain('export const scan');
+});
+
+test('snippet: New → JSON inserts __json', async ({page}) => {
+    await pickTemplate(page, 'JSON');
+    expect(await getTransformCode(page)).toContain('__json');
+});
+
+test('snippet: New → YAML inserts __yaml', async ({page}) => {
+    await pickTemplate(page, 'YAML');
+    expect(await getTransformCode(page)).toContain('__yaml');
+});
+
+test('snippet: New → Docker inserts __docker', async ({page}) => {
+    await pickTemplate(page, 'Docker');
+    expect(await getTransformCode(page)).toContain('__docker');
+});
+
+test('snippet: New → Ignore inserts __ignore', async ({page}) => {
+    await pickTemplate(page, 'Ignore');
+    expect(await getTransformCode(page)).toContain('__ignore');
+});
+
 test('snippet: New submenu selection is undoable', async ({page}) => {
     const editor = createPutoutEditor(page);
     const before = await (await editor.get(EDITOR_TRANSFORM)).read();
     
-    await pickTemplate(page, 'Checker');
+    await pickTemplate(page, 'Declarator');
     
     const after = await getTransformCode(page);
     
