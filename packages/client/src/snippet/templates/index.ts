@@ -1,71 +1,63 @@
 import replacer from './replacer.ts';
-import traverser from './traverser.ts';
 import includer from './includer.ts';
-import fixer from './fixer.ts';
-import checker from './checker.ts';
-import watcher from './watcher.ts';
-import lister from './lister.ts';
-import ignorer from './ignorer.ts';
-import declarer from './declarer.ts';
-import equaler from './equaler.ts';
-import deleter from './deleter.ts';
-import duplicater from './duplicater.ts';
-import counter from './counter.ts';
-import typer from './typer.ts';
+import traverser from './traverser.ts';
+import declarator from './declarator.ts';
+import scanner from './scanner.ts';
 import finder from './finder.ts';
+import json from './json.ts';
+import yaml from './yaml.ts';
+import toml from './toml.ts';
+import markdown from './markdown.ts';
+import css from './css.ts';
+import docker from './docker.ts';
+import ignore from './ignore.ts';
 
 export {
     replacer,
-    traverser,
     includer,
-    fixer,
-    checker,
-    watcher,
-    lister,
-    ignorer,
-    declarer,
-    equaler,
-    deleter,
-    duplicater,
-    counter,
-    typer,
+    traverser,
+    declarator,
+    scanner,
     finder,
+    json,
+    yaml,
+    toml,
+    markdown,
+    css,
+    docker,
+    ignore,
 };
 
 export const categories = [
     'Replacer',
-    'Traverser',
     'Includer',
-    'Fixer',
-    'Checker',
-    'Watcher',
-    'Lister',
-    'Ignorer',
-    'Decaler',
-    'EqualsTo',
-    'Deleter',
-    'Duplicater',
-    'Counter',
-    'Typer',
+    'Traverser',
+    'Declarator',
+    'Scanner',
     'Finder',
+    'JSON',
+    'YAML',
+    'TOML',
+    'Markdown',
+    'CSS',
+    'Docker',
+    'Ignore',
 ] as const;
 
 export type SnippetCategory = typeof categories[number];
 
 export const templates: Record<SnippetCategory, string> = {
     Replacer: replacer,
-    Traverser: traverser,
     Includer: includer,
-    Fixer: fixer,
-    Checker: checker,
-    Watcher: watcher,
-    Lister: lister,
-    Ignorer: ignorer,
-    Decaler: declarer,
-    EqualsTo: equaler,
-    Deleter: deleter,
-    Duplicater: duplicater,
-    Counter: counter,
-    Typer: typer,
+    Traverser: traverser,
+    Declarator: declarator,
+    Scanner: scanner,
     Finder: finder,
+    JSON: json,
+    YAML: yaml,
+    TOML: toml,
+    Markdown: markdown,
+    CSS: css,
+    Docker: docker,
+    Ignore: ignore,
 };
