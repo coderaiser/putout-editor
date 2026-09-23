@@ -33,7 +33,7 @@ test('NewButton: renders submenu', (t) => {
     t.end();
 });
 
-test('NewButton: submenu has 16 items (Default + 15 categories)', (t) => {
+test('NewButton: submenu has 14 items (Default + 13 categories)', (t) => {
     render(
         <NewButton/>,
     );
@@ -42,7 +42,7 @@ test('NewButton: submenu has 16 items (Default + 15 categories)', (t) => {
     
     cleanup();
     
-    t.equal(items.length, 16);
+    t.equal(items.length, 14);
     t.end();
 });
 
@@ -147,6 +147,78 @@ test('NewButton: Traverser calls onNew with traverser template string', (t) => {
     cleanup();
     
     t.ok(received?.includes('merge-duplicate-imports'));
+    t.end();
+});
+
+test('NewButton: Declarator calls onNew with declare template', (t) => {
+    let received: string | undefined;
+    const onNew = (template?: string) => {
+        received = template;
+    };
+    
+    render(
+        <NewButton onNew={onNew}/>,
+    );
+    fireEvent.click(screen.getByRole('menuitem', {
+        name: 'Declarator',
+    }));
+    cleanup();
+    
+    t.ok(received?.includes('export const declare'));
+    t.end();
+});
+
+test('NewButton: Scanner calls onNew with scan template', (t) => {
+    let received: string | undefined;
+    const onNew = (template?: string) => {
+        received = template;
+    };
+    
+    render(
+        <NewButton onNew={onNew}/>,
+    );
+    fireEvent.click(screen.getByRole('menuitem', {
+        name: 'Scanner',
+    }));
+    cleanup();
+    
+    t.ok(received?.includes('export const scan'));
+    t.end();
+});
+
+test('NewButton: JSON calls onNew with __json template', (t) => {
+    let received: string | undefined;
+    const onNew = (template?: string) => {
+        received = template;
+    };
+    
+    render(
+        <NewButton onNew={onNew}/>,
+    );
+    fireEvent.click(screen.getByRole('menuitem', {
+        name: 'JSON',
+    }));
+    cleanup();
+    
+    t.ok(received?.includes('__json'));
+    t.end();
+});
+
+test('NewButton: Ignore calls onNew with __ignore template', (t) => {
+    let received: string | undefined;
+    const onNew = (template?: string) => {
+        received = template;
+    };
+    
+    render(
+        <NewButton onNew={onNew}/>,
+    );
+    fireEvent.click(screen.getByRole('menuitem', {
+        name: 'Ignore',
+    }));
+    cleanup();
+    
+    t.ok(received?.includes('__ignore'));
     t.end();
 });
 
