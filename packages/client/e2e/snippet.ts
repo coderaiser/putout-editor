@@ -45,8 +45,8 @@ test('snippet: New submenu lists 13 plugin templates', async ({page}) => {
         .getByTestId('new-submenu')
         .getByRole('menuitem');
     
-    // 13 categories + 1 Default
-    await expect(items).toHaveCount(14);
+    // 13 categories, no Default
+    await expect(items).toHaveCount(13);
 });
 
 test('snippet: New Replacer inserts ternary template', async ({page}) => {
@@ -58,14 +58,6 @@ test('snippet: New Replacer inserts ternary template', async ({page}) => {
 test('snippet: New → Traverser inserts merge-duplicate-imports', async ({page}) => {
     await pickTemplate(page, 'Traverser');
     await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('merge-duplicate-imports');
-});
-
-test('snippet: New → Default resets to default template', async ({page}) => {
-    await pickTemplate(page, 'Replacer');
-    await pickTemplate(page, 'Default');
-    const code = await getTransformCode(page);
-    
-    expect(code.includes('convert-ternary-to-if')).toBe(false);
 });
 
 test('snippet: New → Declarator inserts declare export', async ({page}) => {

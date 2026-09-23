@@ -14,16 +14,6 @@ export default function NewButton({saving, forking, onNew}: Props) {
                 <TbFilePlus size={18}/> New <TbChevronDown size={12}/>
             </span>
             <ul role="menu" data-testid="new-submenu">
-                <li role="none">
-                    <button
-                        type="button"
-                        role="menuitem"
-                        disabled={saving || forking}
-                        onClick={() => onNew?.()}
-                    >
-                        Default
-                    </button>
-                </li>
                 {categories.map((label) => (
                     <li key={label} role="none">
                         <button

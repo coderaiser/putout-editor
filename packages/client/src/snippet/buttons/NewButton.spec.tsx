@@ -33,7 +33,7 @@ test('NewButton: renders submenu', (t) => {
     t.end();
 });
 
-test('NewButton: submenu has 14 items (Default + 13 categories)', (t) => {
+test('NewButton: submenu has 13 items (13 categories)', (t) => {
     render(
         <NewButton/>,
     );
@@ -42,11 +42,11 @@ test('NewButton: submenu has 14 items (Default + 13 categories)', (t) => {
     
     cleanup();
     
-    t.equal(items.length, 14);
+    t.equal(items.length, 13);
     t.end();
 });
 
-test('NewButton: first item is Default', (t) => {
+test('NewButton: first item is Replacer', (t) => {
     render(
         <NewButton/>,
     );
@@ -55,7 +55,7 @@ test('NewButton: first item is Default', (t) => {
     
     cleanup();
     
-    t.equal(items[0].textContent, 'Default');
+    t.equal(items[0].textContent, 'Replacer');
     t.end();
 });
 
@@ -95,22 +95,6 @@ test('NewButton: all items enabled when not saving or forking', (t) => {
     cleanup();
     
     t.ok(items.every((item) => !item.disabled));
-    t.end();
-});
-
-test('NewButton: Default calls onNew with no argument', (t) => {
-    let received: string | undefined = 'sentinel';
-    const onNew = (template?: string) => {
-        received = template;
-    };
-    
-    render(
-        <NewButton onNew={onNew}/>,
-    );
-    fireEvent.click(screen.getAllByRole('menuitem')[0]);
-    cleanup();
-    
-    t.equal(received, undefined);
     t.end();
 });
 

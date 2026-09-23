@@ -3,6 +3,7 @@ import {
     TbDeviceFloppy,
     TbFileCode,
     TbFilePlus,
+    TbChevronDown,
     TbGitFork,
     TbLoader2,
     TbCode,
@@ -121,7 +122,7 @@ export default function MobileMenu() {
                         onPointerUp={toggleNew}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <TbFilePlus size={16}/> New
+                        <TbFilePlus size={16}/> New <TbChevronDown size={12}/>
                     </button>
                     {openMenu === 'new' && (
                         <ul
@@ -133,11 +134,6 @@ export default function MobileMenu() {
                                 setOpenMenu(null);
                             }}
                         >
-                            <li role="menuitem">
-                                <button type="button" onClick={() => onNew()}>
-                                    Default
-                                </button>
-                            </li>
                             {categories.map((label) => (
                                 <li key={label} role="menuitem">
                                     <button
