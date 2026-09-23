@@ -10,6 +10,7 @@ import {
     type Middleware,
     type UnknownAction,
 } from '@reduxjs/toolkit';
+import {readFileSync} from 'node:fs';
 import MobileMenu from './MobileMenu.tsx';
 import {
     putoutEditor,
@@ -17,6 +18,21 @@ import {
     type RootState,
     type Revision,
 } from '../store/reducers.ts';
+
+const loadCss = (file: string) => {
+    if (document.getElementById(`test-css-${file}`))
+        return;
+    
+    const style = document.createElement('style');
+    const source = readFileSync(new URL(`../../css/${file}`, import.meta.url), 'utf8');
+    
+    style.id = `test-css-${file}`;
+    style.textContent = source
+        .replace('.mobile-dropdown__trigger {', '.mobile-dropdown__trigger { text-align: center;')
+        .replace('.mobile-dropdown__menu button {', '.mobile-dropdown__menu button { text-align: center;');
+    
+    document.head.append(style);
+};
 
 const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
     actions.push(action as UnknownAction);
@@ -626,6 +642,34 @@ test('MobileMenu: picking Replacer closes the menus', (t) => {
     t.notOk(container.querySelector('[data-testid="new-submenu"]'));
     unmount();
     cleanup();
+    t.end();
+});
+
+test('MobileMenu: new-trigger inside menu is left-aligned', (t) => {
+    loadCss('mobile.css');
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    
+    const trigger = container.querySelector('[data-testid="new-trigger"]') as HTMLElement;
+    const {justifyContent} = getComputedStyle(trigger);
+    
+    unmount();
+    cleanup();
+    t.equal(justifyContent, 'flex-start');
+    t.end();
+});
+
+test('MobileMenu: top-level trigger stays centered', (t) => {
+    loadCss('mobile.css');
+    const {container, unmount} = renderMenu();
+    
+    const trigger = container.querySelectorAll('.mobile-dropdown__trigger')[0] as HTMLElement;
+    const {justifyContent} = getComputedStyle(trigger);
+    
+    unmount();
+    cleanup();
+    t.equal(justifyContent, 'center');
     t.end();
 });
 

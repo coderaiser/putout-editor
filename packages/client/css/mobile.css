@@ -45,6 +45,11 @@
     background: var(--color-hover);
 }
 
+/* menu items are left-aligned; top-level tab triggers stay centered */
+.mobile-dropdown__menu .mobile-dropdown__trigger {
+    justify-content: flex-start;
+}
+
 .mobile-dropdown__menu {
     position: absolute;
     top: 44px;
