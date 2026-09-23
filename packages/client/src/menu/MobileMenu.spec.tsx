@@ -584,6 +584,59 @@ test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
     t.end();
 });
 
+test('MobileMenu: New submenu contains Declarator item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('Declarator'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains JSON item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('JSON'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Ignore item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('Ignore'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: picking JSON dispatches reset with __json template', (t) => {
+    const actions: UnknownAction[] = [];
+    const store = makeStore({}, actions);
+    const {container, unmount} = renderMenu(store);
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const jsonBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')]
+        .find((b) => b.textContent?.trim() === 'JSON');
+    
+    fireEvent.click(jsonBtn!);
+    const action = actions.find((a) => a.type?.includes('reset'));
+    
+    unmount();
+    cleanup();
+    
+    t.ok((action?.payload as string)?.includes('__json'));
+    t.end();
+});
+
 test('MobileMenu: Default item dispatches reset with no template', (t) => {
     const actions: UnknownAction[] = [];
     const store = makeStore({}, actions);
