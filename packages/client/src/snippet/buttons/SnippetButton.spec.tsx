@@ -284,7 +284,9 @@ test('SnippetButton: Enter opens menu', (t) => {
     
     const trigger = document.querySelector('.menuButton > span')!;
     
-    fireEvent.keyDown(trigger, {key: 'Enter'});
+    fireEvent.keyDown(trigger, {
+        key: 'Enter',
+    });
     const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
@@ -300,7 +302,9 @@ test('SnippetButton: Space opens menu', (t) => {
     
     const trigger = document.querySelector('.menuButton > span')!;
     
-    fireEvent.keyDown(trigger, {key: ' '});
+    fireEvent.keyDown(trigger, {
+        key: ' ',
+    });
     const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
@@ -308,4 +312,3 @@ test('SnippetButton: Space opens menu', (t) => {
     t.ok(result);
     t.end();
 });
-

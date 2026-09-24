@@ -259,7 +259,9 @@ test('NewButton: Enter opens menu', (t) => {
     
     const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
     
-    fireEvent.keyDown(trigger, {key: 'Enter'});
+    fireEvent.keyDown(trigger, {
+        key: 'Enter',
+    });
     const result = document.querySelector('[data-testid="new-submenu"]');
     
     cleanup();
@@ -288,7 +290,9 @@ test('NewButton: Space opens menu', (t) => {
     
     const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
     
-    fireEvent.keyDown(trigger, {key: ' '});
+    fireEvent.keyDown(trigger, {
+        key: ' ',
+    });
     const result = document.querySelector('[data-testid="new-submenu"]');
     
     cleanup();
@@ -303,7 +307,9 @@ test('NewButton: Space closes open menu', (t) => {
     const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
     
     fireEvent.click(trigger);
-    fireEvent.keyDown(trigger, {key: ' '});
+    fireEvent.keyDown(trigger, {
+        key: ' ',
+    });
     const result = document.querySelector('[data-testid="new-submenu"]');
     
     cleanup();
@@ -311,4 +317,3 @@ test('NewButton: Space closes open menu', (t) => {
     t.notOk(result);
     t.end();
 });
-

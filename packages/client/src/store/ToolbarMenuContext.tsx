@@ -33,11 +33,13 @@ export function ToolbarMenuProvider({children}: {children: ReactNode;}) {
     }, []);
     
     return (
-        <ToolbarMenuContext.Provider value={{
-            openId,
-            toggle,
-            close,
-        }}>
+        <ToolbarMenuContext.Provider
+            value={{
+                openId,
+                toggle,
+                close,
+            }}
+        >
             {children}
         </ToolbarMenuContext.Provider>
     );

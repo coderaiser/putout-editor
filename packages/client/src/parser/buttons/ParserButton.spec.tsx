@@ -409,7 +409,9 @@ test('ParserButton: Enter opens menu', (t) => {
     
     const trigger = document.querySelector('.menuButton > span')!;
     
-    fireEvent.keyDown(trigger, {key: 'Enter'});
+    fireEvent.keyDown(trigger, {
+        key: 'Enter',
+    });
     const result = document.querySelector('ul');
     
     cleanup();
@@ -430,7 +432,9 @@ test('ParserButton: Space opens menu', (t) => {
     
     const trigger = document.querySelector('.menuButton > span')!;
     
-    fireEvent.keyDown(trigger, {key: ' '});
+    fireEvent.keyDown(trigger, {
+        key: ' ',
+    });
     const result = document.querySelector('ul');
     
     cleanup();

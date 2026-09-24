@@ -129,4 +129,3 @@ test('KeyMapButton: outside click closes menu', (t) => {
     t.notOk(result);
     t.end();
 });
-
