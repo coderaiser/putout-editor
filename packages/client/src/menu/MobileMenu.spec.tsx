@@ -596,7 +596,7 @@ test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
     unmount();
     cleanup();
     
-    t.ok((action?.payload as string)?.includes('convert-ternary-to-if'));
+    t.ok((action?.payload as {template?: string})?.template?.includes('convert-ternary-to-if'));
     t.end();
 });
 
@@ -648,7 +648,7 @@ test('MobileMenu: picking JSON dispatches reset with __json template', (t) => {
     unmount();
     cleanup();
     
-    t.ok((action?.payload as string)?.includes('__json'));
+    t.ok((action?.payload as {template?: string})?.template?.includes('__json'));
     t.end();
 });
 

@@ -397,6 +397,28 @@ test('reducers: reset: without template uses default transform', (t) => {
 
 test('reducers: select category clears activeRevision', (t) => {
     const rev = makeRevision();
+
+test('reducers: reset: with fixture sets workbench code', (t) => {
+    const fixture = 'hello ? world() : party();';
+    const state = putoutEditor(getInitState(), reset({fixture}));
+    t.equal(state.workbench.code, fixture);
+    t.end();
+});
+
+test('reducers: reset: with fixture sets initialCode', (t) => {
+    const fixture = 'const x = 1;\nconst y = 1;';
+    const state = putoutEditor(getInitState(), reset({fixture}));
+    t.equal(state.workbench.initialCode, fixture);
+    t.end();
+});
+
+test('reducers: reset: without fixture uses parser codeExample', (t) => {
+    const state = putoutEditor(getInitState(), reset({}));
+    const codeExample = getInitState().workbench.code;
+    t.equal(state.workbench.code, codeExample);
+    t.end();
+});
+
     const withRev = putoutEditor(getInitState(), setSnippet(rev));
     
     const state = putoutEditor(withRev, selectCategory(getCategory()));

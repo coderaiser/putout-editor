@@ -1,10 +1,81 @@
 import {test} from 'supertape';
-import {templates, categories} from './index.ts';
+import {categories, fixtures, templates} from './index.ts';
 
 test('snippet: templates: categories has 13 entries', (t) => {
     t.equal(categories.length, 13);
     t.end();
 });
+
+test('snippet: fixtures: map has 13 entries', (t) => {
+    t.equal(Object.keys(fixtures).length, 13);
+    t.end();
+});
+
+test('snippet: fixtures: Replacer contains ternary', (t) => {
+    t.ok(fixtures.Replacer.includes('?'));
+    t.end();
+});
+
+test('snippet: fixtures: Includer contains object method', (t) => {
+    t.ok(fixtures.Includer.includes('greet()'));
+    t.end();
+});
+
+test('snippet: fixtures: Traverser contains duplicate imports', (t) => {
+    t.ok(fixtures.Traverser.includes("import {a} from 'x';"));
+    t.end();
+});
+
+test('snippet: fixtures: Declarator contains putout call', (t) => {
+    t.ok(fixtures.Declarator.includes('putout(source'));
+    t.end();
+});
+
+test('snippet: fixtures: Scanner contains filesystem comment', (t) => {
+    t.ok(fixtures.Scanner.includes('filesystem plugin'));
+    t.end();
+});
+
+test('snippet: fixtures: Finder contains duplicate declarations', (t) => {
+    t.ok(fixtures.Finder.includes('const x = 1;'));
+    t.end();
+});
+
+test('snippet: fixtures: JSON contains processor', (t) => {
+    t.ok(fixtures.JSON.includes('__putout_processor_json'));
+    t.end();
+});
+
+test('snippet: fixtures: YAML contains processor', (t) => {
+    t.ok(fixtures.YAML.includes('__putout_processor_yaml'));
+    t.end();
+});
+
+test('snippet: fixtures: TOML contains processor', (t) => {
+    t.ok(fixtures.TOML.includes('__putout_processor_toml'));
+    t.end();
+});
+
+test('snippet: fixtures: Markdown contains heading', (t) => {
+    t.ok(fixtures.Markdown.includes('heading(2'));
+    t.end();
+});
+
+test('snippet: fixtures: CSS contains processor', (t) => {
+    t.ok(fixtures.CSS.includes('__putout_processor_css'));
+    t.end();
+});
+
+test('snippet: fixtures: Docker contains processor', (t) => {
+    t.ok(fixtures.Docker.includes('__putout_processor_docker'));
+    t.end();
+});
+
+test('snippet: fixtures: Ignore contains processor', (t) => {
+    t.ok(fixtures.Ignore.includes('__putout_processor_ignore'));
+    t.end();
+});
+
 
 test('snippet: templates: templates map has 13 entries', (t) => {
     t.equal(Object.keys(templates).length, 13);

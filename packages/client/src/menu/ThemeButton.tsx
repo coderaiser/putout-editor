@@ -1,6 +1,13 @@
-import {useEffect, useState} from 'react';
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import {TbMoon, TbSun} from 'react-icons/tb';
 import cx from 'classnames';
+import {useToolbarMenu} from './ToolbarMenuContext.tsx';
+
+const MENU_ID = 'theme';
 
 const THEME_KEY = 'theme';
 const DEFAULT_THEME = 'light';
@@ -19,51 +26,72 @@ const applyTheme = (next: string): void => {
 
 export default function ThemeButton() {
     const [theme, setTheme] = useState(readTheme);
-    const [forceClosed, setForceClosed] = useState(false);
+    const {
+        openId,
+        toggle,
+        close,
+    } = useToolbarMenu();
+    const open = openId === MENU_ID;
+    const ref = useRef<HTMLDivElement>(null);
     
     useEffect(() => {
         applyTheme(theme);
     }, [theme]);
     
+    useEffect(() => {
+        if (!open)
+            return;
+        
+        const onOutsideClick = (event: MouseEvent) => {
+            if (!ref.current?.contains(event.target as Node))
+                close();
+        };
+        
+        document.addEventListener('mousedown', onOutsideClick);
+        return () => document.removeEventListener('mousedown', onOutsideClick);
+    }, [open, close]);
+    
     const onTriggerClick = () => {
         const next = theme === 'light' ? 'dark' : 'light';
         setTheme(next);
-        setForceClosed(true);
+        toggle(MENU_ID);
     };
     
     const onItemClick = (next: string) => {
         setTheme(next);
-        setForceClosed(true);
+        close();
     };
     
     return (
         <div
-            className={cx('button', 'menuButton', {
-                'is-closed': forceClosed,
-            })}
-            onMouseLeave={() => setForceClosed(false)}
+            ref={ref}
+            className={cx('button', 'menuButton')}
         >
             <button
                 type="button"
                 onClick={onTriggerClick}
                 aria-label="Toggle theme"
+                aria-expanded={open}
+                aria-haspopup="menu"
             >
                 {theme === 'light' ? <TbMoon size={18}/> : <TbSun size={18}/>}
                 {theme}
             </button>
-            <ul>
-                {themes.map((t) => (
-                    <li
-                        key={t}
-                        className={cx({
-                            selected: t === theme,
-                        })}
-                        onClick={() => onItemClick(t)}
-                    >
-                        <button type="button">{t}</button>
-                    </li>
-                ))}
-            </ul>
+            {open && (
+                <ul>
+                    {themes.map((t) => (
+                        <li
+                            key={t}
+                            className={cx({
+                                selected: t === theme,
+                            })}
+                            onClick={() => onItemClick(t)}
+                        >
+                            <button type="button">{t}</button>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 }

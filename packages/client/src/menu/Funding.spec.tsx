@@ -5,30 +5,30 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import Funding from './Funding.tsx';
+import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
+
+const renderFunding = () => render(
+    <ToolbarMenuProvider>
+        <Funding/>
+    </ToolbarMenuProvider>,
+);
+
+const openFunding = () => fireEvent.click(document.querySelector('.menuButton > button')!);
 
 test('Funding: renders three funding options', (t) => {
-    render(
-        <Funding/>,
-    );
-    
+    renderFunding();
+    openFunding();
     const buttons = document.querySelectorAll('li button');
-    
     cleanup();
-    
     t.equal(buttons.length, 3);
     t.end();
 });
 
 test('Funding: first option is patreon', (t) => {
-    render(
-        <Funding/>,
-    );
-    
-    const buttons = document.querySelectorAll('li button');
-    
+    renderFunding();
+    openFunding();
+    const result = document.querySelector('li button')?.textContent.includes('patreon') || false;
     cleanup();
-    const result = buttons[0]?.textContent.includes('patreon') || false;
-    
     t.ok(result);
     t.end();
 });
@@ -36,36 +36,23 @@ test('Funding: first option is patreon', (t) => {
 test('Funding: click calls globalThis.open', (t) => {
     const origOpen = globalThis.open;
     let openedUrl: string | URL | null | undefined;
-    
     globalThis.open = (url?: string | URL | undefined): Window | null => {
         openedUrl = url;
         return null;
     };
-    
-    render(
-        <Funding/>,
-    );
-    
-    const buttons = document.querySelectorAll('li button');
-    
-    fireEvent.click(buttons[0]);
-    
+    renderFunding();
+    openFunding();
+    fireEvent.click(document.querySelector('li button')!);
     cleanup();
     globalThis.open = origOpen;
-    
     t.equal(openedUrl, 'https://patreon.com/coderaiser');
     t.end();
 });
 
 test('Funding: renders heart svg icon', (t) => {
-    render(
-        <Funding/>,
-    );
-    
+    renderFunding();
     const svg = document.querySelector('button svg');
-    
     cleanup();
-    
     t.ok(svg, 'heart icon svg rendered');
     t.end();
 });

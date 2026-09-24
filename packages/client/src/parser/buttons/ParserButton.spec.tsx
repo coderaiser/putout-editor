@@ -1,11 +1,20 @@
 import {test} from 'supertape';
 import {
-    render,
+    render as testingRender,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
+import type {ReactElement} from 'react';
 import ParserButton from './ParserButton.tsx';
 import type {ParserInfo, ParserCategory} from '../parsers/index.ts';
+import {ToolbarMenuProvider} from '../../store/ToolbarMenuContext.tsx';
+
+const render = (ui: ReactElement) => testingRender(
+    <ToolbarMenuProvider>
+        {ui}
+    </ToolbarMenuProvider>,
+);
+const openParser = () => fireEvent.click(document.querySelector('.menuButton > span')!);
 
 const mockParser: ParserInfo = {
     id: 'babel',
@@ -115,6 +124,7 @@ test('ParserButton: menu items always rendered (visible on hover via CSS)', (t) 
             onParserSettingsButtonClick={noop}
         />,
     );
+    openParser();
     
     const items = document.querySelectorAll('li');
     
@@ -145,6 +155,7 @@ test('ParserButton: only parsers with showInMenu are rendered', (t) => {
             onParserSettingsButtonClick={noop}
         />,
     );
+    openParser();
     
     const items = document.querySelectorAll('li');
     
@@ -169,6 +180,7 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
             onParserSettingsButtonClick={noop}
         />,
     );
+    openParser();
     
     const items = document.querySelectorAll('li');
     
@@ -195,6 +207,7 @@ test('ParserButton: clicking parser item without data-id passes undefined', (t) 
             onParserSettingsButtonClick={noop}
         />,
     );
+    openParser();
     
     const items = document.querySelectorAll('li');
     items[0].removeAttribute('data-id');
@@ -207,7 +220,7 @@ test('ParserButton: clicking parser item without data-id passes undefined', (t) 
     t.end();
 });
 
-test('ParserButton: clicking parser item sets is-closed class', (t) => {
+test('ParserButton: clicking parser item closes menu', (t) => {
     render(
         <ParserButton
             parser={mockParser}
@@ -217,12 +230,32 @@ test('ParserButton: clicking parser item sets is-closed class', (t) => {
         />,
     );
     
-    const div = document.querySelector('.menuButton');
+    openParser();
     const item = document.querySelector('li')!;
-    
     fireEvent.click(item);
     
-    const result = div?.className.includes('is-closed');
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('ParserButton: clicking trigger span opens menu', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const span = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.click(span);
+    const result = document.querySelector('ul');
     
     cleanup();
     
@@ -230,7 +263,7 @@ test('ParserButton: clicking parser item sets is-closed class', (t) => {
     t.end();
 });
 
-test('ParserButton: clicking trigger span sets is-closed class', (t) => {
+test('ParserButton: second trigger click closes menu', (t) => {
     render(
         <ParserButton
             parser={mockParser}
@@ -241,35 +274,10 @@ test('ParserButton: clicking trigger span sets is-closed class', (t) => {
     );
     
     const span = document.querySelector('.menuButton span')!;
-    const div = document.querySelector('.menuButton');
     
     fireEvent.click(span);
-    
-    const result = div?.className.includes('is-closed');
-    
-    cleanup();
-    
-    t.ok(result);
-    t.end();
-});
-
-test('ParserButton: mouseleave clears is-closed class', (t) => {
-    render(
-        <ParserButton
-            parser={mockParser}
-            category={mockCategory}
-            onParserChange={noop}
-            onParserSettingsButtonClick={noop}
-        />,
-    );
-    
-    const span = document.querySelector('.menuButton span')!;
-    const div = document.querySelector('.menuButton')!;
-    
     fireEvent.click(span);
-    fireEvent.mouseLeave(div);
-    
-    const result = div.className.includes('is-closed');
+    const result = document.querySelector('ul');
     
     cleanup();
     
@@ -356,6 +364,7 @@ test('ParserButton: clicking parser item calls onParserChange with undefined for
             onParserSettingsButtonClick={noop}
         />,
     );
+    openParser();
     
     const items = document.querySelectorAll('li');
     

@@ -15,7 +15,11 @@ import {
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
 import MobileDropdown from './MobileDropdown.tsx';
-import {categories, templates} from '../snippet/templates/index.ts';
+import {
+    categories,
+    fixtures,
+    templates,
+} from '../snippet/templates/index.ts';
 import {getParserByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import * as parserSelectors from '../parser/store/parserSelectors.ts';
@@ -79,11 +83,11 @@ export default function MobileMenu() {
         payload: true,
     });
     
-    const onNew = (template?: string) => {
+    const onNew = (template?: string, fixture?: string) => {
         if (clearHash())
             return;
         
-        dispatch(reset(template));
+        dispatch(reset({template, fixture}));
     };
     
     const onParserChange = (id: string) => {
@@ -138,7 +142,7 @@ export default function MobileMenu() {
                                 <li key={label} role="menuitem">
                                     <button
                                         type="button"
-                                        onClick={() => onNew(templates[label])}
+                                        onClick={() => onNew(templates[label], fixtures[label])}
                                     >
                                         {label}
                                     </button>

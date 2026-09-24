@@ -1,14 +1,23 @@
 import {test} from 'supertape';
 import {
-    render,
+    render as testingRender,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
+import type {ReactElement} from 'react';
 import {
     type ParserCategory,
     type TransformerInfo,
 } from '#parser';
 import TransformButton from './TransformButton.tsx';
+import {ToolbarMenuProvider} from '../store/ToolbarMenuContext.tsx';
+
+const render = (ui: ReactElement) => testingRender(
+    <ToolbarMenuProvider>
+        {ui}
+    </ToolbarMenuProvider>,
+);
+const openTransform = () => fireEvent.click(document.querySelector('.menuButton > button')!);
 
 const mockTransformer: TransformerInfo = {
     id: 'putout',
@@ -67,6 +76,7 @@ test('TransformButton: renders transformer items when category has transformers'
             onTransformChange={noop}
         />,
     );
+    openTransform();
     
     const items = document.querySelectorAll('li');
     
@@ -131,7 +141,7 @@ test('TransformButton: has disabled class when no transformers', (t) => {
     t.end();
 });
 
-test('TransformButton: clicking trigger calls onTransformChange(null) when transformer active', (t) => {
+test('TransformButton: clicking trigger opens menu when transformer active', (t) => {
     let called = false;
     
     const onTransformChange = (v: TransformerInfo | null) => {
@@ -146,12 +156,12 @@ test('TransformButton: clicking trigger calls onTransformChange(null) when trans
             onTransformChange={onTransformChange}
         />,
     );
-    
-    fireEvent.click(document.querySelector('.menuButton > button')!);
+    openTransform();
+    const result = document.querySelector('ul');
     
     cleanup();
     
-    t.ok(called);
+    t.ok(result);
     t.end();
 });
 
@@ -194,6 +204,7 @@ test('TransformButton: clicking item calls onTransformChange with transformer', 
             onTransformChange={onTransformChange}
         />,
     );
+    openTransform();
     
     fireEvent.click(document.querySelector('li button')!);
     
@@ -203,7 +214,7 @@ test('TransformButton: clicking item calls onTransformChange with transformer', 
     t.end();
 });
 
-test('TransformButton: clicking item sets is-closed class', (t) => {
+test('TransformButton: clicking item closes menu', (t) => {
     render(
         <TransformButton
             category={mockCategory}
@@ -212,20 +223,19 @@ test('TransformButton: clicking item sets is-closed class', (t) => {
             onTransformChange={noop}
         />,
     );
-    
-    const div = document.querySelector('.menuButton')!;
+    openTransform();
     
     fireEvent.click(document.querySelector('li')!);
     
-    const result = div.className.includes('is-closed');
+    const result = document.querySelector('ul');
     
     cleanup();
     
-    t.ok(result);
+    t.notOk(result);
     t.end();
 });
 
-test('TransformButton: mouseleave clears is-closed class', (t) => {
+test('TransformButton: second trigger click closes menu', (t) => {
     render(
         <TransformButton
             category={mockCategory}
@@ -235,12 +245,10 @@ test('TransformButton: mouseleave clears is-closed class', (t) => {
         />,
     );
     
-    const div = document.querySelector('.menuButton')!;
-    
-    fireEvent.click(document.querySelector('.menuButton > button')!);
-    fireEvent.mouseLeave(div);
-    
-    const result = div.className.includes('is-closed');
+    const trigger = document.querySelector('.menuButton > button')!;
+    fireEvent.click(trigger);
+    fireEvent.click(trigger);
+    const result = document.querySelector('ul');
     
     cleanup();
     
@@ -257,11 +265,12 @@ test('TransformButton: selected class applied to active transformer item', (t) =
             onTransformChange={noop}
         />,
     );
+    openTransform();
     
-    const li = document.querySelector('li')!;
+    const li = document.querySelector('li');
     
     cleanup();
-    const result = li.className.includes('selected');
+    const result = li?.className.includes('selected') || false;
     
     t.ok(result);
     t.end();

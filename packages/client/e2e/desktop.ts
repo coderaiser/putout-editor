@@ -55,7 +55,7 @@ test('desktop parser menu opens and changes parser', async ({page}) => {
             exact: true,
         })
         .first()
-        .hover();
+        .click();
     await expect(page.getByRole('button', {
         name: /acorn/i,
     })).toBeVisible();
@@ -77,21 +77,20 @@ test('desktop parser menu opens and changes parser', async ({page}) => {
 test('vim mode works after switching keymap away and back', async ({page}) => {
     const editor = createPutoutEditor(page);
     
-    // switch keymap: hover opens the dropdown, mouse.move resets
-    // the force-closed state so it can be reopened
+    // switch keymap by opening the dropdown and selecting an option
     const keymap = page.getByTestId('keymap');
     
-    await keymap.hover();
+    await keymap.getByRole('button').first()
+        .click();
     await page
         .getByTestId('default')
         .click();
-    await page.mouse.move(0, 0);
     
-    await keymap.hover();
+    await keymap.getByRole('button').first()
+        .click();
     await page
         .getByTestId('vim')
         .click();
-    await page.mouse.move(0, 0);
     
     await page
         .getByTestId('editor-source')

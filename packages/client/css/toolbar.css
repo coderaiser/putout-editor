@@ -21,7 +21,7 @@
 }
 
 #Toolbar > *,
-#Toolbar > .menuButton > span,
+#Toolbar .menuButton > span,
 #Toolbar button {
     background-color: transparent;
     box-sizing: border-box;
@@ -36,8 +36,9 @@
     outline: none;
 }
 
-#Toolbar > .menuButton > span {
+#Toolbar .menuButton > span {
     cursor: default;
+    justify-content: center;
     padding: 0 6px;
 }
 
@@ -79,14 +80,6 @@
     position: relative;
 }
 
-#Toolbar .menuButton:hover > ul {
-    display: block;
-}
-
-#Toolbar .menuButton.is-closed > ul {
-    display: none !important;
-}
-
 #Toolbar .menuButton ul {
     position: absolute;
     left: -1px;
@@ -94,7 +87,6 @@
     padding: 0;
     margin: 0;
     list-style: none;
-    display: none;
     border: 1px solid var(--color-border);
     border-top: none;
     min-width: 100%;

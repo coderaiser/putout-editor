@@ -10,7 +10,6 @@ import {
     getTransformerByID,
     type ParserCategory,
 } from '#parser';
-
 /**
  * Result of parsing the current code with the active parser.
  * `null` is the initial state before anything has been parsed.
@@ -41,6 +40,36 @@ import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
  * `TreeAdapter` instance — the instance is built later by
  * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
  */
+const isString = (a: unknown): a is string => typeof a === 'string';
+
+/**
+ * Result of parsing the current code with the active parser.
+ * `null` is the initial state before anything has been parsed.
+ *
+ * On success: `{ast, treeAdapter, time, source, error: null}`.
+ * On failure: `{ast: null, treeAdapter: null, time: null, source: null, error}`.
+ *
+ * `ast` stays `unknown` — the AST shape depends on the active parser
+ * (Babel, Acorn, Esprima all differ). Consumers narrow it explicitly.
+ *
+ * `treeAdapter` is the raw parse-result config `{type, options}`, not a
+ * `TreeAdapter` instance — the instance is built later by
+ * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
+ */
+export type ResetPayload = {
+    template?: string;
+    fixture?: string;
+};
+
+const normalizeResetPayload = (payload?: string | ResetPayload): ResetPayload => {
+    if (isString(payload))
+        return {
+            template: payload,
+        };
+    
+    return payload || {};
+};
+
 export type ParseResult = {
     ast: unknown;
     treeAdapter: NonNullable<TreeAdapterParseResult['treeAdapter']> | null;
@@ -322,11 +351,12 @@ const slice = createSlice({
         },
         
         reset: {
-            reducer: (state, {payload: template}: PayloadAction<string | undefined>) => {
-                resetWorkbenchFromParser(state, template);
+            reducer: (state, {payload}: PayloadAction<ResetPayload | undefined>) => {
+                const {template, fixture} = normalizeResetPayload(payload);
+                resetWorkbenchFromParser(state, template, fixture);
             },
-            prepare: (template?: string) => ({
-                payload: template,
+            prepare: (payload?: string | ResetPayload) => ({
+                payload: normalizeResetPayload(payload),
             }),
         },
         
@@ -344,16 +374,17 @@ const slice = createSlice({
     },
 });
 
-function resetWorkbenchFromParser(state: RootState, template?: string) {
+function resetWorkbenchFromParser(state: RootState, template?: string, fixture?: string) {
     const parser = getParserByID(state.workbench.parser)!;
     const hadTransformer = state.activeRevision?.getTransformerID();
+    const code = fixture || parser.category!.codeExample;
     
     state.activeRevision = null;
     state.cursor = null;
     state.showTransformPanel = true;
     state.workbench.parserSettings = state.parserSettings[state.workbench.parser] || null;
-    state.workbench.code = parser.category!.codeExample;
-    state.workbench.initialCode = parser.category!.codeExample;
+    state.workbench.code = code;
+    state.workbench.initialCode = code;
     
     if (hadTransformer || state.workbench.transform.transformer || template)
         state.workbench.transform = {
@@ -425,3 +456,4 @@ function pick<T extends object, K extends keyof T>(obj: T, ...properties: K[]): 
         return result;
     }, {} as Pick<T, K>);
 }
+
