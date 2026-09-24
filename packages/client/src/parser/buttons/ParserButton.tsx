@@ -23,6 +23,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
     const parsers = category.parsers.filter((p: ParserInfo) => p.showInMenu);
@@ -37,6 +38,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
         };
         
         document.addEventListener('mousedown', onOutsideClick);
+        
         return () => document.removeEventListener('mousedown', onOutsideClick);
     }, [open, close]);
     

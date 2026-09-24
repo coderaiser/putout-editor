@@ -86,7 +86,10 @@ export default function Toolbar() {
             return;
         }
         
-        dispatch(reset({template, fixture}));
+        dispatch(reset({
+            template,
+            fixture,
+        }));
     };
     
     let parserInfo: string | ReactElement = parser.displayName!;

@@ -187,4 +187,3 @@ test('snippet: New submenu selection is undoable', async ({page}) => {
     
     expect(undone).toBe(before);
 });
-

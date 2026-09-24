@@ -14,6 +14,7 @@ const render = (ui: ReactElement) => testingRender(
         {ui}
     </ToolbarMenuProvider>,
 );
+
 const openParser = () => fireEvent.click(document.querySelector('.menuButton > span')!);
 
 const mockParser: ParserInfo = {
@@ -232,6 +233,7 @@ test('ParserButton: clicking parser item closes menu', (t) => {
     
     openParser();
     const item = document.querySelector('li')!;
+    
     fireEvent.click(item);
     
     const result = document.querySelector('ul');

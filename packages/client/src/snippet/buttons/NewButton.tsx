@@ -21,6 +21,7 @@ export default function NewButton({saving, forking, onNew}: Props) {
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
     
@@ -111,4 +112,3 @@ export default function NewButton({saving, forking, onNew}: Props) {
         </div>
     );
 }
-

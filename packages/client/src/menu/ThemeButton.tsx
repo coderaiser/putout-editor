@@ -31,6 +31,7 @@ export default function ThemeButton() {
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
     

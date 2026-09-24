@@ -24,6 +24,7 @@ export default function TransformButton({id, category, transformer, showTransfor
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
     
@@ -37,6 +38,7 @@ export default function TransformButton({id, category, transformer, showTransfor
         };
         
         document.addEventListener('mousedown', onOutsideClick);
+        
         return () => document.removeEventListener('mousedown', onOutsideClick);
     }, [open, close]);
     

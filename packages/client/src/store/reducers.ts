@@ -10,6 +10,7 @@ import {
     getTransformerByID,
     type ParserCategory,
 } from '#parser';
+
 /**
  * Result of parsing the current code with the active parser.
  * `null` is the initial state before anything has been parsed.
@@ -456,4 +457,3 @@ function pick<T extends object, K extends keyof T>(obj: T, ...properties: K[]): 
         return result;
     }, {} as Pick<T, K>);
 }
-

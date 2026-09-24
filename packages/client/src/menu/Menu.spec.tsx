@@ -75,6 +75,7 @@ function renderMenu(store: ReturnType<typeof makeStore>) {
 
 const openSnippet = () => fireEvent.click(document.querySelector('#Toolbar > .menuButton > span')!);
 const openKeyMap = () => fireEvent.click(document.querySelector('#ToolbarKeyMap > button')!);
+
 const openNew = () => {
     openSnippet();
     fireEvent.click(document.querySelector('[data-testid="new-menu"] > span')!);

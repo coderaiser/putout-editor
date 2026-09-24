@@ -16,6 +16,7 @@ export default function Funding() {
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
     
@@ -29,6 +30,7 @@ export default function Funding() {
         };
         
         document.addEventListener('mousedown', onOutsideClick);
+        
         return () => document.removeEventListener('mousedown', onOutsideClick);
     }, [open, close]);
     

@@ -1,5 +1,9 @@
 import {test} from 'supertape';
-import {categories, fixtures, templates} from './index.ts';
+import {
+    categories,
+    fixtures,
+    templates,
+} from './index.ts';
 
 test('snippet: templates: categories has 13 entries', (t) => {
     t.equal(categories.length, 13);
@@ -12,70 +16,95 @@ test('snippet: fixtures: map has 13 entries', (t) => {
 });
 
 test('snippet: fixtures: Replacer contains ternary', (t) => {
-    t.ok(fixtures.Replacer.includes('?'));
+    const result = fixtures.Replacer.includes('?');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Includer contains object method', (t) => {
-    t.ok(fixtures.Includer.includes('greet()'));
+    const result = fixtures.Includer.includes('greet()');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Traverser contains duplicate imports', (t) => {
-    t.ok(fixtures.Traverser.includes("import {a} from 'x';"));
+    const result = fixtures.Traverser.includes('import {a} from \'x\';');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Declarator contains putout call', (t) => {
-    t.ok(fixtures.Declarator.includes('putout(source'));
+    const result = fixtures.Declarator.includes('putout(source');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Scanner contains filesystem comment', (t) => {
-    t.ok(fixtures.Scanner.includes('filesystem plugin'));
+    const result = fixtures.Scanner.includes('filesystem plugin');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Finder contains duplicate declarations', (t) => {
-    t.ok(fixtures.Finder.includes('const x = 1;'));
+    const result = fixtures.Finder.includes('const x = 1;');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: JSON contains processor', (t) => {
-    t.ok(fixtures.JSON.includes('__putout_processor_json'));
+    const result = fixtures.JSON.includes('__putout_processor_json');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: YAML contains processor', (t) => {
-    t.ok(fixtures.YAML.includes('__putout_processor_yaml'));
+    const result = fixtures.YAML.includes('__putout_processor_yaml');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: TOML contains processor', (t) => {
-    t.ok(fixtures.TOML.includes('__putout_processor_toml'));
+    const result = fixtures.TOML.includes('__putout_processor_toml');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Markdown contains heading', (t) => {
-    t.ok(fixtures.Markdown.includes('heading(2'));
+    const result = fixtures.Markdown.includes('heading(2');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: CSS contains processor', (t) => {
-    t.ok(fixtures.CSS.includes('__putout_processor_css'));
+    const result = fixtures.CSS.includes('__putout_processor_css');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Docker contains processor', (t) => {
-    t.ok(fixtures.Docker.includes('__putout_processor_docker'));
+    const result = fixtures.Docker.includes('__putout_processor_docker');
+    
+    t.ok(result);
     t.end();
 });
 
 test('snippet: fixtures: Ignore contains processor', (t) => {
-    t.ok(fixtures.Ignore.includes('__putout_processor_ignore'));
+    const result = fixtures.Ignore.includes('__putout_processor_ignore');
+    
+    t.ok(result);
     t.end();
 });
-
 
 test('snippet: templates: templates map has 13 entries', (t) => {
     t.equal(Object.keys(templates).length, 13);

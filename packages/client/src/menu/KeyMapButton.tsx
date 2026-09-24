@@ -24,6 +24,7 @@ export default function KeyMapButton({id, keyMap, onKeyMapChange}: KeyMapButtonP
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
     
@@ -37,6 +38,7 @@ export default function KeyMapButton({id, keyMap, onKeyMapChange}: KeyMapButtonP
         };
         
         document.addEventListener('mousedown', onOutsideClick);
+        
         return () => document.removeEventListener('mousedown', onOutsideClick);
     }, [open, close]);
     

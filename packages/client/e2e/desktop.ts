@@ -80,13 +80,17 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     // switch keymap by opening the dropdown and selecting an option
     const keymap = page.getByTestId('keymap');
     
-    await keymap.getByRole('button').first()
+    await keymap
+        .getByRole('button')
+        .first()
         .click();
     await page
         .getByTestId('default')
         .click();
     
-    await keymap.getByRole('button').first()
+    await keymap
+        .getByRole('button')
+        .first()
         .click();
     await page
         .getByTestId('vim')

@@ -66,6 +66,7 @@ test('SnippetButton: clicking span opens menu', (t) => {
     const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
+    
     t.ok(result);
     t.end();
 });
@@ -80,6 +81,7 @@ test('SnippetButton: clicking ul closes menu', (t) => {
     const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
+    
     t.notOk(result);
     t.end();
 });
@@ -95,6 +97,7 @@ test('SnippetButton: second span click closes menu', (t) => {
     const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
+    
     t.notOk(result);
     t.end();
 });

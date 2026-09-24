@@ -18,8 +18,11 @@ const openFunding = () => fireEvent.click(document.querySelector('.menuButton > 
 test('Funding: renders three funding options', (t) => {
     renderFunding();
     openFunding();
+    
     const buttons = document.querySelectorAll('li button');
+    
     cleanup();
+    
     t.equal(buttons.length, 3);
     t.end();
 });
@@ -27,8 +30,11 @@ test('Funding: renders three funding options', (t) => {
 test('Funding: first option is patreon', (t) => {
     renderFunding();
     openFunding();
+    
     const result = document.querySelector('li button')?.textContent.includes('patreon') || false;
+    
     cleanup();
+    
     t.ok(result);
     t.end();
 });
@@ -36,6 +42,7 @@ test('Funding: first option is patreon', (t) => {
 test('Funding: click calls globalThis.open', (t) => {
     const origOpen = globalThis.open;
     let openedUrl: string | URL | null | undefined;
+    
     globalThis.open = (url?: string | URL | undefined): Window | null => {
         openedUrl = url;
         return null;
@@ -45,14 +52,18 @@ test('Funding: click calls globalThis.open', (t) => {
     fireEvent.click(document.querySelector('li button')!);
     cleanup();
     globalThis.open = origOpen;
+    
     t.equal(openedUrl, 'https://patreon.com/coderaiser');
     t.end();
 });
 
 test('Funding: renders heart svg icon', (t) => {
     renderFunding();
+    
     const svg = document.querySelector('button svg');
+    
     cleanup();
+    
     t.ok(svg, 'heart icon svg rendered');
     t.end();
 });

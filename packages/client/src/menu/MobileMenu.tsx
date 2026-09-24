@@ -87,7 +87,10 @@ export default function MobileMenu() {
         if (clearHash())
             return;
         
-        dispatch(reset({template, fixture}));
+        dispatch(reset({
+            template,
+            fixture,
+        }));
     };
     
     const onParserChange = (id: string) => {

@@ -102,4 +102,3 @@ const y = 1;`,
 ]);`,
     Ignore: `__putout_processor_ignore(["*.loc", "node_modules"]);`,
 };
-

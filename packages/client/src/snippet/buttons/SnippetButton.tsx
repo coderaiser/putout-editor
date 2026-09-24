@@ -31,8 +31,10 @@ export default function SnippetButton(props: SnippetButtonProps) {
         toggle,
         close,
     } = useToolbarMenu();
+    
     const open = openId === 'snippet' || openId === 'new';
     const ref = useRef<HTMLDivElement>(null);
+    
     const {
         canFork,
         canSave,
@@ -55,6 +57,7 @@ export default function SnippetButton(props: SnippetButtonProps) {
         };
         
         document.addEventListener('mousedown', onOutsideClick);
+        
         return () => document.removeEventListener('mousedown', onOutsideClick);
     }, [open, close]);
     

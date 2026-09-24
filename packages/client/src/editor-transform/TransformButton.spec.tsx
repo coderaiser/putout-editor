@@ -17,6 +17,7 @@ const render = (ui: ReactElement) => testingRender(
         {ui}
     </ToolbarMenuProvider>,
 );
+
 const openTransform = () => fireEvent.click(document.querySelector('.menuButton > button')!);
 
 const mockTransformer: TransformerInfo = {
@@ -142,11 +143,7 @@ test('TransformButton: has disabled class when no transformers', (t) => {
 });
 
 test('TransformButton: clicking trigger opens menu when transformer active', (t) => {
-    let called = false;
-    
-    const onTransformChange = (v: TransformerInfo | null) => {
-        called = v === null;
-    };
+    const onTransformChange = () => {};
     
     render(
         <TransformButton
