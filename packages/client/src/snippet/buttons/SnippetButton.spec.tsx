@@ -262,3 +262,50 @@ test('SnippetButton: renders save svg icon when canSave and not saving/forking',
     t.ok(svg, 'save icon svg rendered');
     t.end();
 });
+
+test('SnippetButton: outside click closes menu', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    fireEvent.click(document.querySelector('.menuButton > span')!);
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('[data-testid="snippet-menu"]');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('SnippetButton: Enter opens menu', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    
+    const trigger = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.keyDown(trigger, {key: 'Enter'});
+    const result = document.querySelector('[data-testid="snippet-menu"]');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('SnippetButton: Space opens menu', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    
+    const trigger = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.keyDown(trigger, {key: ' '});
+    const result = document.querySelector('[data-testid="snippet-menu"]');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+

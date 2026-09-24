@@ -230,3 +230,85 @@ test('NewButton: renders TbFilePlus icon', (t) => {
     t.ok(svg);
     t.end();
 });
+
+test('NewButton: outside click closes menu', (t) => {
+    renderNew();
+    openNew();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('NewButton: direct wrapper click opens menu', (t) => {
+    renderNew();
+    fireEvent.click(document.querySelector('[data-testid="new-menu"]')!);
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('NewButton: Enter opens menu', (t) => {
+    renderNew();
+    
+    const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
+    
+    fireEvent.keyDown(trigger, {key: 'Enter'});
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('NewButton: direct wrapper second click closes menu', (t) => {
+    renderNew();
+    
+    const wrapper = document.querySelector('[data-testid="new-menu"]')!;
+    
+    fireEvent.click(wrapper);
+    fireEvent.click(wrapper);
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('NewButton: Space opens menu', (t) => {
+    renderNew();
+    
+    const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
+    
+    fireEvent.keyDown(trigger, {key: ' '});
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('NewButton: Space closes open menu', (t) => {
+    renderNew();
+    
+    const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
+    
+    fireEvent.click(trigger);
+    fireEvent.keyDown(trigger, {key: ' '});
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+

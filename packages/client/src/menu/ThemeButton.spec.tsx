@@ -139,3 +139,17 @@ test('ThemeButton: trigger has aria-expanded false when closed', (t) => {
     t.equal(result, 'false');
     t.end();
 });
+
+test('ThemeButton: outside click closes menu', (t) => {
+    clearTheme();
+    renderTheme();
+    openTheme();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+

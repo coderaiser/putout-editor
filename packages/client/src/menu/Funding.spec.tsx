@@ -67,3 +67,16 @@ test('Funding: renders heart svg icon', (t) => {
     t.ok(svg, 'heart icon svg rendered');
     t.end();
 });
+
+test('Funding: outside click closes menu', (t) => {
+    renderFunding();
+    openFunding();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+

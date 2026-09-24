@@ -9,7 +9,7 @@ import {
     useToolbarMenu,
 } from './ToolbarMenuContext.tsx';
 
-const Capture = ({capture}: {capture: (value: ReturnType<typeofuseToolbarMenu>) => void;}) => {
+const Capture = ({capture}: {capture: (value: ReturnType<typeof useToolbarMenu>) => void;}) => {
     capture(useToolbarMenu());
     return null;
 };
@@ -124,3 +124,20 @@ test('ToolbarMenuContext: close sets openId to null', (t) => {
     cleanup();
     t.end();
 });
+
+test('ToolbarMenuContext: default callbacks are noops', (t) => {
+    let value: ReturnType<typeof useToolbarMenu>;
+    render(
+        <Capture
+            capture={(next) => {
+                value = next;
+            }}
+        />,
+    );
+    act(() => value!.toggle('foo'));
+    act(() => value!.close());
+    t.equal(value!.openId, null);
+    cleanup();
+    t.end();
+});
+

@@ -117,3 +117,16 @@ test('KeyMapButton: second trigger click closes menu', (t) => {
     t.notOk(result);
     t.end();
 });
+
+test('KeyMapButton: outside click closes menu', (t) => {
+    renderKeyMap();
+    openKeyMap();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+

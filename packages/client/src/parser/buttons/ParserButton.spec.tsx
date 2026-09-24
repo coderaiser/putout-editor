@@ -377,3 +377,64 @@ test('ParserButton: clicking parser item calls onParserChange with undefined for
     t.equal(changedParser, undefined);
     t.end();
 });
+
+test('ParserButton: outside click closes menu', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    openParser();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('ParserButton: Enter opens menu', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const trigger = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.keyDown(trigger, {key: 'Enter'});
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('ParserButton: Space opens menu', (t) => {
+    render(
+        <ParserButton
+            parser={mockParser}
+            category={mockCategory}
+            onParserChange={noop}
+            onParserSettingsButtonClick={noop}
+        />,
+    );
+    
+    const trigger = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.keyDown(trigger, {key: ' '});
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});

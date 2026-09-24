@@ -326,3 +326,23 @@ test('TransformButton: renders toggle icon when showTransformer false', (t) => {
     t.ok(svg, 'toggle-off icon svg rendered');
     t.end();
 });
+
+test('TransformButton: outside click closes menu', (t) => {
+    render(
+        <TransformButton
+            category={mockCategory}
+            transformer={null}
+            showTransformer={false}
+            onTransformChange={noop}
+        />,
+    );
+    openTransform();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
