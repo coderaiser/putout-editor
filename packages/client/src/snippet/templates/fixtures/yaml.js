@@ -1,4 +1,4 @@
-export default `// Fixture: remove-empty-needs (GitHub Actions YAML plugin)
+export default `// remove-empty-needs (GitHub Actions YAML plugin)
 
 __putout_processor_yaml({
     "jobs": {

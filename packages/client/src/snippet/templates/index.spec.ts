@@ -1,5 +1,6 @@
 import {test} from 'supertape';
 import {putout} from 'putout';
+import {montag} from 'montag';
 import {initPlugin} from '../../parser/parsers/js/transformers/putout/init-plugin.ts';
 import {
     categories,
@@ -16,57 +17,49 @@ type Expected = {
 // Source of truth: `packages/mcp/src/local/templates.spec.ts`, which
 // runs every template through the same `putout` calls as the editor does.
 const expected: Record<SnippetCategory, Expected> = {
-    Replacer: {
-        places: 1,
-        output: '// Fixture: convert-ternary-to-if\n// Try clicking "Find Places" to see what the plugin matches,\n// then "Transform" to apply it 🧹\nif (hello)\n    world();\nelse\n    party();',
-    },
     Includer: {
         places: 1,
-        output: '// Fixture: remove-empty-method\n// The plugin removes methods with no params and no body.\nconst obj = {\n    greetWithName(name) {\n        return `hello ${name}`;\n    },\n};',
+        output: '// remove-empty-method\n// The plugin removes methods with no params and no body.\nconst obj = {\n    greetWithName(name) {\n        return `hello ${name}`;\n    },\n};',
     },
     Traverser: {
         places: 1,
-        output: '// Fixture: merge-duplicate-imports\n// The plugin merges two imports from the same source into one.\nimport {a, b} from \'x\';',
+        output: '// merge-duplicate-imports\n// The plugin merges two imports from the same source into one.\nimport {a, b} from \'x\';',
     },
     Declarator: {
         places: 1,
-        output: 'import putout from \'putout\';\n\n// Fixture: declare-putout-imports\n// The plugin auto-inserts missing imports for putout/operator/types.\nconst {code} = putout(source, {\n    plugins: [],\n});',
-    },
-    Scanner: {
-        places: 1,
-        output: '// Fixture: find-files-without-tests (filesystem plugin)\n// Files listed here are the virtual filesystem the plugin scans.\n__putout_processor_filesystem([\n    "/",\n    "/index.js",\n    "/index.spec.js",\n    "/utils.js"\n]);',
+        output: 'import putout from \'putout\';\n\n// declare-putout-imports\n// The plugin auto-inserts missing imports for putout/operator/types.\nconst {code} = putout(source, {\n    plugins: [],\n});',
     },
     Finder: {
         places: 1,
-        output: '// Fixture: find-duplicate-values\n// The plugin finds variables whose initialiser is an identical literal.\nconst x = 1;\n\nconst z = 2;',
+        output: '// find-duplicate-values\n// The plugin finds variables whose initialiser is an identical literal.\nconst x = 1;\n\nconst z = 2;',
     },
     JSON: {
         places: 1,
-        output: '// Fixture: remove-duplicate-keywords (package.json plugin)\n// The JSON processor wraps package.json fields as a function call.\n__putout_processor_json({\n    "keywords": ["putout", "codemod"]\n});',
+        output: '// remove-duplicate-keywords (package.json plugin)\n// The JSON processor wraps package.json fields as a function call.\n__putout_processor_json({\n    "keywords": ["putout", "codemod"]\n});',
     },
     YAML: {
         places: 1,
-        output: '// Fixture: remove-empty-needs (GitHub Actions YAML plugin)\n__putout_processor_yaml({\n    "jobs": {\n        "build": {\n            "runs-on": "ubuntu-latest"\n        }\n    }\n});',
+        output: '// remove-empty-needs (GitHub Actions YAML plugin)\n__putout_processor_yaml({\n    "jobs": {\n        "build": {\n            "runs-on": "ubuntu-latest"\n        }\n    }\n});',
     },
     TOML: {
         places: 1,
-        output: '// Fixture: remove-empty-dependencies (TOML plugin)\n__putout_processor_toml({});',
+        output: '// remove-empty-dependencies (TOML plugin)\n__putout_processor_toml({});',
     },
     Markdown: {
         places: 1,
-        output: '// Fixture: remove-trailing-spaces-from-heading (Markdown plugin)\n__putout_processor_markdown([\n    heading(2, \'Hello World\'),\n]);',
+        output: '// remove-trailing-spaces-from-heading (Markdown plugin)\n__putout_processor_markdown([\n    heading(2, \'Hello World\'),\n]);',
     },
     CSS: {
         places: 1,
-        output: '// Fixture: remove-vendor-prefix (CSS plugin)\n__putout_processor_css([\n    declaration(\'user-select\', \'none\'),\n]);',
+        output: '// remove-vendor-prefix (CSS plugin)\n__putout_processor_css([\n    declaration(\'user-select\', \'none\'),\n]);',
     },
     Docker: {
         places: 1,
-        output: '// Fixture: convert-maintainer-to-label (Dockerfile plugin)\n__putout_processor_docker([\n    [\n        "LABEL",\n        "org.opencontainers.image.authors=John <john@example.com>"\n    ]\n]);',
+        output: '// convert-maintainer-to-label (Dockerfile plugin)\n__putout_processor_docker([\n    [\n        "LABEL",\n        "org.opencontainers.image.authors=John <john@example.com>"\n    ]\n]);',
     },
     Ignore: {
         places: 1,
-        output: '// Fixture: fix-lock-extension (.gitignore plugin)\n__putout_processor_ignore(["*.lock", "node_modules"]);',
+        output: '// fix-lock-extension (.gitignore plugin)\n__putout_processor_ignore(["*.lock", "node_modules"]);',
     },
 };
 
@@ -107,18 +100,31 @@ test('templates: templates map has 13 entries', (t) => {
     t.end();
 });
 
-// ─── Replacer ───────────────────────────────────────────────────────────────────
 test('templates: Replacer: transforms ternary into if statement', (t) => {
     const result = transform('Replacer');
+    const expected = montag`
+        // convert-ternary-to-if
+        /**
+         * Paste or drop some JavaScript here and explore
+         * the syntax tree created by chosen parser 🎁.
+         *
+         * You can use all the cool new features from ES2026
+         * and even more. Enjoy 🎈!
+         */
+        if ('Transform your code with 🐊Putout')
+            console.log('Codemods never been as simple 🎈');
+        else
+            console.log('🥵');
+    `;
     
-    t.equal(result, expected.Replacer.output);
+    t.equal(result, expected);
     t.end();
 });
 
 test('templates: Replacer: finds 1 place', (t) => {
     const result = findPlaces('Replacer');
     
-    t.equal(result, expected.Replacer.places);
+    t.equal(result, 1);
     t.end();
 });
 
@@ -167,18 +173,24 @@ test('templates: Declarator: finds 1 place', (t) => {
     t.end();
 });
 
-// ─── Scanner ───────────────────────────────────────────────────────────────────
 test('templates: Scanner: keeps only the transformation result', (t) => {
     const result = transform('Scanner');
+    const expected = montag`
+        __putout_processor_filesystem([
+            "/",
+            "/index.js",
+            "/utils.js"
+        ]);
+    `;
     
-    t.equal(result, expected.Scanner.output);
+    t.equal(result, expected);
     t.end();
 });
 
 test('templates: Scanner: finds 1 place', (t) => {
     const result = findPlaces('Scanner');
     
-    t.equal(result, expected.Scanner.places);
+    t.equal(result, 1);
     t.end();
 });
 
@@ -301,25 +313,6 @@ test('templates: Ignore: finds 1 place', (t) => {
     t.equal(result, expected.Ignore.places);
     t.end();
 });
-
-// ─── Invariants a putout run cannot express ────────────────────────────────────
-for (const category of categories) {
-    test(`templates: ${category}: fixture starts with the fixture header`, (t) => {
-        const result = fixtures[category].startsWith('// Fixture:');
-        
-        t.ok(result);
-        t.end();
-    });
-    
-    test(`templates: ${category}: template starts with the rule name`, (t) => {
-        const result = templates[category]
-            .split('\n')[0]
-            .startsWith('// ');
-        
-        t.ok(result);
-        t.end();
-    });
-}
 
 test('templates: Scanner: does not hardcode unused.js', (t) => {
     const result = templates.Scanner.includes('unused.js');

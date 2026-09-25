@@ -9,7 +9,7 @@ export default montag`
     const isFile = (file) => getFileType(file) === 'file';
     const isSpec = (name) => name.includes('.spec.');
     
-    export const report = ({name}) => \`No test found for '${name}' 🔍\`;
+    export const report = ({name}) => \`No test found for '$\{name\}' 🔍\`;
     
     export const fix = () => {
         path.remove();

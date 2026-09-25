@@ -1,7 +1,7 @@
 import {montag} from 'montag';
 
 export default montag`
-// Fixture: convert-ternary-to-if
+// convert-ternary-to-if
 
 /**
  * Paste or drop some JavaScript here and explore

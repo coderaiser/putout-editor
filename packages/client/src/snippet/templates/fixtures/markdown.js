@@ -1,6 +1,9 @@
-export default `// Fixture: remove-trailing-spaces-from-heading (Markdown plugin)
+import {montag} from 'montag';
 
-__putout_processor_markdown([
-    heading(2, "Hello World   ")
-]);
+export default montag`
+    // remove-trailing-spaces-from-heading (Markdown plugin)
+    
+    __putout_processor_markdown([
+        heading(2, "Hello World   ")
+    ]);
 `;

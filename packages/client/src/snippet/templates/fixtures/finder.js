@@ -1,4 +1,4 @@
-export default `// Fixture: find-duplicate-values
+export default `// find-duplicate-values
 // The plugin finds variables whose initialiser is an identical literal.
 
 const x = 1;
