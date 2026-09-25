@@ -1,26 +1,28 @@
 import {montag} from 'montag';
 
 export default montag`
-    // find-files-without-tests
+    // remove-files-without-tests
     
     import {operator} from 'putout';
     
     const {getFilename, getFileType} = operator;
+    const isFile = (file) => getFileType(file) === 'file';
+    const isSpec = (name) => name.includes('.spec.');
     
     export const report = ({name}) => \`No test found for '\${name}' 🔍\`;
     
-    export const fix = () => {};
+    export const fix = () => {
+        path.remove();
+    };
     
     export const scan = (root, {push, trackFile}) => {
-        const files = [...trackFile(root, '*.js')]
-            .filter((file) => getFileType(file) === 'file');
         const specs = new Set(
             files
-                .map((file) => getFilename(file))
-                .filter((name) => name.includes('.spec.')),
+                .map(getFilename)
+                .filter(isSpec),
         );
         
-        for (const file of files) {
+        for (const file of trackFile(root, '*.js').filter(isFile)) {
             const name = getFilename(file);
             
             if (name.includes('.spec.'))
