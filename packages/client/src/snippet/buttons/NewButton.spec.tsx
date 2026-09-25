@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import {
     render,
@@ -10,6 +11,17 @@ import SnippetButton from './SnippetButton.tsx';
 import {ToolbarMenuProvider} from '../../store/ToolbarMenuContext.tsx';
 
 const noop = () => {};
+
+// jsdom does not load stylesheets on its own, so the real rules are injected
+const loadCss = (file: string) => {
+    if (document.getElementById(`test-css-${file}`))
+        return;
+    
+    const style = document.createElement('style');
+    style.id = `test-css-${file}`;
+    style.textContent = readFileSync(new URL(`../../../css/${file}`, import.meta.url), 'utf8');
+    document.head.append(style);
+};
 
 const snippetProps = {
     canSave: true,
@@ -30,6 +42,22 @@ const renderSnippet = () => render(
 );
 
 const openSnippetMenu = () => fireEvent.click(document.querySelector('.menuButton > span')!);
+
+// renders the real nesting inside #Toolbar so the toolbar.css rules apply,
+// and returns the New trigger span
+const renderNestedSpan = () => {
+    const {container} = render(
+        <ToolbarMenuProvider>
+            <div id="Toolbar">
+                <SnippetButton {...snippetProps}/>
+            </div>
+        </ToolbarMenuProvider>,
+    );
+    
+    openSnippetMenu();
+    
+    return container.querySelector('[data-testid="new-menu"] > span') as HTMLElement;
+};
 
 const renderNew = (props: {
     saving?: boolean;
@@ -374,5 +402,29 @@ test('NewButton: second trigger click keeps Snippet menu open', (t) => {
     cleanup();
     
     t.ok(result);
+    t.end();
+});
+
+test('NewButton: nested trigger span is left-aligned', (t) => {
+    loadCss('toolbar.css');
+    
+    const span = renderNestedSpan();
+    const result = getComputedStyle(span).justifyContent;
+    
+    cleanup();
+    
+    t.equal(result, 'flex-start');
+    t.end();
+});
+
+test('NewButton: nested trigger span drops the toolbar min-width', (t) => {
+    loadCss('toolbar.css');
+    
+    const span = renderNestedSpan();
+    const result = getComputedStyle(span).minWidth;
+    
+    cleanup();
+    
+    t.equal(result, '0');
     t.end();
 });
