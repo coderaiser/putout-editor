@@ -138,7 +138,7 @@ test('snippet: New → Declarator sets source to putout call fixture', async ({p
     expect(source).toContain('putout(source');
 });
 
-test('snippet: New trigger is center-aligned like other toolbar items', async ({page}) => {
+test('snippet: New trigger is left-aligned like other dropdown items', async ({page}) => {
     // NewButton is nested inside the Snippet dropdown, hidden until opened
     await openSnippet(page);
     
@@ -150,7 +150,7 @@ test('snippet: New trigger is center-aligned like other toolbar items', async ({
     
     const justifyContent = await trigger.evaluate((el) => getComputedStyle(el).justifyContent);
     
-    expect(justifyContent).toBe('center');
+    expect(justifyContent).toBe('flex-start');
 });
 
 test('snippet: New submenu opens on click not hover', async ({page}) => {
