@@ -327,10 +327,7 @@ test('snippet: Save stays clickable under the open New submenu', async ({page}) 
         .locator('button:has-text("Save")')
         .boundingBox();
     
-    const topmost = await page.evaluate(({x, y}) => document
-        .elementFromPoint(x, y)
-        ?.textContent
-        ?.trim() ?? '', {
+    const topmost = await page.evaluate(({x, y}) => document.elementFromPoint(x, y)?.textContent?.trim() || '', {
         x: box!.x + box!.width / 2,
         y: box!.y + box!.height / 2,
     });
