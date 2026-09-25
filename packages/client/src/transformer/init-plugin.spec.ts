@@ -1,4 +1,5 @@
 import {test} from 'supertape';
+import {type Replacer} from 'putout';
 import {initPlugin} from '#transformer/init-plugin';
 
 const noop = () => {};
@@ -23,7 +24,7 @@ test('putout-editor: client: parsers: putout: initPlugin: putout', (t) => {
                 return typeof putout;
             }
         });
-    `);
+    `) as Replacer;
     
     const getReplacement = replace as () => {
         'const __a = 3': () => string;
