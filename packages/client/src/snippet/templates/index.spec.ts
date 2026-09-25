@@ -289,4 +289,3 @@ test('snippet: templates: Scanner does not hardcode unused.js', (t) => {
     t.notOk(result);
     t.end();
 });
-

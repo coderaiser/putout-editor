@@ -310,4 +310,3 @@ test('snippet: Scanner loads correct template text', async ({page}) => {
     await pickTemplate(page, 'Scanner');
     await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('export const scan');
 });
-

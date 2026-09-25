@@ -87,7 +87,9 @@ const placesFrom = (source: string): unknown[] => {
         return [];
     
     try {
-        const parsed = JSON.parse(source) as {places?: unknown};
+        const parsed = JSON.parse(source) as {
+            places?: unknown;
+        };
         
         return Array.isArray(parsed.places) ? parsed.places : [];
     } catch {
@@ -118,6 +120,7 @@ for (const category of categories) {
         }));
         
         const places = placesFrom(found);
+        
         const result = found.startsWith('Error:') || transformed.startsWith('Error:') ? {
             error: found.startsWith('Error:') ? found : transformed,
         } : {
@@ -129,4 +132,3 @@ for (const category of categories) {
         t.end();
     });
 }
-
