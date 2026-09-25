@@ -200,7 +200,7 @@ test('snippet: New submenu selection is undoable', async ({page}) => {
 
 test('snippet: Replacer produces transformed output', async ({page}) => {
     await pickTemplate(page, 'Replacer');
-    await expect(getCodeOutput(page)).toContainText('if (hello)');
+    await expect(getCodeOutput(page)).toContainText(`if ('Transform your code with 🐊Putout')`);
 });
 
 test('snippet: Includer removes empty method from output', async ({page}) => {
