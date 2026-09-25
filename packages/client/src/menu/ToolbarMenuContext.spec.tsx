@@ -106,6 +106,88 @@ test('ToolbarMenuContext: toggle new id closes', (t) => {
     t.end();
 });
 
+test('ToolbarMenuContext: toggle submenu opens with parent', (t) => {
+    let value: ReturnType<typeof useToolbarMenu>;
+    
+    render(
+        <ToolbarMenuProvider>
+            <Capture
+                capture={(next) => {
+                    value = next;
+                }}
+            />
+        </ToolbarMenuProvider>,
+    );
+    act(() => value!.toggle('snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    t.equal(value!.openId, 'new');
+    cleanup();
+    t.end();
+});
+
+test('ToolbarMenuContext: closing submenu falls back to parent', (t) => {
+    let value: ReturnType<typeof useToolbarMenu>;
+    
+    render(
+        <ToolbarMenuProvider>
+            <Capture
+                capture={(next) => {
+                    value = next;
+                }}
+            />
+        </ToolbarMenuProvider>,
+    );
+    act(() => value!.toggle('snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    t.equal(value!.openId, 'snippet');
+    cleanup();
+    t.end();
+});
+
+test('ToolbarMenuContext: fallback parent closes on its own toggle', (t) => {
+    let value: ReturnType<typeof useToolbarMenu>;
+    
+    render(
+        <ToolbarMenuProvider>
+            <Capture
+                capture={(next) => {
+                    value = next;
+                }}
+            />
+        </ToolbarMenuProvider>,
+    );
+    act(() => value!.toggle('snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    act(() => value!.toggle('snippet'));
+    t.equal(value!.openId, null);
+    cleanup();
+    t.end();
+});
+
+test('ToolbarMenuContext: close drops parent fallback', (t) => {
+    let value: ReturnType<typeof useToolbarMenu>;
+    
+    render(
+        <ToolbarMenuProvider>
+            <Capture
+                capture={(next) => {
+                    value = next;
+                }}
+            />
+        </ToolbarMenuProvider>,
+    );
+    act(() => value!.toggle('snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    act(() => value!.close());
+    act(() => value!.toggle('new', 'snippet'));
+    act(() => value!.toggle('new', 'snippet'));
+    t.equal(value!.openId, 'snippet');
+    cleanup();
+    t.end();
+});
+
 test('ToolbarMenuContext: close sets openId to null', (t) => {
     let value: ReturnType<typeof useToolbarMenu>;
     

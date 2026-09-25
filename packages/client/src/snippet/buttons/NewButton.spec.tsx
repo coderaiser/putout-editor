@@ -266,14 +266,14 @@ test('NewButton: outside click closes menu', (t) => {
     t.end();
 });
 
-test('NewButton: direct wrapper click opens menu', (t) => {
+test('NewButton: wrapper div click does not open menu', (t) => {
     renderNew();
     fireEvent.click(document.querySelector('[data-testid="new-menu"]')!);
     const result = document.querySelector('[data-testid="new-submenu"]');
     
     cleanup();
     
-    t.ok(result);
+    t.notOk(result);
     t.end();
 });
 
@@ -293,18 +293,20 @@ test('NewButton: Enter opens menu', (t) => {
     t.end();
 });
 
-test('NewButton: direct wrapper second click closes menu', (t) => {
+test('NewButton: wrapper div click does not toggle open submenu', (t) => {
     renderNew();
     
     const wrapper = document.querySelector('[data-testid="new-menu"]')!;
+    const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
     
+    fireEvent.click(trigger);
     fireEvent.click(wrapper);
-    fireEvent.click(wrapper);
+    
     const result = document.querySelector('[data-testid="new-submenu"]');
     
     cleanup();
     
-    t.notOk(result);
+    t.ok(result);
     t.end();
 });
 

@@ -8,6 +8,7 @@ import {
 import {useToolbarMenu} from '../../store/ToolbarMenuContext.tsx';
 
 const MENU_ID = 'new';
+const PARENT_ID = 'snippet';
 
 type Props = {
     saving?: boolean;
@@ -40,14 +41,10 @@ export default function NewButton({saving, forking, onNew}: Props) {
     }, [open, close]);
     
     const onTriggerClick = (event: React.MouseEvent<HTMLSpanElement>) => {
+        // the trigger lives inside SnippetButton's <ul onClick={close}>,
+        // so the click must not reach it
         event.stopPropagation();
-        
-        if (open) {
-            close();
-            return;
-        }
-        
-        toggle(MENU_ID);
+        toggle(MENU_ID, PARENT_ID);
     };
     
     return (
@@ -55,16 +52,6 @@ export default function NewButton({saving, forking, onNew}: Props) {
             ref={ref}
             className="menuButton"
             data-testid="new-menu"
-            onClick={(event) => {
-                event.stopPropagation();
-                
-                if (open) {
-                    close();
-                    return;
-                }
-                
-                toggle(MENU_ID);
-            }}
         >
             <span
                 role="button"
@@ -75,11 +62,7 @@ export default function NewButton({saving, forking, onNew}: Props) {
                 onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                         event.preventDefault();
-                        
-                        if (open)
-                            close();
-                        else
-                            toggle(MENU_ID);
+                        toggle(MENU_ID, PARENT_ID);
                     }
                 }}
             >

@@ -8,9 +8,19 @@ import {
 
 const noop = () => {};
 
+type MenuState = {
+    id: string | null;
+    parent: string | null;
+};
+
+const closed: MenuState = {
+    id: null,
+    parent: null,
+};
+
 export type ToolbarMenuContextValue = {
     openId: string | null;
-    toggle: (id: string) => void;
+    toggle: (id: string, parentId?: string) => void;
     close: () => void;
 };
 
@@ -23,19 +33,30 @@ export const ToolbarMenuContext = createContext<ToolbarMenuContextValue>({
 export const useToolbarMenu = () => useContext(ToolbarMenuContext);
 
 export function ToolbarMenuProvider({children}: {children: ReactNode;}) {
-    const [openId, setOpenId] = useState<string | null>(null);
-    const toggle = useCallback((id: string) => {
-        setOpenId((current) => current === id ? null : id);
+    const [{
+        id,
+    }, setMenu] = useState<MenuState>(closed);
+    
+    const toggle = useCallback((menuId: string, parentId?: string) => {
+        setMenu((current) => current.id === menuId ? {
+            // closing a submenu falls back to the menu it was opened from,
+            // so the parent menu stays open
+            id: current.parent,
+            parent: null,
+        } : {
+            id: menuId,
+            parent: parentId ?? null,
+        });
     }, []);
     
     const close = useCallback(() => {
-        setOpenId(null);
+        setMenu(closed);
     }, []);
     
     return (
         <ToolbarMenuContext.Provider
             value={{
-                openId,
+                openId: id,
                 toggle,
                 close,
             }}
