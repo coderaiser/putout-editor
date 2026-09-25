@@ -1,6 +1,17 @@
-export default `// Fixture: convert-ternary-to-if
-// Try clicking "Find Places" to see what the plugin matches,
-// then "Transform" to apply it 🧹
+import {montag} from 'montag';
 
-hello ? world() : party();
+export default montag`
+// Fixture: convert-ternary-to-if
+
+/**
+ * Paste or drop some JavaScript here and explore
+ * the syntax tree created by chosen parser 🎁.
+ *
+ * You can use all the cool new features from ES2026
+ * and even more. Enjoy 🎈!
+ */
+'Transform your code with 🐊Putout' ?
+    console.log('Codemods never been as simple 🎈') :
+    console.log('🥵');
 `;
+

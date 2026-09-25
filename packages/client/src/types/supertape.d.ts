@@ -1,7 +1,5 @@
 declare module '*.css'
 
-declare module 'montag'
-
 declare module '@putout/engine-parser/babel/plugins'
 
 declare module '@putout/engine-parser/babel/options'
