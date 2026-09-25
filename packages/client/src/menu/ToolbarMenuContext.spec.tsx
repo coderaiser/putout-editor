@@ -9,7 +9,9 @@ import {
     useToolbarMenu,
 } from './ToolbarMenuContext.tsx';
 
-const Capture = ({capture}: {capture: (value: ReturnType<typeofuseToolbarMenu>) => void;}) => {
+type MenuValue = ReturnType<typeof useToolbarMenu>;
+
+const Capture = ({capture}: {capture: (value: MenuValue) => void;}) => {
     capture(useToolbarMenu());
     return null;
 };

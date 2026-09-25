@@ -14,9 +14,10 @@ type Expected = {
     output: string;
 };
 
-// Source of truth: `packages/mcp/src/local/templates.spec.ts`, which
-// runs every template through the same `putout` calls as the editor does.
-const expected: Record<SnippetCategory, Expected> = {
+// Source of truth for the categories whose expected output fits on one line.
+// `Replacer` and `Scanner` are asserted inline with `montag` further down,
+// because their expected output is multi-line.
+const expected: Record<Exclude<SnippetCategory, 'Replacer' | 'Scanner'>, Expected> = {
     Includer: {
         places: 1,
         output: '// remove-empty-method\n// The plugin removes methods with no params and no body.\nconst obj = {\n    greetWithName(name) {\n        return `hello ${name}`;\n    },\n};',
