@@ -512,5 +512,5 @@ test('mobile: Replacer fixture loads in Source panel', async ({page}) => {
         page
             .getByTestId('editor-source')
             .locator('.cm-content'),
-    ).toContainText('hello ? world() : party();');
+    ).toContainText('Transform your code with 🐊Putout');
 });

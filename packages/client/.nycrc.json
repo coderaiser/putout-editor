@@ -17,6 +17,7 @@
         "src/snippet/GistBanner.tsx",
         "src/parser/parsers/transpilers/typescript.js",
         "src/types.ts",
+        "src/transformer/index.ts",
         "scripts",
         "e2e/**",
         "lib/**",
