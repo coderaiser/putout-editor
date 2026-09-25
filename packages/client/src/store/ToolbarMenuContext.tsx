@@ -33,9 +33,7 @@ export const ToolbarMenuContext = createContext<ToolbarMenuContextValue>({
 export const useToolbarMenu = () => useContext(ToolbarMenuContext);
 
 export function ToolbarMenuProvider({children}: {children: ReactNode;}) {
-    const [{
-        id,
-    }, setMenu] = useState<MenuState>(closed);
+    const [{id}, setMenu] = useState<MenuState>(closed);
     
     const toggle = useCallback((menuId: string, parentId?: string) => {
         setMenu((current) => current.id === menuId ? {
@@ -45,7 +43,7 @@ export function ToolbarMenuProvider({children}: {children: ReactNode;}) {
             parent: null,
         } : {
             id: menuId,
-            parent: parentId ?? null,
+            parent: parentId || null,
         });
     }, []);
     

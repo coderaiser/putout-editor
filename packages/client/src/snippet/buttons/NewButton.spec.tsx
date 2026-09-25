@@ -18,6 +18,7 @@ const loadCss = (file: string) => {
         return;
     
     const style = document.createElement('style');
+    
     style.id = `test-css-${file}`;
     style.textContent = readFileSync(new URL(`../../../css/${file}`, import.meta.url), 'utf8');
     document.head.append(style);
