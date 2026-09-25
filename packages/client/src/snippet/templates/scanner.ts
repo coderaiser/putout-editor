@@ -1,25 +1,39 @@
 import {montag} from 'montag';
 
 export default montag`
-    // remove-unused-files
+    // find-files-without-tests
     
     import {operator} from 'putout';
     
-    const {getFilename, getFileType, removeFile} = operator;
+    const {getFilename, getFileType} = operator;
     
-    export const report = (file) => \`Remove unused file: '\${getFilename(file)}' 🗑️\`;
+    export const report = ({name}) => \`No test found for '\${name}' 🔍\`;
     
-    export const fix = (file) => {
-        removeFile(file);
-    };
+    export const fix = () => {};
     
     export const scan = (root, {push, trackFile}) => {
-        for (const file of trackFile(root, '*')) {
-            if (getFileType(file) !== 'file')
+        const files = [...trackFile(root, '*.js')]
+            .filter((file) => getFileType(file) === 'file');
+        const specs = new Set(
+            files
+                .map((file) => getFilename(file))
+                .filter((name) => name.includes('.spec.')),
+        );
+        
+        for (const file of files) {
+            const name = getFilename(file);
+            
+            if (name.includes('.spec.'))
                 continue;
             
-            if (getFilename(file).endsWith('/unused.js'))
-                push(file);
+            const expected = name.replace(/\\.js$/, '.spec.js');
+            
+            if (!specs.has(expected)) {
+                push({
+                    path: file,
+                    name,
+                });
+            }
         }
     };
 `;

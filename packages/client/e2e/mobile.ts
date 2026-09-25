@@ -1,8 +1,52 @@
-import {test, expect} from './test.ts';
+import {
+    test,
+    expect,
+    type Page,
+} from './test.ts';
 import {
     createPutoutEditor,
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
+
+const mobileMenu = (page: Page) => page.getByTestId('mobile-menu');
+
+const openNewSubmenu = async (page: Page) => {
+    const menu = mobileMenu(page);
+    
+    await menu
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    await menu
+        .getByTestId('new-trigger')
+        .tap();
+};
+
+const pickMobileTemplate = async (page: Page, label: string) => {
+    await openNewSubmenu(page);
+    await mobileMenu(page)
+        .getByTestId('new-submenu')
+        .getByRole('menuitem', {
+            name: label,
+        })
+        .tap();
+};
+
+const mobileTemplateMarkers = {
+    Replacer: 'convert-ternary-to-if',
+    Includer: 'remove-empty-method',
+    Traverser: 'merge-duplicate-imports',
+    Declarator: 'declare',
+    Scanner: 'scan',
+    Finder: 'find',
+    JSON: '__json',
+    YAML: '__yaml',
+    TOML: '__toml',
+    Markdown: 'heading',
+    CSS: '__css',
+    Docker: '__docker',
+    Ignore: '__ignore',
+} as const;
 
 test('mobile menu is visible', async ({page}) => {
     await expect(page.locator('#MobileMenu')).toBeVisible();
@@ -425,23 +469,7 @@ test('mobile: New submenu contains JSON', async ({page}) => {
 });
 
 test('mobile: picking Replacer loads template into transform editor', async ({page}) => {
-    await page
-        .getByTestId('mobile-menu')
-        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
-        .nth(0)
-        .tap();
-    
-    await page
-        .getByTestId('mobile-menu')
-        .getByTestId('new-trigger')
-        .tap();
-    await page
-        .getByTestId('mobile-menu')
-        .getByRole('menuitem', {
-            name: 'Replacer',
-        })
-        .tap();
-    
+    await pickMobileTemplate(page, 'Replacer');
     await page
         .getByRole('tab', {
             name: /transform/i,
@@ -453,4 +481,36 @@ test('mobile: picking Replacer loads template into transform editor', async ({pa
             .getByTestId('editor-transform')
             .locator('.cm-content'),
     ).toContainText('convert-ternary-to-if');
+});
+
+for (const [label, marker] of Object.entries(mobileTemplateMarkers)) {
+    test(`mobile: ${label} template loads via New submenu`, async ({page}) => {
+        await pickMobileTemplate(page, label);
+        await page
+            .getByRole('tab', {
+                name: /transform/i,
+            })
+            .tap();
+        
+        await expect(
+            page
+                .getByTestId('editor-transform')
+                .locator('.cm-content'),
+        ).toContainText(marker);
+    });
+}
+
+test('mobile: Replacer fixture loads in Source panel', async ({page}) => {
+    await pickMobileTemplate(page, 'Replacer');
+    await page
+        .getByRole('tab', {
+            name: /source/i,
+        })
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('editor-source')
+            .locator('.cm-content'),
+    ).toContainText('hello ? world() : party();');
 });

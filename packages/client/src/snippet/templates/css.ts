@@ -1,24 +1,26 @@
 import {montag} from 'montag';
 
 export default montag`
-    // apply-shorthand-margin
+    // remove-vendor-prefix
     
     import {operator} from 'putout';
     
-    const {__css} = operator;
+    const {__css, remove} = operator;
     
-    const margin = __css.replace(
-        '__array',
-        '[declaration("margin", valueList([dimension(__a, __b), dimension(__a, __b), dimension(__a, __b), dimension(__a, __b)]))]',
-    );
-    const shorthand = __css.replace(
-        '__array',
-        '[declaration("margin", dimension(__a, __b))]',
-    );
+    export const report = () => \`Remove outdated vendor prefix 🎨\`;
     
-    export const report = () => \`Use shorthand margin when all sides are equal 🎨\`;
+    export const fix = (path) => {
+        remove(path);
+    };
     
-    export const replace = () => ({
-        [margin]: shorthand,
+    export const traverse = ({push}) => ({
+        [__css](path) {
+            for (const decl of path.get('arguments.0.elements')) {
+                const name = decl.get('arguments.0');
+                
+                if (name.isStringLiteral() && name.node.value.startsWith('-webkit-'))
+                    push(decl);
+            }
+        },
     });
 `;

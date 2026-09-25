@@ -11,6 +11,19 @@ import markdown from './markdown.ts';
 import css from './css.ts';
 import docker from './docker.ts';
 import ignore from './ignore.ts';
+import replacerFixture from './fixtures/replacer.js';
+import includerFixture from './fixtures/includer.js';
+import traverserFixture from './fixtures/traverser.js';
+import declaratorFixture from './fixtures/declarator.js';
+import scannerFixture from './fixtures/scanner.js';
+import finderFixture from './fixtures/finder.js';
+import jsonFixture from './fixtures/json.js';
+import yamlFixture from './fixtures/yaml.js';
+import tomlFixture from './fixtures/toml.js';
+import markdownFixture from './fixtures/markdown.js';
+import cssFixture from './fixtures/css.js';
+import dockerFixture from './fixtures/docker.js';
+import ignoreFixture from './fixtures/ignore.js';
 
 export {
     replacer,
@@ -61,48 +74,19 @@ export const templates: Record<SnippetCategory, string> = {
     Docker: docker,
     Ignore: ignore,
 };
+
 export const fixtures: Record<SnippetCategory, string> = {
-    Replacer: `hello ? world() : party();`,
-    Includer: `const obj = {
-    greet() {},
-};`,
-    Traverser: `import {a} from 'x';
-import {b} from 'x';`,
-    Declarator: `const {code} = putout(source, {plugins: []});`,
-    Scanner: `__putout_processor_filesystem([
-    "/",
-    "/index.js",
-    "/unused.js",
-]);`,
-    Finder: `const x = 1;
-const y = 1;`,
-    JSON: `__putout_processor_json({
-    "keywords": ["cat", "cat", "dog"]
-});`,
-    YAML: `__putout_processor_yaml({
-    "jobs": {
-        "build": {
-            "needs": [],
-            "runs-on": "ubuntu-latest"
-        }
-    }
-});`,
-    TOML: `__putout_processor_toml({
-    "dependencies": {}
-});`,
-    Markdown: `__putout_processor_markdown([
-    heading(2, "Hello World   ")
-]);`,
-    CSS: `__putout_processor_css([
-    declaration("margin", valueList([
-        dimension(8, "px"),
-        dimension(8, "px"),
-        dimension(8, "px"),
-        dimension(8, "px"),
-    ]))
-]);`,
-    Docker: `__putout_processor_docker([
-    ["MAINTAINER", "John <john@example.com>"]
-]);`,
-    Ignore: `__putout_processor_ignore(["*.loc", "node_modules"]);`,
+    Replacer: replacerFixture,
+    Includer: includerFixture,
+    Traverser: traverserFixture,
+    Declarator: declaratorFixture,
+    Scanner: scannerFixture,
+    Finder: finderFixture,
+    JSON: jsonFixture,
+    YAML: yamlFixture,
+    TOML: tomlFixture,
+    Markdown: markdownFixture,
+    CSS: cssFixture,
+    Docker: dockerFixture,
+    Ignore: ignoreFixture,
 };

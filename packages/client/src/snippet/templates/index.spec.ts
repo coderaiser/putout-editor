@@ -231,3 +231,62 @@ test('snippet: templates: Ignore contains __ignore', (t) => {
     t.ok(result);
     t.end();
 });
+
+test('snippet: fixtures: Replacer comes from a fixture module', (t) => {
+    const result = fixtures.Replacer.includes('hello ? world()');
+    
+    t.ok(result);
+    t.end();
+});
+
+for (const category of categories) {
+    test(`snippet: fixtures: ${category} has a fixture header`, (t) => {
+        const result = fixtures[category].startsWith('// Fixture:');
+        
+        t.ok(result);
+        t.end();
+    });
+}
+
+test('snippet: templates: CSS uses traverse', (t) => {
+    const result = templates.CSS.includes('export const traverse');
+    
+    t.ok(result);
+    t.end();
+});
+
+test('snippet: templates: CSS does not use __css.replace', (t) => {
+    const result = templates.CSS.includes('__css.replace');
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('snippet: templates: Finder report uses name', (t) => {
+    const result = templates.Finder.includes('{name}');
+    
+    t.ok(result);
+    t.end();
+});
+
+test('snippet: templates: Finder uses VariableDeclarator', (t) => {
+    const result = templates.Finder.includes('VariableDeclarator');
+    
+    t.ok(result);
+    t.end();
+});
+
+test('snippet: templates: Scanner report uses getFilename', (t) => {
+    const result = templates.Scanner.includes('getFilename');
+    
+    t.ok(result);
+    t.end();
+});
+
+test('snippet: templates: Scanner does not hardcode unused.js', (t) => {
+    const result = templates.Scanner.includes('unused.js');
+    
+    t.notOk(result);
+    t.end();
+});
+
