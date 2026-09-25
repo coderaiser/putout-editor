@@ -64,12 +64,16 @@ export const templates: Record<SnippetCategory, string> = {
 export const fixtures: Record<SnippetCategory, string> = {
     Replacer: `hello ? world() : party();`,
     Includer: `const obj = {
-    greet() { return 'hi'; },
+    greet() {},
 };`,
     Traverser: `import {a} from 'x';
 import {b} from 'x';`,
     Declarator: `const {code} = putout(source, {plugins: []});`,
-    Scanner: `// filesystem plugin — no JS source needed`,
+    Scanner: `__putout_processor_filesystem([
+    "/",
+    "/index.js",
+    "/unused.js",
+]);`,
     Finder: `const x = 1;
 const y = 1;`,
     JSON: `__putout_processor_json({

@@ -5,16 +5,12 @@ export default montag`
     
     import {operator} from 'putout';
     
-    const {__json, getProperties, setValues} = operator;
+    const {__json, getProperties, remove} = operator;
     
     export const report = () => \`Remove duplicate keywords 📦\`;
     
     export const fix = (path) => {
-        const keywordsPath = path.get('value');
-        const elements = keywordsPath.node.elements;
-        const unique = [...new Set(elements.map((e) => e.value))];
-        
-        setValues(keywordsPath, unique);
+        remove(path);
     };
     
     export const traverse = ({push}) => ({
@@ -24,11 +20,19 @@ export default montag`
             if (!keywordsPath)
                 return;
             
-            const elements = keywordsPath.get('value').node.elements;
-            const values = elements.map((e) => e.value);
+            const elements = keywordsPath.get('value').get('elements');
+            const seen = new Set();
             
-            if (new Set(values).size !== values.length)
-                push(keywordsPath);
+            for (const element of elements) {
+                const {value} = element.node;
+                
+                if (seen.has(value)) {
+                    push(element);
+                    continue;
+                }
+                
+                seen.add(value);
+            }
         },
     });
 `;

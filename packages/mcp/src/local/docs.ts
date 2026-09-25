@@ -2,7 +2,7 @@ export const name = 'docs';
 
 export const description =
     'Fetch the full putout-editor reference: API docs, plugin patterns ' +
-    '(replace/traverse/include), template variable syntax (__x, __args), ' +
+    '(replace/traverse/include/find/declare/scan), template variable syntax (__x, __args), ' +
     'and error recovery guide. Call this at the start of a rule-writing session.';
 
 export const schema = {};
@@ -36,12 +36,48 @@ export const report = () => "use const";
 export const replace = () => ({ "var __x = __y": "const __x = __y" });
 
 ### Traverse
-export const report = () => "unused variable";
-export const traverse = () => ({ Identifier: (node) => { ... } });
+export const report = () => "remove debugger";
+export const fix = (path) => path.remove();
+export const traverse = ({push}) => ({
+    DebuggerStatement(path) {
+        push(path);
+    },
+});
 
 ### Include
-export const report = () => "include this";
-export const include = () => ({ "template": "__x" });
+export const report = () => "remove this";
+export const include = () => ['debugger'];
+export const fix = (path) => path.remove();
+
+### Declarator
+export const declare = () => ({
+    putout: "import putout from 'putout'",
+});
+
+### Scanner
+import {operator} from 'putout';
+const {getFileType, removeFile} = operator;
+export const report = (file) => "remove this file";
+export const fix = (file) => removeFile(file);
+export const scan = (root, {push, trackFile}) => {
+    for (const file of trackFile(root, '*.tmp')) {
+        if (getFileType(file) !== 'file')
+            continue;
+        
+        push(file);
+    }
+};
+
+### Finder
+export const report = () => "check this node";
+export const find = (ast, {traverse, push}) => {
+    traverse(ast, {
+        debugger(path) {
+            push(path);
+        },
+    });
+};
+export const fix = (path) => path.remove();
 
 ## Template Variables
 - __x, __y, __args — placeholder variables in replace patterns

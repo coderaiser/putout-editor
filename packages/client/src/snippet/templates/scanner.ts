@@ -5,27 +5,21 @@ export default montag`
     
     import {operator} from 'putout';
     
-    const {removeFile} = operator;
+    const {getFilename, getFileType, removeFile} = operator;
     
-    export const report = ({filename}) => \`Remove unused file: '\${filename}' 🗑️\`;
+    export const report = (file) => \`Remove unused file: '\${getFilename(file)}' 🗑️\`;
     
-    export const fix = ({filename}) => {
-        removeFile(filename);
+    export const fix = (file) => {
+        removeFile(file);
     };
     
     export const scan = (root, {push, trackFile}) => {
-        const {files} = root;
-        const {imports} = files;
-        
-        for (const file of trackFile(root)) {
-            const {filename} = file;
-            
-            if (imports.includes(filename))
+        for (const file of trackFile(root, '*')) {
+            if (getFileType(file) !== 'file')
                 continue;
             
-            push({
-                filename,
-            });
+            if (getFilename(file).endsWith('/unused.js'))
+                push(file);
         }
     };
 `;

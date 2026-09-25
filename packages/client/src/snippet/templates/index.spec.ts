@@ -43,8 +43,8 @@ test('snippet: fixtures: Declarator contains putout call', (t) => {
     t.end();
 });
 
-test('snippet: fixtures: Scanner contains filesystem comment', (t) => {
-    const result = fixtures.Scanner.includes('filesystem plugin');
+test('snippet: fixtures: Scanner contains filesystem processor', (t) => {
+    const result = fixtures.Scanner.includes('__putout_processor_filesystem');
     
     t.ok(result);
     t.end();
@@ -120,6 +120,13 @@ test('snippet: templates: Replacer starts with montag comment', (t) => {
     t.end();
 });
 
+test('snippet: templates: Replacer contains the master broom report', (t) => {
+    const result = templates.Replacer.includes('Use \'if\' instead of ternary 🧹');
+    
+    t.ok(result);
+    t.end();
+});
+
 test('snippet: templates: Replacer second line is blank', (t) => {
     t.equal(templates.Replacer.split('\n')[1], '');
     t.end();
@@ -166,6 +173,13 @@ test('snippet: templates: Finder starts with montag comment', (t) => {
         .startsWith('// ');
     
     t.ok(result);
+    t.end();
+});
+
+test('snippet: templates: Finder does not contain match', (t) => {
+    const result = /\bmatch\b/.test(templates.Finder);
+    
+    t.notOk(result);
     t.end();
 });
 

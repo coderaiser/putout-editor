@@ -17,7 +17,7 @@ export const schema = z.object({
     plugin: z
         .string()
         .describe(
-            'Putout plugin as an ESM string. Must export report and one of: replace, traverse, include. ' +
+            'Putout plugin as an ESM string. Supported primary exports: replace, traverse, include, find, declare, or scan. ' +
         'Example: export const report = () => "use const"; ' +
         'export const replace = () => ({ "var __x = __y": "const __x = __y" });',
         ),

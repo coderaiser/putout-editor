@@ -35,6 +35,7 @@
     "escover": "^6.5.2",
     "eslint": "^10.7.0",
     "eslint-plugin-putout": "^31.2.0",
+    "jiti": "^2.7.0",
     "madrun": "^13.0.2",
     "redlint": "^6.9.2",
     "superc8": "^12.7.0",
