@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import {initPlugin} from './init-plugin.ts';
+import {initPlugin} from '#transformer/init-plugin';
 
 const noop = () => {};
 

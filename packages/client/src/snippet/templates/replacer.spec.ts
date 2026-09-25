@@ -31,4 +31,3 @@ test('templates: Replacer: transforms ternary into if statement', (t) => {
     t.equal(code, expected);
     t.end();
 });
-

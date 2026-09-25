@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import {putout} from 'putout';
 import {montag} from 'montag';
-import {initPlugin} from '../../transformer/init-plugin.ts';
+import {initPlugin} from '#transformer/init-plugin';
 import {
     categories,
     fixtures,

@@ -8,4 +8,3 @@ export default montag`
         "keywords": ["putout", "putout", "codemod"]
     });
 `;
-
