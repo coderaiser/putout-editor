@@ -14,8 +14,8 @@ import babelParser from './js/babel.ts';
 import espreeParser from './js/espree.tsx';
 import esprima from './js/esprima.ts';
 import acorn from './js/acorn.tsx';
-import putoutTransformer from './js/transformers/putout/index.ts';
-import putoutDefaultTransform from './js/transformers/putout/codeExample.ts';
+import putoutTransformer from '../../transformer/index.ts';
+import putoutDefaultTransform from '../../transformer/codeExample.ts';
 import {
     id,
     displayName,

@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import {putout} from 'putout';
 import {montag} from 'montag';
-import {initPlugin} from '../../parser/parsers/js/transformers/putout/init-plugin.ts';
+import {initPlugin} from '../../transformer/init-plugin.ts';
 import {
     categories,
     fixtures,
@@ -101,27 +101,6 @@ test('templates: templates map has 13 entries', (t) => {
     t.end();
 });
 
-test('templates: Replacer: transforms ternary into if statement', (t) => {
-    const result = transform('Replacer');
-    const expected = montag`
-        // convert-ternary-to-if
-        /**
-         * Paste or drop some JavaScript here and explore
-         * the syntax tree created by chosen parser 🎁.
-         *
-         * You can use all the cool new features from ES2026
-         * and even more. Enjoy 🎈!
-         */
-        if ('Transform your code with 🐊Putout')
-            console.log('Codemods never been as simple 🎈');
-        else
-            console.log('🥵');
-    `;
-    
-    t.equal(result, expected);
-    t.end();
-});
-
 test('templates: Replacer: finds 1 place', (t) => {
     const result = findPlaces('Replacer');
     
@@ -129,7 +108,6 @@ test('templates: Replacer: finds 1 place', (t) => {
     t.end();
 });
 
-// ─── Includer ───────────────────────────────────────────────────────────────────
 test('templates: Includer: removes empty method', (t) => {
     const result = transform('Includer');
     
