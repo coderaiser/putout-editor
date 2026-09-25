@@ -44,6 +44,11 @@ const openNew = async (page: Page) => {
         .click();
 };
 
+const closeNew = (page: Page) => page
+    .getByTestId('new-menu')
+    .locator(':scope > span')
+    .click();
+
 const pickTemplate = async (page: Page, label: string) => {
     await openNew(page);
     await page
@@ -266,6 +271,18 @@ test('snippet: Snippet menu closes after picking template', async ({page}) => {
 test('snippet: New submenu closes after picking template', async ({page}) => {
     await pickTemplate(page, 'Replacer');
     await expect(page.getByTestId('new-submenu')).toBeHidden();
+});
+
+test('snippet: New trigger second click hides submenu', async ({page}) => {
+    await openNew(page);
+    await closeNew(page);
+    await expect(page.getByTestId('new-submenu')).toBeHidden();
+});
+
+test('snippet: New trigger second click keeps Snippet menu open', async ({page}) => {
+    await openNew(page);
+    await closeNew(page);
+    await expect(page.getByTestId('snippet-menu')).toBeVisible();
 });
 
 test('snippet: Parser menu replaces Snippet menu', async ({page}) => {
