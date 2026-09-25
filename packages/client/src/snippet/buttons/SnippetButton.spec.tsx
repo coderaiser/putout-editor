@@ -1,11 +1,19 @@
 import {test} from 'supertape';
 import {
-    render,
+    render as testingRender,
     cleanup,
     fireEvent,
 } from '@testing-library/react';
+import type {ReactElement} from 'react';
 import SnippetButton from './SnippetButton.tsx';
 import type {Revision} from '../../store/reducers.ts';
+import {ToolbarMenuProvider} from '../../store/ToolbarMenuContext.tsx';
+
+const render = (ui: ReactElement) => testingRender(
+    <ToolbarMenuProvider>
+        {ui}
+    </ToolbarMenuProvider>,
+);
 
 const noop = () => {};
 
@@ -39,8 +47,9 @@ test('SnippetButton: renders four list items', (t) => {
     render(
         <SnippetButton {...defaultProps}/>,
     );
+    fireEvent.click(document.querySelector('.menuButton > span')!);
     
-    const items = document.querySelectorAll('ul > li');
+    const items = document.querySelectorAll('[data-testid="snippet-menu"] > li');
     
     cleanup();
     
@@ -48,17 +57,13 @@ test('SnippetButton: renders four list items', (t) => {
     t.end();
 });
 
-test('SnippetButton: clicking span sets is-closed class', (t) => {
+test('SnippetButton: clicking span opens menu', (t) => {
     render(
         <SnippetButton {...defaultProps}/>,
     );
     
-    const div = document.querySelector('.menuButton');
-    const span = document.querySelector('.menuButton > span');
-    
-    fireEvent.click(span!);
-    
-    const result = div?.className.includes('is-closed') || false;
+    fireEvent.click(document.querySelector('.menuButton > span')!);
+    const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
     
@@ -66,36 +71,30 @@ test('SnippetButton: clicking span sets is-closed class', (t) => {
     t.end();
 });
 
-test('SnippetButton: clicking ul sets is-closed class', (t) => {
+test('SnippetButton: clicking ul closes menu', (t) => {
     render(
         <SnippetButton {...defaultProps}/>,
     );
+    fireEvent.click(document.querySelector('.menuButton > span')!);
     
-    const div = document.querySelector('.menuButton');
-    const ul = document.querySelector('ul');
-    
-    fireEvent.click(ul!);
-    
-    const result = div?.className.includes('is-closed') || false;
+    fireEvent.click(document.querySelector('[data-testid="snippet-menu"]')!);
+    const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
     
-    t.ok(result);
+    t.notOk(result);
     t.end();
 });
 
-test('SnippetButton: mouseleave clears is-closed class', (t) => {
+test('SnippetButton: second span click closes menu', (t) => {
     render(
         <SnippetButton {...defaultProps}/>,
     );
+    const span = document.querySelector('.menuButton > span')!;
     
-    const div = document.querySelector('.menuButton');
-    const span = document.querySelector('.menuButton > span');
-    
-    fireEvent.click(span!);
-    fireEvent.mouseLeave(div!);
-    
-    const result = div?.className.includes('is-closed') || false;
+    fireEvent.click(span);
+    fireEvent.click(span);
+    const result = document.querySelector('[data-testid="snippet-menu"]');
     
     cleanup();
     
@@ -261,5 +260,55 @@ test('SnippetButton: renders save svg icon when canSave and not saving/forking',
     cleanup();
     
     t.ok(svg, 'save icon svg rendered');
+    t.end();
+});
+
+test('SnippetButton: outside click closes menu', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    fireEvent.click(document.querySelector('.menuButton > span')!);
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('[data-testid="snippet-menu"]');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('SnippetButton: Enter opens menu', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    
+    const trigger = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.keyDown(trigger, {
+        key: 'Enter',
+    });
+    const result = document.querySelector('[data-testid="snippet-menu"]');
+    
+    cleanup();
+    
+    t.ok(result);
+    t.end();
+});
+
+test('SnippetButton: Space opens menu', (t) => {
+    render(
+        <SnippetButton {...defaultProps}/>,
+    );
+    
+    const trigger = document.querySelector('.menuButton > span')!;
+    
+    fireEvent.keyDown(trigger, {
+        key: ' ',
+    });
+    const result = document.querySelector('[data-testid="snippet-menu"]');
+    
+    cleanup();
+    
+    t.ok(result);
     t.end();
 });

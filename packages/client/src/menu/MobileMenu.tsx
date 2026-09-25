@@ -2,6 +2,8 @@ import {useSelector, useDispatch} from 'react-redux';
 import {
     TbDeviceFloppy,
     TbFileCode,
+    TbFilePlus,
+    TbChevronDown,
     TbGitFork,
     TbLoader2,
     TbCode,
@@ -9,9 +11,15 @@ import {
     TbMoon,
     TbSun,
     TbQuestionMark,
+    TbShare2,
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
 import MobileDropdown from './MobileDropdown.tsx';
+import {
+    categories,
+    fixtures,
+    templates,
+} from '../snippet/templates/index.ts';
 import {getParserByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import * as parserSelectors from '../parser/store/parserSelectors.ts';
@@ -32,6 +40,15 @@ const applyTheme = (theme: string): void => {
     globalThis.document?.documentElement.setAttribute('data-theme', theme);
 };
 
+const clearHash = (): boolean => {
+    if (!globalThis.location?.hash)
+        return false;
+    
+    globalThis.location.hash = '';
+    
+    return true;
+};
+
 export default function MobileMenu() {
     const dispatch = useDispatch();
     const saving = useSelector(selectors.isSaving);
@@ -41,6 +58,11 @@ export default function MobileMenu() {
     const parser = useSelector(parserSelectors.getParser);
     
     const [theme, setTheme] = useState(readTheme);
+    const [openMenu, setOpenMenu] = useState<'snippet' | 'parser' | 'new' | null>(null);
+    
+    const toggleMenu = (id: 'snippet' | 'parser') => setOpenMenu((current) => current === id ? null : id);
+    
+    const toggleNew = () => setOpenMenu((current) => current === 'new' ? 'snippet' : 'new');
     
     useEffect(() => {
         applyTheme(theme);
@@ -61,13 +83,14 @@ export default function MobileMenu() {
         payload: true,
     });
     
-    const onNew = () => {
-        if (globalThis.location?.hash) {
-            globalThis.location.hash = '';
+    const onNew = (template?: string, fixture?: string) => {
+        if (clearHash())
             return;
-        }
         
-        dispatch(reset());
+        dispatch(reset({
+            template,
+            fixture,
+        }));
     };
     
     const onParserChange = (id: string) => {
@@ -91,11 +114,45 @@ export default function MobileMenu() {
     return (
         <div id="MobileMenu" data-testid="mobile-menu">
             {/* ── Snippet ──────────────────────────────────── */}
-            <MobileDropdown trigger={<><TbFileCode size={18}/> Snippet</>}>
+            <MobileDropdown
+                trigger={<><TbFileCode size={18}/> Snippet</>}
+                open={openMenu === 'snippet' || openMenu === 'new'}
+                onToggle={() => toggleMenu('snippet')}
+            >
                 <li role="menuitem">
-                    <button type="button" onClick={onNew}>
-                        New
+                    <button
+                        type="button"
+                        data-testid="new-trigger"
+                        className="mobile-dropdown__trigger"
+                        aria-expanded={openMenu === 'new'}
+                        aria-haspopup="menu"
+                        onPointerUp={toggleNew}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <TbFilePlus size={16}/> New <TbChevronDown size={12}/>
                     </button>
+                    {openMenu === 'new' && (
+                        <ul
+                            role="menu"
+                            data-testid="new-submenu"
+                            className="mobile-dropdown__menu mobile-dropdown__menu--nested"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenu(null);
+                            }}
+                        >
+                            {categories.map((label) => (
+                                <li key={label} role="menuitem">
+                                    <button
+                                        type="button"
+                                        onClick={() => onNew(templates[label], fixtures[label])}
+                                    >
+                                        {label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </li>
                 <li role="menuitem">
                     <button
@@ -113,7 +170,7 @@ export default function MobileMenu() {
                 </li>
                 <li role="menuitem">
                     <button type="button" onClick={onShare}>
-                        Share
+                        <TbShare2 size={16}/> Share
                     </button>
                 </li>
             </MobileDropdown>
@@ -121,6 +178,8 @@ export default function MobileMenu() {
             <MobileDropdown
                 trigger={<><TbCode size={18}/>
                     {parser.displayName}</>}
+                open={openMenu === 'parser'}
+                onToggle={() => toggleMenu('parser')}
             >
                 {parsers.map((p) => (
                     <li key={p.id} role="menuitem">

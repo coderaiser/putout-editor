@@ -5,11 +5,19 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import Funding from './Funding.tsx';
+import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
+
+const renderFunding = () => render(
+    <ToolbarMenuProvider>
+        <Funding/>
+    </ToolbarMenuProvider>,
+);
+
+const openFunding = () => fireEvent.click(document.querySelector('.menuButton > button')!);
 
 test('Funding: renders three funding options', (t) => {
-    render(
-        <Funding/>,
-    );
+    renderFunding();
+    openFunding();
     
     const buttons = document.querySelectorAll('li button');
     
@@ -20,14 +28,12 @@ test('Funding: renders three funding options', (t) => {
 });
 
 test('Funding: first option is patreon', (t) => {
-    render(
-        <Funding/>,
-    );
+    renderFunding();
+    openFunding();
     
-    const buttons = document.querySelectorAll('li button');
+    const result = document.querySelector('li button')?.textContent.includes('patreon') || false;
     
     cleanup();
-    const result = buttons[0]?.textContent.includes('patreon') || false;
     
     t.ok(result);
     t.end();
@@ -41,15 +47,9 @@ test('Funding: click calls globalThis.open', (t) => {
         openedUrl = url;
         return null;
     };
-    
-    render(
-        <Funding/>,
-    );
-    
-    const buttons = document.querySelectorAll('li button');
-    
-    fireEvent.click(buttons[0]);
-    
+    renderFunding();
+    openFunding();
+    fireEvent.click(document.querySelector('li button')!);
     cleanup();
     globalThis.open = origOpen;
     
@@ -58,14 +58,24 @@ test('Funding: click calls globalThis.open', (t) => {
 });
 
 test('Funding: renders heart svg icon', (t) => {
-    render(
-        <Funding/>,
-    );
+    renderFunding();
     
     const svg = document.querySelector('button svg');
     
     cleanup();
     
     t.ok(svg, 'heart icon svg rendered');
+    t.end();
+});
+
+test('Funding: outside click closes menu', (t) => {
+    renderFunding();
+    openFunding();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
     t.end();
 });

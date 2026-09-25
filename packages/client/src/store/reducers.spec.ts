@@ -378,6 +378,23 @@ test('reducers: reset clears activeRevision', (t) => {
     t.end();
 });
 
+test('reducers: reset: with template sets transform code', (t) => {
+    const template = '// my-plugin\nexport const replace = () => ({});';
+    
+    const state = putoutEditor(getInitState(), reset(template));
+    
+    t.equal(state.workbench.transform.code, template);
+    t.end();
+});
+
+test('reducers: reset: without template uses default transform', (t) => {
+    const state = putoutEditor(getInitState(), reset());
+    const result = state.workbench.transform.code.includes('export const replace');
+    
+    t.ok(result);
+    t.end();
+});
+
 test('reducers: select category clears activeRevision', (t) => {
     const rev = makeRevision();
     const withRev = putoutEditor(getInitState(), setSnippet(rev));
@@ -385,6 +402,34 @@ test('reducers: select category clears activeRevision', (t) => {
     const state = putoutEditor(withRev, selectCategory(getCategory()));
     
     t.notOk(state.activeRevision);
+    t.end();
+});
+
+test('reducers: reset: with fixture sets workbench code', (t) => {
+    const fixture = 'hello ? world() : party();';
+    const state = putoutEditor(getInitState(), reset({
+        fixture,
+    }));
+    
+    t.equal(state.workbench.code, fixture);
+    t.end();
+});
+
+test('reducers: reset: with fixture sets initialCode', (t) => {
+    const fixture = 'const x = 1;\nconst y = 1;';
+    const state = putoutEditor(getInitState(), reset({
+        fixture,
+    }));
+    
+    t.equal(state.workbench.initialCode, fixture);
+    t.end();
+});
+
+test('reducers: reset: without fixture uses parser codeExample', (t) => {
+    const state = putoutEditor(getInitState(), reset({}));
+    const codeExample = getInitState().workbench.code;
+    
+    t.equal(state.workbench.code, codeExample);
     t.end();
 });
 

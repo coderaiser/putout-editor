@@ -23,7 +23,8 @@
     "#store": "./src/store/index.ts",
     "#parser": "./src/parser/index.ts",
     "#snippet": "./src/snippet/index.ts",
-    "#ui": "./src/ui/index.ts"
+    "#ui": "./src/ui/index.ts",
+    "#transformer/init-plugin": "./src/transformer/init-plugin.ts"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
@@ -42,6 +43,7 @@
     "@putout/plugin-nodejs": "^21.0.0",
     "@putout/plugin-types": "^10.0.0",
     "@putout/plugin-variables": "^2.0.0",
+    "@putout/test": "^15.8.2",
     "@rspack/cli": "^2.1.3",
     "@rspack/core": "^2.1.3",
     "@rspack/dev-server": "^2.1.0",

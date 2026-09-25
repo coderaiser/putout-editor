@@ -26,18 +26,19 @@ test('dark mode sets data-theme attribute', async ({page}) => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
-test('toolbar dropdown opens on hover', async ({page}) => {
+test('toolbar dropdown opens on click', async ({page}) => {
     await page
         .getByTestId('toolbar')
-        .locator('.menuButton')
-        .first()
-        .hover();
+        .getByRole('button', {
+            name: 'Snippet',
+            exact: true,
+        })
+        .click();
     
     await expect(
         page
             .getByTestId('toolbar')
-            .locator('.menuButton ul')
-            .first(),
+            .getByTestId('snippet-menu'),
     ).toBeVisible();
 });
 

@@ -1,7 +1,7 @@
 import pkg from 'putout/package.json' with {
     type: 'json',
 };
-import {initPlugin} from './init-plugin.ts';
+import {initPlugin} from '#transformer/init-plugin';
 
 const ID = 'putout';
 const displayName = '🐊Putout';

@@ -1,8 +1,52 @@
-import {test, expect} from './test.ts';
+import {
+    test,
+    expect,
+    type Page,
+} from './test.ts';
 import {
     createPutoutEditor,
     EDITOR_TRANSFORM,
 } from './putout-editor.ts';
+
+const mobileMenu = (page: Page) => page.getByTestId('mobile-menu');
+
+const openNewSubmenu = async (page: Page) => {
+    const menu = mobileMenu(page);
+    
+    await menu
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    await menu
+        .getByTestId('new-trigger')
+        .tap();
+};
+
+const pickMobileTemplate = async (page: Page, label: string) => {
+    await openNewSubmenu(page);
+    await mobileMenu(page)
+        .getByTestId('new-submenu')
+        .getByRole('menuitem', {
+            name: label,
+        })
+        .tap();
+};
+
+const mobileTemplateMarkers = {
+    Replacer: 'convert-ternary-to-if',
+    Includer: 'remove-empty-method',
+    Traverser: 'merge-duplicate-imports',
+    Declarator: 'declare',
+    Scanner: 'scan',
+    Finder: 'find',
+    JSON: '__json',
+    YAML: '__yaml',
+    TOML: '__toml',
+    Markdown: 'heading',
+    CSS: '__css',
+    Docker: '__docker',
+    Ignore: '__ignore',
+} as const;
 
 test('mobile menu is visible', async ({page}) => {
     await expect(page.locator('#MobileMenu')).toBeVisible();
@@ -161,7 +205,7 @@ test('each tab is tappable and switches panel', async ({page}) => {
         selector: '.output',
     }, {
         tab: 'Code',
-        selector: '[data-testid="editor-transform-output"]',
+        selector: '[data-testid="editor-code"]',
     }, {
         tab: 'Transform',
         selector: '[data-testid="editor-transform"] .cm-editor',
@@ -266,7 +310,7 @@ test('updating transform editor changes code output', async ({page}) => {
         })
         .tap();
     
-    const output = page.getByTestId('editor-transform-output');
+    const output = page.getByTestId('editor-code');
     
     await expect(output).toBeVisible();
 });
@@ -297,7 +341,176 @@ test('@putout/editor: client: mobile: updating transform editor changes code out
         })
         .tap();
     
-    const output = page.getByTestId('editor-transform-output');
+    const output = page.getByTestId('editor-code');
     
     await expect(output).not.toContainText('"use strict"');
+});
+
+test('mobile: only one dropdown open at a time', async ({page}) => {
+    // only top-level dropdowns: exclude the nested new-trigger button
+    const triggers = page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger');
+    
+    await triggers
+        .nth(0)
+        .tap();
+    
+    // open Snippet
+    await triggers
+        .nth(1)
+        .tap();
+    
+    // open Parser
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .locator(':scope > .mobile-dropdown > .mobile-dropdown__menu'),
+    ).toHaveCount(1);
+});
+
+test('mobile: New trigger visible inside Snippet dropdown', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-trigger'),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu opens on New tap', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await page
+        .getByTestId('mobile-menu')
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu'),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu contains Replacer', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await page
+        .getByTestId('mobile-menu')
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu')
+            .getByRole('menuitem', {
+                name: 'Replacer',
+            }),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu contains Declarator', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await page
+        .getByTestId('mobile-menu')
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu')
+            .getByRole('menuitem', {
+                name: 'Declarator',
+            }),
+    ).toBeVisible();
+});
+
+test('mobile: New submenu contains JSON', async ({page}) => {
+    await page
+        .getByTestId('mobile-menu')
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    
+    await page
+        .getByTestId('mobile-menu')
+        .getByTestId('new-trigger')
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('mobile-menu')
+            .getByTestId('new-submenu')
+            .getByRole('menuitem', {
+                name: 'JSON',
+            }),
+    ).toBeVisible();
+});
+
+test('mobile: picking Replacer loads template into transform editor', async ({page}) => {
+    await pickMobileTemplate(page, 'Replacer');
+    await page
+        .getByRole('tab', {
+            name: /transform/i,
+        })
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('editor-transform')
+            .locator('.cm-content'),
+    ).toContainText('convert-ternary-to-if');
+});
+
+for (const [label, marker] of Object.entries(mobileTemplateMarkers)) {
+    test(`mobile: ${label} template loads via New submenu`, async ({page}) => {
+        await pickMobileTemplate(page, label);
+        await page
+            .getByRole('tab', {
+                name: /transform/i,
+            })
+            .tap();
+        
+        await expect(
+            page
+                .getByTestId('editor-transform')
+                .locator('.cm-content'),
+        ).toContainText(marker);
+    });
+}
+
+test('mobile: Replacer fixture loads in Source panel', async ({page}) => {
+    await pickMobileTemplate(page, 'Replacer');
+    await page
+        .getByRole('tab', {
+            name: /source/i,
+        })
+        .tap();
+    
+    await expect(
+        page
+            .getByTestId('editor-source')
+            .locator('.cm-content'),
+    ).toContainText('Transform your code with 🐊Putout');
 });

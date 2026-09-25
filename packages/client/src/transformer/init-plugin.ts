@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {compileRule} from 'redput/compile-rule';
-import {putout} from 'putout';
+import {putout, type PutoutPlugin} from 'putout';
 
 const {assign} = Object;
 const noop = () => {};
@@ -19,5 +19,5 @@ export const initPlugin = (transformCode: string) => {
     
     plugin.report = plugin.report || noop;
     
-    return plugin;
+    return plugin as PutoutPlugin;
 };

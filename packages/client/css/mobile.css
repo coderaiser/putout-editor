@@ -45,6 +45,11 @@
     background: var(--color-hover);
 }
 
+/* menu items are left-aligned; top-level tab triggers stay centered */
+.mobile-dropdown__menu .mobile-dropdown__trigger {
+    justify-content: flex-start;
+}
+
 .mobile-dropdown__menu {
     position: absolute;
     top: 44px;
@@ -90,6 +95,16 @@
 .mobile-dropdown__menu button:disabled {
     color: var(--color-text-dim);
     cursor: default;
+}
+
+.mobile-dropdown__menu--nested {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-editor);
+    max-height: 50dvh;
+    overflow-y: auto;
 }
 
 /* ── Help link + Theme button ────────────────────────────── */

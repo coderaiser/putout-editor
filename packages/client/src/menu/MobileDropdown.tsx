@@ -5,15 +5,39 @@ import {
     type ReactNode,
 } from 'react';
 
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
+
 type Props = {
     trigger: ReactNode;
     children: ReactNode;
     className?: string;
+    open?: boolean;
+    onToggle?: () => void;
 };
 
-export default function MobileDropdown({trigger, children, className}: Props) {
-    const [open, setOpen] = useState(false);
+export default function MobileDropdown({trigger, children, className, open: openProp, onToggle}: Props) {
+    const [openInternal, setOpenInternal] = useState(false);
+    const isControlled = !isUndefined(openProp);
+    const open = isControlled ? openProp : openInternal;
     const ref = useRef<HTMLDivElement>(null);
+    
+    const toggle = () => {
+        if (isControlled) {
+            onToggle?.();
+            return;
+        }
+        
+        setOpenInternal((v) => !v);
+    };
+    
+    const close = () => {
+        if (isControlled) {
+            onToggle?.();
+            return;
+        }
+        
+        setOpenInternal(false);
+    };
     
     useEffect(() => {
         if (!open)
@@ -21,7 +45,7 @@ export default function MobileDropdown({trigger, children, className}: Props) {
         
         const onOutsideClick = (e: MouseEvent) => {
             if (!ref.current?.contains(e.target as Node))
-                setOpen(false);
+                close();
         };
         
         document.addEventListener('click', onOutsideClick);
@@ -42,7 +66,7 @@ export default function MobileDropdown({trigger, children, className}: Props) {
                 aria-haspopup="menu"
                 onPointerUp={(e) => {
                     e.currentTarget.focus();
-                    setOpen((v) => !v);
+                    toggle();
                 }}
             >
                 {trigger}
@@ -51,7 +75,7 @@ export default function MobileDropdown({trigger, children, className}: Props) {
                 <ul
                     role="menu"
                     className="mobile-dropdown__menu"
-                    onClick={() => setOpen(false)}
+                    onClick={() => close()}
                 >
                     {children}
                 </ul>

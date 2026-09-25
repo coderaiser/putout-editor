@@ -5,17 +5,24 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import ThemeButton from './ThemeButton.tsx';
+import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
 
 const clearTheme = () => {
     document.documentElement.removeAttribute('data-theme');
     localStorage.removeItem('theme');
 };
 
+const renderTheme = () => render(
+    <ToolbarMenuProvider>
+        <ThemeButton/>
+    </ToolbarMenuProvider>,
+);
+
+const openTheme = () => fireEvent.click(document.querySelector('button')!);
+
 test('ThemeButton: default theme is light on mount', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
+    renderTheme();
     
     const {theme} = document.documentElement.dataset;
     
@@ -27,24 +34,19 @@ test('ThemeButton: default theme is light on mount', (t) => {
 
 test('ThemeButton: renders moon svg icon in light mode', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
+    renderTheme();
     
-    const svg = document.querySelector('button svg');
+    const result = document.querySelector('button svg');
     
     cleanup();
     
-    t.ok(svg, 'theme icon svg rendered');
+    t.ok(result, 'theme icon svg rendered');
     t.end();
 });
 
 test('ThemeButton: sets dark theme on click', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
-    
+    renderTheme();
     fireEvent.click(document.querySelector('button')!);
     
     const {theme} = document.documentElement.dataset;
@@ -57,10 +59,7 @@ test('ThemeButton: sets dark theme on click', (t) => {
 
 test('ThemeButton: persists theme to localStorage', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
-    
+    renderTheme();
     fireEvent.click(document.querySelector('button')!);
     
     const stored = localStorage.getItem('theme');
@@ -74,9 +73,7 @@ test('ThemeButton: persists theme to localStorage', (t) => {
 test('ThemeButton: reads persisted theme on mount', (t) => {
     clearTheme();
     localStorage.setItem('theme', 'dark');
-    render(
-        <ThemeButton/>,
-    );
+    renderTheme();
     
     const {theme} = document.documentElement.dataset;
     
@@ -88,9 +85,7 @@ test('ThemeButton: reads persisted theme on mount', (t) => {
 
 test('ThemeButton: toggles back to light on second click', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
+    renderTheme();
     
     const button = document.querySelector('button')!;
     
@@ -107,13 +102,9 @@ test('ThemeButton: toggles back to light on second click', (t) => {
 
 test('ThemeButton: sets theme via menu item click', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
-    
-    const [, darkItem] = document.querySelectorAll('li');
-    
-    fireEvent.click(darkItem!);
+    renderTheme();
+    openTheme();
+    fireEvent.click(document.querySelectorAll('li')[1]!);
     
     const {theme} = document.documentElement.dataset;
     
@@ -125,13 +116,9 @@ test('ThemeButton: sets theme via menu item click', (t) => {
 
 test('ThemeButton: menu item click persists to localStorage', (t) => {
     clearTheme();
-    render(
-        <ThemeButton/>,
-    );
-    
-    const [, darkItem] = document.querySelectorAll('li');
-    
-    fireEvent.click(darkItem!);
+    renderTheme();
+    openTheme();
+    fireEvent.click(document.querySelectorAll('li')[1]!);
     
     const stored = localStorage.getItem('theme');
     
@@ -141,18 +128,27 @@ test('ThemeButton: menu item click persists to localStorage', (t) => {
     t.end();
 });
 
-test('ThemeButton: mouseLeave resets forceClosed', (t) => {
+test('ThemeButton: trigger has aria-expanded false when closed', (t) => {
     clearTheme();
-    const {container} = render(
-        <ThemeButton/>,
-    );
+    renderTheme();
     
-    const div = container.querySelector('div')!;
-    
-    fireEvent.mouseLeave(div);
+    const result = document.querySelector('button')!.getAttribute('aria-expanded');
     
     cleanup();
     
-    t.ok(div, 'mouseLeave handled without error');
+    t.equal(result, 'false');
+    t.end();
+});
+
+test('ThemeButton: outside click closes menu', (t) => {
+    clearTheme();
+    renderTheme();
+    openTheme();
+    fireEvent.mouseDown(document.body);
+    const result = document.querySelector('ul');
+    
+    cleanup();
+    
+    t.notOk(result);
     t.end();
 });

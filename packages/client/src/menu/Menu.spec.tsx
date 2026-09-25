@@ -73,6 +73,14 @@ function renderMenu(store: ReturnType<typeof makeStore>) {
     );
 }
 
+const openSnippet = () => fireEvent.click(document.querySelector('#Toolbar > .menuButton > span')!);
+const openKeyMap = () => fireEvent.click(document.querySelector('#ToolbarKeyMap > button')!);
+
+const openNew = () => {
+    openSnippet();
+    fireEvent.click(document.querySelector('[data-testid="new-menu"] > span')!);
+};
+
 test('Menu: renders title', (t) => {
     const store = makeStore();
     
@@ -160,8 +168,9 @@ test('Menu: keyMap menu item dispatches setKeyMap', (t) => {
     const store = makeStore();
     
     renderMenu(store);
+    openKeyMap();
     
-    const items = document.querySelectorAll('#Toolbar li');
+    const items = document.querySelectorAll('#ToolbarKeyMap li');
     const vimItem = [...items].find((item) => item.textContent === 'vim');
     
     fireEvent.click(vimItem!);
@@ -179,11 +188,9 @@ test('Menu: save button dispatches snippet/save', (t) => {
     const store = makeStore({}, actions);
     
     renderMenu(store);
+    const saveButton = document.querySelector('#Toolbar > .menuButton > button[title="Save"]')!;
     
-    const buttons = document.querySelectorAll('#Toolbar button');
-    const saveButton = [...buttons].find((button) => button.textContent.trim() === 'Save');
-    
-    fireEvent.click(saveButton!);
+    fireEvent.click(saveButton);
     
     cleanup();
     
@@ -199,11 +206,11 @@ test('Menu: new button clears location hash', (t) => {
     globalThis.location.hash = '#/gist/abc';
     
     renderMenu(store);
+    openNew();
     
-    const buttons = document.querySelectorAll('#Toolbar button');
-    const newButton = [...buttons].find((button) => button.textContent.includes('New'));
+    const defaultItem = document.querySelector('[data-testid="new-submenu"] [role="menuitem"]') as HTMLElement;
     
-    fireEvent.click(newButton!);
+    fireEvent.click(defaultItem!);
     
     cleanup();
     
@@ -215,13 +222,15 @@ test('Menu: new button clears location hash', (t) => {
 
 test('Menu: fork button dispatches snippet/save with payload true', (t) => {
     const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const store = makeStore({
+        activeRevision: makeRevision({
+            canSave: () => false,
+        }),
+    }, actions);
     
     renderMenu(store);
     
-    // The save button is the last button in the toolbar (from SnippetButton)
-    const buttons = document.querySelectorAll('#Toolbar button');
-    const forkButton = [...buttons].find((button) => (button as HTMLElement).title === 'Save');
+    const forkButton = document.querySelector('[title="Fork"]') as HTMLElement;
     
     fireEvent.click(forkButton!);
     
@@ -251,12 +260,12 @@ test('Menu: share button dispatches openShareDialog', (t) => {
     }, actions);
     
     renderMenu(store);
+    openSnippet();
     
     // The share button is inside SnippetButton
-    const buttons = document.querySelectorAll('#Toolbar button');
-    const shareButton = [...buttons].find((button) => button.textContent.includes('Share'));
+    const shareButton = [...document.querySelectorAll('#Toolbar button')].find((button) => button.textContent.includes('Share'))!;
     
-    fireEvent.click(shareButton!);
+    fireEvent.click(shareButton);
     
     cleanup();
     

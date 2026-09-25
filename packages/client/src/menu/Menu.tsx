@@ -7,6 +7,7 @@ import TransformButton from '../editor-transform/TransformButton.tsx';
 import KeyMapButton from './KeyMapButton.tsx';
 import ThemeButton from './ThemeButton.tsx';
 import Funding from './Funding.tsx';
+import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
 import {
     getTransformerByID,
     type TransformerInfo,
@@ -79,13 +80,16 @@ export default function Toolbar() {
         payload: true,
     });
     
-    const onNew = () => {
+    const onNew = (template?: string, fixture?: string) => {
         if (globalThis.location.hash) {
             globalThis.location.hash = '';
             return;
         }
         
-        dispatch(reset());
+        dispatch(reset({
+            template,
+            fixture,
+        }));
     };
     
     let parserInfo: string | ReactElement = parser.displayName!;
@@ -112,57 +116,59 @@ export default function Toolbar() {
     }
     
     return (
-        <div id="Toolbar" data-testid="toolbar">
-            <h1>🐊Putout Editor</h1>
-            <SnippetButton
-                canSave={canSave as boolean}
-                canFork={canFork as boolean}
-                saving={saving}
-                forking={forking}
-                snippet={snippet}
-                onSave={onSave}
-                onFork={onFork}
-                onNew={onNew}
-                onShareButtonClick={onShareButtonClick}
-            />
-            <ParserButton
-                data-testid="parser"
-                parser={parser}
-                category={parser.category}
-                onParserChange={onParserChange}
-                onParserSettingsButtonClick={onParserSettingsButtonClick}
-            />
-            <TransformButton
-                id="ToolbarTransform"
-                data-testid="transform"
-                category={parser.category}
-                transformer={transformer as TransformerInfo | null}
-                showTransformer={showTransformerVal}
-                onTransformChange={onTransformChange}
-            />
-            <KeyMapButton
-                id="ToolbarKeyMap"
-                data-testid="keymap"
-                keyMap={keyMap as KeyMap}
-                onKeyMapChange={onKeyMapChange}
-            />
-            <a
-                style={{
-                    minWidth: 0,
-                }}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Help"
-                href="https://github.com/coderaiser/putout#-plugins-api"
-            >
-                <TbQuestionMark size={18}/>
-            </a>
-            <ThemeButton/>
-            <Funding/>
-            <div id="info" className={transformerInfo ? 'small' : ''}>
-                Parser: {parserInfo}<br/>
-                {transformerInfo}
+        <ToolbarMenuProvider>
+            <div id="Toolbar" data-testid="toolbar">
+                <h1>🐊Putout Editor</h1>
+                <SnippetButton
+                    canSave={canSave as boolean}
+                    canFork={canFork as boolean}
+                    saving={saving}
+                    forking={forking}
+                    snippet={snippet}
+                    onSave={onSave}
+                    onFork={onFork}
+                    onNew={onNew}
+                    onShareButtonClick={onShareButtonClick}
+                />
+                <ParserButton
+                    data-testid="parser"
+                    parser={parser}
+                    category={parser.category}
+                    onParserChange={onParserChange}
+                    onParserSettingsButtonClick={onParserSettingsButtonClick}
+                />
+                <TransformButton
+                    id="ToolbarTransform"
+                    data-testid="transform"
+                    category={parser.category}
+                    transformer={transformer as TransformerInfo | null}
+                    showTransformer={showTransformerVal}
+                    onTransformChange={onTransformChange}
+                />
+                <KeyMapButton
+                    id="ToolbarKeyMap"
+                    data-testid="keymap"
+                    keyMap={keyMap as KeyMap}
+                    onKeyMapChange={onKeyMapChange}
+                />
+                <a
+                    style={{
+                        minWidth: 0,
+                    }}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Help"
+                    href="https://github.com/coderaiser/putout#-plugins-api"
+                >
+                    <TbQuestionMark size={18}/>
+                </a>
+                <ThemeButton/>
+                <Funding/>
+                <div id="info" className={transformerInfo ? 'small' : ''}>
+                    Parser: {parserInfo}<br/>
+                    {transformerInfo}
+                </div>
             </div>
-        </div>
+        </ToolbarMenuProvider>
     );
 }

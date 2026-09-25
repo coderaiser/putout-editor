@@ -6,8 +6,9 @@ import {
 
 export const EDITOR_SOURCE = 'editor-source';
 export const EDITOR_TRANSFORM = 'editor-transform';
+export const EDITOR_CODE = 'editor-code';
 
-type EditorName = typeof EDITOR_SOURCE | typeof EDITOR_TRANSFORM;
+type EditorName = typeof EDITOR_SOURCE | typeof EDITOR_TRANSFORM | typeof EDITOR_CODE;
 
 interface EditorHandle {
     write(text: string): Promise<void>;

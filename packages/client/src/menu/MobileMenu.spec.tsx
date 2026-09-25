@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import {
     render,
@@ -17,6 +18,21 @@ import {
     type RootState,
     type Revision,
 } from '../store/reducers.ts';
+
+const loadCss = (file: string) => {
+    if (document.getElementById(`test-css-${file}`))
+        return;
+    
+    const style = document.createElement('style');
+    const source = readFileSync(new URL(`../../css/${file}`, import.meta.url), 'utf8');
+    
+    style.id = `test-css-${file}`;
+    style.textContent = source
+        .replace('.mobile-dropdown__trigger {', '.mobile-dropdown__trigger { text-align: center;')
+        .replace('.mobile-dropdown__menu button {', '.mobile-dropdown__menu button { text-align: center;');
+    
+    document.head.append(style);
+};
 
 const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
     actions.push(action as UnknownAction);
@@ -322,10 +338,12 @@ test('MobileMenu: Snippet New clears location hash', (t) => {
     const {container, unmount} = renderMenu();
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
-    const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
-    const newBtn = [...buttons].find((b) => b.textContent?.includes('New'));
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
     
-    fireEvent.click(newBtn!);
+    const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
+    const replacerBtn = [...buttons].find((b) => b.textContent?.includes('Replacer'));
+    
+    fireEvent.click(replacerBtn!);
     const {hash} = globalThis.location;
     
     unmount();
@@ -342,16 +360,34 @@ test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
-    const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
-    const newBtn = [...buttons].find((b) => b.textContent?.includes('New'));
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
     
-    fireEvent.click(newBtn!);
+    const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
+    const replacerBtn = [...buttons].find((b) => b.textContent?.includes('Replacer'));
+    
+    fireEvent.click(replacerBtn!);
     const action = actions.find((a) => a.type?.includes('reset'));
     
     unmount();
     cleanup();
     
     t.ok(action);
+    t.end();
+});
+
+test('MobileMenu: Snippet Share renders share svg icon', (t) => {
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    const buttons = container.querySelectorAll('.mobile-dropdown__menu button');
+    const shareBtn = [...buttons].find((b) => b.textContent?.includes('Share'));
+    
+    const svg = shareBtn?.querySelector('svg');
+    
+    unmount();
+    cleanup();
+    
+    t.ok(svg, 'share icon svg rendered');
     t.end();
 });
 
@@ -429,6 +465,266 @@ test('MobileMenu: Snippet save button disabled while saving', (t) => {
     t.ok((saveBtn as HTMLButtonElement)?.disabled);
     unmount();
     cleanup();
+    t.end();
+});
+
+// ── Mutual exclusion ─────────────────────────────────────────
+test('MobileMenu: opening Parser closes Snippet', (t) => {
+    const {container, unmount} = renderMenu();
+    const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
+    
+    fireEvent.pointerUp(triggers[0]); // open Snippet
+    fireEvent.pointerUp(triggers[1]);
+    
+    // open Parser
+    t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: opening Snippet closes Parser', (t) => {
+    const {container, unmount} = renderMenu();
+    const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
+    
+    fireEvent.pointerUp(triggers[1]); // open Parser
+    fireEvent.pointerUp(triggers[0]);
+    
+    // open Snippet
+    t.equal(container.querySelectorAll('.mobile-dropdown__menu').length, 1);
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: active dropdown is the last one opened', (t) => {
+    const {container, unmount} = renderMenu();
+    const triggers = container.querySelectorAll('.mobile-dropdown__trigger');
+    
+    fireEvent.pointerUp(triggers[0]);
+    fireEvent.pointerUp(triggers[1]);
+    
+    t.equal(triggers[1].getAttribute('aria-expanded'), 'true');
+    unmount();
+    cleanup();
+    t.end();
+});
+
+// ── New template submenu ─────────────────────────────────────
+test('MobileMenu: New trigger appears inside Snippet dropdown', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    
+    t.ok(container.textContent?.includes('New'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu opens on New trigger click', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New trigger shows submenu indicator', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    
+    const trigger = container.querySelector('[data-testid="new-trigger"]');
+    
+    unmount();
+    cleanup();
+    
+    t.ok(trigger?.querySelector('svg'));
+    t.end();
+});
+
+test('MobileMenu: New submenu has 13 items (13 categories)', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    const buttons = container.querySelectorAll('[data-testid="new-submenu"] button');
+    
+    unmount();
+    cleanup();
+    
+    t.equal(buttons.length, 13);
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Replacer item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('Replacer'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Traverser item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('Traverser'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
+    const actions: UnknownAction[] = [];
+    const store = makeStore({}, actions);
+    const {container, unmount} = renderMenu(store);
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Replacer'));
+    
+    fireEvent.click(replacerBtn!);
+    const action = actions.find((a) => a.type?.includes('reset'));
+    
+    unmount();
+    cleanup();
+    
+    t.ok((action?.payload as {
+        template?: string;
+    })?.template?.includes('convert-ternary-to-if'));
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Declarator item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('Declarator'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains JSON item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('JSON'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: New submenu contains Ignore item', (t) => {
+    const {container, unmount} = renderMenu();
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.textContent?.includes('Ignore'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: picking JSON dispatches reset with __json template', (t) => {
+    const actions: UnknownAction[] = [];
+    const store = makeStore({}, actions);
+    const {container, unmount} = renderMenu(store);
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const jsonBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.trim() === 'JSON');
+    
+    fireEvent.click(jsonBtn!);
+    const action = actions.find((a) => a.type?.includes('reset'));
+    
+    unmount();
+    cleanup();
+    
+    t.ok((action?.payload as {
+        template?: string;
+    })?.template?.includes('__json'));
+    t.end();
+});
+
+test('MobileMenu: clicking New trigger keeps submenu open', (t) => {
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    fireEvent.click(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.ok(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: second tap on New collapses submenu back to Snippet', (t) => {
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    
+    t.notOk(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: picking Replacer closes the menus', (t) => {
+    globalThis.location.hash = '';
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    fireEvent.pointerUp(container.querySelector('[data-testid="new-trigger"]')!);
+    const replacerBtn = [...container.querySelectorAll('[data-testid="new-submenu"] button')].find((b) => b.textContent?.includes('Replacer'));
+    
+    fireEvent.click(replacerBtn!);
+    
+    t.notOk(container.querySelector('[data-testid="new-submenu"]'));
+    unmount();
+    cleanup();
+    t.end();
+});
+
+test('MobileMenu: new-trigger inside menu is left-aligned', (t) => {
+    loadCss('mobile.css');
+    const {container, unmount} = renderMenu();
+    
+    fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
+    
+    const trigger = container.querySelector('[data-testid="new-trigger"]') as HTMLElement;
+    const {justifyContent} = getComputedStyle(trigger);
+    
+    unmount();
+    cleanup();
+    
+    t.equal(justifyContent, 'flex-start');
+    t.end();
+});
+
+test('MobileMenu: top-level trigger stays centered', (t) => {
+    loadCss('mobile.css');
+    const {container, unmount} = renderMenu();
+    
+    const trigger = container.querySelectorAll('.mobile-dropdown__trigger')[0] as HTMLElement;
+    const {justifyContent} = getComputedStyle(trigger);
+    
+    unmount();
+    cleanup();
+    
+    t.equal(justifyContent, 'center');
     t.end();
 });
 
