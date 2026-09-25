@@ -304,6 +304,40 @@ test('snippet: New trigger icon aligns with Save button icon', async ({page}) =>
     expect(Math.abs(newBox!.x - saveBox!.x)).toBeLessThan(1);
 });
 
+test('snippet: Snippet items are pushed below the open New submenu', async ({page}) => {
+    await openNew(page);
+    
+    const submenu = await page
+        .getByTestId('new-submenu')
+        .boundingBox();
+    
+    const save = await page
+        .getByTestId('snippet-menu')
+        .locator('button:has-text("Save")')
+        .boundingBox();
+    
+    expect(save!.y).toBeGreaterThanOrEqual(submenu!.y + submenu!.height);
+});
+
+test('snippet: Save stays clickable under the open New submenu', async ({page}) => {
+    await openNew(page);
+    
+    const box = await page
+        .getByTestId('snippet-menu')
+        .locator('button:has-text("Save")')
+        .boundingBox();
+    
+    const topmost = await page.evaluate(({x, y}) => document
+        .elementFromPoint(x, y)
+        ?.textContent
+        ?.trim() ?? '', {
+        x: box!.x + box!.width / 2,
+        y: box!.y + box!.height / 2,
+    });
+    
+    expect(topmost).toBe('Save');
+});
+
 test('snippet: Parser menu replaces Snippet menu', async ({page}) => {
     await openSnippet(page);
     const parser = page
