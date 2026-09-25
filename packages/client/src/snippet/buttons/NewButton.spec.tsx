@@ -6,7 +6,30 @@ import {
     screen,
 } from '@testing-library/react';
 import NewButton from './NewButton.tsx';
+import SnippetButton from './SnippetButton.tsx';
 import {ToolbarMenuProvider} from '../../store/ToolbarMenuContext.tsx';
+
+const noop = () => {};
+
+const snippetProps = {
+    canSave: true,
+    canFork: false,
+    saving: false,
+    forking: false,
+    onSave: noop,
+    onFork: noop,
+    onNew: noop,
+    onShareButtonClick: noop,
+    snippet: null,
+};
+
+const renderSnippet = () => render(
+    <ToolbarMenuProvider>
+        <SnippetButton {...snippetProps}/>
+    </ToolbarMenuProvider>,
+);
+
+const openSnippetMenu = () => fireEvent.click(document.querySelector('.menuButton > span')!);
 
 const renderNew = (props: {
     saving?: boolean;
@@ -315,5 +338,39 @@ test('NewButton: Space closes open menu', (t) => {
     cleanup();
     
     t.notOk(result);
+    t.end();
+});
+
+test('NewButton: second trigger click hides submenu inside Snippet', (t) => {
+    renderSnippet();
+    openSnippetMenu();
+    
+    const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
+    
+    fireEvent.click(trigger);
+    fireEvent.click(trigger);
+    
+    const result = document.querySelector('[data-testid="new-submenu"]');
+    
+    cleanup();
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('NewButton: second trigger click keeps Snippet menu open', (t) => {
+    renderSnippet();
+    openSnippetMenu();
+    
+    const trigger = document.querySelector('[data-testid="new-menu"] > span')!;
+    
+    fireEvent.click(trigger);
+    fireEvent.click(trigger);
+    
+    const result = Boolean(document.querySelector('[data-testid="snippet-menu"]'));
+    
+    cleanup();
+    
+    t.ok(result);
     t.end();
 });
