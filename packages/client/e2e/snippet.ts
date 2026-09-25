@@ -285,6 +285,25 @@ test('snippet: New trigger second click keeps Snippet menu open', async ({page})
     await expect(page.getByTestId('snippet-menu')).toBeVisible();
 });
 
+test('snippet: New trigger icon aligns with Save button icon', async ({page}) => {
+    await openSnippet(page);
+    
+    const newIcon = page
+        .getByTestId('new-menu')
+        .locator(':scope > span > svg')
+        .first();
+    
+    const saveIcon = page
+        .getByTestId('snippet-menu')
+        .locator('button:has-text("Save") > svg')
+        .first();
+    
+    const newBox = await newIcon.boundingBox();
+    const saveBox = await saveIcon.boundingBox();
+    
+    expect(Math.abs(newBox!.x - saveBox!.x)).toBeLessThan(1);
+});
+
 test('snippet: Parser menu replaces Snippet menu', async ({page}) => {
     await openSnippet(page);
     const parser = page
