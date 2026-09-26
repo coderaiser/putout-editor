@@ -5,6 +5,13 @@ export const name = 'get_example';
 export const description =
     'Return a working plugin template and its matching fixture for a given pattern. ' +
     'Use this to get runnable code before writing your own plugin. ' +
+    'Pick the pattern in this order: replacer first and always; if replace cannot express ' +
+    'the rule, use includer; if that cannot either, use traverser. ' +
+    'Each example uses only the exports of its own pattern: replacer = report + replace, ' +
+    'includer = report + include + filter + fix, traverser = report + traverse + fix, ' +
+    'finder = report + find, declarator = declare, scanner = report + scan. ' +
+    'Never mix exports across patterns - an includer with a replace() is a broken replacer, ' +
+    'and a finder with a fix() is really an includer. ' +
     'Available patterns: replacer, traverser, includer, finder, declarator, scanner.';
 
 const PATTERNS = [
@@ -133,9 +140,7 @@ export const find = (ast, {traverse, push}) => {
             seen.set(value, id.name);
         },
     });
-};
-
-export const fix = ({path}) => path.remove();`;
+};`;
 
 const finderFixture = `// find-duplicate-values
 
@@ -155,17 +160,15 @@ const declaratorFixture = `// declare-putout-imports
 
 const {code} = putout(source, {plugins: []});`;
 
-const scannerPlugin = `// remove-spec
+const scannerPlugin = `// find-spec-without-test
 
 import {operator} from 'putout';
 
-const {getFilename, getFileType, removeFile} = operator;
+const {getFilename, getFileType} = operator;
 const isFile = (file) => getFileType(file) === 'file';
 const isSpec = (name) => name.includes('.spec.');
 
 export const report = ({name}) => \`No test found for '\${name}' 🔍\`;
-
-export const fix = (file) => removeFile(file);
 
 export const scan = (root, {push, trackFile}) => {
     for (const file of trackFile(root, '*.js').filter(isFile)) {
