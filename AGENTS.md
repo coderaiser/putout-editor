@@ -65,8 +65,16 @@ await client.close();
 `test/store.ts` exports one shared `makeStore(overrides?, options?)` → `{store, actions}`.
 Import it as `#test/store` instead of hand-rolling `configureStore`. Specs needing a
 listener middleware, `immutableCheck: false`, or a thunk `extraArgument` pass the second
-argument and keep a thin local wrapper.
+argument and keep a thin local wrapper. `workbench` and `workbench.transform` both merge
+over the initial state, so a partial override keeps the rest.
 
+- **A spec that calls `configureStore` fails the suite on purpose** — see
+  `src/store/spec-store-guard.spec.ts`. If it trips you, the fix is to use `#test/store`,
+  not to widen the guard.
+- **`.madrun.ts` is the source of truth for `package.json` scripts: edit it, then run
+  `madrun --init`.** `--init` also *deletes* any script madrun does not own, so a
+  hand-written entry silently disappears — it took `check:css` out once. madrun passes no
+  positional args, which is why `test:one` takes its glob from `SPEC`.
 - **`makeStore` throws on overrides `revive()` would discard** — `workbench.initialCode`,
   `workbench.parserSettings`, `workbench.transform.initialCode`. Set the source field
   instead; the reasoning sits in `reducers.ts` next to `revive`.
