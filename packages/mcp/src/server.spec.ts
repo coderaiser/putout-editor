@@ -32,6 +32,7 @@ test('server: registers the base tools', (t) => {
     const result = toolNames();
     const expected = [
         'docs',
+        'fetch_snippet',
         'find_places',
         'get_example',
         'parse',

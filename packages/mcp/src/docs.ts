@@ -15,12 +15,13 @@ export const schema = z.object({
 });
 
 const OVERVIEW = `putout-editor: web tool for writing and testing putout AST plugins.
-Tools: parse, find_places, transform, validate, get_example.
+Tools: parse, find_places, transform, validate, get_example, fetch_snippet.
 - get_example: get a working plugin + fixture for any pattern
 - validate: check plugin syntax before running
 - parse: get compact AST (pass full=true for raw)
 - find_places: check what a plugin matches without transforming
 - transform: apply a plugin and get transformed code
+- fetch_snippet: get source + transform of a deployed #/gist/<id>/<rev> URL
 Sections: "api" (HTTP endpoints), "errors" (error codes).`;
 
 const API = `## API Endpoints
