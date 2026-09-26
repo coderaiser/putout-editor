@@ -31,7 +31,7 @@ transform plugin →  transform (src/transformer) →  workbench.transform
   reach into each other. Each has its own spec.
 - `src/snippet` — New-menu templates + fixtures, the share dialog, and
   `storage/` (the `gist.ts` backend plus `api.ts`, which is just
-  `` fetch(`${API_HOST}/api/v1${path}`) ``). A stored snippet is
+  ``fetch(`${API_HOST}/api/v1${path}`)``). A stored snippet is
   `astexplorer.json` (manifest) + `transform.js` + the source — `code.js` when
   `v === 1`, `source.<ext>` when `v === 2`.
 
