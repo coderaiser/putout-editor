@@ -126,7 +126,9 @@ test('useFocusEffect: does not scroll when the focus path does not end at the va
 });
 
 // Reaches the autofocus line with autofocus off. The earlier tests either never
+
 // get that far (value not in the focus path) or have it on, so the false arm
+
 // was never taken.
 test('useFocusEffect: does not scroll when autofocus is off', async (t) => {
     const counted = scrolled();
@@ -159,6 +161,7 @@ test('useFocusEffect: does not scroll when autofocus is off', async (t) => {
 });
 
 // The autofocus check on line 32 is in the focusPath-*changed* branch, not the
+
 // initial-render one, so a single render never reaches it with autofocus on.
 test('useFocusEffect: scrolls when the focus path changes and autofocus is on', async (t) => {
     const counted = scrolled();

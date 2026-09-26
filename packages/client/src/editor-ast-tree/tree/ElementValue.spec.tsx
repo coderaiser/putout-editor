@@ -299,18 +299,15 @@ const makeChildren = (): TreeAdapterChild[] => [{
 // A numeric key is an array index, so the sub-element is unnamed; any other
 // key is a property name and must survive into the rendered name.
 test('ElementValue: keeps a non-index child key as its name', (t) => {
-    const {container} = render(
-        makeElement([
-            1,
-        ], {
-            open: true,
-            children: [{
-                key: 'name',
-                value: 'identifier',
-                computed: false,
-            }],
-        }),
-    );
+    const {container} = render(makeElement([1], {
+        open: true,
+        children: [{
+            key: 'name',
+            value: 'identifier',
+            computed: false,
+        }],
+    }));
+    
     const result = container.querySelector('[data-el-name]')?.getAttribute('data-el-name');
     const expected = 'name';
     
