@@ -1,98 +1,66 @@
+import {z} from 'zod';
+
 export const name = 'docs';
 
 export const description =
-    'Fetch the full putout-editor reference: API docs, plugin patterns ' +
-    '(replace/traverse/include/find/declare/scan), template variable syntax (__x, __args), ' +
-    'and error recovery guide. Call this at the start of a rule-writing session.';
+    'Fetch putout-editor reference docs. Omit section for a short overview. ' +
+    'Sections: "api" for HTTP endpoints, "errors" for error recovery. ' +
+    'For plugin patterns and runnable examples use get_example instead.';
 
-export const schema = {};
+export const schema = z.object({
+    section: z
+        .enum(['api', 'errors'])
+        .optional()
+        .describe('Which section to fetch. Omit for a short overview.'),
+});
 
-const DOCS = `# putout-editor — Full Reference
+const OVERVIEW = `putout-editor: web tool for writing and testing putout AST plugins.
+Tools: parse, find_places, transform, validate, get_example.
+- get_example: get a working plugin + fixture for any pattern
+- validate: check plugin syntax before running
+- parse: get compact AST (pass full=true for raw)
+- find_places: check what a plugin matches without transforming
+- transform: apply a plugin and get transformed code
+Sections: "api" (HTTP endpoints), "errors" (error codes).`;
 
-## Overview
-Putout-editor is a web-based tool for writing, testing, and applying putout plugins to JavaScript/TypeScript code.
-
-## API Endpoints
+const API = `## API Endpoints
 
 ### POST /api/v1/parse
 Parse source code and return Babel AST.
-- Body: { source: string, query?: string }
-- Query: comma-separated node types to filter
+Body: { source: string, query?: string }
+Query: comma-separated node types to filter
 
 ### POST /api/v1/find-places
 Find all places where a plugin matches.
-- Body: { fixture: string, plugin: string }
-- Returns: array of matches with positions
+Body: { fixture: string, plugin: string }
+Returns: array of matches with positions
 
 ### POST /api/v1/transform
 Apply plugin and return transformed code.
-- Body: { fixture: string, plugin: string }
-- Returns: transformed source as text
+Body: { fixture: string, plugin: string }
+Returns: transformed source as text`;
 
-## Plugin Patterns
+const ERRORS = `## Error Recovery
 
-### Replace
-export const report = () => "use const";
-export const replace = () => ({ "var __x = __y": "const __x = __y" });
+- plugin_syntax (line N, col N): plugin has JavaScript syntax errors
+- plugin_error: plugin throws at runtime — check fix/traverse/find logic
+- 400 Bad Request: invalid input shape
+- 500 Internal Server Error: server-side failure`;
 
-### Traverse
-export const report = () => "remove debugger";
-export const fix = (path) => path.remove();
-export const traverse = ({push}) => ({
-    DebuggerStatement(path) {
-        push(path);
-    },
-});
+type Section = NonNullable<z.input<typeof schema>['section']>;
 
-### Include
-export const report = () => "remove this";
-export const include = () => ['debugger'];
-export const fix = (path) => path.remove();
-
-### Declarator
-export const declare = () => ({
-    putout: "import putout from 'putout'",
-});
-
-### Scanner
-import {operator} from 'putout';
-const {getFileType, removeFile} = operator;
-export const report = (file) => "remove this file";
-export const fix = (file) => removeFile(file);
-export const scan = (root, {push, trackFile}) => {
-    for (const file of trackFile(root, '*.tmp')) {
-        if (getFileType(file) !== 'file')
-            continue;
-        
-        push(file);
-    }
+const SECTIONS: Record<Section, string> = {
+    api: API,
+    errors: ERRORS,
 };
 
-### Finder
-export const report = () => "check this node";
-export const find = (ast, {traverse, push}) => {
-    traverse(ast, {
-        debugger(path) {
-            push(path);
-        },
-    });
-};
-export const fix = (path) => path.remove();
-
-## Template Variables
-- __x, __y, __args — placeholder variables in replace patterns
-- Use in both keys and values of replace objects
-
-## Error Recovery
-- plugin_syntax: Plugin has JavaScript syntax errors
-- plugin_error: Plugin throws at runtime
-- 400 Bad Request: Invalid input
-- 500 Internal Server Error: Server-side failure
-`;
-
-export const handler = () => ({
-    content: [{
-        type: 'text' as const,
-        text: DOCS,
-    }],
-});
+export function handler({section}: z.input<typeof schema> = {}) {
+    const text = section ? SECTIONS[section] : OVERVIEW;
+    
+    return {
+        content: [{
+            type: 'text' as const,
+            text,
+        }],
+    };
+}

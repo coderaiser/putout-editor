@@ -19,7 +19,7 @@ export function createServer(): McpServer {
     
     const register = server.registerTool.bind(server) as AnyRegister;
     
-    register(docs.name, {description: docs.description}, docs.handler);
+    register(docs.name, {description: docs.description, inputSchema: docs.schema}, docs.handler);
     register(parse.name, {description: parse.description, inputSchema: parse.schema}, parse.handler);
     register(findPlaces.name, {description: findPlaces.description, inputSchema: findPlaces.schema}, findPlaces.handler);
     register(transform.name, {description: transform.description, inputSchema: transform.schema}, transform.handler);
