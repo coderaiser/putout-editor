@@ -1,5 +1,14 @@
 import {test} from 'supertape';
+import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {createServer} from './server.ts';
+
+type ToolHolder = {
+    _registeredTools: Record<string, unknown>;
+};
+
+const getTools = (server: McpServer) => (server as unknown as ToolHolder)._registeredTools;
+
+const toolNames = () => Object.keys(getTools(createServer())).sort();
 
 test('server: createServer returns an object', (t) => {
     const server = createServer();
@@ -16,3 +25,12 @@ test('server: createServer returns McpServer instance', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('server: registers the base tools', (t) => {
+    const result = toolNames();
+    const expected = ['docs', 'find_places', 'parse', 'transform', 'validate'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+

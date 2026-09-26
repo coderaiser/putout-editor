@@ -3,6 +3,7 @@ import * as docs from './local/docs.ts';
 import * as parse from './local/parser.ts';
 import * as findPlaces from './local/finder.ts';
 import * as transform from './local/transformer.ts';
+import * as validate from './local/validator.ts';
 
 type AnyRegister = (name: string, config: {
     description: string;
@@ -21,6 +22,7 @@ export function createServer(): McpServer {
     register(parse.name, {description: parse.description, inputSchema: parse.schema}, parse.handler);
     register(findPlaces.name, {description: findPlaces.description, inputSchema: findPlaces.schema}, findPlaces.handler);
     register(transform.name, {description: transform.description, inputSchema: transform.schema}, transform.handler);
+    register(validate.name, {description: validate.description, inputSchema: validate.schema}, validate.handler);
     
     return server;
 }
