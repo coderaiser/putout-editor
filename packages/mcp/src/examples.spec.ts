@@ -119,12 +119,13 @@ test('local get-example: names the pattern in the output', (t) => {
     t.end();
 });
 
-test('local get-example: exposes all 6 patterns', (t) => {
+test('local get-example: exposes all 7 patterns', (t) => {
     const result = [...patterns].sort();
     const expected = [
         'declarator',
         'finder',
         'includer',
+        'markdown',
         'replacer',
         'scanner',
         'traverser',

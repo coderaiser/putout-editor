@@ -14,7 +14,9 @@ export const description =
     'finder = report + find, declarator = declare, scanner = report + scan. ' +
     'Never mix exports across patterns - an includer with a replace() is a broken replacer, ' +
     'and a finder with a fix() is really an includer. ' +
-    'Available patterns: replacer, traverser, includer, finder, declarator, scanner.';
+    'The markdown pattern shows a rule for a non-JavaScript format - call the formats tool ' +
+    'for the wrapper and operator of the other formats. ' +
+    'Available patterns: replacer, traverser, includer, finder, declarator, scanner, markdown.';
 
 const PATTERNS = [
     'replacer',
@@ -23,6 +25,7 @@ const PATTERNS = [
     'finder',
     'declarator',
     'scanner',
+    'markdown',
 ] as const;
 
 type Pattern = typeof PATTERNS[number];
@@ -193,6 +196,54 @@ const scannerFixture = `__putout_processor_filesystem([
     "/utils.js"
 ]);`;
 
+const markdownPlugin = `// convert-js-to-ts
+
+import {operator, parse} from 'putout';
+import {tryCatch} from 'try-catch';
+
+const {
+    compare,
+    __markdown,
+    setLiteralValue,
+} = operator;
+
+const isClean = (source, options) => {
+    const [error, ast] = tryCatch(parse, source, options);
+    
+    return !error && !ast.errors.length;
+};
+
+const isTypeScript = (source) => isClean(source, {isTS: true}) && !isClean(source);
+
+export const report = () => \`Use a 'ts' fence for TypeScript\`;
+
+export const match = () => ({
+    'codeblock(__args)': ({__args}, {parentPath}) => {
+        if (!compare(parentPath.parentPath, __markdown))
+            return false;
+        
+        const [lang, source] = __args;
+        
+        return lang.value === 'js' && isTypeScript(source.value);
+    },
+});
+
+export const replace = () => ({
+    'codeblock(__args)': ({__args}, path) => {
+        const [lang] = __args;
+        
+        setLiteralValue(lang, 'ts');
+        
+        return path;
+    },
+});`;
+
+const markdownFixture = `__putout_processor_markdown([
+    heading(1, 'Gate'),
+    codeblock('js', 'const a: string[] = [];'),
+    codeblock('js', 'const plain = [1, 2];')
+]);`;
+
 const EXAMPLES: Record<Pattern, Example> = {
     replacer: {
         plugin: replacerPlugin,
@@ -217,6 +268,10 @@ const EXAMPLES: Record<Pattern, Example> = {
     scanner: {
         plugin: scannerPlugin,
         fixture: scannerFixture,
+    },
+    markdown: {
+        plugin: markdownPlugin,
+        fixture: markdownFixture,
     },
 };
 

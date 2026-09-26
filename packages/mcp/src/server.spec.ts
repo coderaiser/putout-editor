@@ -34,6 +34,7 @@ test('server: registers the base tools', (t) => {
         'docs',
         'fetch_snippet',
         'find_places',
+        'formats',
         'get_example',
         'parse',
         'transform',
