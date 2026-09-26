@@ -176,6 +176,7 @@ test('PasteDropTarget: paste when activeElement is inside contenteditable leaves
     );
     
     // Simulate activeElement being a contenteditable while the paste event
+    
     // fires with a non-contenteditable target (the cm-editor parent scenario)
     const editable = document.querySelector('#editable-active')! as HTMLElement;
     
