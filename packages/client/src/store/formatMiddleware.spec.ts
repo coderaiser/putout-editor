@@ -116,7 +116,6 @@ test('formatMiddleware: transformBlur with valid code formats transform', async 
         workbench: {
             transform: {
                 code: 'export const replace=()=>({})',
-                initialCode: '',
                 transformer: 'putout',
             },
         },
@@ -136,7 +135,6 @@ test('formatMiddleware: transformBlur with empty code does nothing', async (t) =
         workbench: {
             transform: {
                 code: '',
-                initialCode: '',
                 transformer: 'putout',
             },
         },
@@ -155,7 +153,6 @@ test('formatMiddleware: transformBlur with invalid code does nothing', async (t)
         workbench: {
             transform: {
                 code: bad,
-                initialCode: '',
                 transformer: 'putout',
             },
         },
@@ -173,7 +170,6 @@ test('formatMiddleware: transformBlur does not dispatch when formatted equals co
         workbench: {
             transform: {
                 code: 'export const replace = () => ({});\n',
-                initialCode: '',
                 transformer: 'putout',
             },
         },
@@ -192,7 +188,6 @@ test('formatMiddleware: transformBlur inserts blank line after comment when miss
             transform: {
                 code: '// https://git.io/JqcMn\nexport const report = () => `Use const`;',
                 cursor: 0,
-                initialCode: '',
             },
         },
     });
@@ -218,7 +213,6 @@ test('formatMiddleware: transformBlur does not duplicate blank line when already
             transform: {
                 code: '// https://git.io/JqcMn\n\nexport const report = () => `Use const`;',
                 cursor: 0,
-                initialCode: '',
             },
         },
     });

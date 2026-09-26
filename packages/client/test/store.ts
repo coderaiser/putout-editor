@@ -39,6 +39,33 @@ export type MakeStoreOptions = {
     extraArgument?: object;
 };
 
+/**
+ * `revive()` recomputes these from other state, so an override naming them is
+ * silently discarded — `workbench.parserSettings` in particular comes out as
+ * `null` and the spec quietly stops exercising what it meant to. Refuse the
+ * override instead of dropping it on the floor.
+ */
+const DERIVED_WORKBENCH = [
+    'initialCode',
+    'parserSettings',
+];
+
+const DERIVED_TRANSFORM = [
+    'initialCode',
+];
+
+function assertNotDerived(workbench: Record<string, unknown> = {}) {
+    for (const key of DERIVED_WORKBENCH)
+        if (key in workbench)
+            throw Error(`makeStore: workbench.${key} is derived by revive() and would be discarded — set the source field instead.`);
+    
+    const transform = (workbench.transform || {}) as Record<string, unknown>;
+    
+    for (const key of DERIVED_TRANSFORM)
+        if (key in transform)
+            throw Error(`makeStore: workbench.transform.${key} is derived by revive() and would be discarded — set workbench.transform.code instead.`);
+}
+
 const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
     actions.push(action as UnknownAction);
     
@@ -69,6 +96,8 @@ export function makeStore(overrides: StoreOverrides = {}, options: MakeStoreOpti
     const base = putoutEditor(undefined, {
         type: '@@INIT',
     });
+    
+    assertNotDerived(overrides.workbench);
     
     const state = {
         ...base,

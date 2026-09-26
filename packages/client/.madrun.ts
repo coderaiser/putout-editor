@@ -13,7 +13,10 @@ const env = {
 };
 
 export default {
-    'test': () => [testEnv, 'tape "src/**/*.spec.{ts,tsx}"'],
+    'test': () => [
+        testEnv,
+        'tape "src/**/*.spec.{ts,tsx}" "test/**/*.spec.ts"',
+    ],
     'test:e2e': () => 'playwright test',
     'test:e2e:desktop': () => 'playwright test --project=desktop-chrome',
     'e2e': () => 'playwright test',
