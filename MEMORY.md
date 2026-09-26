@@ -75,6 +75,15 @@ check whether it has — a finding left open after its fix exists is stale docum
   directories upstream, not by running the fixer. Neither needs supertape type work:
   `@cloudcmd/stub@5.1.0` already declares `resolves<T>()`, and `supertape` re-exports `stub`
   (verified in 13.6.0).
+- **`docs/issues/markdown.md`** — `markdown/apply-ts-codeblock-in-file` is a *filesystem*
+  scanner, enabled only in putout's `.filesystem.json` match, so it runs under `redlint` and
+  never under `putout .`. The open half is that nothing here runs `redlint` over `docs/`: the
+  root `.madrun.ts` has no `redlint` and `packages/client`'s `prelint` runs it from that
+  package's directory. Re-check by looking for a `redlint` step covering the repo root, not by
+  running `putout .` — and re-check upstream for a release that enables the scanner in the
+  `*.md` match, which would make `putout .` enforce it directly. The fences themselves are
+  currently right (`redlint scan` at the root reports the rule at 100%), so this is a missing
+  gate, not a broken file.
 
 ## Keep these three in step
 
