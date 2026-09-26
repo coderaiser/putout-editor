@@ -27,28 +27,36 @@ test('local validate: schema has plugin field', (t) => {
 });
 
 test('local validate: returns ok for valid plugin', (t) => {
-    const result = handler({plugin: validPlugin});
+    const result = handler({
+        plugin: validPlugin,
+    });
     
     t.equal(result.content[0].text, 'ok');
     t.end();
 });
 
 test('local validate: returns error message for syntax error', (t) => {
-    const result = handler({plugin: 'export const = broken'});
+    const result = handler({
+        plugin: 'export const = broken',
+    });
     
     t.ok(result.content[0].text.startsWith('plugin_syntax'));
     t.end();
 });
 
 test('local validate: error includes line and column', (t) => {
-    const result = handler({plugin: 'export const = broken'});
+    const result = handler({
+        plugin: 'export const = broken',
+    });
     
     t.match(result.content[0].text, /line \d+, col \d+/);
     t.end();
 });
 
 test('local validate: does not prefix the error with "Error:"', (t) => {
-    const result = handler({plugin: 'export const = broken'});
+    const result = handler({
+        plugin: 'export const = broken',
+    });
     
     t.notOk(result.content[0].text.startsWith('Error:'));
     t.end();
