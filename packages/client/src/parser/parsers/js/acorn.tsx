@@ -14,6 +14,38 @@ type AcornLooseMod = unknown;
 type AcornJsxMod = unknown;
 type AcornParser = (code: string, options: Record<string, unknown>) => unknown;
 
+type Parsers = {
+    acorn: AcornMod;
+    acornLoose: AcornLooseMod;
+    acornJsx: AcornJsxMod;
+};
+
+// acorn-jsx 5 does not add a `JSXParser` to the acorn module any more - the
+// documented way to get one is `Parser.extend(jsx())`. Built once, because
+// extend() is not free and this runs on every parse.
+let jsxParser: AcornParser | undefined;
+
+const getJSXParser = ({acorn, acornJsx}: Parsers) => {
+    if (jsxParser)
+        return jsxParser;
+    
+    const {Parser} = acorn as {
+        Parser: {
+            extend: (plugin: unknown) => {
+                parse: AcornParser;
+            };
+        };
+    };
+    const {default: jsx} = acornJsx as {
+        default: () => unknown;
+    };
+    const extended = Parser.extend(jsx());
+    
+    jsxParser = extended.parse.bind(extended);
+    
+    return jsxParser;
+};
+
 export default {
     ...defaultParserInterface,
     id: ID,
@@ -47,31 +79,19 @@ export default {
             });
     },
     
-    parse(parsers: {
-        acorn: AcornMod;
-        acornLoose: AcornLooseMod;
-        acornJsx: AcornJsxMod;
-    }, code: string, options: Record<string, unknown> = {}) {
+    parse(parsers: Parsers, code: string, options: Record<string, unknown> = {}) {
         let parser: AcornParser | undefined;
         
-        if (options['plugins.jsx'] && !options.loose) {
-            const {JSXParser} = parsers.acorn as {
-                JSXParser: {
-                    parse: AcornParser;
-                };
-            };
-            
-            parser = JSXParser.parse.bind(JSXParser);
-        } else {
-            if (options.loose)
-                parser = (parsers.acornLoose as {
-                    parse: AcornParser;
-                }).parse;
-            else
-                parser = (parsers.acorn as {
-                    parse: AcornParser;
-                }).parse;
-        }
+        if (options['plugins.jsx'] && !options.loose)
+            parser = getJSXParser(parsers);
+        else if (options.loose)
+            parser = (parsers.acornLoose as {
+                parse: AcornParser;
+            }).parse;
+        else
+            parser = (parsers.acorn as {
+                parse: AcornParser;
+            }).parse;
         
         return parser!(code, options);
     },
