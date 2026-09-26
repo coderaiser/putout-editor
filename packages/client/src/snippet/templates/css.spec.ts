@@ -4,7 +4,7 @@ import {putout} from 'putout';
 import {initPlugin} from '#transformer/init-plugin';
 import {fixtures, templates} from './index.ts';
 
-test('templates: CSS: removes vendor prefix', (t) => {
+test('templates: CSS: uses a custom property instead of a literal color', (t) => {
     const {code} = putout(fixtures.CSS, {
         fixCount: 1,
         plugins: [
@@ -13,9 +13,20 @@ test('templates: CSS: removes vendor prefix', (t) => {
     });
     
     const expected = montag`
-        // remove-vendor-prefix (CSS plugin)
+        // use-custom-property-for-color (CSS plugin)
+        // The CSS processor wraps declarations as function calls, so a literal color
+        // shows up as functionValue("rgb", ...).
         __putout_processor_css([
-            declaration('user-select', 'none'),
+            rule(selector([
+                classSelector('hello'),
+            ]), [
+                declaration('box-shadow', valueList([
+                    0,
+                    dimension(-4, 'px'),
+                    dimension(16, 'px'),
+                    functionValue('var', ['--shadow-color']),
+                ])),
+            ]),
         ]);
     `;
     

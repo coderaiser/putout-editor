@@ -251,9 +251,9 @@ test('snippet: Markdown removes trailing heading spaces in output', async ({page
     expect(await getCodeOutput(page)).toContain(`heading(2, 'Hello World')`);
 });
 
-test('snippet: CSS removes vendor prefix in output', async ({page}) => {
+test('snippet: CSS replaces a literal color with a custom property', async ({page}) => {
     await pickTemplate(page, 'CSS');
-    expect(await getCodeOutput(page)).toContain(`declaration('user-select', 'none')`);
+    expect(await getCodeOutput(page)).toContain(`functionValue('var', ['--shadow-color'])`);
 });
 
 test('snippet: Docker converts MAINTAINER in output', async ({page}) => {
@@ -373,7 +373,7 @@ test('snippet: Markdown loads correct template text', async ({page}) => {
 
 test('snippet: CSS loads correct template text', async ({page}) => {
     await pickTemplate(page, 'CSS');
-    expect(await getTransformCode(page)).toContain('__css');
+    expect(await getTransformCode(page)).toContain('use-custom-property-for-color');
 });
 
 test('snippet: Scanner loads correct template text', async ({page}) => {

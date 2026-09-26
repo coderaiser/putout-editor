@@ -1,26 +1,11 @@
 import {montag} from 'montag';
 
 export default montag`
-    // remove-vendor-prefix
+    // use-custom-property-for-color
     
-    import {operator} from 'putout';
+    export const report = () => \`Use a custom property instead of a literal color 🎨\`;
     
-    const {__css, remove} = operator;
-    
-    export const report = () => \`Remove outdated vendor prefix 🎨\`;
-    
-    export const fix = (path) => {
-        remove(path);
-    };
-    
-    export const traverse = ({push}) => ({
-        [__css](path) {
-            for (const decl of path.get('arguments.0.elements')) {
-                const name = decl.get('arguments.0');
-                
-                if (name.isStringLiteral() && name.node.value.startsWith('-webkit-'))
-                    push(decl);
-            }
-        },
+    export const replace = () => ({
+        'functionValue("rgb", __a)': 'functionValue("var", ["--shadow-color"])',
     });
 `;
