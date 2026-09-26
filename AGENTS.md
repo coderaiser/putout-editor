@@ -102,24 +102,35 @@ payload (1017 chars without, 2124 with) and is almost never what you are after.
 ## Verify before claiming done
 
 ```bash
-bun run test        # tape
-bun run test:dts    # tsc --noEmit
-bun run coverage    # 100% branches/lines/functions/statements enforced
-bun run lint        # putout .   —   fix:lint runs putout . --fix
+bun run check        # the gate: putout . && tsc --noEmit && coverage, in that order
+bun run test:one     # one spec — SPEC='src/menu/*.spec.tsx' bun run test:one
+bun run coverage:json
+bun run lint         # putout .   —   fix:lint runs putout . --fix
 ```
 
+- **`bun run check` is the gate, not the four commands.** It runs lint → `tsc` → the
+  coverage suite (which is the test suite plus the 100% thresholds), so no step can be
+  forgotten. Forgetting coverage is how a refactor once shipped at 99.88% with every test
+  green. Use `SPEC=… bun run test:one` while iterating; run the full `check` before
+  claiming done.
 - **Prefer `bun run test` over calling `tape` directly.** `.madrun.ts` sets
   `dom`/`css`/`ts`/`jsx` via `NODE_OPTIONS`; without it `.tsx`/DOM specs fail to load. Pure
   `.ts` specs *do* run under bare `tape`, so green on those does not mean the package is green.
-- **`bun run coverage` is a required gate for `packages/client`,** not optional:
-  `.nycrc.json` sets `checkCoverage` with 100 for all four metrics, and root `coverage` fans
-  out through `madfork` so `nodejs.yml` runs it every push. Never call a client refactor
-  done without it.
 - **Run `putout .` before committing, never just after.** CI's Lint step is `redrun fix:lint`
   (`putout . --fix`) followed by an auto-commit with `continue-on-error: true`, so unlinted
   code comes back as a surprise `chore: putout-editor: actions: lint ☘️` commit on master.
 - **Do not trust `putout . --fix` on spec files.** It rewrites tests as well as source, and
   has silently dropped an assertion and emitted code that does not typecheck. Re-read what it
-  changed instead of trusting the exit code.
+  changed instead of trusting the exit code. Known breakages with minimal repros are written
+  up in `docs/issues/`.
+
+## Reporting a finding
+
+Put it in `docs/issues/`, one file per area (`docs/issues/tape.md` is for tape/putout-lint
+problems), and give **the minimum possible code that reproduces it** — fenced `ts` when the
+repro must typecheck cleanly first, so "the tool broke it" is provable — then **the result
+you got** (a diff is best) and **what you expected**. Only report what you verified
+reproduces; put unverified suspicions in the handover plan instead. Update issues in their
+own commit.
 
 
