@@ -6,10 +6,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {getView} from '#editor';
-import {
-    makeStore,
-    type StoreOverrides,
-} from '#test/store';
+import {makeStore, type StoreOverrides} from '#test/store';
 import EditorSource from './index.tsx';
 
 function renderWithStore(overrides: StoreOverrides = {}) {

@@ -6,10 +6,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
-import {
-    setSnippet,
-    type Revision,
-} from '#store';
+import {setSnippet, type Revision} from '#store';
 import {makeStore} from '#test/store';
 import GistBanner from './GistBanner.tsx';
 

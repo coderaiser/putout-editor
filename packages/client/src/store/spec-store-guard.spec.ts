@@ -18,7 +18,7 @@ const walk = (dir: string): string[] => readdirSync(dir).flatMap((entry) => {
 const offenders = walk('src')
     .filter((file) => /\.spec\.[jt]sx?$/.test(file) && !file.includes(SELF))
     .filter((file) => {
-        // Comments are stripped so a prose mention is not a violation.
+    // Comments are stripped so a prose mention is not a violation.
         const source = readFileSync(file, 'utf8')
             .replace(/\/\*[\s\S]*?\*\//g, '')
             .replace(/^\s*\/\/.*$/gm, '');
