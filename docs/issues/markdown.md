@@ -6,6 +6,12 @@ Status: ✅ resolved, ❌ open.
 
 ## ✅ A `js` fence holding TypeScript — solution: `convert-js-to-ts` in `@putout/plugin-markdown`
 
+**Not landed, so nothing enforces this yet.** The rule below is prepared and verified, but
+`@putout/plugin-markdown@1.4.2` does not ship `convert-js-to-ts` (checked its `lib/`, which
+has only `merge-heading-spaces`, `remove-dependencies-status-badge`,
+`remove-trailing-whitespaces-from-heading` and `split-link-with-title`). Re-check on
+upgrade — see the re-check list in `MEMORY.md`.
+
 A fence labelled `js` whose body is TypeScript is caught by nothing today, and `putout` then
 reports its own `quick-lint-js` error *inside the markdown file* — so a docs-only problem
 surfaces as a code lint failure.
