@@ -63,7 +63,6 @@ test('local find-places: returns error on invalid fixture', async (t) => {
     t.end();
 });
 
-
 test('local find-places: output is not pretty printed', async (t) => {
     const result = await handler({
         fixture: 'var x = 1;',

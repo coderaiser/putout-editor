@@ -26,7 +26,10 @@ test('local docs: schema has optional section field', (t) => {
 
 test('local docs: schema restricts section to api and errors', (t) => {
     const result = [...schema.shape.section.unwrap().options].sort();
-    const expected = ['api', 'errors'];
+    const expected = [
+        'api',
+        'errors',
+    ];
     
     t.deepEqual(result, expected);
     t.end();
@@ -68,35 +71,45 @@ test('local docs: overview no longer inlines plugin patterns', (t) => {
 });
 
 test('local docs: returns api section', (t) => {
-    const result = handler({section: 'api'});
+    const result = handler({
+        section: 'api',
+    });
     
     t.match(result.content[0].text, '/api/v1/parse');
     t.end();
 });
 
 test('local docs: api section lists the transform endpoint', (t) => {
-    const result = handler({section: 'api'});
+    const result = handler({
+        section: 'api',
+    });
     
     t.match(result.content[0].text, '/api/v1/transform');
     t.end();
 });
 
 test('local docs: returns errors section', (t) => {
-    const result = handler({section: 'errors'});
+    const result = handler({
+        section: 'errors',
+    });
     
     t.match(result.content[0].text, 'plugin_syntax');
     t.end();
 });
 
 test('local docs: errors section documents line and col', (t) => {
-    const result = handler({section: 'errors'});
+    const result = handler({
+        section: 'errors',
+    });
     
     t.match(result.content[0].text, 'line N, col N');
     t.end();
 });
 
 test('local docs: api section is not the overview', (t) => {
-    const result = handler({section: 'api'});
+    const result = handler({
+        section: 'api',
+    });
     
     t.notMatch(result.content[0].text, 'get_example');
     t.end();

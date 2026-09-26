@@ -8,7 +8,9 @@ type ToolHolder = {
 
 const getTools = (server: McpServer) => (server as unknown as ToolHolder)._registeredTools;
 
-const toolNames = () => Object.keys(getTools(createServer())).sort();
+const toolNames = () => Object
+    .keys(getTools(createServer()))
+    .sort();
 
 test('server: createServer returns an object', (t) => {
     const server = createServer();
@@ -28,9 +30,15 @@ test('server: createServer returns McpServer instance', (t) => {
 
 test('server: registers the base tools', (t) => {
     const result = toolNames();
-    const expected = ['docs', 'find_places', 'get_example', 'parse', 'transform', 'validate'];
+    const expected = [
+        'docs',
+        'find_places',
+        'get_example',
+        'parse',
+        'transform',
+        'validate',
+    ];
     
     t.deepEqual(result, expected);
     t.end();
 });
-

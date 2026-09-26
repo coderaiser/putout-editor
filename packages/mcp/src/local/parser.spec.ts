@@ -82,6 +82,7 @@ test('local parse: returns empty array for non-matching query', async (t) => {
     t.equal(JSON.parse(result.content[0].text).length, 0);
     t.end();
 });
+
 test('local parse: schema has full field', (t) => {
     t.ok('full' in schema.shape);
     t.end();
@@ -148,9 +149,15 @@ test('local parse: compact output is smaller than full output', async (t) => {
     const source = 'const x = 1;';
     
     const [compact] = await Promise.all([
-        handler({source}),
+        handler({
+            source,
+        }),
     ]);
-    const full = await handler({source, full: true});
+    
+    const full = await handler({
+        source,
+        full: true,
+    });
     
     const result = compact.content[0].text.length < full.content[0].text.length;
     
@@ -166,4 +173,3 @@ test('local parse: output is not pretty printed', async (t) => {
     t.notMatch(result.content[0].text, '\n  ');
     t.end();
 });
-

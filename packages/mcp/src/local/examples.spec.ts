@@ -10,6 +10,8 @@ import {
     schema,
 } from './examples.ts';
 
+const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
+
 type Pattern = z.infer<typeof schema>['pattern'];
 
 const PLUGIN_OPEN = '### Plugin\n```js\n';
@@ -17,15 +19,25 @@ const PLUGIN_CLOSE = '\n```\n\n### Fixture';
 
 const patterns = schema.shape.pattern.options;
 
-const text = (pattern: Pattern) => handler({pattern}).content[0].text;
+const text = (pattern: Pattern) => handler({
+    pattern,
+}).content[0].text;
 
 const pluginOf = (output: string) => output
     .split(PLUGIN_OPEN)[1]
     .split(PLUGIN_CLOSE)[0];
 
+const FIXTURE_OPEN = `\n\`\`\`
+
+### Fixture
+\`\`\`js
+`;
+
+const FIXTURE_CLOSE = '\n```';
+
 const fixtureOf = (output: string) => output
-    .split(PLUGIN_CLOSE + '\n```js\n')[1]
-    .split('\n```')[0];
+    .split(FIXTURE_OPEN)[1]
+    .split(FIXTURE_CLOSE)[0];
 
 const compiles = (plugin: string) => {
     const [error] = tryCatch(compilePlugin, plugin);
@@ -109,23 +121,32 @@ test('local get-example: names the pattern in the output', (t) => {
 
 test('local get-example: exposes all 6 patterns', (t) => {
     const result = [...patterns].sort();
-    const expected = ['declarator', 'finder', 'includer', 'replacer', 'scanner', 'traverser'];
+    const expected = [
+        'declarator',
+        'finder',
+        'includer',
+        'replacer',
+        'scanner',
+        'traverser',
+    ];
     
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('local get-example: every example ships a compilable plugin', (t) => {
-    const broken = patterns.filter((pattern) => !compiles(pluginOf(text(pattern))));
+    const result = patterns.filter((pattern) => !compiles(pluginOf(text(pattern))));
+    const expected: string[] = [];
     
-    t.deepEqual(broken, []);
+    t.deepEqual(result, expected);
     t.end();
 });
 
 test('local get-example: every example ships a non empty fixture', (t) => {
-    const empty = patterns.filter((pattern) => fixtureOf(text(pattern)).trim() === '');
+    const result = patterns.filter((pattern) => fixtureOf(text(pattern)).trim() === '');
+    const expected: string[] = [];
     
-    t.deepEqual(empty, []);
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -135,11 +156,12 @@ test('local get-example: every example matches its own fixture', async (t) => {
             fixture: fixtureOf(text(pattern)),
             plugin: pluginOf(text(pattern)),
         });
+        
         const [error, parsed] = tryCatch(JSON.parse, content[0].text);
         
         return {
             pattern,
-            places: error === null || error === undefined ? parsed.places.length : content[0].text,
+            places: error === null || isUndefined(error) ? parsed.places.length : content[0].text,
         };
     }));
     

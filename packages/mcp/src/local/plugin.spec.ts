@@ -23,7 +23,7 @@ test('local plugin: throws plugin_syntax on bad code', (t) => {
 
 test('local plugin: syntax error includes line and column', (t) => {
     const [error] = tryCatch(compilePlugin, 'export const = broken');
-    const message = (error as Error).message;
+    const {message} = error as Error;
     
     t.match(message, /line \d+, col \d+/);
     t.end();
@@ -31,7 +31,7 @@ test('local plugin: syntax error includes line and column', (t) => {
 
 test('local plugin: syntax error reports the right line', (t) => {
     const [error] = tryCatch(compilePlugin, 'export const a = 1;\nexport const = broken');
-    const message = (error as Error).message;
+    const {message} = error as Error;
     
     t.match(message, 'line 2');
     t.end();
@@ -39,7 +39,7 @@ test('local plugin: syntax error reports the right line', (t) => {
 
 test('local plugin: syntax error has no loc when the plugin throws at runtime', (t) => {
     const [error] = tryCatch(compilePlugin, 'throw Error("boom");');
-    const message = (error as Error).message;
+    const {message} = error as Error;
     
     t.equal(message, 'plugin_syntax: boom');
     t.end();

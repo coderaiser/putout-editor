@@ -215,8 +215,7 @@ const EXAMPLES: Record<Pattern, Example> = {
     },
 };
 
-const formatExample = ({plugin, fixture}: Example) =>
-    `### Plugin\n\`\`\`js\n${plugin}\n\`\`\`\n\n### Fixture\n\`\`\`js\n${fixture}\n\`\`\``;
+const formatExample = ({plugin, fixture}: Example) => `### Plugin\n\`\`\`js\n${plugin}\n\`\`\`\n\n### Fixture\n\`\`\`js\n${fixture}\n\`\`\``;
 
 export function handler({pattern}: z.infer<typeof schema>) {
     const example = EXAMPLES[pattern];
