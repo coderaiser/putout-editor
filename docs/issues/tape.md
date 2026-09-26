@@ -6,17 +6,20 @@ Bugs found in the `tape/*` putout rules, observed while refactoring
 
 Both matter more than usual here, because CI's Lint step is
 `redrun fix:lint` (which is `putout . --fix`) followed by an auto-commit with
-`continue-on-error: true`. A fixer that breaks the build silently rewrites
+`continue-on-error: true`. A fixer that leaves the tree unbuildable silently rewrites
 `master` instead of stopping.
-
-Severity is judged from the impact on a repo that runs the fixer unattended.
 
 ***
 
-## 1. `tape/extract-result-from-assertion` emits code that does not typecheck
+## 1. `tape/extract-result-from-assertion` extracts, but does not carry the type
 
-**Severity: high.** Introduces new `tsc` errors into a file that was clean, so
-`bun run check` fails immediately after a fix pass.
+**By design:** the rule hoists the expected value into a `const`, and the house style is
+always `(result, expected)` with both bound to consts - never `(result, [])`. The
+transform is correct.
+
+**The gap:** when the expected value is a bare array literal there is nothing left for
+the extracted const to infer from, so the fixer has to supply the type. It does not, and
+the result does not typecheck.
 
 ### Input
 
@@ -66,21 +69,27 @@ src/store/zz1.spec.ts(12,25): error TS7005: Variable 'expected' implicitly has a
 
 ### Expected
 
-The extracted `expected` should carry a type, e.g. `const expected: string[] = [];`, or
-an array literal should be left inline rather than extracted. Extracting a bare `[]` moves
-the inference problem rather than solving it: `t.deepEqual(result, [])` infers from the
-assertion, the extracted const no longer has anything to infer from.
+The extracted const should carry its type: `const expected: string[] = [];`. Anything that
+cannot be typed from context should be left inline rather than extracted, since extracting
+it only moves the inference problem - `t.deepEqual(result, [])` infers from the assertion,
+the extracted const no longer has anything to infer from.
 
 ***
 
-## 2. `tape/apply-stub` rewrites to an unbound `stub`
+## 2. `tape/apply-stub` rewrites to a `stub` it does not import
 
-**Severity: high.** Breaks `tsc` *and* turns a passing test into a failing one, while
-still exiting 0 from `putout --fix`.
+**By design:** turning `async () => value` into `stub().resolves(value)` is the intended
+transform.
+
+**The gap:** the fixer emits the name `stub` without ensuring it is bound. It adds no
+`import {stub} from 'supertape'`, so the name resolves to whatever `stub` already is in
+scope - and when the file declares its own, the rewrite silently targets the wrong
+function. The rewrite is also unusable until types exist for `stub()`.
 
 ### Input
 
-Fenced as `ts` for the same reason as finding 1.
+Fenced as `ts` for the same reason as finding 1. The local `stub` below is deliberate:
+it is the case that shows the failure mode.
 
 ```ts
 import {test} from 'supertape';
@@ -132,15 +141,11 @@ src/store/zz2.spec.ts(6,18): error TS2339: Property 'resolves' does not exist on
   'string[]'.
 ```
 
-And the test now **fails** (1 test, 0 pass).
-
-The fixer emitted `stub().resolves(...)` but added no `import {stub} from 'supertape'`,
-so `stub` resolved to the unrelated local recording helper declared in the same file —
-the one that returns `string[]`.
+And the test now **fails** (1 test, 0 pass) - `stub()` was called with no arguments and
+returned the unrelated recording helper's `string[]` rather than a stub.
 
 ### Expected
 
-Either add the `supertape` import, or leave the call alone. Rewriting to a name that is
-not in scope is worse than not fixing: the result is a file that no longer compiles, and
-the transform claims success. A rule that cannot see the binding of the name it introduces
-should not introduce it.
+When the rule introduces the name `stub`, it should add the import that binds it, so the
+rewrite cannot land on a different `stub` already in scope. With that in place, and types
+for `stub()` added, the transform is sound.
