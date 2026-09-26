@@ -1,10 +1,10 @@
 import {montag} from 'montag';
-import {test, expect} from './test.ts';
 import {
     createPutoutEditor,
     EDITOR_SOURCE,
     EDITOR_TRANSFORM,
-} from './putout-editor.ts';
+} from '#e2e/desktop';
+import {test, expect} from './test.ts';
 
 test('renders the editor application', async ({page}) => {
     await expect(page.getByTestId('toolbar')).toBeVisible();
@@ -109,7 +109,6 @@ test('vim mode works after switching keymap away and back', async ({page}) => {
     
     // replace the whole buffer with known content
     await press('i');
-    await press('ControlOrMeta+A');
     await write('hello');
     await press('Escape');
     
@@ -136,12 +135,13 @@ test('vim mode preserves indent after consecutive Enter presses', async ({page})
         read,
     } = await editor.get('editor-source');
     
-    await press('i');
-    await press('ControlOrMeta+A');
     await write('    hello');
+    
+    // `write()` re-clicks the editor, which puts vim back in normal mode
+    await press('i');
     await press('Enter');
     await press('Enter');
-    await write('X');
+    await page.keyboard.insertText('X');
     await press('Escape');
     
     const result = await read();
@@ -161,7 +161,6 @@ test('vim paste preserves yanked line indentation', async ({page}) => {
         read,
     } = await editor.get('editor-source');
     
-    await press('ControlOrMeta+A');
     await write('for (const [index, element] of elements.entries()) {\n    if (compare(element, "heading(2, \\"Rules\\")")) {\n        rules.push(element);\n    }\n}');
     await press('Escape');
     
@@ -202,7 +201,6 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
     
     await press('Escape');
     await press('i');
-    await press('ControlOrMeta+A');
     await write(CONTENT);
     await press('Escape');
     
@@ -254,12 +252,13 @@ test('Tab key indents in editor-source', async ({page}) => {
         read,
     } = await editor.get(EDITOR_SOURCE);
     
-    await press('i');
-    await press('ControlOrMeta+A');
     await write('const x = 1;');
+    
+    // `write()` re-clicks the editor, which puts vim back in normal mode
+    await press('i');
     await press('Enter');
     await page.keyboard.press('Tab');
-    await write('const y = 2;');
+    await page.keyboard.insertText('const y = 2;');
     await press('Escape');
     
     expect(await read()).toContain('    const y = 2;');
@@ -274,12 +273,13 @@ test('Tab key indents in editor-transform', async ({page}) => {
         read,
     } = await editor.get(EDITOR_TRANSFORM);
     
-    await press('i');
-    await press('ControlOrMeta+A');
     await write('export const replace = () => ({');
+    
+    // `write()` re-clicks the editor, which puts vim back in normal mode
+    await press('i');
     await press('Enter');
     await page.keyboard.press('Tab');
-    await write(`'__a': '__b',`);
+    await page.keyboard.insertText(`'__a': '__b',`);
     await press('Escape');
     
     expect(await read()).toContain(`    '__a': '__b',`);

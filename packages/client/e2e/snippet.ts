@@ -1,14 +1,14 @@
 import {
-    test,
-    expect,
-    type Page,
-} from './test.ts';
-import {
     createPutoutEditor,
     EDITOR_CODE,
     EDITOR_SOURCE,
     EDITOR_TRANSFORM,
-} from './putout-editor.ts';
+} from '#e2e/desktop';
+import {
+    test,
+    expect,
+    type Page,
+} from './test.ts';
 
 const getSourceCode = async (page: Page) => {
     const editor = createPutoutEditor(page);
@@ -24,9 +24,12 @@ const getTransformCode = async (page: Page) => {
     return read();
 };
 
-const getCodeOutput = (page: Page) => page
-    .getByTestId(EDITOR_CODE)
-    .locator('.cm-content');
+const getCodeOutput = async (page: Page) => {
+    const editor = createPutoutEditor(page);
+    const {read} = await editor.get(EDITOR_CODE);
+    
+    return read();
+};
 
 const openSnippet = (page: Page) => page
     .getByTestId('toolbar')
@@ -72,12 +75,12 @@ test('snippet: New submenu lists 13 plugin templates', async ({page}) => {
 test('snippet: New Replacer inserts ternary template', async ({page}) => {
     await pickTemplate(page, 'Replacer');
     
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('convert-ternary-to-if');
+    expect(await getTransformCode(page)).toContain('convert-ternary-to-if');
 });
 
 test('snippet: New → Traverser inserts merge-duplicate-imports', async ({page}) => {
     await pickTemplate(page, 'Traverser');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('merge-duplicate-imports');
+    expect(await getTransformCode(page)).toContain('merge-duplicate-imports');
 });
 
 test('snippet: New → Declarator inserts declare export', async ({page}) => {
@@ -200,67 +203,67 @@ test('snippet: New submenu selection is undoable', async ({page}) => {
 
 test('snippet: Replacer produces transformed output', async ({page}) => {
     await pickTemplate(page, 'Replacer');
-    await expect(getCodeOutput(page)).toContainText(`if ('Transform your code with 🐊Putout')`);
+    expect(await getCodeOutput(page)).toContain(`if ('Transform your code with 🐊Putout')`);
 });
 
 test('snippet: Includer removes empty method from output', async ({page}) => {
     await pickTemplate(page, 'Includer');
-    await expect(getCodeOutput(page)).toContainText('greetWithName');
+    expect(await getCodeOutput(page)).toContain('greetWithName');
 });
 
 test('snippet: Traverser merges duplicate imports in output', async ({page}) => {
     await pickTemplate(page, 'Traverser');
-    await expect(getCodeOutput(page)).toContainText('import {a, b}');
+    expect(await getCodeOutput(page)).toContain('import {a, b}');
 });
 
 test('snippet: Declarator inserts missing import in output', async ({page}) => {
     await pickTemplate(page, 'Declarator');
-    await expect(getCodeOutput(page)).toContainText(`import putout from 'putout'`);
+    expect(await getCodeOutput(page)).toContain(`import putout from 'putout'`);
 });
 
 test('snippet: Scanner produces filesystem output', async ({page}) => {
     await pickTemplate(page, 'Scanner');
-    await expect(getCodeOutput(page)).toContainText('__putout_processor_filesystem');
+    expect(await getCodeOutput(page)).toContain('__putout_processor_filesystem');
 });
 
 test('snippet: Finder removes duplicate value in output', async ({page}) => {
     await pickTemplate(page, 'Finder');
-    await expect(getCodeOutput(page)).toContainText('const z = 2');
+    expect(await getCodeOutput(page)).toContain('const z = 2');
 });
 
 test('snippet: JSON removes duplicate keyword in output', async ({page}) => {
     await pickTemplate(page, 'JSON');
-    await expect(getCodeOutput(page)).toContainText('["putout", "codemod"]');
+    expect(await getCodeOutput(page)).toContain('["putout", "codemod"]');
 });
 
 test('snippet: YAML removes empty needs in output', async ({page}) => {
     await pickTemplate(page, 'YAML');
-    await expect(getCodeOutput(page)).toContainText('"runs-on": "ubuntu-latest"');
+    expect(await getCodeOutput(page)).toContain('"runs-on": "ubuntu-latest"');
 });
 
 test('snippet: TOML removes empty dependencies in output', async ({page}) => {
     await pickTemplate(page, 'TOML');
-    await expect(getCodeOutput(page)).toContainText('__putout_processor_toml({})');
+    expect(await getCodeOutput(page)).toContain('__putout_processor_toml({})');
 });
 
 test('snippet: Markdown removes trailing heading spaces in output', async ({page}) => {
     await pickTemplate(page, 'Markdown');
-    await expect(getCodeOutput(page)).toContainText(`heading(2, 'Hello World')`);
+    expect(await getCodeOutput(page)).toContain(`heading(2, 'Hello World')`);
 });
 
 test('snippet: CSS removes vendor prefix in output', async ({page}) => {
     await pickTemplate(page, 'CSS');
-    await expect(getCodeOutput(page)).toContainText(`declaration('user-select', 'none')`);
+    expect(await getCodeOutput(page)).toContain(`declaration('user-select', 'none')`);
 });
 
 test('snippet: Docker converts MAINTAINER in output', async ({page}) => {
     await pickTemplate(page, 'Docker');
-    await expect(getCodeOutput(page)).toContainText('"LABEL"');
+    expect(await getCodeOutput(page)).toContain('"LABEL"');
 });
 
 test('snippet: Ignore fixes lock extension in output', async ({page}) => {
     await pickTemplate(page, 'Ignore');
-    await expect(getCodeOutput(page)).toContainText('"*.lock"');
+    expect(await getCodeOutput(page)).toContain('"*.lock"');
 });
 
 test('snippet: Snippet menu closes after picking template', async ({page}) => {
@@ -350,30 +353,30 @@ test('snippet: Parser menu replaces Snippet menu', async ({page}) => {
 
 test('snippet: Includer loads correct template text', async ({page}) => {
     await pickTemplate(page, 'Includer');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('export const include');
+    expect(await getTransformCode(page)).toContain('export const include');
 });
 
 test('snippet: Finder loads correct template text', async ({page}) => {
     await pickTemplate(page, 'Finder');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('export const find');
+    expect(await getTransformCode(page)).toContain('export const find');
 });
 
 test('snippet: TOML loads correct template text', async ({page}) => {
     await pickTemplate(page, 'TOML');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('__toml');
+    expect(await getTransformCode(page)).toContain('__toml');
 });
 
 test('snippet: Markdown loads correct template text', async ({page}) => {
     await pickTemplate(page, 'Markdown');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('heading');
+    expect(await getTransformCode(page)).toContain('heading');
 });
 
 test('snippet: CSS loads correct template text', async ({page}) => {
     await pickTemplate(page, 'CSS');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('__css');
+    expect(await getTransformCode(page)).toContain('__css');
 });
 
 test('snippet: Scanner loads correct template text', async ({page}) => {
     await pickTemplate(page, 'Scanner');
-    await expect(page.getByTestId(EDITOR_TRANSFORM)).toContainText('export const scan');
+    expect(await getTransformCode(page)).toContain('export const scan');
 });

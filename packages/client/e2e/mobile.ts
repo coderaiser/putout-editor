@@ -1,12 +1,12 @@
 import {
+    createPutoutEditor,
+    EDITOR_TRANSFORM,
+} from '#e2e/mobile';
+import {
     test,
     expect,
     type Page,
 } from './test.ts';
-import {
-    createPutoutEditor,
-    EDITOR_TRANSFORM,
-} from './putout-editor.ts';
 
 const mobileMenu = (page: Page) => page.getByTestId('mobile-menu');
 
@@ -267,7 +267,6 @@ test('updating transform editor changes source output', async ({page}) => {
     
     const {write, press} = await editor.get(EDITOR_TRANSFORM);
     await press('i');
-    await press('ControlOrMeta+A');
     await write(`export const replace = () => ({'"use strict"': ''});`);
     await page.waitForTimeout(400);
     
@@ -300,7 +299,6 @@ test('updating transform editor changes code output', async ({page}) => {
     
     const {write, press} = await editor.get(EDITOR_TRANSFORM);
     await press('i');
-    await press('ControlOrMeta+A');
     await write(`export const replace = () => ({'"use strict"': ''});`);
     await page.waitForTimeout(400);
     
@@ -331,7 +329,6 @@ test('@putout/editor: client: mobile: updating transform editor changes code out
     
     const {write, press} = await editor.get(EDITOR_TRANSFORM);
     await press('i');
-    await press('ControlOrMeta+A');
     await write(`export const replace = () => ({'"use strict"': ''});`);
     await page.waitForTimeout(400);
     

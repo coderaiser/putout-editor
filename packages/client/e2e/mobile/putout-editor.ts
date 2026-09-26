@@ -26,7 +26,9 @@ export function createPutoutEditor(page: Page) {
         return {
             locator,
             async write(text: string) {
-                await locator.pressSequentially(text);
+                await locator.tap();
+                await page.keyboard.press('ControlOrMeta+A');
+                await page.keyboard.insertText(text);
             },
             async press(key: string) {
                 await page.keyboard.press(key);

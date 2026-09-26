@@ -1,5 +1,10 @@
 import {montag} from 'montag';
 import {
+    createPutoutEditor,
+    EDITOR_SOURCE,
+    EDITOR_TRANSFORM,
+} from '#e2e/mobile';
+import {
     test,
     expect,
     type Page,
@@ -16,26 +21,16 @@ async function tapTab(page: Page, name: RegExp) {
 async function replaceContent(page: Page, text: string) {
     await tapTab(page, /source/i);
     
-    const cmContent = page
-        .getByTestId('editor-source')
-        .locator('.cm-content');
-    
-    await cmContent.tap();
-    await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText(text);
+    const {write} = await createPutoutEditor(page).get(EDITOR_SOURCE);
+    await write(text);
     await page.waitForTimeout(600);
 }
 
 async function replaceTransform(page: Page, text: string) {
     await tapTab(page, /transform/i);
     
-    const cmContent = page
-        .getByTestId('editor-transform')
-        .locator('.cm-content');
-    
-    await cmContent.tap();
-    await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText(text);
+    const {write} = await createPutoutEditor(page).get(EDITOR_TRANSFORM);
+    await write(text);
     await page.waitForTimeout(600);
 }
 

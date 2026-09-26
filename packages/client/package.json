@@ -14,6 +14,8 @@
     "#editor-ast-json": "./src/editor-ast-json/index.tsx",
     "#editor": "./src/editor/index.ts",
     "#editor-code": "./src/editor-code/index.tsx",
+    "#e2e/desktop": "./e2e/desktop/putout-editor.ts",
+    "#e2e/mobile": "./e2e/mobile/putout-editor.ts",
     "#layout": "./src/layout/AppLayout.tsx",
     "#layout-mobile": "./src/layout/MobileLayout.tsx",
     "#panel-ast": "./src/panel-ast/index.tsx",
