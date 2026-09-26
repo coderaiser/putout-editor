@@ -16,12 +16,14 @@ temp spec file.
 
 | Tool | Use it to |
 |---|---|
-| `validate` | Check a plugin compiles → `ok` or `plugin_syntax (line N, col N): ...` |
+| `docs` | Reference overview or `section: 'api'`/`'errors'` |
+| `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule |
+| `get_example` | Known-good plugin + fixture. Order: replacer -> includer -> traverser -> scanner |
+| `validate` | Check a plugin compiles -> `ok` or `plugin_syntax (line N, col N): ...` |
 | `parse` | Get an AST. Compact by default, `full: true` for raw with `loc` |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
-| `get_example` | Known-good plugin + fixture for each of the 7 plugin types |
-| `docs` | Reference. `section: 'api'` or `'errors'`; overview when omitted |
+| `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |
 
 From the repo root — its `args` are relative:
 
@@ -91,6 +93,45 @@ over the initial state, so a partial override keeps the rest.
   has nothing to infer from, so the hoisted const needs a type —
   `const expected: string[] = [];`. supertape allows exactly one assertion per test
   (*"Only one assertion per test allowed"*), so split tests rather than chaining.
+
+## Working with client plugin templates
+
+`packages/client/src/snippet/templates/` holds 13 templates (one per New-menu category)
+and their paired fixtures in `fixtures/`. Each template is a putout plugin inside a
+`montag` tag - putout lints the string content, so the plugin must be valid JS and must
+follow the same style rules as any other plugin in this repo.
+
+**compile-rule transforms templates before they run.** `initPlugin` in
+`src/transformer/init-plugin.ts` calls `compileRule`, which runs `@putout/plugin-putout`
+and `@putout/plugin-declare` over the template string. Identifiers like `remove`, `rename`,
+`isImportDeclaration`, and every `types` member are auto-declared - do not write those
+imports manually. If a template uses `path.remove()` with no `path` parameter,
+compile-rule adds the parameter and rewrites the call. When template behaviour looks
+impossible, use `transform` (MCP) to see the compiled output, not the source.
+
+**Pattern rules for templates:**
+
+- `replacer`: `report` + `replace`. Add `match` to gate on a condition - still a replacer.
+- `includer`: `report` + `include` + `filter` + `fix`.
+- `traverser`: `report` + `traverse` + `fix`.
+- `scanner`: `report` + `scan` + `fix`. `fix` receives the first arg passed to `push`.
+- `declarator`: `declare` only.
+- `finder`: advanced - do not add new finder templates. Existing one is for reference only.
+
+**Template spec pattern.** Each template has a `<name>.spec.ts` next to it.
+Every spec runs the template against its own fixture with `initPlugin` and asserts:
+
+1. the transformation result matches `montag` expected output
+2. `places.length` equals the number of expected matches (usually 1)
+
+The `index.spec.ts` integration test runs all templates and asserts every one
+compiles and matches at least one place in its fixture - a template that matches nothing
+is broken even if its individual spec passes.
+
+**Changing a template and its fixture together.** Update both in the same commit.
+A template whose fixture no longer matches is a silent failure in `index.spec.ts`.
+Run `SPEC='src/snippet/templates/*.spec.ts' bun run test:one` before committing.
+
 
 ## e2e
 
