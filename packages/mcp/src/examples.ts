@@ -7,6 +7,8 @@ export const description =
     'Use this to get runnable code before writing your own plugin. ' +
     'Pick the pattern in this order: replacer first and always; if replace cannot express ' +
     'the rule, use includer; if that cannot either, use traverser. ' +
+    'A replace() map is unconditional; to decide per match, add match() to the replacer - ' +
+    'that is still a replacer, not an includer. ' +
     'Each example uses only the exports of its own pattern: replacer = report + replace, ' +
     'includer = report + include + filter + fix, traverser = report + traverse + fix, ' +
     'finder = report + find, declarator = declare, scanner = report + scan. ' +
