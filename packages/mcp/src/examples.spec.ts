@@ -119,6 +119,20 @@ test('local get-example: names the pattern in the output', (t) => {
     t.end();
 });
 
+test('local get-example: description does not recommend finder', (t) => {
+    const result = description.includes('finder first') || description.includes('use finder');
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('local get-example: description names finder as advanced', (t) => {
+    const result = description;
+    
+    t.match(result, 'advanced');
+    t.end();
+});
+
 test('local get-example: exposes all 7 patterns', (t) => {
     const result = [...patterns].sort();
     const expected = [

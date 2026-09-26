@@ -20,7 +20,7 @@ test('local formats: description points at the client templates', (t) => {
 
 test('local formats: takes no arguments', (t) => {
     const result = Object.keys(schema.shape);
-    const expected = [];
+    const expected: string[] = [];
     
     t.deepEqual(result, expected);
     t.end();

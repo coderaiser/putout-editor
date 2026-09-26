@@ -5,17 +5,13 @@ export const name = 'get_example';
 export const description =
     'Return a working plugin template and its matching fixture for a given pattern. ' +
     'Use this to get runnable code before writing your own plugin. ' +
-    'Pick the pattern in this order: replacer first and always; if replace cannot express ' +
-    'the rule, use includer; if that cannot either, use traverser. ' +
-    'A replace() map is unconditional; to decide per match, add match() to the replacer - ' +
-    'that is still a replacer, not an includer. ' +
-    'Each example uses only the exports of its own pattern: replacer = report + replace, ' +
-    'includer = report + include + filter + fix, traverser = report + traverse + fix, ' +
-    'finder = report + find, declarator = declare, scanner = report + scan. ' +
-    'Never mix exports across patterns - an includer with a replace() is a broken replacer, ' +
-    'and a finder with a fix() is really an includer. ' +
-    'The markdown pattern shows a rule for a non-JavaScript format - call the formats tool ' +
-    'for the wrapper and operator of the other formats. ' +
+    'Pattern selection order: replacer first - replace() maps are unconditional; add match() ' +
+    'to decide per-match, that is still a replacer. If replace cannot express the rule, ' +
+    'use includer (report + include + filter + fix). If state across nodes is needed, ' +
+    'use traverser (report + traverse + fix). For filesystem rules use scanner (report + scan + fix). ' +
+    'For auto-inserting missing imports use declarator (declare only). ' +
+    'finder is an advanced pattern - do not suggest it unless the user names it explicitly. ' +
+    'The markdown pattern shows a rule for non-JavaScript source - call formats for other wrappers. ' +
     'Available patterns: replacer, traverser, includer, finder, declarator, scanner, markdown.';
 
 const PATTERNS = [
