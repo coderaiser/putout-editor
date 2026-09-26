@@ -68,6 +68,34 @@ you may be testing a stale build. Source mode via `bun` avoids that entirely.
 - `putout` lint exits 0 on plugin code inside `montag`/template literals — it parses the
   string, not the code. Only `validate`/`transform` see through that.
 
+## Writing `packages/client` specs
+
+`test/store.ts` exposes one shared `makeStore(overrides?, options?)` returning
+`{store, actions}`. Use it instead of hand-rolling `configureStore` — import it as
+`#test/store`. Specs that need a listener middleware, `immutableCheck: false`, or a thunk
+`extraArgument` pass them via the second argument and keep a thin local wrapper.
+
+### Things that will bite you
+
+- **`makeStore` calls `revive()`, so some `workbench` overrides are silently ignored.**
+  `revive` *derives* `workbench.parserSettings` (from `parserSettings[parser]`),
+  `workbench.initialCode` (from `workbench.code`) and `workbench.transform.initialCode`.
+  Setting those derived fields directly gets clobbered with no error. Set the top-level
+  source instead:
+  `makeStore({parserSettings: {babel: {...}}})`, not `makeStore({workbench: {parserSettings: ...}})`.
+  Only `workbench` is merged shallowly over the initial state; top-level keys are replaced.
+- **A passing test is not the same as a covered test.** A spec whose assertion is too weak
+  will keep passing while the code it names stops running — that is how branch coverage
+  silently fell to 99.88% during a refactor. When you change what a store helper preloads,
+  check the assertions actually observe the effect, and run `bun run coverage`.
+- **supertape allows one assertion per test**, and `putout` enforces
+  `tape/extract-result-from-assertion`: bind both sides to consts first
+  (`const result = ...; const expected = ...; t.deepEqual(result, expected);`).
+- **In e2e, `write()` clicks the editor, which drops vim out of insert mode.** The default
+  keymap is `vim`, so a `press('Enter')`/`press('Tab')` that must indent has to come *after*
+  `write()`, and the text that follows must be `page.keyboard.insertText(...)` — a second
+  `write()` re-clicks and cancels the mode again. See `e2e/desktop.ts`.
+
 ## Verify before claiming done
 
 Run from `packages/mcp` unless you changed something else:
@@ -83,3 +111,9 @@ For `packages/client`, prefer `bun run test` over calling `tape` directly. `.mad
 sets `dom: true, css: true, jsx: true` via `NODE_OPTIONS`; without it, `.tsx`/DOM specs
 (e.g. `src/snippet/GistBanner.spec.tsx`) fail to load. Pure `.ts` specs happen to run under
 bare `tape`, so a green run on those does not mean the package is green.
+
+`bun run coverage` is a required gate for `packages/client`, not optional: `.nycrc.json`
+sets `checkCoverage` with 100 for branches/lines/functions/statements, and the root
+`coverage` script fans out through `madfork` so `nodejs.yml` runs it on every push. Do not
+claim a client refactor is done without it. `bun run fix:lint` (`putout . --fix`) autofixes
+most style errors and also rewrites relative imports to their `package.json` alias.
