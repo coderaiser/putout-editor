@@ -75,6 +75,23 @@ over the initial state, so a partial override keeps the rest.
 - **A spec that calls `configureStore` fails the suite on purpose** — see
   `src/store/spec-store-guard.spec.ts`. If it trips you, the fix is to use `#test/store`,
   not to widen the guard.
+- **Test names are `scope: subject`.** supertape rejects a bare name with `Scope should
+  be defined before first colon`, so `'mounts into the container'` is an error and
+  `'app: mounts into the container'` is not.
+- **Every spec shares one process and one DOM.** tape runs the whole glob in a single
+  node process, so anything a spec mounts or installs on `globalThis` outlives it. The
+  entry spec mounts the real `App`, and its teardown is commented because deleting it
+  looks harmless and is not — it took the suite from green to 104 failures.
+- **`src/no-runtime-import-cycles.spec.ts` forbids every import cycle**, runtime *and*
+  type-only, and `bun run test` enforces it. Two ways to walk into one: keeping a value
+  re-export in a barrel "so nobody has to change" (`#parser` re-exporting `getParser`
+  kept the whole store/parser loop alive), and a module importing from a barrel that
+  re-exports that same module — `parserSelectors` taking `RootState` from `#store`, which
+  re-exports `parserSelectors`. Import from the file that *defines* the thing.
+- **`config/boundaries-config.ts` is enforced** by `boundaries/dependencies`, so moving a
+  module is not free. `app` may import everything, `menu` is a leaf that nothing may
+  import, and `store` is the only element every other element may reach for — which is
+  why the shared `ToolbarMenuContext` lives there and not in `menu/`.
 - **`.madrun.ts` is the source of truth for `package.json` scripts: edit it, then run
   `madrun --init`.** `--init` also *deletes* any script madrun does not own, so a
   hand-written entry silently disappears — it took `check:css` out once. madrun passes no
@@ -179,6 +196,10 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
   forgotten. Forgetting coverage is how a refactor once shipped at 99.88% with every test
   green. Use `SPEC=… bun run test:one` while iterating; run the full `check` before
   claiming done.
+- **The 100% those thresholds enforce is currently 100% of 123 files.** `.nycrc.json`
+  excludes twelve source paths that are exactly the uncovered ones, so a green coverage
+  run is not evidence the client is covered. Read `docs/issues/coverage.md` before quoting
+  the number; the honest figure with those entries removed is 97.11%.
 - **Prefer `bun run test` over calling `tape` directly.** `.madrun.ts` sets
   `dom`/`css`/`ts`/`jsx` via `NODE_OPTIONS`; without it `.tsx`/DOM specs fail to load. Pure
   `.ts` specs *do* run under bare `tape`, so green on those does not mean the package is green.
@@ -186,10 +207,12 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
   (`putout . --fix`) followed by an auto-commit with `continue-on-error: true`, so unlinted
   code comes back as a surprise `chore: putout-editor: actions: lint ☘️` commit on master.
 - **Do not trust `putout . --fix` on spec files or on docs.** It rewrites tests as well as
-  source, and has silently dropped an assertion, emitted code that does not typecheck, and
-  rewritten a nested-fence example inside a markdown file into nonsense. Re-read what it
-  changed instead of trusting the exit code, and run `putout .` — never `--fix` — over
-  `docs/`. Known breakages with minimal repros are written up in `docs/issues/`.
+  source, and has silently dropped an assertion, emitted code that does not typecheck,
+  rewritten a nested-fence example inside a markdown file into nonsense, and — twice now
+  — turned `t.equal(result, false)` into `t.notOk(result)`, which passes for any falsy
+  value and so weakens the assertion without failing. Re-read what it changed instead of
+  trusting the exit code, and run `putout .` — never `--fix` — over `docs/`. Known
+  breakages with minimal repros are written up in `docs/issues/`.
 
 ## Reporting a finding
 

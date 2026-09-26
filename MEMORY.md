@@ -68,6 +68,10 @@ check whether it has — a finding left open after its fix exists is stale docum
   published version. Once it exists: mark the finding `✅`, cut the issue down to the
   resolution with a link to the rule, and drop the worked source and transform — the
   landed rule is the reference from then on.
+- **`docs/issues/coverage.md`** — the client's 100% coverage gate excludes the twelve source
+  paths that are uncovered, so the real figure is 97.11%. It is not waiting on an
+  upstream fix; it is waiting on the tests for those files, listed per file in the
+  finding. Re-check before quoting a coverage number for `packages/client`.
 - **`docs/issues/tape.md`** — the `tape/apply-stub` import fix (a missing import when the
   rule introduces `stub`) and the `tape/extract-result-from-assertion` type emission
   (`const expected: typeof result = []`) both live in `eslint-plugin-putout`. Neither needs
@@ -86,6 +90,18 @@ that owns it; a convention belongs here.
 
 - Prefer a test or an assertion over a comment: a comment can be ignored, a throw cannot.
   `makeStore` rejecting overrides that `revive()` would discard is the model.
+- **A gate satisfied by excluding what it does not cover is not a gate.** The client's
+  100% coverage threshold was met by twelve `.nycrc.json` exclude entries naming exactly
+  the uncovered files, so the number that had been quoted for months measured 123 files
+  somebody had chosen. When you read a coverage config, an ignore list or a lint scope,
+  check whether it is exactly the set that fails. And when you uncover that, do not
+  commit the tightened gate red and do not lower it — land the measurement, write the
+  finding with the real number, and say plainly that the remaining work is tests.
+- Measure before restructuring. Three plans in this repo were wrong on inspection rather
+  than on principle: a re-export kept "so no importer changes" that kept a cycle alive; a
+  context moved out of `store/` that `boundaries/dependencies` forbids; a `reducers.ts`
+  split predicted at 35 lines that came out at 290 because the slice is the bulk of it.
+  Each was caught by a gate, which is the argument for writing the gate first.
 - `finder` is advanced and the mcp must never suggest it — lead with replacer, then includer,
   then traverser. It stays available for users who name it explicitly, and it must still
   export `fix`: a `find` with no `fix` runs under `find_places` but throws in `transform`,
