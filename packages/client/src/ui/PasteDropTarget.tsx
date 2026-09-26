@@ -97,6 +97,12 @@ export default function PasteDropTarget({children, ...props}: PasteDropTargetPro
             }
         }
         
+        // This listener is on `document` in the capture phase, so it sees *every*
+        // paste in the app — including ones aimed at an `<input>`, a `<textarea>` or
+        // a CodeMirror editor. Hijacking those both discards the clipboard and
+        // overwrites `workbench.code` with whatever the user was editing elsewhere,
+        // so the guard below hands those back to the field. The feature is "paste
+        // code anywhere that is not a text field, to load it as the snippet".
         bindListener(document, 'paste', (event) => {
             const clipboardEvent = event as ClipboardEvent;
             

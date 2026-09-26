@@ -1,3 +1,13 @@
+/**
+ * The 13 New-menu templates, one per `categories` entry.
+ *
+ * Each template is a putout plugin whose first line — `// <name>` — is the rule
+ * name, and whose `report()` is what the UI shows. **Both must describe what the
+ * rule actually does.** A template that keeps an old name after its rule is
+ * rewritten is worse than no template: it is the first thing a user copies, and
+ * it teaches them a name that lies. Same for the paired fixture in `./fixtures`,
+ * whose leading comment repeats the rule name and one line on what it exercises.
+ */
 import replacer from './replacer.ts';
 import includer from './includer.ts';
 import traverser from './traverser.ts';
