@@ -3,6 +3,17 @@
 Both rewrites are **by design**; what follows is the narrower gap each leaves.
 Status: ✅ resolved, ❌ open.
 
+**Where these rules live, as of `eslint-plugin-putout@31.4.2`:** both are in the **putout**
+repo, not the published plugin — `packages/plugin-tape/lib/{apply-stub,extract-result-from-assertion}`
+([repo](https://github.com/coderaiser/putout/tree/master/packages/plugin-tape)). The installed
+plugin ships only `tape-add-newline-before-assertion`, `tape-add-newline-between-tests` and
+`tape-remove-newline-before-t-end`, and the supertape repo has no `rules/` directory. So
+**neither rule runs in this repo** — `putout --fix` on the repros below changes nothing here,
+and these findings cannot be reproduced with what is installed. They are upstream defects in
+putout, still present in the rule source: `extract-result-from-assertion` emits
+`const expected = __array;` with no type, and `apply-stub` emits `stub().resolves(...)` with
+no import. Fixed upstream, they arrive with the next `eslint-plugin-putout` that ships them.
+
 Fenced `ts` because the repro must typecheck cleanly *before* the fix — otherwise
 "the tool broke it" is not provable. Untyped, `fixtures[c]` raises its own `TS7053`.
 
@@ -31,8 +42,8 @@ const expected: typeof result = [];
 That is a purely syntactic transform — the rule already has the left operand's
 identifier, and needs no type checker. Verified: `tsc` reports 0 errors.
 
-Owner: us. The rule ships in `eslint-plugin-putout`, and `.putout.json` can only
-enable/disable it, not change it, so the fix lands there.
+Owner: the putout repo, `packages/plugin-tape/lib/extract-result-from-assertion`. `.putout.json`
+can only enable/disable it, not change it, so the fix lands there.
 
 ```ts
 import {test} from 'supertape';

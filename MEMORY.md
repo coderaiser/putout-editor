@@ -62,12 +62,6 @@ finding in `docs/issues/`, not an `.putout.json` entry or a lenient spec.
 Findings marked `❌` are waiting on something landing. Before working on anything else,
 check whether it has — a finding left open after its fix exists is stale documentation.
 
-- **`docs/issues/markdown.md`** — `convert-js-to-ts` for `@putout/plugin-markdown` is
-  prepared and verified but not landed. Check
-  `node_modules/@putout/plugin-markdown/lib/` for a `convert-js-to-ts` directory, or the
-  published version. Once it exists: mark the finding `✅`, cut the issue down to the
-  resolution with a link to the rule, and drop the worked source and transform — the
-  landed rule is the reference from then on.
 - **`docs/issues/coverage.md`** — fixed, and the list is the thing to keep honest. The gate
   had been satisfied by excluding the files it did not cover; it now measures 115 files at
   a real 100%, and the eleven it still excludes are named with a reason. If a path is added
@@ -75,9 +69,12 @@ check whether it has — a finding left open after its fix exists is stale docum
   first place.
 - **`docs/issues/tape.md`** — the `tape/apply-stub` import fix (a missing import when the
   rule introduces `stub`) and the `tape/extract-result-from-assertion` type emission
-  (`const expected: typeof result = []`) both live in `eslint-plugin-putout`. Neither needs
-  supertape type work: `@cloudcmd/stub@5.1.0` already declares `resolves<T>()`, and
-  `supertape` re-exports it.
+  (`const expected: typeof result = []`) are defects in the **putout** repo, at
+  `packages/plugin-tape/lib/`. They are *not* in the published `eslint-plugin-putout` and do
+  not run here, so nothing reproduces them in this repo — re-check by looking for those two
+  directories upstream, not by running the fixer. Neither needs supertape type work:
+  `@cloudcmd/stub@5.1.0` already declares `resolves<T>()`, and `supertape` re-exports `stub`
+  (verified in 13.6.0).
 
 ## Keep these three in step
 
@@ -91,6 +88,10 @@ that owns it; a convention belongs here.
 
 - Prefer a test or an assertion over a comment: a comment can be ignored, a throw cannot.
   `makeStore` rejecting overrides that `revive()` would discard is the model.
+- **A glob that matches nothing is not a bug in the runner.** supertape exits 0 and prints
+  nothing when a pattern matches no files, and a fix that made it fail was tried and
+  reverted: a repo's own test globs legitimately match nothing until the files are added, so
+  failing on it punishes the wrong moment. Do not re-propose it without being asked.
 - **A gate satisfied by excluding what it does not cover is not a gate.** The client's
   100% coverage threshold was met by twelve `.nycrc.json` exclude entries naming exactly
   the uncovered files, so the number that had been quoted for months measured 123 files
