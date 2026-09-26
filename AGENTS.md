@@ -137,11 +137,15 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
 
 ## Reporting a finding
 
-Put it in `docs/issues/`, one file per area (`docs/issues/tape.md` is for tape/putout-lint
-problems), and give **the minimum possible code that reproduces it** — fenced `ts` when the
-repro must typecheck cleanly first, so "the tool broke it" is provable — then **the result
+Put it in `docs/issues/`, one file per area (`tape.md` for tape/putout-lint, `markdown.md`
+for markdown), and give **the minimum possible code that reproduces it** — then **the result
 you got** (a diff is best) and **what you expected**. Only report what you verified
 reproduces; put unverified suspicions in the handover plan instead. Update issues in their
 own commit.
+
+**The code fence language is a gate, not a hint.** A ` ```js ` fence must be JavaScript and a
+TypeScript snippet must use ` ```ts ` — `putout` parses fences by their declared language, so
+a `js` fence holding TS is a genuine lint error, not a cosmetic mismatch. It is also why a
+repro goes in a `ts` fence: the fence language decides how `putout` reads it.
 
 
