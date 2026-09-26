@@ -1,6 +1,9 @@
-export default `// remove-empty-dependencies (TOML plugin)
+import {montag} from 'montag';
 
-__putout_processor_toml({
-    "dependencies": {}
-});
+export default montag`
+    // remove-empty-dependencies (TOML plugin)
+    
+    __putout_processor_toml({
+        "dependencies": {}
+    });
 `;

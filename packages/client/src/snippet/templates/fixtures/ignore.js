@@ -1,4 +1,7 @@
-export default `// fix-lock-extension (.gitignore plugin)
+import {montag} from 'montag';
 
-__putout_processor_ignore(["*.loc", "node_modules"]);
+export default montag`
+    // fix-lock-extension (.gitignore plugin)
+    
+    __putout_processor_ignore(["*.loc", "node_modules"]);
 `;

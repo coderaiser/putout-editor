@@ -1,6 +1,9 @@
-export default `// convert-maintainer-to-label (Dockerfile plugin)
+import {montag} from 'montag';
 
-__putout_processor_docker([
-    ["MAINTAINER", "John <john@example.com>"]
-]);
+export default montag`
+    // convert-maintainer-to-label (Dockerfile plugin)
+    
+    __putout_processor_docker([
+        ["MAINTAINER", "John <john@example.com>"]
+    ]);
 `;

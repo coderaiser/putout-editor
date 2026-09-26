@@ -1,7 +1,10 @@
-export default `// remove-vendor-prefix (CSS plugin)
+import {montag} from 'montag';
 
-__putout_processor_css([
-    declaration("-webkit-user-select", "none"),
-    declaration("user-select", "none"),
-]);
+export default montag`
+    // remove-vendor-prefix (CSS plugin)
+    
+    __putout_processor_css([
+        declaration("-webkit-user-select", "none"),
+        declaration("user-select", "none"),
+    ]);
 `;

@@ -31,3 +31,15 @@ test('templates: Replacer: transforms ternary into if statement', (t) => {
     t.equal(code, expected);
     t.end();
 });
+
+test('templates: Replacer: finds 1 place', (t) => {
+    const {places} = putout(fixtures.Replacer, {
+        fix: false,
+        plugins: [
+            ['rule', initPlugin(templates.Replacer)],
+        ],
+    });
+    
+    t.equal(places.length, 1);
+    t.end();
+});

@@ -1,6 +1,9 @@
-export default `// merge-duplicate-imports
-// The plugin merges two imports from the same source into one.
+import {montag} from 'montag';
 
-import {a} from 'x';
-import {b} from 'x';
+export default montag`
+    // merge-duplicate-imports
+    // The plugin merges two imports from the same source into one.
+    
+    import {a} from 'x';
+    import {b} from 'x';
 `;
