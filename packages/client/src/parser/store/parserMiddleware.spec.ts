@@ -194,10 +194,21 @@ test('parserMiddleware: null code skips parse', async (t) => {
 });
 
 test('parserMiddleware: parse with settings filters import attributes', async (t) => {
-    const stub = stubBabel();
+    let received = null;
+    
+    const stub = stubBabel({
+        parse: (_, __, settings) => {
+            received = settings;
+            
+            return makeMockParseResult();
+        },
+    });
+    
+    // `revive` derives `workbench.parserSettings` from the top-level,
+    // per-parser map, so that is what the override has to set.
     const store = makeStore({
-        workbench: {
-            parserSettings: {
+        parserSettings: {
+            babel: {
                 plugins: [
                     'jsx',
                     'importAssertions',
@@ -215,7 +226,12 @@ test('parserMiddleware: parse with settings filters import attributes', async (t
     
     stub.restore();
     
-    t.ok(getParseResult(store)?.ast);
+    const result = received;
+    const expected = {
+        plugins: ['jsx'],
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
