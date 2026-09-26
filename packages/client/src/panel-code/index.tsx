@@ -1,15 +1,13 @@
 import {useSelector} from 'react-redux';
 import EditorResult from '#editor-code';
+import {getTransformerByID} from '#parser';
 import {
     getTransformCode,
     getCode,
     isLoadingSnippet,
-} from '#store';
-import {
     getParser,
     getTransformer,
-    getTransformerByID,
-} from '#parser';
+} from '#store';
 
 export default function CodePanel() {
     const parser = useSelector(getParser);

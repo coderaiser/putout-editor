@@ -14,6 +14,7 @@ import {
     TbShare2,
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
+import * as parserSelectors from '#store';
 import MobileDropdown from './MobileDropdown.tsx';
 import {
     categories,
@@ -22,7 +23,6 @@ import {
 } from '../snippet/templates/index.ts';
 import {getParserByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
-import * as parserSelectors from '../parser/store/parserSelectors.ts';
 import {logEvent} from '../snippet/logger.ts';
 import {
     openSettingsDialog,

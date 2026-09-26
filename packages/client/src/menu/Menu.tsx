@@ -1,6 +1,7 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {TbQuestionMark} from 'react-icons/tb';
 import type {ReactElement} from 'react';
+import * as parserSelectors from '#store';
 import ParserButton from '../parser/buttons/ParserButton.tsx';
 import SnippetButton from '../snippet/buttons/SnippetButton.tsx';
 import TransformButton from '../editor-transform/TransformButton.tsx';
@@ -14,7 +15,6 @@ import {
     type ParserInfo,
 } from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
-import * as parserSelectors from '../parser/store/parserSelectors.ts';
 import {logEvent} from '../snippet/logger.ts';
 import type {KeyMap} from '../types.ts';
 import {

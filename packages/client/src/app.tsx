@@ -32,7 +32,7 @@ import {
 import * as gist from './snippet/storage/gist.ts';
 import * as parse from './snippet/storage/parse.ts';
 import StorageHandler from './snippet/storage/index.ts';
-import {parserListener} from './parser/store/parserMiddleware.ts';
+import {parserListener} from './store/parserMiddleware.ts';
 import {formatListener} from './store/formatMiddleware.ts';
 import {createSnippetListener} from './snippet/snippetMiddleware.ts';
 

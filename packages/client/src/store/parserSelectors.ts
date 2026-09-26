@@ -1,18 +1,18 @@
 import isDeepStrictEqual from '@gilbarbara/deep-equal';
 import {createSelector} from '@reduxjs/toolkit';
-import {RootState} from '#store';
+import type {RootState} from '#store';
 import {
     getParserByID,
     getTransformerByID,
     type ParserInfoWithCategory,
     type TransformerInfo,
-} from '../parsers/index.ts';
+} from '../parser/parsers/index.ts';
 import {
     getParserSettings,
     getRevision,
     canSaveCode,
     canSaveTransform,
-} from '../../store/selectors.ts';
+} from './selectors.ts';
 
 export function getParser(state: RootState): ParserInfoWithCategory {
     return getParserByID(state.workbench.parser)! as ParserInfoWithCategory;

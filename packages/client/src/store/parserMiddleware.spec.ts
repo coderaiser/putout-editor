@@ -5,14 +5,14 @@ import {
     type StoreOverrides,
 } from '#test/store';
 import {parserListener} from './parserMiddleware.ts';
-import {getParserByID} from '../parsers/index.ts';
+import {getParserByID} from '../parser/parsers/index.ts';
 import {
     setCode,
     setParser,
     setParserSettings,
     type ParserSettings,
     type RootState,
-} from '../../store/reducers.ts';
+} from './reducers.ts';
 
 const noop = () => {};
 

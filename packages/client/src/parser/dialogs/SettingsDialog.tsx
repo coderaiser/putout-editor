@@ -1,6 +1,7 @@
 import './SettingsDialog.css';
 import {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
+import {getParser} from '#store';
 import {
     closeSettingsDialog,
     setParserSettings,
@@ -9,7 +10,6 @@ import {
     showSettingsDialog,
     getParserSettings,
 } from '../../store/selectors.ts';
-import {getParser} from '../store/parserSelectors.ts';
 import type {ParserInfo} from '../parsers/index.ts';
 
 interface ParserWithRenderSettings extends ParserInfo {

@@ -1,9 +1,9 @@
 import {useSelector, useDispatch} from 'react-redux';
-import {getParser} from '#parser';
 import {Editor} from '#editor';
 import {
     getCode,
     getParseResult,
+    getParser,
     getKeyMap,
     getHighlightRange,
     setCode,

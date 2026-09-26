@@ -1,5 +1,6 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryToCatch} from 'try-to-catch';
+import {getParser, getTransformer} from '#store';
 import {
     loadSnippetFromURL,
     saveRevision,
@@ -27,7 +28,6 @@ import {
     getTransformCode,
     showTransformer,
 } from '../store/selectors.ts';
-import {getParser, getTransformer} from '../parser/store/parserSelectors.ts';
 
 type StorageAdapterWithHash = StorageAdapter & {
     updateHash(revision: StoreRevision): void;

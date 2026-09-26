@@ -1,11 +1,11 @@
 import {useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import {codeframe} from 'putout';
-import {getParser} from '#parser';
 import {
     getParseResult,
     getCursor,
     getCode,
+    getParser,
 } from '#store';
 import {getFocusPath, Editor} from '#editor';
 import {type AstNode} from '../types.ts';

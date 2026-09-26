@@ -4,7 +4,7 @@ import {
     getTransformer,
     canSave,
 } from './parserSelectors.ts';
-import {type RootState, type Revision} from '../../store/reducers.ts';
+import {type RootState, type Revision} from './reducers.ts';
 
 const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
     canSave: () => true,
