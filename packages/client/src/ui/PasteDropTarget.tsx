@@ -35,7 +35,16 @@ const isEditableTarget = (target: EventTarget | null) => {
         return true;
     
     // CodeMirror marks its content as contenteditable
-    return Boolean(element.closest?.('[contenteditable="true"]'));
+    if (element.closest?.('[contenteditable="true"]'))
+        return true;
+    
+    // A paste event can be retargeted to a node that is not itself inside the
+    // editable area - measured in this app it arrives on a syntax-highlight
+    // span, which `closest()` does reach, but a retargeted event aimed at the
+    // editor container would not. Focus is the more reliable signal: whoever
+    // holds it owns the paste, and CodeMirror keeps `.cm-content` focused
+    // whichever vim mode is active.
+    return Boolean(document.activeElement?.closest?.('[contenteditable="true"]'));
 };
 
 const acceptedFileTypes = new Map([
