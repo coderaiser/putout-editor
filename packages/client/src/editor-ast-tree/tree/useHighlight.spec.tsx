@@ -5,8 +5,8 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, type RootState} from '../../store/reducers.ts';
+import {makeStore, type TestStore} from '#test/store';
+import {type RootState} from '../../store/reducers.ts';
 import useHighlight from './useHighlight.ts';
 import {type TreeAdapter, type NodeRange} from './types.ts';
 
@@ -44,10 +44,8 @@ type TestProps = {
     onOver?: (event: React.MouseEvent) => void;
 };
 
-function renderWithStore(props: TestProps, store?: ReturnType<typeof configureStore>) {
-    const currentStore = store || configureStore({
-        reducer: putoutEditor,
-    });
+function renderWithStore(props: TestProps, store?: TestStore) {
+    const currentStore = store || makeStore().store;
     
     render(
         <Provider store={currentStore}>
@@ -95,14 +93,8 @@ test('useHighlight: onMouseOver stops event propagation', (t) => {
 
 test('useHighlight: onMouseLeave clears highlightRange', (t) => {
     const range: NodeRange = [0, 5];
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: {
-            ...putoutEditor(undefined, {
-                type: '@@INIT',
-            }),
-            highlightRange: range,
-        },
+    const {store} = makeStore({
+        highlightRange: range,
     });
     
     renderWithStore({
@@ -129,9 +121,7 @@ test('useHighlight: returns onMouseOver function', (t) => {
     
     render(
         <Provider
-            store={configureStore({
-                reducer: putoutEditor,
-            })}
+            store={makeStore().store}
         >
             <ProbeComponent/>
         </Provider>,
@@ -153,9 +143,7 @@ test('useHighlight: returns onMouseLeave function', (t) => {
     
     render(
         <Provider
-            store={configureStore({
-                reducer: putoutEditor,
-            })}
+            store={makeStore().store}
         >
             <ProbeComponent/>
         </Provider>,
@@ -181,14 +169,8 @@ test('useHighlight: onMouseOver without range does not set highlightRange', (t) 
 });
 
 test('useHighlight: onMouseOver without range keeps existing highlightRange', (t) => {
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: {
-            ...putoutEditor(undefined, {
-                type: '@@INIT',
-            }),
-            highlightRange: [0, 5],
-        },
+    const {store} = makeStore({
+        highlightRange: [0, 5],
     });
     
     renderWithStore({

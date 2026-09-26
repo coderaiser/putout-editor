@@ -5,68 +5,13 @@ import {
     act,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {
-    configureStore,
-    type Middleware,
-    type UnknownAction,
-} from '@reduxjs/toolkit';
 import {getView} from '#editor';
-import {
-    putoutEditor,
-    revive,
-    type RootState,
-    type WorkbenchState,
-    type TransformState,
-} from '#store';
+import {makeStore, type TestStore} from '#test/store';
 import EditorPlugin from './index.tsx';
 
-const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
-    actions.push(action as UnknownAction);
-    
-    return next(action);
-};
+const renderWithStore = (overrides: Parameters<typeof makeStore>[0] = {}) => makeStore(overrides);
 
-type Overrides = Omit<Partial<RootState>, 'workbench'> & {
-    workbench?: Partial<Omit<WorkbenchState, 'transform'>> & {
-        transform?: Partial<TransformState>;
-    };
-};
-
-function renderWithStore(overrides: Overrides = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-            transform: {
-                ...base.workbench.transform,
-                ...overrides.workbench?.transform,
-            },
-        },
-    };
-    
-    const actions: UnknownAction[] = [];
-    
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-        middleware: (getDefault) => getDefault({
-            serializableCheck: false,
-        }).prepend(recordActions(actions)),
-    });
-    
-    return {
-        actions,
-        store,
-    };
-}
-
-function renderTransformer(store: ReturnType<typeof renderWithStore>['store']) {
+function renderTransformer(store: TestStore) {
     const {container} = render(
         <Provider store={store}>
             <EditorPlugin/>

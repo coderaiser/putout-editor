@@ -1,14 +1,9 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
-import {configureStore} from '@reduxjs/toolkit';
 import {Provider} from 'react-redux';
 import AstPanel from '#panel-ast';
 import {makeStore} from '#test/store';
-import {
-    putoutEditor,
-    revive,
-    type ParseResult,
-} from '#store';
+import {type ParseResult} from '#store';
 
 const noop = () => {};
 
@@ -33,32 +28,20 @@ test('AstPanel: renders error boundary fallback on tree error', (t) => {
     
     console.error = noop;
     
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive({
-            ...base,
-            cursor: 1,
-            workbench: {
-                ...base.workbench,
-                parser: 'invalid-parser',
-                parseResult: {
-                    ast: {
-                        type: 'Program',
-                    },
-                    treeAdapter: null,
-                    time: null,
-                    source: null,
-                    error: null,
-                } satisfies NonNullable<ParseResult>,
-            },
-        }),
-        middleware: (get) => get({
-            serializableCheck: false,
-        }),
+    const {store} = makeStore({
+        cursor: 1,
+        workbench: {
+            parser: 'invalid-parser',
+            parseResult: {
+                ast: {
+                    type: 'Program',
+                },
+                treeAdapter: null,
+                time: null,
+                source: null,
+                error: null,
+            } satisfies NonNullable<ParseResult>,
+        },
     });
     
     const {container} = render(

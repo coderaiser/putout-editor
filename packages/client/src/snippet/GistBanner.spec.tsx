@@ -1,6 +1,5 @@
 import {test} from 'supertape';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
 import {
     render,
     fireEvent,
@@ -8,19 +7,14 @@ import {
     act,
 } from '@testing-library/react';
 import {
-    putoutEditor,
     setSnippet,
     type Revision,
 } from '#store';
+import {makeStore} from '#test/store';
 import GistBanner from './GistBanner.tsx';
 
 const createStore = (revision: Revision | null = null) => {
-    const store = configureStore({
-        reducer: putoutEditor,
-        middleware: (getDefault) => getDefault({
-            serializableCheck: false,
-        }),
-    });
+    const {store} = makeStore();
     
     if (revision)
         store.dispatch(setSnippet(revision));

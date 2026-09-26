@@ -7,6 +7,7 @@ import {
     putoutEditor,
     revive,
     type RootState,
+    type TransformState,
 } from '../src/store/reducers.ts';
 
 /**
@@ -99,12 +100,22 @@ export function makeStore(overrides: StoreOverrides = {}, options: MakeStoreOpti
     
     assertNotDerived(overrides.workbench);
     
+    // `workbench.transform` merges too, so `{transform: {code}}` keeps the
+    
+    // default `transformer` rather than dropping it.
+    const {transform, ...workbench} = overrides.workbench || {};
+    const transformOverride = transform as Partial<TransformState> | undefined;
+    
     const state = {
         ...base,
         ...overrides,
         workbench: {
             ...base.workbench,
-            ...overrides.workbench,
+            ...workbench,
+            transform: {
+                ...base.workbench.transform,
+                ...transformOverride,
+            },
         },
     } as RootState;
     

@@ -1,10 +1,8 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
 import CodePanel from '#panel-code';
 import {makeStore} from '#test/store';
-import {putoutEditor, revive} from '../store/reducers.ts';
 
 test('CodePanel: renders without crashing', async (t) => {
     const {store} = makeStore();
@@ -24,25 +22,12 @@ test('CodePanel: renders without crashing', async (t) => {
 });
 
 test('CodePanel: falls back to default transformer when transformer unknown', async (t) => {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive({
-            ...base,
-            workbench: {
-                ...base.workbench,
-                transform: {
-                    ...base.workbench.transform,
-                    transformer: 'nope',
-                },
+    const {store} = makeStore({
+        workbench: {
+            transform: {
+                transformer: 'nope',
             },
-        }),
-        middleware: (get) => get({
-            serializableCheck: false,
-        }),
+        },
     });
     
     const {container} = render(

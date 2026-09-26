@@ -1,44 +1,11 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
+import {makeStore, type StoreOverrides} from '#test/store';
 import EditorASTTree from './index.tsx';
-import {
-    putoutEditor,
-    revive,
-    type ParserSettings,
-    type ParseResult,
-} from '../store/reducers.ts';
 
-type Overrides = {
-    workbench?: {
-        code?: string | null;
-        parser?: string;
-        parserSettings?: ParserSettings;
-        parseResult?: Partial<NonNullable<ParseResult>> & {
-            ast?: unknown;
-        };
-    };
-};
-
-function renderWithStore(overrides: Overrides = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state as typeof base),
-    });
+function renderWithStore(overrides: StoreOverrides = {}) {
+    const {store} = makeStore(overrides);
     
     render(
         <Provider store={store}>

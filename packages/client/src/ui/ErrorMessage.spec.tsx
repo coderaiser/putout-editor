@@ -1,35 +1,16 @@
 import {test} from 'supertape';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
 import {
     render,
     screen,
     fireEvent,
     cleanup,
 } from '@testing-library/react';
+import {makeStore, type StoreOverrides} from '#test/store';
 import ErrorMessage from './ErrorMessage.tsx';
-import {putoutEditor, revive} from '../store/reducers.ts';
 
-type Overrides = Partial<ReturnType<typeof putoutEditor>>;
-
-function renderWithStore(overrides: Overrides = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    const store = configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-    });
+function renderWithStore(overrides: StoreOverrides = {}) {
+    const {store} = makeStore(overrides);
     
     render(
         <Provider store={store}>
