@@ -87,10 +87,17 @@ you may be testing a stale build. Source mode via `bun` avoids that entirely.
 - **A passing test is not the same as a covered test.** A spec whose assertion is too weak
   will keep passing while the code it names stops running — that is how branch coverage
   silently fell to 99.88% during a refactor. When you change what a store helper preloads,
-  check the assertions actually observe the effect, and run `bun run coverage`.
+  check the assertions actually observe the effect, and run `bun run coverage`. Likewise,
+  when you add a *regression* test, stash the fix and confirm the test fails without it —
+  a test that passes either way pins nothing.
 - **supertape allows one assertion per test**, and `putout` enforces
   `tape/extract-result-from-assertion`: bind both sides to consts first
   (`const result = ...; const expected = ...; t.deepEqual(result, expected);`).
+- **e2e runs against the prebuilt bundle in `../../out`, not against `src/`.** Playwright's
+  `webServer` serves that directory, so your change is invisible until you `bun run build`.
+  A fix that "does nothing" in e2e is nearly always a stale bundle. Clipboard tests also
+  need `context.grantPermissions(['clipboard-read', 'clipboard-write'])`, which is
+  Chromium-only — keep them in `e2e/desktop.ts`, not the mobile projects.
 - **In e2e, `write()` clicks the editor, which drops vim out of insert mode.** The default
   keymap is `vim`, so a `press('Enter')`/`press('Tab')` that must indent has to come *after*
   `write()`, and the text that follows must be `page.keyboard.insertText(...)` — a second
