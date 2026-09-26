@@ -124,5 +124,11 @@ bun run lint        # putout .   —   fix:lint runs putout . --fix
   `.nycrc.json` sets `checkCoverage` with 100 for all four metrics, and root `coverage` fans
   out through `madfork` so `nodejs.yml` runs it every push. Never call a client refactor
   done without it.
+- **Run `putout .` before committing, never just after.** CI's Lint step is `redrun fix:lint`
+  (`putout . --fix`) followed by an auto-commit with `continue-on-error: true`, so unlinted
+  code comes back as a surprise `chore: putout-editor: actions: lint ☘️` commit on master.
+- **Do not trust `putout . --fix` on spec files.** It rewrites tests as well as source, and
+  has silently dropped an assertion and emitted code that does not typecheck. Re-read what it
+  changed instead of trusting the exit code.
 
 
