@@ -2,7 +2,7 @@
 
 Status: ✅ resolved, ❌ open.
 
-***
+---
 
 ## ✅ A `js` fence holding TypeScript — solution: `convert-js-to-ts` in `@putout/plugin-markdown`
 
@@ -12,60 +12,60 @@ surfaces as a code lint failure.
 
 Fences are plain call expressions in the markdown AST, `codeblock(<lang>, <source>)`.
 
-**Pattern: includer.** `replace` was tried first and cannot express this — a replacement map
-is unconditional, so it would relabel every `js` fence. Per the order (replacer, then includer,
-then traverser) this is an includer: `include` + `filter` + `fix`. Mixing `replace` in would
-make it a broken replacer.
+**Pattern: replacer** — `report` + `match` + `replace`. A bare `replace` map is unconditional
+and would relabel every `js` fence, so `match` is what makes the decision per match. That is
+still a replacer, not an includer, so it is the *first* choice in the order
+(replacer, then includer, then traverser).
 
 **Rule source** for `@putout/plugin-markdown` (not this repo — the plugin is its own package):
 
 ```js
 // convert-js-to-ts
-import {operator, parse} from 'putout';
 
-const {setLiteralValue} = operator;
+import {operator, parse} from 'putout';
+import {tryCatch} from 'try-catch';
+
+const {
+    compare,
+    __markdown,
+    setLiteralValue,
+} = operator;
 
 const isClean = (source, options) => {
-    try {
-        const {errors = []} = parse(source, options);
-        
-        return !errors.length;
-    } catch {
-        return false;
-    }
+    const [error, ast] = tryCatch(parse, source, options);
+    
+    return !error && !ast.errors.length;
 };
 
-const isTypeScript = (source) => isClean(source, {
-    isTS: true,
-}) && !isClean(source);
+const isTypeScript = (source) => isClean(source, {isTS: true}) && !isClean(source);
 
 export const report = () => `Use a 'ts' fence for TypeScript`;
 
-export const include = () => [
-    'codeblock(\'js\', __a)',
-];
+export const match = () => ({
+    'codeblock(__args)': ({__args}, {parentPath}) => {
+        if (!compare(parentPath.parentPath, __markdown))
+            return false;
+        
+        const [lang, source] = __args;
+        
+        return lang.value === 'js' && isTypeScript(source.value);
+    },
+});
 
-export const filter = (path) => {
-    const [, source] = path.node.arguments;
-    
-    return isTypeScript(source.value);
-};
-
-export const fix = (path) => {
-    const [lang] = path.node.arguments;
-    
-    setLiteralValue(lang, 'ts');
-};
+export const replace = () => ({
+    'codeblock(__args)': ({__args}, path) => {
+        const [lang] = __args;
+        
+        setLiteralValue(lang, 'ts');
+        
+        return path;
+    },
+});
 ```
 
-Detection is by parsing, not by matching syntax markers: `parse` accepts `isTS`, so the test is
-"parses cleanly as TypeScript and does not parse cleanly as JavaScript".
-
-**Two details that matter when landing it.** Babel is in `errorRecovery` mode, so
-`interface Foo {}` and `type X = string;` *do* parse as JavaScript — checking that `parse` throws
-is not enough, the `errors` array has to be empty. And requiring a clean TypeScript parse is
-what keeps a merely broken block from being relabelled: `const broken =` fails both, so the
-rule leaves it alone.
+`tryCatch` rather than a `try`/`catch` block, per the house convention. `match` guards with
+`compare(parentPath.parentPath, __markdown)` so the rule only fires inside markdown, the way the
+other rules in this plugin do.
 
 ## ❌ Example of incorrect code
 
@@ -74,7 +74,7 @@ rule leaves it alone.
 
 ```js
 const a: string[] = [];
-````
+```
 
 ```js
 interface Foo {
@@ -85,17 +85,16 @@ interface Foo {
 ```js
 const plain = [1, 2];
 ```
-
 ````
 
 ## ✅ Example of correct code
 
-```markdown
+````markdown
 # Gate
 
 ```ts
 const a: string[] = [];
-````
+```
 
 ```ts
 interface Foo {
@@ -106,7 +105,6 @@ interface Foo {
 ```js
 const plain = [1, 2];
 ```
-
 ````
 
 The third fence is already valid JavaScript and stays `js`, as does any non-`js` fence.
@@ -127,7 +125,13 @@ The third fence is already valid JavaScript and stays `js`, as does any non-`js`
      codeblock('ts', 'const already: string = "x";'),
      codeblock('bash', 'echo hi'),
  ]);
-````
+```
 
 `find_places` reports 3 — the three TypeScript fences. The `const broken =` and
 `const o = {a: 1};` fences are confirmed untouched.
+
+**Two details that matter when landing it.** Babel is in `errorRecovery` mode, so
+`interface Foo {}` and `type X = string;` *do* parse as JavaScript — checking that `parse`
+throws is not enough, the `errors` array has to be empty. And requiring a clean TypeScript
+parse is what keeps a merely broken block from being relabelled: `const broken =` fails both,
+so the rule leaves it alone.
