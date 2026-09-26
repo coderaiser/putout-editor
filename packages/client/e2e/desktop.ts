@@ -379,3 +379,43 @@ test('paste outside an editor still loads the clipboard as source', async ({page
     
     expect(result).toContain(PASTED_CODE);
 });
+
+test('vim visual block: Ctrl+V jj x removes first char of each selected line', async ({page}) => {
+    const editor = createPutoutEditor(page);
+    
+    await page
+        .getByTestId('editor-source')
+        .locator('.cm-content')
+        .click();
+    
+    const {
+        write,
+        press,
+        read,
+    } = await editor.get(EDITOR_SOURCE);
+    
+    // write() clicks the editor, dropping vim to normal mode
+    await write('abc\ndef\nghi');
+    await press('Escape');
+    
+    // go to first line, first column
+    await press('g');
+    await press('g');
+    await press('0');
+    
+    // enter visual block mode — this is the step that currently fails
+    await page.keyboard.press('Control+V');
+    await page.waitForTimeout(100);
+    
+    // extend selection down 2 lines
+    await press('j');
+    await press('j');
+    
+    // delete the selected column (first char of each line)
+    await press('x');
+    
+    const result = await read();
+    const expected = 'bc\nef\nhi';
+    
+    expect(result).toBe(expected);
+});
