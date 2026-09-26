@@ -1,8 +1,11 @@
 import {setImmediate} from 'node:timers/promises';
 import {test, stub} from 'supertape';
-import {configureStore} from '@reduxjs/toolkit';
+import {
+    makeStore as makeTestStore,
+    type StoreOverrides,
+} from '#test/store';
 import {createSnippetListener} from './snippetMiddleware.ts';
-import {putoutEditor, clearError} from '../store/reducers.ts';
+import {clearError} from '../store/reducers.ts';
 import {log} from './logger.ts';
 
 const noop = () => {};
@@ -19,31 +22,13 @@ const makeStorage = (overrides = {}) => ({
     ...overrides,
 });
 
-const getInitState = () => putoutEditor(undefined, {
-    type: '@@INIT',
-});
-
-function makeStore(overrides: {
-    workbench?: Record<string, unknown>;
-} & Record<string, unknown> = {}, storage = makeStorage()) {
-    const state = getInitState();
-    const listener = createSnippetListener(storage);
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: {
-            ...state,
-            ...overrides,
-            workbench: {
-                ...state.workbench,
-                ...overrides.workbench,
-            },
-        },
-        middleware: (getDefault) => getDefault({
-            immutableCheck: false,
-            serializableCheck: false,
-        }).prepend(listener.middleware),
-    });
+function makeStore(overrides: StoreOverrides = {}, storage = makeStorage()) {
+    return makeTestStore(overrides, {
+        immutableCheck: false,
+        middleware: [
+            createSnippetListener(storage).middleware,
+        ],
+    }).store;
 }
 
 const makeRevision = () => ({
@@ -55,6 +40,12 @@ const makeRevision = () => ({
     getTransformCode: () => '',
     getSnippetID: () => 'test-id',
     getRevisionID: () => 'r1',
+    getPath: () => '/gist/test-id/r1',
+    getShareData: () => ({
+        versionedURL: '/gist/test-id/r1',
+        latestURL: null,
+        embedURL: null,
+    }),
 });
 
 // --- snippet/load ---

@@ -6,33 +6,10 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
+import {makeStore, type TestStore} from '#test/store';
 import PasteDropTarget from './PasteDropTarget.tsx';
-import {putoutEditor, revive} from '../store/reducers.ts';
 
-type Overrides = Partial<ReturnType<typeof putoutEditor>>;
-
-function makeStore(overrides: Overrides = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-    });
-}
-
-function renderWithChildren(store: ReturnType<typeof makeStore>) {
+function renderWithChildren(store: TestStore) {
     render(
         <Provider store={store}>
             <PasteDropTarget>
@@ -43,7 +20,7 @@ function renderWithChildren(store: ReturnType<typeof makeStore>) {
 }
 
 test('PasteDropTarget: renders child content', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderWithChildren(store);
     
@@ -56,7 +33,7 @@ test('PasteDropTarget: renders child content', (t) => {
 });
 
 test('PasteDropTarget: drop of plain text sets code', async (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     const OriginalReader = globalThis.FileReader;
     
     class StubReader extends OriginalReader {
@@ -92,7 +69,7 @@ test('PasteDropTarget: drop of plain text sets code', async (t) => {
 });
 
 test('PasteDropTarget: dropped invalid AST shows error', async (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     const OriginalReader = globalThis.FileReader;
     const onUnhandledRejection = () => {};
     

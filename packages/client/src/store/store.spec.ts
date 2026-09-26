@@ -1,7 +1,9 @@
 import {test, stub} from 'supertape';
-import {configureStore, type UnknownAction} from '@reduxjs/toolkit';
+import {type UnknownAction} from '@reduxjs/toolkit';
 import {
-    putoutEditor,
+    makeStore as makeTestStore,
+} from '#test/store';
+import {
     revive,
     persist,
     setCode,
@@ -37,27 +39,13 @@ const makeStorage = () => ({
     updateHash: () => {},
 });
 
-function makeStore(preload: Partial<State> = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive({
-            ...base,
-            ...preload,
-        }),
-        middleware: (getDefault) => getDefault({
-            immutableCheck: false,
-            serializableCheck: false,
-            thunk: {
-                extraArgument: {
-                    storageAdapter: makeStorage(),
-                },
-            },
-        }),
-    });
+function makeStore() {
+    return makeTestStore({}, {
+        immutableCheck: false,
+        extraArgument: {
+            storageAdapter: makeStorage(),
+        },
+    }).store;
 }
 
 const getState = (store: ReturnType<typeof makeStore>) => store.getState();

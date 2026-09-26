@@ -7,17 +7,11 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {
-    configureStore,
-    type Middleware,
-    type UnknownAction,
-} from '@reduxjs/toolkit';
+    makeStore,
+    type TestStore,
+} from '#test/store';
 import MobileMenu from './MobileMenu.tsx';
-import {
-    putoutEditor,
-    revive,
-    type RootState,
-    type Revision,
-} from '../store/reducers.ts';
+import {type Revision} from '../store/reducers.ts';
 
 const loadCss = (file: string) => {
     if (document.getElementById(`test-css-${file}`))
@@ -33,34 +27,6 @@ const loadCss = (file: string) => {
     
     document.head.append(style);
 };
-
-const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
-    actions.push(action as UnknownAction);
-    return next(action);
-};
-
-function makeStore(overrides: Partial<RootState> = {}, actions: UnknownAction[] = []) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-        middleware: (getDefault) => getDefault({
-            serializableCheck: false,
-        }).prepend(recordActions(actions)),
-    });
-}
 
 const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
     canSave: () => true,
@@ -80,7 +46,7 @@ const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
     ...overrides,
 });
 
-function renderMenu(store = makeStore()) {
+function renderMenu(store: TestStore = makeStore().store) {
     return render(
         <Provider store={store}><MobileMenu/></Provider>,
     );
@@ -167,8 +133,7 @@ test('MobileMenu: Snippet dropdown shows Share item', (t) => {
 });
 
 test('MobileMenu: Snippet Save dispatches snippet/save payload=false', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
@@ -186,8 +151,7 @@ test('MobileMenu: Snippet Save dispatches snippet/save payload=false', (t) => {
 });
 
 test('MobileMenu: Snippet Share dispatches openShareDialog', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
@@ -249,8 +213,7 @@ test('MobileMenu: Parser dropdown lists parsers', (t) => {
 });
 
 test('MobileMenu: Parser dropdown clicking parser dispatches setParser', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
@@ -267,8 +230,7 @@ test('MobileMenu: Parser dropdown clicking parser dispatches setParser', (t) => 
 });
 
 test('MobileMenu: Parser Settings dispatches openSettingsDialog', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[1]);
@@ -355,8 +317,7 @@ test('MobileMenu: Snippet New clears location hash', (t) => {
 
 test('MobileMenu: Snippet New dispatches reset when no hash', (t) => {
     globalThis.location.hash = '';
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
@@ -392,7 +353,7 @@ test('MobileMenu: Snippet Share renders share svg icon', (t) => {
 });
 
 test('MobileMenu: Snippet shows Fork when can fork and not save', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         activeRevision: makeRevision({
             canSave: () => false,
         }),
@@ -411,12 +372,11 @@ test('MobileMenu: Snippet shows Fork when can fork and not save', (t) => {
 });
 
 test('MobileMenu: Snippet Fork dispatches snippet/save payload=true', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({
+    const {store, actions} = makeStore({
         activeRevision: makeRevision({
             canSave: () => false,
         }),
-    }, actions);
+    });
     
     const {container, unmount} = renderMenu(store);
     
@@ -435,7 +395,7 @@ test('MobileMenu: Snippet Fork dispatches snippet/save payload=true', (t) => {
 });
 
 test('MobileMenu: Snippet shows loader while saving', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         saving: true,
     });
     
@@ -452,7 +412,7 @@ test('MobileMenu: Snippet shows loader while saving', (t) => {
 });
 
 test('MobileMenu: Snippet save button disabled while saving', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         saving: true,
     });
     
@@ -582,8 +542,7 @@ test('MobileMenu: New submenu contains Traverser item', (t) => {
 });
 
 test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);
@@ -636,8 +595,7 @@ test('MobileMenu: New submenu contains Ignore item', (t) => {
 });
 
 test('MobileMenu: picking JSON dispatches reset with __json template', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     const {container, unmount} = renderMenu(store);
     
     fireEvent.pointerUp(container.querySelectorAll('.mobile-dropdown__trigger')[0]);

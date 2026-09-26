@@ -23,6 +23,7 @@
     "#panel-source": "./src/panel-source/index.tsx",
     "#panel-transform": "./src/panel-transform/index.tsx",
     "#store": "./src/store/index.ts",
+    "#test/store": "./test/store.ts",
     "#parser": "./src/parser/index.ts",
     "#snippet": "./src/snippet/index.ts",
     "#ui": "./src/ui/index.ts",

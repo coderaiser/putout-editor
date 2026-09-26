@@ -1,57 +1,24 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
-import {configureStore} from '@reduxjs/toolkit';
 import {montag} from 'montag';
+import {
+    makeStore as makeTestStore,
+    type StoreOverrides,
+} from '#test/store';
 import {formatListener} from './formatMiddleware.ts';
 import {
-    putoutEditor,
     editorBlur,
     transformBlur,
-    revive,
     setParseResult,
-    type ParserSettings,
-    type WorkbenchState,
 } from './reducers.ts';
 
-const getInitState = () => putoutEditor(undefined, {
-    type: '@@INIT',
-});
-
-function makeStore(overrides: {
-    workbench?: {
-        code?: string | null;
-        initialCode?: string;
-        parser?: string;
-        parserSettings?: ParserSettings;
-        parseResult?: Partial<NonNullable<WorkbenchState['parseResult']>> & {
-            ast?: unknown;
-        };
-        keyMap?: string;
-        transform?: {
-            code?: string;
-            initialCode?: string;
-            transformer?: string;
-            cursor?: number | null;
-        };
-    };
-} = {}) {
-    const state = getInitState();
-    const workbench = {
-        ...state.workbench,
-        ...overrides.workbench,
-    } as typeof state.workbench;
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive({
-            ...state,
-            workbench,
-        }),
-        middleware: (getDefault) => getDefault({
-            immutableCheck: false,
-            serializableCheck: false,
-        }).prepend(formatListener.middleware),
-    });
+function makeStore(overrides: StoreOverrides = {}) {
+    return makeTestStore(overrides, {
+        immutableCheck: false,
+        middleware: [
+            formatListener.middleware,
+        ],
+    }).store;
 }
 
 const makeAST = () => ({

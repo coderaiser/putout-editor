@@ -6,46 +6,11 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {
-    configureStore,
-    type Middleware,
-    type UnknownAction,
-} from '@reduxjs/toolkit';
+    makeStore,
+    type TestStore,
+} from '#test/store';
 import Menu from './Menu.tsx';
-import {
-    putoutEditor,
-    revive,
-    type RootState,
-    type Revision,
-} from '../store/reducers.ts';
-
-const recordActions = (actions: UnknownAction[]): Middleware => () => (next) => (action) => {
-    actions.push(action as UnknownAction);
-    
-    return next(action);
-};
-
-function makeStore(overrides: Partial<RootState> = {}, actions: UnknownAction[] = []) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-        middleware: (getDefault) => getDefault({
-            serializableCheck: false,
-        }).prepend(recordActions(actions)),
-    });
-}
+import {type Revision} from '../store/reducers.ts';
 
 const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
     canSave: () => true,
@@ -65,7 +30,7 @@ const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
     ...overrides,
 });
 
-function renderMenu(store: ReturnType<typeof makeStore>) {
+function renderMenu(store: TestStore) {
     render(
         <Provider store={store}>
             <Menu/>
@@ -82,7 +47,7 @@ const openNew = () => {
 };
 
 test('Menu: renders title', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderMenu(store);
     
@@ -95,7 +60,7 @@ test('Menu: renders title', (t) => {
 });
 
 test('Menu: renders help question-mark svg icon', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderMenu(store);
     
@@ -108,7 +73,7 @@ test('Menu: renders help question-mark svg icon', (t) => {
 });
 
 test('Menu: parser info shows parser name', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderMenu(store);
     
@@ -122,7 +87,7 @@ test('Menu: parser info shows parser name', (t) => {
 });
 
 test('Menu: parser info renders link when parser has homepage', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderMenu(store);
     
@@ -135,7 +100,7 @@ test('Menu: parser info renders link when parser has homepage', (t) => {
 });
 
 test('Menu: transformer info shown when showTransformer', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderMenu(store);
     
@@ -149,7 +114,7 @@ test('Menu: transformer info shown when showTransformer', (t) => {
 });
 
 test('Menu: no transformer info when showTransformer false', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showTransformPanel: false,
     });
     
@@ -165,7 +130,7 @@ test('Menu: no transformer info when showTransformer false', (t) => {
 });
 
 test('Menu: keyMap menu item dispatches setKeyMap', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderMenu(store);
     openKeyMap();
@@ -184,8 +149,7 @@ test('Menu: keyMap menu item dispatches setKeyMap', (t) => {
 });
 
 test('Menu: save button dispatches snippet/save', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store, actions} = makeStore();
     
     renderMenu(store);
     const saveButton = document.querySelector('#Toolbar > .menuButton > button[title="Save"]')!;
@@ -201,7 +165,7 @@ test('Menu: save button dispatches snippet/save', (t) => {
 });
 
 test('Menu: new button clears location hash', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     globalThis.location.hash = '#/gist/abc';
     
@@ -221,12 +185,11 @@ test('Menu: new button clears location hash', (t) => {
 });
 
 test('Menu: fork button dispatches snippet/save with payload true', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({
+    const {store, actions} = makeStore({
         activeRevision: makeRevision({
             canSave: () => false,
         }),
-    }, actions);
+    });
     
     renderMenu(store);
     
@@ -243,8 +206,7 @@ test('Menu: fork button dispatches snippet/save with payload true', (t) => {
 });
 
 test('Menu: share button dispatches openShareDialog', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({
+    const {store, actions} = makeStore({
         activeRevision: makeRevision({
             getSnippetID: () => 'test-id',
             getRevisionID: () => 'r1',
@@ -257,7 +219,7 @@ test('Menu: share button dispatches openShareDialog', (t) => {
             }),
             getCode: () => 'const x = 1;',
         }),
-    }, actions);
+    });
     
     renderMenu(store);
     openSnippet();
@@ -276,8 +238,7 @@ test('Menu: share button dispatches openShareDialog', (t) => {
 });
 
 test('Menu: transform button dispatches selectTransformer', (t) => {
-    const actions: UnknownAction[] = [];
-    const store = makeStore({}, actions);
+    const {store} = makeStore();
     
     renderMenu(store);
     

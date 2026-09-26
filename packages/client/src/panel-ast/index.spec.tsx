@@ -3,6 +3,7 @@ import {render, cleanup} from '@testing-library/react';
 import {configureStore} from '@reduxjs/toolkit';
 import {Provider} from 'react-redux';
 import AstPanel from '#panel-ast';
+import {makeStore} from '#test/store';
 import {
     putoutEditor,
     revive,
@@ -11,19 +12,10 @@ import {
 
 const noop = () => {};
 
-const makeStore = () => configureStore({
-    reducer: putoutEditor,
-    preloadedState: revive(putoutEditor(undefined, {
-        type: '@@INIT',
-    })),
-    middleware: (get) => get({
-        serializableCheck: false,
-    }),
-});
-
 test('AstPanel: renders without crashing', (t) => {
+    const {store} = makeStore();
     const {container} = render(
-        <Provider store={makeStore()}>
+        <Provider store={store}>
             <AstPanel/>
         </Provider>,
     );

@@ -5,14 +5,9 @@ import {
     cleanup,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
+import {makeStore, type TestStore} from '#test/store';
 import ShareDialog from './ShareDialog.tsx';
-import {
-    putoutEditor,
-    revive,
-    type RootState,
-    type Revision,
-} from '../../store/reducers.ts';
+import {type Revision} from '../../store/reducers.ts';
 
 const makeSnippet = (): Revision => ({
     canSave: () => true,
@@ -31,30 +26,7 @@ const makeSnippet = (): Revision => ({
     }),
 });
 
-function makeStore(overrides: Partial<RootState> = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-        middleware: (getDefault) => getDefault({
-            serializableCheck: false,
-        }),
-    });
-}
-
-function renderDialog(store: ReturnType<typeof makeStore>) {
+function renderDialog(store: TestStore) {
     render(
         <Provider store={store}>
             <ShareDialog/>
@@ -63,7 +35,7 @@ function renderDialog(store: ReturnType<typeof makeStore>) {
 }
 
 test('ShareDialog: not visible: renders nothing', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderDialog(store);
     
@@ -76,7 +48,7 @@ test('ShareDialog: not visible: renders nothing', (t) => {
 });
 
 test('ShareDialog: visible when showShareDialog true: renders dialog', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showShareDialog: true,
         activeRevision: makeSnippet(),
     });
@@ -92,7 +64,7 @@ test('ShareDialog: visible when showShareDialog true: renders dialog', (t) => {
 });
 
 test('ShareDialog: visible: renders share data from snippet', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showShareDialog: true,
         activeRevision: makeSnippet(),
     });
@@ -109,7 +81,7 @@ test('ShareDialog: visible: renders share data from snippet', (t) => {
 });
 
 test('ShareDialog: renders one input when latest and embed URLs are missing', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showShareDialog: true,
         activeRevision: {
             canSave: () => true,
@@ -140,7 +112,7 @@ test('ShareDialog: renders one input when latest and embed URLs are missing', (t
 });
 
 test('ShareDialog: focus on input selects value', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showShareDialog: true,
         activeRevision: makeSnippet(),
     });
@@ -163,7 +135,7 @@ test('ShareDialog: focus on input selects value', (t) => {
 });
 
 test('ShareDialog: click on outer dialog: closes', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showShareDialog: true,
         activeRevision: makeSnippet(),
     });
@@ -182,7 +154,7 @@ test('ShareDialog: click on outer dialog: closes', (t) => {
 });
 
 test('ShareDialog: click on inner dialog: does not close', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showShareDialog: true,
         activeRevision: makeSnippet(),
     });

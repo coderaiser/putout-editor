@@ -1,47 +1,14 @@
 import {test} from 'supertape';
 import {Provider} from 'react-redux';
-import {configureStore} from '@reduxjs/toolkit';
 import {
     render,
     cleanup,
     fireEvent,
     act,
 } from '@testing-library/react';
+import {makeStore, type TestStore} from '#test/store';
 import SettingsDialog from './SettingsDialog.tsx';
-import {
-    putoutEditor,
-    revive,
-    setParserSettings,
-    type RootState,
-    type WorkbenchState,
-} from '../../store/reducers.ts';
-
-type StoreOverrides = Omit<Partial<RootState>, 'workbench'> & {
-    workbench?: Partial<WorkbenchState>;
-};
-
-function makeStore(overrides: StoreOverrides = {}) {
-    const base = putoutEditor(undefined, {
-        type: '@@INIT',
-    });
-    
-    const state = {
-        ...base,
-        ...overrides,
-        workbench: {
-            ...base.workbench,
-            ...overrides.workbench,
-        },
-    };
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: revive(state),
-        middleware: (getDefault) => getDefault({
-            serializableCheck: false,
-        }),
-    });
-}
+import {setParserSettings} from '../../store/reducers.ts';
 
 function makeSettingsStore() {
     return makeStore({
@@ -57,7 +24,7 @@ function makeSettingsStore() {
     });
 }
 
-function renderDialog(store: ReturnType<typeof makeStore>) {
+function renderDialog(store: TestStore) {
     render(
         <Provider store={store}>
             <SettingsDialog/>
@@ -66,7 +33,7 @@ function renderDialog(store: ReturnType<typeof makeStore>) {
 }
 
 test('SettingsDialog: returns null when not visible', (t) => {
-    const store = makeStore();
+    const {store} = makeStore();
     
     renderDialog(store);
     
@@ -79,7 +46,7 @@ test('SettingsDialog: returns null when not visible', (t) => {
 });
 
 test('SettingsDialog: renders dialog for default parser when visible', (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showSettingsDialog: true,
     });
     
@@ -94,7 +61,7 @@ test('SettingsDialog: renders dialog for default parser when visible', (t) => {
 });
 
 test('SettingsDialog: renders when visible', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -107,7 +74,7 @@ test('SettingsDialog: renders when visible', (t) => {
 });
 
 test('SettingsDialog: renders parser displayName in header', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -120,7 +87,7 @@ test('SettingsDialog: renders parser displayName in header', (t) => {
 });
 
 test('SettingsDialog: close button closes dialog', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -137,7 +104,7 @@ test('SettingsDialog: close button closes dialog', (t) => {
 });
 
 test('SettingsDialog: close button saves parserSettings', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -157,7 +124,7 @@ test('SettingsDialog: close button saves parserSettings', (t) => {
 });
 
 test('SettingsDialog: reset button clears parserSettings on close', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -176,7 +143,7 @@ test('SettingsDialog: reset button clears parserSettings on close', (t) => {
 });
 
 test('SettingsDialog: settings change saved on close', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -197,7 +164,7 @@ test('SettingsDialog: settings change saved on close', (t) => {
 });
 
 test('SettingsDialog: outer click on backdrop closes dialog', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -212,7 +179,7 @@ test('SettingsDialog: outer click on backdrop closes dialog', (t) => {
 });
 
 test('SettingsDialog: inner click does not close dialog', (t) => {
-    const store = makeSettingsStore();
+    const {store} = makeSettingsStore();
     
     renderDialog(store);
     
@@ -227,7 +194,7 @@ test('SettingsDialog: inner click does not close dialog', (t) => {
 });
 
 test('SettingsDialog: syncs parserSettings from store', async (t) => {
-    const store = makeStore({
+    const {store} = makeStore({
         showSettingsDialog: true,
         parserSettings: {
             espree: {

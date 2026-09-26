@@ -1,10 +1,12 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
-import {configureStore} from '@reduxjs/toolkit';
+import {
+    makeStore as makeTestStore,
+    type StoreOverrides,
+} from '#test/store';
 import {parserListener} from './parserMiddleware.ts';
 import {getParserByID} from '../parsers/index.ts';
 import {
-    putoutEditor,
     setCode,
     setParser,
     setParserSettings,
@@ -23,29 +25,13 @@ const makeMockParseResult = () => ({
     directives: [],
 });
 
-const getInitState = () => putoutEditor(undefined, {
-    type: '@@INIT',
-});
-
-function makeStore(overrides: {
-    workbench?: Record<string, unknown>;
-} = {}) {
-    const state = getInitState();
-    
-    return configureStore({
-        reducer: putoutEditor,
-        preloadedState: overrides.workbench ? {
-            ...state,
-            workbench: {
-                ...state.workbench,
-                ...overrides.workbench,
-            },
-        } : state,
-        middleware: (getDefault) => getDefault({
-            immutableCheck: false,
-            serializableCheck: false,
-        }).prepend(parserListener.middleware),
-    });
+function makeStore(overrides: StoreOverrides = {}) {
+    return makeTestStore(overrides, {
+        immutableCheck: false,
+        middleware: [
+            parserListener.middleware,
+        ],
+    }).store;
 }
 
 const getParseResult = (store: {

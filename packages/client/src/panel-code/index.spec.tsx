@@ -3,21 +3,13 @@ import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {configureStore} from '@reduxjs/toolkit';
 import CodePanel from '#panel-code';
+import {makeStore} from '#test/store';
 import {putoutEditor, revive} from '../store/reducers.ts';
 
-const makeStore = () => configureStore({
-    reducer: putoutEditor,
-    preloadedState: revive(putoutEditor(undefined, {
-        type: '@@INIT',
-    })),
-    middleware: (get) => get({
-        serializableCheck: false,
-    }),
-});
-
 test('CodePanel: renders without crashing', async (t) => {
+    const {store} = makeStore();
     const {container} = render(
-        <Provider store={makeStore()}>
+        <Provider store={store}>
             <CodePanel/>
         </Provider>,
     );
