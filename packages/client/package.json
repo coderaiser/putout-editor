@@ -154,6 +154,8 @@
     "check": "madrun check",
     "test": "madrun test",
     "test:one": "madrun test:one",
+    "test:fail": "madrun test:fail",
+    "test:json": "madrun test:json",
     "test:e2e": "madrun test:e2e",
     "test:e2e:desktop": "madrun test:e2e:desktop",
     "e2e": "madrun e2e",

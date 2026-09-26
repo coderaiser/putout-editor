@@ -1,5 +1,5 @@
 import {test} from 'supertape';
-import {buildBoundaries} from './boundaries-dsl';
+import {buildBoundaries} from './boundaries-dsl.ts';
 
 test('buildBoundaries: registers each key as an element with src/ pattern', (t) => {
     const config = buildBoundaries({

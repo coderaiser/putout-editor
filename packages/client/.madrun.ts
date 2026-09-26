@@ -16,11 +16,19 @@ export default {
     'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
     'test': () => [
         testEnv,
-        'tape "src/**/*.spec.{ts,tsx}" "test/**/*.spec.ts"',
+        'tape "src/**/*.spec.{ts,tsx}" "test/**/*.spec.ts" "config/**/*.spec.ts"',
     ],
     'test:one': () => [
         testEnv,
         `tape ${process.env.SPEC || '"src/**/*.spec.{ts,tsx}"'}`,
+    ],
+    'test:fail': () => [
+        testEnv,
+        `supertape -f fail ${process.env.SPEC || '"src/**/*.spec.{ts,tsx}"'}`,
+    ],
+    'test:json': () => [
+        testEnv,
+        `supertape -f json-lines ${process.env.SPEC || '"**/*.spec.{ts,tsx}"'}`,
     ],
     'test:e2e': () => 'playwright test',
     'test:e2e:desktop': () => 'playwright test --project=desktop-chrome',
