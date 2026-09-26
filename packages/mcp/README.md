@@ -45,13 +45,23 @@ npm install @putout/mcp
 
 ### Tools
 
-| Tool            | Description                           | Inputs                    | Response type |
-|-----------------|---------------------------------------|---------------------------|---------------|
-| `docs`          | Full putout-editor reference          | none                      | text          |
-| `parse`         | Parse source → Babel AST              | `source`, `query?`        | json          |
-| `find_places`   | Find plugin matches without modifying | `fixture`, `plugin`       | json          |
-| `transform`     | Apply plugin, return transformed code | `fixture`, `plugin`       | text          |
-| `fetch_snippet` | Source + transform of a deployed gist | `snippet`, `include?`     | json          |
+| Tool            | Description                                          | Inputs                    |
+|-----------------|------------------------------------------------------|---------------------------|
+| `docs`          | Overview + `api`/`errors` sections                   | `section?`                |
+| `formats`       | Wrapper, operator, fixture shape for each file format | none                      |
+| `get_example`   | Known-good plugin + fixture for a pattern            | `pattern`                 |
+| `validate`      | Syntax-check a plugin, returns `ok` or `plugin_syntax (line N, col N): ...` | `plugin` |
+| `parse`         | Compact Babel AST. `full: true` for raw with `loc`   | `source`, `query?`, `full?` |
+| `find_places`   | Count/inspect matches without mutating               | `fixture`, `plugin`       |
+| `transform`     | Apply plugin, return transformed source              | `fixture`, `plugin`       |
+| `fetch_snippet` | Source + transform of a deployed gist                | `snippet`, `include?`     |
+
+**Workflow for a new rule:**
+
+1. `get_example` — pick the right pattern, get a working base
+2. `validate` — check syntax before running anything
+3. `find_places` — iterate until matches are correct
+4. `transform` — confirm the fix output
 
 ### `fetch_snippet`
 
