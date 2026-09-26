@@ -159,6 +159,40 @@ test('PasteDropTarget: paste in a contenteditable element leaves code alone', as
     t.end();
 });
 
+test('PasteDropTarget: paste when activeElement is inside contenteditable leaves code alone', async (t) => {
+    const {store} = makeStore();
+    const before = store.getState().workbench.code;
+    
+    render(
+        <Provider store={store}>
+            <PasteDropTarget>
+                <div
+                    id="editable-active"
+                    contentEditable
+                    suppressContentEditableWarning
+                />
+            </PasteDropTarget>
+        </Provider>,
+    );
+    
+    // Simulate activeElement being a contenteditable while the paste event
+    // fires with a non-contenteditable target (the cm-editor parent scenario)
+    const editable = document.querySelector('#editable-active')! as HTMLElement;
+    
+    editable.focus();
+    
+    // Fire paste with target = document.body (simulates cm-editor being the target)
+    pasteWith(document.body, 'should not overwrite');
+    await setImmediate();
+    
+    cleanup();
+    
+    const result = store.getState().workbench.code;
+    
+    t.equal(result, before);
+    t.end();
+});
+
 test('PasteDropTarget: paste in a textarea leaves code alone', async (t) => {
     const {store} = makeStore();
     const before = store.getState().workbench.code;
