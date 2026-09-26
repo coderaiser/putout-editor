@@ -49,6 +49,10 @@ finding in `docs/issues/`, not an `.putout.json` entry or a lenient spec.
 - **Never use `try`/`catch`** in this codebase — `tryCatch` (sync) or `tryToCatch` (async)
   from `try-catch` / `try-to-catch`.
 - **No comments in `.madrun.ts`.** Fine everywhere else.
+- **Do not write imports that compile-rule auto-declares.** `remove`, `rename`, all `types`
+  members, `getFilename`, `getFileType`, and other operator helpers are injected by
+  `@putout/plugin-declare` at compile time. Writing them manually produces a duplicate
+  declaration after the next `putout . --fix`.
 - If `.madrun.ts` changes, run `madrun --init`; `--init` *deletes* `package.json` scripts it
   does not own, so check for collateral damage afterwards.
 - **`.madrun.ts` is the source of truth for scripts**, not `package.json`.
@@ -70,10 +74,21 @@ check whether it has — a finding left open after its fix exists is stale docum
   supertape type work: `@cloudcmd/stub@5.1.0` already declares `resolves<T>()`, and
   `supertape` re-exports it.
 
+## Keep these three in step
+
+`AGENTS.md` (facts about the code), `docs/` (map and findings) and this file (how the work is
+done) go stale independently. **When you learn something worth keeping, update whichever
+applies and commit it separately** — do not fold a doc fix into an unrelated code change, and
+do not leave it only in a commit message. A fact belongs in the code as a comment at the thing
+that owns it; a convention belongs here.
+
 ## Judgement calls
 
 - Prefer a test or an assertion over a comment: a comment can be ignored, a throw cannot.
   `makeStore` rejecting overrides that `revive()` would discard is the model.
+- `finder` is an advanced pattern that bypasses the standard runner. MCP tools and client
+  templates must not recommend it as a first choice. It stays available for users who name
+  it explicitly.
 - Put an invariant in a comment at the code that owns it, and a *map* in `docs/`. A comment
   costs nothing because you were opening that file anyway; a doc costs a deliberate read.
 - Say plainly when something was **not** verified, and do not claim credit for a fix whose

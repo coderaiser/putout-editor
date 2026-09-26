@@ -54,10 +54,10 @@ await client.close();
   natively and doesn't need it; add it back only if you spawn the server with `node`.
 - **Tools not listed means not connected** — check your editor's MCP settings for a `putout`
   entry pointing at `packages/mcp/src/index.ts`, then restart.
-- **`validate` passing doesn't mean the plugin behaves.** Use `transform` for real output.
-- **Plugin source is transformed before it runs.** `compileRule` pipes it through
-  `@putout/plugin-putout`, so a bare `path.remove()` becomes `remove(path)` with `path`
-  auto-declared. When behaviour looks impossible, check what the compiler emitted.
+- **`validate` checks syntax only; `transform` runs the compiled output.** `compileRule`
+  pipes the plugin through `@putout/plugin-putout` before execution — `path.remove()`
+  becomes `remove(path)`, missing imports are inserted. When behaviour looks wrong,
+  call `transform` and read what actually ran.
 - **`putout` lint exits 0 on plugin code inside `montag`/template literals** — it parses the
   string, not the code. Only `validate`/`transform` see through that.
 - **`tsc` and `zod`**: for a schema field with `.default()`, use `z.input<typeof schema>` in
