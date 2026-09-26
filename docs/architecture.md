@@ -69,10 +69,11 @@ suite went from green to 104 failures ("multiple elements with the role button",
 `.nycrc.json` — **not** `.c8rc`; `c8` reads nyc config, so that is where the client's
 thresholds live (`checkCoverage`, 100% on all four metrics, `all: true`).
 
-Its `exclude` list currently names twelve source paths, and they are the files that
-were uncovered, so `bun run coverage` reports 100% over the 123 files left. The honest
-number with those entries removed is 98.15%. See `docs/issues/coverage.md` before
-quoting a coverage figure for this package.
+Its `exclude` list named twelve source paths that were exactly the files that were
+uncovered, so the 100% was 100% of whatever was left — 92 files, and not a number
+that could be trusted. It is fixed: the list is now eleven named files with a
+stated reason each, and `bun run coverage` reports a real 100% over the 115 files
+it measures. See the finding below for the eleven.
 
 ### e2e projects
 

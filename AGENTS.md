@@ -196,10 +196,12 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
   forgotten. Forgetting coverage is how a refactor once shipped at 99.88% with every test
   green. Use `SPEC=… bun run test:one` while iterating; run the full `check` before
   claiming done.
-- **The 100% those thresholds enforce is currently 100% of 123 files.** `.nycrc.json`
-  excludes twelve source paths that are exactly the uncovered ones, so a green coverage
-  run is not evidence the client is covered. Read `docs/issues/coverage.md` before quoting
-  the number; the honest figure with those entries removed is 98.15%.
+- **`.nycrc.json` is the coverage gate, and its `exclude` list is the thing to watch.**
+  It once named twelve source paths that were exactly the uncovered ones, so the 100% was
+  100% of whatever was left. That is fixed: the list is now eleven named files, each with
+  a stated reason, and the gate is genuinely 100% over the 115 files it measures. Adding a
+  path to that list is a claim that a file cannot be covered - `docs/issues/coverage.md`
+  has the eleven and why.
 - **Prefer `bun run test` over calling `tape` directly.** `.madrun.ts` sets
   `dom`/`css`/`ts`/`jsx` via `NODE_OPTIONS`; without it `.tsx`/DOM specs fail to load. Pure
   `.ts` specs *do* run under bare `tape`, so green on those does not mean the package is green.

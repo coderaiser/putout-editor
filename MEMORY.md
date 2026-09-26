@@ -68,10 +68,11 @@ check whether it has — a finding left open after its fix exists is stale docum
   published version. Once it exists: mark the finding `✅`, cut the issue down to the
   resolution with a link to the rule, and drop the worked source and transform — the
   landed rule is the reference from then on.
-- **`docs/issues/coverage.md`** — the client's 100% coverage gate excludes the twelve source
-  paths that are uncovered, so the real figure is 98.15%. It is not waiting on an
-  upstream fix; it is waiting on the tests for those files, listed per file in the
-  finding. Re-check before quoting a coverage number for `packages/client`.
+- **`docs/issues/coverage.md`** — fixed, and the list is the thing to keep honest. The gate
+  had been satisfied by excluding the files it did not cover; it now measures 115 files at
+  a real 100%, and the eleven it still excludes are named with a reason. If a path is added
+  to that list, the finding should say why — that is how the gate went hollow in the
+  first place.
 - **`docs/issues/tape.md`** — the `tape/apply-stub` import fix (a missing import when the
   rule introduces `stub`) and the `tape/extract-result-from-assertion` type emission
   (`const expected: typeof result = []`) both live in `eslint-plugin-putout`. Neither needs
