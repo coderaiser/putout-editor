@@ -40,6 +40,7 @@ export default defineConfig({
         use: devices['Pixel 7'],
     }],
     // `npm run start` serves the prebuilt bundle in ../../out, not `src/`. A
+    
     // change under src/ is invisible to these tests until `bun run build`.
     webServer: {
         command: 'NODE_NO_WARNINGS=1 npm run start --silent',
