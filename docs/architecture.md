@@ -71,7 +71,7 @@ thresholds live (`checkCoverage`, 100% on all four metrics, `all: true`).
 
 Its `exclude` list currently names twelve source paths, and they are the files that
 were uncovered, so `bun run coverage` reports 100% over the 123 files left. The honest
-number with those entries removed is 97.11%. See `docs/issues/coverage.md` before
+number with those entries removed is 98.15%. See `docs/issues/coverage.md` before
 quoting a coverage figure for this package.
 
 ### e2e projects

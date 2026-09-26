@@ -199,7 +199,7 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
 - **The 100% those thresholds enforce is currently 100% of 123 files.** `.nycrc.json`
   excludes twelve source paths that are exactly the uncovered ones, so a green coverage
   run is not evidence the client is covered. Read `docs/issues/coverage.md` before quoting
-  the number; the honest figure with those entries removed is 97.11%.
+  the number; the honest figure with those entries removed is 98.15%.
 - **Prefer `bun run test` over calling `tape` directly.** `.madrun.ts` sets
   `dom`/`css`/`ts`/`jsx` via `NODE_OPTIONS`; without it `.tsx`/DOM specs fail to load. Pure
   `.ts` specs *do* run under bare `tape`, so green on those does not mean the package is green.

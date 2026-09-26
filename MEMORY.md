@@ -69,7 +69,7 @@ check whether it has — a finding left open after its fix exists is stale docum
   resolution with a link to the rule, and drop the worked source and transform — the
   landed rule is the reference from then on.
 - **`docs/issues/coverage.md`** — the client's 100% coverage gate excludes the twelve source
-  paths that are uncovered, so the real figure is 97.11%. It is not waiting on an
+  paths that are uncovered, so the real figure is 98.15%. It is not waiting on an
   upstream fix; it is waiting on the tests for those files, listed per file in the
   finding. Re-check before quoting a coverage number for `packages/client`.
 - **`docs/issues/tape.md`** — the `tape/apply-stub` import fix (a missing import when the
