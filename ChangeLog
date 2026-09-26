@@ -1,3 +1,21 @@
+2026.09.26, v3.5.0
+
+fix:
+- 366a7ee client: ctrl + v overwrites editor-source
+- de30514 docker: release
+- 8bc6a58 parserMiddleware: set parserSettings through revive, restore 100% coverage
+- 771f10f mcp: plugin: add line and col to syntax error message
+
+feature:
+- 332ae30 client: new: css: convert-rgb-to-var
+- 0b6cfed client: new: css: Traverser -> Replacer
+- 13b9c74 mcp: fetch_snippet tool for deployed snippets
+- 4c160bf mcp: docs: section param, rm inline patterns, point to get_example
+- 2239004 mcp: get-example: new tool with plugin templates and fixtures
+- 50cba7d mcp: validate: new tool to check plugin syntax
+- 5a9cd5c mcp: parse: compact mode by default, add full flag
+- bf5591f client: menu: new: plugin types
+
 2026.09.20, v3.4.1
 
 fix:
