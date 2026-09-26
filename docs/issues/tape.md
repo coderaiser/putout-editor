@@ -18,8 +18,21 @@ Agreed: hoisting the expected value into a `const` is correct, and the house sty
 always `(result, expected)`. The gap was that a bare array literal gives the hoisted const
 nothing to infer from, and the fixer did not supply the type.
 
-**Solution: emit the type on the hoisted const** — `const expected: string[] = [];`. Owner:
-us. The rule lives in `eslint-plugin-putout`, so the change lands there, not in this repo.
+**Solution: do not try to infer the element type — borrow the left operand's.**
+`deepEqual(result: unknown, expected: unknown)`, so nothing at the call site says
+`string[]`; `[]` is just an empty literal in an `unknown` position. But the hoisted
+const can be typed from the thing it is compared against:
+
+```ts
+const result = categories.filter((c) => !fixtures[c]);
+const expected: typeof result = [];
+```
+
+That is a purely syntactic transform — the rule already has the left operand's
+identifier, and needs no type checker. Verified: `tsc` reports 0 errors.
+
+Owner: us. The rule ships in `eslint-plugin-putout`, and `.putout.json` can only
+enable/disable it, not change it, so the fix lands there.
 
 ```ts
 import {test} from 'supertape';
