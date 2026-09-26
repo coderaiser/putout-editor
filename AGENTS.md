@@ -4,6 +4,8 @@ Guidance for AI agents working in this repo.
 
 For where things live and which seam owns what, read `docs/architecture.md`. The rest of
 this file is the stuff that is *not* visible from the code: cross-file traps and gates.
+For how this repo is worked on — commit style, how to file a finding, why a lint rule
+is not to be disabled — read `MEMORY.md`.
 
 ## Investigate putout with the MCP server, not with probes
 
@@ -130,10 +132,11 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
 - **Run `putout .` before committing, never just after.** CI's Lint step is `redrun fix:lint`
   (`putout . --fix`) followed by an auto-commit with `continue-on-error: true`, so unlinted
   code comes back as a surprise `chore: putout-editor: actions: lint ☘️` commit on master.
-- **Do not trust `putout . --fix` on spec files.** It rewrites tests as well as source, and
-  has silently dropped an assertion and emitted code that does not typecheck. Re-read what it
-  changed instead of trusting the exit code. Known breakages with minimal repros are written
-  up in `docs/issues/`.
+- **Do not trust `putout . --fix` on spec files or on docs.** It rewrites tests as well as
+  source, and has silently dropped an assertion, emitted code that does not typecheck, and
+  rewritten a nested-fence example inside a markdown file into nonsense. Re-read what it
+  changed instead of trusting the exit code, and run `putout .` — never `--fix` — over
+  `docs/`. Known breakages with minimal repros are written up in `docs/issues/`.
 
 ## Reporting a finding
 
@@ -145,7 +148,9 @@ own commit.
 
 **The code fence language is a gate, not a hint.** A ` ```js ` fence must be JavaScript and a
 TypeScript snippet must use ` ```ts ` — `putout` parses fences by their declared language, so
-a `js` fence holding TS is a genuine lint error, not a cosmetic mismatch. It is also why a
-repro goes in a `ts` fence: the fence language decides how `putout` reads it.
+a `js` fence holding TS is a genuine lint error, not a cosmetic mismatch. This holds for
+*every* fence, not only repros: a `js` fence of example plugin source is linted as real JS,
+so it has to be exemplary. A fence with TS syntax inside it belongs in a `ts` fence, and an
+example that must itself contain fences goes in a 4-backtick outer block.
 
 
