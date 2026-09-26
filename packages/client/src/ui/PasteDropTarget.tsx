@@ -13,6 +13,31 @@ import {categories} from '#parser';
 
 const noop = () => {};
 
+const editableNodeNames = new Set([
+    'INPUT',
+    'TEXTAREA',
+]);
+
+/**
+ * `PasteDropTarget` listens for `paste` on `document` in the capture phase, so
+ * it sees every paste in the app — including the ones aimed at a text field or
+ * at a CodeMirror editor. Those belong to the field: hijacking them both throws
+ * the clipboard away and overwrites `workbench.code` with whatever the user was
+ * editing somewhere else entirely.
+ */
+const isEditableTarget = (target: EventTarget | null) => {
+    const element = target as HTMLElement | null;
+    
+    if (!element)
+        return false;
+    
+    if (editableNodeNames.has(element.nodeName))
+        return true;
+    
+    // CodeMirror marks its content as contenteditable
+    return Boolean(element.closest?.('[contenteditable="true"]'));
+};
+
 const acceptedFileTypes = new Map([
     ['application/json', 'JSON'],
     ['text/plain', 'TEXT'],
@@ -75,6 +100,11 @@ export default function PasteDropTarget({children, ...props}: PasteDropTargetPro
         bindListener(document, 'paste', (event) => {
             const clipboardEvent = event as ClipboardEvent;
             
+            // A paste aimed at a text field or an editor is that field's own
+            // business — leave the default handling alone.
+            if (isEditableTarget(clipboardEvent.target))
+                return;
+            
             if (!clipboardEvent.clipboardData)
                 return;
             
@@ -88,10 +118,7 @@ export default function PasteDropTarget({children, ...props}: PasteDropTargetPro
             
             jsonToCode(clipboardData.getData('text/plain'))
                 .then((code) => onText('paste', code))
-                .catch(() => {
-                    if ((clipboardEvent.target as HTMLElement)?.nodeName !== 'TEXTAREA')
-                        handleASTError('paste');
-                });
+                .catch(() => handleASTError('paste'));
         }, true);
         
         let dragTimer: ReturnType<typeof setTimeout> | undefined;

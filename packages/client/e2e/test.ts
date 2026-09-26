@@ -1,6 +1,6 @@
 import {test as base} from '@playwright/test';
 
-export {type Page} from 'playwright';
+export {type Page, type BrowserContext} from 'playwright';
 
 // Custom fixture that provides an isolated page with clean state
 export const test = base.extend({

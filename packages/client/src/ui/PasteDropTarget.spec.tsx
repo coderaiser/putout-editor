@@ -109,3 +109,98 @@ test('PasteDropTarget: dropped invalid AST shows error', async (t) => {
     t.ok(error);
     t.end();
 });
+
+const pasteWith = (node: Node, text: string) => fireEvent.paste(node, {
+    clipboardData: {
+        types: ['text/plain'],
+        getData: () => text,
+    },
+});
+
+test('PasteDropTarget: paste outside a text field sets code', async (t) => {
+    const {store} = makeStore();
+    
+    renderWithChildren(store);
+    
+    pasteWith(document.querySelector('#child-test')!.parentNode!, 'pasted code');
+    await setImmediate();
+    
+    cleanup();
+    
+    const result = store.getState().workbench.code;
+    
+    t.equal(result, 'pasted code');
+    t.end();
+});
+
+test('PasteDropTarget: paste in a contenteditable element leaves code alone', async (t) => {
+    const {store} = makeStore();
+    const before = store.getState().workbench.code;
+    
+    render(
+        <Provider store={store}>
+            <PasteDropTarget>
+                <div
+                    id="editable-test"
+                    contentEditable
+                />
+            </PasteDropTarget>
+        </Provider>,
+    );
+    
+    pasteWith(document.querySelector('#editable-test')!, 'pasted code');
+    await setImmediate();
+    
+    cleanup();
+    
+    const result = store.getState().workbench.code;
+    
+    t.equal(result, before);
+    t.end();
+});
+
+test('PasteDropTarget: paste in a textarea leaves code alone', async (t) => {
+    const {store} = makeStore();
+    const before = store.getState().workbench.code;
+    
+    render(
+        <Provider store={store}>
+            <PasteDropTarget>
+                <textarea id="textarea-test"/>
+            </PasteDropTarget>
+        </Provider>,
+    );
+    
+    pasteWith(document.querySelector('#textarea-test')!, 'pasted code');
+    await setImmediate();
+    
+    cleanup();
+    
+    const result = store.getState().workbench.code;
+    
+    t.equal(result, before);
+    t.end();
+});
+
+test('PasteDropTarget: paste in an input leaves code alone', async (t) => {
+    const {store} = makeStore();
+    const before = store.getState().workbench.code;
+    
+    render(
+        <Provider store={store}>
+            <PasteDropTarget>
+                <input id="input-test"/>
+            </PasteDropTarget>
+        </Provider>,
+    );
+    
+    pasteWith(document.querySelector('#input-test')!, 'pasted code');
+    await setImmediate();
+    
+    cleanup();
+    
+    const result = store.getState().workbench.code;
+    
+    t.equal(result, before);
+    t.end();
+});

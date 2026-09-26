@@ -4,7 +4,12 @@ import {
     EDITOR_SOURCE,
     EDITOR_TRANSFORM,
 } from '#e2e/desktop';
-import {test, expect} from './test.ts';
+import {
+    test,
+    expect,
+    type BrowserContext,
+    type Page,
+} from './test.ts';
 
 test('renders the editor application', async ({page}) => {
     await expect(page.getByTestId('toolbar')).toBeVisible();
@@ -283,4 +288,94 @@ test('Tab key indents in editor-transform', async ({page}) => {
     await press('Escape');
     
     expect(await read()).toContain(`    '__a': '__b',`);
+});
+
+const PASTED_CODE = 'const PASTED_CODE = 2;';
+const SOURCE_CODE = 'const SOURCE_MUST_SURVIVE = 1;';
+
+const fillClipboard = async (page: Page, context: BrowserContext) => {
+    await context.grantPermissions([
+        'clipboard-read',
+        'clipboard-write',
+    ]);
+    await page.evaluate((text) => navigator.clipboard.writeText(text), PASTED_CODE);
+};
+
+test('paste in editor-transform leaves editor-source untouched', async ({page, context}) => {
+    await fillClipboard(page, context);
+    
+    const editor = createPutoutEditor(page);
+    const {read} = await editor.get(EDITOR_SOURCE);
+    
+    await (await editor.get(EDITOR_SOURCE)).write(SOURCE_CODE);
+    await (await editor.get(EDITOR_TRANSFORM)).write('export const replace = () => ({});');
+    
+    // Focus the transform editor and paste there
+    await (await editor.get(EDITOR_TRANSFORM)).press('i');
+    await page.keyboard.press('ControlOrMeta+V');
+    await page.waitForTimeout(200);
+    
+    const result = await read();
+    
+    expect(result).toContain(SOURCE_CODE);
+});
+
+test('paste in editor-transform inserts the clipboard text there', async ({page, context}) => {
+    await fillClipboard(page, context);
+    
+    const {
+        write,
+        press,
+        read,
+    } = await createPutoutEditor(page).get(EDITOR_TRANSFORM);
+    
+    await write('export const replace = () => ({});');
+    await press('i');
+    await page.keyboard.press('ControlOrMeta+V');
+    await page.waitForTimeout(200);
+    
+    const result = await read();
+    
+    expect(result).toContain(PASTED_CODE);
+});
+
+test('paste in editor-source inserts at the cursor instead of replacing', async ({page, context}) => {
+    await fillClipboard(page, context);
+    
+    const {
+        write,
+        press,
+        read,
+    } = await createPutoutEditor(page).get(EDITOR_SOURCE);
+    
+    await write(SOURCE_CODE);
+    await press('i');
+    await page.keyboard.press('ControlOrMeta+V');
+    await page.waitForTimeout(200);
+    
+    const result = await read();
+    
+    expect(result).toContain(SOURCE_CODE);
+});
+
+test('paste outside an editor still loads the clipboard as source', async ({page, context}) => {
+    await fillClipboard(page, context);
+    
+    const editor = createPutoutEditor(page);
+    const {write, read} = await editor.get(EDITOR_SOURCE);
+    
+    await write(SOURCE_CODE);
+    
+    // Focus the app chrome, not a text field
+    await page
+        .getByRole('heading', {
+            name: '🐊Putout Editor',
+        })
+        .click();
+    await page.keyboard.press('ControlOrMeta+V');
+    await page.waitForTimeout(200);
+    
+    const result = await read();
+    
+    expect(result).toContain(PASTED_CODE);
 });
