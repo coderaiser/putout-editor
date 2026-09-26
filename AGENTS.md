@@ -75,9 +75,12 @@ argument and keep a thin local wrapper.
   refactor. So: after changing what a store helper preloads, check the assertions actually
   observe the effect; and when adding a *regression* test, stash the fix and confirm it
   fails without it. A test that passes either way pins nothing.
-- **supertape allows exactly one assertion per test** (*"Only one assertion per test
-  allowed"*), and `putout` enforces `tape/extract-result-from-assertion` — bind both sides
-  first: `const result = ...; const expected = ...; t.deepEqual(result, expected);`
+- **Always assert `(result, expected)`, with both bound to consts.** Never inline the
+  expected value: `t.deepEqual(result, [])` is wrong even though it works, because it
+  gives `putout`'s `tape/extract-result-from-assertion` nothing to hoist. A bare `[]` also
+  has nothing to infer from, so the hoisted const needs a type —
+  `const expected: string[] = [];`. supertape allows exactly one assertion per test
+  (*"Only one assertion per test allowed"*), so split tests rather than chaining.
 
 ## e2e
 
