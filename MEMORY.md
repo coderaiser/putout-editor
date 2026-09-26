@@ -40,7 +40,7 @@ Two standing rules on those files:
 When a lint rule or a test gate catches a mistake, fix the code — do not disable the rule or
 widen the test. Proposed workarounds have been declined in favour of the gate.
 
-Concretely: `tape/extract-result-from-assertion` stays on even though it mis-fires on a bare
+Concretely: `tape/extract-result-from-assertion` stays on even though it misfires on a bare
 `[]`, and the `js` fence language stays a real error. The right response to a gate is a
 finding in `docs/issues/`, not an `.putout.json` entry or a lenient spec.
 
