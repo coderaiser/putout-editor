@@ -725,6 +725,7 @@ test('reducers: exports every action, persist, revive and the reducer', (t) => {
     const result = Object
         .keys(reducers)
         .sort();
+    
     const expected = [
         'clearError',
         'clearHighlight',

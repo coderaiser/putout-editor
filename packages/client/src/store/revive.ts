@@ -1,7 +1,4 @@
-import {
-    initialState,
-    type State,
-} from './state.ts';
+import {initialState, type State} from './state.ts';
 
 /**
  * Returns the subset of the data that makes sense to persist between visits.

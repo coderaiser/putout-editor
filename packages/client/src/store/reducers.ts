@@ -20,10 +20,7 @@ import {
 // The two concerns that used to sit in this file. `initialState` and the state
 // types live in ./state.ts, the storage migration in ./revive.ts, and both are
 // re-exported below so the 34 files importing this path are unaffected.
-export {
-    persist,
-    revive,
-} from './revive.ts';
+export {persist, revive} from './revive.ts';
 export type {
     ParseResult,
     ParserSettings,

@@ -31,4 +31,3 @@ export type ParserWithLoader = {
     locationProps?: Iterable<string> | null;
     typeProps?: Iterable<string> | null;
 };
-

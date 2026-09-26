@@ -23,7 +23,9 @@ test('esprima: parse returns a Program', async (t) => {
     const esprima = await load();
     const ast = esprimaParser.parse(esprima, code, esprimaParser.getDefaultOptions());
     
-    const result = (ast as {type: string}).type;
+    const result = (ast as {
+        type: string;
+    }).type;
     
     const expected = 'Program';
     
@@ -37,11 +39,11 @@ test('esprima: forEachProperty yields every non-function property', (t) => {
         name: 'hello',
         loc: {
             start: 0,
-        },
-        // a function property has to be skipped, or the tree walker would
+        }, // a function property has to be skipped, or the tree walker would
         // recurse into it
         walk() {},
     };
+    
     const result: string[] = [];
     
     for (const {key} of esprimaParser.forEachProperty(node))
@@ -61,6 +63,7 @@ test('esprima: forEachProperty reports the value, key and computed flag', (t) =>
     const result = [...esprimaParser.forEachProperty({
         type: 'Identifier',
     })];
+    
     const expected = [{
         value: 'Identifier',
         key: 'type',

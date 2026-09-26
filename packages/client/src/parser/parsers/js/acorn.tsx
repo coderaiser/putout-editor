@@ -13,7 +13,6 @@ type AcornMod = unknown;
 type AcornLooseMod = unknown;
 type AcornJsxMod = unknown;
 type AcornParser = (code: string, options: Record<string, unknown>) => unknown;
-
 type Parsers = {
     acorn: AcornMod;
     acornLoose: AcornLooseMod;
@@ -36,9 +35,11 @@ const getJSXParser = ({acorn, acornJsx}: Parsers) => {
             };
         };
     };
+    
     const {default: jsx} = acornJsx as {
         default: () => unknown;
     };
+    
     const extended = Parser.extend(jsx());
     
     jsxParser = extended.parse.bind(extended);

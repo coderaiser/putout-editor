@@ -19,6 +19,7 @@ test('acorn: loadParser resolves acorn, acornLoose and acornJsx', async (t) => {
     const result = Object
         .keys(await load())
         .sort();
+    
     const expected = [
         'acorn',
         'acornJsx',

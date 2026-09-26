@@ -7,21 +7,27 @@ import * as store from '#store';
 // that closed the store -> parser -> store cycle, and the cycle guard in
 // src/no-runtime-import-cycles.spec.ts fails if it comes back.
 test('parser barrel: does not re-export the store selectors', (t) => {
-    const result = Object.keys(parser).includes('getParser');
+    const result = Object
+        .keys(parser)
+        .includes('getParser');
     
     t.notOk(result);
     t.end();
 });
 
 test('parser barrel: still exports the parsers', (t) => {
-    const result = Object.keys(parser).includes('getParserByID');
+    const result = Object
+        .keys(parser)
+        .includes('getParserByID');
     
     t.ok(result);
     t.end();
 });
 
 test('store barrel: exports the parser selectors', (t) => {
-    const result = Object.keys(store).includes('getParser');
+    const result = Object
+        .keys(store)
+        .includes('getParser');
     
     t.ok(result);
     t.end();
