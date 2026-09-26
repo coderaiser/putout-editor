@@ -82,3 +82,88 @@ test('local parse: returns empty array for non-matching query', async (t) => {
     t.equal(JSON.parse(result.content[0].text).length, 0);
     t.end();
 });
+test('local parse: schema has full field', (t) => {
+    t.ok('full' in schema.shape);
+    t.end();
+});
+
+test('local parse: default mode strips loc from AST', async (t) => {
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
+    const ast = JSON.parse(result.content[0].text);
+    
+    t.notOk('loc' in ast);
+    t.end();
+});
+
+test('local parse: default mode keeps type', async (t) => {
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
+    const ast = JSON.parse(result.content[0].text);
+    
+    t.equal(ast.type, 'File');
+    t.end();
+});
+
+test('local parse: default mode keeps start', async (t) => {
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
+    const ast = JSON.parse(result.content[0].text);
+    
+    t.equal(ast.start, 0);
+    t.end();
+});
+
+test('local parse: full=true returns raw AST with loc', async (t) => {
+    const result = await handler({
+        source: 'const x = 1;',
+        full: true,
+    });
+    
+    const ast = JSON.parse(result.content[0].text);
+    
+    t.ok('loc' in ast);
+    t.end();
+});
+
+test('local parse: full=false strips loc from AST', async (t) => {
+    const result = await handler({
+        source: 'const x = 1;',
+        full: false,
+    });
+    
+    const ast = JSON.parse(result.content[0].text);
+    
+    t.notOk('loc' in ast);
+    t.end();
+});
+
+test('local parse: compact output is smaller than full output', async (t) => {
+    const source = 'const x = 1;';
+    
+    const [compact] = await Promise.all([
+        handler({source}),
+    ]);
+    const full = await handler({source, full: true});
+    
+    const result = compact.content[0].text.length < full.content[0].text.length;
+    
+    t.ok(result);
+    t.end();
+});
+
+test('local parse: output is not pretty printed', async (t) => {
+    const result = await handler({
+        source: 'const x = 1;',
+    });
+    
+    t.notMatch(result.content[0].text, '\n  ');
+    t.end();
+});
+
