@@ -1,10 +1,10 @@
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
-import * as docs from './local/docs.ts';
-import * as parse from './local/parser.ts';
-import * as findPlaces from './local/finder.ts';
-import * as transform from './local/transformer.ts';
-import * as validate from './local/validator.ts';
-import * as examples from './local/examples.ts';
+import * as docs from './docs.ts';
+import * as parse from './parser.ts';
+import * as findPlaces from './finder.ts';
+import * as transform from './transformer.ts';
+import * as validate from './validator.ts';
+import * as examples from './examples.ts';
 
 type AnyRegister = (name: string, config: {
     description: string;
