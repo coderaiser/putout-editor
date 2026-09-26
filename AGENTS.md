@@ -29,8 +29,8 @@ milliseconds.
 Prefer **source mode** — no build step, and never stale:
 
 ```js
-import {Client} from '@modelcontextprotocol/sdk/dist/esm/client/index.js';
-import {StdioClientTransport} from '@modelcontextprotocol/sdk/dist/esm/client/stdio.js';
+import {Client} from '@modelcontextprotocol/sdk/client';
+import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
 
 const transport = new StdioClientTransport({
     command: 'bun',
@@ -47,6 +47,27 @@ const call = async (name, args) => (await client.callTool({name, arguments: args
 console.log(await call('validate', {plugin: 'export const report = () => "x";'}));
 await client.close();
 ```
+
+The SDK's `exports` map rewrites `./client` to `./dist/esm/client/index.js`. Reaching for
+the deep path yourself double-nests it and fails with
+`Cannot find module '.../sdk/dist/esm/dist/esm/client/index.js'`. Use the short subpath form
+everywhere — the same one `packages/mcp/src` itself uses.
+
+The `args` path is relative, so run the probe from the repo root. To be independent of cwd
+altogether, pass absolute paths (and the absolute path to `bun`, which lives outside the
+default `PATH`):
+
+```js
+const transport = new StdioClientTransport({
+    command: '/home/coderaiser/.local/share/bun/bin/bun',
+    args: ['/home/coderaiser/putout-editor/packages/mcp/src/index.ts'],
+    cwd: '/home/coderaiser/putout-editor',
+    env: {...process.env, NODE_OPTIONS: '--import @supertape/loader-ts'},
+});
+```
+
+`cwd` is not needed for the server to start — `--import @supertape/loader-ts` resolves from
+the entry file, not the working directory — but set it anyway if you want to be explicit.
 
 `packages/mcp/dist` is **gitignored** — if you spawn `node packages/mcp/dist/index.js`
 you may be testing a stale build. Source mode via `bun` avoids that entirely.
