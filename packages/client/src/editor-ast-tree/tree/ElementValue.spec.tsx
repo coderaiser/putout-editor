@@ -271,3 +271,81 @@ test('ElementValue: renders node marker when showAsSelected', (t) => {
     t.ok(result);
     t.end();
 });
+
+// An array value renders its children only when it is open, and the children
+
+// come from the `children` prop - not from the array value - so a test that
+
+// passes an array and no children proves nothing.
+const makeChildren = (): TreeAdapterChild[] => [{
+    key: '0',
+    value: 1,
+    computed: false,
+}, {
+    key: '1',
+    value: 2,
+    computed: false,
+}, {
+    key: '2',
+    value: 3,
+    computed: false,
+}, // `length` is the array's own, and must not become a child
+{
+    key: 'length',
+    value: 3,
+    computed: false,
+}];
+
+// A numeric key is an array index, so the sub-element is unnamed; any other
+// key is a property name and must survive into the rendered name.
+test('ElementValue: keeps a non-index child key as its name', (t) => {
+    const {container} = render(
+        makeElement([
+            1,
+        ], {
+            open: true,
+            children: [{
+                key: 'name',
+                value: 'identifier',
+                computed: false,
+            }],
+        }),
+    );
+    const result = container.querySelector('[data-el-name]')?.getAttribute('data-el-name');
+    const expected = 'name';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('ElementValue: a collapsed array does not render its children', (t) => {
+    const {container} = render(makeElement([1, 2, 3], {
+        open: false,
+        children: makeChildren(),
+    }));
+    
+    const result = container.querySelectorAll('[data-el-key]').length;
+    const expected = 0;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('ElementValue: an open array renders its children, without length', (t) => {
+    const {container} = render(makeElement([1, 2, 3], {
+        open: true,
+        children: makeChildren(),
+    }));
+    
+    const result = container.querySelectorAll('[data-el-key]').length;
+    const expected = 3;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
