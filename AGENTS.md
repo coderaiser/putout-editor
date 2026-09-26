@@ -114,9 +114,19 @@ impossible, use `transform` (MCP) to see the compiled output, not the source.
 - `replacer`: `report` + `replace`. Add `match` to gate on a condition - still a replacer.
 - `includer`: `report` + `include` + `filter` + `fix`.
 - `traverser`: `report` + `traverse` + `fix`.
-- `scanner`: `report` + `scan` + `fix`. `fix` receives the first arg passed to `push`.
+- `scanner`: `report` + `scan` + `fix`. The runner hands `fix` the first arg passed to
+  `push`, or that arg's `path` when it is an object — so `push({path: file, name})` arrives
+  as the file node.
 - `declarator`: `declare` only.
 - `finder`: advanced - do not add new finder templates. Existing one is for reference only.
+
+**A template that acts must export `fix`.** The client runs a plugin with `fixCount: 1`
+(`src/transformer/index.ts`), i.e. the normal runner, and there a `find` / `scan` / `include`
+with no `fix` throws `Looks like 'fix' is not a 'function' but 'undefined'`. A `find` alone
+is usable only in the finder mode behind `find_places`. Verified on the finder template:
+with `fix`, `transform` removes the duplicate; without it, `transform` errors. A template or
+mcp example that omits `fix` is therefore unrunnable, and the mcp specs cannot see that —
+they only compile each example and run `find_places`, both of which pass without a `fix`.
 
 **Template spec pattern.** Each template has a `<name>.spec.ts` next to it.
 Every spec runs the template against its own fixture with `initPlugin` and asserts:
@@ -124,13 +134,15 @@ Every spec runs the template against its own fixture with `initPlugin` and asser
 1. the transformation result matches `montag` expected output
 2. `places.length` equals the number of expected matches (usually 1)
 
-The `index.spec.ts` integration test runs all templates and asserts every one
-compiles and matches at least one place in its fixture - a template that matches nothing
-is broken even if its individual spec passes.
+**Nothing runs all 13 together.** `index.spec.ts` only counts the maps (13 categories,
+13 fixtures, 13 templates) and checks each category has a template and a fixture — it
+compiles and runs nothing. A template that matches nothing is therefore caught only by
+its own spec, so a new template has to ship one.
 
 **Changing a template and its fixture together.** Update both in the same commit.
-A template whose fixture no longer matches is a silent failure in `index.spec.ts`.
-Run `SPEC='src/snippet/templates/*.spec.ts' bun run test:one` before committing.
+A template whose fixture no longer matches fails that template's own spec, and
+`index.spec.ts` will not notice. Run `SPEC='src/snippet/templates/*.spec.ts' bun run test:one`
+before committing.
 
 
 ## e2e

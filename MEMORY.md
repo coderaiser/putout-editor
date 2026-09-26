@@ -86,9 +86,11 @@ that owns it; a convention belongs here.
 
 - Prefer a test or an assertion over a comment: a comment can be ignored, a throw cannot.
   `makeStore` rejecting overrides that `revive()` would discard is the model.
-- `finder` is an advanced pattern that bypasses the standard runner. MCP tools and client
-  templates must not recommend it as a first choice. It stays available for users who name
-  it explicitly.
+- `finder` is advanced and the mcp must never suggest it — lead with replacer, then includer,
+  then traverser. It stays available for users who name it explicitly, and it must still
+  export `fix`: a `find` with no `fix` runs under `find_places` but throws in `transform`,
+  which is the mode a user actually runs. The client template has always carried one; keep
+  it that way.
 - Put an invariant in a comment at the code that owns it, and a *map* in `docs/`. A comment
   costs nothing because you were opening that file anyway; a doc costs a deliberate read.
 - Say plainly when something was **not** verified, and do not claim credit for a fix whose

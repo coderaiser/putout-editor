@@ -63,6 +63,10 @@ npm install @putout/mcp
 3. `find_places` — iterate until matches are correct
 4. `transform` — confirm the fix output
 
+`get_example` walks the patterns in selection order — replacer, includer, traverser,
+scanner, declarator. `finder` is advanced and is not suggested; name it explicitly and
+it is returned, with the `fix` it needs to run under `transform`.
+
 ### `fetch_snippet`
 
 `snippet` is a `#/gist/<id>/<revision>` URL, a bare `#/gist/<id>`, or just the id — the
