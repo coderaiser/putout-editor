@@ -28,9 +28,7 @@ const makeMockParseResult = () => ({
 function makeStore(overrides: StoreOverrides = {}) {
     return makeTestStore(overrides, {
         immutableCheck: false,
-        middleware: [
-            parserListener.middleware,
-        ],
+        middleware: [parserListener.middleware],
     }).store;
 }
 

@@ -6,10 +6,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {
-    makeStore,
-    type TestStore,
-} from '#test/store';
+import {makeStore, type TestStore} from '#test/store';
 import MobileMenu from './MobileMenu.tsx';
 import {type Revision} from '../store/reducers.ts';
 

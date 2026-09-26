@@ -1,8 +1,6 @@
 import {test, stub} from 'supertape';
 import {type UnknownAction} from '@reduxjs/toolkit';
-import {
-    makeStore as makeTestStore,
-} from '#test/store';
+import {makeStore as makeTestStore} from '#test/store';
 import {
     revive,
     persist,

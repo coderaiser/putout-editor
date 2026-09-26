@@ -25,9 +25,7 @@ const makeStorage = (overrides = {}) => ({
 function makeStore(overrides: StoreOverrides = {}, storage = makeStorage()) {
     return makeTestStore(overrides, {
         immutableCheck: false,
-        middleware: [
-            createSnippetListener(storage).middleware,
-        ],
+        middleware: [createSnippetListener(storage).middleware],
     }).store;
 }
 

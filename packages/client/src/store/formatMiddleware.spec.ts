@@ -15,9 +15,7 @@ import {
 function makeStore(overrides: StoreOverrides = {}) {
     return makeTestStore(overrides, {
         immutableCheck: false,
-        middleware: [
-            formatListener.middleware,
-        ],
+        middleware: [formatListener.middleware],
     }).store;
 }
 
