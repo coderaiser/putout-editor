@@ -1,7 +1,6 @@
 import {useRef, useEffect} from 'react';
 import type {Text} from '@codemirror/state';
 import {
-    createEditor,
     setValue,
     setOption,
     getValue,
@@ -17,6 +16,7 @@ import {
     type MarkHandle,
     type SourcePosition,
 } from 'qword/client';
+import {createEditor} from './create-editor.ts';
 import {
     posFromIndex as adapterPosFromIndex,
     indexFromPos as adapterIndexFromPos,

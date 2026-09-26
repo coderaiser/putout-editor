@@ -1,5 +1,4 @@
 export {
-    createEditor,
     getValue,
     setValue,
     getDocValue,
@@ -17,6 +16,10 @@ export {
     refresh,
     observeResize,
 } from 'qword/client';
+
+// qword's `createEditor`, plus the `allowMultipleSelections` the editor needs for
+// vim blockwise visual. Import this one from here, not from `qword/client`.
+export {createEditor} from './create-editor.ts';
 
 // Null-safe wrappers
 export {posFromIndex, indexFromPos} from './position.ts';
