@@ -4,6 +4,7 @@ import {
     getTransformerByID,
 } from '#parser';
 import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
+import type {ParserSettings} from '../types.ts';
 
 /**
  * Result of parsing the current code with the active parser.
@@ -27,11 +28,8 @@ export type ParseResult = {
     error: Error | null;
 } | null;
 
-/**
- * Parser-specific config object (babel options, acorn options, ...).
- * There is no shared schema across parsers — `null` is the "no settings" state.
- */
-export type ParserSettings = Record<string, unknown> | null;
+// ParserSettings is shared with the parser contract, so it lives in ../types.ts.
+export type {ParserSettings} from '../types.ts';
 
 /**
  * A `[start, end]` source range highlighted in the editor.

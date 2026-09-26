@@ -24,8 +24,9 @@ const walk = (dir: string): string[] => readdirSync(dir).flatMap((entry) => {
     return statSync(full).isDirectory() ? walk(full) : [full];
 });
 
-// `import type` / `export type` are erased, so they cannot close a runtime loop.
-// Everything else is loaded, and counts.
+// Type-only edges are erased at runtime, so this used to skip them and only
+// catch loops that actually load. It counts them now, which is what caught the
+// types.ts / parser/contract.ts pair.
 const EDGE = /(?:^|\n)\s*(?:import|export)\s+(type\s+)?[^'";]*?from\s*['"]([^'"]+)['"]|(?:^|\n)\s*import\s*(?:\(\s*)?['"]([^'"]+)['"]/g;
 
 const resolveSpecifier = (specifier: string, from: string) => {
@@ -65,10 +66,7 @@ const graph = new Map<string, string[]>(files.map((file) => {
     const source = readFileSync(file, 'utf8');
     const deps = new Set<string>();
     
-    for (const [, typeOnly, from, bare] of source.matchAll(EDGE)) {
-        if (typeOnly)
-            continue;
-        
+    for (const [, , from, bare] of source.matchAll(EDGE)) {
         const target = resolveSpecifier(from || bare, file);
         
         // `import '../css/main.css'` and anything else outside src is not a node.
@@ -129,7 +127,7 @@ const cycles = (() => {
     return found;
 })();
 
-test('client: no runtime import cycles', (t) => {
+test('client: no import cycles', (t) => {
     const result = cycles;
     const expected: string[] = [];
     

@@ -3,7 +3,7 @@
  * Every parser is guaranteed to have a `category`, so we can require it.
  */
 import type {EditorTransformer} from '#editor-code';
-import type {ParserWithLoader} from '../../store/operations.ts';
+import type {ParserWithLoader} from '../contract.ts';
 
 /**
  * A parser that has been through the category assignment loop in `parsers/index.ts`.

@@ -1,5 +1,6 @@
 import {estreeToBabel} from 'estree-to-babel';
 import type {ParserSettings} from './reducers.ts';
+import type {ParserWithLoader} from '../parser/contract.ts';
 import type {StorageData} from '../snippet/storage/index.ts';
 import {
     ignoreKeysFilter,
@@ -21,25 +22,7 @@ export type StorageAdapter = {
     fork?(revision: unknown, data: StorageData): unknown;
 };
 
-type ParserChild = {
-    value: unknown;
-    key: string;
-    computed: boolean;
-};
-
-export type ParserWithLoader = {
-    nodeToRange: (node: unknown) => unknown;
-    forEachProperty: (node: unknown) => Iterable<ParserChild> | void;
-    _promise?: Promise<unknown> | null;
-    loadParser: (callback: (value: unknown) => void) => void;
-    parse: (realParser: unknown, code: string, settings: ParserSettings) => unknown;
-    getDefaultOptions: () => ParserSettings;
-    opensByDefault?: (node: unknown, key: string) => boolean;
-    getNodeName: (node: unknown) => string | null;
-    _ignoredProperties: Iterable<unknown> | null;
-    locationProps?: Iterable<string> | null;
-    typeProps?: Iterable<string> | null;
-};
+export type {ParserWithLoader} from '../parser/contract.ts';
 
 const returns = <T>(a: T) => () => a;
 

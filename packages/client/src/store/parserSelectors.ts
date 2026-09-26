@@ -1,6 +1,8 @@
 import isDeepStrictEqual from '@gilbarbara/deep-equal';
 import {createSelector} from '@reduxjs/toolkit';
-import type {RootState} from '#store';
+// straight from ./reducers.ts, not the #store barrel: the barrel re-exports this
+// very module, so going through it makes a cycle of its own
+import type {RootState} from './reducers.ts';
 import {
     getParserByID,
     getTransformerByID,
