@@ -55,7 +55,6 @@ silently never runs:
 | `desktop-chrome` | `desktop.ts`, `editor-desktop.ts`, `snippet.ts`, `visual.ts` |
 | `desktop-chrome-dark` | `visual.ts` |
 | `mobile-safari` | `mobile.ts`, `editor-mobile.ts` |
-| `mobile-chrome` | (currently matches nothing) |
 
 `e2e/desktop/` and `e2e/mobile/` are helper modules, not test files. They do not
 match any project's `testMatch`, so putting a spec there would run it zero times.

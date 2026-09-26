@@ -34,10 +34,6 @@ export default defineConfig({
         name: 'mobile-safari',
         testMatch: ['**/mobile.ts', '**/editor-mobile.ts'],
         use: devices['iPhone 14'],
-    }, {
-        name: 'mobile-chrome',
-        testMatch: ['**/mobile.spec.ts', '**/editor.spec.ts'],
-        use: devices['Pixel 7'],
     }],
     // `npm run start` serves the prebuilt bundle in ../../out, not `src/`. A
     
