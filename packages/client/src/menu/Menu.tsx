@@ -8,7 +8,7 @@ import TransformButton from '../editor-transform/TransformButton.tsx';
 import KeyMapButton from './KeyMapButton.tsx';
 import ThemeButton from './ThemeButton.tsx';
 import Funding from './Funding.tsx';
-import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
+import {ToolbarMenuProvider} from '../store/ToolbarMenuContext.tsx';
 import {
     getTransformerByID,
     type TransformerInfo,

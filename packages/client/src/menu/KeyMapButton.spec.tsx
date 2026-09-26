@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import KeyMapButton from './KeyMapButton.tsx';
 import type {KeyMap} from '../types.ts';
-import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
+import {ToolbarMenuProvider} from '../store/ToolbarMenuContext.tsx';
 
 const noop = () => {};
 const renderKeyMap = (keyMap: KeyMap = 'default', onKeyMapChange: (keyMap: KeyMap) => void = noop) => render(

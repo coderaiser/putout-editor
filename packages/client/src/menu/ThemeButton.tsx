@@ -5,7 +5,7 @@ import {
 } from 'react';
 import {TbMoon, TbSun} from 'react-icons/tb';
 import cx from 'classnames';
-import {useToolbarMenu} from './ToolbarMenuContext.tsx';
+import {useToolbarMenu} from '../store/ToolbarMenuContext.tsx';
 
 const MENU_ID = 'theme';
 

@@ -5,7 +5,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import ThemeButton from './ThemeButton.tsx';
-import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
+import {ToolbarMenuProvider} from '../store/ToolbarMenuContext.tsx';
 
 const clearTheme = () => {
     document.documentElement.removeAttribute('data-theme');

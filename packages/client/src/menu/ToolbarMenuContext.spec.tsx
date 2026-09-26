@@ -7,7 +7,7 @@ import {
 import {
     ToolbarMenuProvider,
     useToolbarMenu,
-} from './ToolbarMenuContext.tsx';
+} from '../store/ToolbarMenuContext.tsx';
 
 type MenuValue = ReturnType<typeof useToolbarMenu>;
 

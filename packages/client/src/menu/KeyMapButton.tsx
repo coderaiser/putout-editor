@@ -2,7 +2,7 @@ import {useEffect, useRef} from 'react';
 import cx from 'classnames';
 import {TbKeyboard} from 'react-icons/tb';
 import type {KeyMap} from '../types.ts';
-import {useToolbarMenu} from './ToolbarMenuContext.tsx';
+import {useToolbarMenu} from '../store/ToolbarMenuContext.tsx';
 
 const MENU_ID = 'keymap';
 

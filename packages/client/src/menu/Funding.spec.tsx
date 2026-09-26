@@ -5,7 +5,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import Funding from './Funding.tsx';
-import {ToolbarMenuProvider} from './ToolbarMenuContext.tsx';
+import {ToolbarMenuProvider} from '../store/ToolbarMenuContext.tsx';
 
 const renderFunding = () => render(
     <ToolbarMenuProvider>

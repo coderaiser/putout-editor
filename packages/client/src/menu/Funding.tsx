@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {TbHeart} from 'react-icons/tb';
-import {useToolbarMenu} from './ToolbarMenuContext.tsx';
+import {useToolbarMenu} from '../store/ToolbarMenuContext.tsx';
 
 const MENU_ID = 'funding';
 
