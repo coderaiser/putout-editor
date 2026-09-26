@@ -1,6 +1,6 @@
 # tape / putout lint findings
 
-Both rewrites below are **by design**. What is open is the narrower gap each one leaves.
+Both rewrites are **by design**; what follows is the narrower gap each leaves.
 Status: ✅ resolved, ❌ open.
 
 Fenced `ts` because the repro must typecheck cleanly *before* the fix — otherwise
@@ -12,11 +12,14 @@ silently rewrites `master`.
 
 ***
 
-## ❌ `tape/extract-result-from-assertion` — extracts, but does not carry the type
+## ✅ `tape/extract-result-from-assertion` — solution: write the type
 
 Agreed: hoisting the expected value into a `const` is correct, and the house style is
-always `(result, expected)`. Open: when the expected value is a bare array literal there
-is nothing left to infer from, so the fixer must supply the type and does not.
+always `(result, expected)`. The gap was that a bare array literal gives the hoisted const
+nothing to infer from, and the fixer did not supply the type.
+
+**Solution: emit the type on the hoisted const** — `const expected: string[] = [];`. Owner:
+us. The rule lives in `eslint-plugin-putout`, so the change lands there, not in this repo.
 
 ```ts
 import {test} from 'supertape';
@@ -117,5 +120,4 @@ and the test **fails** (1 test, 0 pass) — `stub()` was called with no argument
 returned the local helper's `string[]`.
 
 **Expected:** when the rule introduces `stub`, add the import that binds it, so the
-rewrite cannot resolve to something else. With that plus types for `stub()`, the transform
-is sound.
+rewrite cannot resolve to something else.
