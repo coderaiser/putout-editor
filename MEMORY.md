@@ -53,6 +53,23 @@ finding in `docs/issues/`, not an `.putout.json` entry or a lenient spec.
   does not own, so check for collateral damage afterwards.
 - **`.madrun.ts` is the source of truth for scripts**, not `package.json`.
 
+## Re-check open findings
+
+Findings marked `❌` are waiting on something landing. Before working on anything else,
+check whether it has — a finding left open after its fix exists is stale documentation.
+
+- **`docs/issues/markdown.md`** — `convert-js-to-ts` for `@putout/plugin-markdown` is
+  prepared and verified but not landed. Check
+  `node_modules/@putout/plugin-markdown/lib/` for a `convert-js-to-ts` directory, or the
+  published version. Once it exists: mark the finding `✅`, cut the issue down to the
+  resolution with a link to the rule, and drop the worked source and transform — the
+  landed rule is the reference from then on.
+- **`docs/issues/tape.md`** — the `tape/apply-stub` import fix (a missing import when the
+  rule introduces `stub`) and the `tape/extract-result-from-assertion` type emission
+  (`const expected: typeof result = []`) both live in `eslint-plugin-putout`. Neither needs
+  supertape type work: `@cloudcmd/stub@5.1.0` already declares `resolves<T>()`, and
+  `supertape` re-exports it.
+
 ## Judgement calls
 
 - Prefer a test or an assertion over a comment: a comment can be ignored, a throw cannot.
