@@ -1,4 +1,7 @@
-import {run, cutEnv} from 'madrun';
+import {
+    run,
+    cutEnv,
+} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
 const testEnv = defineEnv({
@@ -13,9 +16,14 @@ const env = {
 };
 
 export default {
+    'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
     'test': () => [
         testEnv,
         'tape "src/**/*.spec.{ts,tsx}" "test/**/*.spec.ts"',
+    ],
+    'test:one': () => [
+        testEnv,
+        `tape ${process.env.SPEC || '"src/**/*.spec.{ts,tsx}"'}`,
     ],
     'test:e2e': () => 'playwright test',
     'test:e2e:desktop': () => 'playwright test --project=desktop-chrome',

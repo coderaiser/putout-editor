@@ -2,7 +2,7 @@
   "name": "@putout/editor-client",
   "version": "2.6.0",
   "type": "module",
-  "description": "🐊Putout Editor",
+  "description": "\ud83d\udc0aPutout Editor",
   "private": true,
   "tag": false,
   "repository": {
@@ -151,7 +151,9 @@
     "url": "^0.11.4"
   },
   "scripts": {
+    "check": "madrun check",
     "test": "madrun test",
+    "test:one": "madrun test:one",
     "test:e2e": "madrun test:e2e",
     "test:e2e:desktop": "madrun test:e2e:desktop",
     "e2e": "madrun e2e",
