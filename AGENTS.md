@@ -91,6 +91,22 @@ argument and keep a thin local wrapper.
 - **Clipboard tests need `context.grantPermissions(['clipboard-read', 'clipboard-write'])`**,
   which is Chromium-only — keep them in `e2e/desktop.ts`, out of the mobile projects.
 
+## Reading a deployed snippet
+
+A `putout.cloudcmd.io/#/gist/<snippetID>/<revisionID>` URL is a plain JSON API call —
+don't scrape the page or spin up a browser:
+
+```bash
+curl -sS "https://putout.cloudcmd.io/api/v1/gist/$1/${2:-latest}"
+```
+
+The response's `files` are: **`astexplorer.json`** (manifest: `v`, `parserID`, `toolID`,
+`settings`), **`transform.js`** (the transform), and the source — **`code.js`** when
+`v === 1`, or **`source.<ext>`** when `v === 2`, where `<ext>` is the *category*
+extension of `parserID` (`js` for JavaScript, so `source.js`). That extension indirection
+is the easy thing to get wrong: guessing `source.js` works by luck for JS snippets and
+silently returns nothing for a Python or YAML one.
+
 ## Verify before claiming done
 
 ```bash
