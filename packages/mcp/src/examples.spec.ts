@@ -3,6 +3,7 @@ import {z} from 'zod';
 import {tryCatch} from 'try-catch';
 import {compilePlugin} from './plugin.ts';
 import {handler as findPlaces} from './finder.ts';
+import {handler as transform} from './transformer.ts';
 import {
     handler,
     name,
@@ -95,6 +96,18 @@ test('local get-example: returns plugin for finder', (t) => {
     const result = text('finder');
     
     t.match(result, 'find');
+    t.end();
+});
+
+test('local get-example: finder example removes the duplicate', async (t) => {
+    const {content} = await transform({
+        fixture: fixtureOf(text('finder')),
+        plugin: pluginOf(text('finder')),
+    });
+    const result = content[0].text;
+    const expected = '// find-duplicate-values\nconst x = 1;\n\nconst z = 2;';
+    
+    t.equal(result, expected);
     t.end();
 });
 

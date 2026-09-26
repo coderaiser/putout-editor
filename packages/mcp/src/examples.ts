@@ -141,7 +141,9 @@ export const find = (ast, {traverse, push}) => {
             seen.set(value, id.name);
         },
     });
-};`;
+};
+
+export const fix = ({path}) => path.remove();`;
 
 const finderFixture = `// find-duplicate-values
 
