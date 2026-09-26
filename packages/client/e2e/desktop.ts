@@ -403,8 +403,13 @@ test('vim visual block: Ctrl+V jj x removes first char of each selected line', a
     await press('g');
     await press('0');
     
-    // enter visual block mode — this is the step that currently fails
-    await page.keyboard.press('Control+V');
+    // enter visual block mode
+    //
+    // `Control+v`, not `Control+V`: a browser reports Ctrl+v as `event.key === 'v'`,
+    // and codemirror-vim's mapper holds `<C-v>`. `Control+V` arrives as `'V'`,
+    // matches no binding, and the paste that the browser then fires drops vim into
+    // insert mode - so the test would type `jjx` instead of selecting a column.
+    await page.keyboard.press('Control+v');
     await page.waitForTimeout(100);
     
     // extend selection down 2 lines
