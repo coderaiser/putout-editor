@@ -26,6 +26,14 @@ test('templates: Scanner: keeps only the transformation result', (t) => {
     t.end();
 });
 
+test('templates: Scanner: fix receives a file not a path', (t) => {
+    const source = templates.Scanner;
+    const result = source.includes('fix = (file)') || source.includes('fix = ({path');
+    
+    t.ok(result);
+    t.end();
+});
+
 test('templates: Scanner: finds 1 place', (t) => {
     const {places} = putout(fixtures.Scanner, {
         fix: false,

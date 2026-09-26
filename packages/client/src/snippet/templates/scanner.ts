@@ -5,14 +5,14 @@ export default montag`
     
     import {operator} from 'putout';
     
-    const {getFilename, getFileType} = operator;
+    const {getFilename, getFileType, removeFile} = operator;
     const isFile = (file) => getFileType(file) === 'file';
     const isSpec = (name) => name.includes('.spec.');
     
     export const report = ({name}) => \`No test found for '$\{name\}' 🔍\`;
     
-    export const fix = () => {
-        path.remove();
+    export const fix = (file) => {
+        removeFile(file);
     };
     
     export const scan = (root, {push, trackFile}) => {

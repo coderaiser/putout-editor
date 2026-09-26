@@ -161,15 +161,17 @@ const declaratorFixture = `// declare-putout-imports
 
 const {code} = putout(source, {plugins: []});`;
 
-const scannerPlugin = `// find-spec-without-test
+const scannerPlugin = `// remove-spec
 
-import {operator} from 'putout';
-
-const {getFilename, getFileType} = operator;
+const {getFilename, getFileType, removeFile} = operator;
 const isFile = (file) => getFileType(file) === 'file';
 const isSpec = (name) => name.includes('.spec.');
 
 export const report = ({name}) => \`No test found for '\${name}' 🔍\`;
+
+export const fix = (file) => {
+    removeFile(file);
+};
 
 export const scan = (root, {push, trackFile}) => {
     for (const file of trackFile(root, '*.js').filter(isFile)) {
