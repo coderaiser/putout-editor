@@ -7,60 +7,35 @@ import {
     getCategoryByID,
     getDefaultParser,
     getParserByID,
-    getTransformerByID,
     type ParserCategory,
 } from '#parser';
+import {
+    defaultParser,
+    defaultTransformer,
+    initialState,
+    type Range,
+    type ResetPayload,
+} from './state.ts';
 
-/**
- * Result of parsing the current code with the active parser.
- * `null` is the initial state before anything has been parsed.
- *
- * On success: `{ast, treeAdapter, time, source, error: null}`.
- * On failure: `{ast: null, treeAdapter: null, time: null, source: null, error}`.
- *
- * `ast` stays `unknown` — the AST shape depends on the active parser
- * (Babel, Acorn, Esprima all differ). Consumers narrow it explicitly.
- *
- * `treeAdapter` is the raw parse-result config `{type, options}`, not a
- * `TreeAdapter` instance — the instance is built later by
- * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
- */
-import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
+// The two concerns that used to sit in this file. `initialState` and the state
+// types live in ./state.ts, the storage migration in ./revive.ts, and both are
+// re-exported below so the 34 files importing this path are unaffected.
+export {
+    persist,
+    revive,
+} from './revive.ts';
+export type {
+    ParseResult,
+    ParserSettings,
+    Range,
+    ResetPayload,
+    Revision,
+    State,
+    TransformState,
+    WorkbenchState,
+} from './state.ts';
 
-/**
- * Result of parsing the current code with the active parser.
- * `null` is the initial state before anything has been parsed.
- *
- * On success: `{ast, treeAdapter, time, source, error: null}`.
- * On failure: `{ast: null, treeAdapter: null, time: null, source: null, error}`.
- *
- * `ast` stays `unknown` — the AST shape depends on the active parser
- * (Babel, Acorn, Esprima all differ). Consumers narrow it explicitly.
- *
- * `treeAdapter` is the raw parse-result config `{type, options}`, not a
- * `TreeAdapter` instance — the instance is built later by
- * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
- */
 const isString = (a: unknown): a is string => typeof a === 'string';
-
-/**
- * Result of parsing the current code with the active parser.
- * `null` is the initial state before anything has been parsed.
- *
- * On success: `{ast, treeAdapter, time, source, error: null}`.
- * On failure: `{ast: null, treeAdapter: null, time: null, source: null, error}`.
- *
- * `ast` stays `unknown` — the AST shape depends on the active parser
- * (Babel, Acorn, Esprima all differ). Consumers narrow it explicitly.
- *
- * `treeAdapter` is the raw parse-result config `{type, options}`, not a
- * `TreeAdapter` instance — the instance is built later by
- * `treeAdapterFromParseResult` (see `parser/TreeAdapter.ts`).
- */
-export type ResetPayload = {
-    template?: string;
-    fixture?: string;
-};
 
 const normalizeResetPayload = (payload?: string | ResetPayload): ResetPayload => {
     if (isString(payload))
@@ -71,150 +46,7 @@ const normalizeResetPayload = (payload?: string | ResetPayload): ResetPayload =>
     return payload || {};
 };
 
-export type ParseResult = {
-    ast: unknown;
-    treeAdapter: NonNullable<TreeAdapterParseResult['treeAdapter']> | null;
-    time: number | null;
-    source: string | null;
-    error: Error | null;
-} | null;
-
-/**
- * Parser-specific config object (babel options, acorn options, ...).
- * There is no shared schema across parsers — `null` is the "no settings" state.
- */
-export type ParserSettings = Record<string, unknown> | null;
-
-/**
- * A `[start, end]` source range highlighted in the editor.
- */
-export type Range = [
-    number,
-    number,
-];
-
-export interface Revision {
-    canSave(): boolean;
-    getSnippetID(): string;
-    getRevisionID(): string;
-    getTransformerID(): string | null;
-    getTransformCode(): string;
-    getParserID(): string;
-    getCode(): string;
-    getParserSettings(): ParserSettings;
-    getPath(): string;
-    getShareData(): {
-        versionedURL: string;
-        latestURL: string | null;
-        embedURL: string | null;
-    };
-}
-
-export interface TransformState {
-    code: string;
-    initialCode: string;
-    transformer: string;
-}
-
-export interface WorkbenchState {
-    parser: string;
-    parserSettings: ParserSettings;
-    parseError: Error | null;
-    parseResult: ParseResult;
-    code: string;
-    keyMap: string;
-    initialCode: string;
-    transform: TransformState;
-}
-
-export interface State {
-    showSettingsDialog: boolean;
-    showShareDialog: boolean;
-    loadingSnippet: boolean;
-    forking: boolean;
-    saving: boolean;
-    cursor: number | null;
-    error: Error | null;
-    highlightRange: Range | null;
-    showTransformPanel: boolean;
-    selectedRevision: null;
-    activeRevision: Revision | null;
-    parserSettings: Record<string, ParserSettings>;
-    parserPerCategory: Record<string, string>;
-    workbench: WorkbenchState;
-}
-
 const noop = () => {};
-
-const defaultParser = getDefaultParser(getCategoryByID('javascript')!)!;
-const defaultTransformer = getTransformerByID('putout')!;
-
-const initialState: State = {
-    // UI related state
-    showSettingsDialog: false,
-    showShareDialog: false,
-    loadingSnippet: false,
-    forking: false,
-    saving: false,
-    cursor: null,
-    error: null,
-    highlightRange: null,
-    showTransformPanel: true, // Snippet related state
-    selectedRevision: null, // Workbench settings
-    activeRevision: null,
-    // Contains local settings of all parsers
-    parserSettings: {}, // Remember selected parser per category
-    parserPerCategory: {},
-    
-    workbench: {
-        parser: defaultParser.id,
-        parserSettings: null,
-        parseError: null,
-        parseResult: null,
-        code: defaultParser.category!.codeExample,
-        keyMap: 'vim',
-        initialCode: defaultParser.category!.codeExample,
-        transform: {
-            code: defaultTransformer.defaultTransform!,
-            initialCode: defaultParser.category!.codeExample,
-            transformer: defaultTransformer.id,
-        },
-    },
-};
-
-/**
- * Returns the subset of the data that makes sense to persist between visits.
- */
-export const persist = (state: State) => ({
-    ...pick(state, 'showTransformPanel', 'parserSettings', 'parserPerCategory'),
-    workbench: {
-        ...pick(state.workbench, 'parser', 'code', 'keyMap'),
-        transform: pick(state.workbench.transform, 'code', 'transformer'),
-    },
-});
-
-/**
- * When read from persistent storage, set the last stored code as initial version.
- * This is necessary because we use CodeMirror as an uncontrolled component.
- *
- * Note this *derives* `workbench.initialCode`, `workbench.parserSettings` and
- * `workbench.transform.initialCode` from other state. Anything that passes a
- * preloaded state through here will have those three overwritten, so set the
- * fields they come from — `workbench.code`, the top-level
- * `parserSettings[parser]` map, and `workbench.transform.code` — instead.
- */
-export const revive = (state: State = initialState) => ({
-    ...state,
-    workbench: {
-        ...state.workbench,
-        initialCode: state.workbench.code,
-        parserSettings: state.parserSettings[state.workbench.parser] || null,
-        transform: {
-            ...state.workbench.transform,
-            initialCode: state.workbench.transform.code,
-        },
-    },
-});
 
 const slice = createSlice({
     name: 'putoutEditor',
@@ -456,10 +288,3 @@ export const putoutEditor = slice.reducer;
 export type RootState = ReturnType<typeof putoutEditor>;
 
 export type AppDispatch = ReturnType<typeof configureStore>['dispatch'];
-
-function pick<T extends object, K extends keyof T>(obj: T, ...properties: K[]): Pick<T, K> {
-    return properties.reduce((result, prop) => {
-        result[prop] = obj[prop];
-        return result;
-    }, {} as Pick<T, K>);
-}

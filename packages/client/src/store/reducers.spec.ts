@@ -1,5 +1,7 @@
 import {test} from 'supertape';
-import {
+import * as reducers from './reducers.ts';
+
+const {
     putoutEditor,
     persist,
     revive,
@@ -30,7 +32,7 @@ import {
     selectCategory,
     setHighlight,
     clearHighlight,
-} from './reducers.ts';
+} = reducers;
 
 const makeRevision = (overrides = {}) => ({
     canSave: () => true,
@@ -716,5 +718,47 @@ test('reducers: setCursor with same value preserves instance', (t) => {
     const state = putoutEditor(withCursor, setCursor(3));
     
     t.equal(state.cursor, before);
+    t.end();
+});
+
+test('reducers: exports every action, persist, revive and the reducer', (t) => {
+    const result = Object
+        .keys(reducers)
+        .sort();
+    const expected = [
+        'clearError',
+        'clearHighlight',
+        'clearSnippet',
+        'closeSettingsDialog',
+        'closeShareDialog',
+        'doneLoadingSnippet',
+        'dropText',
+        'editorBlur',
+        'endSave',
+        'hideTransformer',
+        'openSettingsDialog',
+        'openShareDialog',
+        'persist',
+        'putoutEditor',
+        'reset',
+        'revive',
+        'selectCategory',
+        'selectTransformer',
+        'setCode',
+        'setCursor',
+        'setError',
+        'setHighlight',
+        'setKeyMap',
+        'setParseResult',
+        'setParser',
+        'setParserSettings',
+        'setSnippet',
+        'setTransformState',
+        'startLoadingSnippet',
+        'startSave',
+        'transformBlur',
+    ];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
