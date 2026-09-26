@@ -1,7 +1,7 @@
 **/coverage
-packages/client/e2e/snapshots/
-packages/client/e2e/test-results/
-packages/client/e2e/visual.ts-snapshots/
+**/test-results
+**/playwright-report
+**/blob-report
 
 *.swp
 *.lock
@@ -9,11 +9,12 @@ packages/client/e2e/visual.ts-snapshots/
 
 .idea
 
+packages/client/e2e/visual.ts-snapshots/
+
+packages/client/e2e/snapshots/
+packages/client/e2e/test-results/
 /out
 node_modules
 production
 /dist
 coverage
-**/test-results
-**/playwright-report
-**/blob-report

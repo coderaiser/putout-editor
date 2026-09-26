@@ -23,13 +23,19 @@
 .highlight .c1 { color: var(--hl-comment); } /* Comment.Single */
 .highlight .cs { color: var(--hl-green); } /* Comment.Special */
 .highlight .gd { color: var(--hl-cyan); } /* Generic.Deleted */
-.highlight .ge { color: var(--hl-base); font-style: italic; } /* Generic.Emph */
+.highlight .ge {
+    color: var(--hl-base);
+    font-style: italic;
+} /* Generic.Emph */
 .highlight .gr { color: var(--hl-red); } /* Generic.Error */
 .highlight .gh { color: var(--hl-orange); } /* Generic.Heading */
 .highlight .gi { color: var(--hl-green); } /* Generic.Inserted */
 .highlight .go { color: var(--hl-base); } /* Generic.Output */
 .highlight .gp { color: var(--hl-base); } /* Generic.Prompt */
-.highlight .gs { color: var(--hl-base); font-weight: bold; } /* Generic.Strong */
+.highlight .gs {
+    color: var(--hl-base);
+    font-weight: bold;
+} /* Generic.Strong */
 .highlight .gu { color: var(--hl-orange); } /* Generic.Subheading */
 .highlight .gt { color: var(--hl-base); } /* Generic.Traceback */
 .highlight .kc { color: var(--hl-orange); } /* Keyword.Constant */
@@ -83,7 +89,10 @@
 .cm-editor .hl-constant       { color: var(--hl-orange); }
 .cm-editor .hl-string         { color: var(--hl-cyan); }
 .cm-editor .hl-number         { color: var(--hl-cyan); }
-.cm-editor .hl-comment        { color: var(--hl-comment); font-style: italic; }
+.cm-editor .hl-comment        {
+    color: var(--hl-comment);
+    font-style: italic;
+}
 .cm-editor .hl-name           { color: var(--hl-name); }
 .cm-editor .hl-function       { color: var(--hl-blue); }
 .cm-editor .hl-class          { color: var(--hl-blue); }
