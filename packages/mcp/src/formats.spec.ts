@@ -79,6 +79,7 @@ test('local formats: covers every processor the client templates use', (t) => {
     const result = parse()
         .map(({id}: {id: string;}) => id)
         .sort();
+    
     const expected = [
         'css',
         'docker',

@@ -104,6 +104,7 @@ test('local get-example: finder example removes the duplicate', async (t) => {
         fixture: fixtureOf(text('finder')),
         plugin: pluginOf(text('finder')),
     });
+    
     const result = content[0].text;
     const expected = '// find-duplicate-values\nconst x = 1;\n\nconst z = 2;';
     
