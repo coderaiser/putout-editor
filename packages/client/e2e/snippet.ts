@@ -251,7 +251,7 @@ test('snippet: Markdown removes trailing heading spaces in output', async ({page
     expect(await getCodeOutput(page)).toContain(`heading(2, 'Hello World')`);
 });
 
-test('snippet: CSS replaces a literal color with a custom property', async ({page}) => {
+test('snippet: CSS replaces rgb with a var reference', async ({page}) => {
     await pickTemplate(page, 'CSS');
     expect(await getCodeOutput(page)).toContain(`functionValue('var', ['--shadow-color'])`);
 });
@@ -373,7 +373,7 @@ test('snippet: Markdown loads correct template text', async ({page}) => {
 
 test('snippet: CSS loads correct template text', async ({page}) => {
     await pickTemplate(page, 'CSS');
-    expect(await getTransformCode(page)).toContain('use-custom-property-for-color');
+    expect(await getTransformCode(page)).toContain('convert-rgb-to-var');
 });
 
 test('snippet: Scanner loads correct template text', async ({page}) => {

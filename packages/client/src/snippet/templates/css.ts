@@ -1,11 +1,15 @@
 import {montag} from 'montag';
 
 export default montag`
-    // use-custom-property-for-color
+    // convert-rgb-to-var
     
-    export const report = () => \`Use a custom property instead of a literal color 🎨\`;
+    import {operator} from 'putout';
     
-    export const replace = () => ({
+    const {__css, remove} = operator;
+    
+    export const report = () => \`Use 'var' instead of 'rgb'\`;
+    
+    export const replace = ({push}) => ({
         'functionValue("rgb", __a)': 'functionValue("var", ["--shadow-color"])',
     });
 `;

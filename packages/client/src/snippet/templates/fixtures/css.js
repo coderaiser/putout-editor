@@ -1,7 +1,7 @@
 import {montag} from 'montag';
 
 export default montag`
-    // use-custom-property-for-color (CSS plugin)
+    // convert-rgb-to-var (CSS plugin)
     // The CSS processor wraps declarations as function calls, so a literal color
     // shows up as functionValue("rgb", ...).
     

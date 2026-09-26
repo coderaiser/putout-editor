@@ -43,7 +43,7 @@ const mobileTemplateMarkers = {
     YAML: '__yaml',
     TOML: '__toml',
     Markdown: 'heading',
-    CSS: 'use-custom-property-for-color',
+    CSS: 'convert-rgb-to-var',
     Docker: '__docker',
     Ignore: '__ignore',
 } as const;
