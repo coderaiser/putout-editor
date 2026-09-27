@@ -55,6 +55,11 @@ gate sat behind a "✅ verified" that had checked a hand-written copy rather tha
 - **Never use `try`/`catch`** in this codebase — `tryCatch` (sync) or `tryToCatch` (async)
   from `try-catch` / `try-to-catch`.
 - **No comments in `.madrun.ts`.** Fine everywhere else.
+- **Do not write a run of consecutive `//` lines.** CI's `putout . --fix` inserts a blank line
+  between each of them, turning a wrapped comment into a column of one-line paragraphs — seen
+  arriving as `chore: putout-editor: actions: lint ☘️` (1ae0f3a), on a comment block that
+  `putout .` in report mode had said nothing about. Put the explanation in one long line, or in
+  a block above the code.
 - **Do not write imports that compile-rule auto-declares.** `remove`, `rename`, all `types`
   members, `getFilename`, `getFileType`, and other operator helpers are injected by
   `@putout/plugin-declare` at compile time. Writing them manually produces a duplicate
