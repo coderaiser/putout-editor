@@ -268,6 +268,16 @@ code that does not parse. Fix those by hand.
 `fix` throws. An invariant with no safe automatic fix stays a comment on the code that owns it.
 The reasoning and the repro are in `docs/issues/putout-plugins.md`.
 
+**A new rule is on in the whole repository until proven otherwise.** The plugin is wired in
+from the root `.putout.json`, so a rule it holds reaches `packages/client`, `packages/mcp`,
+`packages/server` and every other workspace — not just `packages/plugin-putout-editor`.
+`remove-comments` fired on 50 places in this repository's own source before it was scoped
+off at the root and on in its own package. A rule that is *about* one package has to say so:
+turn it `off` in the root `.putout.json` and `on` in the `.putout.json` of the package it
+governs, then check **both** directions, since a config that cannot be re-enabled is not a
+scope. And the check that catches this is `putout .` — linting the plugin's own directory
+passes while the repository is on fire.
+
 **An mcp example is a proxy, not the artifact.** `get_example` shipped hand-written copies of
 plugins that also exist as real rules, and they drifted — the `markdown` one reported a
 different message *and* matched on `source.value` where the real rule uses `extract(source)`.
