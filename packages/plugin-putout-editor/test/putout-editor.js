@@ -33,17 +33,11 @@ test('plugin-putout-editor: noTransform: remove-duplicated-receiver', (t) => {
 });
 
 test('plugin-putout-editor: report: remove-duplicated-receiver', (t) => {
-    t.reportCode(
-        `const a = getState() && getState().value;`,
-        'Bind the left side to a local: && calls it twice',
-    );
+    t.reportCode(`const a = getState() && getState().value;`, 'Bind the left side to a local: && calls it twice');
     t.end();
 });
 
 test('plugin-putout-editor: no report: remove-duplicated-receiver on a plain read', (t) => {
-    t.noReportCode(
-        `const d = q.r && q.r.s();`,
-        'Bind the left side to a local: && calls it twice',
-    );
+    t.noReportCode(`const d = q.r && q.r.s();`, 'Bind the left side to a local: && calls it twice');
     t.end();
 });
