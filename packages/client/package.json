@@ -164,7 +164,6 @@
     "test:dts": "madrun test:dts",
     "start": "madrun start",
     "build": "madrun build",
-    "check:css": "node scripts/check-css.js",
     "build:dev": "madrun build:dev",
     "watch": "madrun watch",
     "fix:eslint": "madrun fix:eslint",

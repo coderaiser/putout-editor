@@ -49,7 +49,10 @@ export default {
     'fresh:lint': () => run('lint', '--fresh'),
     'lint:fresh': () => run('lint', '--fresh'),
     'prefix:lint': () => 'redlint fix',
-    'fix:lint': () => 'putout . --fix',
+    // redlint first: it is the only thing that runs the filesystem ruleset, which is
+    
+    // where the css architecture lives (see docs/architecture.md)
+    'fix:lint': () => 'redlint fix && putout . --fix',
     'fontcustom': () => 'fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml',
     'eslint:hotfix': () => 'rm -rf node_modules/eslint/node_modules/acorn',
     'halting-problem:hotfix': () => 'rm -rf node_modules/halting-problem/node_modules/acorn',

@@ -53,9 +53,6 @@ jobs:
           message: "chore: ${{ env.NAME }}: actions: lint ☘️"
       - name: Coverage
         run: redrun coverage report
-      - name: Check CSS architecture
-        run: node scripts/check-css.js
-        working-directory: packages/client
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         continue-on-error: true
