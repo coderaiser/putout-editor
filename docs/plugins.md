@@ -126,7 +126,7 @@ report-only, and its test proves it changes nothing.
 of a bug inside a markdown fence and deleted the point of the example. Keep anti-patterns out
 of `js`/`ts` fences; write them inline.
 
-**A fix can still need a human.** `apply-type-check` rewrites
-`node.type === 'CallExpression'` into `isCallExpression(node)`, but `plugin-declare` does not
-know the `is*` helpers live in `types`, so the import is yours to add. That is one line, and
-the lint catches it as `no-undef` right after.
+**A fix can still need a human.** `apply-type-check` — which lives in `@putout/plugin-putout`
+now, not here — rewrites `node.type === 'CallExpression'` into `isCallExpression(node)`, but
+`plugin-declare` does not know the `is*` helpers live in `types`, so the import is yours to
+add. That is one line, and the lint catches it as `no-undef` right after.
