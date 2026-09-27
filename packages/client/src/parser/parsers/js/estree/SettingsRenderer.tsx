@@ -142,7 +142,7 @@ export default function SettingsRenderer(props: SettingsRendererProps) {
                         const nested = setting;
                         
                         // Nested accessors read dynamically named parser options.
-                        const settingsResult = nested.settings?.(parserSettings) as Settings | null | undefined;
+                        const settingsResult = nested.settings && nested.settings(parserSettings) as Settings | null | undefined;
                         const emptySettings: SettingsObject = Object.create(null);
                         
                         return (

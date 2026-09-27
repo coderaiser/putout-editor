@@ -20,7 +20,8 @@ const openKeyMap = () => fireEvent.click(document.querySelector('.menuButton > b
 test('KeyMapButton: renders current keyMap text', (t) => {
     renderKeyMap('vim');
     
-    const result = document.querySelector('.menuButton > button')?.textContent.includes('vim') || false;
+    const menuButton = document.querySelector('.menuButton > button');
+    const result = menuButton && menuButton.textContent && menuButton.textContent.includes('vim');
     
     cleanup();
     
@@ -69,7 +70,10 @@ test('KeyMapButton: item with matching keyMap has disabled class', (t) => {
     renderKeyMap('emacs');
     openKeyMap();
     
-    const result = document.querySelectorAll('li')[2]?.className.includes('disabled') || false;
+    const result = document.querySelectorAll('li')[2] && document
+        .querySelectorAll('li')[2]
+        .className
+        .includes('disabled') || false;
     
     cleanup();
     

@@ -122,7 +122,11 @@ test('Element: Identifier is focused on first render when cursor is inside it', 
     
     // No setTimeout — must be immediate on first render
     const focused = container.querySelector('.focused');
-    const focusedText = focused?.querySelector('.tokenName')?.textContent?.trim() || '';
+    const tokenName = focused && focused.querySelector('.tokenName');
+    
+    const focusedText = tokenName && tokenName.textContent
+        ? tokenName.textContent.trim()
+        : '';
     
     cleanup();
     

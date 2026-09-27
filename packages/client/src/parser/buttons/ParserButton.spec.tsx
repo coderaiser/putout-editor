@@ -55,7 +55,7 @@ test('ParserButton: renders parser display name', (t) => {
     const spanText = document.querySelector('.menuButton span');
     
     cleanup();
-    const result = spanText?.textContent?.includes('Babel');
+    const result = spanText && spanText.textContent && spanText.textContent.includes('Babel');
     
     t.ok(result);
     t.end();
@@ -189,7 +189,7 @@ test('ParserButton: clicking parser item calls onParserChange', (t) => {
     
     cleanup();
     
-    t.equal(changedParser?.id, 'acorn');
+    t.equal(changedParser && changedParser.id, 'acorn');
     t.end();
 });
 

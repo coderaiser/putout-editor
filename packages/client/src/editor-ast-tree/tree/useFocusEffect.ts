@@ -36,5 +36,5 @@ export default function useFocusEffect(props: ElementProps, state: ElementState,
 
 function scrollToLeaf(focusPath: unknown[], value: unknown, containerRef: React.RefObject<HTMLElement | null>) {
     if (focusPath.length > 0 && focusPath.at(-1) === value)
-        setTimeout(() => containerRef.current?.scrollIntoView(), 0);
+        setTimeout(() => containerRef.current && containerRef.current.scrollIntoView(), 0);
 }

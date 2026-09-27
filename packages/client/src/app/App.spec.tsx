@@ -68,7 +68,8 @@ test('App: marks the drop target when there is an error', (t) => {
         error: Error('boom'),
     });
     
-    const result = container.querySelector('.dropTarget')?.className;
+    const dropTarget = container.querySelector('.dropTarget');
+    const result = dropTarget && dropTarget.className;
     const expected = 'dropTarget hasError';
     
     cleanup();
@@ -80,7 +81,8 @@ test('App: marks the drop target when there is an error', (t) => {
 
 test('App: leaves the drop target unmarked with no error', (t) => {
     const {container, restore} = renderApp();
-    const result = container.querySelector('.dropTarget')?.className;
+    const dropTarget = container.querySelector('.dropTarget');
+    const result = dropTarget && dropTarget.className;
     const expected = 'dropTarget';
     
     cleanup();

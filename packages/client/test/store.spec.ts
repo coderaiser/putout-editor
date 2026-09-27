@@ -5,7 +5,7 @@ import {makeStore} from '#test/store';
 const message = (overrides: unknown) => {
     const [error] = tryCatch(makeStore, overrides as never);
     
-    return error?.message || 'no error thrown';
+    return error && error.message || 'no error thrown';
 };
 
 test('store: makeStore builds a store with no overrides', (t) => {

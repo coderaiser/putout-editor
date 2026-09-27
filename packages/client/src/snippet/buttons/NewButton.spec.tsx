@@ -228,7 +228,7 @@ test('NewButton: Replacer passes template and fixture', (t) => {
     }));
     cleanup();
     
-    t.ok(template?.includes('convert-ternary-to-if') && fixture?.includes('?'));
+    t.ok(template && template.includes('convert-ternary-to-if') && fixture && fixture.includes('?'));
     t.end();
 });
 
@@ -248,7 +248,7 @@ test('NewButton: Traverser passes template and fixture', (t) => {
     }));
     cleanup();
     
-    t.ok(template?.includes('merge-duplicate-imports') && fixture?.includes('import {a} from \'x\''));
+    t.ok(template && template.includes('merge-duplicate-imports') && fixture && fixture.includes('import {a} from \'x\''));
     t.end();
 });
 
@@ -268,7 +268,7 @@ test('NewButton: JSON passes template and fixture', (t) => {
     }));
     cleanup();
     
-    t.ok(template?.includes('__json') && fixture?.includes('__putout_processor_json'));
+    t.ok(template && template.includes('__json') && fixture && fixture.includes('__putout_processor_json'));
     t.end();
 });
 

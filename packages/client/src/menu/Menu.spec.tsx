@@ -75,7 +75,7 @@ test('Menu: parser info shows parser name', (t) => {
     renderMenu(store);
     
     const info = document.querySelector('#info');
-    const result = info?.textContent.includes('babel') || false;
+    const result = info && info.textContent.includes('babel') || false;
     
     cleanup();
     
@@ -102,7 +102,7 @@ test('Menu: transformer info shown when showTransformer', (t) => {
     renderMenu(store);
     
     const info = document.querySelector('#info');
-    const result = info?.textContent.includes('Transformer') && info?.textContent.includes('🐊Putout');
+    const result = info && info.textContent.includes('Transformer') && info.textContent.includes('🐊Putout');
     
     cleanup();
     
@@ -118,7 +118,7 @@ test('Menu: no transformer info when showTransformer false', (t) => {
     renderMenu(store);
     
     const info = document.querySelector('#info');
-    const result = info?.textContent.includes('Transformer') || false;
+    const result = info && info.textContent.includes('Transformer') || false;
     
     cleanup();
     

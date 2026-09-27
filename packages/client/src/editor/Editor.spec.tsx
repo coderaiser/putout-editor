@@ -204,19 +204,21 @@ test('Editor: onContentChange called when content changes', async (t) => {
     await act(async () => {
         const view = getView(container);
         
-        view?.dispatch({
-            changes: {
-                from: 0,
-                to: view.state.doc.length,
-                insert: 'hello',
-            },
-        });
+        if (view)
+            view.dispatch({
+                changes: {
+                    from: 0,
+                    to: view.state.doc.length,
+                    insert: 'hello',
+                },
+            });
+        
         await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 250));
     });
     
     cleanup();
     
-    const result = received?.value;
+    const result = received && received.value;
     const expected = 'hello';
     
     t.equal(result, expected);
@@ -252,7 +254,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
             );
         });
         
-        const {anchor, head} = view?.state.selection.main || {
+        const {anchor, head} = view && view.state.selection.main || {
             anchor: 1,
             head: 1,
         };
@@ -358,7 +360,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         });
         
         const view = getView(container);
-        const result = view?.state.doc.toString();
+        const result = view && view.state.doc.toString();
         const expected = '    abc';
         
         cleanup();
@@ -387,7 +389,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         
         const view = getView(container);
         
-        const {anchor, head} = view?.state.selection.main || {
+        const {anchor, head} = view && view.state.selection.main || {
             anchor: 1,
             head: 1,
         };
@@ -415,7 +417,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         
         const view = getView(container);
         
-        const {anchor, head} = view?.state.selection.main || {
+        const {anchor, head} = view && view.state.selection.main || {
             anchor: 1,
             head: 1,
         };
@@ -446,7 +448,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         
         const view = getView(container);
         
-        const {anchor, head} = view?.state.selection.main || {
+        const {anchor, head} = view && view.state.selection.main || {
             anchor: 1,
             head: 1,
         };
@@ -477,7 +479,7 @@ test('Editor: onActivity called when cursor moves', async (t) => {
         
         const view = getView(container);
         
-        const {anchor, head} = view?.state.selection.main || {
+        const {anchor, head} = view && view.state.selection.main || {
             anchor: 1,
             head: 1,
         };
@@ -491,11 +493,13 @@ test('Editor: onActivity called when cursor moves', async (t) => {
     await act(async () => {
         const view = getView(container);
         
-        view?.dispatch({
-            selection: {
-                anchor: 3,
-            },
-        });
+        if (view)
+            view.dispatch({
+                selection: {
+                    anchor: 3,
+                },
+            });
+        
         await new Promise((r: (value: undefined) => void) => setTimeout(r, 150));
     });
     cleanup();

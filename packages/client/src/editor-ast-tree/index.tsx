@@ -39,7 +39,7 @@ export default function EditorASTTree() {
     const cursor = useSelector(getCursor);
     const code = useSelector(getCode);
     const [selectedOutput, setSelectedOutput] = useState(0);
-    const ast: AstNode | null = (parseResult?.ast as AstNode) || null;
+    const ast: AstNode | null = parseResult && parseResult.ast as AstNode || null;
     const Visualization = visualizations[selectedOutput] as React.ComponentType<VisualizationProps>;
     
     if (!parser)
@@ -49,7 +49,7 @@ export default function EditorASTTree() {
     
     let output: React.ReactNode;
     
-    if (parseResult?.error)
+    if (parseResult && parseResult.error)
         output = (
             <div className="container">
                 <Editor
@@ -86,7 +86,7 @@ export default function EditorASTTree() {
             <div className="toolbar">
                 {buttons}
                 <span className="time">
-                    {formatTime(parseResult?.time)}
+                    {formatTime(parseResult && parseResult.time)}
                 </span>
             </div>
             {output}

@@ -267,7 +267,7 @@ test('TransformButton: selected class applied to active transformer item', (t) =
     const li = document.querySelector('li');
     
     cleanup();
-    const result = li?.className.includes('selected') || false;
+    const result = li && li.className.includes('selected') || false;
     
     t.ok(result);
     t.end();

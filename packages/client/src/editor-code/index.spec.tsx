@@ -84,7 +84,7 @@ test('EditorResult: renders editor when transform throws', async (t) => {
         await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 50));
     });
     
-    const editor = container?.querySelector('.output .editor');
+    const editor = container && container.querySelector('.output .editor');
     
     cleanup();
     
@@ -171,7 +171,7 @@ test('EditorResult: renders codeframe when transform throws SyntaxError with loc
         await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 50));
     });
     
-    const editor = container?.querySelector('.output .editor');
+    const editor = container && container.querySelector('.output .editor');
     
     cleanup();
     

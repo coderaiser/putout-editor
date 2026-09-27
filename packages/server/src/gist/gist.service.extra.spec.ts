@@ -49,8 +49,10 @@ test('gist service: update() includes transform.js when transform is a string', 
     });
     
     const [, payload] = mockGithub.update.args[0] as [string, UpdateGistPayload];
+    const result = payload.files && payload.files['transform.js'] && payload.files['transform.js'].content;
+    const expected = 'module.exports = () => {};';
     
-    t.equal(payload.files?.['transform.js']?.content, 'module.exports = () => {};');
+    t.equal(result, expected);
     t.end();
 });
 
@@ -68,7 +70,7 @@ test('gist service: update() omits transform.js when transform is undefined', as
     
     const [, payload] = mockGithub.update.args[0] as [string, UpdateGistPayload];
     
-    t.notOk(payload.files?.['transform.js']);
+    t.notOk(payload.files && payload.files['transform.js']);
     t.end();
 });
 

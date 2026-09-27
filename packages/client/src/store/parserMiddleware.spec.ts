@@ -79,7 +79,9 @@ test('parserMiddleware: INIT triggers parse and sets parseResult ast', async (t)
     
     stub.restore();
     
-    t.ok(getParseResult(store)?.ast);
+    const {ast} = getParseResult(store) || {};
+    
+    t.ok(ast);
     t.end();
 });
 
@@ -96,7 +98,9 @@ test('parserMiddleware: code change triggers parse', async (t) => {
     
     stub.restore();
     
-    t.ok(getParseResult(store)?.ast);
+    const {ast} = getParseResult(store) || {};
+    
+    t.ok(ast);
     t.end();
 });
 
@@ -117,7 +121,9 @@ test('parserMiddleware: parse error sets parseResult error', async (t) => {
     
     stub.restore();
     
-    t.ok(getParseResult(store)?.error);
+    const {error} = getParseResult(store) || {};
+    
+    t.ok(error);
     t.end();
 });
 
@@ -146,8 +152,11 @@ test('parserMiddleware: no change skips parse', async (t) => {
     await setImmediate();
     
     stub.restore();
+    const {time} = getParseResult(store) || {};
+    const result = time;
+    const expected = 5;
     
-    t.equal(getParseResult(store)?.time, 5);
+    t.equal(result, expected);
     t.end();
 });
 
@@ -331,7 +340,9 @@ test('parserMiddleware: parse with fresh _promise', async (t) => {
     babel.parse = originalParse;
     babel.loadParser = originalLoad;
     
-    t.ok(getParseResult(store)?.ast);
+    const {ast} = getParseResult(store) || {};
+    
+    t.ok(ast);
     t.end();
 });
 
@@ -350,7 +361,9 @@ test('parserMiddleware: parser with falsy opensByDefault', async (t) => {
     
     stub.restore();
     
-    t.ok(getParseResult(store)?.ast);
+    const {ast} = getParseResult(store) || {};
+    
+    t.ok(ast);
     t.end();
 });
 
@@ -399,9 +412,11 @@ test('parserMiddleware: code change during async discards stale parse', async (t
     // The stale result from the first parse must not have been dispatched.
     
     // A second parse fires for the new code — its result has no .stale property.
-    t.notOk((store.getState().workbench.parseResult as {
+    const {stale} = store.getState().workbench.parseResult as {
         stale?: unknown;
-    } | null)?.stale);
+    } | null || {};
+    
+    t.notOk(stale);
     t.end();
 });
 
@@ -447,8 +462,10 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     // The stale result from the first parse must not have been dispatched.
     
     // A second parse fires for the new parser — its result has no .stale property.
-    t.notOk((store.getState().workbench.parseResult as {
+    const {stale} = store.getState().workbench.parseResult as {
         stale?: unknown;
-    } | null)?.stale);
+    } | null || {};
+    
+    t.notOk(stale);
     t.end();
 });

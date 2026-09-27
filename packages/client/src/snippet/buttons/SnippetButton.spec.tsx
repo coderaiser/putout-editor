@@ -37,7 +37,7 @@ test('SnippetButton: renders Snippet label in span', (t) => {
     const span = document.querySelector('.menuButton > span');
     
     cleanup();
-    const result = span?.textContent.includes('Snippet') || false;
+    const result = span && span.textContent.includes('Snippet') || false;
     
     t.ok(result);
     t.end();
@@ -111,7 +111,7 @@ test('SnippetButton: quick-save button title is Save when canSave and not canFor
     
     cleanup();
     
-    t.equal(btn?.title, 'Save');
+    t.equal(btn && btn.title, 'Save');
     t.end();
 });
 
@@ -124,7 +124,7 @@ test('SnippetButton: quick-save button title is Fork when canFork and not canSav
     
     cleanup();
     
-    t.equal(btn?.title, 'Fork');
+    t.equal(btn && btn.title, 'Fork');
     t.end();
 });
 
@@ -137,7 +137,7 @@ test('SnippetButton: quick-save button disabled when saving', (t) => {
     
     cleanup();
     
-    t.ok(btn?.disabled);
+    t.ok(btn && btn.disabled);
     t.end();
 });
 
@@ -150,7 +150,7 @@ test('SnippetButton: quick-save button disabled when forking', (t) => {
     
     cleanup();
     
-    t.ok(btn?.disabled);
+    t.ok(btn && btn.disabled);
     t.end();
 });
 
@@ -163,7 +163,7 @@ test('SnippetButton: quick-save button disabled when neither canSave nor canFork
     
     cleanup();
     
-    t.ok(btn?.disabled);
+    t.ok(btn && btn.disabled);
     t.end();
 });
 

@@ -46,7 +46,8 @@ test('createAppStore: parses the code it is given', async (t) => {
     
     await setImmediate();
     
-    const result = store.getState().workbench.parseResult?.ast;
+    const {parseResult} = store.getState().workbench;
+    const result = parseResult && parseResult.ast;
     const expected = 'object';
     
     t.equal(typeof result, expected);

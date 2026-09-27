@@ -46,7 +46,7 @@ export default function SettingsDialog() {
         setLocalSettings({});
     }
     
-    if (visible && parser?.renderSettings)
+    if (visible && parser && parser.renderSettings)
         return (
             <div id="SettingsDialog" className="dialog" onClick={handleOuterClick}>
                 <div className="inner">

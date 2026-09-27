@@ -30,7 +30,9 @@ function TestComponent({treeAdapter, value, onOver}: TestComponentProps) {
         <div
             id="target"
             onMouseOver={(event) => {
-                onOver?.(event);
+                if (onOver)
+                    onOver(event);
+                
                 onMouseOver(event);
             }}
             onMouseLeave={onMouseLeave}

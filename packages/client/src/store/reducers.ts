@@ -161,7 +161,7 @@ const slice = createSlice({
                     ...state.workbench.transform,
                     transformer: transformer.id,
                     code: snippetHasDifferentTransform ? state.workbench.transform.code : transformer.defaultTransform,
-                    initialCode: snippetHasDifferentTransform ? state.activeRevision?.getTransformCode() : transformer.defaultTransform,
+                    initialCode: snippetHasDifferentTransform ? state.activeRevision && state.activeRevision.getTransformCode() : transformer.defaultTransform,
                 };
             }
         },
@@ -212,7 +212,7 @@ const slice = createSlice({
 
 function resetWorkbenchFromParser(state: RootState, template?: string, fixture?: string) {
     const parser = getParserByID(state.workbench.parser)!;
-    const hadTransformer = state.activeRevision?.getTransformerID();
+    const hadTransformer = state.activeRevision && state.activeRevision.getTransformerID();
     const code = fixture || parser.category!.codeExample;
     
     state.activeRevision = null;

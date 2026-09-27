@@ -23,7 +23,9 @@ export default function MobileDropdown({trigger, children, className, open: open
     
     const toggle = () => {
         if (isControlled) {
-            onToggle?.();
+            if (onToggle)
+                onToggle();
+            
             return;
         }
         
@@ -32,7 +34,9 @@ export default function MobileDropdown({trigger, children, className, open: open
     
     const close = () => {
         if (isControlled) {
-            onToggle?.();
+            if (onToggle)
+                onToggle();
+            
             return;
         }
         
@@ -44,7 +48,7 @@ export default function MobileDropdown({trigger, children, className, open: open
             return;
         
         const onOutsideClick = (e: MouseEvent) => {
-            if (!ref.current?.contains(e.target as Node))
+            if (!(ref.current && ref.current.contains(e.target as Node)))
                 close();
         };
         

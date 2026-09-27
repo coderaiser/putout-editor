@@ -75,7 +75,7 @@ export class TreeAdapter {
    * A more or less human readable name of the node.
    */
     getNodeName(node: unknown) {
-        return this._adapterOptions.nodeToName?.(node);
+        return this._adapterOptions.nodeToName && this._adapterOptions.nodeToName(node);
     }
     /**
    * The start and end indices of the node in the source text. The return value
@@ -90,7 +90,7 @@ export class TreeAdapter {
             return this._ranges.get(node);
         
         const {nodeToRange} = this._adapterOptions;
-        let range: SourceRange | null | undefined = validateRange(nodeToRange?.(node));
+        let range: SourceRange | null | undefined = validateRange(nodeToRange && nodeToRange(node));
         
         if (!range) {
             // If the node doesn't have location data itself, try to derive it from
@@ -102,12 +102,16 @@ export class TreeAdapter {
             let next = iterator.next();
             
             if (!next.done) {
-                first = next.value?.value;
+                const {value} = next;
+                
+                first = value && value.value;
                 last = first;
             }
             
             while (!(next = iterator.next()).done) {
-                last = next.value?.value;
+                const {value} = next;
+                
+                last = value && value.value;
             }
             
             const rangeFirst = validateRange(!isUndefined(first) && nodeToRange ? nodeToRange(first) : null);
@@ -137,7 +141,7 @@ export class TreeAdapter {
    * Whether or not the provided node should be automatically expanded.
    */
     opensByDefault(node: unknown, key: string | null) {
-        return this._adapterOptions.openByDefault?.(node, key);
+        return this._adapterOptions.openByDefault && this._adapterOptions.openByDefault(node, key);
     }
     
     isArray(node: unknown): node is unknown[] {
@@ -155,7 +159,7 @@ export class TreeAdapter {
     *walkNode(node: unknown): Generator<TreeAdapterChild> {
         for (const result of this._walkNode(node)) {
             if ((this._adapterOptions.filters || []).some((filter) => {
-                if (filter.key && !this._filterValues?.[filter.key])
+                if (filter.key && !(this._filterValues && this._filterValues[filter.key]))
                     return false;
                 
                 return filter.test!(result.value, result.key);
@@ -210,7 +214,7 @@ const TreeAdapterConfigs: Record<string, TreeAdapterConfig> = {
                 type?: string;
             } | null | undefined;
             
-            return Boolean(target && this.openByDefaultNodes?.has(target.type as string) || key !== null && this.openByDefaultKeys?.has(key));
+            return Boolean(target && this.openByDefaultNodes && this.openByDefaultNodes.has(target.type as string) || key !== null && this.openByDefaultKeys && this.openByDefaultKeys.has(key));
         },
         nodeToRange(node: unknown) {
             const astNode = node as AstNode;

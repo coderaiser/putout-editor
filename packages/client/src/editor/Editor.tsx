@@ -177,7 +177,7 @@ export default function Editor(props: EditorProps) {
     
     useEffect(() => {
         const editor = editorRef.current;
-        const getLine = (error: ParseErrorLike | null) => error && (error.lineNumber || error.line || error.loc?.line);
+        const getLine = (error: ParseErrorLike | null) => error && (error.lineNumber || error.line || error.loc && error.loc.line);
         
         const oldLine = getLine(errorRef.current);
         

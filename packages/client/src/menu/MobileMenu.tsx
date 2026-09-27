@@ -33,15 +33,18 @@ import {
 
 const THEME_KEY = 'theme';
 
-const readTheme = (): string => globalThis.localStorage?.getItem(THEME_KEY) || 'light';
+const readTheme = (): string => globalThis.localStorage && globalThis.localStorage.getItem(THEME_KEY) || 'light';
 
 const applyTheme = (theme: string): void => {
-    globalThis.localStorage?.setItem(THEME_KEY, theme);
-    globalThis.document?.documentElement.setAttribute('data-theme', theme);
+    if (globalThis.localStorage)
+        globalThis.localStorage.setItem(THEME_KEY, theme);
+    
+    if (globalThis.document)
+        globalThis.document.documentElement.setAttribute('data-theme', theme);
 };
 
 const clearHash = (): boolean => {
-    if (!globalThis.location?.hash)
+    if (!(globalThis.location && globalThis.location.hash))
         return false;
     
     globalThis.location.hash = '';
@@ -194,7 +197,7 @@ export default function MobileMenu() {
                 <li role="menuitem">
                     <button
                         type="button"
-                        disabled={!parser.hasSettings?.()}
+                        disabled={!(parser.hasSettings && parser.hasSettings())}
                         onClick={onParserSettings}
                     >
                         <TbSettings size={16}/> Settings

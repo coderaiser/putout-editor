@@ -19,35 +19,35 @@ test('TreeAdapter: ignoreKeysFilter: filters key in set', (t) => {
         'end',
     ]));
     
-    t.ok(filter.test?.(null, 'start'));
+    t.ok(filter.test && filter.test(null, 'start'));
     t.end();
 });
 
 test('TreeAdapter: ignoreKeysFilter: passes key not in set', (t) => {
     const filter = ignoreKeysFilter(new Set(['start']));
     
-    t.notOk(filter.test?.(null, 'type'));
+    t.notOk(filter.test && filter.test(null, 'type'));
     t.end();
 });
 
 test('TreeAdapter: ignoreKeysFilter: empty set passes everything', (t) => {
     const filter = ignoreKeysFilter();
     
-    t.notOk(filter.test?.(null, 'anything'));
+    t.notOk(filter.test && filter.test(null, 'anything'));
     t.end();
 });
 
 test('TreeAdapter: functionFilter: filters function values', (t) => {
     const filter = functionFilter();
     
-    t.ok(filter.test?.(noop, 'fn'));
+    t.ok(filter.test && filter.test(noop, 'fn'));
     t.end();
 });
 
 test('TreeAdapter: functionFilter: passes non-function values', (t) => {
     const filter = functionFilter();
     
-    t.notOk(filter.test?.('string', 'key'));
+    t.notOk(filter.test && filter.test('string', 'key'));
     t.end();
 });
 
@@ -57,17 +57,23 @@ test('TreeAdapter: functionFilter: key is hideFunctions', (t) => {
 });
 
 test('TreeAdapter: emptyKeysFilter: filters null', (t) => {
-    t.ok(emptyKeysFilter().test?.(null, 'k'));
+    const {test: matches} = emptyKeysFilter();
+    
+    t.ok(matches && matches(null, 'k'));
     t.end();
 });
 
 test('TreeAdapter: emptyKeysFilter: filters undefined', (t) => {
-    t.ok(emptyKeysFilter().test?.(undefined, 'k'));
+    const {test: matches} = emptyKeysFilter();
+    
+    t.ok(matches && matches(undefined, 'k'));
     t.end();
 });
 
 test('TreeAdapter: emptyKeysFilter: passes non-empty value', (t) => {
-    t.notOk(emptyKeysFilter().test?.(0, 'k'));
+    const {test: matches} = emptyKeysFilter();
+    
+    t.notOk(matches && matches(0, 'k'));
     t.end();
 });
 
@@ -844,7 +850,7 @@ test('TreeAdapter: typeKeysFilter with keys set filters matching keys', (t) => {
         'kind',
     ]));
     
-    t.ok(filter.test?.(null, 'type'));
+    t.ok(filter.test && filter.test(null, 'type'));
     t.end();
 });
 
@@ -854,7 +860,7 @@ test('TreeAdapter: typeKeysFilter does not filter non-matching keys', (t) => {
         'kind',
     ]));
     
-    t.notOk(filter.test?.(null, 'value'));
+    t.notOk(filter.test && filter.test(null, 'value'));
     t.end();
 });
 

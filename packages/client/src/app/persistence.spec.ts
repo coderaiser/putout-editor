@@ -28,7 +28,7 @@ const makeStore = (state: State) => {
     return {
         store,
         written,
-        fire: () => listener?.(),
+        fire: () => listener && listener(),
     };
 };
 

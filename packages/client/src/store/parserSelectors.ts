@@ -29,7 +29,7 @@ const didParserSettingsChange = createSelector([
     getRevision,
     getParser,
 ], (parserSettings, revision, parser) => {
-    const savedParserSettings = revision?.getParserSettings();
+    const savedParserSettings = revision && revision.getParserSettings();
     
     return revision
         && (parser.id !== revision.getParserID()

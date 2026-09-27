@@ -155,7 +155,7 @@ test('acorn: renderSettings links to the acorn options and renders the fields', 
     
     cleanup();
     
-    const result = link?.getAttribute('href');
+    const result = link && link.getAttribute('href');
     const expected = 'https://github.com/marijnh/acorn/blob/master/src/options.js';
     
     t.equal(result, expected);

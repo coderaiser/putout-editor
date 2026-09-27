@@ -28,7 +28,7 @@ parserListener.startListening({
         if (!parser || code == null)
             return;
         
-        if (parserSettings?.plugins) {
+        if (parserSettings && parserSettings.plugins) {
             const plugins = (parserSettings.plugins as string[]).filter((a: string) => {
                 if (a === 'importAssertions')
                     return false;

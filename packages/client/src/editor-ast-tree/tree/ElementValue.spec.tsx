@@ -308,7 +308,8 @@ test('ElementValue: keeps a non-index child key as its name', (t) => {
         }],
     }));
     
-    const result = container.querySelector('[data-el-name]')?.getAttribute('data-el-name');
+    const elName = container.querySelector('[data-el-name]');
+    const result = elName && elName.getAttribute('data-el-name');
     const expected = 'name';
     
     cleanup();

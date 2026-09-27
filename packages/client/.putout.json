@@ -2,7 +2,6 @@
     "rules": {
         "remove-console": "off",
         "esm/remove-empty-import": "off",
-        "apply-optional-chaining": "on",
         "nodejs/convert-commonjs-to-esm/commons": "off",
         "nodejs/convert-esm-to-commonjs": "off",
         "nodejs/declare": "off"

@@ -22,7 +22,8 @@ startAppListening({
     actionCreator: editorBlur,
     effect: async (_, api) => {
         const state = api.getState();
-        const ast = getParseResult(state)?.ast;
+        const parseResult = getParseResult(state);
+        const ast = parseResult && parseResult.ast;
         const source = getCode(state);
         
         const [error, formatted] = await formatInput(source, ast as Node);

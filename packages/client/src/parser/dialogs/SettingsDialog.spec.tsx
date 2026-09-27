@@ -78,7 +78,8 @@ test('SettingsDialog: renders parser displayName in header', (t) => {
     
     renderDialog(store);
     
-    const result = document.querySelector('h3')?.textContent || '';
+    const heading = document.querySelector('h3');
+    const result = heading && heading.textContent || '';
     
     cleanup();
     
@@ -157,7 +158,8 @@ test('SettingsDialog: settings change saved on close', (t) => {
     
     cleanup();
     
-    const result = store.getState().workbench.parserSettings?.range;
+    const {parserSettings} = store.getState().workbench;
+    const result = parserSettings && parserSettings.range;
     
     t.notOk(result);
     t.end();

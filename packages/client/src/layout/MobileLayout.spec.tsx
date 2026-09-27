@@ -91,7 +91,7 @@ test('MobileLayout: active tab has active class', (t) => {
     
     cleanup();
     
-    t.equal(activeButton?.textContent, 'Transform');
+    t.equal(activeButton && activeButton.textContent, 'Transform');
     t.end();
 });
 
@@ -104,7 +104,7 @@ test('MobileLayout: active class moves to clicked tab', (t) => {
     
     cleanup();
     
-    t.equal(activeButton?.textContent, 'Source');
+    t.equal(activeButton && activeButton.textContent, 'Source');
     t.end();
 });
 

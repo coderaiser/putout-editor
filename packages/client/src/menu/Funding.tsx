@@ -25,7 +25,7 @@ export default function Funding() {
             return;
         
         const onOutsideClick = (event: MouseEvent) => {
-            if (!ref.current?.contains(event.target as Node))
+            if (!(ref.current && ref.current.contains(event.target as Node)))
                 close();
         };
         

@@ -18,7 +18,7 @@ Measured on the app, with the default code example loaded:
 await locator.click();
 await locator.focus();
 await page.keyboard.press('ControlOrMeta+a');
-console.log(await page.evaluate(() => String(window.getSelection())));
+console.log(await page.evaluate(() => String(globalThis.getSelection())));
 // ""  - nothing is selected
 ```
 

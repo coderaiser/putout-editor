@@ -212,7 +212,8 @@ test('useFocusEffect: does not open when value not in focusPath', async (t) => {
     );
     
     await act(async () => {});
-    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
+    const open = container.querySelector('[data-open]') as HTMLElement | null;
+    const result = open && open.dataset.open;
     
     cleanup();
     
@@ -247,7 +248,8 @@ test('useFocusEffect: opens non-leaf when focusPath changes to include value', a
             <TestHook props={props}/>,
         );
     });
-    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
+    const open = container.querySelector('[data-open]') as HTMLElement | null;
+    const result = open && open.dataset.open;
     
     cleanup();
     
@@ -278,7 +280,8 @@ test('useFocusEffect: does not open leaf node', async (t) => {
             <TestHook props={props}/>,
         );
     });
-    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
+    const open = container.querySelector('[data-open]') as HTMLElement | null;
+    const result = open && open.dataset.open;
     
     cleanup();
     
@@ -304,7 +307,8 @@ test('useFocusEffect: scrolls on initial render when autofocus and leaf in focus
     );
     
     await act(async () => {});
-    const result = (container.querySelector('[data-open]') as HTMLElement | null)?.dataset.open;
+    const open = container.querySelector('[data-open]') as HTMLElement | null;
+    const result = open && open.dataset.open;
     
     cleanup();
     

@@ -33,7 +33,7 @@ export default function TransformButton({id, category, transformer, showTransfor
             return;
         
         const onOutsideClick = (event: MouseEvent) => {
-            if (!ref.current?.contains(event.target as Node))
+            if (!(ref.current && ref.current.contains(event.target as Node)))
                 close();
         };
         

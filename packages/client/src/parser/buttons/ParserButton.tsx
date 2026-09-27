@@ -33,7 +33,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
             return;
         
         const onOutsideClick = (event: MouseEvent) => {
-            if (!ref.current?.contains(event.target as Node))
+            if (!(ref.current && ref.current.contains(event.target as Node)))
                 close();
         };
         
@@ -90,7 +90,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
                 style={{
                     minWidth: 0,
                 }}
-                disabled={!parser.hasSettings?.()}
+                disabled={!(parser.hasSettings && parser.hasSettings())}
                 onClick={onParserSettingsButtonClick}
             >
                 <TbSettings size={18}/>

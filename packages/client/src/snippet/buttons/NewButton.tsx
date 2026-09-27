@@ -31,7 +31,7 @@ export default function NewButton({saving, forking, onNew}: Props) {
             return;
         
         const onOutsideClick = (event: MouseEvent) => {
-            if (!ref.current?.contains(event.target as Node))
+            if (!(ref.current && ref.current.contains(event.target as Node)))
                 close();
         };
         
@@ -82,7 +82,10 @@ export default function NewButton({saving, forking, onNew}: Props) {
                                 disabled={saving || forking}
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    onNew?.(templates[label], fixtures[label]);
+                                    
+                                    if (onNew)
+                                        onNew(templates[label], fixtures[label]);
+                                    
                                     close();
                                 }}
                             >

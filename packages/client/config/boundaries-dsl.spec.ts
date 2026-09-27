@@ -42,8 +42,9 @@ test('buildBoundaries: policy allow list matches declared targets', (t) => {
     
     const [, {policies}] = config['boundaries/dependencies'];
     const storePolicy = policies.find((p) => p.from.element.type === 'store');
+    const result = storePolicy && storePolicy.allow;
     
-    t.deepEqual(storePolicy?.allow, [{
+    const expected = [{
         to: {
             element: {
                 type: 'editor',
@@ -55,7 +56,9 @@ test('buildBoundaries: policy allow list matches declared targets', (t) => {
                 type: 'parser',
             },
         },
-    }]);
+    }];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -86,8 +89,9 @@ test('buildBoundaries: glob panel-* expands to all panel- keys', (t) => {
     
     const [, {policies}] = config['boundaries/dependencies'];
     const layoutPolicy = policies.find((p) => p.from.element.type === 'layout');
+    const result = layoutPolicy && layoutPolicy.allow;
     
-    t.deepEqual(layoutPolicy?.allow, [{
+    const expected = [{
         to: {
             element: {
                 type: 'panel-source',
@@ -99,7 +103,9 @@ test('buildBoundaries: glob panel-* expands to all panel- keys', (t) => {
                 type: 'panel-ast',
             },
         },
-    }]);
+    }];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -110,14 +116,17 @@ test('buildBoundaries: glob with no matches keeps literal pattern', (t) => {
     
     const [, {policies}] = config['boundaries/dependencies'];
     const [layoutPolicy] = policies;
+    const result = layoutPolicy && layoutPolicy.allow;
     
-    t.deepEqual(layoutPolicy?.allow, [{
+    const expected = [{
         to: {
             element: {
                 type: 'panel-*',
             },
         },
-    }]);
+    }];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 

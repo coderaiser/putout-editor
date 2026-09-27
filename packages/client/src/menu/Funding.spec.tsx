@@ -31,7 +31,8 @@ test('Funding: first option is patreon', (t) => {
     renderFunding();
     openFunding();
     
-    const result = document.querySelector('li button')?.textContent.includes('patreon') || false;
+    const liButton = document.querySelector('li button');
+    const result = liButton && liButton.textContent && liButton.textContent.includes('patreon');
     
     cleanup();
     

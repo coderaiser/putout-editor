@@ -1,9 +1,11 @@
 {
-    "ignore": [
-        "out"
-    ],
+    "ignore": ["out"],
     "rules": {
-        "madrun/set-lint-dot": "off"
+        "madrun/set-lint-dot": "off",
+        "optional-chaining/convert-logical-to-optional": "off",
+        "optional-chaining/convert-logical-assign-to-optional": "off",
+        "optional-chaining/convert-optional-to-logical": "on",
+        "optional-chaining/convert-optional-assign-to-logical": "on"
     },
     "plugins": [
         "putout-editor"

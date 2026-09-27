@@ -39,7 +39,7 @@ export default class StorageHandler {
     
     _owns(revision: unknown): StorageBackend | null {
         for (const backend of this._backends) {
-            if (backend.owns?.(revision))
+            if (backend.owns && backend.owns(revision))
                 return backend;
         }
         
@@ -55,7 +55,7 @@ export default class StorageHandler {
             return Promise.resolve(null);
         
         for (const backend of this._backends) {
-            if (backend.matchesURL?.())
+            if (backend.matchesURL && backend.matchesURL())
                 return backend.fetchFromURL!();
         }
         

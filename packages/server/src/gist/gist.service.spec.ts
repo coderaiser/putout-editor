@@ -112,7 +112,7 @@ test('gist service: update() deletes transform.js via null', async (t) => {
     
     const [, payload] = mockGithub.update.args[0] as [string, UpdateGistPayload];
     
-    t.notOk(payload.files?.['transform.js']);
+    t.notOk(payload.files && payload.files['transform.js']);
     t.end();
 });
 

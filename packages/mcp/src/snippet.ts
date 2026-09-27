@@ -93,7 +93,7 @@ export function parseSnippetID(snippet: string) {
  */
 export function resolveSource(files: Record<string, GistFile>, manifest: Manifest) {
     if (manifest.v === 1)
-        return files['code.js']?.content || null;
+        return files['code.js'] && files['code.js'].content || null;
     
     if (files['source.js'])
         return files['source.js'].content;
@@ -132,7 +132,7 @@ async function run(snippet: string, include: Part[]) {
         throw Error(`Snippet ${parsed.id}/${parsed.rev || 'latest'} doesn't exist (HTTP ${response.status}).`);
     
     const {files} = await response.json() as Gist;
-    const manifestRaw = files['astexplorer.json']?.content;
+    const manifestRaw = files['astexplorer.json'] && files['astexplorer.json'].content;
     
     if (!manifestRaw)
         throw Error('Response has no astexplorer.json — not a putout-editor snippet.');
@@ -150,7 +150,7 @@ async function run(snippet: string, include: Part[]) {
         result.source = resolveSource(files, manifest);
     
     if (include.includes('transform'))
-        result.transform = files['transform.js']?.content || null;
+        result.transform = files['transform.js'] && files['transform.js'].content || null;
     
     if (include.includes('config'))
         result.config = manifest;
