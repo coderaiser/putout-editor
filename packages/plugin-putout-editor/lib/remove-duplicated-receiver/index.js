@@ -12,6 +12,7 @@ const {
     isMemberExpression,
     isCallExpression,
     isIdentifier,
+    isBlockStatement,
     identifier,
 } = types;
 
@@ -55,7 +56,7 @@ const receiverOf = (right) => {
         return right.callee.object;
 };
 
-export const report = () => 'Bind the left side to a local: && calls it twice';
+export const report = () => 'Bind the left side of && to a local: it is evaluated twice';
 
 const bindingOf = (left, name) => {
     if (isMemberExpression(left) && isCallExpression(left.object))
@@ -76,6 +77,21 @@ const isDuplicated = (node) => {
 
 const canBind = (declarator, name) => name && !declarator.scope.hasBinding(name);
 
+const canRebind = (path, name) => name && !path.scope.hasBinding(name);
+
+const rebased = (node, name) => expression(`${name} && ${print(rebase(node.right, name))};`);
+
+const duplicated = (node) => {
+    const name = nameOf(node.left, node.right);
+    
+    return {
+        name,
+        node,
+        binding: statement(bindingOf(node.left, name)),
+        rebased: rebased(node, name),
+    };
+};
+
 export const traverse = ({push}) => ({
     VariableDeclaration: (path) => {
         for (const declarator of path.get('declarations')) {
@@ -84,36 +100,83 @@ export const traverse = ({push}) => ({
             if (!isDuplicated(init))
                 continue;
             
-            const name = nameOf(init.left, init.right);
+            const {
+                name,
+                binding,
+                rebased: code,
+            } = duplicated(init);
             
             push({
+                kind: 'declaration',
                 path,
                 declarator,
-                name,
-                left: init.left,
-                right: init.right,
+                binding,
+                code,
                 canFix: canBind(declarator, name),
             });
         }
     },
+    ReturnStatement: (path) => {
+        const {argument} = path.node;
+        
+        if (!isDuplicated(argument))
+            return;
+        
+        const {
+            name,
+            binding,
+            rebased: code,
+        } = duplicated(argument);
+        
+        push({
+            kind: 'return',
+            path,
+            binding,
+            code,
+            canFix: canRebind(path, name),
+        });
+    },
     ArrowFunctionExpression: (path) => {
         const {body} = path.node;
         
-        if (isDuplicated(body))
-            push({
-                path,
-                body,
-            });
+        if (isBlockStatement(body) || !isDuplicated(body))
+            return;
+        
+        const {
+            name,
+            binding,
+            rebased: code,
+        } = duplicated(body);
+        
+        push({
+            kind: 'arrow',
+            path,
+            binding,
+            code,
+            canFix: canRebind(path, name),
+        });
     },
 });
 
-export const fix = ({path, declarator, name, left, right, canFix}) => {
+export const fix = ({kind, path, declarator, binding, code, canFix}) => {
     if (!canFix)
         return;
     
-    insertBefore(path, statement(bindingOf(left, name)));
+    if (kind === 'declaration') {
+        insertBefore(path, binding);
+        declarator.node.init = code;
+        
+        return;
+    }
     
-    const rebased = print(rebase(right, name));
+    const returned = statement(`return ${print(code)};`);
     
-    declarator.node.init = expression(`${name} && ${rebased};`);
+    if (kind === 'return') {
+        insertBefore(path, binding);
+        path.node.argument = code;
+        
+        return;
+    }
+    
+    [path.node.body] = parse(`{ ${print(binding)} ${print(returned)} }`).program.body;
 };

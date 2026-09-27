@@ -91,17 +91,32 @@ The matcher only fires when the receiver **contains a call**, so `q.r && q.r.s()
 `p && p.toString()` are left alone: reading a property is not a side effect, and a rule that
 flagged those would be noise.
 
-It **fixes**, because a rule that only reports is the thing this package exists to replace. A
-declaration whose initialiser is the duplicated `&&` is split — the receiver is bound once, on
-the line above, under a name taken from the receiver and checked against the scope so it cannot
-shadow anything. `getState().workbench && getState().workbench.code` becomes
-`const {workbench} = getState();` followed by `workbench && workbench.code`.
+It **fixes**, because a rule that only reports is the thing this package exists to replace.
+There are three statement contexts and all three are handled:
 
-One case is **reported and left alone**, on purpose: an arrow body is an expression and cannot
-take a statement, so there is nowhere to put the binding. Rewriting `(el) => …` into a block
-body would work, but it is a much larger rewrite than the defect deserves, and a fixer that
-reaches further than the problem is how a lint ends up being switched off. It is reported
-rather than skipped, so the gap is loud.
+A **declaration** is split — the receiver is bound once, above it. A **return** gets the binding
+inserted before it. A concise **arrow body** is turned into a block, which is the only way a
+declaration fits inside an expression:
+
+```js
+const arrow = (el) => el().text && el().text.trim();
+```
+
+```js
+const arrow = (el) => {
+    const {text} = el();
+    return text && text.trim();
+};
+```
+
+The name is a property of the receiver, never a callee — deriving it from a bare call produced
+`const f = f()`, a temporal-dead-zone self-reference that throws on the first line. It is also
+checked against the scope, so a name that is already taken is **reported and left alone** rather
+than shadowed.
+
+Rewriting an arrow into a block is a bigger change than the line it replaces, and that is the
+point: a fixer that stops at "I cannot express this" leaves the reader with work, and work is
+what the rule was supposed to remove.
 
 ### ❌ Example of incorrect code
 

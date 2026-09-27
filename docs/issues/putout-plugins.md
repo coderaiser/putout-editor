@@ -53,7 +53,6 @@ in a rule" is `remove-comments`, a rule, running under `putout .` with the rest.
 files, and its coverage `exclude` still named the directory it no longer has.
 
 ## 💡 a fixer that cannot detect its own lossy cases exits clean
-
 `convert-optional-to-logical` is net-positive and I would not turn it off — but it exits 0 on
 code it has made type-unsound, and the type checker is what finds out. That gap is the finding;
 the rule works, the report is missing.
@@ -86,8 +85,10 @@ caught it — which is the point: **this is what a type-aware reviewer is for, a
 say so rather than exit clean.**
 
 Two of the three are invisible to any single-file linter and need no types at all: a duplicated
-call receiver and a bare logical expression. Both are now `remove-duplicated-receiver` in
-`packages/plugin-putout-editor`, and both are report-only because the binding is a human call.
+call receiver and a bare logical expression. The first is now `remove-duplicated-receiver` in
+`packages/plugin-putout-editor`, which **fixes** in all three statement contexts — a declaration
+is split, a return gets the binding above it, and a concise arrow body becomes a block. The
+second is a report, because there is no safe automatic shape for it.
 
 ### Why this is not "fixers are worse than humans"
 
@@ -111,6 +112,23 @@ outcome that makes a fixer worse than no fixer, because the code *looks* migrate
 
 Fuller version: `getLogical` could bind the receiver when it is a call, which is the common case
 and has a safe answer. That is a fixer change, not a lint change, and belongs upstream.
+
+### This rule is not about this repository either
+
+`remove-duplicated-receiver` catches any `a() && a.b()`, whatever put the `&&` there — a `?.`
+expansion in this repository, but a hand-written one, or a template, anywhere. There are no
+filenames in it, no CSS tokens and no `ControlOrMeta` chords.
+
+Its natural home is `@putout/plugin-logical-expressions`, whose five rules are all about the
+shape of a logical expression: `simplify`, `remove-boolean`, `remove-duplicates`,
+`convert-bitwise-to-logical`, `convert-coalescing-to-logical`. A duplicated receiver is the
+same concern — `a && a.b` is a logical expression that evaluates one side twice. So it should
+be moved there.
+
+What is worth keeping in this repository until it lands is the lesson, because the rule exists
+because of it: **a fixer that only reports has not done the thing.** This one was written
+report-only first, on the reasoning that choosing a binding is a human call — which is eslint's
+posture, and the one 🐊**Putout** exists to replace. Every defect it now catches, it fixes.
 
 ***
 
