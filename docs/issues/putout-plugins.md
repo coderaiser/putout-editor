@@ -113,6 +113,38 @@ either way — so the change is safe, which is checked by running the suite rath
 
 ***
 
+## ✅ `remove-rgb-outside-tokens` — colours belong in `tokens.css`
+
+The CSS architecture was a convention in a comment. It had already broken: `css/mobile.css`
+carried `box-shadow: 0 -4px 16px rgb(0 0 0 / 20%)` while `css/tokens.css` holds 111 colour
+definitions. Now it is a rule, and the one violation is fixed.
+
+This is the second kind of rule in `packages/plugin-putout-editor`: a **filesystem** rule, built
+on `matchFiles`, so it needs the filesystem AST and runs under `redlint` rather than `putout .`.
+That is 🐊**Putout**'s design working as intended — a rule knows nothing about filenames, so a
+statement about a tree has to be expressed against a tree.
+
+Two things about CSS in 🐊**Putout** that cost time and are worth keeping:
+
+- **CSS is JS.** `@putout/processor-css` runs `happy-style`, so `rgb(0 0 0 / 20%)` is
+  `functionValue('rgb', [...])` and `#ff0000` is `color('#ff0000')` — *not* `hashValue`, which is
+  what the `formats` example suggested. A `var()` is `functionValue('var', [...])`, which is what
+  these files should be using.
+- **Report-only is a real option**, and the cost is one no-op action. `matchFiles` hands the
+  outer rule a `fix`, but the *sub*-plugin still needs an action for the loader to recognise its
+  type, and `replace` accepts the pattern as a replacement string — so a replacement that prints
+  the node back unchanged is free and cannot corrupt the file. That is what `check-match` does,
+  and it is what this rule does: choosing which token a colour becomes is a human decision.
+
+`redlint` reports positions inside its synthetic `.filesystem.json`, so the rule puts the
+filename in the message — otherwise the finding does not say which file to open, which is the
+defect this repo already has a finding about for `putout/align-spaces`.
+
+The dead `scripts/check-css.js` and its CI step are gone: the gate is now part of
+`packages/client`'s `fix:lint`, so it runs in CI without a separate step.
+
+***
+
 ## 💡 there is no report-only rule for the normal runner
 
 I wanted a second rule for this repo: `no-direct-qword-create-editor`, which reports importing

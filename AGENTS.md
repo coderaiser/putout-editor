@@ -196,7 +196,7 @@ the gist through Octokit so it needs `GITHUB_TOKEN`, and then *runs* the rule wi
 plugins to capture its real `report` message rather than guessing it. It then writes the rule
 into `lib/`, generates `test/` and `fixture/`, inserts the import into `index.js`, and adds the
 README section — nested in an existing plugin if it finds one, otherwise as a new directory.
-The follow-up is `UPDATE=1 npm fix:lint test` in the putout repo.
+The follow-up is `UPDATE=1 npm fix:lint test` in the 🐊**Putout** repo.
 
 So the two filenames are a contract, not a convention: an Editor snippet that does not use them
 is readable by `fetch_snippet` (which resolves the filename) but is not something `redput` can
@@ -213,8 +213,8 @@ quotes, formatting. Do not hand-write what a rule already decides; here it fixed
 group and the blank-line whitespace in one command, after two wrong guesses by hand. Only open
 an issue once the fixer has had its turn.
 
-**Then choose where the rule belongs.** A rule that would help any putout user is an idea for
-the [putout](https://github.com/coderaiser/putout) repo; a rule about *this* codebase goes in
+**Then choose where the rule belongs.** A rule that would help any 🐊**Putout** user is an
+idea for the [🐊Putout](https://github.com/coderaiser/putout) repo; a rule about *this* codebase goes in
 `packages/plugin-putout-editor` and is already wired into the lint. See "Repo rules" below.
 
 **If neither exists yet, write the idea up** in `docs/issues/putout-plugins.md`: the **minimum**
@@ -295,7 +295,7 @@ a 4-backtick outer block.
 
 **But `putout .` is not the rule that checks it, and cannot fix it.** The rule is
 `markdown/apply-ts-codeblock-in-file` (in `@putout/plugin-markdown`, as a sub-plugin of an
-`apply-ts-codeblock-in-file` scanner), and it is enabled only in putout's **`.filesystem.json`**
+`apply-ts-codeblock-in-file` scanner), and it is enabled only in 🐊**Putout**'s **`.filesystem.json`**
 match — it is a *filesystem* scanner, so it runs under **`redlint`** and never under `putout .`.
 Under `putout .` a wrong fence is caught by the generic `parser` rule with a misleading message
 (`Missing initializer in const declaration`), and `--fix` leaves the fence alone, so the error
@@ -305,5 +305,15 @@ and check with `redlint scan`; the full write-up is in `docs/issues/markdown.md`
 **`redlint` lints `process.cwd()` and takes no path argument** — `cd` into what you want
 checked. Prefer `redlint scan` over `redlint fix`: at the repo root, `fix` acts on
 `coverage/remove-files` and will delete the local `coverage/` directory.
+
+**Why redlint exists at all.** A 🐊**Putout** *rule* knows nothing about filenames — it sees one
+AST and cannot read or write files. That is deliberate, and it is what makes rules portable, but
+it also means 🐊**Putout** on its own cannot express "colours only in `tokens.css`", which is a
+statement about a *tree*. So `redlint` builds a JSON representation of the filesystem
+(`@putout/processor-filesystem` — `__putout_processor_filesystem([...])`, see
+`docs/architecture.md`) and runs the rules over that like any other AST. A rule built on
+`matchFiles` then sees the tree, reads and writes file contents, and is reported per file. Run a
+rule → nothing is modified; run `redlint fix` → the modifications are applied. `packages/client`
+runs `redlint fix` in its `fix:lint`, so this is enforced in CI and not a separate step.
 
 

@@ -64,6 +64,22 @@ restores `onhashchange`/`onbeforeunload` when it finishes; without that teardown
 suite went from green to 104 failures ("multiple elements with the role button",
 `ECONNREFUSED` from a live snippet load).
 
+## Lint rules
+
+| Package | Holds |
+|---|---|
+| `packages/plugin-putout-editor` | 🐊**Putout** rules for *this* repository, wired in through `plugins` in the root `.putout.json` |
+| `packages/mcp` | the mcp server; its `get_example('markdown')` now reads the installed rule rather than a copy |
+
+Two kinds of rule live in that plugin, and the difference matters. A **code** rule
+(`press-modifier-case`) sees one AST and runs under `putout .`. A **filesystem** rule
+(`remove-rgb-outside-tokens`) is built on `matchFiles` and needs the filesystem AST, so it only
+runs under `redlint` — which `packages/client` does in its `fix:lint`.
+
+That split is 🐊**Putout**'s design, not a workaround: a rule deliberately knows nothing about
+filenames, so anything that is a statement about a *tree* (colours only in `tokens.css`, no
+`console.log` in `src/`) has to be expressed against a tree. See the note in `AGENTS.md`.
+
 ## Coverage
 
 `.nycrc.json` — **not** `.c8rc`; `c8` reads nyc config, so that is where the client's
