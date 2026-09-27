@@ -18,7 +18,6 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 
 ## Rules
 
-- ✅ [apply-type-check](#apply-type-check);
 - ✅ [press-modifier-case](#press-modifier-case);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
 - ✅ [remove-z-index-outside-tokens](#remove-z-index-outside-tokens);
