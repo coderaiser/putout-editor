@@ -1,4 +1,7 @@
 {
+    "rules": {
+        "putout-editor/remove-comments": "on"
+    },
     "match": {
         "README.md": {
             "declare": "off",

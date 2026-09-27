@@ -7,7 +7,7 @@
     background: var(--color-bg-toolbar);
     border-bottom: 1px solid var(--color-border);
     position: relative;
-    z-index: 300;
+    z-index: var(--z-menu);
 }
 
 #MobileMenu > *,
@@ -63,7 +63,7 @@
     border: 1px solid var(--color-border);
     border-bottom: none;
     box-shadow: 0 -4px 16px var(--color-shadow);
-    z-index: 400;
+    z-index: var(--z-toolbar);
 }
 
 .mobile-dropdown__menu li {

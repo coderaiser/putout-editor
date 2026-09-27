@@ -12,7 +12,8 @@
     ],
     "match": {
         ".filesystem.json": {
-            "putout-editor/remove-rgb-outside-tokens": "on"
+            "putout-editor/remove-rgb-outside-tokens": "on",
+            "putout-editor/remove-z-index-outside-tokens": "on"
         }
     }
 }

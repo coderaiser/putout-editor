@@ -29,6 +29,11 @@
     --color-marked-dark:     rgb(129 161 193 / 25%);
     --color-toggler-open:    red;
     --color-toggler-closed:  green;
+    --z-low:                 10;
+    --z-dialog:              200;
+    --z-menu:                300;
+    --z-toolbar:             400;
+    --z-top:                 1000;
     --toolbar-height:        32px;
     --hl-comment:            #586e75;
     --hl-base:               #93a1a1;

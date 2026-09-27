@@ -21,6 +21,7 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 - ✅ [apply-type-check](#apply-type-check);
 - ✅ [press-modifier-case](#press-modifier-case);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
+- ✅ [remove-z-index-outside-tokens](#remove-z-index-outside-tokens);
 
 ***
 
@@ -110,3 +111,34 @@ file - and therefore runs under `redlint`, not under `putout .`.
 
 Report-only: which token a colour becomes is a human decision, so the replacement is the
 node printed back unchanged.
+
+***
+
+## remove-z-index-outside-tokens
+
+The same rule for the stacking order. Seven raw `z-index` numbers across three stylesheets
+are now a `--z-*` scale in `tokens.css`.
+
+### ❌ Example of incorrect code
+
+```css
+.a {
+    z-index: 200;
+}
+```
+
+### ✅ Example of correct code
+
+```css
+.a {
+    z-index: var(--z-dialog);
+}
+```
+
+***
+
+## Findings
+
+`docs/issues/putout-plugins.md` has what each rule found, plus the two things that are not
+rules: a putout rule cannot see comments, so `scripts/check-comments.js` covers that, and
+`apply-type-check` also fires on domain types that share a name with a node type.

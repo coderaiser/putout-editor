@@ -9,7 +9,7 @@
     color: var(--color-text);
     padding-left: 10px;
     background-color: var(--color-bg-toolbar);
-    z-index: 200;
+    z-index: var(--z-dialog);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
