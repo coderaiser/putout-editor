@@ -4,6 +4,11 @@ Guidance for AI agents working in this repo.
 
 For where things live and which seam owns what, read `docs/architecture.md`. The rest of
 this file is the stuff that is *not* visible from the code: cross-file traps and gates.
+
+Writing a 🐊**Putout** rule, or reading one you did not write: `docs/putout-style.md` is the
+manual and `docs/putout-map.md` is the map of the 116 plugins, both measured against
+`coderaiser/putout` rather than remembered. The mcp serves the condensed version as
+`docs {section: 'style'}`.
 For how this repo is worked on — commit style, how to file a finding, why a lint rule
 is not to be disabled — read `MEMORY.md`.
 

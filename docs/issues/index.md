@@ -13,5 +13,9 @@ diff, and what was expected. Nothing else. If it does not fit here it is not a f
 | [`qword.md`](./qword.md) | vim blockwise visual, and a paste diagnosis that was wrong |
 | [`tape.md`](./tape.md) | `stub` types, and two rules that do not ship |
 
-Elsewhere: [`docs/plugins.md`](../plugins.md) is the guide for writing a rule, and the
+Elsewhere: [`docs/plugins.md`](../plugins.md) is the guide for writing a rule here, and the
 [plugin README](../../packages/plugin-putout-editor/README.md) documents each rule.
+
+For the 🐊**Putout** repository itself — what the 116 plugins have in common and how to write one
+that matches — read [`docs/putout-map.md`](../putout-map.md) and
+[`docs/putout-style.md`](../putout-style.md).
