@@ -14,7 +14,9 @@ const EXPECTED = [
 // tests, so this is the only place the map itself is asserted - a rule that was
 // written and never registered would pass every other spec in the package.
 test('plugin-putout-editor: exports every rule', (t) => {
-    const result = Object.keys(rules).sort();
+    const result = Object
+        .keys(rules)
+        .sort();
     const expected = [...EXPECTED].sort();
     
     t.deepEqual(result, expected);
@@ -22,9 +24,11 @@ test('plugin-putout-editor: exports every rule', (t) => {
 });
 
 test('plugin-putout-editor: every rule is a plugin putout can load', (t) => {
-    const result = Object.entries(rules)
+    const result = Object
+        .entries(rules)
         .filter(([, plugin]) => !plugin.report)
         .map(([name]) => name);
+    
     const expected = [];
     
     t.deepEqual(result, expected);
