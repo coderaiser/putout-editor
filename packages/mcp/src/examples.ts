@@ -1,3 +1,5 @@
+import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
 import {z} from 'zod';
 
 export const name = 'get_example';
@@ -196,47 +198,18 @@ const scannerFixture = `__putout_processor_filesystem([
     "/utils.js"
 ]);`;
 
-const markdownPlugin = `// convert-js-to-ts
+// The markdown rule is not ours - it ships in `@putout/plugin-markdown` - so read the
+// installed source instead of keeping a copy of it here. A copy drifts, and this one
+// already had: its `report` said something else and it passed `source.value` where the
+// real rule uses `extract(source)`, so it taught a rule nobody runs. `examples.spec.ts`
+// pins the two together, so a version bump that changes the rule fails the build rather
+// than the docs.
+export const SHIPPED_MARKDOWN_RULE = '@putout/plugin-markdown/lib/apply-ts-codeblock-in-file/convert-js-to-ts/index.js';
 
-import {operator, parse} from 'putout';
-import {tryCatch} from 'try-catch';
-
-const {
-    compare,
-    __markdown,
-    setLiteralValue,
-} = operator;
-
-const isClean = (source, options) => {
-    const [error, ast] = tryCatch(parse, source, options);
-    
-    return !error && !ast.errors.length;
-};
-
-const isTypeScript = (source) => isClean(source, {isTS: true}) && !isClean(source);
-
-export const report = () => \`Use a 'ts' fence for TypeScript\`;
-
-export const match = () => ({
-    'codeblock(__args)': ({__args}, {parentPath}) => {
-        if (!compare(parentPath.parentPath, __markdown))
-            return false;
-        
-        const [lang, source] = __args;
-        
-        return lang.value === 'js' && isTypeScript(source.value);
-    },
-});
-
-export const replace = () => ({
-    'codeblock(__args)': ({__args}, path) => {
-        const [lang] = __args;
-        
-        setLiteralValue(lang, 'ts');
-        
-        return path;
-    },
-});`;
+const markdownPlugin = readFileSync(
+    createRequire(import.meta.url).resolve(SHIPPED_MARKDOWN_RULE),
+    'utf8',
+).trimEnd();
 
 const markdownFixture = `__putout_processor_markdown([
     heading(1, 'Gate'),

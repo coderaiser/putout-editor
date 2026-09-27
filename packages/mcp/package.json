@@ -22,6 +22,7 @@
   "dependencies": {
     "@babel/parser": "^8.0.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@putout/plugin-markdown": "^1.5.1",
     "putout": "^42.8.0",
     "redput": "^4.8.1",
     "try-catch": "^4.0.0",

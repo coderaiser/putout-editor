@@ -1,3 +1,5 @@
+import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import {z} from 'zod';
 import {tryCatch} from 'try-catch';
@@ -9,6 +11,7 @@ import {
     name,
     description,
     schema,
+    SHIPPED_MARKDOWN_RULE,
 } from './examples.ts';
 
 const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
@@ -176,6 +179,18 @@ test('local get-example: every example ships a non empty fixture', (t) => {
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
+    t.end();
+});
+
+test('local get-example: markdown example is the shipped rule, not a copy of it', (t) => {
+    const shipped = readFileSync(
+        createRequire(import.meta.url).resolve(SHIPPED_MARKDOWN_RULE),
+        'utf8',
+    ).trimEnd();
+    
+    const result = pluginOf(text('markdown'));
+    
+    t.equal(result, shipped);
     t.end();
 });
 
