@@ -24,9 +24,13 @@ export default {
     'test:e2e': () => 'madfork test:e2e',
     'coverage': async () => 'madfork coverage',
     'prelint': () => 'putout bin .github deploy',
-    'lint': () => 'madfork lint',
+    'lint': () => [
+        'node scripts/gen-diagrams.mjs --check',
+        'madfork lint',
+    ],
     'test:dts': () => 'madfork test:dts',
     'prefix:lint': () => run('prelint', '--fix'),
     'fix:lint': () => 'madfork fix:lint',
     'report': () => 'cd packages/client && c8 report --reporter=lcov',
+    'gen:diagrams': () => 'node scripts/gen-diagrams.mjs',
 };

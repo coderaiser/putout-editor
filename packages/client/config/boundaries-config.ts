@@ -1,7 +1,8 @@
 import boundaries from 'eslint-plugin-boundaries';
 import {buildBoundaries} from './boundaries-dsl.ts';
 
-const config = buildBoundaries({
+// Exported because docs/architecture.md's client graph is generated from it: the map is the only statement of the policy, and a hand-copied diagram is a second one that can disagree. The default export below is unchanged.
+export const map = {
     'editor': ['parser'],
     'store': ['editor', 'parser', 'snippet'],
     'parser': ['editor', 'store'],
@@ -36,7 +37,9 @@ const config = buildBoundaries({
         'store',
     ],
     'app': ['*'],
-});
+};
+
+const config = buildBoundaries(map);
 
 export default [{
     plugins: {

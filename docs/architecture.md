@@ -83,6 +83,8 @@ graph TD
     store["store"]
     parser["parser"]
 
+<!-- gen:client-imports -->
+
     app --> layout
     app --> menu
     app --> panelSource
@@ -90,17 +92,34 @@ graph TD
     app --> panelTransform
     app --> panelCode
 
-    layout --> panelSource
-    layout --> panelAst
-    layout --> panelTransform
-    layout --> panelCode
-    layout --> ui
-
-    menu --> editorTransform
-    menu --> parser
-    menu --> snippet
-    menu --> store
-
+    editor --> parser
+    store --> editor
+    store --> parser
+    store --> snippet
+    parser --> editor
+    parser --> store
+    snippet --> editor
+    snippet --> store
+    snippet --> parser
+    ui --> editor
+    ui --> store
+    ui --> parser
+    editorSource --> editor
+    editorSource --> store
+    editorSource --> parser
+    editorResult --> editor
+    editorResult --> editorAstJson
+    editorAstJson --> editor
+    editorTransform --> editor
+    editorTransform --> editorResult
+    editorTransform --> store
+    editorTransform --> parser
+    editorTransform --> ui
+    editorAstTree --> editor
+    editorAstTree --> editorAstJson
+    editorAstTree --> store
+    editorAstTree --> parser
+    editorAstTree --> snippet
     panelSource --> editorSource
     panelSource --> ui
     panelSource --> store
@@ -112,33 +131,17 @@ graph TD
     panelCode --> editorResult
     panelCode --> store
     panelCode --> parser
+    layout --> panelSource
+    layout --> panelAst
+    layout --> panelTransform
+    layout --> panelCode
+    layout --> ui
+    menu --> editorTransform
+    menu --> parser
+    menu --> snippet
+    menu --> store
 
-    editorSource --> editor
-    editorSource --> store
-    editorSource --> parser
-    editorTransform --> editor
-    editorTransform --> editorResult
-    editorTransform --> store
-    editorTransform --> parser
-    editorTransform --> ui
-    editorAstJson --> editor
-    editorAstTree --> editor
-    editorAstTree --> editorAstJson
-    editorAstTree --> store
-    editorAstTree --> parser
-    editorAstTree --> snippet
-    editorResult --> editor
-    editorResult --> editorAstJson
-
-    editor --> parser
-    ui --> store
-    ui --> parser
-    snippet --> store
-    snippet --> parser
-    store --> editor
-    store --> parser
-    parser --> store
-    parser --> editor
+<!-- /gen:client-imports -->
 
     style app fill:#eee
 ```
@@ -153,6 +156,24 @@ Two things that read off the graph and are not obvious from the files:
 
 The `app` node draws six of its edges, but its policy is `['*']` — it may import any element.
 It is drawn with the ones it actually uses, so the graph reads top-down.
+
+**The arrows between the `<!-- gen:client-imports -->` markers are generated, and the check is
+part of the lint.** `scripts/gen-diagrams.mjs` reads the map out of
+`packages/client/config/boundaries-config.ts` — the same map `boundaries/dependencies`
+enforces — and rewrites that block; `bun run lint` regenerates in memory and fails if the file
+is stale. The node declarations, labels and `style` lines stay hand-written, because those are
+prose and do not drift.
+
+This caught real drift the first time it ran: the hand-drawn diagram was missing three edges the
+policy has always allowed — `ui → editor`, `store → snippet` and `snippet → editor`. Nothing
+had complained, because the diagram was a second statement of the policy and only one of the two
+was enforced.
+
+The other three diagrams in this file are **not** generated, and that is a deliberate gap rather
+than an oversight: the server and mcp graphs come from reading those packages, and the
+putout counts in [`putout-map.md`](./putout-map.md) need a checkout of the sibling repository
+that CI does not have. A generated block nobody regenerates is a worse thing than a written one,
+so they stay written and stay honest about it.
 
 ## Client data flow
 

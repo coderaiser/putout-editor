@@ -20,7 +20,8 @@
     "lint": "madrun lint",
     "test:dts": "madrun test:dts",
     "fix:lint": "madrun fix:lint",
-    "report": "madrun report"
+    "report": "madrun report",
+    "gen:diagrams": "madrun gen:diagrams"
   },
   "devDependencies": {
     "@putout/eslint-flat": "^4.0.0",
