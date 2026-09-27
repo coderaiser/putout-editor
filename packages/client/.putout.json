@@ -9,5 +9,10 @@
     },
     "ignore": [
         "test-results/**"
-    ]
+    ],
+    "match": {
+        ".filesystem.json": {
+            "putout-editor/remove-rgb-outside-tokens": "on"
+        }
+    }
 }
