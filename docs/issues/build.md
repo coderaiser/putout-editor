@@ -17,9 +17,11 @@ processor imports `stylelint` and `cosmiconfig`. `cosmiconfig` reaches `env-path
 `os.homedir()` **at import time**, and `os` is `false` for the browser - so the module graph
 died on load, before anything ran.
 
-**An operator must not import a processor.** That is fixed upstream: `operator-match-files` no
-longer imports `@putout/processor-css`, and the other processor imports are being moved to
-operators too. It arrives with the next release.
+**An operator must not import a processor.** That is fixed upstream in
+`@putout/operator-match-files@12.12.0`: the css processor import is gone, replaced by
+`@putout/operator-css`, whose only dependency is `happy-style` (pure JS over `css-tree`, no
+`stylelint` and no `cosmiconfig`). Bumping that one transitive dependency takes the build from
+**90 errors to a clean compile**, and the app renders again.
 
 ## ❌ `redrun build` at the root: three separate causes
 
@@ -28,7 +30,7 @@ first one hides the rest. Checked each one directly:
 
 | workspace | `redrun build` |
 |---|---|
-| `client` | fails - 45 rspack `ERROR in`, the operator issue above |
+| `client` | was failing - 45 rspack `ERROR in`, the operator issue above. **ok** since `@putout/operator-match-files@12.12.0` |
 | `mcp` | **ok** - 2065 modules, 17.56 MB; `@cloudcmd/stub` bundles with no complaint, so it needs no `--external` |
 | `server` | fails - `nest: not found`. It declares `@nestjs/cli` and no `nest` binary is installed anywhere in this tree |
 | `plugin-putout-editor` | was failing - `One of scripts not found: build`, and no `dist` to build |
@@ -70,3 +72,9 @@ TypeScript majors. Committing `bun.lock` is what would make a reinstall reproduc
 Until the operator fix ships, `out/` is stale and the e2e suite cannot run. The last
 known-good result is from before the reinstall: 76/76 desktop, 49/49 mobile. The gates that
 still work are `putout .`, the unit suites and `redlint scan`.
+
+## ✅ the e2e suite runs again
+
+The operator fix shipped, so `bun run build` produces a bundle that boots, and the e2e suite
+runs against it again. `docs/issues/e2e.md` has the one test-helper bug the restored run
+exposed, and the fix.
