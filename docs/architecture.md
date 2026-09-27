@@ -68,7 +68,7 @@ suite went from green to 104 failures ("multiple elements with the role button",
 
 | Package | Holds |
 |---|---|
-| `packages/plugin-putout-editor` | 🐊**Putout** rules for *this* repository, wired in through `plugins` in the root `.putout.json` |
+| `packages/plugin-putout-editor` | 🐊**Putout** rules for *this* repository, wired in through `plugins` in the root `.putout.json`. See `docs/plugins.md` for how to add one |
 | `packages/mcp` | the mcp server; its `get_example('markdown')` now reads the installed rule rather than a copy |
 
 Two kinds of rule live in that plugin, and the difference matters. A **code** rule
