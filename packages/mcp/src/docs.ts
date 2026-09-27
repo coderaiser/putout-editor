@@ -103,7 +103,9 @@ test('putout: my-rule: transform', (t) => {
 \`\`\`
 
 t.transform('name') reads test/fixture/<name>.js and compares against
-test/fixture/<name>-fix.js. A fixture never exists without its fixed twin. Generate
+test/fixture/<name>-fix.js. A fixture a TRANSFORM asserts on needs that twin. A
+fixture a noReport/noTransform assertion reads does NOT - there is nothing to fix,
+and their names give it away: no-overrides.js, not-valid.js, two-args.js. Generate
 the fixed half with UPDATE=1. One fixture file holds many cases - the negative
 cases are the rule, and each guard gets a "no report" test.
 

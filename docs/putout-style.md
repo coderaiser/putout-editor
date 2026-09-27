@@ -312,8 +312,10 @@ The name is `putout: <rule>: <what>`, and `<what>` is one of `report`, `transfor
 `no report: <case>`, `no transform: <case>`.
 
 `t.transform('name')` reads `test/fixture/<name>.js` and compares against
-`test/fixture/<name>-fix.js`. **113 of 116 plugins have fixture pairs, and every one of those
-113 has at least one `-fix`** — a fixture without its fixed twin is a rule nobody runs.
+`test/fixture/<name>-fix.js`. A fixture a **transform** asserts on needs that twin. A fixture a
+**`not*`** assertion reads does not, because there is nothing to fix — 203 of them are exactly
+that, and their names give it away: `no-overrides.js`, `not-valid.js`, `two-args.js`. Generate
+the fixed half with `UPDATE=1`.
 
 **One fixture file, many cases.** A single `remove-useless-push.js` fixture holds `notUsed`,
 `noBinding`, `used` and `destructured` in one file, because the negative cases are the rule. Do

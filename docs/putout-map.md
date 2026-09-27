@@ -124,11 +124,23 @@ Universal without exception:
   files for things `createTest` cannot express (filesystem fixtures, `matchFiles`).
 - **116 / 116** carry a `README.md`, a `.nycrc.json` and a `.npmignore`.
 - **113 / 116** carry `.madrun.js`, `eslint.config.js`, and a `test/fixture/` directory. Every
-  one of those 113 has at least one `-fix` fixture — **a fixture never exists without its
-  fixed twin**.
+  one of those 113 has at least one `-fix` fixture.
 - **115 / 116** carry a `LICENSE` (`plugin-printer` does not).
 - **91 / 116** carry a `.putout.json`; the 25 without are largely the framework plugins that lint
   themselves from the root.
+
+Of 2035 fixture files, **816 have a `-fix` twin and 203 do not** — and the ones that do not are
+not orphans. They are the negative cases, and their names say so: `not-valid.js`, `long.js`,
+`two-args.js`, `no-overrides.js`, `for-of.js`. They are read by `t.noReport` / `t.noTransform`,
+which assert the rule *does not* fire, so there is nothing to fix. So the convention is
+narrower than "every fixture has a twin":
+
+> a fixture a **transform** asserts on has a `-fix` twin; a fixture a **`not*`** asserts on does
+> not.
+
+The trap is that the two are otherwise indistinguishable from the filesystem, and a count of
+"fixtures without twins" looks like 203 dead files when it is 203 negative cases. That is a
+correction to an earlier version of this document, which said every fixture has a twin.
 
 Test names follow `putout: <rule>: <what>`, where `<what>` is `report`, `transform`,
 `no report: <case>` or `no transform: <case>`. A rule that must *not* fire on something names
