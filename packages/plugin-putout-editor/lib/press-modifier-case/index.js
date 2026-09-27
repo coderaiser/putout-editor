@@ -1,6 +1,11 @@
-import {operator} from 'putout';
+import {operator, types} from 'putout';
 
 const {setLiteralValue} = operator;
+const {
+    isMemberExpression,
+    isIdentifier,
+    isStringLiteral,
+} = types;
 
 const MODIFIERS = 'Control|Shift|Alt|Meta|Mod|Cmd|ControlOrMeta';
 
@@ -9,7 +14,7 @@ const MODIFIERS = 'Control|Shift|Alt|Meta|Mod|Cmd|ControlOrMeta';
 // and the failure is silent: nothing throws, the browser just fires a paste instead.
 const PRESS_WITH_MODIFIER = RegExp(`^(?:(?:${MODIFIERS})(?:\\+(?:${MODIFIERS}))*)\\+([A-Z])$`);
 
-const isPress = (node) => node?.type === 'MemberExpression' && node.property?.type === 'Identifier' && node.property.name === 'press';
+const isPress = (node) => isMemberExpression(node) && isIdentifier(node.property) && node.property.name === 'press';
 
 // only the last segment is the key - `Control` and `Shift` keep their capital
 const lowerKey = (key) => {
@@ -32,7 +37,7 @@ export const match = () => ({
         const [arg] = call.arguments;
         
         // putout's ast is a babel ast, so a string is a StringLiteral, not a Literal
-        return arg?.type === 'StringLiteral' && PRESS_WITH_MODIFIER.test(arg.value);
+        return isStringLiteral(arg) && PRESS_WITH_MODIFIER.test(arg.value);
     },
 });
 

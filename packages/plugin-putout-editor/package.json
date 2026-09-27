@@ -3,18 +3,48 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "description": "🐊Putout rules for the 🐊Putout Editor repository",
-  "repository": "git@github.com:coderaiser/putout-editor.git",
-  "author": "coderaiser",
+  "author": "coderaiser <mnemonic.enemy@gmail.com> (https://github.com/coderaiser)",
+  "description": "🐊Putout plugin for the 🐊Putout Editor repository",
+  "homepage": "https://github.com/coderaiser/putout-editor/tree/master/packages/plugin-putout-editor#readme",
   "main": "lib/index.js",
-  "dependencies": {
-    "putout": "^42.8.0"
+  "release": false,
+  "tag": false,
+  "changelog": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https@github.com:coderaiser/putout-editor.git"
   },
   "scripts": {
     "test": "madrun test",
-    "coverage": "madrun coverage",
-    "test:dts": "madrun test:dts",
+    "watch:test": "madrun watch:test",
     "lint": "madrun lint",
-    "fix:lint": "madrun fix:lint"
+    "fresh:lint": "madrun fresh:lint",
+    "lint:fresh": "madrun lint:fresh",
+    "fix:lint": "madrun fix:lint",
+    "coverage": "madrun coverage",
+    "report": "madrun report"
+  },
+  "keywords": [
+    "putout",
+    "putout-plugin",
+    "plugin"
+  ],
+  "dependencies": {
+    "putout": "^42.8.0"
+  },
+  "devDependencies": {
+    "@putout/test": "^15.8.2",
+    "eslint": "^10.0.0",
+    "eslint-plugin-putout": "^31.0.0",
+    "madrun": "^13.0.0",
+    "nodemon": "^3.0.1",
+    "superc8": "^12.0.0"
+  },
+  "peerDependencies": {
+    "putout": ">=42"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
   }
 }

@@ -1,7 +1,9 @@
+import * as applyTypeCheck from './apply-type-check/index.js';
 import * as pressModifierCase from './press-modifier-case/index.js';
 import * as removeRgbOutsideTokens from './remove-rgb-outside-tokens/index.js';
 
 export const rules = {
+    'apply-type-check': applyTypeCheck,
     'press-modifier-case': pressModifierCase,
     'remove-rgb-outside-tokens': removeRgbOutsideTokens,
 };

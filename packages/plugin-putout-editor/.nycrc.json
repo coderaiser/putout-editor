@@ -1,13 +1,13 @@
 {
-    "skipFull": false,
     "checkCoverage": true,
     "all": true,
     "exclude": [
         "**/*.spec.*",
         "**/*.config.*",
-        "**/.*.*",
-        "**/test/**",
-        "coverage"
+        "**/fixture",
+        ".*.*",
+        "eslint.config.js",
+        "test"
     ],
     "branches": 100,
     "lines": 100,
