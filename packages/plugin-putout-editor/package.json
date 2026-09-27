@@ -16,7 +16,6 @@
   },
   "scripts": {
     "test": "madrun test",
-    "test:dts": "madrun test:dts",
     "watch:test": "madrun watch:test",
     "build": "madrun build",
     "test:dts": "madrun test:dts",

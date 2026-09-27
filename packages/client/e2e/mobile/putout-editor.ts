@@ -29,9 +29,13 @@ export function createPutoutEditor(page: Page) {
                 await locator.tap();
                 
                 // `selectText()`, not `ControlOrMeta+a`: the default keymap is
+                
                 // `vim`, where `Ctrl-a` is bound to `incrementNumber` and
+                
                 // selects nothing, so the buffer survived and the next
+                
                 // `insertText` appended to it. `selectText()` goes through the
+                
                 // DOM selection, which no keymap can intercept.
                 await locator.selectText();
                 await page.keyboard.insertText(text);
