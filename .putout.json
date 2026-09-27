@@ -4,5 +4,8 @@
     ],
     "rules": {
         "madrun/set-lint-dot": "off"
-    }
+    },
+    "plugins": [
+        "putout-editor"
+    ]
 }

@@ -1,0 +1,20 @@
+{
+  "name": "@putout/plugin-putout-editor",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "🐊Putout rules for the 🐊Putout Editor repository",
+  "repository": "git@github.com:coderaiser/putout-editor.git",
+  "author": "coderaiser",
+  "main": "lib/index.js",
+  "dependencies": {
+    "putout": "^42.8.0"
+  },
+  "scripts": {
+    "test": "madrun test",
+    "coverage": "madrun coverage",
+    "test:dts": "madrun test:dts",
+    "lint": "madrun lint",
+    "fix:lint": "madrun fix:lint"
+  }
+}

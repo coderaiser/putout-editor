@@ -1,0 +1,16 @@
+{
+    "skipFull": false,
+    "checkCoverage": true,
+    "all": true,
+    "exclude": [
+        "**/*.spec.*",
+        "**/*.config.*",
+        "**/.*.*",
+        "**/test/**",
+        "coverage"
+    ],
+    "branches": 100,
+    "lines": 100,
+    "functions": 100,
+    "statements": 100
+}
