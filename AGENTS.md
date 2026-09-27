@@ -294,11 +294,17 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
 
 ## Reporting a finding
 
-Put it in `docs/issues/`, one file per area (`tape.md` for tape/putout-lint, `markdown.md`
-for markdown), and give **the minimum possible code that reproduces it** — then **the result
-you got** (a diff is best) and **what you expected**. Only report what you verified
-reproduces; put unverified suspicions in the handover plan instead. Update issues in their
-own commit.
+Put it in `docs/issues/`, one file per area — [`tape.md`](./docs/issues/tape.md),
+[`markdown.md`](./docs/issues/markdown.md), [`build.md`](./docs/issues/build.md),
+[`coverage.md`](./docs/issues/coverage.md), [`qword.md`](./docs/issues/qword.md),
+[`putout-plugins.md`](./docs/issues/putout-plugins.md) — and give **the minimum possible
+code that reproduces it**, then **the result you got** (a diff is best) and **what you
+expected**. Only report what you verified reproduces; put unverified suspicions in the
+handover plan instead. Update issues in their own commit, and keep them short: the repro, the
+result, the fix. Experiences belong in `MEMORY.md` and traps-and-solutions in this file, so a
+finding does not have to carry a narrative.
+
+[`docs/plugins.md`](./docs/plugins.md) is the guide for a human writing a rule here.
 
 **The code fence language is a gate, not a hint.** A ` ```js ` fence must be JavaScript and a
 TypeScript snippet must use ` ```ts `. This holds for *every* fence, not only repros: a `js`

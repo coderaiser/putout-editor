@@ -78,7 +78,8 @@ runs under `redlint` — which `packages/client` does in its `fix:lint`.
 
 That split is 🐊**Putout**'s design, not a workaround: a rule deliberately knows nothing about
 filenames, so anything that is a statement about a *tree* (colours only in `tokens.css`, no
-`console.log` in `src/`) has to be expressed against a tree. See the note in `AGENTS.md`.
+`console.log` in `src/`) has to be expressed against a tree. `docs/plugins.md` covers adding
+one; `docs/issues/` holds the findings.
 
 ## Coverage
 

@@ -48,7 +48,14 @@ finding in `docs/issues/`, not an `.putout.json` entry or a lenient spec.
 cannot fix, a message that does not locate its target, a rule that only runs in a mode nobody
 runs — file it in `docs/issues/putout-plugins.md` and let it become a rule. Sitting on a known
 gap because fixing it properly is upstream's job is how the gap survives: the fence-language
-gate sat behind a "✅ verified" that had checked a hand-written copy rather than the rule.
+gate sat behind a "✅ verified" that had checked a hand-written copy rather than the rule, and
+the css gate sat behind a CI step running an empty script.
+
+**Say what is actually wrong, not a story about it.** Two findings here were wrong for a while
+because they described a mechanism that did not hold - a paste event aimed at the wrong
+target, and a rule that "cannot exist". The first was disproved by instrumenting the browser;
+the second by reading `check-match`. Measure the mechanism, and when a claim rests on a
+hand-written copy or a summary, check the shipped code.
 
 ## Style, from the maintainer
 
@@ -78,14 +85,13 @@ check whether it has — a finding left open after its fix exists is stale docum
   a real 100%, and the eleven it still excludes are named with a reason. If a path is added
   to that list, the finding should say why — that is how the gate went hollow in the
   first place.
-- **`docs/issues/tape.md`** — the `tape/apply-stub` import fix (a missing import when the
-  rule introduces `stub`) and the `tape/extract-result-from-assertion` type emission
-  (`const expected: typeof result = []`) are defects in the **putout** repo, at
-  `packages/plugin-tape/lib/`. They are *not* in the published `eslint-plugin-putout` and do
-  not run here, so nothing reproduces them in this repo — re-check by looking for those two
-  directories upstream, not by running the fixer. Neither needs supertape type work:
-  `@cloudcmd/stub@5.1.0` already declares `resolves<T>()`, and `supertape` re-exports `stub`
-  (verified in 13.6.0).
+- **`docs/issues/tape.md`** — the types are fine and the rules are missing. `stub` is typed
+  (`@cloudcmd/stub@5.1.0` declares `resolves<T>()`) and `supertape@13.6.1` re-exports it, so
+  `import {stub} from 'supertape'` just works. What does not work is the two 🐊**Putout** rules
+  that would write that import and that type for you: `tape/apply-stub` and
+  `tape/extract-result-from-assertion` are in `packages/plugin-tape/lib/` and are **not** in
+  the published `eslint-plugin-putout`, so nothing reproduces them here. Re-check upstream for
+  those two directories, not by running the fixer, and write both lines by hand until it lands.
 - **`docs/issues/markdown.md`** — `markdown/apply-ts-codeblock-in-file` is a *filesystem*
   scanner, enabled only in putout's `.filesystem.json` match, so it runs under `redlint` and
   never under `putout .`. The open half is that nothing here runs `redlint` over `docs/`: the
@@ -94,7 +100,7 @@ check whether it has — a finding left open after its fix exists is stale docum
   running `putout .` — and re-check upstream for a release that enables the scanner in the
   `*.md` match, which would make `putout .` enforce it directly. The fences themselves are
   currently right (`redlint scan` at the root reports the rule at 100%), so this is a missing
-  gate, not a broken file.
+  gate, not a broken file. Ours is fixed - the rule now runs from the client's `fix:lint`.
 
 ## Keep these three in step
 
