@@ -68,12 +68,15 @@ test('remove-rgb-outside-tokens: leaves the css byte for byte, the token is a hu
         'main.css',
         CSS_WITH_RGB,
     ), removeRgbOutsideTokens);
+    
     const [content] = code
         .match(/"([A-Za-z0-9+/=]+)"/g)
         .slice(-1);
+    
     const result = Buffer
         .from(content.replace(/"/g, ''), 'base64')
         .toString();
+    
     const expected = CSS_WITH_RGB;
     
     t.equal(result, expected);
