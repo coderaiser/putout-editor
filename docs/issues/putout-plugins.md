@@ -9,7 +9,7 @@ Each entry is the same shape as a finding: the minimum thing that shows it, what
 what I expected. An idea with no repro is not an idea yet — it is a guess, so leave it in the
 handover until something reproduces.
 
----
+***
 
 ## 💡 the mcp's plugin examples are hand-copies, and they have already drifted
 
@@ -17,10 +17,10 @@ handover until something reproduces.
 The shipped rule lives in `@putout/plugin-markdown` and is what actually lints. The two have
 already diverged:
 
-| | `report` message |
-|---|---|
-| mcp copy (`examples.ts:218`) | ``Use a 'ts' fence for TypeScript`` |
-| shipped `@putout/plugin-markdown@1.5.1` | ``Use 'ts' instead of 'js' fence for TypeScript`` |
+|                                         | `report` message                                |
+|-----------------------------------------|-------------------------------------------------|
+| mcp copy (`examples.ts:218`)            | `Use a 'ts' fence for TypeScript`               |
+| shipped `@putout/plugin-markdown@1.5.1` | `Use 'ts' instead of 'js' fence for TypeScript` |
 
 **What I expected.** `get_example('markdown')` to return the shipped rule, or at least for a spec
 to assert the two agree.
@@ -35,7 +35,7 @@ entry), and nothing caught that for as long as the doc was there — which is th
 load the real rule. If a copy has to stay (the example is a teaching artifact, and a real
 plugin needs a markdown fixture), pin them together with a spec that compares `report`.
 
----
+***
 
 ## 💡 the fence rule is unreachable from `putout .`
 
@@ -63,14 +63,14 @@ ordinary lint. That is what its own fix already does correctly.
 `*.md` match can enable, so the gate runs where people run linters. Failing that, a putout
 option that runs the `.filesystem.json` rule set as part of `putout .`.
 
----
+***
 
 ## 💡 `putout/align-spaces` reports `1:1` for a line-level problem
 
-````
+```
 src/editor/create-editor.spec.ts
  1:1  error  Keep whitespaces in blank lines  putout/align-spaces (eslint)
-````
+```
 
 The offending line was inside a function body — line 8 in that file, not line 1 — and the
 message does not say how wide the line should be. I hit this twice on a single new file and had
@@ -83,26 +83,58 @@ indentation on blank lines inside blocks, leave top-level ones empty*.
 ("match the indentation of the enclosing block"). A fixer-adjacent rule that cannot point at
 its target is hard to act on, and the rule is otherwise right.
 
----
+***
 
-## 💡 `keyboard.press('Control+<uppercase>')` is a Playwright trap
+## ✅ `press-modifier-case` — a modifier plus an uppercase key is a Playwright trap
 
 Playwright sends `event.key === 'V'` for `press('Control+V')`, with no Shift keydown — a chord
 no real keyboard can produce. A browser reports Ctrl+V as `'v'`. So a spec that writes
-`Control+V` is always a mistake for `Control+v`, and it fails *silently*: nothing throws, the
-binding simply never matches, and the browser fires a `paste` instead.
+`Control+V` where it means `Control+v` fails *silently*: nothing throws, the binding simply never
+matches, and the browser fires a `paste` instead. This is how the visual-block bug in
+`docs/issues/qword.md` was chased through the wrong layer for a whole session.
 
-````ts
-// never fires a binding - no real keyboard sends ctrl+shift-free 'V'
-await page.keyboard.press('Control+V');
+Landed in `packages/plugin-putout-editor` as `putout-editor/press-modifier-case`, wired through
+`plugins` in the root `.putout.json`, and enabled in the client too (putout merges configs up
+the tree). The wrong form is written inline above rather than in a fence on purpose: a `ts`
+fence is linted as real code, so `putout --fix` "fixed" the anti-pattern in this file and
+deleted the example — the fixer is right about the code and wrong about the prose, so the
+example has to live outside something it can rewrite.
 
-// what a browser actually sends for Ctrl+V
-await page.keyboard.press('Control+v');
-````
+It paid for itself on arrival, over the repo's own e2e specs:
 
-**What I expected.** A spec that presses a bound key to work, and for the failure to be visible.
+```diff
+-    await page.keyboard.press('ControlOrMeta+V');
++    await page.keyboard.press('ControlOrMeta+v');
+```
 
-**Proposal.** A `playwright/press-modifier-case` rule: a modifier plus a single uppercase letter
-in `press`/`keyboard.press` is a mistake — offer to lowercase it. This is the same class of
-defect as the `tape/` rules, for a different test framework, and the cost of getting it wrong
-here is an afternoon of chasing the wrong layer.
+Four in `e2e/desktop.ts`, one in `e2e/snippet.ts`, and one each in the desktop and mobile
+helpers. Those paste specs were passing with the uppercase form — the browser fires the paste
+either way — so the change is safe, which is checked by running the suite rather than assumed.
+
+***
+
+## 💡 there is no report-only rule for the normal runner
+
+I wanted a second rule for this repo: `no-direct-qword-create-editor`, which reports importing
+`createEditor` from `qword/client` instead of the local wrapper that adds
+`allowMultipleSelections` (the fix in `docs/issues/qword.md`). It has no safe automatic fix —
+removing the specifier would break the file — and it turns out putout cannot express that.
+
+A rule needs one of `find`, `traverse`, `replace`, `include`, `exclude`, `rules`, `declare` or
+`scan`, or the loader refuses it:
+
+```
+Error: ☝️ Cannot determine type of plugin 'no-direct-qword-create-editor'.
+```
+
+`find` alone is report-only but throws in the normal runner (documented in `AGENTS.md`), and
+`scan` only works as a `matchFiles` filesystem scanner, which `putout .` does not run — that is
+the same reason the fence rule in `docs/issues/markdown.md` needs redlint.
+
+**What I expected.** A rule that reports and leaves the fix to a human, so a wrong import that
+cannot be mechanically corrected is still enforceable.
+
+**Proposal.** Let a `report` + `match` pair be a valid rule type that reports without fixing,
+and skip it during fix passes. Then the invariants that only a human can resolve stop living in
+prose. For now the qword one lives as a comment on `createEditor` in the barrel and on the
+wrapper, which is where the next reader will actually be.

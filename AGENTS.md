@@ -202,24 +202,48 @@ So the two filenames are a contract, not a convention: an Editor snippet that do
 is readable by `fetch_snippet` (which resolves the filename) but is not something `redput` can
 turn into a rule.
 
-## When something looks like a putout plugin, write it up
+## When something looks like a putout plugin, write it — or run it
 
 A rule can detect or fix it — do not work around it silently. The cases that keep coming up are
 a fixer that mangles instead of fixing, a message that does not locate its problem, a rule that
 only runs in a mode nobody runs, and a library contract that costs an afternoon to rediscover.
 
-Write it in `docs/issues/putout-plugins.md` under Ideas: the **minimum** thing that shows it,
-what you got, what you expected, and where the rule should live (upstream `putout`, or here when
-it is our lint config or the mcp). Do not fix it by disabling a rule, by loosening a spec, or by
-hand-editing what a fixer ought to have handled. An idea with no repro is not filed yet — it
-goes in the handover until something reproduces.
+**Run the fixer first.** `putout . --fix` does the mechanical work — imports, whitespace,
+quotes, formatting. Do not hand-write what a rule already decides; here it fixed an import
+group and the blank-line whitespace in one command, after two wrong guesses by hand. Only open
+an issue once the fixer has had its turn.
 
-**An mcp example is a proxy, not the artifact.** `get_example` ships hand-written copies of
-plugins that also exist as real rules, and they drift — the `markdown` copy in
-`packages/mcp/src/examples.ts` already reports a different message than the shipped one. So
-"verified via the mcp" is weaker than it sounds: `docs/issues/markdown.md` was marked ✅ on a
-copy and missed that the real rule never runs under `putout .`. When a claim rests on an mcp
-example, check the shipped plugin too.
+**Then choose where the rule belongs.** A rule that would help any putout user is an idea for
+the [putout](https://github.com/coderaiser/putout) repo; a rule about *this* codebase goes in
+`packages/plugin-putout-editor` and is already wired into the lint. See "Repo rules" below.
+
+**If neither exists yet, write the idea up** in `docs/issues/putout-plugins.md`: the **minimum**
+thing that shows it, what you got, what you expected, and where the rule should live. An idea
+with no repro is not filed yet — it goes in the handover until something reproduces.
+
+### Repo rules
+
+`packages/plugin-putout-editor` is a private putout plugin holding the rules that only make
+sense here. It is in the root `.putout.json` `plugins` array by **bare name** (`"putout-editor"`,
+not the full package name), which is how putout resolves `@putout/plugin-<name>`. putout merges
+config up the tree, so the rules apply to every package — `packages/client` has its own
+`.putout.json` and still picks them up.
+
+To add one: a directory under `lib/`, a spec under `test/` that runs the rule through
+`putout()` and asserts the report, then register it in `lib/index.js`. Keep the package at 100%
+coverage. Use the mcp `get_example` for the pattern and `parse` when you need a node type —
+putout's AST is babel's, so a string is a `StringLiteral` and not a `Literal`.
+
+**A rule that only reports cannot run in the normal runner.** The loader wants one of `find`,
+`traverse`, `replace`, `include`, `exclude`, `rules`, `declare`, `scan`, and a `find` with no
+`fix` throws. An invariant with no safe automatic fix stays a comment on the code that owns it.
+The reasoning and the repro are in `docs/issues/putout-plugins.md`.
+
+**An mcp example is a proxy, not the artifact.** `get_example` shipped hand-written copies of
+plugins that also exist as real rules, and they drifted — the `markdown` one reported a
+different message *and* matched on `source.value` where the real rule uses `extract(source)`.
+It now reads the installed rule from `@putout/plugin-markdown`, with a spec pinning the two. So
+when a claim rests on an mcp example, check the shipped plugin too.
 
 ## Verify before claiming done
 
