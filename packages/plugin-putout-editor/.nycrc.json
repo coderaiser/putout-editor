@@ -7,8 +7,7 @@
         "**/fixture",
         ".*.*",
         "eslint.config.js",
-        "test",
-        "scripts"
+        "test"
     ],
     "branches": 100,
     "lines": 100,

@@ -3,12 +3,15 @@
 Rules in `packages/plugin-putout-editor` — the [README](../../packages/plugin-putout-editor/README.md)
 has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 
-| Rule | Kind | What it found |
-|---|---|---|
-| `press-modifier-case` | code | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
-| `apply-type-check` | code | `node?.type === 'StringLiteral'` → `isStringLiteral(arg)` |
-| `remove-rgb-outside-tokens` | filesystem | the one hardcoded colour outside `css/tokens.css` |
-| `remove-z-index-outside-tokens` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale |
+| Rule                            | Kind       | What it found                                                         |
+|---------------------------------|------------|-----------------------------------------------------------------------|
+| `press-modifier-case`           | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
+| `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
+| `remove-rgb-outside-tokens`     | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
+| `remove-z-index-outside-tokens` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      |
+
+`apply-type-check` was here too and is not any more: it is `@putout/plugin-putout` now, which
+is where a rule that helps any 🐊**Putout** user belongs.
 
 A **code** rule sees one file and runs under `putout .`. A **filesystem** rule is about a tree
 and runs under `redlint`, because a 🐊**Putout** rule knows nothing about filenames. Both are in
@@ -22,16 +25,36 @@ A plugin needs one of `find`, `traverse`, `replace`, `include`, `exclude`, `rule
 itself**. The two filesystem rules do the same and their tests assert the file comes back byte
 for byte — choosing which token a colour becomes is a human decision.
 
-## 💡 a putout rule cannot see comments
+## ✅ a putout rule can see comments
 
-`parse` drops comments: they are not nodes, and `types.isComment` does not exist. So "no
-comments in a rule" cannot be a rule. It is `scripts/check-comments.js`, run from the plugin's
-own `lint` and `fix:lint`.
+`parse` does not drop them. They are not nodes and `types.isComment` does not exist, but
+`leadingComments`, `trailingComments` and `innerComments` are on the AST, so a `traverse` over
+the declarations and a `push` per entry sees every one:
+
+```js
+export const traverse = ({push}) => ({
+    VariableDeclaration: (path) => {
+        for (const key of KEYS) {
+            const comments = path.node[key] || [];
+            
+            comments.map(() => push({
+                path,
+                key,
+            }));
+        }
+    },
+});
+```
+
+`fix` empties the array it was handed, and the printer reprints without them. So "no comments
+in a rule" is `remove-comments`, a rule, running under `putout .` with the rest. The
+`scripts/check-comments.js` it replaces was a second gate in a second language over the same
+files, and its coverage `exclude` still named the directory it no longer has.
 
 ## 💡 `apply-type-check` fires on domain types too
 
 It rewrites any `x.type === 'Y'` where `types['isY']` exists, and it cannot see types. In this
 repository that broke `defaultESTreeParserInterface`, whose `AstNode` is the Editor's own
-interface and not a babel `Node` — `isProgram(node)` does not compile. Reverted, and worth
-knowing before this lands in `@putout/plugin-putout`: the existence check is necessary but not
-sufficient, because a domain type can share a name with a node type.
+interface and not a babel `Node` — `isProgram(node)` does not compile. Reverted here, and it
+is in `@putout/plugin-putout` now: the existence check is necessary but not sufficient, because
+a domain type can share a name with a node type.

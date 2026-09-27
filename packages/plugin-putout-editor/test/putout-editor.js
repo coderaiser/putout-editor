@@ -16,3 +16,13 @@ test('plugin-putout-editor: report: press-modifier-case', (t) => {
     t.reportCode(`page.keyboard.press('Control+V');`, `Lowercase the key after a modifier: a browser reports Ctrl+V as "v"`);
     t.end();
 });
+
+test('plugin-putout-editor: transform: remove-comments', (t) => {
+    t.transform('remove-comments');
+    t.end();
+});
+
+test('plugin-putout-editor: report: remove-comments', (t) => {
+    t.reportCode(`// a comment\nconst a = 1;`, 'A rule says what the code already says');
+    t.end();
+});

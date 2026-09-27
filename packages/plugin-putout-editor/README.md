@@ -19,44 +19,9 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 ## Rules
 
 - ✅ [press-modifier-case](#press-modifier-case);
+- ✅ [remove-comments](#remove-comments);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
 - ✅ [remove-z-index-outside-tokens](#remove-z-index-outside-tokens);
-
-***
-
-## apply-type-check
-
-`node.type === 'CallExpression'` says the same thing as `isCallExpression(node)` in fewer
-characters, and the `is*` helpers live in `types` where they are tested once instead of in
-every rule that needs a node kind. The optional-chaining form goes too: `arg?.type` is not
-shorter than `isStringLiteral(arg)`, it is a second thing to read.
-
-### ❌ Example of incorrect code
-
-```js
-const isCall = isCallExpression;
-const isString = isStringLiteral;
-const isProgram = (node) => !isProgram(node);
-```
-
-### ✅ Example of correct code
-
-```js
-import {types} from 'putout';
-
-const {
-    isCallExpression,
-    isStringLiteral,
-    isProgram,
-} = types;
-
-const isCall = isCallExpression;
-const isString = isStringLiteral;
-const isProgramNode = (node) => !isProgram(node);
-```
-
-The rule only rewrites a comparison whose value has a real helper behind it, which is what
-keeps `action.type === 'snippet/save'` - a redux action type, not an AST node - out of scope.
 
 ***
 
@@ -78,6 +43,36 @@ await page.keyboard.press('ControlOrMeta+v');
 ```js
 await page.keyboard.press('Control+v');
 await page.keyboard.press('ControlOrMeta+v');
+```
+
+***
+
+## remove-comments
+
+A rule in this directory says what the code already says. The name and the README section are
+where the *why* belongs; the code keeps the what. A comment explaining a chord no keyboard
+produces is the rule restated in prose, and it goes stale without failing.
+
+`leadingComments`, `trailingComments` and `innerComments` are all on the AST, so this is an
+ordinary rule - no script, no separate lint step.
+
+### ❌ Example of incorrect code
+
+```js
+// a browser reports Ctrl+V as "v"
+const MODIFIERS = [
+    'Control',
+    'Shift',
+];
+```
+
+### ✅ Example of correct code
+
+```js
+const MODIFIERS = [
+    'Control',
+    'Shift',
+];
 ```
 
 ***
@@ -138,6 +133,5 @@ are now a `--z-*` scale in `tokens.css`.
 
 ## Findings
 
-`docs/issues/putout-plugins.md` has what each rule found, plus the two things that are not
-rules: a putout rule cannot see comments, so `scripts/check-comments.js` covers that, and
-`apply-type-check` also fires on domain types that share a name with a node type.
+`docs/issues/putout-plugins.md` has what each rule found, plus the one thing that is not a
+rule here: `apply-type-check` also fires on domain types that share a name with a node type.

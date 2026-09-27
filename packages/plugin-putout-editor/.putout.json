@@ -5,7 +5,11 @@
     "match": {
         "README.md": {
             "declare": "off",
+            "putout-editor/remove-comments": "off",
             "regexp/apply-literal-notation": "off"
+        },
+        "test/*.js": {
+            "putout-editor/remove-comments": "off"
         }
     }
 }
