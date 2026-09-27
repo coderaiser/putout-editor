@@ -24,11 +24,12 @@ test('local docs: schema has optional section field', (t) => {
     t.end();
 });
 
-test('local docs: schema restricts section to api and errors', (t) => {
+test('local docs: schema restricts section to style, api and errors', (t) => {
     const result = [...schema.shape.section.unwrap().options].sort();
     const expected = [
         'api',
         'errors',
+        'style',
     ];
     
     t.deepEqual(result, expected);
@@ -112,5 +113,48 @@ test('local docs: api section is not the overview', (t) => {
     });
     
     t.notMatch(result.content[0].text, 'get_example');
+    t.end();
+});
+
+test('local docs: returns style section', (t) => {
+    const result = handler({
+        section: 'style',
+    });
+    
+    t.match(result.content[0].text, 'idiomatic putout plugin');
+    t.end();
+});
+
+test('local docs: style says a rule imports from putout only', (t) => {
+    const result = handler({
+        section: 'style',
+    });
+    
+    t.match(result.content[0].text, 'peerDependency');
+    t.end();
+});
+
+test('local docs: style names the two package shapes', (t) => {
+    const result = handler({
+        section: 'style',
+    });
+    
+    t.match(result.content[0].text, 'lib/index.js');
+    t.end();
+});
+
+test('local docs: style points at the full guide in the repo', (t) => {
+    const result = handler({
+        section: 'style',
+    });
+    
+    t.match(result.content[0].text, 'docs/putout-style.md');
+    t.end();
+});
+
+test('local docs: overview advertises the style section', (t) => {
+    const result = handler();
+    
+    t.match(result.content[0].text, 'style');
     t.end();
 });
