@@ -8,6 +8,12 @@
         },
         "test/*.js": {
             "putout-editor/remove-comments": "off"
+        },
+        "**/*.spec.js": {
+            "putout-editor/remove-comments": "off"
+        },
+        "lib/*/fixture/*": {
+            "putout-editor/remove-comments": "off"
         }
     }
 }

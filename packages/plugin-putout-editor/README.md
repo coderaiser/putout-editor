@@ -33,6 +33,9 @@ A browser reports Ctrl+V as `v`. Playwright's `press('Control+V')` sends `V` wit
 keydown, which is a chord no keyboard produces: it matches no binding and fails silently,
 because the browser just fires a paste instead.
 
+The rule is off in the `*.md` match in the repository's root `.putout.json`, because this very
+section is a fence the rule would otherwise correct — see `docs/issues/markdown.md`.
+
 ### ❌ Example of incorrect code
 
 ```js

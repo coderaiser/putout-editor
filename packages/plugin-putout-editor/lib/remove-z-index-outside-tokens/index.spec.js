@@ -2,7 +2,7 @@ import {Buffer} from 'node:buffer';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
-import * as removeZIndexOutsideTokens from '../lib/remove-z-index-outside-tokens/index.js';
+import * as removeZIndexOutsideTokens from './index.js';
 
 const plugin = ['remove-z-index-outside-tokens', removeZIndexOutsideTokens];
 
@@ -31,7 +31,7 @@ const contentOf = (source) => {
         .toString();
 };
 
-test('plugin-putout-editor: report: remove-z-index-outside-tokens', (t) => {
+test('putout-editor: remove-z-index-outside-tokens: report', (t) => {
     const result = scan('dialog.css', CSS_WITH_Z_INDEX)[0].message;
     const expected = `☝️ ${ROOT}/dialog.css: z-index belongs in tokens.css, reach for a var() instead`;
     
@@ -39,7 +39,7 @@ test('plugin-putout-editor: report: remove-z-index-outside-tokens', (t) => {
     t.end();
 });
 
-test('plugin-putout-editor: no report: remove-z-index-outside-tokens in tokens.css', (t) => {
+test('putout-editor: remove-z-index-outside-tokens: no report in tokens.css', (t) => {
     const result = scan('tokens.css', CSS_WITH_Z_INDEX).length;
     const expected = 0;
     
@@ -47,7 +47,7 @@ test('plugin-putout-editor: no report: remove-z-index-outside-tokens in tokens.c
     t.end();
 });
 
-test('plugin-putout-editor: no report: remove-z-index-outside-tokens for a var', (t) => {
+test('putout-editor: remove-z-index-outside-tokens: no report for a var', (t) => {
     const result = scan('dialog.css', '.a {\n    z-index: var(--z-dialog);\n}\n').length;
     const expected = 0;
     
@@ -55,7 +55,7 @@ test('plugin-putout-editor: no report: remove-z-index-outside-tokens for a var',
     t.end();
 });
 
-test('plugin-putout-editor: remove-z-index-outside-tokens: report only', (t) => {
+test('putout-editor: remove-z-index-outside-tokens: report only', (t) => {
     const {code} = putout(sourceOf(
         'dialog.css',
         CSS_WITH_Z_INDEX,

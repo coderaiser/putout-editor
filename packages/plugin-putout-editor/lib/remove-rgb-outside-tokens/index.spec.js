@@ -2,7 +2,7 @@ import {Buffer} from 'node:buffer';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
-import * as removeRgbOutsideTokens from '../lib/remove-rgb-outside-tokens/index.js';
+import * as removeRgbOutsideTokens from './index.js';
 
 const plugin = ['remove-rgb-outside-tokens', removeRgbOutsideTokens];
 
@@ -41,7 +41,7 @@ const contentOf = (source) => {
         .toString();
 };
 
-test('plugin-putout-editor: report: remove-rgb-outside-tokens', (t) => {
+test('putout-editor: remove-rgb-outside-tokens: report', (t) => {
     const result = scan('main.css', CSS_WITH_RGB)[0].message;
     const expected = `☝️ ${ROOT}/main.css: colours belong in tokens.css, reach for a var() instead`;
     
@@ -49,7 +49,7 @@ test('plugin-putout-editor: report: remove-rgb-outside-tokens', (t) => {
     t.end();
 });
 
-test('plugin-putout-editor: no report: remove-rgb-outside-tokens in tokens.css', (t) => {
+test('putout-editor: remove-rgb-outside-tokens: no report in tokens.css', (t) => {
     const result = scan('tokens.css', CSS_WITH_RGB).length;
     const expected = 0;
     
@@ -57,7 +57,7 @@ test('plugin-putout-editor: no report: remove-rgb-outside-tokens in tokens.css',
     t.end();
 });
 
-test('plugin-putout-editor: no report: remove-rgb-outside-tokens for a var', (t) => {
+test('putout-editor: remove-rgb-outside-tokens: no report for a var', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--color-accent);\n}\n').length;
     const expected = 0;
     
@@ -65,7 +65,7 @@ test('plugin-putout-editor: no report: remove-rgb-outside-tokens for a var', (t)
     t.end();
 });
 
-test('plugin-putout-editor: report only: the token is a human call', (t) => {
+test('putout-editor: remove-rgb-outside-tokens: report only: the token is a human call', (t) => {
     const {code} = run('main.css', CSS_WITH_RGB, {
         fix: true,
     });

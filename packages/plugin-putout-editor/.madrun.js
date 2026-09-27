@@ -1,7 +1,7 @@
 import {run} from 'madrun';
 
 export default {
-    'test': () => `tape 'test/*.js'`,
+    'test': () => `tape 'test/*.js' 'lib/**/*.spec.js'`,
     'test:dts': async () => 'echo "no types"',
     'watch:test': async () => `nodemon -w lib -w test -x "${await run('test')}"`,
     'build': async () => `node -e "import('./lib/index.js').then(({rules}) => console.log(Object.keys(rules).join(' ')))"`,

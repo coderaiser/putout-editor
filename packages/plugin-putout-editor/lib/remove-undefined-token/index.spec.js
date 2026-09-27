@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
-import * as removeUndefinedToken from '../lib/remove-undefined-token/index.js';
+import * as removeUndefinedToken from './index.js';
 
 const plugin = ['remove-undefined-token', removeUndefinedToken];
 
@@ -23,7 +23,7 @@ const scan = (name, content) => putout(sourceOf(name, content), {
     ],
 }).places;
 
-test('plugin-putout-editor: report: remove-undefined-token', (t) => {
+test('putout-editor: remove-undefined-token: report', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--color-accent);\n}\n').length;
     const expected = 0;
     
@@ -31,7 +31,7 @@ test('plugin-putout-editor: report: remove-undefined-token', (t) => {
     t.end();
 });
 
-test('plugin-putout-editor: report: remove-undefined-token: undefined', (t) => {
+test('putout-editor: remove-undefined-token: report: undefined', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--color-nope);\n}\n')[0].message;
     const expected = `☝️ ${ROOT}/main.css: not in tokens.css: --color-nope`;
     
@@ -39,7 +39,7 @@ test('plugin-putout-editor: report: remove-undefined-token: undefined', (t) => {
     t.end();
 });
 
-test('plugin-putout-editor: report: remove-undefined-token: once per token', (t) => {
+test('putout-editor: remove-undefined-token: report: once per token', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--nope);\n    background: var(--nope);\n}\n')[0].message;
     const expected = `☝️ ${ROOT}/main.css: not in tokens.css: --nope`;
     
@@ -47,7 +47,7 @@ test('plugin-putout-editor: report: remove-undefined-token: once per token', (t)
     t.end();
 });
 
-test('plugin-putout-editor: report: remove-undefined-token: skips tokens.css', (t) => {
+test('putout-editor: remove-undefined-token: report: skips tokens.css', (t) => {
     const result = scan('tokens.css', '.a {\n    color: var(--color-nope);\n}\n').length;
     const expected = 0;
     
@@ -55,7 +55,7 @@ test('plugin-putout-editor: report: remove-undefined-token: skips tokens.css', (
     t.end();
 });
 
-test('plugin-putout-editor: no report: remove-undefined-token: no tokens.css', (t) => {
+test('putout-editor: remove-undefined-token: no report: no tokens.css', (t) => {
     const source = print(parseFilesystem([
         '/',
         `${ROOT}/`,
@@ -78,7 +78,7 @@ test('plugin-putout-editor: no report: remove-undefined-token: no tokens.css', (
     t.end();
 });
 
-test('plugin-putout-editor: report: remove-undefined-token: empty tokens.css', (t) => {
+test('putout-editor: remove-undefined-token: report: empty tokens.css', (t) => {
     const source = print(parseFilesystem([
         '/',
         `${ROOT}/`,
@@ -100,7 +100,7 @@ test('plugin-putout-editor: report: remove-undefined-token: empty tokens.css', (
     t.end();
 });
 
-test('plugin-putout-editor: remove-undefined-token: report only, the file is unchanged', (t) => {
+test('putout-editor: remove-undefined-token: report only, the file is unchanged', (t) => {
     const css = '.a {\n    color: var(--color-nope);\n}\n';
     const {code} = putout(sourceOf('main.css', css), {
         fixCount: 1,
