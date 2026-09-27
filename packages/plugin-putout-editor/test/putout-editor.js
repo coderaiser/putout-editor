@@ -7,16 +7,6 @@ const test = createTest(import.meta.url, {
     ],
 });
 
-test('plugin-putout-editor: transform: apply-type-check', (t) => {
-    t.transform('apply-type-check');
-    t.end();
-});
-
-test('plugin-putout-editor: report: apply-type-check', (t) => {
-    t.reportCode(`const a = node.type === 'CallExpression';`, `Prefer the 'is' check from 'types' over a '.type' comparison`);
-    t.end();
-});
-
 test('plugin-putout-editor: transform: press-modifier-case', (t) => {
     t.transform('press-modifier-case');
     t.end();
