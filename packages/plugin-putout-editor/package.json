@@ -18,6 +18,7 @@
     "test": "madrun test",
     "watch:test": "madrun watch:test",
     "build": "madrun build",
+    "test:dts": "madrun test:dts",
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint",
     "fresh:lint": "madrun fresh:lint",

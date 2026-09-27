@@ -4,6 +4,7 @@ export default {
     'test': () => `tape 'test/*.js'`,
     'watch:test': async () => `nodemon -w lib -w test -x "${await run('test')}"`,
     'build': async () => `node -e "import('./lib/index.js').then(({rules}) => console.log(Object.keys(rules).join(' ')))"`,
+    'test:dts': async () => 'echo "no types"',
     'lint': () => `node scripts/check-comments.js && putout .`,
     'fix:lint': () => `node scripts/check-comments.js && putout . --fix`,
     'fresh:lint': () => run('lint', '--fresh'),
