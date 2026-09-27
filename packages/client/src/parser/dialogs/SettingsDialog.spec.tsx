@@ -7,8 +7,8 @@ import {
     act,
 } from '@testing-library/react';
 import {makeStore, type TestStore} from '#test/store';
+import {setParserSettings} from '#store';
 import SettingsDialog from './SettingsDialog.tsx';
-import {setParserSettings} from '../../store/reducers.ts';
 
 function makeSettingsStore() {
     return makeStore({
@@ -224,3 +224,4 @@ test('SettingsDialog: syncs parserSettings from store', async (t) => {
     t.equal(result, 'module');
     t.end();
 });
+

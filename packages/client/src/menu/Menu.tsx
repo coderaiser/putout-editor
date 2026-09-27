@@ -1,7 +1,18 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {TbQuestionMark} from 'react-icons/tb';
 import type {ReactElement} from 'react';
-import * as parserSelectors from '#store';
+import {
+    canSave,
+    getParser,
+    getTransformer,
+    openSettingsDialog,
+    openShareDialog,
+    selectTransformer,
+    hideTransformer,
+    setParser,
+    reset,
+    setKeyMap,
+} from '#store';
 import ParserButton from '../parser/buttons/ParserButton.tsx';
 import SnippetButton from '../snippet/buttons/SnippetButton.tsx';
 import TransformButton from '../editor-transform/TransformButton.tsx';
@@ -17,23 +28,14 @@ import {
 import * as selectors from '../store/selectors.ts';
 import {logEvent} from '../snippet/logger.ts';
 import type {KeyMap} from '../types.ts';
-import {
-    openSettingsDialog,
-    openShareDialog,
-    selectTransformer,
-    hideTransformer,
-    setParser,
-    reset,
-    setKeyMap,
-} from '../store/reducers.ts';
 
 export default function Toolbar() {
     const forking = useSelector(selectors.isForking);
     const saving = useSelector(selectors.isSaving);
-    const canSave = useSelector(parserSelectors.canSave);
+    const canSaveSnippet = useSelector(canSave);
     const canFork = useSelector(selectors.canFork);
-    const parser = useSelector(parserSelectors.getParser);
-    const transformer = useSelector(parserSelectors.getTransformer);
+    const parser = useSelector(getParser);
+    const transformer = useSelector(getTransformer);
     const keyMap = useSelector(selectors.getKeyMap);
     const showTransformerVal = useSelector(selectors.showTransformer);
     const snippet = useSelector(selectors.getRevision);
@@ -120,7 +122,7 @@ export default function Toolbar() {
             <div id="Toolbar" data-testid="toolbar">
                 <h1>🐊Putout Editor</h1>
                 <SnippetButton
-                    canSave={canSave as boolean}
+                    canSave={canSaveSnippet as boolean}
                     canFork={canFork as boolean}
                     saving={saving}
                     forking={forking}

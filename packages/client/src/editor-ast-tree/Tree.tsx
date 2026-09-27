@@ -1,10 +1,10 @@
 import './css/tree.css';
 import {useDispatch} from 'react-redux';
 import React from 'react';
+import {clearHighlight} from '#store';
 import Element from './tree/Element.tsx';
 import {logEvent} from '../snippet/logger.ts';
 import {treeAdapterFromParseResult} from '../parser/TreeAdapter.ts';
-import {clearHighlight} from '../store/reducers.ts';
 import type {
     ElementSettings,
     TreeAdapter,
@@ -125,3 +125,4 @@ export default function Tree({focusPath, parseResult}: TreeProps) {
         </div>
     );
 }
+

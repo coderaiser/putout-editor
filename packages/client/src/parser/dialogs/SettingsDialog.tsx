@@ -1,11 +1,11 @@
 import './SettingsDialog.css';
 import {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {getParser} from '#store';
 import {
+    getParser,
     closeSettingsDialog,
     setParserSettings,
-} from '../../store/reducers.ts';
+} from '#store';
 import {
     showSettingsDialog,
     getParserSettings,

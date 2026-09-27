@@ -2,8 +2,6 @@ import {test, stub} from 'supertape';
 import {type UnknownAction} from '@reduxjs/toolkit';
 import {makeStore as makeTestStore} from '#test/store';
 import {
-    revive,
-    persist,
     setCode,
     setCursor,
     hideTransformer,
@@ -22,8 +20,9 @@ import {
     startSave,
     endSave,
     setHighlight,
-    type State,
 } from './reducers.ts';
+import {revive, persist} from './revive.ts';
+import type {State} from './state.ts';
 
 // --- helpers ---
 // makeStore() is the ONLY function that changes between Redux, RTK, and Zustand.

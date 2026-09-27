@@ -7,8 +7,8 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {makeStore, type TestStore} from '#test/store';
+import {type Revision} from '#store';
 import MobileMenu from './MobileMenu.tsx';
-import {type Revision} from '../store/reducers.ts';
 
 const loadCss = (file: string) => {
     if (document.getElementById(`test-css-${file}`))
@@ -723,3 +723,4 @@ test('MobileMenu: theme button toggles back to light', (t) => {
     t.equal(theme, 'light');
     t.end();
 });
+

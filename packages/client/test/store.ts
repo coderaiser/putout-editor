@@ -8,7 +8,7 @@ import {
     revive,
     type RootState,
     type TransformState,
-} from '../src/store/reducers.ts';
+} from '#store';
 
 /**
  * State overrides merged over the reducer's initial state.

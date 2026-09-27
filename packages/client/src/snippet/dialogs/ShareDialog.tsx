@@ -3,7 +3,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {
     closeShareDialog,
     type Revision,
-} from '../../store/reducers.ts';
+} from '#store';
 import {
     showShareDialog,
     getRevision,

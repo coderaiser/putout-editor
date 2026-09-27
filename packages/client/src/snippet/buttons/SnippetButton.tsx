@@ -6,11 +6,11 @@ import {
     TbGitFork,
     TbLoader2,
 } from 'react-icons/tb';
+import type {Revision} from '#store';
 import ForkButton from './ForkButton.tsx';
 import NewButton from './NewButton.tsx';
 import SaveButton from './SaveButton.tsx';
 import ShareButton from './ShareButton.tsx';
-import type {Revision} from '../../store/reducers.ts';
 import {useToolbarMenu} from '../../store/ToolbarMenuContext.tsx';
 
 interface SnippetButtonProps {
@@ -113,3 +113,4 @@ export default function SnippetButton(props: SnippetButtonProps) {
         </div>
     );
 }
+

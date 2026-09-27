@@ -1,7 +1,5 @@
 import './GistBanner.css';
-
 /* eslint-disable */
-
 /**
  * Data storage is moved from Parse to Gists. It won't be possible anymore to
  * save new revisions of existing Parse snippets. We let the visitor know.
@@ -14,9 +12,16 @@ import {
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {TbX} from 'react-icons/tb';
+import type {RootState, Revision} from '#store';
 import {getRevision} from '../store/selectors.ts';
-import type {RootState, Revision} from '../store/reducers.ts';
 
+
+/* eslint-disable */
+
+/**
+ * Data storage is moved from Parse to Gists. It won't be possible anymore to
+ * save new revisions of existing Parse snippets. We let the visitor know.
+ */
 const buttonStyle: React.CSSProperties = {
     backgroundColor: 'transparent',
     border: 'none',
@@ -69,3 +74,4 @@ GistBanner.propTypes = {
 export default connect((state: RootState) => ({
     revision: getRevision(state),
 }))(GistBanner);
+

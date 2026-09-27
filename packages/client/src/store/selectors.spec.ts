@@ -23,9 +23,9 @@ import {
 } from './selectors.ts';
 import {
     putoutEditor,
-    type ParseResult,
     type RootState,
 } from './reducers.ts';
+import type {ParseResult} from './state.ts';
 
 function makeState(overrides: {
     activeRevision?: object | null;

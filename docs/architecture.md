@@ -166,9 +166,13 @@ transform plugin →  transform (src/transformer) →  workbench.transform
 - `src/store` — the redux layer, in three concerns. `state.ts` holds the state types
   and `initialState`, `revive.ts` the persistence (`persist`/`revive`, and `revive()`
   derives `initialCode`/`parserSettings` from other state — see its JSDoc), and
-  `reducers.ts` the slice itself. **`reducers.ts` is also the barrel**: the 30-odd files
-  that need a type or an action import it from there and re-export what `state.ts` and
-  `revive.ts` own, so those two can move without touching a single importer.
+  `reducers.ts` the slice itself. **`index.ts` is the barrel**, and it is the only way in
+  from outside the directory: it re-exports the state types and `persist`/`revive`
+  straight from the file that defines each, so `reducers.ts` holds nothing but the slice.
+  That used to be the other way round — `reducers.ts` was both the slice and the barrel,
+  and 26 of its 42 importers reached past the barrel to get a type, which is why it was
+  the second most-touched file in the repository. Inside `src/store`, imports still come
+  from the defining file, because going through the barrel there is a cycle.
   `parserSelectors.ts` and `parserMiddleware.ts` live here too, not under `parser/`,
   because they take a `RootState` — that is what keeps `store → parser` one-way.
 - `src/app` — the composition root, one concern per file: `createStore.ts` builds the

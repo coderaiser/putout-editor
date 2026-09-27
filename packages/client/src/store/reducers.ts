@@ -17,20 +17,7 @@ import {
     type ResetPayload,
 } from './state.ts';
 
-// The two concerns that used to sit in this file. `initialState` and the state
-// types live in ./state.ts, the storage migration in ./revive.ts, and both are
-// re-exported below so the 34 files importing this path are unaffected.
-export {persist, revive} from './revive.ts';
-export type {
-    ParseResult,
-    ParserSettings,
-    Range,
-    ResetPayload,
-    Revision,
-    State,
-    TransformState,
-    WorkbenchState,
-} from './state.ts';
+// The slice, and nothing else. `./index.ts` re-exports what `./state.ts` and `./revive.ts` own, and every importer outside this directory goes through `#store` — do not add a re-export back, because these names being reachable only from here is what made this file the second most-touched in the repository.
 
 const isString = (a: unknown): a is string => typeof a === 'string';
 

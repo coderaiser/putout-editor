@@ -1,12 +1,12 @@
+import type {
+    ParserSettings,
+    Revision as StoreRevision,
+} from '#store';
 import api from './api.ts';
 import {
     getTransformerByID,
     getParserByID,
 } from '../../parser/parsers/index.ts';
-import type {
-    ParserSettings,
-    Revision as StoreRevision,
-} from '../../store/reducers.ts';
 
 type URLParameters = {
     id: string;
@@ -159,3 +159,4 @@ export class Revision implements StoreRevision {
         };
     }
 }
+

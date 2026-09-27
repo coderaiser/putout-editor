@@ -6,8 +6,8 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {makeStore, type TestStore} from '#test/store';
+import {type Revision} from '#store';
 import ShareDialog from './ShareDialog.tsx';
-import {type Revision} from '../../store/reducers.ts';
 
 const makeSnippet = (): Revision => ({
     canSave: () => true,
@@ -171,3 +171,4 @@ test('ShareDialog: click on inner dialog: does not close', (t) => {
     t.ok(showShareDialog);
     t.end();
 });
+

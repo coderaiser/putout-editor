@@ -4,8 +4,8 @@ import {
     makeStore as makeTestStore,
     type StoreOverrides,
 } from '#test/store';
+import {clearError} from '#store';
 import {createSnippetListener} from './snippetMiddleware.ts';
-import {clearError} from '../store/reducers.ts';
 import {log} from './logger.ts';
 
 const noop = () => {};
@@ -392,3 +392,4 @@ test('snippetMiddleware: save error triggers setError', async (t) => {
     t.ok(error);
     t.end();
 });
+

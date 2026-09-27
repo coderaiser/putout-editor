@@ -6,11 +6,11 @@ import {
 } from '#test/store';
 import {parserListener} from './parserMiddleware.ts';
 import {getParserByID} from '../parser/parsers/index.ts';
+import type {ParserSettings} from './state.ts';
 import {
     setCode,
     setParser,
     setParserSettings,
-    type ParserSettings,
     type RootState,
 } from './reducers.ts';
 
@@ -469,3 +469,4 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     t.notOk(stale);
     t.end();
 });
+

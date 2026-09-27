@@ -1,7 +1,7 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
+import {setKeyMap} from '#store';
 import {createAppStore} from './createStore.ts';
-import {setKeyMap} from '../store/reducers.ts';
 import {initialState} from '../store/state.ts';
 
 test('createAppStore: reduces with the editor slice', (t) => {
@@ -53,3 +53,4 @@ test('createAppStore: parses the code it is given', async (t) => {
     t.equal(typeof result, expected);
     t.end();
 });
+

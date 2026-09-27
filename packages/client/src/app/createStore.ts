@@ -1,5 +1,5 @@
 import {configureStore} from '@reduxjs/toolkit';
-import {putoutEditor, revive} from '../store/reducers.ts';
+import {putoutEditor, revive} from '#store';
 import type {State} from '../store/state.ts';
 import {parserListener} from '../store/parserMiddleware.ts';
 import {formatListener} from '../store/formatMiddleware.ts';

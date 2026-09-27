@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import {TbShare2} from 'react-icons/tb';
-import type {Revision} from '../../store/reducers.ts';
+import type {Revision} from '#store';
 
 interface ShareButtonProps {
     onShareButtonClick?: () => void;

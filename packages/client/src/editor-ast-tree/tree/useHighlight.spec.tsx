@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {makeStore, type TestStore} from '#test/store';
-import {type RootState} from '../../store/reducers.ts';
+import {type RootState} from '#store';
 import useHighlight from './useHighlight.ts';
 import {type TreeAdapter, type NodeRange} from './types.ts';
 

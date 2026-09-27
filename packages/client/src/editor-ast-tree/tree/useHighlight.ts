@@ -1,5 +1,5 @@
 import {useDispatch} from 'react-redux';
-import {setHighlight, clearHighlight} from '../../store/reducers.ts';
+import {setHighlight, clearHighlight} from '#store';
 import type {TreeAdapter} from './types.ts';
 
 export default function useHighlight(treeAdapter: TreeAdapter, value: unknown) {

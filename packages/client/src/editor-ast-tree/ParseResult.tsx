@@ -1,7 +1,7 @@
 /**
  * Describes the result of a parse process. Only exists here for documentation
  * purposes. The field names mirror the real `ParseResult` type from
- * `../store/reducers.ts` — keep them in sync.
+ * `../store/state.ts` — keep them in sync.
  */
 export const ParseResult = {
     /**

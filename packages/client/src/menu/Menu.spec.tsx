@@ -6,8 +6,8 @@ import {
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import {makeStore, type TestStore} from '#test/store';
+import {type Revision} from '#store';
 import Menu from './Menu.tsx';
-import {type Revision} from '../store/reducers.ts';
 
 const makeRevision = (overrides: Partial<Revision> = {}): Revision => ({
     canSave: () => true,
@@ -245,3 +245,4 @@ test('Menu: transform button dispatches selectTransformer', (t) => {
     t.pass('transform button');
     t.end();
 });
+

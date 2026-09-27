@@ -5,8 +5,8 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import type {ReactElement} from 'react';
+import type {Revision} from '#store';
 import SnippetButton from './SnippetButton.tsx';
-import type {Revision} from '../../store/reducers.ts';
 import {ToolbarMenuProvider} from '../../store/ToolbarMenuContext.tsx';
 
 const render = (ui: ReactElement) => testingRender(
@@ -312,3 +312,4 @@ test('SnippetButton: Space opens menu', (t) => {
     t.ok(result);
     t.end();
 });
+

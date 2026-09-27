@@ -1,13 +1,8 @@
 import {createListenerMiddleware} from '@reduxjs/toolkit';
 import {tryToCatch} from 'try-to-catch';
-import {getParser, getTransformer} from '#store';
 import {
-    loadSnippetFromURL,
-    saveRevision,
-    type StorageAdapter,
-} from '../store/operations.ts';
-import {logEvent, logError} from './logger.ts';
-import {
+    getParser,
+    getTransformer,
     type RootState,
     type Revision as StoreRevision,
     setError,
@@ -18,7 +13,13 @@ import {
     clearSnippet,
     startSave,
     endSave,
-} from '../store/reducers.ts';
+} from '#store';
+import {
+    loadSnippetFromURL,
+    saveRevision,
+    type StorageAdapter,
+} from '../store/operations.ts';
+import {logEvent, logError} from './logger.ts';
 import {
     getParserSettings,
     getCode,

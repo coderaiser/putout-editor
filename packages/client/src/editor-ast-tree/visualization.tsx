@@ -1,6 +1,6 @@
 import EditorASTJson from '#editor-ast-json';
+import type {ParseResult} from '#store';
 import Tree from './Tree.tsx';
-import type {ParseResult} from '../store/reducers.ts';
 
 export type VisualizationProps = {
     parseResult: ParseResult;
@@ -21,3 +21,4 @@ TreeWithName.displayName = 'Tree';
 JsonWithName.displayName = 'JSON';
 
 export default [TreeWithName, JsonWithName];
+

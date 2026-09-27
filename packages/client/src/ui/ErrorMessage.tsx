@@ -1,7 +1,7 @@
 import './ErrorMessage.css';
 import {useSelector, useDispatch} from 'react-redux';
 import {TbAlertTriangle} from 'react-icons/tb';
-import {clearError} from '../store/reducers.ts';
+import {clearError} from '#store';
 import {getError} from '../store/selectors.ts';
 
 export default function ErrorMessage() {

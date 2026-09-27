@@ -1,5 +1,5 @@
 import {estreeToBabel} from 'estree-to-babel';
-import type {ParserSettings} from './reducers.ts';
+import type {ParserSettings} from './state.ts';
 import type {ParserWithLoader} from '../parser/contract.ts';
 import type {StorageData} from '../snippet/storage/index.ts';
 import {

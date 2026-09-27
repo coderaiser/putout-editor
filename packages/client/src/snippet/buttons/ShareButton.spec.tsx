@@ -4,8 +4,8 @@ import {
     screen,
     cleanup,
 } from '@testing-library/react';
+import type {Revision} from '#store';
 import ShareButton from './ShareButton.tsx';
-import type {Revision} from '../../store/reducers.ts';
 
 const noop = () => {};
 
@@ -143,3 +143,4 @@ test('ShareButton: onShareButtonClick takes precedence over onShare', (t) => {
     t.ok(shareButtonClicked);
     t.end();
 });
+

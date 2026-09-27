@@ -14,7 +14,14 @@ import {
     TbShare2,
 } from 'react-icons/tb';
 import {useState, useEffect} from 'react';
-import * as parserSelectors from '#store';
+import {
+    canSave,
+    getParser,
+    openSettingsDialog,
+    openShareDialog,
+    setParser,
+    reset,
+} from '#store';
 import MobileDropdown from './MobileDropdown.tsx';
 import {
     categories,
@@ -24,12 +31,6 @@ import {
 import {getParserByID} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import {logEvent} from '../snippet/logger.ts';
-import {
-    openSettingsDialog,
-    openShareDialog,
-    setParser,
-    reset,
-} from '../store/reducers.ts';
 
 const THEME_KEY = 'theme';
 
@@ -56,9 +57,9 @@ export default function MobileMenu() {
     const dispatch = useDispatch();
     const saving = useSelector(selectors.isSaving);
     const forking = useSelector(selectors.isForking);
-    const canSave = useSelector(parserSelectors.canSave);
+    const canSaveSnippet = useSelector(canSave);
     const canFork = useSelector(selectors.canFork);
-    const parser = useSelector(parserSelectors.getParser);
+    const parser = useSelector(getParser);
     
     const [theme, setTheme] = useState(readTheme);
     const [openMenu, setOpenMenu] = useState<'snippet' | 'parser' | 'new' | null>(null);
@@ -73,7 +74,7 @@ export default function MobileMenu() {
     
     const parsers = parser.category.parsers.filter((p) => p.showInMenu);
     
-    const canForkAndNotSave = canFork && !canSave;
+    const canForkAndNotSave = canFork && !canSaveSnippet;
     const savingOrForking = saving || forking;
     
     const onSave = () => dispatch({
@@ -160,7 +161,7 @@ export default function MobileMenu() {
                 <li role="menuitem">
                     <button
                         type="button"
-                        disabled={savingOrForking || !canSave && !canFork}
+                        disabled={savingOrForking || !canSaveSnippet && !canFork}
                         onClick={canForkAndNotSave ? onFork : onSave}
                     >
                         {savingOrForking
@@ -226,3 +227,4 @@ export default function MobileMenu() {
         </div>
     );
 }
+
