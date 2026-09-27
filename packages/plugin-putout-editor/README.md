@@ -36,8 +36,8 @@ because the browser just fires a paste instead.
 ### ❌ Example of incorrect code
 
 ```js
-await page.keyboard.press('Control+v');
-await page.keyboard.press('ControlOrMeta+v');
+await page.keyboard.press('Control+V');
+await page.keyboard.press('ControlOrMeta+V');
 ```
 
 ### ✅ Example of correct code
