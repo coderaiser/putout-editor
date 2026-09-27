@@ -194,7 +194,7 @@ test('snippet: New submenu selection is undoable', async ({page}) => {
         .getByTestId(EDITOR_TRANSFORM)
         .locator('.cm-content')
         .click();
-    await page.keyboard.press('ControlOrMeta+Z');
+    await page.keyboard.press('ControlOrMeta+z');
     
     const undone = await getTransformCode(page);
     

@@ -312,7 +312,7 @@ test('paste in editor-transform leaves editor-source untouched', async ({page, c
     
     // Focus the transform editor and paste there
     await (await editor.get(EDITOR_TRANSFORM)).press('i');
-    await page.keyboard.press('ControlOrMeta+V');
+    await page.keyboard.press('ControlOrMeta+v');
     await page.waitForTimeout(200);
     
     const result = await read();
@@ -331,7 +331,7 @@ test('paste in editor-transform inserts the clipboard text there', async ({page,
     
     await write('export const replace = () => ({});');
     await press('i');
-    await page.keyboard.press('ControlOrMeta+V');
+    await page.keyboard.press('ControlOrMeta+v');
     await page.waitForTimeout(200);
     
     const result = await read();
@@ -350,7 +350,7 @@ test('paste in editor-source inserts at the cursor instead of replacing', async 
     
     await write(SOURCE_CODE);
     await press('i');
-    await page.keyboard.press('ControlOrMeta+V');
+    await page.keyboard.press('ControlOrMeta+v');
     await page.waitForTimeout(200);
     
     const result = await read();
@@ -372,7 +372,7 @@ test('paste outside an editor still loads the clipboard as source', async ({page
             name: '🐊Putout Editor',
         })
         .click();
-    await page.keyboard.press('ControlOrMeta+V');
+    await page.keyboard.press('ControlOrMeta+v');
     await page.waitForTimeout(200);
     
     const result = await read();
