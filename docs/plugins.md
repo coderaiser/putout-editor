@@ -89,7 +89,7 @@ is why the rules reach `packages/client` despite its own `.putout.json`.
 
 ### Two kinds of rule, and the difference is not a detail
 
-A **code** rule sees one file. `press-modifier-case` is one, and `putout .` runs it.
+A **code** rule sees one file. `apply-press-modifier-case` is one, and `putout .` runs it.
 
 A **filesystem** rule is about a *tree* - "colours only in `tokens.css`", "no `console.log`
 under `src/`". 🐊**Putout** rules deliberately know nothing about filenames, so a statement

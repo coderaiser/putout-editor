@@ -5,7 +5,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 
 | Rule                            | Kind       | What it found                                                         |
 |---------------------------------|------------|-----------------------------------------------------------------------|
-| `press-modifier-case`           | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
+| `apply-press-modifier-case`     | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
 | `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
 | `remove-duplicated-receiver`    | code       | the receiver a `?.` expansion duplicated, 29 times, by hand            |
 | `remove-rgb-outside-tokens`     | filesystem | the one hardcoded colour outside `css/tokens.css`                     |

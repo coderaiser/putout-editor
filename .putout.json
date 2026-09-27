@@ -12,7 +12,7 @@
         "*.md": {
             "destructuring/apply-object": "off",
             "regexp/apply-literal-notation": "off",
-            "putout-editor/press-modifier-case": "off",
+            "putout-editor/apply-press-modifier-case": "off",
             "putout-editor/remove-comments": "off",
             "putout-editor/remove-duplicated-receiver": "off",
             "putout/declare": "off"

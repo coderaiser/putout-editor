@@ -289,7 +289,7 @@ suite went from green to 104 failures ("multiple elements with the role button",
 | `packages/mcp` | the mcp server; its `get_example('markdown')` now reads the installed rule rather than a copy |
 
 Two kinds of rule live in that plugin, and the difference matters. A **code** rule
-(`press-modifier-case`) sees one AST and runs under `putout .`. A **filesystem** rule
+(`apply-press-modifier-case`) sees one AST and runs under `putout .`. A **filesystem** rule
 (`remove-rgb-outside-tokens`) is built on `matchFiles` and needs the filesystem AST, so it only
 runs under `redlint` — which `packages/client` does in its `fix:lint`.
 

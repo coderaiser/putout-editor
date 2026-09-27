@@ -18,7 +18,7 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 
 ## Rules
 
-- ✅ [press-modifier-case](#press-modifier-case);
+- ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [remove-comments](#remove-comments);
 - ✅ [remove-duplicated-receiver](#remove-duplicated-receiver);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
@@ -27,7 +27,7 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 
 ***
 
-## press-modifier-case
+## apply-press-modifier-case
 
 A browser reports Ctrl+V as `v`. Playwright's `press('Control+V')` sends `V` with no Shift
 keydown, which is a chord no keyboard produces: it matches no binding and fails silently,

@@ -86,7 +86,9 @@ Two things actually made the report look right, and both are worth writing down:
    delivers `event.key === 'V'`, which matches no codemirror-vim binding — the mapper
    holds `<C-v>`. Nothing handled the key, the browser fired its `paste`, and vim
    landed in **insert mode**, so the following `j`, `j`, `x` were *typed* into the
-   buffer (`ajjxbc`). A real Ctrl+V reports `'v'`.
+   buffer (`ajjxbc`). A real Ctrl+V reports `'v'`. That measurement is now the rule
+   [`apply-press-modifier-case`](../../packages/plugin-putout-editor/README.md#apply-press-modifier-case),
+   so a `press('Control+V')` cannot come back.
 2. **The block is broken with `Control+q` too**, which is bound to the same
    `toggleVisualMode {blockwise: true}` action but fires no paste event at all. That
    single control rules out the whole paste path.
