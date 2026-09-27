@@ -392,4 +392,3 @@ test('snippetMiddleware: save error triggers setError', async (t) => {
     t.ok(error);
     t.end();
 });
-

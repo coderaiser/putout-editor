@@ -1,9 +1,6 @@
 import {createSelector} from '@reduxjs/toolkit';
 import type {RootState} from './reducers.ts';
-import type {
-    ParserSettings,
-    ParseResult,
-} from './state.ts';
+import type {ParserSettings, ParseResult} from './state.ts';
 
 // UI related
 export const getCursor = (state: RootState) => state.cursor;

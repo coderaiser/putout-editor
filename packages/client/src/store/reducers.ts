@@ -18,7 +18,6 @@ import {
 } from './state.ts';
 
 // The slice, and nothing else. `./index.ts` re-exports what `./state.ts` and `./revive.ts` own, and every importer outside this directory goes through `#store` — do not add a re-export back, because these names being reachable only from here is what made this file the second most-touched in the repository.
-
 const isString = (a: unknown): a is string => typeof a === 'string';
 
 const normalizeResetPayload = (payload?: string | ResetPayload): ResetPayload => {

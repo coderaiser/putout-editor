@@ -171,4 +171,3 @@ test('ShareDialog: click on inner dialog: does not close', (t) => {
     t.ok(showShareDialog);
     t.end();
 });
-

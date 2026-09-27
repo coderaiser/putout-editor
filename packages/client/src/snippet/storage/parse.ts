@@ -159,4 +159,3 @@ export class Revision implements StoreRevision {
         };
     }
 }
-

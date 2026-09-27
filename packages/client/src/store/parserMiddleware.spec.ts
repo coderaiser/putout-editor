@@ -469,4 +469,3 @@ test('parserMiddleware: parser change during async discards stale parse', async 
     t.notOk(stale);
     t.end();
 });
-

@@ -723,4 +723,3 @@ test('MobileMenu: theme button toggles back to light', (t) => {
     t.equal(theme, 'light');
     t.end();
 });
-

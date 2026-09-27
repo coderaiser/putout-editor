@@ -21,4 +21,3 @@ TreeWithName.displayName = 'Tree';
 JsonWithName.displayName = 'JSON';
 
 export default [TreeWithName, JsonWithName];
-

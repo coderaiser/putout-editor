@@ -312,4 +312,3 @@ test('SnippetButton: Space opens menu', (t) => {
     t.ok(result);
     t.end();
 });
-

@@ -245,4 +245,3 @@ test('Menu: transform button dispatches selectTransformer', (t) => {
     t.pass('transform button');
     t.end();
 });
-

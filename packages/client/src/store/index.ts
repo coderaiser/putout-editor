@@ -3,7 +3,6 @@ export * from './reducers.ts';
 export * from './selectors.ts';
 export * from './operations.ts';
 export * from './parserSelectors.ts';
-
 export {persist, revive} from './revive.ts';
 
 export type {
@@ -16,4 +15,3 @@ export type {
     TransformState,
     WorkbenchState,
 } from './state.ts';
-

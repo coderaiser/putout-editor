@@ -6,7 +6,6 @@ import {persist, revive} from './revive.ts';
 // in reducers.spec.ts. They used to be re-exported from reducers.ts, which is what
 // put them in the wrong file: the re-export is gone, and so is the reason to look
 // for them there.
-
 function getInitState() {
     const state = putoutEditor(undefined, {
         type: '@@INIT',

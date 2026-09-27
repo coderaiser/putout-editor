@@ -1,5 +1,7 @@
 import './GistBanner.css';
+
 /* eslint-disable */
+
 /**
  * Data storage is moved from Parse to Gists. It won't be possible anymore to
  * save new revisions of existing Parse snippets. We let the visitor know.
@@ -74,4 +76,3 @@ GistBanner.propTypes = {
 export default connect((state: RootState) => ({
     revision: getRevision(state),
 }))(GistBanner);
-

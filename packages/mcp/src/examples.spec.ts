@@ -217,11 +217,17 @@ test('local get-example: every example matches its own fixture', async (t) => {
 });
 
 // The mode a user runs. `find_places` accepts a `find` with no `fix`, and `transform`
+
 // does not - it throws `Looks like 'fix' is not a 'function'`, which is how the finder
+
 // example shipped broken. Compile and find_places both passed it.
+
 //
+
 // The property pinned here is "runs without throwing", not a per-pattern output: a
+
 // hand-written expected string is the get_example drift all over again, and the markdown
+
 // example already drifted that way once.
 test('local get-example: every example runs through transform', async (t) => {
     const results = await Promise.all(patterns.map(async (pattern) => {

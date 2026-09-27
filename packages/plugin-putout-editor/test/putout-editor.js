@@ -17,6 +17,7 @@ test('plugin-putout-editor: exports every rule', (t) => {
     const result = Object
         .keys(rules)
         .sort();
+    
     const expected = [...EXPECTED].sort();
     
     t.deepEqual(result, expected);

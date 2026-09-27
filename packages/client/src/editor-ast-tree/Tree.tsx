@@ -125,4 +125,3 @@ export default function Tree({focusPath, parseResult}: TreeProps) {
         </div>
     );
 }
-

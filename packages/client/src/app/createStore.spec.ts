@@ -53,4 +53,3 @@ test('createAppStore: parses the code it is given', async (t) => {
     t.equal(typeof result, expected);
     t.end();
 });
-

@@ -224,4 +224,3 @@ test('SettingsDialog: syncs parserSettings from store', async (t) => {
     t.equal(result, 'module');
     t.end();
 });
-

@@ -103,7 +103,10 @@ inserted before it. A concise **arrow body** is turned into a block, which is th
 declaration fits inside an expression:
 
 ```js
-const arrow = (el) => el().text && el().text.trim();
+const arrow = (el) => {
+    const {text} = el();
+    return text && text.trim();
+};
 ```
 
 ```js
@@ -125,7 +128,8 @@ what the rule was supposed to remove.
 ### ❌ Example of incorrect code
 
 ```js
-const value = getState().workbench && getState().workbench.code;
+const {workbench} = getState();
+const value = workbench && workbench.code;
 ```
 
 ### ✅ Example of correct code

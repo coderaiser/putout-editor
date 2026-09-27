@@ -113,4 +113,3 @@ export default function SnippetButton(props: SnippetButtonProps) {
         </div>
     );
 }
-

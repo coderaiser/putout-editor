@@ -143,4 +143,3 @@ test('ShareButton: onShareButtonClick takes precedence over onShare', (t) => {
     t.ok(shareButtonClicked);
     t.end();
 });
-
