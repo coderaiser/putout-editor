@@ -254,6 +254,14 @@ export default {
             'readline': false,
             'os': false,
             'constants': false,
+            // stylelint, which @putout/processor-css pulls in, imports these
+            // node only builtins; they are never reached in the browser
+            'crypto': false,
+            'stream': false,
+            'worker_threads': false,
+            'perf_hooks': false,
+            'async_hooks': false,
+            'zlib': false,
             'jscodeshift': false,
             'process/browser': resolve('process/browser'),
             'tty': resolve('tty-browserify'),
