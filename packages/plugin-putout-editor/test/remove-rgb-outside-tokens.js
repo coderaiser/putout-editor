@@ -69,6 +69,7 @@ test('plugin-putout-editor: report only: the token is a human call', (t) => {
     const {code} = run('main.css', CSS_WITH_RGB, {
         fix: true,
     });
+    
     const result = contentOf(code);
     const expected = CSS_WITH_RGB;
     
