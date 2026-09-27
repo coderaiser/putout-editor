@@ -202,6 +202,25 @@ So the two filenames are a contract, not a convention: an Editor snippet that do
 is readable by `fetch_snippet` (which resolves the filename) but is not something `redput` can
 turn into a rule.
 
+## When something looks like a putout plugin, write it up
+
+A rule can detect or fix it — do not work around it silently. The cases that keep coming up are
+a fixer that mangles instead of fixing, a message that does not locate its problem, a rule that
+only runs in a mode nobody runs, and a library contract that costs an afternoon to rediscover.
+
+Write it in `docs/issues/putout-plugins.md` under Ideas: the **minimum** thing that shows it,
+what you got, what you expected, and where the rule should live (upstream `putout`, or here when
+it is our lint config or the mcp). Do not fix it by disabling a rule, by loosening a spec, or by
+hand-editing what a fixer ought to have handled. An idea with no repro is not filed yet — it
+goes in the handover until something reproduces.
+
+**An mcp example is a proxy, not the artifact.** `get_example` ships hand-written copies of
+plugins that also exist as real rules, and they drift — the `markdown` copy in
+`packages/mcp/src/examples.ts` already reports a different message than the shipped one. So
+"verified via the mcp" is weaker than it sounds: `docs/issues/markdown.md` was marked ✅ on a
+copy and missed that the real rule never runs under `putout .`. When a claim rests on an mcp
+example, check the shipped plugin too.
+
 ## Verify before claiming done
 
 ```bash

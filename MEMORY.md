@@ -44,6 +44,12 @@ Concretely: `tape/extract-result-from-assertion` stays on even though it misfire
 `[]`, and the `js` fence language stays a real error. The right response to a gate is a
 finding in `docs/issues/`, not an `.putout.json` entry or a lenient spec.
 
+**And when the gate itself is the problem, that is an idea, not a workaround.** A fixer that
+cannot fix, a message that does not locate its target, a rule that only runs in a mode nobody
+runs — file it in `docs/issues/putout-plugins.md` and let it become a rule. Sitting on a known
+gap because fixing it properly is upstream's job is how the gap survives: the fence-language
+gate sat behind a "✅ verified" that had checked a hand-written copy rather than the rule.
+
 ## Style, from the maintainer
 
 - **Never use `try`/`catch`** in this codebase — `tryCatch` (sync) or `tryToCatch` (async)
