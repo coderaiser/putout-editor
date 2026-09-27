@@ -22,3 +22,7 @@ that matches — read [`docs/putout-map.md`](../putout-map.md) and
 
 [`docs/architecture.md`](../architecture.md) carries the mermaid diagrams: the four packages and
 how they relate, the client's enforced import graph, the server's modules, and the mcp's tools.
+
+For the meta level — what breaks, where it clusters, and what to do about it — see
+[`docs/lessons.md`](../lessons.md) and the [`docs/ideas.md`](../ideas.md) backlog it feeds.
+`AGENTS.md` says to add to that backlog without being asked.
