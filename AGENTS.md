@@ -323,12 +323,49 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
   trusting the exit code, and run `putout .` — never `--fix` — over `docs/`. Known
   breakages with minimal repros are written up in `docs/issues/`.
 
+## Surface an idea without being asked
+
+**When you notice something broken, slow, or repeated — say so and file it, rather than waiting
+to be asked.** The reasoning is in [`docs/lessons.md`](./docs/lessons.md): 84 of 123 `fix:`
+commits in the last month carry no reason at all, so the *why* is lost and the next person
+re-derives it. An idea nobody voiced is an hour nobody spends twice.
+
+So:
+
+- **A bug you fixed** → a finding in `docs/issues/`, minimum repro, as below.
+- **A pattern you saw more than once** → an entry in [`docs/ideas.md`](./docs/ideas.md) with the
+  count that produced it. "This file is fragile" is a hunch; "13 fixes in 30 days" is a fact
+  someone can act on.
+- **A check that passes but would not catch the real thing** → the most valuable kind, and it is
+  in the record twice already: a `find` with no `fix` passes `compile` and `find_places` and
+  throws in `transform`, which is the mode a user runs. Say which mode your check exercises.
+- **Something you tried that does not work** → file it **rejected**, with the error. Idea 3 in
+  `docs/ideas.md` is a wildcard `declare module` that looked obvious, is not, and would
+  otherwise be re-proposed by the next person.
+
+The file is append-only and an idea leaves it by being done or explicitly rejected. That is what
+stops it becoming a graveyard: every entry carries its evidence, so it can be re-evaluated
+rather than remembered.
+
+**Do not ask permission to record a finding.** Fixing the thing is the work; recording it is part
+of the job. Ask only before starting something that changes behaviour.
+
+## What broke, and why
+
+[`docs/lessons.md`](./docs/lessons.md) reads a month of fixes back for a pattern — the volume,
+where they cluster, and five causes that repeat. Read it before fixing something that has been
+fixed before, and check the hot-spot table before choosing a file.
+
+The one that wastes the most time: **a check that passes on a cheaper path than the user
+takes.** Compile is not execute. `find_places` is not `transform`. A plugin's own suite does not
+lint the repository. Ask which path a green test actually exercised before you trust it.
+
 ## Reporting a finding
 
 Put it in `docs/issues/`, one file per area — start from
 [`index.md`](./docs/issues/index.md). Give **the minimum possible code that reproduces it**,
 then **the result you got** (a diff is best) and **what you expected**. Only report what you
-verified reproduces; put unverified suspicions in the handover plan instead.
+verified reproduces; put unverified suspicions in `docs/ideas.md` instead.
 
 **Keep it to the problem, the result and the solution.** A finding is not a narrative, and a
 long one does not get read, so it does not get fixed. Experiences belong in `MEMORY.md`,
