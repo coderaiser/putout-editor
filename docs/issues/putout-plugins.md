@@ -9,6 +9,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
 | `remove-duplicated-receiver`    | code       | the receiver a `?.` expansion duplicated, 29 times, by hand            |
 | `remove-rgb-outside-tokens`     | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
+| `remove-undefined-token`        | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        |
 | `remove-z-index-outside-tokens` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      |
 
 `apply-type-check` was here too and is not any more: it is `@putout/plugin-putout` now, which

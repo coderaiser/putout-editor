@@ -3,11 +3,8 @@
         "putout-editor/remove-comments": "on"
     },
     "match": {
-        "README.md": {
-            "declare": "off",
-            "putout-editor/remove-comments": "off",
-            "putout-editor/remove-duplicated-receiver": "off",
-            "regexp/apply-literal-notation": "off"
+        "*.md": {
+            "putout-editor/remove-comments": "off"
         },
         "test/*.js": {
             "putout-editor/remove-comments": "off"

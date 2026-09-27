@@ -112,6 +112,39 @@ asserts the file comes back byte for byte.
 Choosing which token a colour becomes is a human decision, so `remove-rgb-outside-tokens` is
 report-only, and its test proves it changes nothing.
 
+## Dogfooding: run a rule here before a user does
+
+Every rule in this package runs on **this repository**, every commit, through the same lint CI
+runs. That is the point of putting them here rather than only upstream, and it is not free — it
+is the reason two of these rules exist at all.
+
+A rule that has never met real code is a guess. `remove-undefined-token` was written because
+colours and z-index were already policed and nothing policed the third thing: a `var(--x)` that
+`tokens.css` never defines. It found one on its first run — `var(--color-selection-bg)` in
+`codemirror.css`, sitting next to a `--color-selection-focused` that did exist. The browser
+drops the whole property, so that selector looked styled and was not. Nobody had noticed
+because there is no test for "the dark theme selection background renders".
+
+The loop is: **write the rule → run it here → whatever it finds is the real work.** The
+alternative is a user finding it, and filing it as a bug in the product rather than a gap in the
+ruleset.
+
+Two things follow, both learned the hard way.
+
+**A rule that fires on your own source is telling you about your source, not about the rule.**
+`remove-comments` fired on 50 places the first time `putout .` reached the whole repository,
+because the plugin is wired in from the root config and a new rule is on everywhere until it is
+scoped. That is not the rule misfiring. It is the rule working and the scope being wrong.
+
+**The test suite is blind to this by construction.** The plugin's own tests were green while
+`remove-comments` was breaking the repository, and green again while `remove-duplicated-receiver`
+crashed on its own source. `putout .` over the whole repository is the only check that sees it.
+Run that one, not the package suite.
+
+A rule with no current violations is still worth having — it is a guard, and its value shows up
+the next time a fixer rewrites the codebase. But say so in the commit, because a rule that found
+nothing reads like a rule that was never run.
+
 ## Where a rule belongs
 
 - **About this repository** -> `packages/plugin-putout-editor`. Wired in already.

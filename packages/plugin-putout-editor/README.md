@@ -22,6 +22,7 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 - ✅ [remove-comments](#remove-comments);
 - ✅ [remove-duplicated-receiver](#remove-duplicated-receiver);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
+- ✅ [remove-undefined-token](#remove-undefined-token);
 - ✅ [remove-z-index-outside-tokens](#remove-z-index-outside-tokens);
 
 ***
@@ -161,6 +162,40 @@ file - and therefore runs under `redlint`, not under `putout .`.
 
 Report-only: which token a colour becomes is a human decision, so the replacement is the
 node printed back unchanged.
+
+***
+
+## remove-undefined-token
+
+A `var(--x)` that no stylesheet defines is a declaration that renders nothing. The browser
+drops the whole property, so the rule exists because the cost is invisible: a selector that
+looks styled, and is not.
+
+This is the other half of `remove-rgb-outside-tokens` and `remove-z-index-outside-tokens`. Those
+say a value belongs in `tokens.css`; this says you thought you put it there and did not. It is
+a **filesystem** rule, built on `matchFiles`, so it sees the tree rather than one file — and
+therefore runs under `redlint`, not under `putout .`.
+
+Report-only: a missing token needs a value, and a value is a human decision. The one it found
+in this repository was `var(--color-selection-bg)` in `codemirror.css`, next to a
+`--color-selection-focused` that did exist — the dark-theme unfocused selection background had
+been renamed on one side of a pair, and the dead rule was the symptom.
+
+### ❌ Example of incorrect code
+
+```css
+.a {
+    background: var(--color-selection-bg);
+}
+```
+
+### ✅ Example of correct code
+
+```css
+.a {
+    background: var(--color-selection-focused);
+}
+```
 
 ***
 
