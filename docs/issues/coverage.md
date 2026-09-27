@@ -1,6 +1,4 @@
-# coverage findings
-
-Status: ✅ resolved, ❌ open.
+# coverage
 
 ---
 

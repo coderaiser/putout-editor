@@ -1,6 +1,7 @@
-# qword / CodeMirror findings
+# qword
 
-Defects in the editor layer this app depends on. Status: ✅ resolved, ❌ open.
+The editor layer. See [`putout-plugins.md`](./putout-plugins.md) for the rules that came out of
+this, and `create-editor.ts` for the fix.
 
 ***
 

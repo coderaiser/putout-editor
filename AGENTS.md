@@ -107,8 +107,9 @@ over the initial state, so a partial override keeps the rest.
 - **Always assert `(result, expected)`, with both bound to consts.** Never inline the
   expected value: `t.deepEqual(result, [])` is wrong even though it works, because it
   gives `putout`'s `tape/extract-result-from-assertion` nothing to hoist. A bare `[]` also
-  has nothing to infer from, so the hoisted const needs a type —
-  `const expected: string[] = [];`. supertape allows exactly one assertion per test
+  has nothing to infer from, so the hoisted const needs a type you work out and write down —
+  `const expected: string[] = [];`, never `typeof result`, which hands the typing back to the
+  compiler and tells a reader nothing. supertape allows exactly one assertion per test
   (*"Only one assertion per test allowed"*), so split tests rather than chaining.
 
 ## Working with client plugin templates
@@ -294,15 +295,14 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
 
 ## Reporting a finding
 
-Put it in `docs/issues/`, one file per area — [`tape.md`](./docs/issues/tape.md),
-[`markdown.md`](./docs/issues/markdown.md), [`build.md`](./docs/issues/build.md),
-[`coverage.md`](./docs/issues/coverage.md), [`qword.md`](./docs/issues/qword.md),
-[`putout-plugins.md`](./docs/issues/putout-plugins.md) — and give **the minimum possible
-code that reproduces it**, then **the result you got** (a diff is best) and **what you
-expected**. Only report what you verified reproduces; put unverified suspicions in the
-handover plan instead. Update issues in their own commit, and keep them short: the repro, the
-result, the fix. Experiences belong in `MEMORY.md` and traps-and-solutions in this file, so a
-finding does not have to carry a narrative.
+Put it in `docs/issues/`, one file per area — start from
+[`index.md`](./docs/issues/index.md). Give **the minimum possible code that reproduces it**,
+then **the result you got** (a diff is best) and **what you expected**. Only report what you
+verified reproduces; put unverified suspicions in the handover plan instead.
+
+**Keep it to the problem, the result and the solution.** A finding is not a narrative, and a
+long one does not get read, so it does not get fixed. Experiences belong in `MEMORY.md`,
+traps-and-solutions in this file. Update issues in their own commit.
 
 [`docs/plugins.md`](./docs/plugins.md) is the guide for a human writing a rule here.
 

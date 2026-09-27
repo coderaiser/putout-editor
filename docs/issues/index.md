@@ -1,0 +1,16 @@
+# Findings
+
+One file per area. Each is the **problem**, the **result**, and the **solution** — a repro, a
+diff, and what was expected. Nothing else. If it does not fit here it is not a finding yet.
+
+| File | What |
+|---|---|
+| [`build.md`](./build.md) | `bun i` and the browser bundle; the operator fix that landed |
+| [`coverage.md`](./coverage.md) | the 100% gate, and the eleven files it excludes |
+| [`markdown.md`](./markdown.md) | the `js` fence gate, and why `putout .` is not the rule |
+| [`putout-plugins.md`](./putout-plugins.md) | the rules in `packages/plugin-putout-editor` |
+| [`qword.md`](./qword.md) | vim blockwise visual, and a paste diagnosis that was wrong |
+| [`tape.md`](./tape.md) | `stub` types, and two rules that do not ship |
+
+Elsewhere: [`docs/plugins.md`](../plugins.md) is the guide for writing a rule, and the
+[plugin README](../../packages/plugin-putout-editor/README.md) documents each rule.

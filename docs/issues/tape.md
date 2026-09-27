@@ -1,9 +1,8 @@
-# tape findings
+# tape
 
-## The types are fine
+## ✅ nothing is wrong with the types
 
-`stub` is typed and `supertape` re-exports it, so there is nothing to configure and nothing
-wrong to fix:
+`stub` is typed, and `supertape` re-exports it, so this just works:
 
 ```ts
 import {stub} from 'supertape';
@@ -11,33 +10,23 @@ import {stub} from 'supertape';
 const get = stub().resolves<number[]>([]);
 ```
 
-`supertape@13.6.1`'s `lib/supertape.d.ts` has `export {Stub, stub} from '@cloudcmd/stub'`, and
-`@cloudcmd/stub@5.1.0`'s `lib/stub.d.ts` declares
-`resolves: <T>(value: T) => Stub<Args, Promise<T>>`. Neither package sets a `types` field;
-TypeScript finds the `.d.ts` beside the `.js`.
+- `@cloudcmd/stub@5.1.0` — `lib/stub.d.ts` declares `resolves<T>(value: T) => Stub<Args, Promise<T>>`
+- `supertape@13.6.1` — `lib/supertape.d.ts` has `export {Stub, stub} from '@cloudcmd/stub'`
 
-## What is actually wrong: two rules that do not ship
+## ❌ two rules that would write it for you do not ship
 
-`tape/apply-stub` would add that import when a rule introduces `stub(...)`, and
-`tape/extract-result-from-assertion` would type the const it hoists. Both are in the 🐊**Putout**
-repo at `packages/plugin-tape/lib/`, and **neither is in the published `eslint-plugin-putout`** -
-the installed plugin ships only `tape-add-newline-before-assertion`,
-`tape-add-newline-between-tests` and `tape-remove-newline-before-t-end`. So `putout . --fix`
-changes nothing here, and neither rule can be reproduced in this repository.
+`tape/apply-stub` (adds the import) and `tape/extract-result-from-assertion` (types the hoisted
+const) are in the 🐊**Putout** repo at `packages/plugin-tape/lib/`, and **neither is in the
+published `eslint-plugin-putout`**. The installed plugin ships only
+`tape-add-newline-before-assertion`, `tape-add-newline-between-tests` and
+`tape-remove-newline-before-t-end`, so nothing reproduces here.
 
-**So do it by hand.** Two lines:
+**Solution — two lines by hand**, until it lands upstream:
 
-1. the import, when a rule introduces `stub` - `import {stub} from 'supertape';`
-2. the type, when the expected value gives the const nothing to infer from - a bare `[]` in an
-   `unknown` position has no element type, so borrow the left operand's:
+1. `import {stub} from 'supertape';`
+2. the type, worked out and written down — never `typeof result`, which hands the typing back
+   to the compiler and tells a reader nothing:
 
 ```ts
-const result = categories.filter((c) => !fixtures[c]);
-const expected: typeof result = [];
-
-t.deepEqual(result, expected);
+const expected: string[] = [];
 ```
-
-Always bind both sides to consts and assert `(result, expected)`. See the `AGENTS.md` note on
-one-assertion-per-test for why the house style is the way it is, and
-`docs/issues/putout-plugins.md` for where a rule gap like this gets filed.
