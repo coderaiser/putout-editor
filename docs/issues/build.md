@@ -32,11 +32,37 @@ a browser. That removes the stylelint/cosmiconfig class of error.
 reaching the processors at all, rather than to keep adding fallbacks for whatever a given
 install happens to resolve.
 
-I tried the obvious version of that: `rspack.IgnorePlugin` for
-`@putout/processor-(css|filesystem)` plus `stylelint|cosmiconfig|globby|...`. **It compiled and
-then the app did not render** - the whole `e2e/desktop.ts` suite went red on a fresh build,
-including `renders the editor application`. So that approach is wrong as it stands, and
-guessing at the list is worse than leaving it failing loudly.
+**`IgnorePlugin` does not work here, and the reason matters.** The instinct - the editor does
+not lint css, so drop the css processor - is right, and I tried it three ways:
+
+| ignored | build | app |
+|---|---|---|
+| `@putout/processor-css` + `stylelint`, `cosmiconfig`, `globby`, ... | compiles | does not render |
+| `stylelint` only | compiles | `F.homedir is not a function` |
+| `stylelint`, `config-loader`, `cosmiconfig` | compiles clean, no warnings | `Cannot find module 'stylelint'` |
+
+Each failure is the next layer of the same thing. `@putout/processor-css` imports `stylelint`
+and `cosmiconfig` at the top of `css.js`; `cosmiconfig` reaches `env-paths`, which calls
+`os.homedir()` **at import time**, and `os` is `false` for the browser, so the module graph
+dies on load. Ignoring any one of them just moves the error to the next import.
+
+Then the last one gives it away: `Cannot find module 'stylelint'`, and `Cannot find module
+'@putout/processor-css'` when the whole processor was ignored. **`IgnorePlugin` makes a module
+unresolvable, and 🐊**Putout** resolves processors by name at *runtime*** - `putout.json`'s
+`processors` list is loaded lazily through the loader's `customRequire`. In a bundle that
+`require` has to find the module by its real name, so a processor cannot simply be dropped from
+the graph: something still asks for it by name and the `require` throws.
+
+So the real decision is not which packages to ignore, it is **which processors the editor
+should ask for at all**. The client only ever runs 🐊**Putout** over JavaScript and JSON, so
+`processors` should be narrowed to those at the client's call sites - `initPlugin` in
+`src/transformer/init-plugin.ts` already passes a custom `require` to `compileRule`, so there is
+a seam to hang it on. That is a behaviour change to the editor and worth its own change, not a
+line smuggled into a lint fix.
+
+Until that lands, a green build is not available here and `out/` is stale, so the e2e suite
+cannot be run. The last known-good e2e result is the run before the dependency reinstall: 76/76
+desktop and 49/49 mobile.
 
 **What I expected.** `bun i` to be reproducible, and the browser bundle to be independent of
 which versions a Node-only processor resolves to.
