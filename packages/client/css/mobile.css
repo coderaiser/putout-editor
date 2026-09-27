@@ -62,7 +62,7 @@
     background: var(--color-bg-toolbar);
     border: 1px solid var(--color-border);
     border-bottom: none;
-    box-shadow: 0 -4px 16px rgb(0 0 0 / 20%);
+    box-shadow: 0 -4px 16px var(--color-shadow);
     z-index: 400;
 }
 
