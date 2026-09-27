@@ -152,6 +152,24 @@ test('local docs: style points at the full guide in the repo', (t) => {
     t.end();
 });
 
+test('local docs: style warns the ?. fixer exits clean', (t) => {
+    const result = handler({
+        section: 'style',
+    });
+    
+    t.match(result.content[0].text, 'exits 0');
+    t.end();
+});
+
+test('local docs: style says to run tsc after the fixer', (t) => {
+    const result = handler({
+        section: 'style',
+    });
+    
+    t.match(result.content[0].text, 'run tsc');
+    t.end();
+});
+
 test('local docs: overview advertises the style section', (t) => {
     const result = handler();
     

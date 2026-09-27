@@ -124,7 +124,19 @@ declare- (20). Then source-then-target: 'convert-index-of-to-includes', not
   isStringLiteral(node). It will NOT add the import; expect one no-undef by hand.
 - optional chaining -> this repo forbids ?. and wants x && x.y. Note ?. narrows a
   type and && does not, so bind the receiver to a local when types matter.
-- a 'js' fence in a README is linted as real JavaScript.`;
+- a 'js' fence in a README is linted as real JavaScript.
+
+### 7. If you expand \`?.\` with convert-optional-to-logical, check the fallout
+
+That fixer cannot see types, so \`a?.b\` becomes \`a && a.b\` and the narrowing is gone
+silently. It also duplicates the receiver when the receiver is a CALL, so \`a() && a().b()\`
+now calls a() twice. Two of the consequences are invisible to a single-file linter and need
+no types: a duplicated call receiver, and a bare logical expression in statement position
+(\`onToggle && onToggle();\` trips no-unused-expressions and wants an \`if\`).
+
+So after running it, run tsc, and look for \`a && a.b\` / \`a() && a().b()\`. The fixer exits 0
+either way - it is not wrong, it is incomplete, and the silence is the trap. A fixer that
+cannot detect its own lossy cases should say so rather than exit clean.`;
 
 const API = `## API Endpoints
 
