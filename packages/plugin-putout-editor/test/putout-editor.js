@@ -27,17 +27,27 @@ test('plugin-putout-editor: report: remove-comments', (t) => {
     t.end();
 });
 
-test('plugin-putout-editor: noTransform: remove-duplicated-receiver', (t) => {
-    t.noTransform('remove-duplicated-receiver');
+test('plugin-putout-editor: transform: remove-duplicated-receiver', (t) => {
+    t.transform('remove-duplicated-receiver');
     t.end();
 });
 
 test('plugin-putout-editor: report: remove-duplicated-receiver', (t) => {
-    t.reportCode(`const a = getState() && getState().value;`, 'Bind the left side to a local: && calls it twice');
+    t.reportCode(`const value = getState().workbench && getState().workbench.code;`, 'Bind the left side to a local: && calls it twice');
     t.end();
 });
 
 test('plugin-putout-editor: no report: remove-duplicated-receiver on a plain read', (t) => {
-    t.noReportCode(`const d = q.r && q.r.s();`, 'Bind the left side to a local: && calls it twice');
+    t.noReportCode(`const safe = q.r && q.r.s;`, 'Bind the left side to a local: && calls it twice');
+    t.end();
+});
+
+test('plugin-putout-editor: no report: remove-duplicated-receiver on an identifier', (t) => {
+    t.noReportCode(`const p = p && p.toString();`, 'Bind the left side to a local: && calls it twice');
+    t.end();
+});
+
+test('plugin-putout-editor: report: remove-duplicated-receiver in an arrow body', (t) => {
+    t.reportCode(`const label = (el) => el().text && el().text.trim();`, 'Bind the left side to a local: && calls it twice');
     t.end();
 });

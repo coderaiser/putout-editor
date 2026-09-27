@@ -91,8 +91,17 @@ The matcher only fires when the receiver **contains a call**, so `q.r && q.r.s()
 `p && p.toString()` are left alone: reading a property is not a side effect, and a rule that
 flagged those would be noise.
 
-Report-only: which binding to introduce is a human call, so `replace` maps the pattern to itself
-and the file comes back byte for byte. That is what the `noTransform` test asserts.
+It **fixes**, because a rule that only reports is the thing this package exists to replace. A
+declaration whose initialiser is the duplicated `&&` is split — the receiver is bound once, on
+the line above, under a name taken from the receiver and checked against the scope so it cannot
+shadow anything. `getState().workbench && getState().workbench.code` becomes
+`const {workbench} = getState();` followed by `workbench && workbench.code`.
+
+One case is **reported and left alone**, on purpose: an arrow body is an expression and cannot
+take a statement, so there is nowhere to put the binding. Rewriting `(el) => …` into a block
+body would work, but it is a much larger rewrite than the defect deserves, and a fixer that
+reaches further than the problem is how a lint ends up being switched off. It is reported
+rather than skipped, so the gap is loud.
 
 ### ❌ Example of incorrect code
 
