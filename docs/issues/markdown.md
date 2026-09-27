@@ -32,3 +32,38 @@ delete the local `coverage/`. Current state passes at 100%.
 
 **Keep anti-patterns out of `js`/`ts` fences** — they are linted as real code, and `--fix`
 "corrects" the example and deletes the point of it. Write them inline.
+
+## ❌ the fixer has already eaten one of them
+
+`packages/plugin-putout-editor/README.md`, `apply-press-modifier-case` ❌/✅ pair, was
+byte-identical in both blocks:
+
+```js
+// ❌ and ✅
+await page.keyboard.press('Control+v');
+await page.keyboard.press('ControlOrMeta+v');
+```
+
+`putout . --fix` applied the plugin's **own** `apply-press-modifier-case` rule to the fence
+showing the violation, and the rule was right: `'Control+V'` became `'Control+v'`. The
+documentation was corrected and the anti-pattern was deleted. Nothing failed — the fence is
+valid JavaScript both before and after, so `parser` is satisfied and the rule has nothing to
+report.
+
+**Expected.** The ❌ block keeps `'Control+V'`; the two blocks are supposed to differ.
+
+**Solution.** `putout-editor/apply-press-modifier-case` is `off` in the `*.md` match in the root
+`.putout.json`, beside `remove-comments` and `remove-duplicated-receiver` — the other two rules
+whose ❌ example is a fence. The rule is a **code** rule, so it still runs over `packages/client`'s
+e2e specs, which is where the six violations were.
+
+**The generalisable failure.** A fence that demonstrates a violation is *valid code that the
+rule rejects*, so the fixer's job and the example's purpose are exactly opposed, and the fixer
+always wins. This is why a fence is not the right place to store an anti-pattern, and why
+idea 7 in `docs/ideas.md` is a correctness item rather than a tidiness one.
+
+**A check that would have caught it.** The plugin's own fixture is the oracle — the ❌ block
+must equal `test/fixture/apply-press-modifier-case.js` and the ✅ block
+`apply-press-modifier-case-fix.js`. Nothing asserts that today; the README and the fixtures
+drifted independently.
+
