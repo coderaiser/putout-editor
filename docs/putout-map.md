@@ -10,17 +10,47 @@ For how to *write* a plugin in the house style, read
 
 ## The shape of the whole
 
-```
-putout  ──────────────────────────────── the composition root; depends on ~90 of the 188
-   │
-   ├── engine-loader ─ engine-runner ─ engine-reporter ─ engine-processor ─ engine-parser
-   │      resolves plugins by name        walks the AST        formats        parses
-   │
-   ├── operator-*  (21)   manipulate a NodePath: remove, replaceWith, getBinding, matchFiles
-   ├── processor-* (14)   a language: javascript, json, yaml, toml, markdown, css, filesystem
-   ├── plugin-*    (116)  the rules
-   ├── formatter-* (11)   output shapes
-   └── cli-*       (10)   argument parsing, file walking, watch mode
+```mermaid
+graph TD
+    root["putout<br/>composition root"]
+
+    subgraph engine["engine · 5"]
+        loader["engine-loader<br/>resolves plugins by name"]
+        runner["engine-runner<br/>walks the AST"]
+        reporter["engine-reporter<br/>formats"]
+        processor["engine-processor"]
+        parser["engine-parser<br/>parses"]
+    end
+
+    subgraph operators["operator · 21"]
+        op["remove · replaceWith<br/>getBinding · matchFiles"]
+    end
+
+    subgraph processors["processor · 14"]
+        proc["javascript · json · yaml<br/>toml · markdown · css"]
+    end
+
+    subgraph plugins["plugin · 116"]
+        plug["the rules"]
+    end
+
+    subgraph rest["the rest"]
+        formatters["formatter · 11"]
+        cli["cli · 10"]
+        core["test · types · traverse<br/>operate · compare"]
+    end
+
+    root --> engine
+    root --> operators
+    root --> processors
+    root --> plugins
+    root --> formatters
+    root --> cli
+
+    plug -.->|"imports from 'putout'<br/>a peerDependency"| root
+    plug --> op
+    plug --> proc
+    plug --> parser
 ```
 
 Two things are worth knowing before reading further.
@@ -76,6 +106,26 @@ A plugin is one of three shapes, and **48% are the first one**.
 For a single-rule plugin the rule name is the package name minus the prefix: `plugin-apply-arrow`
 → `lib/apply-arrow.js` → the rule `apply-arrow`. **55 of 56** follow that exactly; the one that
 does not is `plugin-typescript`, whose `main` is `lib/export.js`, an aggregator.
+
+```mermaid
+graph LR
+    subgraph single["56 of 116 · single rule"]
+        s1["plugin-remove-console<br/>main: lib/remove-console.js"]
+        s2["plugin-apply-arrow<br/>main: lib/apply-arrow.js"]
+    end
+
+    subgraph multi["60 of 116 · rules map"]
+        m1["plugin-logical-expressions<br/>main: lib/index.js"]
+    end
+
+    cjs["1 of 116 · CommonJS<br/>plugin-browserlist"]
+
+    single -->|"the rule IS the main"| one["report + fix<br/>exported from one file"]
+    multi -->|"one directory per rule"| many["lib/rule/index.js<br/>each its own report + fix"]
+    cjs -->|"drift, do not copy"| one
+
+    style cjs fill:#fdd
+```
 
 ### Multi-rule plugins, by size
 

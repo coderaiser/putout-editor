@@ -10,6 +10,149 @@ where things live and which seam owns what.
 | `packages/client` | The editor. The app, the redux store, the CodeMirror panels, and all unit + e2e tests. |
 | `packages/server` | HTTP API behind `putout.cloudcmd.io` (`/api/v1/*`). |
 | `packages/mcp` | MCP server for agents. See its `README.md`; it is independent of the client. |
+| `packages/plugin-putout-editor` | 🐊**Putout** rules for this repository. Lint, not runtime — nothing imports it. |
+
+## How the four relate
+
+The interesting part is what is *not* wired. Only two of the four depend on 🐊**Putout** at
+all, and the server does not — it has no `@putout/*` dependency and parses over
+`@babel/parser` directly. `plugin-putout-editor` is a lint plugin, so it runs in CI and is
+invisible at runtime.
+
+```mermaid
+graph TD
+    subgraph editorRepo["coderaiser/putout-editor"]
+        client["client<br/>the editor app"]
+        server["server<br/>/api/v1/*"]
+        mcp["mcp<br/>tools for agents"]
+        plugin["plugin-putout-editor<br/>lint rules"]
+    end
+
+    subgraph upstream["coderaiser/putout"]
+        putout["putout<br/>runner + operator + types"]
+        putoutPlugin["plugin-markdown<br/>plugin-putout"]
+    end
+
+    redput["redput<br/>compileRule"]
+    babel["@babel/parser"]
+
+    client --> putout
+    client --> putoutPlugin
+    mcp --> putout
+    mcp --> putoutPlugin
+    mcp --> redput
+    server --> babel
+    plugin -.->|"lint only, CI"| client
+```
+
+Three consequences worth knowing before you move code:
+
+- **The client and the mcp are independent.** They share no source. An agent using the mcp and a
+  human using the editor run two separate copies of the same rules.
+- **The server is not a thin wrapper over the editor.** It has its own `compactAST`/`queryAST`
+  and an empty `TransformModule`, so a change to the client's parser has no server counterpart
+  to keep in step.
+- **The lint plugin is a package but not a dependency.** Nothing in `client` imports it; it is
+  wired through `plugins` in the root `.putout.json`.
+
+## Client
+
+The client's own seams are **enforced**, not conventional: `eslint-plugin-boundaries` builds
+its policy from `config/boundaries-config.ts`, and an edge that is not drawn there fails the
+lint. Each element is a directory, and an arrow below means "may import".
+
+```mermaid
+graph TD
+    app["app<br/>composition root"]
+
+    layout["layout"]
+    menu["menu"]
+    panelSource["panel-source"]
+    panelAst["panel-ast"]
+    panelTransform["panel-transform"]
+    panelCode["panel-code"]
+
+    editorSource["editor-source"]
+    editorTransform["editor-transform"]
+    editorResult["editor-result"]
+    editorAstJson["editor-ast-json"]
+    editorAstTree["editor-ast-tree"]
+    editor["editor<br/>qword wrapper"]
+    ui["ui"]
+    snippet["snippet"]
+    store["store"]
+    parser["parser"]
+
+    app --> layout
+    app --> menu
+    app --> panelSource
+    app --> panelAst
+    app --> panelTransform
+    app --> panelCode
+
+    layout --> panelSource
+    layout --> panelAst
+    layout --> panelTransform
+    layout --> panelCode
+    layout --> ui
+
+    menu --> editorTransform
+    menu --> parser
+    menu --> snippet
+    menu --> store
+
+    panelSource --> editorSource
+    panelSource --> ui
+    panelSource --> store
+    panelAst --> editorAstTree
+    panelAst --> ui
+    panelAst --> store
+    panelTransform --> editorTransform
+    panelTransform --> store
+    panelCode --> editorResult
+    panelCode --> store
+    panelCode --> parser
+
+    editorSource --> editor
+    editorSource --> store
+    editorSource --> parser
+    editorTransform --> editor
+    editorTransform --> editorResult
+    editorTransform --> store
+    editorTransform --> parser
+    editorTransform --> ui
+    editorAstJson --> editor
+    editorAstTree --> editor
+    editorAstTree --> editorAstJson
+    editorAstTree --> store
+    editorAstTree --> parser
+    editorAstTree --> snippet
+    editorResult --> editor
+    editorResult --> editorAstJson
+
+    editor --> parser
+    ui --> store
+    ui --> parser
+    snippet --> store
+    snippet --> parser
+    store --> editor
+    store --> parser
+    parser --> store
+    parser --> editor
+
+    style app fill:#eee
+```
+
+Two things that read off the graph and are not obvious from the files:
+
+- **`store` and `parser` import each other.** That is deliberate: `parserSelectors.ts` and
+  `parserMiddleware.ts` live in `store/` precisely because they take a `RootState`, and the
+  reciprocal edge is what keeps the pair from becoming a cycle through directories.
+- **`menu` is a leaf.** Nothing may import it, which is why the shared `ToolbarMenuContext`
+  lives in `store/` and not next to the menu that uses it.
+
+The `app` node draws six of its edges, but its policy is `['*']` — it may import any element.
+It is drawn with the ones it actually uses, so the graph reads top-down.
 
 ## Client data flow
 
@@ -46,6 +189,80 @@ transform plugin →  transform (src/transformer) →  workbench.transform
   ``fetch(`${API_HOST}/api/v1${path}`)``). A stored snippet is
   `astexplorer.json` (manifest) + `transform.js` + the source — `code.js` when
   `v === 1`, `source.<ext>` when `v === 2`.
+
+## Server
+
+NestJS, four modules, and it does **not** use 🐊**Putout**. `parse` is `@babel/parser` plus its
+own `compactAST`/`queryAST`; `transform` is an empty `@Module({})`; `redput.d.ts` declares a
+module that nothing imports.
+
+```mermaid
+graph TD
+    http["putout.cloudcmd.io<br/>/api/v1"]
+
+    gist["gist<br/>POST /<br/>POST /:id/:revision<br/>GET /:id/:revision"]
+    parse["parse<br/>GET /<br/>GET /:snippetid/:revisionid"]
+    info["info<br/>GET /"]
+    transform["transform<br/>empty @Module"]
+
+    octokit["@octokit/rest"]
+    babel["@babel/parser"]
+    compact["compactAST + queryAST<br/>its own"]
+
+    http --> gist
+    http --> parse
+    http --> info
+
+    gist --> octokit
+    parse --> babel
+    parse --> compact
+
+    style transform fill:#fdd,stroke-dasharray: 3 3
+```
+
+The `transform` module is drawn dashed because it is a real module that does nothing — worth
+knowing before you go looking for a transform endpoint and assume you missed it.
+
+## MCP
+
+Eight tools over one process, grouped by what they actually do. Four run a plugin; the rest are
+reference or IO.
+
+```mermaid
+graph TD
+    subgraph runs["runs a plugin"]
+        validate["validate<br/>compiles, syntax only"]
+        find["find_places<br/>counts matches"]
+        transform["transform<br/>applies, returns code"]
+        snippet["fetch_snippet<br/>gist URL to source + transform"]
+    end
+
+    subgraph reference["reference, no code runs"]
+        example["get_example<br/>working plugin per pattern"]
+        docs["docs<br/>api / errors / style"]
+        formats["formats<br/>non-JS wrappers"]
+        parse["parse<br/>AST, full=true for raw"]
+    end
+
+    putout["putout<br/>putout() / findPlaces"]
+    redput["redput<br/>compileRule"]
+    shipped["reads the installed<br/>plugin-markdown rule"]
+    babel["@babel/parser"]
+
+    validate --> putout
+    find --> putout
+    transform --> putout
+    snippet --> redput
+    parse --> babel
+    example --> shipped
+
+    style reference fill:#f5f5f5
+```
+
+`get_example` is the one to trust least on its own: its examples are hand-written, and the
+markdown one already drifted, so it now reads the shipped rule and a spec pins the two
+together. `docs {section: 'style'}` is the convention half — names, package shape, rule shape,
+imports, tests — for code that has to look like it came out of `coderaiser/putout`.
 
 ## Tests
 

@@ -19,3 +19,6 @@ Elsewhere: [`docs/plugins.md`](../plugins.md) is the guide for writing a rule he
 For the 🐊**Putout** repository itself — what the 116 plugins have in common and how to write one
 that matches — read [`docs/putout-map.md`](../putout-map.md) and
 [`docs/putout-style.md`](../putout-style.md).
+
+[`docs/architecture.md`](../architecture.md) carries the mermaid diagrams: the four packages and
+how they relate, the client's enforced import graph, the server's modules, and the mcp's tools.
