@@ -96,6 +96,7 @@ ordinary rule - no script, no separate lint step.
 ### ❌ Example of incorrect code
 
 ```js
+// a browser reports Ctrl+V as "v"
 const MODIFIERS = [
     'Control',
     'Shift',
