@@ -35,7 +35,7 @@ A browser reports Ctrl+V as `v`, so a `press('Control+V')` is a chord no keyboar
 matches no binding and fails silently — the browser just fires a paste.
 
 The rule is off for markdown, because this section is a fence it would otherwise correct:
-[`docs/issues/markdown.md`](../../docs/issues/markdown.md).
+[`docs/memory/fence-gate.md`](../../docs/memory/fence-gate.md).
 
 Found: six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing —
 [the finding](../../docs/issues/putout-plugins.md).

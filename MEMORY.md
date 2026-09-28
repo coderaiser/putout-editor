@@ -142,22 +142,15 @@ When a claim rests on a hand-written copy, a summary, or a script, check the thi
 
 Findings marked `❌` are waiting on something landing. Before working on anything else, check
 whether it has — a finding left open after its fix exists is stale documentation. There are
-three, and they are in [`docs/issues/`](./docs/issues/index.md).
+two, and they are in [`docs/issues/`](./docs/issues/index.md).
 
-- **`docs/issues/build.md`** — `server` has no `nest` binary, and nothing is pinned because
-  `*.lock` is gitignored. Neither is waiting on upstream; both are ordinary work. Re-check by
-  running `redrun build` in that workspace, not by reading this line.
-- **`docs/issues/markdown.md`** — `markdown/apply-ts-codeblock-in-file` is a *filesystem*
-  scanner, enabled only in putout's `.filesystem.json` match, so it runs under `redlint` and
-  never under `putout .`. The open half is that nothing here runs `redlint` over `docs/`: the
-  root `.madrun.ts` has no `redlint` and `packages/client`'s `prelint` runs it from *that*
-  package's directory. Re-check by looking for a `redlint` step covering the repo root — and
-  re-check upstream for a release that enables the scanner in the `*.md` match, which would
-  make `putout .` enforce it directly. The fences are currently right, so this is a missing
-  gate, not a broken file.
-- **`docs/issues/putout-plugins.md`** — two 🐊**Putout** rules that would fix things here do
-  not ship, and one fixer exits clean on lossy cases. Re-check upstream for
-  `packages/plugin-tape/lib/` and the optional-chaining converter, not by running the fixer.
+- **`docs/issues/build.md`** — `nest build` in `packages/server` reports 279 errors that
+  `tsc --noEmit` does not, and nothing is pinned because `*.lock` is gitignored. Re-check by
+  running `npx tsc --noEmit` and `npx nest build` in that workspace and comparing the two
+  counts, not by reading this line.
+- **`docs/issues/putout-plugins.md`** — two upstream fixers exit clean on lossy cases, and
+  `apply-destructuring` drops a `&&` guard on a `return`. Re-check upstream for a release
+  that reports rather than fixes silently, not by running the fixer.
 
 ## Keep these three in step
 

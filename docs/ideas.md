@@ -19,7 +19,6 @@ mark it as one.
 | 1 | Require a body on `fix:` | S |
 | 5 | Review the hot-spot list monthly | S |
 | 6 | Cut the CI auto-commit volume | M |
-| 7 | Teach the fences to run, not just be linted (items 2 and 3) | M |
 
 ## 1. Require a body on `fix:`
 
@@ -52,31 +51,10 @@ own, which is worth knowing before spending an afternoon on it.
 
 **Why it pays.** Each is a review, a merge and a future conflict, and it is exactly the
 signal-to-noise that makes a real fix easy to skim past. It is also *unreviewed work*: nothing
-checked whether the fixer was right, which is how `remove-duplicated-receiver` got reformatted
-by CI without anyone deciding it should have been.
+checked whether the fixer was right, which is how a rule here was reformatted by CI without
+anyone deciding it should have been.
 
 **How.** Two directions, both worth doing. Fewer changes — the `fix:lint` step is over-eager in
-places, and [`issues/markdown.md`](./issues/markdown.md) records it deleting a gate's
-diagnostics. Or keep the changes and drop the commits: a rolling lint branch, or a PR instead of
+places, and [`memory/fence-gate.md`](./memory/fence-gate.md) records it stripping a rule's
+own example. Or keep the changes and drop the commits: a rolling lint branch, or a PR instead of
 a push.
-
-## 7. Teach the fences to run, not just be linted
-
-**Evidence.** A fence demonstrating a violation is *valid code the rule rejects*, so the fixer's
-job and the example's purpose are exactly opposed, and the fixer always wins. It already won
-once — see [`issues/markdown.md`](./issues/markdown.md).
-
-**Item 1 is done** and lives in the plugin: `test/readme.js` runs the ❌ and ✅ fences and
-requires the first to still report and the second not to.
-
-**What is left, both open.** The general fix belongs upstream: a rule that *runs* a fence
-rather than checking its language would end the class. Until it lands, the missing piece here is
-a gate — nothing runs `redlint` over `docs/` at the repository root, so nothing checks fence
-languages at all. `packages/client`'s `prelint` runs it from *that* package's directory.
-
-```
-cd docs && npx redlint scan
-```
-
-Prefer `scan` over `fix`: at the repo root, `coverage/remove-files` will delete the local
-`coverage/`.

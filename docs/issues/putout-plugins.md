@@ -157,8 +157,8 @@ every spec while firing on files with nothing to report.
 
 ## ❌ `apply-destructuring` drops the `&&` guard on a `return`
 
-Upstream, from `@putout/plugin-logical-expressions` — not a rule of ours, and this is what
-replaced our own `remove-duplicated-receiver`.
+Upstream, from `@putout/plugin-logical-expressions` — not a rule of ours. This is the rule that
+replaced the one this package used to carry, so it is now what runs over this repository.
 
 **Before.**
 
@@ -197,8 +197,8 @@ const template = {
 what `logical-expressions/apply-destructuring` rewrites, and a `js` fence demonstrating a rule's
 output is valid code that the fixer is asking to change — the example's purpose and the fixer's
 job are opposed, and the fixer wins. That is the argument in
-[`markdown.md`](./markdown.md), and it is why `test/readme.js` exists to catch it when it
-happens. Here it is shown as runnable input instead:
+[`../memory/fence-gate.md`](../memory/fence-gate.md). Here it is shown as runnable input
+instead:
 
 ```js
 const el = () => ({

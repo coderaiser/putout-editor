@@ -3,27 +3,46 @@
 **Open only.** What was fixed is in [`../memory/build.md`](../memory/build.md) — an operator
 importing a processor, and why `IgnorePlugin` is the wrong answer.
 
-## ❌ `server` has no `nest` binary
+## ❌ `nest build` reports 279 errors that `tsc` does not
 
-`madfork` runs `redrun build` in each workspace and **exits on the first failure**, so the first
-one hides the rest. `server` declares `@nestjs/cli` and no `nest` is installed anywhere in this
-tree, so it is the only workspace still failing.
+The `server` workspace builds through `nest build` (`.madrun.ts`). It fails, and the errors are
+not in the code:
 
-| workspace | `redrun build` |
-|---|---|
-| `client` | ok since `@putout/operator-match-files@12.12.0` |
-| `mcp` | ok — 2065 modules, 17.56 MB |
-| `plugin-putout-editor` | ok — it imports itself and prints its rules |
-| `server` | fails — `nest: not found` |
+```sh
+$ npx tsc --noEmit        # in packages/server
+$                        # clean, 0 errors
 
-A workspace needs a `build` script for `madfork`, and `.madrun.js` only reaches `package.json`
-through `madrun --init`.
+$ npx nest build
+src/parse/compact.ts:3:27 - error TS2583: Cannot find name 'Set'.
+  Found 279 error(s).
+```
+
+**Expected.** Two tools, one answer. **Got** — `tsc` accepts the source and `nest build`
+rejects it, on `Map` and `Set` that `tsconfig.json` targets at `ES2022` for. The counts, so the
+shape is visible rather than "it fails":
+
+| Code | Count | |
+|---|---|---|
+| TS2583 | 64 | Cannot find name `Map`/`Set` |
+| TS2304 | 64 | Cannot find name |
+| TS2697 | 56 | Non-relative import cannot be resolved |
+| TS18046 | 32 | `catch` is `unknown` |
+| TS2339 | 30 | Property does not exist |
+
+So `lib` is not resolving under the nest build, and the import errors follow from it rather
+than being 279 separate mistakes. `nest-cli.json` only sets `deleteOutDir`, and `tsconfig.json`
+is shared, so the difference is in how nest invokes tsc rather than in either file.
+
+This is the finding to re-check by running `npx nest build` in `packages/server` — the two
+numbers to compare are `tsc --noEmit` and the `Found N error(s)` line.
 
 ## ❌ nothing is pinned
 
-`*.lock` is gitignored, so a monorepo that bundles 🐊**Putout** for the browser has no pinned
-resolution, and root and `packages/client` ask for different TypeScript majors. Committing
-`bun.lock` is what would make a reinstall reproducible.
+`*.lock` is in `.gitignore`, and `git check-ignore bun.lock` confirms it, so a monorepo that
+bundles 🐊**Putout** for the browser has no pinned resolution and root and `packages/client`
+ask for different TypeScript majors. `bun.lock` exists on disk and is not committed, so a fresh
+checkout resolves whatever is current. Committing it is what would make a reinstall
+reproducible.
 
 ## ❌ do not reach for `IgnorePlugin`
 
