@@ -42,15 +42,17 @@ test('plugin-putout-editor: every rule is a plugin putout can load', (t) => {
     t.end();
 });
 
-test('plugin-putout-editor: the md match names every rule with a fence', (t) => {
-    const md = JSON.parse(readFileSync(new URL('../.putout.json', import.meta.url), 'utf8'));
-    const named = Object.keys(md.match['*.md']);
-    
-    const fenced = Object
+const named = Object.keys(JSON.parse(readFileSync(new URL('../.putout.json', import.meta.url), 'utf8')).match['*.md']);
+
+const isOff = (name) => named.includes('putout-editor') || named.includes(`putout-editor/${name}`);
+
+const missingFence = (name) => !pluginOf(name).scan && !isOff(name);
+
+test('plugin-putout-editor: the md match turns off every rule with a fence', (t) => {
+    const result = Object
         .keys(rules)
-        .filter((name) => !pluginOf(name).scan);
+        .filter(missingFence);
     
-    const result = fenced.filter((name) => !named.includes(`putout-editor/${name}`));
     const expected = [];
     
     t.deepEqual(result, expected);
