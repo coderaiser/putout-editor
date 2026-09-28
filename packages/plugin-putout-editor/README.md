@@ -3,10 +3,6 @@
 [NPMIMGURL]: https://img.shields.io/npm/v/@putout/plugin-putout-editor.svg?style=flat&cacheBust=1
 [NPMURL]: https://npmjs.org/package/@putout/plugin-putout-editor "@putout/plugin-putout-editor"
 
-> 🐊**Putout** rules for the 🐊**Putout Editor** repository itself.
->
-> (c) 🐊[**Putout**](https://github.com/coderaiser/putout)
-
 Rules that only make sense here: the Editor's own source, its specs and its CSS. Anything
 that would help any 🐊**Putout** user belongs in the [🐊**Putout**](https://github.com/coderaiser/putout)
 repo instead - see `docs/issues/putout-plugins.md` in the Editor for where each one ended up.
