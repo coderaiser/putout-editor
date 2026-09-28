@@ -3,7 +3,7 @@ import * as applyZIndexToken from './apply-z-index-token/index.js';
 
 const {matchFiles} = operator;
 
-export const report = (_, {message, inputFilename}) => `☝️ ${inputFilename}: ${message}`;
+export const report = (path, {message, inputFilename}) => `☝️ ${inputFilename}: ${message}`;
 
 export const {scan, fix} = matchFiles({
     files: {
