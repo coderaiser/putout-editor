@@ -11,6 +11,15 @@ const EXPECTED = [
     'remove-z-index-outside-tokens',
 ];
 
+// a rule can be switched off in place, as `['off', plugin]`, so the plugin is the
+// second element of the array and the value itself otherwise
+const pluginOf = (name) => {
+    const rule = rules[name];
+    
+    return Array.isArray(rule) ? rule[1] : rule;
+};
+const unloadable = (name) => !pluginOf(name).report;
+
 // The entrypoint. Every rule is tested in its own directory, beside the rule it
 // tests, so this is the only place the map itself is asserted - a rule that was
 // written and never registered would pass every other spec in the package.
@@ -27,10 +36,8 @@ test('plugin-putout-editor: exports every rule', (t) => {
 
 test('plugin-putout-editor: every rule is a plugin putout can load', (t) => {
     const result = Object
-        .entries(rules)
-        .filter(([, plugin]) => !plugin.report)
-        .map(([name]) => name);
-    
+        .keys(rules)
+        .filter(unloadable);
     const expected = [];
     
     t.deepEqual(result, expected);

@@ -7,10 +7,23 @@ import {rules} from '../lib/index.js';
 
 // The README's ❌/✅ pair is documentation that `putout .` also lints, and those two jobs are opposed: a fence that demonstrates a violation is by definition code the rule rejects, so `--fix` "corrects" it — which happened to apply-press-modifier-case, leaving both blocks byte-identical without anything failing. The check is therefore behavioural, not textual: a byte comparison against the fixture was the obvious thing to write and it does not hold, because the README examples are deliberately different code (a MODIFIERS array, not the fixture's `const a`) since they are examples rather than tests. What must hold is that the ❌ fence still reports and the ✅ fence does not.
 const isUndefined = (a) => typeof a === 'undefined';
-
+const isFilesystem = (plugin) => Boolean(plugin.scan);
 const readme = readFileSync(fileURLToPath(new URL('../README.md', import.meta.url)), 'utf8');
-
 const NAMES = Object.keys(rules);
+const ROOT = '/project';
+const TOKENS = 'tokens.css';
+
+// a rule can be switched off in place, as `['off', plugin]`, so the plugin is the
+// second element of the array and the value itself otherwise
+const pluginOf = (name) => {
+    const rule = rules[name];
+    
+    return Array.isArray(rule) ? rule[1] : rule;
+};
+
+const missingFence = (name) => fenceOf(name, '❌') === null || fenceOf(name, '✅') === null;
+const isRejected = (name) => Boolean(placesOf(name, '❌'));
+const isAccepted = (name) => Boolean(placesOf(name, '✅'));
 
 const sectionOf = (name) => {
     const [, section] = readme.split(`\n## ${name}\n`);
@@ -41,10 +54,6 @@ const fenceOf = (name, mark) => {
         .trim();
 };
 
-const ROOT = '/project';
-
-const TOKENS = 'tokens.css';
-
 // `remove-undefined-token` reports a `var()` no stylesheet defines, so the tree needs a tokens.css or every example reports and the ✅ half of this check is vacuous. Which tokens exist is taken from the ✅ fence, because that fence is the definition of correct: if ✅ names a token, that token is defined. Deriving from the fence under test would define the very name the ❌ fence is about.
 const tokensOf = (source) => {
     const names = [];
@@ -53,9 +62,13 @@ const tokensOf = (source) => {
         names.push(name);
     }
     
-    return `:root {\n${names
-        .map((name) => `    ${name}: 0;`)
-        .join('\n')}\n}\n`;
+    const declarations = [];
+    
+    for (const name of names) {
+        declarations.push(`    ${name}: 0;`);
+    }
+    
+    return `:root {\n${declarations.join('\n')}\n}\n`;
 };
 
 const filesystemOf = (main, tokens) => print(parseFilesystem([
@@ -66,10 +79,8 @@ const filesystemOf = (main, tokens) => print(parseFilesystem([
 ]));
 
 // A rule built on `matchFiles` exports `scan`; a code rule does not.
-const isFilesystem = (plugin) => Boolean(plugin.scan);
-
 const placesOf = (name, mark) => {
-    const plugin = rules[name];
+    const plugin = pluginOf(name);
     const source = fenceOf(name, mark);
     
     if (source === null)
@@ -86,15 +97,15 @@ const placesOf = (name, mark) => {
     return putout(filesystemOf(source, fenceOf(name, '✅')), {
         fix: false,
         plugins: [
-            ['filesystem', [name, plugin]],
+            ['filesystem',
+                [name, plugin],
+            ],
         ],
     }).places.length;
 };
 
-const countOf = (mark) => (name) => placesOf(name, mark);
-
 test('readme: every rule has a section with a ❌ and a ✅ example', (t) => {
-    const result = NAMES.filter((name) => fenceOf(name, '❌') === null || fenceOf(name, '✅') === null);
+    const result = NAMES.filter(missingFence);
     const expected = [];
     
     t.deepEqual(result, expected);
@@ -102,8 +113,7 @@ test('readme: every rule has a section with a ❌ and a ✅ example', (t) => {
 });
 
 test('readme: every ❌ example is still rejected by its own rule', (t) => {
-    const count = countOf('❌');
-    const result = NAMES.filter((name) => !count(name));
+    const result = NAMES.filter((name) => !isRejected(name));
     const expected = [];
     
     t.deepEqual(result, expected);
@@ -111,8 +121,7 @@ test('readme: every ❌ example is still rejected by its own rule', (t) => {
 });
 
 test('readme: every ✅ example is accepted by its own rule', (t) => {
-    const count = countOf('✅');
-    const result = NAMES.filter(count);
+    const result = NAMES.filter(isAccepted);
     const expected = [];
     
     t.deepEqual(result, expected);
