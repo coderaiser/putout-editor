@@ -138,7 +138,7 @@ runner. When there is no safe automatic fix, give it a `replace` that prints the
 unchanged - `check-match` does exactly this - and pin it with a test that runs the fix and
 asserts the file comes back byte for byte.
 
-Choosing which token a colour becomes is a human decision, so `remove-rgb-outside-tokens` is
+Choosing which token a colour becomes is a human decision, so `remove-rgb-outside-token-file` is
 report-only, and its test proves it changes nothing.
 
 ## When a rule is really two rules
@@ -157,57 +157,58 @@ So a multi-level rule is a directory inside a rule:
 
 ```
 lib/
-└── check-main-imports-only/          the rule: which files, and what to say
-    ├── index.js
-    ├── index.spec.js
-    ├── fixture/                      a filesystem: the rule as a whole
-    └── check-imports-only/           the inner rule: this one file
-        ├── index.js
-        ├── index.spec.js
-        └── fixture/                  one file, no filesystem around it
+`-- remove-z-index-outside-token-file/    the rule: which files, and the message prefix
+    |-- index.js
+    |-- index.spec.js
+    |-- fixture/                          a filesystem: the rule as a whole
+    `-- apply-z-index-token/              the inner rule: this one file
+        |-- index.js
+        |-- index.spec.js
+        `-- fixture/
 ```
 
-The outer `fixture/` holds a `__putout_processor_filesystem([...])` source, because that is
-what the outer rule consumes. The inner `fixture/` holds a single file in its own format —
-`convert-js-to-ts/fixture/convert-js-to-ts.js` is a `__putout_processor_markdown([...])`
-source, because that is what the inner rule consumes. **The inner fixture is not a plain
-`.js` file**: it is the wrapped source of the format the inner rule reads, so the inner spec
-is an ordinary `createTest` with a `t.transform` and no filesystem in sight.
-
-The outer one matches the files and passes the inner one along:
+The outer file is the mask, the `exclude` and the message prefix, and nothing else:
 
 ```js
 import {operator} from 'putout';
+import * as applyZIndexToken from './apply-z-index-token/index.js';
 
 const {matchFiles} = operator;
 
+export const report = (_, {message, inputFilename}) => `\u2618\ufe0f ${inputFilename}: ${message}`;
+
 export const {scan, fix} = matchFiles({
     files: {
-        'main.css': {
+        '*.css': {
             plugins: [
-                ['check-main-imports-only', {
-                    report: () => `main.css is an entry point: @import only`,
-                    match: () => ({
-                        rule: () => true,
-                    }),
-                    replace: () => ({
-                        rule: (vars, path) => path,
-                    }),
-                }],
+                ['apply-z-index-token', applyZIndexToken],
             ],
         },
     },
+    exclude: ['tokens.css'],
 });
 ```
 
-Four things worth knowing, all of them learned the hard way:
+The inner one is an ordinary replacer, imported as a module rather than inlined so it can be
+tested and moved on its own:
 
-**The inner spec registers the outer name and tests the inner one.** This is the bit that
-looks wrong and is not. `convert-js-to-ts/index.spec.js` builds its test with
-`plugins: [['apply-ts-codeblock-in-file', plugin]]` — the *parent's* name — and then asserts
-`t.report('convert-js-to-ts', …)` and `t.transform('convert-js-to-ts')`. The registered name
-is what `createTest` reports the plugin as; the name in `t.report` is the fixture to load. Both
-names appear, and a test that mixes them up passes for the wrong reason.
+```js
+export const report = () => 'z-index belongs in tokens.css, reach for a var() instead';
+
+export const match = () => ({
+    'declaration(__a, __b)': ({__a, __b}) => isStringLiteral(__a) && __a.value === 'z-index' && isNumericLiteral(__b),
+});
+```
+
+**The inner spec drives the outer rule**, because that is the only path that reaches it:
+`matchFiles` converts each matched file to CSS before the inner plugin sees it, so the inner
+plugin cannot be handed a `.css` fixture and parsed directly. The outer rule's own `fixture/`
+holds a `__putout_processor_filesystem([...])` source and the inner one holds plain CSS.
+
+A `scan` outer works the same way and is needed when the inner rule has to know about a
+*second* file — see `remove-undefined-token-file`, whose `check-token` matcher is handed
+`{known}` read out of `tokens.css`. That is the case `matchFiles` cannot express, because its
+inner plugin gets no root and no sibling file.
 
 **A name in the outer `plugins` array is a label, not a rule.** The first element is what
 putout prints. Give the inner plugin its own directory and its own name there, so a failure
@@ -246,7 +247,7 @@ Every rule in this package runs on **this repository**, every commit, through th
 runs. That is the point of putting them here rather than only upstream, and it is not free — it
 is the reason two of these rules exist at all.
 
-A rule that has never met real code is a guess. `remove-undefined-token` was written because
+A rule that has never met real code is a guess. `remove-undefined-token-file` was written because
 colours and z-index were already policed and nothing policed the third thing: a `var(--x)` that
 `tokens.css` never defines. It found one on its first run — `var(--color-selection-bg)` in
 `codemirror.css`, sitting next to a `--color-selection-focused` that did exist. The browser

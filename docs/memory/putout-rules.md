@@ -11,10 +11,10 @@ question: **does the verdict need a second file?**
 
 | Rule | Needs | Uses |
 |---|---|---|
-| `remove-rgb-outside-tokens` | no — is this colour hardcoded? | `matchFiles` |
-| `remove-z-index-outside-tokens` | no — is this `z-index` a number? | `matchFiles` |
-| `check-main-imports-only` | no — is this `main.css` imports only? | `matchFiles` |
-| `remove-undefined-token` | **yes** — is this token in `tokens.css`? | `scan` |
+| `remove-rgb-outside-token-file` | no — is this colour hardcoded? | `matchFiles` |
+| `remove-z-index-outside-token-file` | no — is this `z-index` a number? | `matchFiles` |
+| `check-main-imports-in-file` | no — is this `main.css` imports only? | `matchFiles` |
+| `remove-undefined-token-file` | **yes** — is this token in `tokens.css`? | `scan` |
 
 `matchFiles` is the operator `sort-readme-file` and `apply-ts-codeblock-in-file` use, and it is
 the better shape when it fits: the mask is data, `exclude` is data, and the inner plugin is an
@@ -30,11 +30,11 @@ place keys: message,position,rule
 
 There is no root path, no `trackFile` and no sibling file in that call. `matchFiles` walks the
 matched files and runs `findPlaces` on each **independently**, so a rule that needs to know what
-`tokens.css` declares has nothing to read it from. `remove-undefined-token` needs exactly that:
+`tokens.css` declares has nothing to read it from. `remove-undefined-token-file` needs exactly that:
 it takes the set of `--names` defined in `tokens.css` and reports every `var(--name)` in any other
 stylesheet that is not in it.
 
-So `scan` is not the older way of writing these two — it is the only one that can see two files.
+So `scan` is not the older way of writing this one — it is the only one that can see two files.
 The tell is whether the message needs a second file's contents; when it does, the rule is a
 `scan` with `trackFile`, and `matchFiles` would be a rewrite that cannot work.
 
@@ -57,7 +57,31 @@ const parseOptions = (inputFilename, rawOptions) => {
 ```
 
 A `scan` plugin, by contrast, is called as `scan(mainPath, {push, trackFile, ...})` — the root
-is the first argument, which is why the two cross-file rules in this package are `scan`.
+is the first argument, which is why the cross-file rule in this package is a `scan`.
+
+## A `scan` can still delegate to a Matcher
+
+A cross-file rule does not have to do its own matching. The outer `scan` finds the files and
+works out what the inner rule needs, then hands it over as `options` — the same channel
+`apply-namespace-import` uses for `{name, source}`. `remove-undefined-token-file` does this: the
+scan reads `tokens.css` into a list, converts each stylesheet with `@putout/processor-css`, and
+runs `check-token` with `{known}`.
+
+Four things about that inner Matcher, each of which cost a round trip and none of which is
+guessable from the types:
+
+- **a CSS value is not a call.** `functionValue('var', ['--x'])` carries an `ArrayExpression` of
+  `StringLiteral`s as its second argument, so `__a.arguments` is `undefined` and the name has to
+  be read off the path. The matcher throws on the first file otherwise.
+- **`report` receives the matched path**, so the Matcher can name what it found and the outer
+  only joins the names. A fixed string there produces an empty message, and nothing says the
+  message is the part that is missing.
+- **`findPlaces` places carry `position` as `{line, column}`** — there is no node on it to read
+  the value back from, which is the other reason the name has to come from `report` rather than
+  from the place.
+- **de-duplication state belongs in `options`**, as a `seen` list the matcher closes over. It is
+  per file, so two files each using an undefined token is two reports, and one file using a token
+  twice is one.
 
 ## A `*-file` rule is a filesystem rule, and it is `off` by default
 
@@ -76,13 +100,15 @@ The three parts that have to agree, and none of them is optional:
    reads. In the 🐊**Putout** repo that is `packages/putout/putout.json`:
 
 ```ts
-{
-    ".filesystem.json": {
-        "esm/apply-namespace-to-imported-file": "on",
-        "esm/resolve-imported-file": "on",
-        "esm/shorten-imported-file": "on"
-    }
-}
+const config = {
+    match: {
+        '.filesystem.json': {
+            'esm/apply-namespace-to-imported-file': 'on',
+            'esm/resolve-imported-file': 'on',
+            'esm/shorten-imported-file': 'on',
+        },
+    },
+};
 ```
 
 Without step 3 the rule is dead: `off` in the map and no `match` that turns it on means it

@@ -6,11 +6,11 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | Rule                            | Kind       | What it found                                                         |
 |---------------------------------|------------|-----------------------------------------------------------------------|
 | `apply-press-modifier-case`     | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
-| `check-main-imports-only`       | filesystem | a rule in `main.css`, which is an entry point and holds only imports   |
+| `check-main-imports-in-file`    | filesystem | a rule in `main.css`, which is an entry point and holds only imports   |
 | `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
-| `remove-rgb-outside-tokens`     | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
-| `remove-undefined-token`        | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        |
-| `remove-z-index-outside-tokens` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      |
+| `remove-rgb-outside-token-file` | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
+| `remove-undefined-token-file`   | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        |
+| `remove-z-index-outside-token-file` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      |
 
 A **code** rule sees one file and runs under `putout .`. A **filesystem** rule is about a tree
 and runs under `redlint`, because a 🐊**Putout** rule knows nothing about filenames. Both are in
