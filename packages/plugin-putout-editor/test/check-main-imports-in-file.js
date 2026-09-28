@@ -11,7 +11,7 @@ const test = createTest(import.meta.url, {
 });
 
 test('plugin-putout-editor: check-main-imports-in-file: report', (t) => {
-    t.report('check-main-imports-in-file-on', '☝️ /css/main.css: main.css is an entry point: @import only');
+    t.report('check-main-imports-in-file-on', 'main.css is an entry point: @import only');
     t.end();
 });
 

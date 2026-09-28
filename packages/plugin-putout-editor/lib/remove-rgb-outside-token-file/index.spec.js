@@ -41,7 +41,7 @@ const contentOf = (source) => {
 
 test('putout-editor: remove-rgb-outside-token-file: report', (t) => {
     const result = scan('main.css', CSS_WITH_RGB)[0].message;
-    const expected = `☝️ ${ROOT}/main.css: colours belong in tokens.css, reach for a var() instead`;
+    const expected = `colours belong in tokens.css, reach for a var() instead`;
     
     t.equal(result, expected);
     t.end();

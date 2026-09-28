@@ -115,7 +115,11 @@ Without step 3 the rule is dead: `off` in the map and no `match` that turns it o
 never runs anywhere. That is the failure to check for after a rename, because nothing errors —
 the suite is green and the rule does nothing.
 
-**A filesystem rule is tested the plugin-esm way**, one file per rule in `test/`, with
+****`test/` is `plugin-esm`'s shape, not an invention.** `test/esm.js` is one `createTest` over
+the whole plugin, one test per rule, and `test/exports.js` covers the exports. A `*-file` rule
+gets its own file because the default is `off` and only `rules` turns it on.
+
+A filesystem rule is tested the plugin-esm way**, one file per rule in `test/`, with
 `createTest` and the rule explicitly turned on, because the default is now `off`:
 
 ```js

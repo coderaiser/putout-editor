@@ -36,7 +36,7 @@ const contentOf = (source) => {
 
 test('putout-editor: remove-z-index-outside-token-file: report', (t) => {
     const result = scan('dialog.css', CSS_WITH_Z_INDEX)[0].message;
-    const expected = `☝️ ${ROOT}/dialog.css: z-index belongs in tokens.css, reach for a var() instead`;
+    const expected = `z-index belongs in tokens.css, reach for a var() instead`;
     
     t.equal(result, expected);
     t.end();

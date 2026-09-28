@@ -34,7 +34,7 @@ test('putout-editor: check-main-imports-in-file: a rule in main.css', (t) => {
     const [place] = scan('main.css', fixture('not-imports-only'));
     
     const result = place.message;
-    const expected = `☝️ ${ROOT}/main.css: main.css is an entry point: @import only`;
+    const expected = `main.css is an entry point: @import only`;
     
     t.equal(result, expected);
     t.end();

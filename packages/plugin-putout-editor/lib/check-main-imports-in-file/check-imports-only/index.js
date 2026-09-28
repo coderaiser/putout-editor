@@ -9,13 +9,13 @@ const WRAPPERS = [
 
 const isImport = ({node}) => node.callee.name === 'cssImport';
 
-const isWrapper = ({node}) => {
-    return isCallExpression(node) && WRAPPERS.includes(node.callee.name);
-};
-
 export const report = () => 'main.css is an entry point: @import only';
 
-export const filter = (path) => !isImport(path) && !isWrapper(path);
+export const filter = (path) => {
+    const {node} = path;
+    
+    return !isImport(path) && !(isCallExpression(node) && WRAPPERS.includes(node.callee.name));
+};
 
 export const include = () => [
     'CallExpression',

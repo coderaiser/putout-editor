@@ -44,7 +44,7 @@ test('putout-editor: apply-z-index-token: report', (t) => {
 
 test('putout-editor: apply-z-index-token: report: the message', (t) => {
     const result = scan('main.css', fixture('apply-z-index-token'))[0].message;
-    const expected = `☝️ ${ROOT}/main.css: ${MESSAGE}`;
+    const expected = String(MESSAGE);
     
     t.equal(result, expected);
     t.end();

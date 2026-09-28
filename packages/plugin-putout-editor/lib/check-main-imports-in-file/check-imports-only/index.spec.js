@@ -81,7 +81,7 @@ test('putout-editor: check-imports-only: report only: which file a rule belongs 
 
 test('putout-editor: check-imports-only: report: the message', (t) => {
     const result = scan('main.css', fixture('check-imports-only'))[0].message;
-    const expected = `☝️ ${ROOT}/main.css: ${MESSAGE}`;
+    const expected = String(MESSAGE);
     
     t.equal(result, expected);
     t.end();

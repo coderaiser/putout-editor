@@ -294,9 +294,62 @@ rule that walks the tree, and the convention is `['off', plugin]` in `lib/index.
 `apply-namespace-to-imported-file` in 🐊**Putout** is the reference, as is
 `packages/putout/putout.json`. All three parts have to agree: a name with the suffix, an `off`
 in the map, and the match that enables it, or the rule never runs anywhere and nothing says so.
-Test them the plugin-esm way: one `test/<rule>.js` per rule with `createTest` and `rules`
-turning it on, fixtures as `__putout_processor_filesystem([...])` in `test/fixture/`. The map
-is the single source of truth for on/off — do not duplicate it into `.putout.json` per rule.
+The map is the single source of truth for on/off — do not duplicate it into `.putout.json` per
+rule, and do not add a spec that reads the config to check it.
+
+**`test/` follows `plugin-esm`.** `test/esm.js` is the model, and so is `test/exports.js`:
+
+```
+test/
+├── <rule>.js          one file per -file rule, createTest + rules turning it on
+├── exports.js         the map and what putout can load out of it
+├── fixture/           __putout_processor_filesystem([...]) sources, shared
+└── readme.js          the ❌/✅ fences, run through their own rules
+```
+
+Each `test/<rule>.js` is `createTest(import.meta.url, {rules: {'putout-editor/<rule>': 'on'},
+plugins: [['putout-editor', editor]]})` and then one test per shape. The `rules` entry is not
+optional: a `*-file` rule is `off` in the map, so a spec that omits it tests nothing and passes.
+`t.report` needs the full message, and a filesystem rule's message has no `☝️ filename:` prefix
+unless the rule writes one itself — the three `matchFiles` rules take theirs from the operator.
+
+**An inner rule's spec drives the outer rule**, because `matchFiles` converts each matched file
+before the inner plugin sees it, so the inner plugin cannot be handed a fixture and parsed on
+its own. The outer rule's `fixture/` holds a filesystem source and the inner one plain files.
+
+**Single-use helpers inline into the map.** `matcher` and `replacer` used once belong in the
+`match`/`replace` body, as `remove-useless-assignment` does it:
+
+```js
+export const match = () => ({
+    'declaration(__a, __b)': ({__a, __b}) => isStringLiteral(__a) && __a.value === 'z-index',
+});
+```
+
+**Never write a `report` a helper already returns.** `matchFiles` returns one — `(path,
+{message}) => message` — and every `matchFiles` rule in 🐊**Putout** destructures it rather than
+declaring a second:
+
+```js
+export const {
+    report,
+    scan,
+    fix,
+} = matchFiles({
+    files: {
+        '*.css': {
+            plugins: [
+                ['apply-z-index-token', applyZIndexToken],
+            ],
+        },
+    },
+    exclude: ['tokens.css'],
+});
+```
+
+That is also why a `matchFiles` message is plain: the operator's `report` has no `inputFilename`,
+and putout's own reporter prints the filename. A `scan` rule writes its own `report`, because
+there is no operator to borrow one from.
 
 **No comments in the plugin.** The rule's name and its README section are the documentation, and
 a rule name is a claim about what it checks — `css-architecture` claimed more than the rule did

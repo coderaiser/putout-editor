@@ -44,7 +44,7 @@ test('putout-editor: remove-rgb: report', (t) => {
 
 test('putout-editor: remove-rgb: report: the message', (t) => {
     const result = scan('main.css', fixture('remove-rgb'))[0].message;
-    const expected = `☝️ ${ROOT}/main.css: ${MESSAGE}`;
+    const expected = String(MESSAGE);
     
     t.equal(result, expected);
     t.end();

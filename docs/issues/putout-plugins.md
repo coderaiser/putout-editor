@@ -3,14 +3,22 @@
 Rules in `packages/plugin-putout-editor` — the [README](../../packages/plugin-putout-editor/README.md)
 has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 
-| Rule                            | Kind       | What it found                                                         |
-|---------------------------------|------------|-----------------------------------------------------------------------|
-| `apply-press-modifier-case`     | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
-| `check-main-imports-in-file`    | filesystem | a rule in `main.css`, which is an entry point and holds only imports   |
-| `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
-| `remove-rgb-outside-token-file` | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
-| `remove-undefined-token-file`   | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        |
-| `remove-z-index-outside-token-file` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      |
+| Rule                                 | Kind       | What it found                                                         | Finding |
+|--------------------------------------|------------|-----------------------------------------------------------------------|---------|
+| `apply-press-modifier-case`          | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing | [fixers that lose a guard](#❌-apply-destructuring-drops-the-guard-on-a-return) |
+| `check-main-imports-in-file`         | filesystem | a rule in `main.css`, which is an entry point and holds only imports   | [a filesystem rule, and when it needs two files](../memory/putout-rules.md#matchfiles-is-for-one-file-a-rule-that-compares-two-needs-scan) |
+| `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#💡-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes) |
+| `remove-rgb-outside-token-file`      | filesystem | the one hardcoded colour outside `css/tokens.css`                     | [report-only is possible](../memory/putout-rules.md#report-only-is-possible-at-the-cost-of-one-no-op-action) |
+| `remove-undefined-token-file`        | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        | [a `scan` delegates to a matcher](../memory/putout-rules.md#a-scan-can-still-delegate-to-a-matcher) |
+| `remove-z-index-outside-token-file`  | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      | [report-only is possible](../memory/putout-rules.md#report-only-is-possible-at-the-cost-of-one-no-op-action) |
+
+The `Finding` column is why this file exists as a table and not as prose: a rule's *history* is
+the reason it is on, and a reader who lands on the rule should be able to follow it in one
+click. `apply-type-check` is the one thing here that is not a rule of ours and has no row —
+it is [below](#💡-apply-type-check-fires-on-domain-types-too).
+
+Not a rule, and the reason a fixer that works is still worth arguing about:
+[a fixer that cannot detect its own lossy cases exits clean](#💡-a-fixer-that-cannot-detect-its-own-lossy-cases-exits-clean).
 
 A **code** rule sees one file and runs under `putout .`. A **filesystem** rule is about a tree
 and runs under `redlint`, because a 🐊**Putout** rule knows nothing about filenames. Both are in

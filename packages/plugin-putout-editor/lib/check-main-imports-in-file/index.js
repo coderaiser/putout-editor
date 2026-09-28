@@ -3,9 +3,11 @@ import * as checkImportsOnly from './check-imports-only/index.js';
 
 const {matchFiles} = operator;
 
-export const report = (_, {message, inputFilename}) => `☝️ ${inputFilename}: ${message}`;
-
-export const {scan, fix} = matchFiles({
+export const {
+    report,
+    scan,
+    fix,
+} = matchFiles({
     files: {
         'main.css': {
             plugins: [

@@ -11,6 +11,6 @@ const test = createTest(import.meta.url, {
 });
 
 test('plugin-putout-editor: remove-z-index-outside-token-file: report', (t) => {
-    t.report('remove-z-index-outside-token-file', '☝️ /css/dialog.css: z-index belongs in tokens.css, reach for a var() instead');
+    t.report('remove-z-index-outside-token-file', 'z-index belongs in tokens.css, reach for a var() instead');
     t.end();
 });
