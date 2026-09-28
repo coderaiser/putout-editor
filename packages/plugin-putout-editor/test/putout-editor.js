@@ -3,6 +3,7 @@ import {rules} from '../lib/index.js';
 
 const EXPECTED = [
     'apply-press-modifier-case',
+    'css-architecture',
     'remove-comments',
     'remove-duplicated-receiver',
     'remove-rgb-outside-tokens',

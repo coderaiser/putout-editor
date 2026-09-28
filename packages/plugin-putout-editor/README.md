@@ -19,6 +19,7 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 ## Rules
 
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
+- ✅ [css-architecture](#css-architecture);
 - ✅ [remove-comments](#remove-comments);
 - ✅ [remove-duplicated-receiver](#remove-duplicated-receiver);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
@@ -48,6 +49,37 @@ await page.keyboard.press('ControlOrMeta+V');
 ```js
 await page.keyboard.press('Control+v');
 await page.keyboard.press('ControlOrMeta+v');
+```
+
+***
+
+## css-architecture
+
+`main.css` is an entry point: `@import` lines and nothing else. The stylesheet layout and
+the reasons for it are in [`packages/client/css/README.md`](../../client/css/README.md).
+
+This is a **filesystem** rule, so it runs under `redlint`, not under `putout .`. A 🐊Putout
+rule sees one AST and knows nothing about filenames, which is why "only in this file" has to
+be expressed against the tree.
+
+Report-only: which file a rule belongs in is a judgement call, so the file is returned
+unchanged.
+
+### ❌ Example of incorrect code
+
+```css
+@import './tokens.css';
+
+.a {
+    color: red;
+}
+```
+
+### ✅ Example of correct code
+
+```css
+@import './tokens.css';
+@import './reset.css';
 ```
 
 ***
