@@ -56,7 +56,7 @@ await page.keyboard.press('ControlOrMeta+v');
 ## css-architecture
 
 `main.css` is an entry point: `@import` lines and nothing else. The stylesheet layout and
-the reasons for it are in [`packages/client/css/README.md`](../../client/css/README.md).
+the reasons for it are in [`packages/client/css/README.md`](../client/css/README.md).
 
 This is a **filesystem** rule, so it runs under `redlint`, not under `putout .`. A 🐊Putout
 rule sees one AST and knows nothing about filenames, which is why "only in this file" has to
