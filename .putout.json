@@ -11,6 +11,7 @@
     "match": {
         "*.md": {
             "destructuring/apply-object": "off",
+            "logical-expressions/apply-destructuring": "off",
             "regexp/apply-literal-notation": "off",
             "putout-editor/apply-press-modifier-case": "off",
             "putout-editor/remove-comments": "off",

@@ -8,7 +8,6 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | `apply-press-modifier-case`     | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
 | `check-main-imports-only`       | filesystem | a rule in `main.css`, which is an entry point and holds only imports   |
 | `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
-| `remove-duplicated-receiver`    | code       | the receiver a `?.` expansion duplicated, 29 times, by hand            |
 | `remove-rgb-outside-tokens`     | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
 | `remove-undefined-token`        | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        |
 | `remove-z-index-outside-tokens` | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      |
@@ -22,6 +21,7 @@ What the rules that already work taught me is in
 see comments, and a missing rule is an argument rather than a workaround.
 
 ## 💡 a fixer that cannot detect its own lossy cases exits clean
+
 `convert-optional-to-logical` is net-positive and I would not turn it off — but it exits 0 on
 code it has made type-unsound, and the type checker is what finds out. That gap is the finding;
 the rule works, the report is missing.
@@ -54,10 +54,10 @@ caught it — which is the point: **this is what a type-aware reviewer is for, a
 say so rather than exit clean.**
 
 Two of the three are invisible to any single-file linter and need no types at all: a duplicated
-call receiver and a bare logical expression. The first is now `remove-duplicated-receiver` in
-`packages/plugin-putout-editor`, which **fixes** in all three statement contexts — a declaration
-is split, a return gets the binding above it, and a concise arrow body becomes a block. The
-second is a report, because there is no safe automatic shape for it.
+call receiver and a bare logical expression. The first is upstream's
+`logical-expressions/apply-destructuring`, which destructures the receiver in a declaration, a
+return and a concise arrow body. The second is a report, because there is no safe automatic shape
+for it.
 
 ### Why this is not "fixers are worse than humans"
 
@@ -84,20 +84,21 @@ and has a safe answer. That is a fixer change, not a lint change, and belongs up
 
 ### This rule is not about this repository either
 
-`remove-duplicated-receiver` catches any `a() && a.b()`, whatever put the `&&` there — a `?.`
-expansion in this repository, but a hand-written one, or a template, anywhere. There are no
-filenames in it, no CSS tokens and no `ControlOrMeta` chords.
+A duplicated receiver is `a() && a.b()` whatever put the `&&` there — a `?.` expansion in this
+repository, but a hand-written one, or a template, anywhere. There are no filenames in it, no CSS
+tokens and no `ControlOrMeta` chords.
 
-Its natural home is `@putout/plugin-logical-expressions`, whose five rules are all about the
-shape of a logical expression: `simplify`, `remove-boolean`, `remove-duplicates`,
-`convert-bitwise-to-logical`, `convert-coalescing-to-logical`. A duplicated receiver is the
-same concern — `a && a.b` is a logical expression that evaluates one side twice. So it should
-be moved there.
+**Where it ended up: upstream, and it is already there.** `a && a.b` is a logical expression
+that evaluates one side twice, which is the same concern as the rest of
+`@putout/plugin-logical-expressions` — `simplify`, `remove-boolean`, `remove-duplicates`,
+`convert-bitwise-to-logical`, `convert-coalescing-to-logical`. Its `apply-destructuring` covers
+all three statement contexts and checks the name against the scope, so our copy was deleted
+rather than kept as a near-duplicate. It has one defect of its own, filed above.
 
-What is worth keeping in this repository until it lands is the lesson, because the rule exists
-because of it: **a fixer that only reports has not done the thing.** This one was written
-report-only first, on the reasoning that choosing a binding is a human call — which is eslint's
-posture, and the one 🐊**Putout** exists to replace. Every defect it now catches, it fixes.
+What is worth keeping from writing it is the lesson: **a fixer that only reports has not done the
+thing.** It was written report-only first, on the reasoning that choosing a binding is a human
+call — which is eslint's posture, and the one 🐊**Putout** exists to replace. Every defect it
+caught, it fixed.
 
 ***
 
@@ -145,3 +146,78 @@ negative case. It is also a recurrence of cause #1 in
 [`../lessons.md`](../lessons.md#1-a-test-passed-on-a-cheaper-path-than-the-user-takes) —
 `remove-comments` passing every spec while firing on 50 places, and now the same rule passing
 every spec while firing on files with nothing to report.
+
+## ❌ `apply-destructuring` drops the `&&` guard on a `return`
+
+Upstream, from `@putout/plugin-logical-expressions` — not a rule of ours, and this is what
+replaced our own `remove-duplicated-receiver`.
+
+**Before.**
+
+```js
+const label = (el) => el().text && el().text.trim();
+```
+
+**After `putout . --fix`.**
+
+```js
+const label = (el) => {
+    const {text} = el();
+    
+    return text.trim();
+};
+```
+
+**Expected.** Keep the guard: `const {text} = el(); return text && text.trim();`. **Got** — the
+`&&` is gone, and with it the only thing making a null receiver safe. The raw output has an
+extra nested block too, which `--fix` then flattens with `remove-nested-blocks`; the guard is
+already gone by then.
+
+The rule takes the declaration and arrow forms correctly. Only the `return` template drops the
+guard:
+
+```js
+const template = {
+    'return __a().__b && __a().__b.__c()': `{
+        const {__b} = __a();
+        return __b.__c();
+    }`,
+};
+```
+
+**Why the repro below is inline and not fenced:** the `Before` and `After` blocks are exactly
+what `logical-expressions/apply-destructuring` rewrites, and a `js` fence demonstrating a rule's
+output is valid code that the fixer is asking to change — the example's purpose and the fixer's
+job are opposed, and the fixer wins. That is the argument in
+[`markdown.md`](./markdown.md), and it is why `test/readme.js` exists to catch it when it
+happens. Here it is shown as runnable input instead:
+
+```js
+const el = () => ({
+    text: null,
+});
+
+const before = (el) => el().text && el().text.trim();
+
+const after = (el) => {
+    const {text} = el();
+    
+    return text.trim();
+};
+
+console.log(before(el));
+console.log(after(el));
+```
+
+The first line prints `null`; the second throws:
+
+```
+null
+TypeError: Cannot read properties of null (reading 'trim')
+```
+
+There is no occurrence of the shape in this repository, so nothing here is broken by it. It is
+reported because a fixer that turns a returned `null` into a thrown `TypeError` exits 0, and
+that is the same gap as `convert-optional-to-logical` above: **the rule works, the report is
+missing.** The declaration form cannot lose a narrowing, but a `return` can lose a guard, and
+the template does not distinguish the two.
