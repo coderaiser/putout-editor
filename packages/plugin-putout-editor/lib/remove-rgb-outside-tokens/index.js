@@ -13,6 +13,8 @@ const matches = () => fromEntries(PATTERNS.map((a) => [a, () => true]));
 
 const replaces = () => fromEntries(PATTERNS.map((a) => [a, a]));
 
+export const report = (_, {message, inputFilename}) => `☝️ ${inputFilename}: ${message}`;
+
 export const {scan, fix} = matchFiles({
     files: {
         '*.css': {
@@ -27,5 +29,3 @@ export const {scan, fix} = matchFiles({
     },
     exclude: ['tokens.css'],
 });
-
-export const report = (_, {message, inputFilename}) => `☝️ ${inputFilename}: ${message}`;
