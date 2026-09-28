@@ -6,7 +6,6 @@ const EXPECTED = [
     'apply-press-modifier-case',
     'check-main-imports-only',
     'remove-comments',
-    'remove-duplicated-receiver',
     'remove-rgb-outside-tokens',
     'remove-undefined-token',
     'remove-z-index-outside-tokens',

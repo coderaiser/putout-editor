@@ -21,7 +21,6 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [check-main-imports-only](#check-main-imports-only);
 - ✅ [remove-comments](#remove-comments);
-- ✅ [remove-duplicated-receiver](#remove-duplicated-receiver);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
 - ✅ [remove-undefined-token](#remove-undefined-token);
 - ✅ [remove-z-index-outside-tokens](#remove-z-index-outside-tokens);
@@ -109,64 +108,6 @@ const MODIFIERS = [
     'Control',
     'Shift',
 ];
-```
-
-***
-
-## remove-duplicated-receiver
-
-`a && a.b()` calls `a` twice. That is only safe when `a` is a plain read, and it usually is not:
-`getState() && getState().value` runs the store getter twice, and a second read can disagree with
-the first.
-
-This is what a mechanical `?.` expansion leaves behind — `a?.b()` becomes `a && a.b()` — so it
-arrives in batches rather than one at a time. See `docs/issues/putout-plugins.md`.
-
-The matcher only fires when the receiver **contains a call**, so `q.r && q.r.s()` and
-`p && p.toString()` are left alone: reading a property is not a side effect, and a rule that
-flagged those would be noise.
-
-It **fixes**, because a rule that only reports is the thing this package exists to replace.
-There are three statement contexts and all three are handled:
-
-A **declaration** is split — the receiver is bound once, above it. A **return** gets the binding
-inserted before it. A concise **arrow body** is turned into a block, which is the only way a
-declaration fits inside an expression:
-
-```js
-const arrow = (el) => {
-    const {text} = el();
-    return text && text.trim();
-};
-```
-
-```js
-const arrow = (el) => {
-    const {text} = el();
-    return text && text.trim();
-};
-```
-
-The name is a property of the receiver, never a callee — deriving it from a bare call produced
-`const f = f()`, a temporal-dead-zone self-reference that throws on the first line. It is also
-checked against the scope, so a name that is already taken is **reported and left alone** rather
-than shadowed.
-
-Rewriting an arrow into a block is a bigger change than the line it replaces, and that is the
-point: a fixer that stops at "I cannot express this" leaves the reader with work, and work is
-what the rule was supposed to remove.
-
-### ❌ Example of incorrect code
-
-```js
-const value = getState().workbench && getState().workbench.code;
-```
-
-### ✅ Example of correct code
-
-```js
-const {workbench} = getState();
-const value = workbench && workbench.code;
 ```
 
 ***
