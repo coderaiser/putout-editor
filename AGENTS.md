@@ -297,6 +297,34 @@ in the map, and the match that enables it, or the rule never runs anywhere and n
 The map is the single source of truth for on/off — do not duplicate it into `.putout.json` per
 rule, and do not add a spec that reads the config to check it.
 
+**A `match` block beats `rules`, through a sub-rule.** `"putout-editor": "off"` in a `*.md`
+match is enough to keep `remove-comments` off a markdown file, even though
+`packages/plugin-putout-editor/.putout.json` turns that one rule `on` for the package. Two
+things have to be true for it, and the first is easy to forget:
+
+- the config has to be read by a putout that has `62955501c`. `parseOptions` drops a rule the
+  `match` names, and a sub-rule of a plugin it turns off; before that, `matchFiles` re-enabled
+  the plugin from the surviving sub-rule and every markdown fence was rewritten by `--fix`;
+- the rule and the match may live in **different files** — here a `.putout.json` `rules` block
+  and the root `match` — and the fix reads the merged match, so the two do not have to agree in
+  one place.
+
+A `match` from `defaultOptions` still loses to explicit `options.rules`. Only your own config
+suppresses, and that is what keeps `putout .` able to override a shipped default.
+
+**This repository tests the workspace putout, not the published one.** `node_modules/putout` is
+a symlink to `/home/coderaiser/putout/packages/putout`, so a fix there is what the lint here
+sees. Two consequences:
+
+- the putout workspace has no `jiti`, and `eslint.config.ts` is a TypeScript file, so
+  `node_modules/jiti` in that tree has to point somewhere that exists or **every** file
+  reports `The 'jiti' library is required for loading TypeScript configuration files`;
+- the workspace putout is slower to start than the published one, so a full `putout .` over
+  this package takes minutes. Scope it, or run it in the background and poll.
+
+If the lint suddenly cannot find a package after changing the symlink, that is this, not the
+plugin.
+
 **`test/` follows `plugin-esm` and `plugin-nodejs`.** `test/nodejs.js` is the model:
 
 ```
