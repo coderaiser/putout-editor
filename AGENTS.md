@@ -257,6 +257,37 @@ places on a file with no comments at all while every test passed.
 Fixture-based tests through `@putout/test`'s `createTest`, with the `-fix` fixtures generated
 by `UPDATE=1`. Keep the package at 100% coverage.
 
+**`report` is the first export of every rule.** Measured in the 🐊**Putout** repo: of the 622
+rule files there with a plain `export const report`, 603 open with it, and the 19 that do not
+are not putout rules — 18 are `eslint-plugin-putout` descriptors leading with
+`export const category`, one is a helper. The destructured form agrees: `report` is the first
+key in `export const {report, scan, fix} = matchFiles(...)`, as in `sort-readme-file`,
+`remove-files` and `remove-zero`.
+
+This is a convention, not a lint rule, so nothing enforces it and three rules here broke it —
+each opened with `export const {scan, fix} = matchFiles({...})` and put `report` last,
+because that is where the destructured result ends up once written that way. Write `report`
+first and the shape follows:
+
+```js
+export const report = (_, {message, inputFilename}) => `☝️ ${inputFilename}: ${message}`;
+
+export const {scan, fix} = matchFiles({
+    files: {
+        '*.css': {
+            plugins: [
+                ['apply-z-index-token', applyZIndexToken],
+            ],
+        },
+    },
+    exclude: ['tokens.css'],
+});
+```
+
+It holds for a rule with no `matchFiles` too — `apply-press-modifier-case` opens with `report`
+and follows with `match` and `replace`. The one exemption is `lib/index.js`, which is the
+rules map rather than a rule.
+
 **No comments in the plugin.** The rule's name and its README section are the documentation, and
 a rule name is a claim about what it checks — `css-architecture` claimed more than the rule did
 and is now `check-main-imports-only`. The one exception that cannot be honoured is

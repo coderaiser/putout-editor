@@ -81,6 +81,10 @@ packages/plugin-putout-editor/
    first, as 🐊**Putout** does — `remove-`, `apply-`, `add-`, `sort-`, `check-` — and let the name
    be the claim about what it checks. `check-main-imports-only` says what it does;
    `css-architecture` claimed a whole document, and five sibling rules had nothing to do with it.
+   **`report` goes first**, which is the order almost every rule in the 🐊**Putout** repo opens
+   in, and the reason a reader finds the message before the machinery. Nothing enforces it, so
+   it is worth saying out loud — particularly for a `matchFiles` rule, where it is tempting to
+   write the operator call first and the message last.
 2. `lib/<rule-name>/fixture/<name>.js` and `<name>-fix.js` — before and after, **one pair per
    shape the rule handles**, not one fixture holding everything. Generate the `-fix` with
    `UPDATE=1` rather than writing it by hand, because a hand-written one asserts an output the

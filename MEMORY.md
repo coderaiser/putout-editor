@@ -123,6 +123,11 @@ When a claim rests on a hand-written copy, a summary, or a script, check the thi
 - **A rule name is a claim about what it checks.** `css-architecture` claimed far more than the
   rule did and became `check-main-imports-only`; `apply-type-check` was not ours at all. If the
   name cannot be read as the check, it is the wrong name or the wrong scope.
+- **`report` is the first export of a rule.** 603 of the 622 rule files in the 🐊**Putout** repo
+  that export a plain `report` open with it, and the destructured form puts it first too. It is a
+  convention with no lint rule behind it, which is exactly why it drifts — three rules here had
+  `export const {scan, fix} = matchFiles(…)` first and the message last, because that is where
+  the destructured result lands once written that way.
 - **A `.putout.json` `off` has to be checked, not assumed.** `"putout-editor": "off"` in a
   `*.md` match covers every rule of the plugin and survives one being added, which is why it is
   the form to use — but it does not reach another plugin, so `logical-expressions/apply-destructuring`
