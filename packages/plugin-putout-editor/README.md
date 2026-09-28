@@ -160,8 +160,7 @@ what the rule was supposed to remove.
 ### ❌ Example of incorrect code
 
 ```js
-const {workbench} = getState();
-const value = workbench && workbench.code;
+const value = getState().workbench && getState().workbench.code;
 ```
 
 ### ✅ Example of correct code
