@@ -4,18 +4,7 @@
     },
     "match": {
         "*.md": {
-            "putout-editor/remove-comments": "off",
-            "putout-editor/apply-press-modifier-case": "off",
-            "putout-editor/remove-duplicated-receiver": "off"
-        },
-        "test/*.js": {
-            "putout-editor/remove-comments": "off"
-        },
-        "**/*.spec.js": {
-            "putout-editor/remove-comments": "off"
-        },
-        "lib/*/fixture/*": {
-            "putout-editor/remove-comments": "off"
+            "putout-editor": "off"
         }
     }
 }
