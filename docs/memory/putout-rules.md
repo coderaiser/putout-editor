@@ -59,7 +59,67 @@ const parseOptions = (inputFilename, rawOptions) => {
 A `scan` plugin, by contrast, is called as `scan(mainPath, {push, trackFile, ...})` — the root
 is the first argument, which is why the two cross-file rules in this package are `scan`.
 
-## An empty file reaches a `matchFiles` rule as `{}`
+## A `*-file` rule is a filesystem rule, and it is `off` by default
+
+In the 🐊**Putout** repo the `-file`/`-files` suffix marks a rule that walks the tree rather
+than one file. Measured: 14 of the 21 rules that `export const scan` end in `-file`, and the
+ones that do not are helpers or whole-directory tools (`bundle`, `create-app-directory`).
+`plugin-esm` is the clean example — `apply-namespace-to-imported-file`, `resolve-imported-file`,
+`shorten-imported-file` and the rest are all `['off', plugin]` in its `rules` map.
+
+The three parts that have to agree, and none of them is optional:
+
+1. **the name** ends in `-file`, so a reader knows before opening the file that this is a
+   filesystem rule;
+2. **the rules map** has `['off', plugin]`, so `putout .` never runs it over code;
+3. **a `.filesystem.json` match** in the config turns it back on for the one file `redlint`
+   reads. In the 🐊**Putout** repo that is `packages/putout/putout.json`:
+
+```ts
+{
+    ".filesystem.json": {
+        "esm/apply-namespace-to-imported-file": "on",
+        "esm/resolve-imported-file": "on",
+        "esm/shorten-imported-file": "on"
+    }
+}
+```
+
+Without step 3 the rule is dead: `off` in the map and no `match` that turns it on means it
+never runs anywhere. That is the failure to check for after a rename, because nothing errors —
+the suite is green and the rule does nothing.
+
+**A filesystem rule is tested the plugin-esm way**, one file per rule in `test/`, with
+`createTest` and the rule explicitly turned on, because the default is now `off`:
+
+```js
+const test = createTest(import.meta.url, {
+    rules: {
+        'putout-editor/remove-rgb-outside-token-file': 'on',
+    },
+    plugins: [
+        ['putout-editor', putoutEditor],
+    ],
+});
+
+test('plugin-putout-editor: remove-rgb-outside-token-file: report', (t) => {
+    t.report('remove-rgb-outside-token-file', '☝️ /css/main.css: colours belong in tokens.css');
+    t.end();
+});
+```
+
+The fixtures are `__putout_processor_filesystem([...])` sources in `test/fixture/`, one per
+rule, and `t.report` needs the **full message including the `☝️` prefix and the filename** —
+it is compared as a string, and a missing one fails with "Looks like you forget to pass the
+'message'".
+
+**The `*.md` config test was measuring the wrong thing.** There was a spec asserting every
+rule with a fence is named in the `*.md` match, which pushed towards per-rule `off` lines that
+duplicate the map. The map is the single source of truth for on/off; the config only has to
+turn the plugin off for markdown, and the spec is now about the map instead — a `*-file` rule
+is off, a code rule is on, and both are checked there.
+
+
 
 `operator-match-files/lib/match-files.js` reads the matched file with a fallback:
 

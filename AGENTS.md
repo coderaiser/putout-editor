@@ -288,6 +288,16 @@ It holds for a rule with no `matchFiles` too — `apply-press-modifier-case` ope
 and follows with `match` and `replace`. The one exemption is `lib/index.js`, which is the
 rules map rather than a rule.
 
+**A `*-file` rule is a filesystem rule and is `off` in the map.** The `-file` suffix marks a
+rule that walks the tree, and the convention is `['off', plugin]` in `lib/index.js` with a
+`.filesystem.json` match in the root `.putout.json` turning it back on for `redlint` —
+`apply-namespace-to-imported-file` in 🐊**Putout** is the reference, as is
+`packages/putout/putout.json`. All three parts have to agree: a name with the suffix, an `off`
+in the map, and the match that enables it, or the rule never runs anywhere and nothing says so.
+Test them the plugin-esm way: one `test/<rule>.js` per rule with `createTest` and `rules`
+turning it on, fixtures as `__putout_processor_filesystem([...])` in `test/fixture/`. The map
+is the single source of truth for on/off — do not duplicate it into `.putout.json` per rule.
+
 **No comments in the plugin.** The rule's name and its README section are the documentation, and
 a rule name is a claim about what it checks — `css-architecture` claimed more than the rule did
 and is now `check-main-imports-only`. The one exception that cannot be honoured is

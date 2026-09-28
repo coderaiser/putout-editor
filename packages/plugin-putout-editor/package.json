@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "author": "coderaiser <mnemonic.enemy@gmail.com> (https://github.com/coderaiser)",
-  "description": "🐊Putout plugin for the 🐊Putout Editor repository",
+  "description": "\ud83d\udc0aPutout plugin for the \ud83d\udc0aPutout Editor repository",
   "homepage": "https://github.com/coderaiser/putout-editor/tree/master/packages/plugin-putout-editor#readme",
   "main": "lib/index.js",
   "release": false,
@@ -32,7 +32,9 @@
     "plugin"
   ],
   "dependencies": {
-    "putout": "^42.8.0"
+    "@putout/processor-css": "^13.2.0",
+    "putout": "^42.8.0",
+    "try-catch": "^4.0.0"
   },
   "devDependencies": {
     "@putout/test": "^15.8.2",

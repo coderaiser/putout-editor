@@ -16,14 +16,20 @@ repo instead - see `docs/issues/putout-plugins.md` in the Editor for where each 
 The plugin is private and wired in through `plugins` in the repository's root `.putout.json`,
 so `putout .` and `redlint scan` already run it. It is not published to npm.
 
+**A rule named `*-file` is a filesystem rule and is `off` by default**, the same as
+`esm/apply-namespace-to-imported-file` and the other file rules in the 🐊**Putout** repo. It is
+enabled by the `.filesystem.json` match in the root `.putout.json`, which is the file `redlint`
+reads, and that is the only place it runs. A rule without the suffix is a code rule and runs
+under `putout .` as usual.
+
 ## Rules
 
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
-- ✅ [check-main-imports-only](#check-main-imports-only);
+- ✅ [check-main-imports-in-file](#check-main-imports-in-file);
 - ✅ [remove-comments](#remove-comments);
-- ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
-- ✅ [remove-undefined-token](#remove-undefined-token);
-- ✅ [remove-z-index-outside-tokens](#remove-z-index-outside-tokens);
+- ✅ [remove-rgb-outside-token-file](#remove-rgb-outside-token-file);
+- ✅ [remove-undefined-token-file](#remove-undefined-token-file);
+- ✅ [remove-z-index-outside-token-file](#remove-z-index-outside-token-file);
 
 ***
 
@@ -52,7 +58,7 @@ await page.keyboard.press('ControlOrMeta+v');
 
 ***
 
-## check-main-imports-only
+## check-main-imports-in-file
 
 `main.css` is an entry point: `@import` lines and nothing else. The stylesheet layout and
 the reasons for it are in [`packages/client/css/README.md`](../client/css/README.md).
@@ -61,7 +67,7 @@ This is a **filesystem** rule, so it runs under `redlint`, not under `putout .`.
 rule sees one AST and knows nothing about filenames, which is why "only in this file" has to
 be expressed against the tree.
 
-`check-main-imports-only/` is the rule that decides what is wrong with the file, as an
+`check-main-imports-in-file/` is the rule that decides what is wrong with the file, as an
 **includer** over the CSS calls: everything is included, `cssImport` is filtered out, and
 anything left standing is a rule in an entry point. The wrapper itself is filtered out too —
 an empty `main.css` reaches the rule as `raw('{}')`, which is an upstream fallback and is
@@ -119,13 +125,16 @@ const MODIFIERS = [
 
 ***
 
-## remove-rgb-outside-tokens
+## remove-rgb-outside-token-file
 
 Colours are tokens. `css/tokens.css` holds them, and every other stylesheet reaches for a
 `var()`. A hardcoded colour is a second place to change a theme.
 
-This is a **filesystem** rule, built on `matchFiles`, so it sees the tree rather than one
-file - and therefore runs under `redlint`, not under `putout .`.
+This is a **filesystem** rule, so it sees the tree rather than one file - and therefore runs
+under `redlint`, not under `putout .`. What is wrong with a given stylesheet is a separate
+rule, `remove-rgb/`, with its own fixtures and its own spec; this file only picks the files and
+prefixes the message with the filename. See `docs/plugins.md` for when a rule should be split
+that way.
 
 ### ❌ Example of incorrect code
 
@@ -150,16 +159,22 @@ node printed back unchanged.
 
 ***
 
-## remove-undefined-token
+## remove-undefined-token-file
 
 A `var(--x)` that no stylesheet defines is a declaration that renders nothing. The browser
 drops the whole property, so the rule exists because the cost is invisible: a selector that
 looks styled, and is not.
 
-This is the other half of `remove-rgb-outside-tokens` and `remove-z-index-outside-tokens`. Those
+This is the other half of `remove-rgb-outside-token-file` and `remove-z-index-outside-token-file`. Those
 say a value belongs in `tokens.css`; this says you thought you put it there and did not. It is
-a **filesystem** rule, built on `matchFiles`, so it sees the tree rather than one file — and
-therefore runs under `redlint`, not under `putout .`.
+a **filesystem** rule and therefore runs under `redlint`, not under `putout .`.
+
+`check-token/` is the rule that decides what is wrong with one stylesheet, as a **Matcher**
+over `functionValue('var', …)` with the defined names passed in as `options`. The outer `scan`
+is what makes it a filesystem rule: it reads `tokens.css` to build the list, converts each
+stylesheet with the CSS processor, and hands it over. It stays a `scan` rather than
+`matchFiles` because `matchFiles` gives its inner plugin no root and no sibling file, so it
+cannot know what `tokens.css` declares — see `docs/memory/putout-rules.md`.
 
 Report-only: a missing token needs a value, and a value is a human decision. The one it found
 in this repository was `var(--color-selection-bg)` in `codemirror.css`, next to a
@@ -184,7 +199,7 @@ been renamed on one side of a pair, and the dead rule was the symptom.
 
 ***
 
-## remove-z-index-outside-tokens
+## remove-z-index-outside-token-file
 
 The same rule for the stacking order. Seven raw `z-index` numbers across three stylesheets
 are now a `--z-*` scale in `tokens.css`.
@@ -193,8 +208,7 @@ This is a **filesystem** rule built on `matchFiles`, so the mask and the `exclud
 What is wrong with a given stylesheet is a separate rule, `apply-z-index-token/`, with its own
 fixtures and its own spec; this file only picks the files and prefixes the message with the
 filename. See `docs/plugins.md` for when a rule should be split that way, and
-`apply-namespace-to-imported-file` in the 🐊**Putout** repo for the same shape with a
-format-level inner rule.
+`apply-namespace-to-imported-file` in the 🐊**Putout** repo for the same shape.
 
 Report-only: which `--z-*` name a number becomes is a human decision, so the replacement is the
 node printed back unchanged, and a spec runs the fix to prove the file comes back byte for byte.
