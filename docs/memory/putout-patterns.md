@@ -1,6 +1,6 @@
 # putout patterns
 
-**The essence.** A 🐊Putout rule can be a *template* — a `match`/`replace` map of pattern
+**The essence.** A 🐊**Putout** rule can be a *template* — a `match`/`replace` map of pattern
 strings — with no `parse`, no `print`, and no hand-built AST. `print` and `parse` are the
 expensive parts, so a rule that can be a template should be. The model to copy is
 `apply-destructuring` in `@putout/plugin-logical-expressions` (sibling checkout at `~/putout`),

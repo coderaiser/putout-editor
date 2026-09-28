@@ -8,7 +8,7 @@
 > (c) 🐊[**Putout**](https://github.com/coderaiser/putout)
 
 Rules that only make sense here: the Editor's own source, its specs and its CSS. Anything
-that would help any 🐊**Putout** user belongs in the [🐊Putout](https://github.com/coderaiser/putout)
+that would help any 🐊**Putout** user belongs in the [🐊**Putout**](https://github.com/coderaiser/putout)
 repo instead - see `docs/issues/putout-plugins.md` in the Editor for where each one ended up.
 
 ## Install
@@ -57,7 +57,7 @@ await page.keyboard.press('ControlOrMeta+v');
 `main.css` is an entry point: `@import` lines and nothing else. The stylesheet layout and
 the reasons for it are in [`packages/client/css/README.md`](../client/css/README.md).
 
-This is a **filesystem** rule, so it runs under `redlint`, not under `putout .`. A 🐊Putout
+This is a **filesystem** rule, so it runs under `redlint`, not under `putout .`. A 🐊**Putout**
 rule sees one AST and knows nothing about filenames, which is why "only in this file" has to
 be expressed against the tree.
 

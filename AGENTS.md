@@ -225,7 +225,7 @@ group and the blank-line whitespace in one command, after two wrong guesses by h
 an issue once the fixer has had its turn.
 
 **Then choose where the rule belongs.** A rule that would help any 🐊**Putout** user is an
-idea for the [🐊Putout](https://github.com/coderaiser/putout) repo; a rule about *this* codebase goes in
+idea for the [🐊**Putout**](https://github.com/coderaiser/putout) repo; a rule about *this* codebase goes in
 `packages/plugin-putout-editor` and is already wired into the lint. See "Repo rules" below.
 
 **If neither exists yet, write the idea up** in `docs/issues/putout-plugins.md`: the **minimum**
