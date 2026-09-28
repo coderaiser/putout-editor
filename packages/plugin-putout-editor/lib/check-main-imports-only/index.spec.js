@@ -1,3 +1,4 @@
+import {Buffer} from 'node:buffer';
 import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
@@ -20,6 +21,14 @@ const scan = (name, content) => putout(sourceOf(name, content), {
         ['filesystem', plugin],
     ],
 }).places;
+
+const contentOf = (source) => {
+    const [, base64] = /"content":\s*"([A-Za-z0-9+/=]+)"/.exec(source);
+    
+    return Buffer
+        .from(base64, 'base64')
+        .toString();
+};
 
 test('putout-editor: check-main-imports-only: a rule in main.css', (t) => {
     const [place] = scan('main.css', fixture('not-imports-only'));
@@ -72,12 +81,9 @@ test('putout-editor: check-main-imports-only: report only, the file is unchanged
         ],
     });
     
-    const result = code.includes(
-        JSON
-            .stringify(css)
-            .slice(1, -1),
-    );
+    const result = contentOf(code);
+    const expected = css;
     
-    t.ok(result);
+    t.equal(result, expected);
     t.end();
 });
