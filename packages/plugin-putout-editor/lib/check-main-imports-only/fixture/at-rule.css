@@ -1,0 +1,7 @@
+@import './tokens.css';
+
+@media screen {
+    .a {
+        color: red;
+    }
+}

@@ -315,7 +315,7 @@ suite went from green to 104 failures ("multiple elements with the role button",
 
 Two kinds of rule live in that plugin, and the difference matters. A **code** rule
 (`apply-press-modifier-case`) sees one AST and runs under `putout .`. A **filesystem** rule
-(`remove-rgb-outside-tokens`, `css-architecture`) is about a *tree* and needs the filesystem AST,
+(`remove-rgb-outside-tokens`, `check-main-imports-only`) is about a *tree* and needs the filesystem AST,
 so it only runs under `redlint` — which `packages/client` does in its `fix:lint`.
 
 That split is 🐊**Putout**'s design, not a workaround: a rule deliberately knows nothing about

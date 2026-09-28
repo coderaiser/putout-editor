@@ -1,5 +1,5 @@
 import * as applyPressModifierCase from './apply-press-modifier-case/index.js';
-import * as cssArchitecture from './css-architecture/index.js';
+import * as checkMainImportsOnly from './check-main-imports-only/index.js';
 import * as removeComments from './remove-comments/index.js';
 import * as removeDuplicatedReceiver from './remove-duplicated-receiver/index.js';
 import * as removeUndefinedToken from './remove-undefined-token/index.js';
@@ -8,7 +8,7 @@ import * as removeZIndexOutsideTokens from './remove-z-index-outside-tokens/inde
 
 export const rules = {
     'apply-press-modifier-case': applyPressModifierCase,
-    'css-architecture': cssArchitecture,
+    'check-main-imports-only': checkMainImportsOnly,
     'remove-comments': ['off', removeComments],
     'remove-duplicated-receiver': removeDuplicatedReceiver,
     'remove-undefined-token': removeUndefinedToken,

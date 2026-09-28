@@ -19,7 +19,7 @@ so `putout .` and `redlint scan` already run it. It is not published to npm.
 ## Rules
 
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
-- ✅ [css-architecture](#css-architecture);
+- ✅ [check-main-imports-only](#check-main-imports-only);
 - ✅ [remove-comments](#remove-comments);
 - ✅ [remove-duplicated-receiver](#remove-duplicated-receiver);
 - ✅ [remove-rgb-outside-tokens](#remove-rgb-outside-tokens);
@@ -53,7 +53,7 @@ await page.keyboard.press('ControlOrMeta+v');
 
 ***
 
-## css-architecture
+## check-main-imports-only
 
 `main.css` is an entry point: `@import` lines and nothing else. The stylesheet layout and
 the reasons for it are in [`packages/client/css/README.md`](../client/css/README.md).

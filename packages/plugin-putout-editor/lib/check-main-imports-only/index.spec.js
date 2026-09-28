@@ -1,11 +1,12 @@
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
-import * as cssArchitecture from './index.js';
+import * as checkMainImportsOnly from './index.js';
 
 const ROOT = '/project';
-
-const plugin = ['css-architecture', cssArchitecture];
+const plugin = ['check-main-imports-only', checkMainImportsOnly];
+const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
 const sourceOf = (name, content) => print(parseFilesystem([
     '/',
@@ -20,8 +21,8 @@ const scan = (name, content) => putout(sourceOf(name, content), {
     ],
 }).places;
 
-test('putout-editor: css-architecture: a rule in main.css', (t) => {
-    const [place] = scan('main.css', '@import "./tokens.css";\n.a {\n    color: red;\n}\n');
+test('putout-editor: check-main-imports-only: a rule in main.css', (t) => {
+    const [place] = scan('main.css', fixture('not-imports-only'));
     
     const result = place.message;
     const expected = `☝️ ${ROOT}/main.css: main.css is an entry point: @import only`;
@@ -30,24 +31,24 @@ test('putout-editor: css-architecture: a rule in main.css', (t) => {
     t.end();
 });
 
-test('putout-editor: css-architecture: an at-rule that is not an import', (t) => {
-    const result = scan('main.css', '@media screen {\n    .a {\n        color: red;\n    }\n}\n').length;
+test('putout-editor: check-main-imports-only: an at-rule that is not an import', (t) => {
+    const result = scan('main.css', fixture('at-rule')).length;
     const expected = 1;
     
     t.equal(result, expected);
     t.end();
 });
 
-test('putout-editor: css-architecture: imports only', (t) => {
-    const result = scan('main.css', '@import "./tokens.css";\n@import "./reset.css";\n').length;
+test('putout-editor: check-main-imports-only: imports only', (t) => {
+    const result = scan('main.css', fixture('check-main-imports-only')).length;
     const expected = 0;
     
     t.equal(result, expected);
     t.end();
 });
 
-test('putout-editor: css-architecture: another file', (t) => {
-    const result = scan('layout.css', '.a {\n    color: red;\n}\n').length;
+test('putout-editor: check-main-imports-only: another file', (t) => {
+    const result = scan('layout.css', fixture('another-file')).length;
     const expected = 0;
     
     t.equal(result, expected);
