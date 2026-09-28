@@ -96,7 +96,6 @@ ordinary rule - no script, no separate lint step.
 ### ❌ Example of incorrect code
 
 ```js
-// a browser reports Ctrl+V as "v"
 const MODIFIERS = [
     'Control',
     'Shift',
@@ -160,7 +159,8 @@ what the rule was supposed to remove.
 ### ❌ Example of incorrect code
 
 ```js
-const value = getState().workbench && getState().workbench.code;
+const {workbench} = getState();
+const value = workbench && workbench.code;
 ```
 
 ### ✅ Example of correct code

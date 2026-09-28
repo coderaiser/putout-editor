@@ -11,13 +11,12 @@ const EXPECTED = [
     'remove-z-index-outside-tokens',
 ];
 
-// a rule can be switched off in place, as `['off', plugin]`, so the plugin is the
-// second element of the array and the value itself otherwise
 const pluginOf = (name) => {
     const rule = rules[name];
     
     return Array.isArray(rule) ? rule[1] : rule;
 };
+
 const unloadable = (name) => !pluginOf(name).report;
 
 // The entrypoint. Every rule is tested in its own directory, beside the rule it
@@ -38,6 +37,7 @@ test('plugin-putout-editor: every rule is a plugin putout can load', (t) => {
     const result = Object
         .keys(rules)
         .filter(unloadable);
+    
     const expected = [];
     
     t.deepEqual(result, expected);

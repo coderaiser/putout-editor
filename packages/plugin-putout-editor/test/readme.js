@@ -13,8 +13,6 @@ const NAMES = Object.keys(rules);
 const ROOT = '/project';
 const TOKENS = 'tokens.css';
 
-// a rule can be switched off in place, as `['off', plugin]`, so the plugin is the
-// second element of the array and the value itself otherwise
 const pluginOf = (name) => {
     const rule = rules[name];
     
@@ -54,7 +52,6 @@ const fenceOf = (name, mark) => {
         .trim();
 };
 
-// `remove-undefined-token` reports a `var()` no stylesheet defines, so the tree needs a tokens.css or every example reports and the ✅ half of this check is vacuous. Which tokens exist is taken from the ✅ fence, because that fence is the definition of correct: if ✅ names a token, that token is defined. Deriving from the fence under test would define the very name the ❌ fence is about.
 const tokensOf = (source) => {
     const names = [];
     
@@ -78,7 +75,6 @@ const filesystemOf = (main, tokens) => print(parseFilesystem([
     [`${ROOT}/${TOKENS}`, tokensOf(tokens)],
 ]));
 
-// A rule built on `matchFiles` exports `scan`; a code rule does not.
 const placesOf = (name, mark) => {
     const plugin = pluginOf(name);
     const source = fenceOf(name, mark);
@@ -97,9 +93,7 @@ const placesOf = (name, mark) => {
     return putout(filesystemOf(source, fenceOf(name, '✅')), {
         fix: false,
         plugins: [
-            ['filesystem',
-                [name, plugin],
-            ],
+            ['filesystem', [name, plugin]],
         ],
     }).places.length;
 };

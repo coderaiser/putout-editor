@@ -49,4 +49,3 @@ test('putout-editor: remove-duplicated-receiver: does not report a plain read', 
     t.noReport('plain-read');
     t.end();
 });
-
