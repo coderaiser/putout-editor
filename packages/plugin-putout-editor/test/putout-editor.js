@@ -1,23 +1,26 @@
-import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import {rules} from '../lib/index.js';
 
 const EXPECTED = [
     'apply-press-modifier-case',
-    'check-main-imports-only',
+    'check-main-imports-in-file',
     'remove-comments',
-    'remove-rgb-outside-tokens',
-    'remove-undefined-token',
-    'remove-z-index-outside-tokens',
+    'remove-rgb-outside-token-file',
+    'remove-undefined-token-file',
+    'remove-z-index-outside-token-file',
 ];
 
-const pluginOf = (name) => {
-    const rule = rules[name];
-    
-    return Array.isArray(rule) ? rule[1] : rule;
-};
+const isOff = (rule) => Array.isArray(rule);
 
-const unloadable = (name) => !pluginOf(name).report;
+const pluginOf = (rule) => isOff(rule) ? rule[1] : rule;
+
+const unloadable = (name) => !pluginOf(rules[name]).report;
+
+const isFileRule = (name) => name.endsWith('-file');
+
+const fileRules = (name) => isFileRule(name) && !isOff(rules[name]);
+
+const codeRules = (name) => !isFileRule(name) && isOff(rules[name]);
 
 test('plugin-putout-editor: exports every rule', (t) => {
     const result = Object
@@ -41,18 +44,25 @@ test('plugin-putout-editor: every rule is a plugin putout can load', (t) => {
     t.end();
 });
 
-const named = Object.keys(JSON.parse(readFileSync(new URL('../.putout.json', import.meta.url), 'utf8')).match['*.md']);
-
-const isOff = (name) => named.includes('putout-editor') || named.includes(`putout-editor/${name}`);
-
-const missingFence = (name) => !pluginOf(name).scan && !isOff(name);
-
-test('plugin-putout-editor: the md match turns off every rule with a fence', (t) => {
+test('plugin-putout-editor: a -file rule is off by default', (t) => {
     const result = Object
         .keys(rules)
-        .filter(missingFence);
+        .filter(fileRules);
     
     const expected = [];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('plugin-putout-editor: a code rule is on by default', (t) => {
+    const result = Object
+        .keys(rules)
+        .filter(codeRules);
+    
+    const expected = [
+        'remove-comments',
+    ];
     
     t.deepEqual(result, expected);
     t.end();

@@ -1,15 +1,15 @@
 import * as applyPressModifierCase from './apply-press-modifier-case/index.js';
-import * as checkMainImportsOnly from './check-main-imports-only/index.js';
+import * as checkMainImportsInFile from './check-main-imports-in-file/index.js';
 import * as removeComments from './remove-comments/index.js';
-import * as removeUndefinedToken from './remove-undefined-token/index.js';
-import * as removeRgbOutsideTokens from './remove-rgb-outside-tokens/index.js';
-import * as removeZIndexOutsideTokens from './remove-z-index-outside-tokens/index.js';
+import * as removeUndefinedTokenFile from './remove-undefined-token-file/index.js';
+import * as removeRgbOutsideTokenFile from './remove-rgb-outside-token-file/index.js';
+import * as removeZIndexOutsideTokenFile from './remove-z-index-outside-token-file/index.js';
 
 export const rules = {
     'apply-press-modifier-case': applyPressModifierCase,
-    'check-main-imports-only': checkMainImportsOnly,
     'remove-comments': ['off', removeComments],
-    'remove-undefined-token': removeUndefinedToken,
-    'remove-rgb-outside-tokens': removeRgbOutsideTokens,
-    'remove-z-index-outside-tokens': removeZIndexOutsideTokens,
+    'check-main-imports-in-file': ['off', checkMainImportsInFile],
+    'remove-undefined-token-file': ['off', removeUndefinedTokenFile],
+    'remove-rgb-outside-token-file': ['off', removeRgbOutsideTokenFile],
+    'remove-z-index-outside-token-file': ['off', removeZIndexOutsideTokenFile],
 };

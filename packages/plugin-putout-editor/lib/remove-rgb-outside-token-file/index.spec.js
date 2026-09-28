@@ -7,7 +7,7 @@ import * as removeRgbOutsideTokens from './index.js';
 
 const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
-const plugin = ['remove-rgb-outside-tokens', removeRgbOutsideTokens];
+const plugin = ['remove-rgb-outside-token-file', removeRgbOutsideTokens];
 
 const ROOT = '/project';
 
@@ -39,7 +39,7 @@ const contentOf = (source) => {
         .toString();
 };
 
-test('putout-editor: remove-rgb-outside-tokens: report', (t) => {
+test('putout-editor: remove-rgb-outside-token-file: report', (t) => {
     const result = scan('main.css', CSS_WITH_RGB)[0].message;
     const expected = `☝️ ${ROOT}/main.css: colours belong in tokens.css, reach for a var() instead`;
     
@@ -47,7 +47,7 @@ test('putout-editor: remove-rgb-outside-tokens: report', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-rgb-outside-tokens: no report in tokens.css', (t) => {
+test('putout-editor: remove-rgb-outside-token-file: no report in tokens.css', (t) => {
     const result = scan('tokens.css', CSS_WITH_RGB).length;
     const expected = 0;
     
@@ -55,7 +55,7 @@ test('putout-editor: remove-rgb-outside-tokens: no report in tokens.css', (t) =>
     t.end();
 });
 
-test('putout-editor: remove-rgb-outside-tokens: no report for a var', (t) => {
+test('putout-editor: remove-rgb-outside-token-file: no report for a var', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--color-accent);\n}\n').length;
     const expected = 0;
     
@@ -63,7 +63,7 @@ test('putout-editor: remove-rgb-outside-tokens: no report for a var', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-rgb-outside-tokens: report only: the token is a human call', (t) => {
+test('putout-editor: remove-rgb-outside-token-file: report only: the token is a human call', (t) => {
     const {code} = run('main.css', CSS_WITH_RGB, {
         fix: true,
     });
@@ -75,16 +75,16 @@ test('putout-editor: remove-rgb-outside-tokens: report only: the token is a huma
     t.end();
 });
 
-test('putout-editor: remove-rgb-outside-tokens: fixture', (t) => {
-    const result = scan('main.css', fixture('remove-rgb-outside-tokens')).length;
+test('putout-editor: remove-rgb-outside-token-file: fixture', (t) => {
+    const result = scan('main.css', fixture('remove-rgb-outside-token-file')).length;
     const expected = 1;
     
     t.equal(result, expected);
     t.end();
 });
 
-test('putout-editor: remove-rgb-outside-tokens: fixture: a var is not a colour', (t) => {
-    const result = scan('main.css', fixture('remove-rgb-outside-tokens-fix')).length;
+test('putout-editor: remove-rgb-outside-token-file: fixture: a var is not a colour', (t) => {
+    const result = scan('main.css', fixture('remove-rgb-outside-token-file-fix')).length;
     const expected = 0;
     
     t.equal(result, expected);

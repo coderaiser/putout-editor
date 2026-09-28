@@ -28,7 +28,7 @@ const run = (name, content, {fix = false} = {}) => putout(print(parseFilesystem(
     },
     fix,
     plugins: [
-        ['filesystem', ['check-main-imports-only', checkMainImportsOnly]],
+        ['filesystem', ['check-main-imports-in-file', checkMainImportsOnly]],
     ],
 });
 

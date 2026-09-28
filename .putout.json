@@ -9,6 +9,12 @@
         "putout-editor/remove-comments": "off"
     },
     "match": {
+        ".filesystem.json": {
+            "putout-editor/check-main-imports-in-file": "on",
+            "putout-editor/remove-undefined-token-file": "on",
+            "putout-editor/remove-rgb-outside-token-file": "on",
+            "putout-editor/remove-z-index-outside-token-file": "on"
+        },
         "*.md": {
             "destructuring/apply-object": "off",
             "logical-expressions/apply-destructuring": "off",

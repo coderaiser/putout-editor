@@ -6,7 +6,7 @@ import * as removeUndefinedToken from './index.js';
 
 const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
-const plugin = ['remove-undefined-token', removeUndefinedToken];
+const plugin = ['remove-undefined-token-file', removeUndefinedToken];
 
 const ROOT = '/project';
 
@@ -26,7 +26,7 @@ const scan = (name, content) => putout(sourceOf(name, content), {
     ],
 }).places;
 
-test('putout-editor: remove-undefined-token: report', (t) => {
+test('putout-editor: remove-undefined-token-file: report', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--color-accent);\n}\n').length;
     const expected = 0;
     
@@ -34,7 +34,7 @@ test('putout-editor: remove-undefined-token: report', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: report: undefined', (t) => {
+test('putout-editor: remove-undefined-token-file: report: undefined', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--color-nope);\n}\n')[0].message;
     const expected = `☝️ ${ROOT}/main.css: not in tokens.css: --color-nope`;
     
@@ -42,7 +42,7 @@ test('putout-editor: remove-undefined-token: report: undefined', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: report: once per token', (t) => {
+test('putout-editor: remove-undefined-token-file: report: once per token', (t) => {
     const result = scan('main.css', '.a {\n    color: var(--nope);\n    background: var(--nope);\n}\n')[0].message;
     const expected = `☝️ ${ROOT}/main.css: not in tokens.css: --nope`;
     
@@ -50,7 +50,7 @@ test('putout-editor: remove-undefined-token: report: once per token', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: report: skips tokens.css', (t) => {
+test('putout-editor: remove-undefined-token-file: report: skips tokens.css', (t) => {
     const result = scan('tokens.css', '.a {\n    color: var(--color-nope);\n}\n').length;
     const expected = 0;
     
@@ -58,7 +58,7 @@ test('putout-editor: remove-undefined-token: report: skips tokens.css', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: no report: no tokens.css', (t) => {
+test('putout-editor: remove-undefined-token-file: no report: no tokens.css', (t) => {
     const source = print(parseFilesystem([
         '/',
         `${ROOT}/`,
@@ -81,7 +81,7 @@ test('putout-editor: remove-undefined-token: no report: no tokens.css', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: report: empty tokens.css', (t) => {
+test('putout-editor: remove-undefined-token-file: report: empty tokens.css', (t) => {
     const source = print(parseFilesystem([
         '/',
         `${ROOT}/`,
@@ -103,7 +103,7 @@ test('putout-editor: remove-undefined-token: report: empty tokens.css', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: report only, the file is unchanged', (t) => {
+test('putout-editor: remove-undefined-token-file: report only, the file is unchanged', (t) => {
     const css = '.a {\n    color: var(--color-nope);\n}\n';
     const {code} = putout(sourceOf('main.css', css), {
         fixCount: 1,
@@ -122,8 +122,8 @@ test('putout-editor: remove-undefined-token: report only, the file is unchanged'
     t.end();
 });
 
-test('putout-editor: remove-undefined-token: fixture: a missing token', (t) => {
-    const result = scan('main.css', fixture('remove-undefined-token')).length;
+test('putout-editor: remove-undefined-token-file: fixture: a missing token', (t) => {
+    const result = scan('main.css', fixture('remove-undefined-token-file')).length;
     const expected = 1;
     
     t.equal(result, expected);

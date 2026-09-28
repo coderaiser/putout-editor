@@ -7,7 +7,7 @@ import * as removeZIndexOutsideTokens from './index.js';
 
 const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
-const plugin = ['remove-z-index-outside-tokens', removeZIndexOutsideTokens];
+const plugin = ['remove-z-index-outside-token-file', removeZIndexOutsideTokens];
 
 const ROOT = '/project';
 
@@ -34,7 +34,7 @@ const contentOf = (source) => {
         .toString();
 };
 
-test('putout-editor: remove-z-index-outside-tokens: report', (t) => {
+test('putout-editor: remove-z-index-outside-token-file: report', (t) => {
     const result = scan('dialog.css', CSS_WITH_Z_INDEX)[0].message;
     const expected = `☝️ ${ROOT}/dialog.css: z-index belongs in tokens.css, reach for a var() instead`;
     
@@ -42,7 +42,7 @@ test('putout-editor: remove-z-index-outside-tokens: report', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-z-index-outside-tokens: no report in tokens.css', (t) => {
+test('putout-editor: remove-z-index-outside-token-file: no report in tokens.css', (t) => {
     const result = scan('tokens.css', CSS_WITH_Z_INDEX).length;
     const expected = 0;
     
@@ -50,7 +50,7 @@ test('putout-editor: remove-z-index-outside-tokens: no report in tokens.css', (t
     t.end();
 });
 
-test('putout-editor: remove-z-index-outside-tokens: no report for a var', (t) => {
+test('putout-editor: remove-z-index-outside-token-file: no report for a var', (t) => {
     const result = scan('dialog.css', '.a {\n    z-index: var(--z-dialog);\n}\n').length;
     const expected = 0;
     
@@ -58,7 +58,7 @@ test('putout-editor: remove-z-index-outside-tokens: no report for a var', (t) =>
     t.end();
 });
 
-test('putout-editor: remove-z-index-outside-tokens: report only', (t) => {
+test('putout-editor: remove-z-index-outside-token-file: report only', (t) => {
     const {code} = putout(sourceOf(
         'dialog.css',
         CSS_WITH_Z_INDEX,
@@ -76,16 +76,16 @@ test('putout-editor: remove-z-index-outside-tokens: report only', (t) => {
     t.end();
 });
 
-test('putout-editor: remove-z-index-outside-tokens: fixture: a numeric z-index', (t) => {
-    const result = scan('main.css', fixture('remove-z-index-outside-tokens')).length;
+test('putout-editor: remove-z-index-outside-token-file: fixture: a numeric z-index', (t) => {
+    const result = scan('main.css', fixture('remove-z-index-outside-token-file')).length;
     const expected = 1;
     
     t.equal(result, expected);
     t.end();
 });
 
-test('putout-editor: remove-z-index-outside-tokens: fixture: a var z-index', (t) => {
-    const result = scan('main.css', fixture('remove-z-index-outside-tokens-fix')).length;
+test('putout-editor: remove-z-index-outside-token-file: fixture: a var z-index', (t) => {
+    const result = scan('main.css', fixture('remove-z-index-outside-token-file-fix')).length;
     const expected = 0;
     
     t.equal(result, expected);

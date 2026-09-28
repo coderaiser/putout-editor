@@ -28,7 +28,7 @@ const run = (name, content, {fix = false} = {}) => putout(print(parseFilesystem(
     },
     fix,
     plugins: [
-        ['filesystem', ['remove-z-index-outside-tokens', removeZIndexOutsideTokens]],
+        ['filesystem', ['remove-z-index-outside-token-file', removeZIndexOutsideTokens]],
     ],
 });
 

@@ -5,8 +5,6 @@ const {
     isNumericLiteral,
 } = types;
 
-const PATTERN = 'declaration(__a, __b)';
-
 const matcher = ({__a, __b}) => isStringLiteral(__a) && __a.value === 'z-index' && isNumericLiteral(__b);
 
 const replacer = ({__b}, path) => {
@@ -18,9 +16,9 @@ const replacer = ({__b}, path) => {
 export const report = () => 'z-index belongs in tokens.css, reach for a var() instead';
 
 export const match = () => ({
-    [PATTERN]: matcher,
+    'declaration(__a, __b)': matcher,
 });
 
 export const replace = () => ({
-    [PATTERN]: replacer,
+    'declaration(__a, __b)': replacer,
 });

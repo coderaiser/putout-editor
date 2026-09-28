@@ -6,7 +6,7 @@ import {parseFilesystem} from '@putout/test/filesystem';
 import * as checkMainImportsOnly from './index.js';
 
 const ROOT = '/project';
-const plugin = ['check-main-imports-only', checkMainImportsOnly];
+const plugin = ['check-main-imports-in-file', checkMainImportsOnly];
 const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
 const sourceOf = (name, content) => print(parseFilesystem([
@@ -30,7 +30,7 @@ const contentOf = (source) => {
         .toString();
 };
 
-test('putout-editor: check-main-imports-only: a rule in main.css', (t) => {
+test('putout-editor: check-main-imports-in-file: a rule in main.css', (t) => {
     const [place] = scan('main.css', fixture('not-imports-only'));
     
     const result = place.message;
@@ -40,7 +40,7 @@ test('putout-editor: check-main-imports-only: a rule in main.css', (t) => {
     t.end();
 });
 
-test('putout-editor: check-main-imports-only: an at-rule that is not an import', (t) => {
+test('putout-editor: check-main-imports-in-file: an at-rule that is not an import', (t) => {
     const result = scan('main.css', fixture('at-rule')).length;
     const expected = 1;
     
@@ -48,15 +48,15 @@ test('putout-editor: check-main-imports-only: an at-rule that is not an import',
     t.end();
 });
 
-test('putout-editor: check-main-imports-only: imports only', (t) => {
-    const result = scan('main.css', fixture('check-main-imports-only')).length;
+test('putout-editor: check-main-imports-in-file: imports only', (t) => {
+    const result = scan('main.css', fixture('check-main-imports-in-file')).length;
     const expected = 0;
     
     t.equal(result, expected);
     t.end();
 });
 
-test('putout-editor: check-main-imports-only: another file', (t) => {
+test('putout-editor: check-main-imports-in-file: another file', (t) => {
     const result = scan('layout.css', fixture('another-file')).length;
     const expected = 0;
     
@@ -64,7 +64,7 @@ test('putout-editor: check-main-imports-only: another file', (t) => {
     t.end();
 });
 
-test('putout-editor: check-main-imports-only: an empty main.css', (t) => {
+test('putout-editor: check-main-imports-in-file: an empty main.css', (t) => {
     const result = scan('main.css', fixture('empty')).length;
     const expected = 0;
     
@@ -72,7 +72,7 @@ test('putout-editor: check-main-imports-only: an empty main.css', (t) => {
     t.end();
 });
 
-test('putout-editor: check-main-imports-only: report only, the file is unchanged', (t) => {
+test('putout-editor: check-main-imports-in-file: report only, the file is unchanged', (t) => {
     const css = '.a {\n    color: red;\n}\n';
     const {code} = putout(sourceOf('main.css', css), {
         fixCount: 1,
