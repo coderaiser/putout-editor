@@ -183,6 +183,16 @@ been renamed on one side of a pair, and the dead rule was the symptom.
 The same rule for the stacking order. Seven raw `z-index` numbers across three stylesheets
 are now a `--z-*` scale in `tokens.css`.
 
+This is a **filesystem** rule built on `matchFiles`, so the mask and the `exclude` are data.
+What is wrong with a given stylesheet is a separate rule, `apply-z-index-token/`, with its own
+fixtures and its own spec; this file only picks the files and prefixes the message with the
+filename. See `docs/plugins.md` for when a rule should be split that way, and
+`apply-namespace-to-imported-file` in the 🐊**Putout** repo for the same shape with a
+format-level inner rule.
+
+Report-only: which `--z-*` name a number becomes is a human decision, so the replacement is the
+node printed back unchanged, and a spec runs the fix to prove the file comes back byte for byte.
+
 ### ❌ Example of incorrect code
 
 ```css
