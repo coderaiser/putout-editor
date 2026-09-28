@@ -3,6 +3,7 @@ const KEYS = [
     'trailingComments',
     'innerComments',
 ];
+
 const has = (node, key) => Boolean(node[key] && node[key].length);
 
 export const report = () => 'A rule says what the code already says';
