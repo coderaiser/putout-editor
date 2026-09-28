@@ -9,7 +9,7 @@ import * as removeZIndexOutsideTokens from './remove-z-index-outside-tokens/inde
 export const rules = {
     'apply-press-modifier-case': applyPressModifierCase,
     'css-architecture': cssArchitecture,
-    'remove-comments': removeComments,
+    'remove-comments': ['off', removeComments],
     'remove-duplicated-receiver': removeDuplicatedReceiver,
     'remove-undefined-token': removeUndefinedToken,
     'remove-rgb-outside-tokens': removeRgbOutsideTokens,
