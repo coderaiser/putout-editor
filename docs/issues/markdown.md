@@ -3,7 +3,36 @@
 **Open only.** What the gate is and where it comes from is in
 [`../memory/fence-gate.md`](../memory/fence-gate.md).
 
-## ❌ `putout .` cannot run it, or fix it
+## ❌ `--fix` rewrites a fence that `putout` never reported
+
+**This is the loop.** The `*.md` match in the root `.putout.json` turns
+`putout-editor/remove-duplicated-receiver` off for markdown, and it works for *reporting* — but
+**not for fixing**. Measured from inside `packages/plugin-putout-editor`, on a ❌ fence:
+
+```sh
+$ putout .            # the ❌ fence
+                       # reports nothing: the rule is off
+$ putout . --fix      # the same fence
+                       # rewrites it anyway
+```
+
+So every `redrun fix:lint` in CI puts the anti-pattern back, and the only thing that notices is
+`test/readme.js` — which is why that spec has now failed twice for the same reason, on two
+different rules. Each time the fix is the same two lines of hand-editing.
+
+**Expected.** A rule that reports nothing does not fix anything, or the `off` is honoured by the
+fixer too. **Got.** A fixer acting on a file it never reported.
+
+**Not yet measured:** whether this is `off` being ignored by the fixer, or the fixer running with
+the *package* config while the report ran with the merged one. Adding the rule to the package's
+own `*.md` match as `off` did **not** stop it, so the narrower cause is the one to check upstream
+first. `docs/memory/putout-patterns.md` has the other half of this class — a fixer that exits
+clean on cases it cannot detect.
+
+**Workaround until it is answered.** Turn the rule off for markdown in the **package** config as
+well as the root, and treat a `readme.js` failure as a known repeat rather than a new discovery.
+
+## ❌ `putout .` cannot run the fence-language gate, or fix it
 
 The rule is enabled only in putout's **`.filesystem.json`** match, and it needs the filesystem
 AST, so it runs under **`redlint`** and never under `putout .`. There, a wrong fence is caught
