@@ -1,11 +1,10 @@
 {
-    "rules": {
-        "putout-editor/remove-comments": "on"
-    },
     "match": {
+        "*.js": {
+            "putout-editor/remove-comments": "on"
+        },
         "*.md": {
             "putout-editor": "off",
-            "putout-editor/remove-comments": "off",
             "logical-expressions/apply-destructuring": "off"
         }
     }
