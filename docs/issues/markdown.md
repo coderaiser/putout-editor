@@ -53,6 +53,20 @@ rule rejects*, so the fixer's job and the example's purpose are exactly opposed,
 always wins. This is why a fence is not the right place to store an anti-pattern, and why
 idea 7 in `docs/ideas.md` is a correctness item rather than a tidiness one.
 
+**It happened again, and the check caught it.** CI's `actions: lint` auto-commit applied
+`remove-duplicated-receiver` to its own ❌ fence in the plugin README and made both blocks
+identical — the same damage as the first time, on a different rule. `test/readme.js` failed and
+named the rule:
+
+```
+# readme: every ❌ example is still rejected by its own rule
+    diff: + [ "remove-duplicated-receiver" ]
+```
+
+That is the difference from the first occurrence: it was found by a spec on a real commit rather
+than by a repro somebody had to construct. The damage is still the fixer's to do; the *detection*
+is no longer a matter of luck.
+
 **A check that would have caught it — and the check that was proposed does not work.**
 The obvious version is textual: the ❌ block must equal the rule's fixture and the ✅ block
 `*-fix.js`. **It would have failed on all three rules**, for two reasons. The fixtures moved to
