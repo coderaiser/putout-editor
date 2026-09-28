@@ -297,15 +297,29 @@ in the map, and the match that enables it, or the rule never runs anywhere and n
 The map is the single source of truth for on/off — do not duplicate it into `.putout.json` per
 rule, and do not add a spec that reads the config to check it.
 
-**`test/` follows `plugin-esm`.** `test/esm.js` is the model, and so is `test/exports.js`:
+**`test/` follows `plugin-esm` and `plugin-nodejs`.** `test/nodejs.js` is the model:
 
 ```
 test/
+├── putout-editor.js   one test per rule, on the plugin as a whole
 ├── <rule>.js          one file per -file rule, createTest + rules turning it on
-├── exports.js         the map and what putout can load out of it
-├── fixture/           __putout_processor_filesystem([...]) sources, shared
-└── readme.js          the ❌/✅ fences, run through their own rules
+└── fixture/           __putout_processor_filesystem({...}) sources, shared
 ```
+
+**`test/putout-editor.js` is `plugin-nodejs`'s `test/nodejs.js`.** One `createTest` over the whole
+plugin, and one test per rule that says whether the rule is on: `t.transform` for a code rule,
+`t.noTransform` for a `*-file` one. That is the only check that the on/off in the map is what it
+says it is, and it is worth having because a rule flipped the wrong way is silent — everything
+else stays green while the rule runs over code it should never see, or does nothing at all.
+Verified in both directions: turning a `*-file` rule on fails its `noTransform`, and turning
+`apply-press-modifier-case` off fails its `transform`.
+
+**A `-file` fixture is `__putout_processor_filesystem({...})` — the object form, not the
+array one.** `nodejs`'s `cjs-file-disabled` is written that way, and it is not a style choice:
+with the rule off, putout still reprints the fixture with its own formatting, so
+`t.noTransform` compares your source against a reprint and the diff is the printer's quotes. The
+object form round-trips byte for byte. The `-fix` twin is a copy, which is the point: a disabled
+rule changes nothing.
 
 Each `test/<rule>.js` is `createTest(import.meta.url, {rules: {'putout-editor/<rule>': 'on'},
 plugins: [['putout-editor', editor]]})` and then one test per shape. The `rules` entry is not
