@@ -13,6 +13,11 @@ test('putout-editor: remove-comments: transform', (t) => {
 });
 
 test('putout-editor: remove-comments: report', (t) => {
-    t.reportCode(`// a comment\nconst a = 1;`, 'A rule says what the code already says');
+    t.report('remove-comments', 'A rule says what the code already says');
+    t.end();
+});
+
+test('putout-editor: remove-comments: no report without a comment', (t) => {
+    t.noReport('no-comments');
     t.end();
 });

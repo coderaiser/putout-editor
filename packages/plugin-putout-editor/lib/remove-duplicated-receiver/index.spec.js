@@ -7,9 +7,6 @@ const test = createTest(import.meta.url, {
     ],
 });
 
-// This rule fixes, so every shape it claims to fix is tested with `t.transform` against
-// its own fixture. The message is inlined on purpose: `t.report` reads the fixture for the
-// code, so the only thing the test has to say is what it expects to be told.
 test('putout-editor: remove-duplicated-receiver: a declaration', (t) => {
     t.transform('declaration');
     t.end();

@@ -19,9 +19,6 @@ const pluginOf = (name) => {
 
 const unloadable = (name) => !pluginOf(name).report;
 
-// The entrypoint. Every rule is tested in its own directory, beside the rule it
-// tests, so this is the only place the map itself is asserted - a rule that was
-// written and never registered would pass every other spec in the package.
 test('plugin-putout-editor: exports every rule', (t) => {
     const result = Object
         .keys(rules)

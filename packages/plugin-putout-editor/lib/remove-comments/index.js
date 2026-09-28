@@ -3,6 +3,7 @@ const KEYS = [
     'trailingComments',
     'innerComments',
 ];
+const has = (node, key) => Boolean(node[key] && node[key].length);
 
 export const report = () => 'A rule says what the code already says';
 
@@ -13,12 +14,11 @@ export const fix = ({path, key}) => {
 export const traverse = ({push}) => ({
     VariableDeclaration: (path) => {
         for (const key of KEYS) {
-            const comments = path.node[key] || [];
-            
-            comments.map(() => push({
-                path,
-                key,
-            }));
+            if (has(path.node, key))
+                push({
+                    path,
+                    key,
+                });
         }
     },
 });

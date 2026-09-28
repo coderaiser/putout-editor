@@ -5,7 +5,6 @@ import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
 import {rules} from '../lib/index.js';
 
-// The README's ❌/✅ pair is documentation that `putout .` also lints, and those two jobs are opposed: a fence that demonstrates a violation is by definition code the rule rejects, so `--fix` "corrects" it — which happened to apply-press-modifier-case, leaving both blocks byte-identical without anything failing. The check is therefore behavioural, not textual: a byte comparison against the fixture was the obvious thing to write and it does not hold, because the README examples are deliberately different code (a MODIFIERS array, not the fixture's `const a`) since they are examples rather than tests. What must hold is that the ❌ fence still reports and the ✅ fence does not.
 const isUndefined = (a) => typeof a === 'undefined';
 const isFilesystem = (plugin) => Boolean(plugin.scan);
 const readme = readFileSync(fileURLToPath(new URL('../README.md', import.meta.url)), 'utf8');
@@ -40,9 +39,6 @@ const fenceOf = (name, mark) => {
     if (isUndefined(rest))
         return null;
     
-    // ```js puts the language on the opening line; ``` followed by a newline puts it on the next
-    // one. The code is whatever follows that language, and a rule that reads raw lines would
-    // otherwise see the word and report on it.
     const [, fence] = rest.split('```');
     const lines = fence.split('\n');
     const body = /^\s*[a-z]+\s*$/.test(lines[0]) ? lines.slice(1) : lines;
