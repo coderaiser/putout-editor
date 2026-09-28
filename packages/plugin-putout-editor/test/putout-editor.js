@@ -45,9 +45,11 @@ test('plugin-putout-editor: every rule is a plugin putout can load', (t) => {
 test('plugin-putout-editor: the md match names every rule with a fence', (t) => {
     const md = JSON.parse(readFileSync(new URL('../.putout.json', import.meta.url), 'utf8'));
     const named = Object.keys(md.match['*.md']);
+    
     const fenced = Object
         .keys(rules)
         .filter((name) => !pluginOf(name).scan);
+    
     const result = fenced.filter((name) => !named.includes(`putout-editor/${name}`));
     const expected = [];
     
