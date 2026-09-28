@@ -13,7 +13,7 @@ question: **does the verdict need a second file?**
 |---|---|---|
 | `remove-rgb-outside-tokens` | no — is this colour hardcoded? | `matchFiles` |
 | `remove-z-index-outside-tokens` | no — is this `z-index` a number? | `matchFiles` |
-| `check-main-imports-only` | no — is this `main.css` imports only? | `scan` |
+| `check-main-imports-only` | no — is this `main.css` imports only? | `matchFiles` |
 | `remove-undefined-token` | **yes** — is this token in `tokens.css`? | `scan` |
 
 `matchFiles` is the operator `sort-readme-file` and `apply-ts-codeblock-in-file` use, and it is

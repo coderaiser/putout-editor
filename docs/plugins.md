@@ -137,6 +137,105 @@ asserts the file comes back byte for byte.
 Choosing which token a colour becomes is a human decision, so `remove-rgb-outside-tokens` is
 report-only, and its test proves it changes nothing.
 
+## When a rule is really two rules
+
+Sometimes a rule is two things wearing one coat. A `matchFiles` rule is the clear case: it
+decides *which files to look at*, and the plugin you hand it decides *what is wrong with this
+one*. Those are different jobs, they change for different reasons, and only the first one
+is about the tree.
+
+Keeping them in a single `index.js` is fine until you want to test the second half. Then you
+find yourself building a fake filesystem by hand in a spec, just to reach the matcher — which
+is the sign it wants to be its own rule, with its own fixtures and its own tests, and none of
+the tree around them.
+
+So a multi-level rule is a directory inside a rule:
+
+```
+lib/
+└── check-main-imports-only/          the rule: which files, and what to say
+    ├── index.js
+    ├── index.spec.js
+    ├── fixture/                      a filesystem: the rule as a whole
+    └── check-imports-only/           the inner rule: this one file
+        ├── index.js
+        ├── index.spec.js
+        └── fixture/                  one file, no filesystem around it
+```
+
+The outer `fixture/` holds a `__putout_processor_filesystem([...])` source, because that is
+what the outer rule consumes. The inner `fixture/` holds a single file in its own format —
+`convert-js-to-ts/fixture/convert-js-to-ts.js` is a `__putout_processor_markdown([...])`
+source, because that is what the inner rule consumes. **The inner fixture is not a plain
+`.js` file**: it is the wrapped source of the format the inner rule reads, so the inner spec
+is an ordinary `createTest` with a `t.transform` and no filesystem in sight.
+
+The outer one matches the files and passes the inner one along:
+
+```js
+import {operator} from 'putout';
+
+const {matchFiles} = operator;
+
+export const {scan, fix} = matchFiles({
+    files: {
+        'main.css': {
+            plugins: [
+                ['check-main-imports-only', {
+                    report: () => `main.css is an entry point: @import only`,
+                    match: () => ({
+                        rule: () => true,
+                    }),
+                    replace: () => ({
+                        rule: (vars, path) => path,
+                    }),
+                }],
+            ],
+        },
+    },
+});
+```
+
+Four things worth knowing, all of them learned the hard way:
+
+**The inner spec registers the outer name and tests the inner one.** This is the bit that
+looks wrong and is not. `convert-js-to-ts/index.spec.js` builds its test with
+`plugins: [['apply-ts-codeblock-in-file', plugin]]` — the *parent's* name — and then asserts
+`t.report('convert-js-to-ts', …)` and `t.transform('convert-js-to-ts')`. The registered name
+is what `createTest` reports the plugin as; the name in `t.report` is the fixture to load. Both
+names appear, and a test that mixes them up passes for the wrong reason.
+
+**A name in the outer `plugins` array is a label, not a rule.** The first element is what
+putout prints. Give the inner plugin its own directory and its own name there, so a failure
+names the thing that failed.
+
+**`replace` takes `(vars, path)`, not `(path)`.** The first argument is the matched template's
+values. Write the one-argument version and putout rejects it with `Looks like you passed
+'replace' value with a wrong type` — and the fix is in the signature, not the return value.
+
+**The inner rule takes options when the outer one has something to say.**
+`apply-namespace-import` builds its pattern from `{name, source}`, which is what lets
+`apply-namespace-to-imported-file` reuse it per file. `t.transformWithOptions` and
+`t.reportWithOptions` are the tests for that. Its fixtures are named after the *inner* rule —
+`apply-namespace-import.js` and `apply-namespace-import-fix.js` — while
+`convert-js-to-ts` names its own the same way. Only the *registered* name in the inner spec
+belongs to the parent, which is the point above.
+
+Read `apply-namespace-to-imported-file` in the 🐊**Putout** repo when you want the full shape —
+it is the reference one, and its `apply-namespace-import/` subdirectory has the four files
+above. `apply-ts-codeblock-in-file` with its `convert-js-to-ts/` is the same idea for
+markdown. Neither is exported in the plugin's `rules` map, and neither needs to be: the outer
+rule reaches them directly.
+
+**Do not do it too early.** A rule that fits in one file should stay in one file. The move
+earns itself the moment the inner half wants a test of its own, and not before — a directory
+with one `index.js` in it is a shape to grow into, not a starting point.
+
+### The tell
+
+If your spec builds a filesystem by hand to test the matcher, split the rule. If it opens a
+fixture and runs the matcher directly, leave it alone.
+
 ## Dogfooding: run a rule here before a user does
 
 Every rule in this package runs on **this repository**, every commit, through the same lint CI

@@ -265,6 +265,17 @@ and is now `check-main-imports-only`. The one exception that cannot be honoured 
 Use the mcp `get_example` for the pattern and `parse` when you need a node type — putout's AST
 is babel's, so a string is a `StringLiteral` and not a `Literal`.
 
+**A `matchFiles` rule can be two rules.** It picks *which files* to look at; the plugin it
+takes decides *what is wrong with this one*. When the second half needs its own test, move it
+into its own directory inside the rule — own `index.js`, `index.spec.js` and `fixture/` — and
+the outer rule reaches it directly. `apply-namespace-to-imported-file` in the 🐊**Putout** repo
+is the reference shape, and `docs/plugins.md` has the full version. Two traps: the inner spec
+registers the **outer** name (`plugins: [['apply-ts-codeblock-in-file', plugin]]`) while
+`createTest`'s `t.report`/`t.transform` name the **inner** one, and `replace` takes
+`(vars, path)` — the one-argument form is rejected as a wrong type. Do not split a rule that
+fits in one file; the tell is whether the spec must build a filesystem by hand to reach the
+matcher.
+
 **Never write `node.type === 'StringLiteral'`.** `apply-type-check` — which is
 `@putout/plugin-putout`'s, not this repo's — rewrites it to `isStringLiteral(node)` and the
 lint will tell you. The fix does not add the import, because `plugin-declare` does not know
