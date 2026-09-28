@@ -54,3 +54,30 @@ test('putout-editor: check-main-imports-only: another file', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('putout-editor: check-main-imports-only: an empty main.css', (t) => {
+    const result = scan('main.css', fixture('empty')).length;
+    const expected = 0;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: check-main-imports-only: report only, the file is unchanged', (t) => {
+    const css = '.a {\n    color: red;\n}\n';
+    const {code} = putout(sourceOf('main.css', css), {
+        fixCount: 1,
+        plugins: [
+            ['filesystem', plugin],
+        ],
+    });
+    
+    const result = code.includes(
+        JSON
+            .stringify(css)
+            .slice(1, -1),
+    );
+    
+    t.ok(result);
+    t.end();
+});
