@@ -4,9 +4,7 @@
     },
     "match": {
         "*.md": {
-            "putout-editor/apply-press-modifier-case": "off",
-            "putout-editor/remove-comments": "off",
-            "putout-editor/remove-duplicated-receiver": "off",
+            "putout-editor": "off",
             "logical-expressions/apply-destructuring": "off"
         }
     }
