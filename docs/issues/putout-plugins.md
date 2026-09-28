@@ -6,6 +6,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | Rule                            | Kind       | What it found                                                         |
 |---------------------------------|------------|-----------------------------------------------------------------------|
 | `apply-press-modifier-case`     | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing |
+| `check-main-imports-only`       | filesystem | a rule in `main.css`, which is an entry point and holds only imports   |
 | `remove-comments`               | code       | the `scripts/check-comments.js` gate, as a rule                       |
 | `remove-duplicated-receiver`    | code       | the receiver a `?.` expansion duplicated, 29 times, by hand            |
 | `remove-rgb-outside-tokens`     | filesystem | the one hardcoded colour outside `css/tokens.css`                     |
@@ -107,3 +108,40 @@ repository that broke `defaultESTreeParserInterface`, whose `AstNode` is the Edi
 interface and not a babel `Node` — `isProgram(node)` does not compile. Reverted here, and it
 is in `@putout/plugin-putout` now: the existence check is necessary but not sufficient, because
 a domain type can share a name with a node type.
+
+## 💡 a fixer can simplify a rule into a different rule, and every test still passes
+
+`putout . --fix` removed the inner `for` from `remove-comments`:
+
+```diff
+-            comments.map(() => push({
+-                path,
+-                key,
+-            }));
++            for (const comment of comments) {
++                push({
++                    path,
++                    key,
++                });
++            }
+```
+
+`for-of/remove-useless` was right — the loop variable was unused. The fix was to drop the loop
+entirely, and what was left pushed once per comment **key** rather than per comment.
+
+**Got.** 6 places on a file with comments, and **6 on a file with none**. **Expected.** 0 on a
+file with none. Every test passed, because every test ran code that had comments.
+
+**This is the highest-value kind of bug in this file**, and it is not a putout bug to file
+upstream: the fixer did exactly what it was asked. The gap is that no test asked the negative
+question. A rule that reports needs a fixture with nothing to find and a `t.noReport`, because
+without one "reports too much" and "reports nothing" are the same green — and a CI auto-commit
+that changes a rule is indistinguishable from one that does not.
+
+The same shape is already in this file twice: the `convert-optional-to-logical` fix that exits
+clean on lossy cases, and the fence that `--fix` "corrected" until the example was gone. All
+three are a fixer acting on something no check was watching, and all three are a missing
+negative case. It is also a recurrence of cause #1 in
+[`../lessons.md`](../lessons.md#1-a-test-passed-on-a-cheaper-path-than-the-user-takes) —
+`remove-comments` passing every spec while firing on 50 places, and now the same rule passing
+every spec while firing on files with nothing to report.

@@ -8,7 +8,7 @@ resolved problem left here is documentation that reads as if it were still broke
 |---|---|
 | [`build.md`](./build.md) | `server` has no `nest` binary, so `redrun build` fails there |
 | [`markdown.md`](./markdown.md) | the `js` fence gate runs only under `redlint`, and nothing at the root runs it |
-| [`putout-plugins.md`](./putout-plugins.md) | two fixes exit clean on lossy cases; `apply-type-check` fires on domain types |
+| [`putout-plugins.md`](./putout-plugins.md) | a fixer can rewrite a rule and no test notices; two fixes exit clean on lossy cases; `apply-type-check` fires on domain types |
 
 Elsewhere:
 
