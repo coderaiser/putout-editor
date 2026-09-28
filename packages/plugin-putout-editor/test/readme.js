@@ -93,7 +93,7 @@ const placesOf = (name, mark) => {
     return putout(filesystemOf(source, fenceOf(name, '✅')), {
         fix: false,
         plugins: [
-            ['filesystem', [name, plugin]],
+            [`place-of/${name}`, plugin]],
         ],
     }).places.length;
 };
