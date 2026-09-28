@@ -5,6 +5,7 @@
     "match": {
         "*.md": {
             "putout-editor": "off",
+            "putout-editor/remove-comments",
             "logical-expressions/apply-destructuring": "off"
         }
     }
