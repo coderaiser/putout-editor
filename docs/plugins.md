@@ -68,24 +68,49 @@ packages/plugin-putout-editor/
 ├── package.json
 ├── lib/
 │   ├── index.js        the rules map
-│   └── <rule-name>/index.js
+│   └── <rule-name>/
+│       ├── index.js    the rule: one report, and an action
+│       ├── index.spec.js
+│       └── fixture/    one <name>.js and <name>-fix.js per shape
 └── test/
-    ├── <plugin>.js     createTest + t.transform / t.report
-    └── fixture/        <name>.js and <name>-fix.js
+    ├── putout-editor.js   the rules map itself
+    └── readme.js          the ❌/✅ fences, run through their own rules
 ```
 
-1. `lib/<rule-name>/index.js` - the rule: one `report`, and an action. Name it with a verb
-   first, as 🐊**Putout** does - `remove-`, `apply-`, `add-`, `sort-`, `check-` - not `eqeqeq`.
-2. `test/fixture/<name>.js` and `<name>-fix.js` - before and after. Generate the second with
-   `UPDATE=1` rather than writing it by hand.
-3. `test/<plugin>.js` - `createTest(import.meta.url, {plugins: [['putout-editor', plugin]]})`,
-   then `t.transform('name')` and `t.reportCode(...)`.
-4. Register it in `lib/index.js` and add its `README.md` section.
+1. `lib/<rule-name>/index.js` — the rule: one `report`, and an action. Name it with a verb
+   first, as 🐊**Putout** does — `remove-`, `apply-`, `add-`, `sort-`, `check-` — and let the name
+   be the claim about what it checks. `check-main-imports-only` says what it does;
+   `css-architecture` claimed a whole document, and five sibling rules had nothing to do with it.
+2. `lib/<rule-name>/fixture/<name>.js` and `<name>-fix.js` — before and after, **one pair per
+   shape the rule handles**, not one fixture holding everything. Generate the `-fix` with
+   `UPDATE=1` rather than writing it by hand, because a hand-written one asserts an output the
+   rule never produced — this repo has two of those. **A fixture with no `-fix` twin is a
+   no-transform case**, the convention in `@putout/plugin-logical-expressions`.
+3. `lib/<rule-name>/index.spec.js` — beside the rule it tests.
+   `createTest(import.meta.url, {plugins: [['rule-name', plugin]]})`, then `t.transform(name)`
+   for every shape the rule fixes, `t.noTransform(name)` for the ones it must leave alone, and
+   `t.report(name, 'the message')` with the message inline. If a rule fixes, a `reportCode` spec
+   proves nothing about the fix.
+4. Register it in `lib/index.js` and add its `README.md` section. A rule can be disabled in
+   place as `['off', plugin]`, so anything reading `rules[name]` must unwrap that.
 5. `bun run coverage` at 100%, and `putout .` clean.
+
+**No comments.** The rule's name and its README section are the documentation. The one
+exception that cannot be honoured is `remove-comments`, whose subject *is* comments.
 
 It is already wired in, through `plugins` in the root `.putout.json` by **bare name**
 (`"putout-editor"`), so there is nothing to enable. putout merges config up the tree, which
 is why the rules reach `packages/client` despite its own `.putout.json`.
+
+### A rule can break without a single test noticing
+
+`putout . --fix` in CI removed the inner `for` from `remove-comments` — correctly, the loop
+variable was unused — which left it pushing once per comment *key* rather than per comment. It
+then reported 6 places on a file with comments and **6 on a file with none**. Every test passed,
+because every test ran code that had comments.
+
+So a rule that reports needs a **negative** case: a fixture with nothing to find and a
+`t.noReport`. Without one, "reports too much" and "reports nothing" are the same green.
 
 ### Two kinds of rule, and the difference is not a detail
 

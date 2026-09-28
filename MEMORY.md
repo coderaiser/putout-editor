@@ -73,7 +73,22 @@ hand-written copy or a summary, check the shipped code.
 
 - **Never use `try`/`catch`** in this codebase — `tryCatch` (sync) or `tryToCatch` (async)
   from `try-catch` / `try-to-catch`.
-- **No comments in `.madrun.ts`.** Fine everywhere else.
+- **No comments in `packages/plugin-putout-editor`, ever.** The plugin is the documentation: a
+  rule is named for what it does, and its README section says why. One exception that cannot
+  be honoured — `remove-comments` reports `leadingComments`, `trailingComments` and
+  `innerComments`, so its fixture and its ❌ example *are* comments. A comment-free example of
+  that rule is a comment-free example of nothing.
+- **Never move a message out to a variable.** `t.report('x', 'the message')` inlines it; a
+  `const REPORT = …` is one more thing to keep in step and says nothing the call does not.
+- **Never inline an array-method callback.** `.filter((name) => …)` hides what is being
+  selected. Name it: `const notRejected = (name) => …` then `.filter(notRejected)`.
+- **One-line consts go together after the imports.** A multi-line one stays with the code it
+  serves.
+- **A spec says what a rule does, not what it reports.** If a rule fixes, every shape it claims
+  to fix is `t.transform` against its own fixture — `t.reportCode` cannot see a fix at all. A
+  fixture with **no `-fix` twin** is a no-transform case, which is the
+  `@putout/plugin-logical-expressions` convention.
+- **No comments in `.madrun.ts`.** Fine everywhere else, apart from the plugin above.
 - **Do not write a run of consecutive `//` lines.** CI's `putout . --fix` inserts a blank line
   between each of them, turning a wrapped comment into a column of one-line paragraphs — seen
   arriving as `chore: putout-editor: actions: lint ☘️` (1ae0f3a), on a comment block that
@@ -86,6 +101,15 @@ hand-written copy or a summary, check the shipped code.
 - If `.madrun.ts` changes, run `madrun --init`; `--init` *deletes* `package.json` scripts it
   does not own, so check for collateral damage afterwards.
 - **`.madrun.ts` is the source of truth for scripts**, not `package.json`.
+- **A rule name is a claim about what it checks.** `css-architecture` claimed far more than the
+  rule did and became `check-main-imports-only`; `apply-type-check` was not ours at all. If the
+  name cannot be read as the check, it is the wrong name or the wrong scope.
+- **A `.putout.json` `off` only works spelled out in full.** Measured on the `*.md` match:
+  `"putout-editor/remove-comments": "off"` silences it; `"putout-editor": "off"` and
+  `"putout-editor/*": "off"` silence nothing, and nothing complains. The readable form is the
+  inert one. A ❌ fence is also matched by every rule that dislikes the construct, not only the
+  one its section is about — that is how an upstream `logical-expressions/apply-destructuring`
+  came to want a fence belonging to `remove-duplicated-receiver`.
 
 ## Re-check open findings
 
