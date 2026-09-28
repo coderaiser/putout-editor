@@ -8,6 +8,10 @@ the part that is not derivable from the tree.
 
 - **`type: scope: message`** — `docs: agents: …`, `feature: mcp: …`, `fix: client: …`,
   `refactor: templates: …`. This has been corrected once; follow it.
+- **Never add a `Co-Authored-By` trailer, and never suggest one.** The commit is the
+  maintainer's; an agent attribution line at the bottom is forbidden. Plain `git commit -F`
+  and nothing else — if a template or an editor adds a trailer, strip it before committing.
+  This has been corrected once already; follow it.
 - **One logical change per commit.** Do not bundle a refactor with an unrelated doc update.
 - **`docs/issues/` updates always get their own commit**, separate from whatever code change
   surfaced the finding.

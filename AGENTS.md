@@ -12,6 +12,11 @@ manual and `docs/putout-map.md` is the map of the 116 plugins, both measured aga
 For how this repo is worked on — commit style, how to file a finding, why a lint rule
 is not to be disabled — read `MEMORY.md`.
 
+**Never add a `Co-Authored-By` trailer to a commit, and never propose one.** The commit is
+the maintainer's. `git commit -F <file>` and nothing else. If a template, an editor or a
+habit appends an attribution line, strip it before committing — it is forbidden here, and
+it has been corrected once already.
+
 ## Investigate putout with the MCP server, not with probes
 
 **`packages/mcp` ships an MCP server. Before writing a throwaway probe script, a
