@@ -61,6 +61,13 @@ This is a **filesystem** rule, so it runs under `redlint`, not under `putout .`.
 rule sees one AST and knows nothing about filenames, which is why "only in this file" has to
 be expressed against the tree.
 
+`check-main-imports-only/` is the rule that decides what is wrong with the file, as an
+**includer** over the CSS calls: everything is included, `cssImport` is filtered out, and
+anything left standing is a rule in an entry point. The wrapper itself is filtered out too —
+an empty `main.css` reaches the rule as `raw('{}')`, which is an upstream fallback and is
+recorded in `docs/memory/putout-rules.md`. See `docs/plugins.md` for when a rule should be
+split that way.
+
 Report-only: which file a rule belongs in is a judgement call, so the file is returned
 unchanged.
 

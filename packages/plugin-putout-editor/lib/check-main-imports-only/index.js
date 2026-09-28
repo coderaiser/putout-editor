@@ -1,22 +1,13 @@
 import {operator} from 'putout';
+import * as checkImportsOnly from './check-imports-only/index.js';
 
 const {matchFiles} = operator;
-
-const MAIN = 'main.css';
 
 export const {scan, fix} = matchFiles({
     files: {
         'main.css': {
             plugins: [
-                ['check-main-imports-only', {
-                    report: () => `${MAIN} is an entry point: @import only`,
-                    match: () => ({
-                        rule: () => true,
-                    }),
-                    replace: () => ({
-                        rule: (vars, path) => path,
-                    }),
-                }],
+                ['check-imports-only', checkImportsOnly],
             ],
         },
     },

@@ -38,6 +38,62 @@ So `scan` is not the older way of writing these two — it is the only one that 
 The tell is whether the message needs a second file's contents; when it does, the rule is a
 `scan` with `trackFile`, and `matchFiles` would be a rewrite that cannot work.
 
+**The reason, from the operator's own source** — `operator-match-files/lib/match-files.js` builds
+the inner plugin's options with `parseOptions(inputFilename, rawOptions)`, and `rawOptions` is
+whatever object sits in the `plugins` array, captured when `matchFiles({...})` is called at
+module load. It is static. There is no callback and no injection point that could hand the inner
+plugin the root path, and the object cannot close over one because it is built before any file
+is seen. So the answer is structural, not a matter of finding the right incantation:
+
+```js
+const parseOptions = (inputFilename, rawOptions) => {
+    if (rawOptions.plugins)
+        return rawOptions;
+    
+    return {
+        plugins: [[`match-file: ${inputFilename}`, rawOptions]],
+    };
+};
+```
+
+A `scan` plugin, by contrast, is called as `scan(mainPath, {push, trackFile, ...})` — the root
+is the first argument, which is why the two cross-file rules in this package are `scan`.
+
+## An empty file reaches a `matchFiles` rule as `{}`
+
+`operator-match-files/lib/match-files.js` reads the matched file with a fallback:
+
+```js
+const fileContent = readFileContent(inputFile) || '{}';
+```
+
+An **empty** stylesheet therefore does not arrive as `''` or as an empty CSS document. It
+arrives as the two characters `{}`, which the CSS processor turns into a node:
+
+```
+''  => [];\n
+'{}' => [\n    raw(`{}`),\n];\n
+```
+
+`raw('{}')` is a `CallExpression`, so an includer that includes every call sees it and reports
+on a file that is empty and therefore trivially correct. Measured, not guessed:
+
+```
+check-imports-only   => places: 1   (.a { color: red; })
+is-imports-only      => places: 0
+at-rule              => places: 1
+empty                => places: 1   <- the fallback, not a real violation
+```
+
+`check-imports-only/index.js` filters `raw` out for that reason, and has it named in a
+constant with `__putout_processor_css` so the reason is visible. The `empty` fixture is what
+pins it: without it the fallback is invisible and the rule reports a violation on a file that
+has none, which is the "reports too much" and "reports nothing" being the same green again.
+
+The general shape is worth remembering: **a `matchFiles` rule cannot tell an empty file from
+a file containing the text `{}`.** Anything that reports on structure has to decide what an
+empty input means, and that decision wants a fixture.
+
 ## Report-only is possible, at the cost of one no-op action
 
 A plugin needs one of `find`, `traverse`, `replace`, `include`, `exclude`, `rules`, `declare` or
