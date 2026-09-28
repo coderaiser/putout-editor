@@ -23,23 +23,29 @@ different rules. Each time the fix is the same two lines of hand-editing.
 **Expected.** A rule that reports nothing does not fix anything, or the `off` is honoured by the
 fixer too. **Got.** A fixer acting on a file it never reported.
 
-**The workaround, measured.** The rule has to be named exactly. In
-`packages/plugin-putout-editor/.putout.json`, for the `*.md` match:
+**The workaround, measured.** `"putout-editor": "off"` in the `*.md` match of
+`packages/plugin-putout-editor/.putout.json` — package level, wildcard and exact rule name all
+silence the plugin, and it is the one form that survives a rule being added.
 
-| form | silences it |
-|---|---|
-| `"putout-editor/remove-duplicated-receiver": "off"` | **yes** |
-| `"putout-editor": "off"` | no |
-| `"putout-editor/*": "off"` | no |
+**This entry was wrong twice, in opposite directions, and the first answer was right.** It
+recorded the package-level and wildcard forms as silencing nothing; the table above says so
+after re-measuring. Both times the fault was the setup and not the subject:
 
-So a package-level or wildcard `off` reads as if it covers the whole plugin and covers none of
-it, and nothing complains. Every rule whose ❌ fence is a `js` block needs naming.
+1. the first probe's shell quoting failed, so no config was ever written and every form looked
+   like it worked;
+2. the re-measurement then ran against a README whose ❌ fence had already been stripped by the
+   fixer, so there was nothing to report and every form "passed" again.
+
+Which is the reusable part, and why `test/putout-editor.js` now gates the enumeration: **a probe
+that asks whether a rule is silenced must first check the rule has something to report.**
+Otherwise it measures nothing and calls that a finding.
 
 **Not this plugin's rules alone.** `logical-expressions/apply-destructuring` — upstream, from
 `@putout/plugin-logical-expressions` — also wants the `remove-duplicated-receiver` ❌ fence
-rewritten, because a duplicated receiver *is* what it destructures. It has to be in the same
-match. That is the generalisable part: a fence demonstrating a violation is matched by every rule
-that dislikes the construct, not only by the one the section is about.
+rewritten, because a duplicated receiver *is* what it destructures, and `"putout-editor": "off"`
+does not reach it. That is the generalisable part: a fence demonstrating a violation is matched
+by every rule that dislikes the construct, not only by the one the section is about, and a
+plugin-level `off` only covers your own.
 
 `docs/memory/putout-patterns.md` has the other half of this class — a fixer that exits clean on
 cases it cannot detect.

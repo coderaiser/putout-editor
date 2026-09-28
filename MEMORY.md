@@ -63,11 +63,26 @@ gap because fixing it properly is upstream's job is how the gap survives: the fe
 gate sat behind a "✅ verified" that had checked a hand-written copy rather than the rule, and
 the css gate sat behind a CI step running an empty script.
 
-**Say what is actually wrong, not a story about it.** Two findings here were wrong for a while
-because they described a mechanism that did not hold - a paste event aimed at the wrong
-target, and a rule that "cannot exist". The first was disproved by instrumenting the browser;
-the second by reading `check-match`. Measure the mechanism, and when a claim rests on a
-hand-written copy or a summary, check the shipped code.
+**Say what is actually wrong, not a story about it.** Four findings here were wrong for a
+while, each describing a mechanism that did not hold:
+
+- a paste event aimed at the wrong target — disproved by instrumenting the browser;
+- a rule that "cannot exist" — disproved by reading `check-match`;
+- a `.putout.json` `off` form that supposedly silences nothing, twice over.
+
+The third is the one to remember, because **the same measurement was wrong twice in opposite
+directions** and both times the setup, not the subject, was at fault. First a probe whose shell
+quoting failed, so no config was ever written and every form looked like it worked. Then, after
+correcting it, a probe that ran against a README whose ❌ fence had *already* been stripped by
+the fixer — so there was nothing to report and every form "passed" again. The first conclusion
+was the right one, arrived at for the wrong reason, and the second nearly overwrote it.
+
+Two rules follow, and they are the same rule: **before a measurement means anything, assert that
+the thing being measured is in the state you think it is.** A probe that writes a file must check
+the file changed; a probe that asks whether a rule is silenced must check the rule has something
+to report. Otherwise the result is a measurement of nothing, and it will look like a finding.
+
+When a claim rests on a hand-written copy, a summary, or a script, check the thing itself.
 
 ## Style, from the maintainer
 
@@ -104,12 +119,15 @@ hand-written copy or a summary, check the shipped code.
 - **A rule name is a claim about what it checks.** `css-architecture` claimed far more than the
   rule did and became `check-main-imports-only`; `apply-type-check` was not ours at all. If the
   name cannot be read as the check, it is the wrong name or the wrong scope.
-- **A `.putout.json` `off` only works spelled out in full.** Measured on the `*.md` match:
-  `"putout-editor/remove-comments": "off"` silences it; `"putout-editor": "off"` and
-  `"putout-editor/*": "off"` silence nothing, and nothing complains. The readable form is the
-  inert one. A ❌ fence is also matched by every rule that dislikes the construct, not only the
-  one its section is about — that is how an upstream `logical-expressions/apply-destructuring`
-  came to want a fence belonging to `remove-duplicated-receiver`.
+- **A `.putout.json` `off` has to be checked, not assumed.** `"putout-editor": "off"` in a
+  `*.md` match covers every rule of the plugin and survives one being added, which is why it is
+  the form to use — but it does not reach another plugin, so `logical-expressions/apply-destructuring`
+  still needs naming alongside it. A ❌ fence is matched by every rule that dislikes the
+  construct, not only the one its section is about.
+- **A measurement whose setup was not verified is not a measurement.** I once recorded the
+  package-level and wildcard `off` forms as inert; the probe's shell quoting had failed, so no
+  config was ever written. The rule for this repo: if a probe writes a file, assert the file
+  changed before believing what the run says.
 
 ## Re-check open findings
 
