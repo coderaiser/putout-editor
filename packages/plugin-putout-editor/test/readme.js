@@ -29,8 +29,15 @@ const fenceOf = (name, mark) => {
     if (isUndefined(rest))
         return null;
     
-    return rest
-        .split('```')[1]
+    // ```js puts the language on the opening line; ``` followed by a newline puts it on the next
+    // one. The code is whatever follows that language, and a rule that reads raw lines would
+    // otherwise see the word and report on it.
+    const [, fence] = rest.split('```');
+    const lines = fence.split('\n');
+    const body = /^\s*[a-z]+\s*$/.test(lines[0]) ? lines.slice(1) : lines;
+    
+    return body
+        .join('\n')
         .trim();
 };
 

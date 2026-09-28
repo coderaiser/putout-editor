@@ -1,8 +1,11 @@
 import {Buffer} from 'node:buffer';
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
 import * as removeZIndexOutsideTokens from './index.js';
+
+const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
 const plugin = ['remove-z-index-outside-tokens', removeZIndexOutsideTokens];
 
@@ -68,6 +71,22 @@ test('putout-editor: remove-z-index-outside-tokens: report only', (t) => {
     
     const result = contentOf(code);
     const expected = CSS_WITH_Z_INDEX;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: remove-z-index-outside-tokens: fixture: a numeric z-index', (t) => {
+    const result = scan('main.css', fixture('remove-z-index-outside-tokens')).length;
+    const expected = 1;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: remove-z-index-outside-tokens: fixture: a var z-index', (t) => {
+    const result = scan('main.css', fixture('remove-z-index-outside-tokens-fix')).length;
+    const expected = 0;
     
     t.equal(result, expected);
     t.end();

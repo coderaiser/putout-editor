@@ -1,7 +1,10 @@
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
 import * as removeUndefinedToken from './index.js';
+
+const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
 const plugin = ['remove-undefined-token', removeUndefinedToken];
 
@@ -116,5 +119,13 @@ test('putout-editor: remove-undefined-token: report only, the file is unchanged'
     );
     
     t.ok(result);
+    t.end();
+});
+
+test('putout-editor: remove-undefined-token: fixture: a missing token', (t) => {
+    const result = scan('main.css', fixture('remove-undefined-token')).length;
+    const expected = 1;
+    
+    t.equal(result, expected);
     t.end();
 });

@@ -1,8 +1,11 @@
 import {Buffer} from 'node:buffer';
+import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import putout, {print} from 'putout';
 import {parseFilesystem} from '@putout/test/filesystem';
 import * as removeRgbOutsideTokens from './index.js';
+
+const fixture = (name) => readFileSync(new URL(`./fixture/${name}.css`, import.meta.url), 'utf8');
 
 const plugin = ['remove-rgb-outside-tokens', removeRgbOutsideTokens];
 
@@ -72,6 +75,22 @@ test('putout-editor: remove-rgb-outside-tokens: report only: the token is a huma
     
     const result = contentOf(code);
     const expected = CSS_WITH_RGB;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: remove-rgb-outside-tokens: fixture', (t) => {
+    const result = scan('main.css', fixture('remove-rgb-outside-tokens')).length;
+    const expected = 1;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: remove-rgb-outside-tokens: fixture: a var is not a colour', (t) => {
+    const result = scan('main.css', fixture('remove-rgb-outside-tokens-fix')).length;
+    const expected = 0;
     
     t.equal(result, expected);
     t.end();
