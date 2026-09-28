@@ -307,7 +307,7 @@ bun run lint         # putout .   —   fix:lint runs putout . --fix
   It once named twelve source paths that were exactly the uncovered ones, so the 100% was
   100% of whatever was left. That is fixed: the list is now eleven named files, each with
   a stated reason, and the gate is genuinely 100% over the 115 files it measures. Adding a
-  path to that list is a claim that a file cannot be covered - `docs/issues/coverage.md`
+  path to that list is a claim that a file cannot be covered - `docs/memory/coverage.md`
   has the eleven and why.
 - **Prefer `bun run test` over calling `tape` directly.** `.madrun.ts` sets
   `dom`/`css`/`ts`/`jsx` via `NODE_OPTIONS`; without it `.tsx`/DOM specs fail to load. Pure

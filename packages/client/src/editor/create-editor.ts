@@ -21,7 +21,7 @@ import {
  * of extending it, and `x` deletes one character instead of the whole column.
  * Verified against qword@1.1.22 + @replit/codemirror-vim@6.4.0.
  *
- * Full investigation, with the instrumented selection per keystroke: `docs/issues/qword.md`.
+ * Full investigation, with the instrumented selection per keystroke: `docs/memory/editor-vim.md`.
  *
  * The facet is `static`, so it has to be in the state rather than toggled per
  * keystroke. The history compartment is the cheapest correct place to put it:

@@ -1,58 +1,33 @@
-# build
----
+# Build
 
-## ✅ the cause was an operator importing a processor
+**Open only.** What was fixed is in [`../memory/build.md`](../memory/build.md) — an operator
+importing a processor, and why `IgnorePlugin` is the wrong answer.
 
-A fresh `bun i` broke `packages/client`'s build. The client bundles 🐊**Putout** for the
-browser, so anything it reaches statically lands in the bundle:
+## ❌ `server` has no `nest` binary
 
-```sh
-$ cd packages/client && bun run build
-ERROR in ../../node_modules/cosmiconfig/dist/loaders.js 12:26-34
-  x Module not found: Can't resolve 'crypto' in '.../node_modules/cosmiconfig/dist'
-```
-
-`@putout/operator-match-files` imported `@putout/processor-css` to get a css parser, and that
-processor imports `stylelint` and `cosmiconfig`. `cosmiconfig` reaches `env-paths`, which calls
-`os.homedir()` **at import time**, and `os` is `false` for the browser - so the module graph
-died on load, before anything ran.
-
-**An operator must not import a processor.** That is fixed upstream in
-`@putout/operator-match-files@12.12.0`: the css processor import is gone, replaced by
-`@putout/operator-css`, whose only dependency is `happy-style` (pure JS over `css-tree`, no
-`stylelint` and no `cosmiconfig`). Bumping that one transitive dependency takes the build from
-**90 errors to a clean compile**, and the app renders again.
-
-## ❌ `redrun build` at the root: three separate causes
-
-`madfork` runs `redrun build` in each workspace and **exits on the first failure**, so the
-first one hides the rest. Checked each one directly:
+`madfork` runs `redrun build` in each workspace and **exits on the first failure**, so the first
+one hides the rest. `server` declares `@nestjs/cli` and no `nest` is installed anywhere in this
+tree, so it is the only workspace still failing.
 
 | workspace | `redrun build` |
 |---|---|
-| `client` | was failing - 45 rspack `ERROR in`, the operator issue above. **ok** since `@putout/operator-match-files@12.12.0` |
-| `mcp` | **ok** - 2065 modules, 17.56 MB; `@cloudcmd/stub` bundles with no complaint, so it needs no `--external` |
-| `server` | fails - `nest: not found`. It declares `@nestjs/cli` and no `nest` binary is installed anywhere in this tree |
-| `plugin-putout-editor` | was failing - `One of scripts not found: build`, and no `dist` to build |
+| `client` | ok since `@putout/operator-match-files@12.12.0` |
+| `mcp` | ok — 2065 modules, 17.56 MB |
+| `plugin-putout-editor` | ok — it imports itself and prints its rules |
+| `server` | fails — `nest: not found` |
 
-The last two are ordinary, non-upstream problems: a workspace needs a `build` script for
-`madfork`, and `.madrun.js` only reaches `package.json` through `madrun --init`. The plugin
-package now imports itself and prints its rules, which is the one thing worth doing at build
-time for a library, and `madrun --init` regenerates the scripts.
+A workspace needs a `build` script for `madfork`, and `.madrun.js` only reaches `package.json`
+through `madrun --init`.
 
-The `mcp` is built by `redrun build` like every other workspace - its `dist/index.js` was only
-stale because the client failed first.
+## ❌ nothing is pinned
 
-## ✅ what was fixable here
+`*.lock` is gitignored, so a monorepo that bundles 🐊**Putout** for the browser has no pinned
+resolution, and root and `packages/client` ask for different TypeScript majors. Committing
+`bun.lock` is what would make a reinstall reproducible.
 
-`resolve.fallback` in `rspack.config.js` gained `crypto`, `stream`, `worker_threads`,
-`perf_hooks`, `async_hooks` and `zlib` as `false` - the pattern already in that file for `fs`,
-`net` and `os`. That is correct regardless: the code is unreachable in a browser.
+## ❌ do not reach for `IgnorePlugin`
 
-## ❌ what is still open
-
-**Do not reach for `IgnorePlugin` here.** Three attempts, all of which compiled and then broke
-the app:
+Three attempts, all of which compiled and then broke the app:
 
 | ignored | build | app |
 |---|---|---|
@@ -64,17 +39,3 @@ the app:
 runtime** through the loader's `customRequire`. In a bundle that `require` must find the module
 by its real name, so a processor cannot be dropped while something still asks for it. Each
 attempt only moved the error to the next import.
-
-**Also open: nothing is pinned.** `*.lock` is gitignored, so a monorepo that bundles 🐊**Putout**
-for the browser has no pinned resolution, and root and `packages/client` ask for different
-TypeScript majors. Committing `bun.lock` is what would make a reinstall reproducible.
-
-Until the operator fix ships, `out/` is stale and the e2e suite cannot run. The last
-known-good result is from before the reinstall: 76/76 desktop, 49/49 mobile. The gates that
-still work are `putout .`, the unit suites and `redlint scan`.
-
-## ✅ the e2e suite runs again
-
-The operator fix shipped, so `bun run build` produces a bundle that boots, and the e2e suite
-runs against it again. `docs/issues/e2e.md` has the one test-helper bug the restored run
-exposed, and the fix.

@@ -17,10 +17,22 @@ the part that is not derivable from the tree.
 - **Run `putout .` before committing, not after.** CI's Lint step is `redrun fix:lint` and
   then auto-commits whatever it changed, so unlinted code comes back as a surprise commit.
 
-## Findings go in `docs/issues/`, one file per area
+## Three files, three jobs — and a thing leaves when it is done
 
-`tape.md` for tape/putout-lint problems, `markdown.md` for markdown. Check whether a new
-finding belongs in an existing file before creating another.
+`docs/issues/` is **open problems only**. `docs/ideas.md` is **things not started**. `docs/memory/`
+is **what was learned once a problem closed**, so the cause is not derived twice.
+
+A resolved problem left in `issues/` is documentation that reads as if it were still broken, and
+an implemented idea left in `ideas.md` is a backlog that lies about the work. That drift is why
+`issues/qword.md` grew a resolved section next to an open one and the two contradicted each
+other: the open half said the e2e suite could not run, the resolved half said it ran.
+
+**When you fix something, move it.** The finding goes to `memory/` — trimmed to the cause and
+the lesson, not the chronology. Keep the repro if re-deriving it would cost an hour; drop it if
+the fix makes it obvious.
+
+`memory/` is where a new fact goes when it is not a bug and not a task: the
+[pattern grammar](docs/memory/putout-patterns.md) is the current example.
 
 Every finding carries, in this order:
 
@@ -77,30 +89,24 @@ hand-written copy or a summary, check the shipped code.
 
 ## Re-check open findings
 
-Findings marked `❌` are waiting on something landing. Before working on anything else,
-check whether it has — a finding left open after its fix exists is stale documentation.
+Findings marked `❌` are waiting on something landing. Before working on anything else, check
+whether it has — a finding left open after its fix exists is stale documentation. There are
+three, and they are in [`docs/issues/`](./docs/issues/index.md).
 
-- **`docs/issues/coverage.md`** — fixed, and the list is the thing to keep honest. The gate
-  had been satisfied by excluding the files it did not cover; it now measures 115 files at
-  a real 100%, and the eleven it still excludes are named with a reason. If a path is added
-  to that list, the finding should say why — that is how the gate went hollow in the
-  first place.
-- **`docs/issues/tape.md`** — the types are fine and the rules are missing. `stub` is typed
-  (`@cloudcmd/stub@5.1.0` declares `resolves<T>()`) and `supertape@13.6.1` re-exports it, so
-  `import {stub} from 'supertape'` just works. What does not work is the two 🐊**Putout** rules
-  that would write that import and that type for you: `tape/apply-stub` and
-  `tape/extract-result-from-assertion` are in `packages/plugin-tape/lib/` and are **not** in
-  the published `eslint-plugin-putout`, so nothing reproduces them here. Re-check upstream for
-  those two directories, not by running the fixer, and write both lines by hand until it lands.
+- **`docs/issues/build.md`** — `server` has no `nest` binary, and nothing is pinned because
+  `*.lock` is gitignored. Neither is waiting on upstream; both are ordinary work. Re-check by
+  running `redrun build` in that workspace, not by reading this line.
 - **`docs/issues/markdown.md`** — `markdown/apply-ts-codeblock-in-file` is a *filesystem*
   scanner, enabled only in putout's `.filesystem.json` match, so it runs under `redlint` and
   never under `putout .`. The open half is that nothing here runs `redlint` over `docs/`: the
-  root `.madrun.ts` has no `redlint` and `packages/client`'s `prelint` runs it from that
-  package's directory. Re-check by looking for a `redlint` step covering the repo root, not by
-  running `putout .` — and re-check upstream for a release that enables the scanner in the
-  `*.md` match, which would make `putout .` enforce it directly. The fences themselves are
-  currently right (`redlint scan` at the root reports the rule at 100%), so this is a missing
-  gate, not a broken file. Ours is fixed - the rule now runs from the client's `fix:lint`.
+  root `.madrun.ts` has no `redlint` and `packages/client`'s `prelint` runs it from *that*
+  package's directory. Re-check by looking for a `redlint` step covering the repo root — and
+  re-check upstream for a release that enables the scanner in the `*.md` match, which would
+  make `putout .` enforce it directly. The fences are currently right, so this is a missing
+  gate, not a broken file.
+- **`docs/issues/putout-plugins.md`** — two 🐊**Putout** rules that would fix things here do
+  not ship, and one fixer exits clean on lossy cases. Re-check upstream for
+  `packages/plugin-tape/lib/` and the optional-chaining converter, not by running the fixer.
 
 ## Keep these three in step
 
