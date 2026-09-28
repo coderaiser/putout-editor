@@ -23,14 +23,26 @@ different rules. Each time the fix is the same two lines of hand-editing.
 **Expected.** A rule that reports nothing does not fix anything, or the `off` is honoured by the
 fixer too. **Got.** A fixer acting on a file it never reported.
 
-**Not yet measured:** whether this is `off` being ignored by the fixer, or the fixer running with
-the *package* config while the report ran with the merged one. Adding the rule to the package's
-own `*.md` match as `off` did **not** stop it, so the narrower cause is the one to check upstream
-first. `docs/memory/putout-patterns.md` has the other half of this class — a fixer that exits
-clean on cases it cannot detect.
+**The workaround, measured.** The rule has to be named exactly. In
+`packages/plugin-putout-editor/.putout.json`, for the `*.md` match:
 
-**Workaround until it is answered.** Turn the rule off for markdown in the **package** config as
-well as the root, and treat a `readme.js` failure as a known repeat rather than a new discovery.
+| form | silences it |
+|---|---|
+| `"putout-editor/remove-duplicated-receiver": "off"` | **yes** |
+| `"putout-editor": "off"` | no |
+| `"putout-editor/*": "off"` | no |
+
+So a package-level or wildcard `off` reads as if it covers the whole plugin and covers none of
+it, and nothing complains. Every rule whose ❌ fence is a `js` block needs naming.
+
+**Not this plugin's rules alone.** `logical-expressions/apply-destructuring` — upstream, from
+`@putout/plugin-logical-expressions` — also wants the `remove-duplicated-receiver` ❌ fence
+rewritten, because a duplicated receiver *is* what it destructures. It has to be in the same
+match. That is the generalisable part: a fence demonstrating a violation is matched by every rule
+that dislikes the construct, not only by the one the section is about.
+
+`docs/memory/putout-patterns.md` has the other half of this class — a fixer that exits clean on
+cases it cannot detect.
 
 ## ❌ `putout .` cannot run the fence-language gate, or fix it
 
