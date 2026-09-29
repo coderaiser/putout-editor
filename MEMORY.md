@@ -145,9 +145,11 @@ whether it has — a finding left open after its fix exists is stale documentati
 two, and they are in [`docs/issues/`](./docs/issues/index.md).
 
 - **`docs/issues/build.md`** — `nest build` in `packages/server` reports 279 errors that
-  `tsc --noEmit` does not, and nothing is pinned because `*.lock` is gitignored. Re-check by
-  running `npx tsc --noEmit` and `npx nest build` in that workspace and comparing the two
-  counts, not by reading this line.
+  `tsc --noEmit` does not. Re-check by running `npx tsc --noEmit` and `npx nest build` in that
+  workspace and comparing the two counts, not by reading this line. **Not** the lock file: no lock
+  is committed here, on purpose — `*.lock` is gitignored, CI installs with `bun i -f --no-save`, and
+  the last one was removed in `bd8bc9d`. An entry that read that as an unpinned gap is gone; do not
+  re-file it.
 - **`docs/issues/putout-plugins.md`** — two upstream fixers exit clean on lossy cases, and
   `apply-destructuring` drops a `&&` guard on a `return`. Re-check upstream for a release
   that reports rather than fixes silently, not by running the fixer.

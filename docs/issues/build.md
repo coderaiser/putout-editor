@@ -3,6 +3,12 @@
 **Open only.** What was fixed is in [`../memory/build.md`](../memory/build.md) — an operator
 importing a processor, and why `IgnorePlugin` is the wrong answer.
 
+**No lock file is committed, and that is deliberate.** `*.lock` is in `.gitignore`; CI installs
+with `bun i -f --no-save`. The history shows the decision made twice on purpose — `server/yarn.lock`
+removed in `6009dcb` ("chore(yarn.lock) rm"), and the last `bun.lock` removed in `bd8bc9d`. A
+checkout resolving current versions is the intended behaviour, not an unpinned gap, so it is not
+a finding and should not be re-filed. This replaced an entry here that read it as one.
+
 ## ❌ `nest build` reports 279 errors that `tsc` does not
 
 The `server` workspace builds through `nest build` (`.madrun.ts`). It fails, and the errors are
@@ -36,13 +42,9 @@ is shared, so the difference is in how nest invokes tsc rather than in either fi
 This is the finding to re-check by running `npx nest build` in `packages/server` — the two
 numbers to compare are `tsc --noEmit` and the `Found N error(s)` line.
 
-## ❌ nothing is pinned
-
-`*.lock` is in `.gitignore`, and `git check-ignore bun.lock` confirms it, so a monorepo that
-bundles 🐊**Putout** for the browser has no pinned resolution and root and `packages/client`
-ask for different TypeScript majors. `bun.lock` exists on disk and is not committed, so a fresh
-checkout resolves whatever is current. Committing it is what would make a reinstall
-reproducible.
+**Re-checked 2026-09-29, still reproducing exactly**: `tsc --noEmit` exits 0 with no errors,
+`nest build` reports `Found 279 error(s)` and exits 1, and every code count above is unchanged
+(64 / 64 / 56 / 32 / 30). Nothing here has been fixed in the tree.
 
 ## ❌ do not reach for `IgnorePlugin`
 
