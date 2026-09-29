@@ -216,18 +216,24 @@ rule that can be a `match`/`replace` map of pattern strings should be, rather th
 hand-built AST. The model to copy is `apply-destructuring` in
 `@putout/plugin-logical-expressions`, a whole rule in eleven lines.
 
-The grammar is not guessable, and getting it wrong fails silently:
+**A placeholder is a slot inside a pattern, not a matcher on its own.** This is the part the
+grammar does not give you, and it is measured rather than read off the table:
 
-| Form | Means |
+| Key | Matches |
 |---|---|
-| `__a` | a **property or name** — linked, and substituted |
-| `__a__()` | a call to a linked **callee** — substituted |
-| `__a__` | an expression placeholder — **not** substituted into a replacement |
+| `'__a'` | `Identifier` — nothing else |
+| `'f(__a)'` | any `CallExpression`, and `__a` binds the argument |
+| `'__a + __b'` | any `BinaryExpression`, binding both sides |
+| `'__a()'` | **nothing** — it is a call on an identifier-shaped slot |
+| `'__a__()'` | **nothing**, and `'*'` is a parse error |
 
-That third row is the trap: a replacement written `__b__()` where the key says `__b()` emits
-the literal text `__b__()` and reports success. `__b()` and `__b__()` are not interchangeable —
-only the first links, and a key that looks right but never fires is worse than a typo, because
-it reports 0 places and exits 0.
+So `__a` means "any node **in this position**", and it is the *surrounding shape* that gives
+it a type. A bare `'__a'` looks like a wildcard and is not: it is a rule about identifiers.
+
+**And `__a__` is the silent one.** Given a key of `f(__a)`, a replacement of `g(__a)` emits
+`g(1)` — the value is carried across. Given a key of `f(__a__)`, a replacement of `g(__a__)`
+emits `f(1)` unchanged, and reports success. Two underscores bind nothing, so the text goes
+out as written and the rule exits 0 having fixed nothing.
 
 Not every shape has a pattern. A `return`, a `this` receiver and a bare `f() && f().deep` have
 no template, and the CSS vocabulary has no `atrule` at all — so those stay AST rules. That is

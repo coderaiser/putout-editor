@@ -10,6 +10,155 @@ the house style and the pattern grammar, [`../putout-style.md`](../putout-style.
 left here is the part not derivable from those two: the traps that cost a round trip each and
 are not guessable from the types.
 
+## How to visit every node
+
+Four attempts, all measured, and the last two are the ones that work. The whole of this section
+exists because every one of the obvious answers is wrong, and two of them fail **silently** —
+a rule that reports nothing looks exactly like a rule with nothing to report.
+
+| As `traverse` key | Result |
+|---|---|
+| `VariableDeclaration` | works, but only that one type |
+| `enter` / `exit` | **fires 0 times** — dropped by the runner |
+| `$` | **matches nothing** |
+| `*` | `SyntaxError`, parsed as a template placeholder |
+| `__a` / `__` | resolves to `Identifier` only |
+
+**`enter` and `exit` are discarded on purpose.** `@putout/babel` exports `shouldIgnoreKey`,
+which returns true for `enter`, `exit`, `shouldSkip`, `denylist`, `noScope`, `skipKeys` and any
+`_`-prefixed key, and `merge2` skips those keys while building the visitor. They are honoured
+only *inside* a per-node-type visitor — `{VariableDeclaration: {enter}}` — never at the top
+level of a rule's `traverse`. Measured: `enter: 0, exit: 0`, while a typed key on the same rule
+fired once on the same source.
+
+This is why a rule and a library can use the same syntax and get different answers:
+`estree-to-babel` calls `traverse()` from `@putout/babel` directly, and the rule runner calls
+`traverse.visitors.merge()` on the visitor object first. Same library, two entry points, and
+the merge is what strips `enter`.
+
+**Two forms that do work.** The includer, which is the shorter one:
+
+```js
+export const include = () => [
+    'Statement',
+    'Expression',
+    'ObjectProperty',
+];
+
+export const filter = ({node}) => {
+    const {
+        leadingComments,
+        trailingComments,
+        innerComments,
+    } = node;
+    
+    if (hasLength(leadingComments))
+        return true;
+    
+    if (hasLength(trailingComments))
+        return true;
+    
+    return hasLength(innerComments);
+};
+```
+
+Those are **babel alias** names, and they are the point: an alias covers every type beneath it,
+so the list is short and does not go stale when putout adds a node type. `['Statement']` alone
+reports every comment position except an `ObjectProperty`, which is why that third entry is
+there. `'Node'` is **not** valid — babel rejects it with *You gave us a visitor for the node
+type Node*.
+
+Or the raw traverse, when you need every node and not a category:
+
+```js
+import {traverse as babelTraverse} from 'putout';
+
+export const traverse = ({push}) => ({
+    Program(path) {
+        babelTraverse(path.node, {
+            noScope: true,
+            enter(node) {
+                // ...
+            },
+        });
+    },
+});
+```
+
+`Program` is a valid visitor key and is not ignored, and the imported `traverse` is the same
+function `estree-to-babel` uses — before the merge, so `enter` works. Alias the import: the
+rule exports its own `traverse`, and the unaliased name is
+`SyntaxError: Identifier 'traverse' has already been declared`.
+
+## An includer's `fix` gets a path, not an object
+
+**This one costs nothing to get wrong and everything to debug**, because it fails silently.
+The rule reported all 8 comments and removed none, with no error and exit 0.
+
+A `traverse` rule pushes `{path, key}`, so its `fix` destructures `{path, key}`. An includer
+is built by `prePush` in `@putout/engine-runner/lib/includer/index.js`, which calls
+`push(path)` — a **bare path** — so `runFix` hands `fix` that path:
+
+```js
+export const fix = (path) => { // not ({path, key})
+    path.node[key] = [];
+};
+```
+
+The tell is the shape of what arrives: a `NodePath` has `node`, `parentPath`, `scope`,
+`container` and `opts` on it. If `fix` is reading `key` off its first argument and it is
+`undefined` every time, this is why.
+
+## `include` takes type names, not placeholders
+
+`['__a', 'Statement']` is accepted and behaves exactly like `['Statement']` plus
+`VariableDeclaration` and `ExpressionStatement`, because `__` and `__a` are the same key and
+both mean `Identifier`. An `Identifier` never carries a comment — checked against a real file,
+`false` — so the placeholder reaches nodes with nothing to find and cannot stand in for the
+aliases. Two more that fail the same way: `['_']` and `['__a__']` match nothing, and
+`include: () => '__a'` (a string, not an array) is rejected with *does not return an 'array'*.
+
+## Never reach for `UPDATE=1` in this package
+
+`UPDATE=1 npm test` deleted **four** `-fix` fixtures belonging to *other* rules and left this
+one empty rather than regenerating it. `git checkout -- test/fixture/` brought all of them
+back. Generate the twin by running the rule:
+
+```js
+const {code} = putout(source, {fixCount: 1, plugins: [['remove-comments', rule]]});
+```
+
+That writes what the rule actually produces, which is the point — a hand-written twin asserts
+an output the rule never made, and two of those existed here before this was found.
+
+## `estree-to-babel`, and why every parser funnels through one call
+
+acorn, babel, espree and esprima are all supported, and `parseCode` in
+`src/store/operations.ts` runs `estreeToBabel` over the result of every one of them. That is
+not tidiness. **ESTree** is the standardised AST the acorn family emits, **Babel** has its own
+dialect, and every putout rule is written against Babel's — so without the adapter a rule would
+only work on the babel parser.
+
+It works in two steps. `get-ast` wraps a bare ESTree `Program` in a `File` node, and returns a
+`File` untouched, which is what makes running babel through it safe. Then one `traverse` with
+an `enter`/`exit` pair rewrites the differences: `Property` to `ObjectProperty`,
+`MethodDefinition` to `ClassMethod`, `ChainExpression` to `Optional*`, `Literal` to
+`StringLiteral`/`NumericLiteral`, `raw` hoisted out of `extra`, directives moved out of `body`.
+`exit` handles what needs the subtree finished first — comments, and shorthand object methods.
+
+**The `as` cast on that call is a boundary, not a papering-over.**
+`ParserWithLoader.parse` is typed `(…) => unknown` because it wraps four parsers with four
+return types, while `estreeToBabel` wants `types.Node`. `unknown` to `types.Node` has to be
+asserted somewhere, and the call site is the only place that knows the parsers really do return
+nodes. The alternative is a runtime guard on every parse, in a file that already carries a
+comment about `extend()` not being free.
+
+**It is also why `apply-type-check` is a finding.** That rule rewrites
+`node.type === 'Program'` into `isProgram(node)`, and it did not compile in
+`defaultESTreeParserInterface.ts`, because that file's `AstNode` is the Editor's own interface
+and not a Babel `Node`. A putout rule cannot see that two types named `Node` come from
+different worlds — see [`../issues/putout-plugins.md`](../issues/putout-plugins.md).
+
 ## A `scan` can still delegate to a Matcher
 
 A cross-file rule does not have to do its own matching. The outer `scan` finds the files and

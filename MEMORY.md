@@ -160,6 +160,16 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   load-bearing even though `spread/remove-useless-array` wants it gone), and `getFilename` returns
   `'/AGENTS.md'` **with** the leading slash, so a bare `includes` silently matches nothing. Both
   present as a rule that reports zero places and looks correct.
+- **`enter`/`exit` do not work in a rule's `traverse`, and `$` and `*` are worse.** The runner
+  drops them, silently: a rule using `enter` reports nothing and looks correct. What works is an
+  includer over babel **aliases** (`Statement`, `Expression`, `ObjectProperty`), or a `Program`
+  visitor calling the raw `traverse` imported from `putout`. Measured, in
+  [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md) — read it before writing a rule
+  that has to visit nodes it cannot name by hand.
+- **An includer's `fix` receives a bare `path`, not `{path, key}`.** Reading it the traverse way
+  reports every place, fixes none, and exits 0.
+- **`UPDATE=1` is destructive in `plugin-putout-editor`** — it deletes `-fix` fixtures belonging
+  to *other* rules. Generate a twin by running the rule and writing its `code`.
 
 ## Keep these three in step
 

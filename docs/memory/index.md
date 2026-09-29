@@ -12,7 +12,7 @@ keeping once the problem is closed, so the cause is not derived a second time.
 | [`coverage.md`](./coverage.md) | the 100% gate was once 100% of a chosen set, and the eleven files that remain |
 | [`tape.md`](./tape.md) | the types are fine; two rules that would write them do not ship |
 | [`putout-patterns.md`](./putout-patterns.md) | moved: the placeholder grammar is now [§3 of `putout-style.md`](../putout-style.md#3-rule-shape) |
-| [`putout-rules.md`](./putout-rules.md) | the traps a `scan` or an inner matcher hides: an empty file arrives as `{}`, and a rule can see comments |
+| [`putout-rules.md`](./putout-rules.md) | how to visit every node (`enter` is dropped, the aliases work), an includer's `fix` takes a bare `path`, and `UPDATE=1` deletes other rules' fixtures |
 | [`fence-gate.md`](./fence-gate.md) | a `js` fence must be JavaScript; the rule is a sub-plugin of the markdown plugin |
 | [`build.md`](./build.md) | an operator must not import a processor, and why `IgnorePlugin` cannot fix it |
 
