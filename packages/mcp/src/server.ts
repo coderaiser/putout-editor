@@ -8,6 +8,7 @@ import * as transform from './transformer.ts';
 import * as validate from './validator.ts';
 import * as examples from './examples.ts';
 import * as tester from './tester.ts';
+import * as namer from './namer.ts';
 
 type AnyRegister = (name: string, config: {
     description: string;
@@ -31,6 +32,7 @@ export function createServer(): McpServer {
     register(validate.name, {description: validate.description, inputSchema: validate.schema}, validate.handler);
     register(examples.name, {description: examples.description, inputSchema: examples.schema}, examples.handler);
     register(tester.name, {description: tester.description, inputSchema: tester.schema}, tester.handler);
+    register(namer.name, {description: namer.description, inputSchema: namer.schema}, namer.handler);
     
     return server;
 }
