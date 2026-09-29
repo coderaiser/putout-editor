@@ -25,9 +25,14 @@ test('local test-pattern: description is a string', (t) => {
 });
 
 test('local test-pattern: schema has fixture, key and to', (t) => {
-    const result = ['fixture', 'key', 'to'].every((field) => field in schema.shape);
+    const result = Object.keys(schema.shape).sort();
+    const expected = [
+        'fixture',
+        'key',
+        'to',
+    ];
     
-    t.ok(result);
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -67,8 +72,9 @@ test('local test-pattern: a bare placeholder matches an identifier', async (t) =
         fixture: 'const x = 1;\n',
         key: '__a',
     })).matched;
+    const expected = 1;
     
-    t.ok(result);
+    t.equal(result, expected);
     t.end();
 });
 
@@ -92,9 +98,10 @@ test('local test-pattern: a replacement may reuse a name the key declared', asyn
         to: 'g(__a)',
     });
     
-    const result = out.replacement.changed;
+    const result = out.replacement.code;
+    const expected = 'g(1);\n';
     
-    t.ok(result);
+    t.equal(result, expected);
     t.end();
 });
 
@@ -105,9 +112,10 @@ test('local test-pattern: a replacement naming an unbound value is an error', as
         to: 'g(__b)',
     });
     
-    const result = /not linked/.test(out.replacement.error);
+    const result = out.replacement.error;
+    const expected = '☝️ Looks like template values not linked: ["__a"] -> ["__b"]';
     
-    t.ok(result);
+    t.equal(result, expected);
     t.end();
 });
 
@@ -130,7 +138,8 @@ test('local test-pattern: __args matches any argument count', async (t) => {
         fixture: 'f();\nf(1, 2, 3);\n',
         key: 'f(__args)',
     })).matched;
+    const expected = 2;
     
-    t.ok(result);
+    t.equal(result, expected);
     t.end();
 });

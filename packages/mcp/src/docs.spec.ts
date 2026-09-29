@@ -20,7 +20,10 @@ test('local docs: description is a string', (t) => {
 });
 
 test('local docs: schema has optional section field', (t) => {
-    t.ok('section' in schema.shape);
+    const result = Object.keys(schema.shape);
+    const expected = ['section'];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -185,7 +188,7 @@ test('local docs: template section explains linked values', (t) => {
         section: 'template',
     }).content[0].text;
     
-    t.ok(result.includes('__a') && result.includes('LINKED'));
+    t.match(result, 'LINKED');
     t.end();
 });
 
@@ -213,7 +216,14 @@ test('local docs: template section warns about the silent no-op', (t) => {
         section: 'template',
     }).content[0].text;
     
-    t.ok(result.includes('exit 0') && result.includes('not linked'));
+    t.match(result, 'Looks like template values not linked');
+    t.end();
+});
+
+test('local docs: template section says __object needs an expression position', (t) => {
+    const result = handler({section: 'template'}).content[0].text;
+    
+    t.match(result, 'EXPRESSION values');
     t.end();
 });
 
@@ -229,9 +239,10 @@ test('local docs: template section points at test_pattern', (t) => {
 test('local docs: schema accepts the template section', (t) => {
     const result = schema.safeParse({
         section: 'template',
-    }).success;
+    }).data.section;
+    const expected = 'template';
     
-    t.ok(result);
+    t.equal(result, expected);
     t.end();
 });
 

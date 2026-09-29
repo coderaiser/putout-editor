@@ -47,9 +47,10 @@ npm install @putout/mcp
 
 | Tool            | Description                                          | Inputs                    |
 |-----------------|------------------------------------------------------|---------------------------|
-| `docs`          | Overview + `api`/`errors` sections                   | `section?`                |
+| `docs`          | Overview + `style`/`template`/`api`/`errors` sections | `section?`                |
 | `formats`       | Wrapper, operator, fixture shape for each file format | none                      |
 | `get_example`   | Known-good plugin + fixture for a pattern            | `pattern`                 |
+| `test_pattern`  | Test one 🦎**PutoutScript** key: matches, count, and what each placeholder bound to | `fixture`, `key`, `to?` |
 | `validate`      | Syntax-check a plugin, returns `ok` or `plugin_syntax (line N, col N): ...` | `plugin` |
 | `parse`         | Compact Babel AST. `full: true` for raw with `loc`   | `source`, `query?`, `full?` |
 | `find_places`   | Count/inspect matches without mutating               | `fixture`, `plugin`       |
@@ -58,10 +59,18 @@ npm install @putout/mcp
 
 **Workflow for a new rule:**
 
-1. `get_example` — pick the right pattern, get a working base
-2. `validate` — check syntax before running anything
-3. `find_places` — iterate until matches are correct
-4. `transform` — confirm the fix output
+1. `docs {section: 'template'}` — the pattern grammar, when writing a key
+2. `get_example` — pick the right pattern, get a working base
+3. `test_pattern` — confirm the key matches before building a rule around it
+4. `validate` — check syntax before running anything
+5. `find_places` — iterate until matches are correct
+6. `transform` — confirm the fix output
+
+`test_pattern` is the one that pays for itself. A key that matches nothing reports zero
+places and exits 0, and a replacement naming an unbound value throws *Looks like template
+values not linked* — both look like success. Two underscores bind nothing, so
+`f(__a__)` → `g(__a__)` leaves the input untouched and still exits 0; the tool reports
+`changed: false` with a note rather than passing for a fix.
 
 `get_example` walks the patterns in selection order — replacer, includer, traverser,
 scanner, declarator. `finder` is advanced and is not suggested; name it explicitly and

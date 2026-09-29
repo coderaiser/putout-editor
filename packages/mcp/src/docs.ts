@@ -167,7 +167,11 @@ under @putout/compare.
 \`__\` and \`__a\` both match any node. The difference is what happens in the replacement.
 A plain \`__\` is a slot; a named one is bound.
 
-### Linked and unlinked are not interchangeable
+\`__array\` and \`__object\` are EXPRESSION values, so they need an expression position.
+\`const o = {a: 1};\` matches \`__object\`, but a bare \`{a: 1};\` does not - on its own that parses
+as a block, and it only matches \`__\`. \`const a = [];\` matches \`__array\`.
+
+### A replacement may only reuse what the key declared
 
 A replacement may reuse a name the KEY declared, and only those. Measured:
 

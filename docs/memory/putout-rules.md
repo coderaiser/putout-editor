@@ -109,6 +109,29 @@ The tell is the shape of what arrives: a `NodePath` has `node`, `parentPath`, `s
 `container` and `opts` on it. If `fix` is reading `key` off its first argument and it is
 `undefined` every time, this is why.
 
+## Bound values arrive in the `match` visitor, not in `report`
+
+A replacer's `match` callback gets the bound template values as its **first** argument, and
+they are real nodes:
+
+```js
+export const match = () => ({
+    'const __a = __b': (vars, path) => {
+        // vars.__a is an Identifier, vars.__b a NumericLiteral
+        return true;
+    },
+});
+```
+
+`report` gets the path and `{options}` — the bindings are **not** there, so a rule reading
+them from `report` gets `undefined` and still reports. And the node handed to the visitor is
+the **outer** node, not the matched subtree. That is what made me generalise "a placeholder
+only matches an identifier" from a probe that was reading the wrong node: the true claim is
+narrower — a *bare* `__a` matches an identifier.
+
+`@putout/compare` is the engine underneath, and `getTemplateValues(node, template)` is its
+entry point when you want the bindings without a visitor.
+
 ## `include` takes type names, not template values
 
 `include` builds its visitor from **node type names**, so it takes `'Statement'` and

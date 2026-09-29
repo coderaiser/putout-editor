@@ -234,15 +234,20 @@ read those before guessing, because every mistake here fails silently.
 | `"__a"` | any **string** literal, content stored in `__a` |
 | `/__a/` | any regexp literal |
 
-**The linked and unlinked ones are not interchangeable, and the engine says so** — measured:
+`__array` and `__object` are **expression** values, so they need a position that is an
+expression. `const o = {a: 1};` matches `__object`; a bare `{a: 1};` does not, because on its
+own that parses as a *block* — it only matches `__`. Same for `[]`: `const a = [];` matches
+`__array`.
+
+### A replacement may only reuse what the key declared
 
 | key → replacement | result |
 |---|---|
-| `'f(__a)'` → `'g(__a)'` | `g(1)` — the value carries |
-| `'f(__)'` → `'g(__)'` | `g(1)` — unlinked still fills in |
+| `'f(__a)'` → `'g(__a)'` | `g(1);` — the value carries |
+| `'f(__)'` → `'g(__)'` | `g(1);` — unlinked still fills in |
 | `'f(__)'` → `'g(__a)'` | **`☝️ Looks like template values not linked`** |
 | `'f(__a)'` → `'g(__b)'` | **`☝️ Looks like template values not linked`** |
-| `'f(__a__)'` → `'g(__a__)'` | `f(1)` unchanged, **exit 0** |
+| `'f(__a__)'` → `'g(__a__)'` | `f(1);` unchanged, **exit 0** |
 
 The first two are the rule: a replacement may reuse a name the key **declared**, and only
 those. Reach for a name the key did not bind and the engine refuses. The last is the trap —

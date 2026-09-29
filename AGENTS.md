@@ -26,11 +26,12 @@ temp spec file.
 
 | Tool | Use it to |
 |---|---|
-| `docs` | Reference overview or `section: 'api'`/`'errors'` |
+| `docs` | Reference overview, or `section: 'style'`/`'template'`/`'api'`/`'errors'` |
 | `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule |
 | `get_example` | Known-good plugin + fixture. Order: replacer -> includer -> traverser -> scanner |
 | `validate` | Check a plugin compiles -> `ok` or `plugin_syntax (line N, col N): ...` |
 | `parse` | Get an AST. Compact by default, `full: true` for raw with `loc` |
+| `test_pattern` | Does a 🦎**PutoutScript** key match, how many places, and what each `__a` bound to |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
 | `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |
