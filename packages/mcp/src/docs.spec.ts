@@ -196,6 +196,7 @@ test('local docs: template section names every value', (t) => {
     const result = handler({
         section: 'template',
     }).content[0].text;
+    
     const missing = [
         '__args',
         '__object',
@@ -221,7 +222,9 @@ test('local docs: template section warns about the silent no-op', (t) => {
 });
 
 test('local docs: template section says __object needs an expression position', (t) => {
-    const result = handler({section: 'template'}).content[0].text;
+    const result = handler({
+        section: 'template',
+    }).content[0].text;
     
     t.match(result, 'EXPRESSION values');
     t.end();
@@ -240,6 +243,7 @@ test('local docs: schema accepts the template section', (t) => {
     const parsed = schema.safeParse({
         section: 'template',
     });
+    
     const result = parsed.success ? parsed.data.section : 'failed';
     const expected = 'template';
     

@@ -11,7 +11,12 @@ export const description =
 
 export const schema = z.object({
     section: z
-        .enum(['style', 'template', 'api', 'errors'])
+        .enum([
+            'style',
+            'template',
+            'api',
+            'errors',
+        ])
         .optional()
         .describe('Which section to fetch. Omit for a short overview.'),
 });

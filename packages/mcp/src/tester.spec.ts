@@ -6,7 +6,11 @@ import {
     schema,
 } from './tester.ts';
 
-const call = async (args: {fixture: string, key: string, to?: string}) => JSON.parse((await handler(args)).content[0].text);
+const call = async (args: {
+    fixture: string;
+    key: string;
+    to?: string;
+}) => JSON.parse((await handler(args)).content[0].text);
 
 test('local test-pattern: name is test_pattern', (t) => {
     const result = name;
@@ -25,7 +29,9 @@ test('local test-pattern: description is a string', (t) => {
 });
 
 test('local test-pattern: schema has fixture, key and to', (t) => {
-    const result = Object.keys(schema.shape).sort();
+    const result = Object
+        .keys(schema.shape)
+        .sort();
     const expected = [
         'fixture',
         'key',
@@ -58,6 +64,7 @@ test('local test-pattern: reports what each placeholder bound to', async (t) => 
         bound.__a[0].trim(),
         bound.__b[0].trim(),
     ];
+    
     const expected = [
         'x;',
         '1;',
@@ -72,6 +79,7 @@ test('local test-pattern: a bare placeholder matches an identifier', async (t) =
         fixture: 'const x = 1;\n',
         key: '__a',
     })).matched;
+    
     const expected = 1;
     
     t.equal(result, expected);
@@ -138,6 +146,7 @@ test('local test-pattern: __args matches any argument count', async (t) => {
         fixture: 'f();\nf(1, 2, 3);\n',
         key: 'f(__args)',
     })).matched;
+    
     const expected = 2;
     
     t.equal(result, expected);

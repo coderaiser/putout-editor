@@ -10,7 +10,11 @@ const call = async (fixture: string) => JSON.parse((await handler({
     fixture,
 })).content[0].text);
 
-const keys = (out: {named: {key: string}[]}) => {
+const keys = (out: {
+    named: {
+        key: string;
+    }[];
+}) => {
     const names = [];
     
     for (const {key} of out.named)
@@ -19,7 +23,11 @@ const keys = (out: {named: {key: string}[]}) => {
     return names;
 };
 
-const genericKeys = (out: {generic: {key: string}[]}) => {
+const genericKeys = (out: {
+    generic: {
+        key: string;
+    }[];
+}) => {
     const names = [];
     
     for (const {key} of out.generic)
