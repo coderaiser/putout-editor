@@ -517,12 +517,17 @@ of the job. Ask only before starting something that changes behaviour.
 ## What broke, and why
 
 [`docs/lessons.md`](./docs/lessons.md) reads a month of fixes back for a pattern — the volume,
-where they cluster, and five causes that repeat. Read it before fixing something that has been
+where they cluster, and where the work goes. Read it before fixing something that has been
 fixed before, and check the hot-spot table before choosing a file.
 
 The one that wastes the most time: **a check that passes on a cheaper path than the user
 takes.** Compile is not execute. `find_places` is not `transform`. A plugin's own suite does not
 lint the repository. Ask which path a green test actually exercised before you trust it.
+
+The other, from the scanner template: **nothing in a template may depend on a rewrite the reader
+cannot see.** It shipped `fix = () => { path.remove(); }` with no parameter, which works only
+because `compile-rule` injects one; copy it into a plugin that has not been through
+`compile-rule` and `path` is a `ReferenceError`. A template has to be correct as written.
 
 ## Reporting a finding
 

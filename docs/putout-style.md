@@ -122,9 +122,10 @@ A one-rule `lib/index.js` is the shape with no advantage. If your plugin has one
 }
 ```
 
-Three things matter and are easy to get wrong:
-
-- **`putout` is a `peerDependency`, never a `dependencies` entry.** 114 of 116 plugins have no
+Three things matter and are easy to get wrong: `putout` is a `peerDependency` rather than a
+`dependencies` entry, 114 of 116 plugins declare **no** runtime dependency on a sibling
+`@putout/*` package, and `main` is explicit even when it is the default. The full list, and
+what each one costs, is in [What no rule should do](#what-no-rule-should-do).
 
 ## 3. Rule shape
 
@@ -207,6 +208,61 @@ function check({__b}) {
     return types[`is${value}`];
 }
 ```
+
+### Pattern strings
+
+**Start from a template where one fits.** `print` and `parse` are the expensive parts, so a
+rule that can be a `match`/`replace` map of pattern strings should be, rather than a
+hand-built AST. The model to copy is `apply-destructuring` in
+`@putout/plugin-logical-expressions`, a whole rule in eleven lines.
+
+The grammar is not guessable, and getting it wrong fails silently:
+
+| Form | Means |
+|---|---|
+| `__a` | a **property or name** — linked, and substituted |
+| `__a__()` | a call to a linked **callee** — substituted |
+| `__a__` | an expression placeholder — **not** substituted into a replacement |
+
+That third row is the trap: a replacement written `__b__()` where the key says `__b()` emits
+the literal text `__b__()` and reports success. `__b()` and `__b__()` are not interchangeable —
+only the first links, and a key that looks right but never fires is worse than a typo, because
+it reports 0 places and exits 0.
+
+Not every shape has a pattern. A `return`, a `this` receiver and a bare `f() && f().deep` have
+no template, and the CSS vocabulary has no `atrule` at all — so those stay AST rules. That is
+the shape of the engine, not a failure of effort: measure the shape before rewriting.
+
+`match` and `replace` are alternative plugin shapes, not composable parts. A rule is a replacer
+*or* a traverser; a plugin carrying both is not a thing. A guard belongs in `match`, because
+that is where the replacer form puts a predicate:
+
+```js
+import {operator} from 'putout';
+
+const {getBinding} = operator;
+
+const DECLARATION = 'const __a = __b().__c && __b__().__c.__d';
+
+export const report = () => 'Bind the left side of && to a local: it is evaluated twice';
+
+export const match = () => ({
+    // the one thing a bare pattern cannot say: the name we are about to introduce
+    // must not already be bound, or the rewrite shadows it
+    [DECLARATION]: ({__c}, path) => !getBinding(path, __c.name),
+});
+
+export const replace = () => ({
+    [DECLARATION]: `{
+        const {__c} = __b();
+        const __a = __c && __c.__d;
+    }`,
+});
+```
+
+**The engine caches compiled templates within a process.** Batching several patterns into one
+probe script silently poisons every case after the first, so a pattern that works alone returns
+0 alongside others. Re-run anything surprising **in a fresh process** before believing it.
 
 **`include` + `filter` + `fix` for node types** — 57 files. `include` names the types, `filter`
 narrows, and `filter` must return a boolean.
@@ -399,8 +455,9 @@ returns a name → import-string map and nothing else.
   `isStringLiteral(node)`. It will not add the import — `plugin-declare` does not know the `is*`
   helpers live in `types` — so expect one `no-undef` to add by hand.
 - **Never optional chaining.** `x && x.y` is the form. `?.` narrows a type and `&&` does not, so
-  bind the receiver to a local when the types matter.runtime `@putout/*` dependency at all. A plugin that bundles `putout` gets its own copy, and
-  then `types.isIdentifier` is a different function from the runner's.
+  bind the receiver to a local — which narrows *and* stops the doubled call.
+- **Never a runtime `@putout/*` dependency at all.** A plugin that bundles `putout` gets its own
+  copy, and then `types.isIdentifier` is a different function from the runner's.
 - **`dependencies` is for third-party helpers only** — `try-catch`, `regexp.escape`. Never for a
   sibling plugin.
 - **`main` is explicit**, even though it is usually the default.

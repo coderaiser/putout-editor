@@ -130,6 +130,58 @@ nothing is modified; run `redlint fix` and the changes are applied.
 That is why `packages/client` runs `redlint fix` inside its `fix:lint`: so the filesystem
 rules are enforced by the lint CI already runs, with no extra step.
 
+### `matchFiles` is for one file; a rule that compares two needs `scan`
+
+There are two ways to write a filesystem rule, and which one applies is decided by a single
+question: **does the verdict need a second file?**
+
+| Rule | Needs | Uses |
+|---|---|---|
+| `remove-rgb-outside-token-file` | no — is this colour hardcoded? | `matchFiles` |
+| `remove-z-index-outside-token-file` | no — is this `z-index` a number? | `matchFiles` |
+| `check-main-imports-in-file` | no — is this `main.css` imports only? | `matchFiles` |
+| `remove-undefined-token-file` | **yes** — is this token in `tokens.css`? | `scan` |
+
+`matchFiles` is the better shape when it fits: the mask is data, `exclude` is data, and the
+inner plugin is an ordinary replacer over one parsed file.
+
+**It cannot express a comparison across files, and this was measured rather than assumed.**
+With `matchFiles`, the inner plugin's `report` receives only `{options}`:
+
+```
+report opts: options
+place keys: message,position,rule
+```
+
+There is no root path, no `trackFile` and no sibling file in that call. `matchFiles` walks the
+matched files and runs `findPlaces` on each **independently**, so a rule that needs to know
+what `tokens.css` declares has nothing to read it from. `remove-undefined-token-file` needs
+exactly that: it takes the set of `--names` defined in `tokens.css` and reports every
+`var(--name)` in any other stylesheet that is not in it.
+
+**The reason is structural, from the operator's own source** — `operator-match-files` builds
+the inner plugin's options with `parseOptions(inputFilename, rawOptions)`, and `rawOptions` is
+whatever object sits in the `plugins` array, captured when `matchFiles({...})` is called at
+module load. It is static. There is no callback and no injection point that could hand the
+inner plugin the root path, and the object cannot close over one because it is built before
+any file is seen. So the answer is not a matter of finding the right incantation.
+
+```js
+const parseOptions = (inputFilename, rawOptions) => {
+    if (rawOptions.plugins)
+        return rawOptions;
+    
+    return {
+        plugins: [[`match-file: ${inputFilename}`, rawOptions]],
+    };
+};
+```
+
+A `scan` plugin, by contrast, is called as `scan(mainPath, {push, trackFile, ...})` — the root
+is the first argument, which is why the cross-file rule in this package is a `scan`. The tell
+is whether the message needs a second file's contents; when it does, a `matchFiles` version
+would be a rewrite that cannot work.
+
 ### Report-only is allowed, and it costs one no-op action
 
 A plugin needs one of `find`, `traverse`, `replace`, `include`, `exclude`, `rules`, `declare`

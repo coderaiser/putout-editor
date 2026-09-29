@@ -55,87 +55,17 @@ Files touched by `fix:`/`refactor:`/`feature:`, 30 days:
 
 Five files carry a third of it. That is a list, not a coincidence.
 
-
-## The five causes
-
-### 1. A test passed on a cheaper path than the user takes
-
-Five consecutive `fix: mcp` commits, all the same file, all the same class:
-
-- `get_example` returned a `finder` example with `report` + `find` and **no `fix`**. A `find`
-  with no `fix` is valid in the advanced finder mode and **throws** through `transform`, which is
-  the normal runner. The specs could not see it: they compiled every example and ran
-  `find_places`, and a fix-less plugin passes both.
-- The `finder` example ended with `export const fix = …`, so following it produced a rule that
-  was really an includer — which is how `convert-js-to-ts` ended up a mix of `include` +
-  `filter` + `replace`.
-- `replace()` was described without saying it is **unconditional**, so a rule that has to
-  decide per match looked like it needed an includer.
-
-Same shape, three weeks later, in the client: `remove-comments` passed its own 26 tests while
-firing on 50 places in the repository, and `remove-duplicated-receiver` passed 39 while crashing
-on its own source. The plugin's tests test the plugin.
-
-> **Change:** a check has to run the path the *user* runs. Compile is not execute; `find_places`
-> is not `transform`.
-
-### 2. Code that only works because of a hidden rewrite
-
-The scanner template shipped `fix = () => { path.remove(); }` with no parameter. It worked
-because `compile-rule` injects the one. Copy it into a plugin that has not been through
-`compile-rule` and `path` is a `ReferenceError`. The template taught working code by accident.
-
-> **Change:** nothing in a template may depend on a rewrite the reader cannot see.
-
-### 3. Debt taken as a shortcut, repaid in instalments
-
-`@ts-nocheck` came off the `editor-ast-tree` directory over **three** separate commits
-(`ad0bc73`, `ee8ee5d`, `b3fc926`), each a slightly different subset of files, each with a
-slightly different summary. One commit, one directory, one reason.
-
-> **Change:** a shortcut with a visible owner gets repaid. A shortcut nobody names is a queue
-> of anonymous instalments.
-
-### 4. One file absorbs everything
-
-`css/style.css` took 24 fixes before being renamed `main.css` and split. The split is the right
-outcome and it happened late — every one of those 24 fixes was a symptom of a file that had
-grown past what a stylesheet should hold.
-
-### 5. The barrel is also the thing it exports
-
-`store/reducers.ts` is 13 fixes deep and is documented as being *both* the slice and the barrel
-every other store file imports from. That is why it keeps growing: it is the default place to
-put a type, so the types accumulate there. `architecture.md` already says the re-export exists
-so `state.ts` and `revive.ts` can move independently — which is true, and also why the file is a
-magnet.
-
-## What this costs
-
-The tax is not only the fixes. It is the **re-derivation**: 68% of fixes carry no reason, so the
-next person — or the next agent — re-investigates from scratch. Five files cluster the work, so
-the knowledge about them is concentrated in nobody's head. And a quarter of the commits are
-reformatting, which is exactly the noise that makes a real fix easy to skim past in review.
-
-## What actually made a fix fast
-
-Worth recording, because it is the counter-example:
-
-- **A rule that reproduces the defect.** `remove-undefined-token` found a dead
-  `var(--color-selection-bg)` on its first run. No investigation — the rule *was* the
-  investigation.
-- **A failing test that names the mechanism.** "The specs could not see this: they compile every
-  example and run `find_places`" is a one-line diagnosis that ends the search.
-- **Measuring before fixing.** The 29 `tsc` errors from the `?.` conversion were counted, not
-  guessed, which turned a vague "the fixer broke things" into "two of the three are catchable
-  without types".
-
-The common thread is that each one replaced a search with a command. That is the whole goal.
-
 ## How this was measured
 
 Three passes over the log, so a later reader can redo or disagree with it: commit messages by
 prefix and body-emptiness; `git show --name-only` per commit for the hot-spot table; and
 reading the body of every `fix:` commit whose summary alone did not explain the cause. The
-first pass found the volume, the second the clusters, the third the five causes — and the third
-is the only one that needed judgement, so it is the one to distrust first.
+first pass found the volume and the second the clusters, both counts. The third pass — the
+five causes that came out of reading the commit bodies — is gone from this file, because its
+rules now live with the code they govern; that pass is the only one that needed judgement, so
+it is the one to distrust if it is ever redone.
+
+What is left here is the evidence. The rules that came out of it are in
+[`AGENTS.md`](../AGENTS.md) — *a check has to run the path the user runs*, and *nothing in a
+template may depend on a rewrite the reader cannot see* — and the work it implies is in
+[`ideas.md`](./ideas.md).

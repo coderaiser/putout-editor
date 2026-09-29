@@ -4,60 +4,11 @@
 not because a problem is open. The open ones are in
 [`../issues/putout-plugins.md`](../issues/putout-plugins.md).
 
-## `matchFiles` is for one file; a rule that compares two needs `scan`
-
-There are two ways to write a filesystem rule here, and which one applies is decided by a single
-question: **does the verdict need a second file?**
-
-| Rule | Needs | Uses |
-|---|---|---|
-| `remove-rgb-outside-token-file` | no — is this colour hardcoded? | `matchFiles` |
-| `remove-z-index-outside-token-file` | no — is this `z-index` a number? | `matchFiles` |
-| `check-main-imports-in-file` | no — is this `main.css` imports only? | `matchFiles` |
-| `remove-undefined-token-file` | **yes** — is this token in `tokens.css`? | `scan` |
-
-`matchFiles` is the operator `sort-readme-file` and `apply-ts-codeblock-in-file` use, and it is
-the better shape when it fits: the mask is data, `exclude` is data, and the inner plugin is an
-ordinary replacer over one parsed file.
-
-**It cannot express a comparison across files, and this was measured rather than assumed.** With
-`matchFiles`, the inner plugin's `report` receives only `{options}` — verified by running one:
-
-```
-report opts: options
-place keys: message,position,rule
-```
-
-There is no root path, no `trackFile` and no sibling file in that call. `matchFiles` walks the
-matched files and runs `findPlaces` on each **independently**, so a rule that needs to know what
-`tokens.css` declares has nothing to read it from. `remove-undefined-token-file` needs exactly that:
-it takes the set of `--names` defined in `tokens.css` and reports every `var(--name)` in any other
-stylesheet that is not in it.
-
-So `scan` is not the older way of writing this one — it is the only one that can see two files.
-The tell is whether the message needs a second file's contents; when it does, the rule is a
-`scan` with `trackFile`, and `matchFiles` would be a rewrite that cannot work.
-
-**The reason, from the operator's own source** — `operator-match-files/lib/match-files.js` builds
-the inner plugin's options with `parseOptions(inputFilename, rawOptions)`, and `rawOptions` is
-whatever object sits in the `plugins` array, captured when `matchFiles({...})` is called at
-module load. It is static. There is no callback and no injection point that could hand the inner
-plugin the root path, and the object cannot close over one because it is built before any file
-is seen. So the answer is structural, not a matter of finding the right incantation:
-
-```js
-const parseOptions = (inputFilename, rawOptions) => {
-    if (rawOptions.plugins)
-        return rawOptions;
-    
-    return {
-        plugins: [[`match-file: ${inputFilename}`, rawOptions]],
-    };
-};
-```
-
-A `scan` plugin, by contrast, is called as `scan(mainPath, {push, trackFile, ...})` — the root
-is the first argument, which is why the cross-file rule in this package is a `scan`.
+For how to write one, [`../plugins.md`](../plugins.md) is the guide — including the
+`matchFiles`-or-`scan` decision and what report-only costs, both of which used to be here. For
+the house style and the pattern grammar, [`../putout-style.md`](../putout-style.md). What is
+left here is the part not derivable from those two: the traps that cost a round trip each and
+are not guessable from the types.
 
 ## A `scan` can still delegate to a Matcher
 
@@ -186,11 +137,11 @@ empty input means, and that decision wants a fixture.
 
 ## Report-only is possible, at the cost of one no-op action
 
-A plugin needs one of `find`, `traverse`, `replace`, `include`, `exclude`, `rules`, `declare` or
-`scan` for the loader to recognise it, and a `find` with no `fix` throws in the normal runner.
-`check-match` in `@putout/plugin-putout` is a replacer whose `replace` maps the pattern **to
-itself**. The two filesystem rules do the same and their tests assert the file comes back byte
-for byte — choosing which token a colour becomes is a human decision.
+[In `docs/plugins.md`](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) now,
+where the guide is. The short version: `check-match` in `@putout/plugin-putout` is a replacer
+whose `replace` maps the pattern **to itself**, and the two filesystem rules here do the same
+and assert the file comes back byte for byte — choosing which token a colour becomes is a
+human decision.
 
 ## A putout rule can see comments
 
