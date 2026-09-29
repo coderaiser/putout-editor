@@ -151,6 +151,13 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
 - **`docs/issues/putout-plugins.md`** — two upstream fixers exit clean on lossy cases, and
   `apply-destructuring` drops a `&&` guard on a `return`. Re-check upstream for a release
   that reports rather than fixes silently, not by running the fixer.
+- **`docs/issues/scripts.md`** — the three scripts `AGENTS.md` told every agent to run were not at
+  the root. Now added, and `check-documented-scripts` keeps the docs and `package.json` in step.
+- **`packages/plugin-putout-editor/lib/check-documented-scripts`** — a rule in this repo, and its
+  two traps are reusable: `trackFile` returns an **iterator** (`.filter` throws, so the spread is
+  load-bearing even though `spread/remove-useless-array` wants it gone), and `getFilename` returns
+  `'/AGENTS.md'` **with** the leading slash, so a bare `includes` silently matches nothing. Both
+  present as a rule that reports zero places and looks correct.
 
 ## Keep these three in step
 
