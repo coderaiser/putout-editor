@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "author": "coderaiser <mnemonic.enemy@gmail.com> (https://github.com/coderaiser)",
-  "description": "\ud83d\udc0aPutout plugin for the \ud83d\udc0aPutout Editor repository",
+  "description": "🐊Putout plugin for the 🐊Putout Editor repository",
   "homepage": "https://github.com/coderaiser/putout-editor/tree/master/packages/plugin-putout-editor#readme",
   "main": "lib/index.js",
   "release": false,
@@ -15,15 +15,18 @@
     "url": "git+https@github.com:coderaiser/putout-editor.git"
   },
   "scripts": {
+    "check": "madrun check",
     "test": "madrun test",
+    "test:one": "madrun test:one",
+    "test:dts": "madrun test:dts",
     "watch:test": "madrun watch:test",
     "build": "madrun build",
-    "test:dts": "madrun test:dts",
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint",
     "fresh:lint": "madrun fresh:lint",
     "lint:fresh": "madrun lint:fresh",
     "coverage": "madrun coverage",
+    "coverage:json": "madrun coverage:json",
     "report": "madrun report"
   },
   "keywords": [

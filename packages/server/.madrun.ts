@@ -1,4 +1,5 @@
-import {cutEnv} from 'madrun';
+import process from 'node:process';
+import {run, cutEnv} from 'madrun';
 import {defineEnv} from 'supertape/env';
 
 const testEnv = defineEnv({
@@ -20,6 +21,7 @@ const allEnv = {
 };
 
 export default {
+    'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
     'build': () => 'nest build',
     'start': () => [startEnv, 'node dist/main.js'],
     'start:bun': () => [startEnv, 'bun dist/main.js'],
@@ -28,9 +30,14 @@ export default {
         'node --import @supertape/loader-nestjs src/main.ts',
     ],
     'test': () => [allEnv, 'tape "src/**/*.spec.ts"'],
+    'test:one': () => [
+        allEnv,
+        `tape ${process.env.SPEC || '"src/**/*.spec.ts"'}`,
+    ],
     'test:e2e': () => [allEnv, 'tape "test/**/*.spec.ts"'],
     'test:js': () => [allEnv, 'tape "dist/**/*.spec.js"'],
     'coverage': async () => [allEnv, `c8 ${await cutEnv('test')}`],
+    'coverage:json': async () => [allEnv, `c8 --reporter json ${await cutEnv('test')}`],
     'prelint': () => 'redlint fix',
     'lint': () => 'putout .',
     'test:dts': () => 'tsc --noEmit',

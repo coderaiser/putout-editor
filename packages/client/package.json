@@ -2,7 +2,7 @@
   "name": "@putout/editor-client",
   "version": "2.6.0",
   "type": "module",
-  "description": "\ud83d\udc0aPutout Editor",
+  "description": "🐊Putout Editor",
   "private": true,
   "tag": false,
   "repository": {

@@ -11,12 +11,15 @@
     "putout-editor": "bin/putout-editor.js"
   },
   "scripts": {
+    "check": "madrun check",
     "build": "madrun build",
     "start": "madrun start",
     "start:dev": "madrun start:dev",
     "test": "madrun test",
+    "test:one": "madrun test:one",
     "test:e2e": "madrun test:e2e",
     "coverage": "madrun coverage",
+    "coverage:json": "madrun coverage:json",
     "lint": "madrun lint",
     "test:dts": "madrun test:dts",
     "fix:lint": "madrun fix:lint",

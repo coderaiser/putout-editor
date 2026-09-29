@@ -2,7 +2,7 @@
   "name": "@putout/mcp",
   "version": "1.0.0",
   "type": "module",
-  "description": "MCP server for putout-editor \u2014 write putout rules with Claude",
+  "description": "MCP server for putout-editor — write putout rules with Claude",
   "bin": {
     "putout-mcp": "dist/index.js"
   },
@@ -10,11 +10,14 @@
     "node": ">=22"
   },
   "scripts": {
+    "check": "madrun check",
+    "build": "madrun build",
     "start": "madrun start",
     "start:ts": "madrun start:ts",
-    "build": "madrun build",
     "test": "madrun test",
+    "test:one": "madrun test:one",
     "coverage": "madrun coverage",
+    "coverage:json": "madrun coverage:json",
     "lint": "madrun lint",
     "fix:lint": "madrun fix:lint",
     "test:dts": "madrun test:dts"

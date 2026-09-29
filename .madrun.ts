@@ -17,12 +17,15 @@ const devEnv = {
 };
 
 export default {
+    'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
     'build': () => 'madfork build',
     'start': () => [startEnv, 'node bin/putout-editor.js'],
     'start:dev': () => [devEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
+    'test:one': () => 'madfork test:one',
     'test:e2e': () => 'madfork test:e2e',
     'coverage': async () => 'madfork coverage',
+    'coverage:json': () => 'madfork coverage:json',
     'prelint': () => 'putout bin .github deploy',
     'lint': () => [
         'node scripts/gen-diagrams.mjs --check',
