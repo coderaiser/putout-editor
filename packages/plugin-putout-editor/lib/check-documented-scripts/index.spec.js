@@ -98,6 +98,7 @@ test('putout-editor: check-documented-scripts: no package.json', (t) => {
         '/AGENTS.md',
         'Run `bun run check` first\n',
     ]).length;
+    
     const expected = 0;
     
     t.equal(result, expected);

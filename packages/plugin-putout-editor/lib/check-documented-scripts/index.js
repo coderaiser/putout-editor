@@ -7,6 +7,7 @@ const {
 } = operator;
 
 const PACKAGE = 'package.json';
+
 const DOCS = [
     'AGENTS.md',
     'MEMORY.md',
