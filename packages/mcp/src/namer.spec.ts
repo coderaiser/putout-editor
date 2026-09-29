@@ -129,7 +129,7 @@ test('local name-pattern: a shape with no generalisation says so', async (t) => 
     t.end();
 });
 
-test('local name-pattern: an unparseable snippet is reported, not thrown', async (t) => {
+test('local name-pattern: an unparsable snippet is reported, not thrown', async (t) => {
     const {content} = await handler({
         fixture: 'const =',
     });

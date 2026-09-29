@@ -32,6 +32,7 @@ test('local test-pattern: schema has fixture, key and to', (t) => {
     const result = Object
         .keys(schema.shape)
         .sort();
+    
     const expected = [
         'fixture',
         'key',
