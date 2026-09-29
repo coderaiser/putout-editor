@@ -6,11 +6,11 @@ import {
     schema,
 } from './namer.ts';
 
-const call = async (fixture) => JSON.parse((await handler({
+const call = async (fixture: string) => JSON.parse((await handler({
     fixture,
 })).content[0].text);
 
-const keys = (out) => {
+const keys = (out: {named: {key: string}[]}) => {
     const names = [];
     
     for (const {key} of out.named)
@@ -19,7 +19,7 @@ const keys = (out) => {
     return names;
 };
 
-const genericKeys = (out) => {
+const genericKeys = (out: {generic: {key: string}[]}) => {
     const names = [];
     
     for (const {key} of out.generic)

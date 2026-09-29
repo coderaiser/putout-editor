@@ -7,6 +7,11 @@ const test = createTest(import.meta.url, {
     ],
 });
 
+test('putout: plugin: putout-editor: transform: apply-linked-pattern-value', (t) => {
+    t.transform('apply-linked-pattern-value');
+    t.end();
+});
+
 test('putout: plugin: putout-editor: transform: apply-press-modifier-case', (t) => {
     t.transform('apply-press-modifier-case');
     t.end();

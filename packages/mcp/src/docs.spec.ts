@@ -237,9 +237,10 @@ test('local docs: template section points at test_pattern', (t) => {
 });
 
 test('local docs: schema accepts the template section', (t) => {
-    const result = schema.safeParse({
+    const parsed = schema.safeParse({
         section: 'template',
-    }).data.section;
+    });
+    const result = parsed.success ? parsed.data.section : 'failed';
     const expected = 'template';
     
     t.equal(result, expected);

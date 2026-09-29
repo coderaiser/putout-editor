@@ -2,9 +2,10 @@ import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
 import {
     putoutAsync,
-    parse,
     print,
+    type types,
 } from 'putout';
+import {parse, type ParserOptions} from '@babel/parser';
 
 export const name = 'name_pattern';
 
@@ -14,6 +15,32 @@ export const description =
     'proposes a generalised key for the snippet itself, like "const __a = __b". ' +
     'Every answer is checked against the engine and only reported when it actually matched, so ' +
     'nothing here is a guess. Use it when you have the code and not the pattern.';
+
+type Found = {
+    key: string;
+    matched: number;
+};
+type Report = {
+    fixture: string;
+    named: Found[];
+    generic: Found[];
+    key?: Found;
+    key_hint?: string;
+    hint?: string;
+    error?: string;
+};
+
+const parseOptions: ParserOptions = {
+    sourceType: 'module',
+    strictMode: false,
+    allowImportExportEverywhere: true,
+    allowReturnOutsideFunction: true,
+    plugins: [
+        'jsx',
+        'typescript',
+        'importMeta',
+    ] as ParserOptions['plugins'],
+};
 
 export const schema = z.object({
     fixture: z
@@ -47,7 +74,15 @@ const LEAVES = new Set([
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
 
-const counted = async (fixture, key) => {
+type Walked = {
+    type?: string;
+    [key: string]: unknown;
+};
+type State = {
+    at: number;
+};
+
+const counted = async (fixture: string, key: string) => {
     const [error, result] = await tryToCatch(putoutAsync, fixture, {
         fix: false,
         plugins: [
@@ -69,7 +104,7 @@ const counted = async (fixture, key) => {
     return result.places.length;
 };
 
-const blankLeaves = (node, state) => {
+const blankLeaves = (node: Walked | Walked[], state: State) => {
     if (Array.isArray(node)) {
         for (const item of node)
             blankLeaves(item, state);
@@ -80,7 +115,7 @@ const blankLeaves = (node, state) => {
     if (!node || typeof node !== 'object')
         return;
     
-    if (LEAVES.has(node.type)) {
+    if (node.type && LEAVES.has(node.type)) {
         const name = `__${ALPHABET[state.at % ALPHABET.length]}`;
         
         state.at++;
@@ -99,20 +134,18 @@ const blankLeaves = (node, state) => {
     
     for (const key of Object.keys(node))
         if (key !== 'loc' && key !== 'range')
-            blankLeaves(node[key], state);
+            blankLeaves(node[key] as Walked, state);
 };
 
-const generalize = async (fixture) => {
-    const [error, ast] = await tryToCatch(parse, fixture, {
-        filename: 'x.js',
-    });
+const generalize = async (fixture: string): Promise<string | null> => {
+    const [error, ast] = await tryToCatch(parse, fixture, parseOptions);
     
     if (error)
         return null;
     
-    const program = ast.program || ast;
+    const program = ast as types.Node;
     
-    blankLeaves(program, {
+    blankLeaves(program as unknown as Walked, {
         at: 0,
     });
     
@@ -140,17 +173,11 @@ export async function handler({fixture}: z.input<typeof schema>) {
     };
 }
 
-async function run(fixture: string) {
-    const out = {
+async function run(fixture: string): Promise<Report> {
+    const out: Report = {
         fixture,
-        named: [] as {
-            key: string;
-            matched: number;
-        }[],
-        generic: [] as {
-            key: string;
-            matched: number;
-        }[],
+        named: [],
+        generic: [],
     };
     
     for (const key of [...NAMED, ...GENERIC]) {
@@ -159,7 +186,7 @@ async function run(fixture: string) {
         if (!matched)
             continue;
         
-        const found = {
+        const found: Found = {
             key,
             matched,
         };

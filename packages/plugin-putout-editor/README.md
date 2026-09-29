@@ -20,6 +20,7 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 
 ## Rules
 
+- ✅ [apply-linked-pattern-value](#apply-linked-pattern-value);
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [check-documented-scripts](#check-documented-scripts);
 - ✅ [check-main-imports-in-file](#check-main-imports-in-file);
@@ -27,6 +28,46 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 - ✅ [remove-rgb-outside-token-file](#remove-rgb-outside-token-file);
 - ✅ [remove-undefined-token-file](#remove-undefined-token-file);
 - ✅ [remove-z-index-outside-token-file](#remove-z-index-outside-token-file);
+
+***
+
+## apply-linked-pattern-value
+
+A pattern value with two underscores binds nothing. `'f(__a__)'` matches **zero** places, and a
+replacement written the same way emits the source back unchanged — so the rule reports success
+and fixes nothing at all. That is the worst failure in this package: there is no error, no
+diff, and an exit code of 0.
+
+The fix is one underscore, and it is always safe: `__a` is a linked value, so the same pattern
+starts matching and starts carrying its value into the replacement.
+
+The rule only looks at the **key** of a property, because the key is where a pattern lives. A
+string that merely contains `__a__` in a value — a fixture, a report message — is left alone.
+
+The fix **replaces** the string node rather than writing to its `value`. A `StringLiteral`
+caches its source text in `extra.raw`, so mutating `value` leaves what the printer emits
+completely unchanged — the rule reports, `fix` runs, and the file comes back identical. That is
+the same shape of failure as the bug the rule is about, one layer down, and it cost a round trip
+to find.
+
+Found while writing `test_pattern` for the mcp: `'f(__a__)' → 'g(__a__)'` came back as the input,
+unchanged, exit 0. See `docs/putout-style.md` § Pattern strings.
+
+### ❌ Example of incorrect code
+
+```js
+export const replace = () => ({
+    'f(__a__)': 'g(__a)',
+});
+```
+
+### ✅ Example of correct code
+
+```js
+export const replace = () => ({
+    'f(__a)': 'g(__a)',
+});
+```
 
 ***
 

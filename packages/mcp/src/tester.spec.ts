@@ -6,7 +6,7 @@ import {
     schema,
 } from './tester.ts';
 
-const call = async (args) => JSON.parse((await handler(args)).content[0].text);
+const call = async (args: {fixture: string, key: string, to?: string}) => JSON.parse((await handler(args)).content[0].text);
 
 test('local test-pattern: name is test_pattern', (t) => {
     const result = name;

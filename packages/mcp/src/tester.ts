@@ -1,6 +1,38 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
-import {putoutAsync, print} from 'putout';
+import {
+    putoutAsync,
+    print,
+    type types,
+} from 'putout';
+
+type Binding = {
+    name: string;
+    bindings: string[];
+};
+type Vars = {
+    [key: string]: types.Node;
+};
+type Replacement = {
+    code?: string;
+    changed?: boolean;
+    error?: string;
+    note?: string;
+};
+type Report = {
+    key: string;
+    matched?: number;
+    positions?: {
+        line: number;
+        column: number;
+    }[];
+    bound?: {
+        [key: string]: string[];
+    };
+    replacement?: Replacement;
+    error?: string;
+    hint?: string;
+};
 
 const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
 
@@ -51,15 +83,15 @@ export async function handler({fixture, key, to}: z.input<typeof schema>) {
     };
 }
 
-const finder = (key, bound) => ({
+const finder = (key: string, bound: Binding[]) => ({
     report: () => 'matched',
     match: () => ({
-        [key]: (vars) => {
+        [key]: (vars: Vars) => {
             for (const [name, node] of Object.entries(vars || {})) {
                 if (!/^__[a-zA-Z]$/.test(name))
                     continue;
                 
-                const item = bound.find(({name: n}) => n === name);
+                const item = bound.find((it) => it.name === name);
                 
                 if (item)
                     item.bindings.push(print(node));
@@ -76,11 +108,11 @@ const finder = (key, bound) => ({
         },
     }),
     replace: () => ({
-        [key]: ({__a}) => print(__a) || 'X',
+        [key]: ({__a}: Vars) => print(__a) || 'X',
     }),
 });
 
-const replacer = (key, to) => ({
+const replacer = (key: string, to: string) => ({
     report: () => 'x',
     match: () => ({
         [key]: () => true,
@@ -90,7 +122,7 @@ const replacer = (key, to) => ({
     }),
 });
 
-async function run(fixture: string, key: string, to?: string) {
+async function run(fixture: string, key: string, to?: string): Promise<Report> {
     const bound: {
         name: string;
         bindings: string[];
@@ -112,7 +144,7 @@ async function run(fixture: string, key: string, to?: string) {
     
     const {places} = matched;
     
-    const out = {
+    const out: Report = {
         key,
         matched: places.length,
         positions: places.map(({position}) => position),
@@ -135,8 +167,8 @@ async function run(fixture: string, key: string, to?: string) {
     if (replaceError) {
         out.replacement = {
             error: replaceError.message,
-            hint: NOT_LINKED,
         };
+        out.hint = NOT_LINKED;
         
         return out;
     }
