@@ -160,6 +160,13 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   load-bearing even though `spread/remove-useless-array` wants it gone), and `getFilename` returns
   `'/AGENTS.md'` **with** the leading slash, so a bare `includes` silently matches nothing. Both
   present as a rule that reports zero places and looks correct.
+- **The template-value grammar is documented upstream — read it, do not probe it.**
+  [`putout-script.md`](https://github.com/coderaiser/putout/blob/master/docs/putout-script.md)
+  and [`@putout/compare`](https://github.com/coderaiser/putout/tree/master/packages/compare#supported-template-variables)
+  list every value: `__` is any node, `__a` is any node and linked, and `__args`, `__object`,
+  `__array`, `__imports`, `__exports`, `__args__a`, `"__a"` and `/__a/` each mean something
+  specific. I spent this session probing it instead and published a wrong table, twice. The
+  synthesis is in [`docs/putout-style.md`](./docs/putout-style.md#pattern-strings).
 - **`enter`/`exit` do not work in a rule's `traverse`, and `$` and `*` are worse.** The runner
   drops them, silently: a rule using `enter` reports nothing and looks correct. What works is an
   includer over babel **aliases** (`Statement`, `Expression`, `ObjectProperty`), or a `Program`

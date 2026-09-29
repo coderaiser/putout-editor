@@ -22,7 +22,7 @@ a rule that reports nothing looks exactly like a rule with nothing to report.
 | `enter` / `exit` | **fires 0 times** — dropped by the runner |
 | `$` | **matches nothing** |
 | `*` | `SyntaxError`, parsed as a template placeholder |
-| `__a` / `__` | resolves to `Identifier` only |
+| `__` | resolves to `Identifier` — a type name, not a catch-all |
 
 **`enter` and `exit` are discarded on purpose.** `@putout/babel` exports `shouldIgnoreKey`,
 which returns true for `enter`, `exit`, `shouldSkip`, `denylist`, `noScope`, `skipKeys` and any
@@ -109,14 +109,20 @@ The tell is the shape of what arrives: a `NodePath` has `node`, `parentPath`, `s
 `container` and `opts` on it. If `fix` is reading `key` off its first argument and it is
 `undefined` every time, this is why.
 
-## `include` takes type names, not placeholders
+## `include` takes type names, not template values
 
-`['__a', 'Statement']` is accepted and behaves exactly like `['Statement']` plus
-`VariableDeclaration` and `ExpressionStatement`, because `__` and `__a` are the same key and
-both mean `Identifier`. An `Identifier` never carries a comment — checked against a real file,
-`false` — so the placeholder reaches nodes with nothing to find and cannot stand in for the
-aliases. Two more that fail the same way: `['_']` and `['__a__']` match nothing, and
-`include: () => '__a'` (a string, not an array) is rejected with *does not return an 'array'*.
+`include` builds its visitor from **node type names**, so it takes `'Statement'` and
+`'ObjectProperty'` — not `'__a'`. In an `include` list, `__` and `__a` are the same key and
+both resolve to `Identifier`, so `['__', 'Statement']` behaves exactly like
+`['VariableDeclaration', 'ExpressionStatement']` plus `'Statement'`. An `Identifier` never
+carries a comment, so the template value reaches nodes with nothing to find and cannot stand
+in for the aliases.
+
+The asymmetry is worth remembering because it is the same syntax doing two jobs. In
+`match`/`replace`, `'__'` is "any node" — see
+[`../putout-style.md`](../putout-style.md#pattern-strings). In `include`, a key is a **type
+name** and `__` is just a name for one. `include: () => '__a'` (a string, not an array) is
+rejected with *does not return an 'array'*, and `['_']` and `['__a__']` match nothing.
 
 ## Never reach for `UPDATE=1` in this package
 

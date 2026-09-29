@@ -216,24 +216,42 @@ rule that can be a `match`/`replace` map of pattern strings should be, rather th
 hand-built AST. The model to copy is `apply-destructuring` in
 `@putout/plugin-logical-expressions`, a whole rule in eleven lines.
 
-**A placeholder is a slot inside a pattern, not a matcher on its own.** This is the part the
-grammar does not give you, and it is measured rather than read off the table:
+**A placeholder is a slot inside a pattern, and `__` is the one that means "any node".** The
+reference is [`putout-script.md`](https://github.com/coderaiser/putout/blob/master/docs/putout-script.md)
+and the list of named values is
+[`@putout/compare`](https://github.com/coderaiser/putout/tree/master/packages/compare#supported-template-variables) —
+read those before guessing, because every mistake here fails silently.
 
-| Key | Matches |
+| Value | Matches |
 |---|---|
-| `'__a'` | `Identifier` — nothing else |
-| `'f(__a)'` | any `CallExpression`, and `__a` binds the argument |
-| `'__a + __b'` | any `BinaryExpression`, binding both sides |
-| `'__a()'` | **nothing** — it is a call on an identifier-shaped slot |
-| `'__a__()'` | **nothing**, and `'*'` is a parse error |
+| `__` | **any** node: identifier, expression, literal |
+| `__a` | any node, and **linked** — its value carries into the replacement |
+| `__args` | zero or more arguments |
+| `__object` | `ObjectPattern` or `ObjectExpression` |
+| `__array` | `ArrayPattern` or `ArrayExpression` |
+| `__imports` / `__exports` | any count of specifiers |
+| `__args__a` | linked args — the same call shape must repeat |
+| `"__a"` | any **string** literal, content stored in `__a` |
+| `/__a/` | any regexp literal |
 
-So `__a` means "any node **in this position**", and it is the *surrounding shape* that gives
-it a type. A bare `'__a'` looks like a wildcard and is not: it is a rule about identifiers.
+**The linked and unlinked ones are not interchangeable, and the engine says so** — measured:
 
-**And `__a__` is the silent one.** Given a key of `f(__a)`, a replacement of `g(__a)` emits
-`g(1)` — the value is carried across. Given a key of `f(__a__)`, a replacement of `g(__a__)`
-emits `f(1)` unchanged, and reports success. Two underscores bind nothing, so the text goes
-out as written and the rule exits 0 having fixed nothing.
+| key → replacement | result |
+|---|---|
+| `'f(__a)'` → `'g(__a)'` | `g(1)` — the value carries |
+| `'f(__)'` → `'g(__)'` | `g(1)` — unlinked still fills in |
+| `'f(__)'` → `'g(__a)'` | **`☝️ Looks like template values not linked`** |
+| `'f(__a)'` → `'g(__b)'` | **`☝️ Looks like template values not linked`** |
+| `'f(__a__)'` → `'g(__a__)'` | `f(1)` unchanged, **exit 0** |
+
+The first two are the rule: a replacement may reuse a name the key **declared**, and only
+those. Reach for a name the key did not bind and the engine refuses. The last is the trap —
+`__a__` binds nothing, so the text is emitted as written and the rule reports success having
+changed nothing.
+
+Re-using one name is how you match a *repeated* value: `'const __a = __b + __b'` finds
+`const sum = 2 + 2;`. And a template variable can match a body: `'if (__a) __body;'` finds the
+`if`, with the body available in `__body`.
 
 Not every shape has a pattern. A `return`, a `this` receiver and a bare `f() && f().deep` have
 no template, and the CSS vocabulary has no `atrule` at all — so those stay AST rules. That is
