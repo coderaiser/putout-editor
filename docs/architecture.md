@@ -314,9 +314,15 @@ suite went from green to 104 failures ("multiple elements with the role button",
 | `packages/mcp` | the mcp server; its `get_example('markdown')` now reads the installed rule rather than a copy |
 
 Two kinds of rule live in that plugin, and the difference matters. A **code** rule
-(`apply-press-modifier-case`) sees one AST and runs under `putout .`. A **filesystem** rule
+(`apply-press-modifier-case`, `apply-linked-pattern-value`, `remove-comments`) sees one AST and
+runs under `putout .`. A **filesystem** rule
 (`remove-rgb-outside-token-file`, `check-main-imports-in-file`) is about a *tree* and needs the filesystem AST,
 so it only runs under `redlint` — which `packages/client` does in its `fix:lint`.
+
+A rule there can be TypeScript-checked: `putout` re-exports the whole plugin contract from
+`@putout/types/lib/plugin.d.ts`, so `Fix`, `Match`, `Traverse` and `Report` are all typed. The
+files stay `.js` to match the 116 upstream plugins — see
+[`docs/memory/putout-rules.md`](./memory/putout-rules.md).
 
 That split is 🐊**Putout**'s design, not a workaround: a rule deliberately knows nothing about
 filenames, so anything that is a statement about a *tree* (colours only in `tokens.css`,

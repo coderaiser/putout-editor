@@ -31,7 +31,8 @@ temp spec file.
 | `get_example` | Known-good plugin + fixture. Order: replacer -> includer -> traverser -> scanner |
 | `validate` | Check a plugin compiles -> `ok` or `plugin_syntax (line N, col N): ...` |
 | `parse` | Get an AST. Compact by default, `full: true` for raw with `loc` |
-| `test_pattern` | Does a 🦎**PutoutScript** key match, how many places, and what each `__a` bound to |
+| `test_pattern` | Test one 🦎**PutoutScript** key: does it match, how many places, what each `__a` bound to |
+| `name_pattern` | The inverse: given a snippet, which patterns match, and a generalised key for it |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
 | `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |

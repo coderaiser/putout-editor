@@ -51,6 +51,7 @@ npm install @putout/mcp
 | `formats`       | Wrapper, operator, fixture shape for each file format | none                      |
 | `get_example`   | Known-good plugin + fixture for a pattern            | `pattern`                 |
 | `test_pattern`  | Test one 🦎**PutoutScript** key: matches, count, and what each placeholder bound to | `fixture`, `key`, `to?` |
+| `name_pattern`  | The inverse: which patterns match a snippet, plus a generalised key for it | `fixture` |
 | `validate`      | Syntax-check a plugin, returns `ok` or `plugin_syntax (line N, col N): ...` | `plugin` |
 | `parse`         | Compact Babel AST. `full: true` for raw with `loc`   | `source`, `query?`, `full?` |
 | `find_places`   | Count/inspect matches without mutating               | `fixture`, `plugin`       |
@@ -61,16 +62,19 @@ npm install @putout/mcp
 
 1. `docs {section: 'template'}` — the pattern grammar, when writing a key
 2. `get_example` — pick the right pattern, get a working base
-3. `test_pattern` — confirm the key matches before building a rule around it
-4. `validate` — check syntax before running anything
-5. `find_places` — iterate until matches are correct
-6. `transform` — confirm the fix output
+3. `name_pattern` — when you have the code and not the pattern: which keys match it
+4. `test_pattern` — confirm the key you chose matches before building a rule around it
+5. `validate` — check syntax before running anything
+6. `find_places` — iterate until matches are correct
+7. `transform` — confirm the fix output
 
-`test_pattern` is the one that pays for itself. A key that matches nothing reports zero
-places and exits 0, and a replacement naming an unbound value throws *Looks like template
-values not linked* — both look like success. Two underscores bind nothing, so
-`f(__a__)` → `g(__a__)` leaves the input untouched and still exits 0; the tool reports
-`changed: false` with a note rather than passing for a fix.
+`test_pattern` and `name_pattern` are the pair that pays for itself, and both are worth
+reaching for before a rule exists. A key that matches nothing reports zero places and exits 0,
+and a replacement naming an unbound value throws *Looks like template values not linked* — both
+look like success. Two underscores bind nothing, so `f(__a__)` → `g(__a__)` leaves the input
+untouched and still exits 0; the tool reports `changed: false` with a note rather than passing for
+a fix. `name_pattern` only reports a generalised key when it verified one that matched, and
+says so plainly when the snippet has none — an import, typically.
 
 `get_example` walks the patterns in selection order — replacer, includer, traverser,
 scanner, declarator. `finder` is advanced and is not suggested; name it explicitly and

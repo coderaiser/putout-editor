@@ -19,6 +19,33 @@ mark it as one.
 | 1 | Require a body on `fix:` | S |
 | 5 | Review the hot-spot list monthly | S |
 | 6 | Cut the CI auto-commit volume | M |
+| 7 | A rule for an assertion that cannot fail informatively | S |
+
+## 7. A rule for an assertion that cannot fail informatively
+
+**Evidence.** 201 `t.ok(...)` calls in specs across this workspace. The two common shapes are
+`t.ok('field' in schema.shape)` and `t.ok(result.text.startsWith('Error:'))` — a boolean that
+says only *whether*, never *what*. A schema test with three field checks reports the same
+message whichever field is missing, and the failure is a boolean with no diff.
+
+**Why it pays.** `t.deepEqual(Object.keys(schema.shape), ['fixture'])` fails with the missing
+field named; `t.ok('fixture' in schema.shape)` does not. Every one of these is a test that passes
+or fails without telling the next person what to look at.
+
+**How.** This is `@putout/plugin-tape`'s — it already ships `convert-ok-to-match`,
+`convert-ok-to-pass` and `convert-ok-to-called-with`, so the conversion half exists. What is
+missing is a rule for the assertion that *cannot* be converted, because converting
+`t.ok(a && b)` means writing the expected value a human has to choose. Something like
+`tape/convert-ok-in-object-to-deep-equal` for the `in` shape, where the expected value is
+mechanical.
+
+**Here, not just there.** I wrote `t.ok(a.includes('x') && a.includes('y'))` in two of the
+specs added this week and the maintainer caught it. That is the argument for a rule: I would not
+have written it if the lint had rejected it.
+
+**Note.** `tape/convert-equal-to-ok` pushes the *other* way, and the two together are the whole
+tension: it rewrites `t.equal(result, true)` into `t.ok(result)`. The resolution is not to pick a
+side but to stop asserting booleans — compare the value, so neither rule has anything to say.
 
 ## 1. Require a body on `fix:`
 
