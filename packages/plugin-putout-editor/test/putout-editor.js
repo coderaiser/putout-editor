@@ -12,6 +12,11 @@ test('putout: plugin: putout-editor: transform: apply-press-modifier-case', (t) 
     t.end();
 });
 
+test('putout: plugin: putout-editor: no transform: check-documented-scripts', (t) => {
+    t.noTransform('check-documented-scripts');
+    t.end();
+});
+
 test('putout: plugin: putout-editor: no transform: check-main-imports-in-file', (t) => {
     t.noTransform('check-main-imports-in-file');
     t.end();

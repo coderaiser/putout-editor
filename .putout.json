@@ -10,6 +10,7 @@
     },
     "match": {
         ".filesystem.json": {
+            "putout-editor/check-documented-scripts": "on",
             "putout-editor/check-main-imports-in-file": "on",
             "putout-editor/remove-undefined-token-file": "on",
             "putout-editor/remove-rgb-outside-token-file": "on",

@@ -21,6 +21,7 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 ## Rules
 
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
+- ✅ [check-documented-scripts](#check-documented-scripts);
 - ✅ [check-main-imports-in-file](#check-main-imports-in-file);
 - ✅ [remove-comments](#remove-comments);
 - ✅ [remove-rgb-outside-token-file](#remove-rgb-outside-token-file);
@@ -53,6 +54,29 @@ await page.keyboard.press('ControlOrMeta+V');
 await page.keyboard.press('Control+v');
 await page.keyboard.press('ControlOrMeta+v');
 ```
+
+## check-documented-scripts
+
+`AGENTS.md` tells every agent to run `bun run check`, `bun run test:one` and
+`bun run coverage:json`. A rule is only as good as the instruction that invokes it, so a command
+the documentation promises and the root `package.json` does not define is a defect in the docs
+that no test catches.
+
+This rule reads the root `scripts` and reports every `bun run` / `madrun` command written in
+`AGENTS.md` or `MEMORY.md` that is not one of them. Only commands inside a code span or a fenced
+block count, so the prose "any script madrun does not own" is not read as a command called
+`does`, and `madrun --init` is a flag rather than a script name.
+
+It found three: `check`, `test:one` and `coverage:json` were all documented and all missing.
+That is [`docs/issues/scripts.md`](../../docs/issues/scripts.md).
+
+## ❌ Example of incorrect code
+
+`AGENTS.md` names a script the root `package.json` does not define: `bun run check`.
+
+## ✅ Example of correct code
+
+The same document, naming only scripts that exist: `bun run lint`, `bun run test`.
 
 ***
 
@@ -91,7 +115,7 @@ A rule in this directory says what the code already says. The name and this sect
 the *why* belongs; the code keeps the what.
 
 Found: the `scripts/check-comments.js` gate, as a rule —
-[the finding](../../docs/issues/putout-plugins.md#💡-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes).
+[the finding](../../docs/issues/putout-plugins.md#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes).
 
 ### ❌ Example of incorrect code
 
