@@ -1,16 +1,11 @@
-const KEYS = [
-    'leadingComments',
-    'trailingComments',
-    'innerComments',
-];
+const hasLength = (a) => a && a.length;
 
 export const report = () => 'A rule says what the code already says';
 
-export const fix = (path) => {
-    for (const key of KEYS) {
-        if (path.node[key])
-            path.node[key] = [];
-    }
+export const fix = ({node}) => {
+    node.leadingComments = [];
+    node.trailingComments = [];
+    node.innerComments = [];
 };
 
 export const include = () => [
@@ -19,10 +14,12 @@ export const include = () => [
     'ObjectProperty',
 ];
 
-export const filter = (path) => {
-    for (const key of KEYS)
-        if (path.node[key] && path.node[key].length)
-            return true;
+export const filter = ({node: {leadingComments, trailingComments, innerComments}}) => {
+    if (hasLength(leadingComments))
+        return true;
     
-    return false;
+    if (hasLength(trailingComments))
+        return true;
+    
+    return hasLength(innerComments);
 };
