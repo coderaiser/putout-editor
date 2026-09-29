@@ -14,7 +14,13 @@ export const include = () => [
     'ObjectProperty',
 ];
 
-export const filter = ({node: {leadingComments, trailingComments, innerComments}}) => {
+export const filter = ({node}) => {
+    const {
+        leadingComments,
+        trailingComments,
+        innerComments,
+    } = node;
+    
     if (hasLength(leadingComments))
         return true;
     
