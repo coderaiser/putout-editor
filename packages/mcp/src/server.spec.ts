@@ -37,6 +37,7 @@ test('server: registers the base tools', (t) => {
         'formats',
         'get_example',
         'parse',
+        'test_pattern',
         'transform',
         'validate',
     ];

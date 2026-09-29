@@ -5,26 +5,29 @@ export const name = 'docs';
 export const description =
     'Fetch putout-editor reference docs. Omit section for a short overview. ' +
     'Sections: "style" for the house conventions of a putout plugin, ' +
+    '"template" for the PutoutScript pattern grammar (__a, __args, __object and the rest), ' +
     '"api" for HTTP endpoints, "errors" for error recovery. ' +
     'For runnable plugin patterns use get_example instead.';
 
 export const schema = z.object({
     section: z
-        .enum(['style', 'api', 'errors'])
+        .enum(['style', 'template', 'api', 'errors'])
         .optional()
         .describe('Which section to fetch. Omit for a short overview.'),
 });
 
 const OVERVIEW = `putout-editor: web tool for writing and testing putout AST plugins.
-Tools: parse, find_places, transform, validate, get_example, fetch_snippet.
+Tools: parse, find_places, transform, validate, get_example, fetch_snippet, test_pattern.
 - get_example: get a working plugin + fixture for any pattern
+- test_pattern: does this pattern match, how many places, what did each __ bind to
 - validate: check plugin syntax before running
 - parse: get compact AST (pass full=true for raw)
 - find_places: check what a plugin matches without transforming
 - transform: apply a plugin and get transformed code
 - fetch_snippet: get source + transform of a deployed #/gist/<id>/<rev> URL
 Sections: "style" (conventions for writing an idiomatic plugin),
-"api" (HTTP endpoints), "errors" (error codes).`;
+"template" (PutoutScript pattern grammar), "api" (HTTP endpoints),
+"errors" (error codes).`;
 
 /**
  * The condensed conventions. This is a summary on purpose: the full guide is
@@ -138,6 +141,69 @@ So after running it, run tsc, and look for \`a && a.b\` / \`a() && a().b()\`. Th
 either way - it is not wrong, it is incomplete, and the silence is the trap. A fixer that
 cannot detect its own lossy cases should say so rather than exit clean.`;
 
+const TEMPLATE = `## PutoutScript: the pattern grammar
+
+A pattern key is JavaScript with placeholders, and the placeholder is a SLOT in the shape
+around it - not a wildcard on its own. Read this before writing a key: every mistake here is
+silent, because a key that matches nothing and a replacement that does nothing both exit 0.
+
+Full reference: docs/putout-script.md in coderaiser/putout, and the named values are listed
+under @putout/compare.
+
+### The values
+
+| Value | Matches |
+|---|---|
+| \`__\` | any node: identifier, expression, literal |
+| \`__a\` | any node, and LINKED - its value carries into the replacement |
+| \`__args\` | zero or more arguments |
+| \`__object\` | ObjectPattern or ObjectExpression, any properties |
+| \`__array\` | ArrayPattern or ArrayExpression, any elements |
+| \`__imports\` / \`__exports\` | any count of import / export specifiers |
+| \`__args__a\` | linked args - the same call shape must repeat |
+| \`"__a"\` | any string literal, content stored in \`__a\` |
+| \`/__a/\` | any regexp literal |
+
+\`__\` and \`__a\` both match any node. The difference is what happens in the replacement.
+A plain \`__\` is a slot; a named one is bound.
+
+### Linked and unlinked are not interchangeable
+
+A replacement may reuse a name the KEY declared, and only those. Measured:
+
+| key -> replacement | result |
+|---|---|
+| 'f(__a)' -> 'g(__a)' | \`g(1);\` - the value carries |
+| 'f(__)'  -> 'g(__)'  | \`g(1);\` - unlinked still fills in |
+| 'f(__)'  -> 'g(__a)' | **throws: Looks like template values not linked** |
+| 'f(__a)' -> 'g(__b)' | **throws: Looks like template values not linked** |
+| 'f(__a__)' -> 'g(__a__)' | \`f(1);\` unchanged, **exit 0** |
+
+The last row is the trap: two underscores bind nothing, so the text is emitted exactly as
+written and the rule reports success having changed nothing. Prefer one underscore.
+
+### Re-using a name matches a repeated value
+
+\`'const __a = __b + __b'\` finds \`const sum = 2 + 2;\` - the same value on both sides.
+\`'((__args__a) => __c(__args__a))(__args__b)\` finds \`fn(value)\` and not
+\`((a) => fn(42))(value)\`, because the argument shape has to repeat.
+
+A placeholder can also match a body: \`'if (__a) __body;'\` finds the \`if\`, and the body is
+then available in \`__body\`.
+
+### Not everything can be a pattern
+
+A \`return\`, a \`this\` receiver and a bare \`f() && f().deep\` have no template, and the CSS
+vocabulary has no \`atrule\`. Those stay AST rules - use a \`traverse\`. Partial expressions are
+not patterns either: \`'x' +\` is invalid, it wants \`'x' + __a\`.
+
+### Check it before you build a rule
+
+\`test_pattern(fixture, key, to)\` answers all of it in one call: does the key match, how many
+places, what each placeholder bound to, and whether the replacement actually changed anything.
+That last one is the check a rule cannot give you - a wrong pattern looks exactly like a right
+one until you run it.`;
+
 const API = `## API Endpoints
 
 ### POST /api/v1/parse
@@ -166,6 +232,7 @@ type Section = NonNullable<z.input<typeof schema>['section']>;
 
 const SECTIONS: Record<Section, string> = {
     style: STYLE,
+    template: TEMPLATE,
     api: API,
     errors: ERRORS,
 };

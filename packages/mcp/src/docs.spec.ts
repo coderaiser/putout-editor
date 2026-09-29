@@ -24,12 +24,13 @@ test('local docs: schema has optional section field', (t) => {
     t.end();
 });
 
-test('local docs: schema restricts section to style, api and errors', (t) => {
+test('local docs: schema restricts section to style, template, api and errors', (t) => {
     const result = [...schema.shape.section.unwrap().options].sort();
     const expected = [
         'api',
         'errors',
         'style',
+        'template',
     ];
     
     t.deepEqual(result, expected);
@@ -167,6 +168,77 @@ test('local docs: style says to run tsc after the fixer', (t) => {
     });
     
     t.match(result.content[0].text, 'run tsc');
+    t.end();
+});
+
+test('local docs: returns template section', (t) => {
+    const result = handler({
+        section: 'template',
+    });
+    
+    t.match(result.content[0].text, 'PutoutScript');
+    t.end();
+});
+
+test('local docs: template section explains linked values', (t) => {
+    const result = handler({
+        section: 'template',
+    }).content[0].text;
+    
+    t.ok(result.includes('__a') && result.includes('LINKED'));
+    t.end();
+});
+
+test('local docs: template section names every value', (t) => {
+    const result = handler({
+        section: 'template',
+    }).content[0].text;
+    const missing = [
+        '__args',
+        '__object',
+        '__array',
+        '__imports',
+        '__exports',
+        '__args__a',
+    ].filter((value) => !result.includes(value));
+    
+    const expected: string[] = [];
+    
+    t.deepEqual(missing, expected);
+    t.end();
+});
+
+test('local docs: template section warns about the silent no-op', (t) => {
+    const result = handler({
+        section: 'template',
+    }).content[0].text;
+    
+    t.ok(result.includes('exit 0') && result.includes('not linked'));
+    t.end();
+});
+
+test('local docs: template section points at test_pattern', (t) => {
+    const result = handler({
+        section: 'template',
+    }).content[0].text;
+    
+    t.match(result, 'test_pattern');
+    t.end();
+});
+
+test('local docs: schema accepts the template section', (t) => {
+    const result = schema.safeParse({
+        section: 'template',
+    }).success;
+    
+    t.ok(result);
+    t.end();
+});
+
+test('local docs: overview advertises test_pattern', (t) => {
+    const result = handler().content[0].text;
+    
+    t.match(result, 'test_pattern');
     t.end();
 });
 
