@@ -147,6 +147,33 @@ The asymmetry is worth remembering because it is the same syntax doing two jobs.
 name** and `__` is just a name for one. `include: () => '__a'` (a string, not an array) is
 rejected with *does not return an 'array'*, and `['_']` and `['__a__']` match nothing.
 
+## 🦎Putout types the plugin contract, so a rule can be type-checked
+
+A rule can be TypeScript-checked today, with no cast and no shim. `putout` re-exports the whole
+contract from its entry point, and `@putout/types/lib/plugin.d.ts` types every shape a rule can
+take — `Replacer`, `Includer`, `Traverser`, `Scan`, `Declarator`. So `import type {Fix}` from
+`'putout'` is all a `.ts` rule needs.
+
+**These type exactly the mistakes that cost the most here.**
+
+| Type | Signature | What it catches |
+|---|---|---|
+| `Fix` | `(path: NodePath, options: PluginOptions) => void` | an includer reading `{path, key}` — a silent no-op |
+| `Match` | `() => Record<string, (vars, path) => boolean>` | the bound `__a` values arrive in `vars`, not in `report` |
+| `Traverse` | `(api) => Record<string, (path) => void>` | `push({path, message})`, which makes `path` undefined in `fix` |
+| `Report` | `() => string` | a rule reaching for a second parameter that is not in the contract |
+
+`Traverse`'s api is typed too: `push`, `store`, `listStore` and `pathStore`. And `PutoutPlugin` is
+a union of the four shapes, so `const rule: PutoutPlugin = {...}` checks a whole rule at once.
+
+The AST side is typed as well — `types` is `@babel/types` re-exported, and `ParseOptions` comes
+from `@putout/engine-parser`. `packages/mcp` already leans on that, and it is the package that
+pays: 30 type errors were caught there before CI saw them, none of which a `.js` file reports.
+
+So the earlier reason not to convert this package — that the contract was untyped — was wrong.
+What remains true is only that the directory shape is not negotiable: the shape must match
+`@putout/plugin-tape` and the 116 upstream plugins, which are `.js`.
+
 ## To change a node, replace it — writing to it is not enough
 
 A `StringLiteral` caches its source text in `extra.raw`. Writing `node.key.value = 'x'` changes
