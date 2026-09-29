@@ -5,6 +5,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 
 | Rule                                 | Kind       | What it found                                                         | Finding |
 |--------------------------------------|------------|-----------------------------------------------------------------------|---------|
+| `apply-linked-pattern-value`         | code       | a pattern key with `__a__`, which matches nothing and exits 0          | [a replacement that only reports has not done the thing](#-a-fixer-that-cannot-detect-its-own-lossy-cases-exits-clean) |
 | `apply-press-modifier-case`          | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing | [fixers that lose a guard](#-apply-destructuring-drops-the--guard-on-a-return) |
 | `check-main-imports-in-file`         | filesystem | a rule in `main.css`, which is an entry point and holds only imports   | [a filesystem rule, and when it needs two files](../plugins.md#matchfiles-is-for-one-file-a-rule-that-compares-two-needs-scan) |
 | `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes) |
@@ -29,6 +30,11 @@ what report-only costs, and the shape of a filesystem rule. What the rules that 
 taught is in [`../memory/putout-rules.md`](../memory/putout-rules.md).
 
 ## 💡 a fixer that cannot detect its own lossy cases exits clean
+
+`apply-linked-pattern-value` is the same failure in miniature, and it is now a rule: a pattern
+key written `__a__` binds nothing, so it matches zero places and a replacement written the same
+way emits the source back unchanged. It reports, it exits 0, and it fixed nothing. One
+underscore is a linked value, so the fix is always safe.
 
 `convert-optional-to-logical` is net-positive and would not be turned off — but it exits 0 on
 code it has made type-unsound, and the type checker is what finds out. **The rule works, the

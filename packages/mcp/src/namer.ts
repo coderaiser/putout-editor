@@ -155,15 +155,7 @@ const generalize = async (fixture: string): Promise<string | null> => {
 };
 
 export async function handler({fixture}: z.input<typeof schema>) {
-    const [error, result] = await tryToCatch(run, fixture);
-    
-    if (error)
-        return {
-            content: [{
-                type: 'text' as const,
-                text: `Error: ${error.message}`,
-            }],
-        };
+    const [, result] = await tryToCatch(run, fixture);
     
     return {
         content: [{

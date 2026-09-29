@@ -129,6 +129,27 @@ test('local name-pattern: a shape with no generalisation says so', async (t) => 
     t.end();
 });
 
+test('local name-pattern: an unparseable snippet is reported, not thrown', async (t) => {
+    const {content} = await handler({
+        fixture: 'const =',
+    });
+    
+    const result = typeof content[0].text;
+    const expected = 'string';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('local name-pattern: a snippet with no match at all says so', async (t) => {
+    const out = await call('class {');
+    const result = typeof out.hint;
+    const expected = 'string';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('local name-pattern: nothing matched carries a hint', async (t) => {
     const out = await call('1 +');
     const result = typeof out.hint;

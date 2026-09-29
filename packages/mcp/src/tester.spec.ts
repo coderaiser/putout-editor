@@ -141,6 +141,45 @@ test('local test-pattern: the silent no-op is called out, not passed off as chan
     t.end();
 });
 
+test('local test-pattern: a key that is not a pattern reports the parse error', async (t) => {
+    const out = await call({
+        fixture: 'f(1);\n',
+        key: 'f(',
+    });
+    
+    const result = typeof out.error;
+    const expected = 'string';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('local test-pattern: a bad key is told what to read', async (t) => {
+    const out = await call({
+        fixture: 'f(1);\n',
+        key: 'f(',
+    });
+    
+    const result = out.hint;
+    const expected = 'A replacement may only reuse a name the key declared. That is what "Looks like template values not linked" means.';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('local test-pattern: an unreadable fixture is reported, not thrown', async (t) => {
+    const {content} = await handler({
+        fixture: '',
+        key: 'f(__a)',
+    });
+    
+    const result = typeof content[0].text;
+    const expected = 'string';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('local test-pattern: __args matches any argument count', async (t) => {
     const result = (await call({
         fixture: 'f();\nf(1, 2, 3);\n',

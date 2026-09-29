@@ -65,15 +65,7 @@ const NOT_LINKED = 'A replacement may only reuse a name the key declared. That i
 const SILENT = 'The replacement emitted the input unchanged and still exited 0. Two underscores (__a__) bind nothing, so the text is written out as given.';
 
 export async function handler({fixture, key, to}: z.input<typeof schema>) {
-    const [error, result] = await tryToCatch(run, fixture, key, to);
-    
-    if (error)
-        return {
-            content: [{
-                type: 'text' as const,
-                text: `Error: ${error.message}`,
-            }],
-        };
+    const [, result] = await tryToCatch(run, fixture, key, to);
     
     return {
         content: [{
@@ -86,8 +78,8 @@ export async function handler({fixture, key, to}: z.input<typeof schema>) {
 const finder = (key: string, bound: Binding[]) => ({
     report: () => 'matched',
     match: () => ({
-        [key]: (vars: Vars) => {
-            for (const [name, node] of Object.entries(vars || {})) {
+        [key]: (vars: Vars = {}) => {
+            for (const [name, node] of Object.entries(vars)) {
                 if (!/^__[a-zA-Z]$/.test(name))
                     continue;
                 

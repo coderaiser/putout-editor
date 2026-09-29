@@ -147,7 +147,26 @@ The asymmetry is worth remembering because it is the same syntax doing two jobs.
 name** and `__` is just a name for one. `include: () => '__a'` (a string, not an array) is
 rejected with *does not return an 'array'*, and `['_']` and `['__a__']` match nothing.
 
-## Never reach for `UPDATE=1` in this package
+## To change a node, replace it — writing to it is not enough
+
+A `StringLiteral` caches its source text in `extra.raw`. Writing `node.key.value = 'x'` changes
+the AST and leaves **what the printer emits completely unchanged**, so a fixer runs, reports, and
+returns the file byte for byte. No error, no diff, exit 0.
+
+Build a new node and assign it:
+
+```js
+import {types} from 'putout';
+
+node.key = types.stringLiteral(next);
+```
+
+I hit this writing `apply-linked-pattern-value` — the rule reported and the file came back
+identical, which is the same shape of failure as the bug the rule is about, one layer down. Worth
+knowing before any fixer here mutates a literal in place. `apply-type-check` gets away with
+rewriting `x.type` because a node *type* is not the cached text.
+
+## `UPDATE=1` is destructive in this package
 
 `UPDATE=1 npm test` deleted **four** `-fix` fixtures belonging to *other* rules and left this
 one empty rather than regenerating it. `git checkout -- test/fixture/` brought all of them
