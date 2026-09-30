@@ -7,6 +7,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 |--------------------------------------|------------|-----------------------------------------------------------------------|---------|
 | `apply-linked-pattern-value`         | code       | a pattern key with `__a__`, which matches nothing and exits 0          | [a replacement that only reports has not done the thing](#-a-fixer-that-cannot-detect-its-own-lossy-cases-exits-clean) |
 | `apply-press-modifier-case`          | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing | [fixers that lose a guard](#-apply-destructuring-drops-the--guard-on-a-return) |
+| `check-documented-scripts`            | filesystem | docs naming `bun run` scripts that `package.json` does not have    | [`matchFiles` cannot answer a question about a second file](../plugins.md#matchfiles-cannot-be-made-to-work-for-check-documented-scripts) |
 | `check-main-imports-in-file`         | filesystem | a rule in `main.css`, which is an entry point and holds only imports   | [a filesystem rule, and when it needs two files](../plugins.md#matchfiles-is-for-one-file-a-rule-that-compares-two-needs-scan) |
 | `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes) |
 | `remove-rgb-outside-token-file`      | filesystem | the one hardcoded colour outside `css/tokens.css`                     | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
@@ -191,3 +192,71 @@ reported because a fixer that turns a returned `null` into a thrown `TypeError` 
 that is the same gap as `convert-optional-to-logical` above: **the rule works, the report is
 missing.** The declaration form cannot lose a narrowing, but a `return` can lose a guard, and
 the template does not distinguish the two.
+
+## 🐊 `check-documented-scripts` never matched a file: `redlint` builds absolute paths
+
+**Fixed.** Recorded because the shape of it is the reusable part: a rule that is green on every
+fixture and silent on the real tree, with no error anywhere.
+
+### Minimum repro
+
+From the repository root, with the rule enabled by the `.filesystem.json` match:
+
+```
+$ printf '\nRun `bun run definitely-not-a-real-script` now.\n' >> AGENTS.md
+$ redlint scan
+- putout-editor: check-documented-scripts
+✔ putout-editor: check-documented-scripts
+```
+
+### Got
+
+Zero places, for a script that does not exist. The same was true before the `crawlFile` reshape,
+so this is not a regression from it.
+
+### Expected
+
+```
+☝️ AGENTS.md: documents scripts that do not exist: definitely-not-a-real-script
+```
+
+### Why
+
+Two bugs, and each one alone is enough to report nothing.
+
+**1. `getFilename` is absolute under `redlint`, not `/`-rooted.** The rule stripped a leading slash
+and compared the rest against `['AGENTS.md', 'MEMORY.md']`:
+
+```js
+const bareName = (file) => getFilename(file).replace(/^\//, '');
+```
+
+But `buildTree` in `@putout/redlint/lib/redlint.js` walks from `cwd`, so every filename is a full
+path. Over the real tree:
+
+```
+/home/coderaiser/putout-editor/AGENTS.md
+    bareName="home/coderaiser/putout-editor/AGENTS.md" isDoc=false
+```
+
+`isDoc` is false for **all seven** files the rule finds, and the loop body never runs.
+`basename(getFilename(file))` is the fix.
+
+**2. `package.json` matches every package.** The mask is matched against `basename`, so
+`crawlFile(root, ['package.json', ...])` returns all five `package.json` in this repository and
+`files.filter(isPackage)[0]` is `packages/client/package.json` — the root `AGENTS.md` was being
+checked against the *client's* scripts. The rule now takes the `package.json` that is a **sibling**
+of the document, by `dirname`.
+
+### The part worth keeping
+
+**Both were invisible to the tests, because the tests build the tree.** Every fixture went through
+`parseFilesystem(['/', ...files])`, which produces root-relative paths under `/` and exactly one
+`package.json`. So the suite exercised the matcher against a tree shaped the way the rule wanted it,
+and never the shape the runner produces. 194 tests, 100% coverage, and a rule that had never once
+run.
+
+The two regression tests are named for the shape rather than the behaviour —
+`an absolute path, as redlint builds it` and `the nearest package.json wins` — and both were checked
+to **fail** against the old code before being believed. A fixture written by hand is a fixture that
+can be wrong in the same way twice; the second one is `buildTree(process.cwd())`.
