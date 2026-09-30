@@ -18,6 +18,8 @@ const escape = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // `panel-source` -> `panelSource`: mermaid ids cannot carry a dash.
 const idOf = (element) => element.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
+const byPrefix = (prefix) => (element) => element.startsWith(prefix);
+
 // The same glob `boundaries-dsl.ts` expands, so the diagram shows what the lint sees rather than re-implementing the policy over literals.
 const expand = (pattern, known) => {
     if (pattern === '*')
@@ -25,13 +27,15 @@ const expand = (pattern, known) => {
     
     if (pattern.endsWith('-*')) {
         const prefix = pattern.slice(0, -1);
-        const matches = known.filter((element) => element.startsWith(prefix));
+        const matches = known.filter(byPrefix(prefix));
         
         return matches.length ? matches : [pattern];
     }
     
     return [pattern];
 };
+
+const toTargets = (known) => (pattern) => expand(pattern, known);
 
 const edgesOf = (map) => {
     const known = Object.keys(map);
@@ -41,7 +45,7 @@ const edgesOf = (map) => {
         if (from === 'app')
             continue;
         
-        for (const target of targets.flatMap((pattern) => expand(pattern, known))) {
+        for (const target of targets.flatMap(toTargets(known))) {
             if (target === '*')
                 continue;
             

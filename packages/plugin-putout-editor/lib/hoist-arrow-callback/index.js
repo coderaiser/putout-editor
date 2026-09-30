@@ -1,8 +1,10 @@
 import {types} from 'putout';
 
 const {
-    isIdentifier,
     isBlockStatement,
+    isIdentifier,
+    isJSXElement,
+    isJSXFragment,
 } = types;
 
 const METHODS = [
@@ -27,12 +29,18 @@ const isHoistable = ({__a}, path) => {
     const [argument] = path.node.arguments;
     const {body} = argument;
     
-    return !isBlockStatement(body);
+    if (isBlockStatement(body))
+        return false;
+    
+    return !isJSXElement(body) && !isJSXFragment(body);
 };
 
 const withMethod = (method) => `__.${method}((__a) => __b)`;
 
-const toPairs = (to) => (method) => [withMethod(method), to(method)];
+const toPairs = (to) => (method) => [
+    withMethod(method),
+    to(method),
+];
 
 const buildKeys = (to) => Object.fromEntries(METHODS.map(toPairs(to)));
 

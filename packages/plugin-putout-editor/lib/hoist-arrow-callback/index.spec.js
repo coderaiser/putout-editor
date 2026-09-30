@@ -26,3 +26,8 @@ test('putout-editor: hoist-arrow-callback: no report: a destructured parameter',
     t.noReport('destructured-param');
     t.end();
 });
+
+test('putout-editor: hoist-arrow-callback: no report: a jsx body', (t) => {
+    t.noReport('jsx-callback');
+    t.end();
+});

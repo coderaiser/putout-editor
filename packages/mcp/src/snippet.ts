@@ -91,6 +91,8 @@ export function parseSnippetID(snippet: string) {
  * Rather than carry a category table, prefer `.js` and fall back to any
  * `source.*` — that keeps a Python or YAML snippet working with no extra data.
  */
+const isSourceFile = (file: string) => file.startsWith('source.');
+
 export function resolveSource(files: Record<string, GistFile>, manifest: Manifest) {
     if (manifest.v === 1)
         return files['code.js'] && files['code.js'].content || null;
@@ -100,7 +102,7 @@ export function resolveSource(files: Record<string, GistFile>, manifest: Manifes
     
     const key = Object
         .keys(files)
-        .find((file) => file.startsWith('source.'));
+        .find(isSourceFile);
     
     return key ? files[key].content : null;
 }

@@ -75,6 +75,10 @@ export async function handler({fixture, key, to}: z.input<typeof schema>) {
     };
 }
 
+const byName = (name: string) => (item: Binding) => item.name === name;
+
+const printValue = ({__a}: Vars) => print(__a) || 'X';
+
 const finder = (key: string, bound: Binding[]) => ({
     report: () => 'matched',
     match: () => ({
@@ -83,7 +87,7 @@ const finder = (key: string, bound: Binding[]) => ({
                 if (!/^__[a-zA-Z]$/.test(name))
                     continue;
                 
-                const item = bound.find((it) => it.name === name);
+                const item = bound.find(byName(name));
                 
                 if (item)
                     item.bindings.push(print(node));
@@ -100,7 +104,7 @@ const finder = (key: string, bound: Binding[]) => ({
         },
     }),
     replace: () => ({
-        [key]: ({__a}: Vars) => print(__a) || 'X',
+        [key]: printValue,
     }),
 });
 

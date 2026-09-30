@@ -192,6 +192,8 @@ test('local docs: template section explains linked values', (t) => {
     t.end();
 });
 
+const notIn = (result: string) => (value: string) => !result.includes(value);
+
 test('local docs: template section names every value', (t) => {
     const result = handler({
         section: 'template',
@@ -204,7 +206,7 @@ test('local docs: template section names every value', (t) => {
         '__imports',
         '__exports',
         '__args__a',
-    ].filter((value) => !result.includes(value));
+    ].filter(notIn(result));
     
     const expected: string[] = [];
     

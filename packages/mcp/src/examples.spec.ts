@@ -49,6 +49,17 @@ const compiles = (plugin: string) => {
     return !error;
 };
 
+const notCompilable = (pattern: Pattern) => !compiles(pluginOf(text(pattern)));
+
+const hasEmptyFixture = (pattern: Pattern) => fixtureOf(text(pattern)).trim() === '';
+
+const toPlace = (pattern: Pattern) => ({
+    pattern,
+    places: 1,
+});
+
+const isNotEmpty = (output: string) => output !== '';
+
 test('local get-example: name is get_example', (t) => {
     t.equal(name, 'get_example');
     t.end();
@@ -167,7 +178,7 @@ test('local get-example: exposes all 7 patterns', (t) => {
 });
 
 test('local get-example: every example ships a compilable plugin', (t) => {
-    const result = patterns.filter((pattern) => !compiles(pluginOf(text(pattern))));
+    const result = patterns.filter(notCompilable);
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
@@ -175,7 +186,7 @@ test('local get-example: every example ships a compilable plugin', (t) => {
 });
 
 test('local get-example: every example ships a non empty fixture', (t) => {
-    const result = patterns.filter((pattern) => fixtureOf(text(pattern)).trim() === '');
+    const result = patterns.filter(hasEmptyFixture);
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
@@ -209,10 +220,7 @@ test('local get-example: every example matches its own fixture', async (t) => {
         };
     }));
     
-    t.deepEqual(results, patterns.map((pattern) => ({
-        pattern,
-        places: 1,
-    })));
+    t.deepEqual(results, patterns.map(toPlace));
     t.end();
 });
 
@@ -241,7 +249,7 @@ test('local get-example: every example runs through transform', async (t) => {
         return output.startsWith('Error:') ? `${pattern}: ${output}` : '';
     }));
     
-    const result = results.filter((output) => output !== '');
+    const result = results.filter(isNotEmpty);
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
