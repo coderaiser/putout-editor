@@ -155,18 +155,16 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   that reports rather than fixes silently, not by running the fixer.
 - **`docs/issues/scripts.md`** — the three scripts `AGENTS.md` told every agent to run were not at
   the root. Now added, and `check-documented-scripts` keeps the docs and `package.json` in step.
-- **`packages/plugin-putout-editor/lib/check-documented-scripts`** — a rule in this repo, and its
-  traps are reusable. `getFilename` is **absolute** under `redlint` — `/home/you/repo/AGENTS.md`,
-  not `/AGENTS.md` — so strip it with `basename` and not `replace(/^\//, '')`; it reported nothing
-  on this repository while all 194 tests passed. And `crawlFile(root, ['package.json', ...])`
-  matches every `package.json` in the tree, so pick the one that is a **sibling** of the document
-  by `dirname`, not the first. It cannot be a `matchFiles` rule: it asks what `package.json`
-  declares, and the inner plugin provably gets `{"optionKeys":[]}` — no root, no `trackFile`. It
-  takes `crawlFile(root, [PACKAGE, ...DOCS])` in one call; do not put `trackFile` in an
-  `Array.from`, it is a generator. All three present as a rule that reports zero places and looks
-  correct. **The mask is not the suspect** — `findFile` matches `value === name` or the regexp
-  against the basename, so `tokens.css` finds an absolute `tokens.css` and
-  `remove-undefined-token-file` works on the real tree. Check what the rule does with the path.
+- **`check-documented-scripts`** — a rule in this repo, and three reusable traps, each of which
+  presented as a rule that reports zero places while every test passes. **`getFilename` is
+  absolute** under `redlint` (`/home/you/repo/AGENTS.md`), so strip it with `basename`, never
+  `replace(/^\//, '')`. **`crawlFile(root, ['package.json', …])` matches every `package.json`** in
+  the tree, so pick the **sibling** of the document by `dirname`, not the first — and note the mask
+  itself is not the suspect, since `findFile` matches `value === name` *or* the regexp against the
+  basename. It **cannot be a `matchFiles` rule**: it asks what `package.json` declares and the inner
+  plugin provably gets `{"optionKeys":[]}`. It takes one `crawlFile(root, [PACKAGE, ...DOCS])`; never
+  `Array.from(trackFile(...))`, it is a generator. Check what the rule does with the path, not
+  whether the mask matched.
 - **The template-value grammar is documented upstream — read it, do not probe it.**
   [`putout-script.md`](https://github.com/coderaiser/putout/blob/master/docs/putout-script.md)
   and [`@putout/compare`](https://github.com/coderaiser/putout/tree/master/packages/compare#supported-template-variables)
@@ -192,10 +190,11 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   Sweep with `isTS: true` and read the count before believing a rule is clean. And a rule that is
   *about* naming must not carry a naming guard in its `match` — that hid a real shape in
   `hoist-arrow-callback` and the fix belongs to the fixer, not the reporter.
-- **`UPDATE=1` regenerates fixtures, and `noTransform` rewrites the *source*** — not the `-fix` twin,
-  which is deleted and rewritten from the run. I once recorded it as destructive here; that was
-  wrong, and the mechanism is in [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin).
-  Read it before running `UPDATE=1` on a spec, and keep the undo to hand.
+- **`UPDATE=1` regenerates the fixtures the operators you run touch**, and `noTransform` rewrites
+  the **source** — the `-fix` twin is deleted and rewritten from the run, so a stale twin cannot
+  linger. `isUpdate()` is `Boolean(Number(UPDATE))`, so `UPDATE=0` is **off**. The mechanism is in
+  [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin);
+  keep `git checkout -- lib/*/fixture/` to hand.
 
 ## Keep these three in step
 

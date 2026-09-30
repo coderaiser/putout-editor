@@ -195,8 +195,7 @@ rewriting `x.type` because a node *type* is not the cached text.
 
 ## How `UPDATE=1` actually works, and what it does to a `-fix` twin
 
-Read in `@putout/test/lib/fixture.js` and `lib/test.js`, after a claim that it was destructive in this
-package turned out to be wrong. It is not, and the mechanism is worth having.
+Read in `@putout/test/lib/fixture.js` and `lib/test.js`. The mechanism, which is worth having:
 
 `isUpdate()` is `Boolean(Number(process.env.UPDATE))` — so `UPDATE=1` and `UPDATE=true` both count,
 and **`UPDATE=0` does not**. It guards exactly three things:
@@ -531,8 +530,7 @@ look identical from the outside.**
 
 ## There are two `TreeAdapter` types, and the tree seam is wider than it looks
 
-Found while assessing whether an AST tree could render a flat list, which is the shape the `/chat`
-plan wants. It is not the cheap adapter it looked like.
+Assessed for a flat-list AST renderer; it is not the cheap adapter it looked like.
 
 **Two declarations, one name.** `editor-ast-tree/tree/types.ts` has a `TreeAdapter` **type** — the
 four-method interface the components take. `parser/TreeAdapter.ts` has a `TreeAdapter` **class** —
@@ -546,23 +544,19 @@ then a `useMemo` in `Tree.tsx` that re-wraps it into the type the components wan
 renderer is a *second* implementation of that type, not a new implementation of an existing one — and
 it inherits the bridge, not the adapter.
 
-**What that means for the plan.** The three hooks (`useElementState`, `useFocusEffect`,
-`useHighlight`) take `TreeAdapter` from `./types.ts` and are genuinely adapter-agnostic, so they
-carry over. `Element.tsx` and `RecursiveTreeElement.tsx` are where the recursion lives, and a flat
-list means not using them. So the work is: a flattener, a flat renderer, and the three hooks — which
-is roughly the plan's `FlatNode` proposal, and the plan is right to call it that rather than an
-adapter. The cheap version would be reusing `Element.tsx` with a synthetic single-child adapter,
-which is a hack that shows in the DOM.
+**What it means for a flat renderer.** The three hooks are adapter-agnostic and carry over;
+`Element.tsx` and `RecursiveTreeElement.tsx` hold the recursion, so a flat list does not use them. So
+the work is a flattener, a flat renderer, and the three hooks — not an adapter. Reusing `Element.tsx`
+with a synthetic single-child adapter is the cheap version, and it is a hack that shows in the DOM.
 
 **The reusable part.** When a name means a class in one file and a type in another, the fix is one
-name. `TreeAdapterConfig` / `TreeAdapterOptions` / `TreeAdapterChild` already read as one family
-across the two files; the collision is `TreeAdapter` itself, and it is the one a reader hits first.
+name: `TreeAdapterConfig` / `TreeAdapterOptions` / `TreeAdapterChild` already read as one family, and
+`TreeAdapter` is the collision a reader hits first.
 
 ## A replacer needs a `replace`, and a matcher cannot have one
 
-Found closing the `packages/mcp` coverage gate, which sat at 98% for reasons nobody had written
-down. `tester.ts` builds a `finder` plugin to answer "does this pattern match", and it was given a
-`replace` whose callback never runs — the tool only ever passes that plugin to `putoutAsync` with
+`tester.ts` builds a `finder` plugin to answer "does this pattern match", and it carries a `replace`
+whose callback never runs — the tool only ever passes that plugin to `putoutAsync` with
 `fix: false`, and a replacement callback is reached only under `fix: true`. Measured:
 
 ```
@@ -570,14 +564,14 @@ fix: false  -> places=1 replaceCallbackCalls=0
 fixCount: 1 -> code="X;"    replaceCallbackCalls=1
 ```
 
-So the callback was 92.3% of a file nobody had looked at. Deleting it is not an option either: with
-`match` and `replace` gone, the loader refuses the plugin — `Cannot determine type of plugin 'rule'` —
-which broke 6 tests. **A replacer must carry a `replace` even when it never fixes anything.**
+That callback was 92.3% of the file, which is what held the package gate at 98%. Deleting it is not
+an option either: with `match` and `replace` gone the loader refuses the plugin —
+`Cannot determine type of plugin 'rule'` — and six tests break. **A replacer must carry a `replace`
+even when it never fixes anything.**
 
-The fix that satisfies both is an identity replacement, `{[key]: key}`. The key still has to be
-there, but there is no function to leave uncovered, and it states the intent — this is a matcher —
-rather than shipping a callback that prints a binding and could only ever run in a code path nothing
-reaches.
+An identity replacement, `{[key]: key}`, satisfies both: the key is there for the loader, there is no
+function left uncovered, and it says the plugin is a matcher rather than shipping a callback that
+prints a binding and could only run in a path nothing reaches.
 
 **The general shape.** A plugin that only reports is cheaper to keep honest as
 `replace: () => ({key})` than as a `fix` that is a no-op: the loader needs one of the replacer keys,
@@ -585,11 +579,9 @@ reaches.
 
 ## A new rule's first real test is the rest of the repository, and `.ts` hides half of it
 
-`hoist-arrow-callback` shipped in `plugin-putout-editor`, which is wired in from the root
-`.putout.json`, so it was live everywhere at once. That is the rule `AGENTS.md` states: a new rule is
-on in the whole repository until proven otherwise. The sweep found **69** sites.
-
-Two of those 69 taught me something, and both are traps rather than work:
+`hoist-arrow-callback` ships from `plugin-putout-editor`, wired in by the root `.putout.json`, so it
+is live in every workspace at once — `AGENTS.md` says so. The sweep found **69** sites, and two
+things about that number are the lesson:
 
 **A guard I wrote to dodge the fixer also hid real code.** `isHoistable` required an `Identifier`
 parameter, because hoisting `({position}) => position` produces a name the parameter does not give.

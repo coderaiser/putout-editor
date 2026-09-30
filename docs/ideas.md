@@ -90,54 +90,34 @@ a push.
 
 ## 8. Write up migrating `plugin-putout-editor` to TypeScript
 
-**Evidence.** Asked for directly alongside the `check-documented-scripts` reshape, and not started —
-this is the entry, not the write-up. The package is 17 `index.js` files of plain JS with
-`100%` coverage, a `test:dts` script that currently echoes `no types`, and
-`test("…", "no types")` in its own `package.json`. So the type surface is declared absent rather
-than absent, and a migration is a decision about what that script should start checking.
+**Evidence.** 17 `index.js` files, `100%` coverage, and a `test:dts` that echoes `no types` — so the
+type surface is *declared* absent rather than absent, and the write-up is a decision about what that
+script should check. Three things it has to argue, or it is a list of benefits nobody can act on:
 
-**What the write-up needs**, so it is not a list of benefits nobody can act on:
+- the claim is **"the types exist and this package opts out"**, not "TypeScript is good" — the rule
+  contract is already typed upstream (`putout-rules.md` § 🦎Putout types the plugin contract);
+- **one rule migrated end to end**, and `check-main-imports-in-file` is the honest one: a `matchFiles`
+  rule with a mask, an `exclude` and an inner plugin is most of what needs typing;
+- the **fixtures**, which are deliberately untyped and would need `@ts-expect-error` or a declaration
+  of their own — `__putout_processor_filesystem(...)` is data wearing a `.js` extension, and that is
+  the part most likely to come out *worse* in TS.
 
-- the **benefits**, argued from this package rather than in general - the rule contract is already
-  typed upstream (see `docs/memory/putout-rules.md` § 🦎Putout types the plugin contract), so the
-  claim is "the types exist, this package opts out", not "TypeScript is good";
-- **one rule migrated end to end** as the worked example, not a sketch. A filesystem rule such as
-  `check-main-imports-in-file` is the honest one: it is a `matchFiles` rule with a mask, an
-  `exclude` and an inner plugin, which is most of what needs typing;
-- the **fixtures**, which are deliberately untyped and would need `@ts-expect-error` or a
-  declaration of their own - the `__putout_processor_filesystem(...)` sources are data wearing a
-  `.js` extension, and that is the part most likely to be quietly worse in TS than in JS.
+Size S for the write-up; the migration itself is M and is not what is being asked for.
 
-Size S. The migration itself is M and is not what is being asked for here.
+## 9. Fixers for `hoist-arrow-callback` and `check-try-catch-destructure`
 
-## 9. A fixer for `hoist-arrow-callback`, and one for `check-try-catch-destructure`
+**Evidence.** Both ship report-only. The `hoist-arrow-callback` fixer was built, worked, and was
+removed because its second half could not be made to land — so what remains names the problem and
+fixes nothing. Neither blocks anything, since report-only is the shape CI enforces.
 
-**Evidence.** Both rules shipped report-only, and both were written with the fixer in mind — the
-`hoist-arrow-callback` fixer was built, worked, and then removed because the second half of it could
-not be made to land. What is left is a lint that names the problem and nothing that fixes it.
+**The arrow one needs a name, and that is the whole design question.** `(file) => isFile(file)` hoists
+to `file`, which is right when the parameter is unused in the body and a **shadowing bug** when it is
+used. So the options are different rules: hoist only when the parameter is **unused** and name it from
+the method (`isFile` for `filter`, `isX` for `some`), so nothing is ever shadowed; or hoist always and
+fall back to report-only when the name is taken. The first is safe and covers most real code, and both
+need a collision check against the enclosing scope before inserting, because a top-level `const` that
+already exists is a redeclaration, not a hoist. Size M.
 
-**`hoist-arrow-callback` needs a name, and that is the whole design question.** The obvious move
-takes the parameter's name — `(file) => isFile(file)` becomes `file` — which is exactly right when
-the parameter is unused in the body, and a **shadowing bug** when it is used. So the fixer has to
-decide, and the options are different rules:
+**The try/catch one is S.** The rewrite is mechanical and always the same — bind, then guard — so the
+risk is dropping a default the author meant, which is a test rather than a code change.
 
-- hoist only when the parameter is **unused** in the body, and name it from the method
-  (`isFile` for `filter`, `isX` for `some`), so nothing is ever shadowed;
-- hoist always, and fall back to report-only when the name is taken.
-
-The first is safe and covers most real code. Both need a collision check against the enclosing scope
-before inserting, because a top-level `const` that already exists is a redeclaration, not a hoist.
-
-**`check-try-catch-destructure` is the smaller job.** The fix is mechanical and always the same:
-
-```js
-import {tryCatch} from 'try-catch';
-
-const [error, {a = {}} = {}] = tryCatch(fn, x);
-```
-
-becomes a bind, then a guarded destructure. The risk is the rewrite dropping a default the author
-meant, so the fixer has to prove it round-trips — which is a test, not a code change.
-
-**Both are report-only today** and that is the shape CI enforces, so neither is blocking anything.
-Size M for the arrow one, S for the try/catch one.
