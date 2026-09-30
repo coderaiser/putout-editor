@@ -3,7 +3,6 @@
 // wanted a different error prefix had to remember, and nothing said the shape was
 // fixed. The `as const` on the discriminant is what makes the return type a tuple
 // rather than an array: MCP validates the payload shape at the transport edge.
-
 // A local guard rather than `instanceof Error`, which `types/convert-typeof-to-is-type`
 // bans and which also misses a cross-realm Error — and the point of the guard is
 // that a thrown value is not always an Error.
@@ -16,10 +15,12 @@ const hasMessage = (e: unknown): e is WithMessage => e !== null && typeof e === 
 const messageOf = (e: unknown) => hasMessage(e) ? e.message : String(e);
 
 export type ToolResult = {
-    content: [{
-        type: 'text';
-        text: string;
-    }];
+    content: [
+        {
+            type: 'text';
+            text: string;
+        },
+    ];
 };
 
 export const text = (value: string): ToolResult => ({
@@ -30,4 +31,3 @@ export const text = (value: string): ToolResult => ({
 });
 
 export const errorText = (e: unknown): ToolResult => text(`Error: ${messageOf(e)}`);
-

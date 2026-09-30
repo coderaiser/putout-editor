@@ -144,7 +144,9 @@ written to survive:
 ```js
 import {tryCatch} from 'try-catch';
 
-const [error, {scripts = {}} = {}] = tryCatch(JSON.parse, content);
+const [error, {
+    scripts = {},
+} = {}] = tryCatch(JSON.parse, content);
 ```
 
 A default fires for `undefined`, and `JSON.parse('null')` returns `null`, so the destructure blows up
@@ -167,7 +169,9 @@ complimenting it, not a repo-specific concern.
 ```js
 import {tryCatch} from 'try-catch';
 
-const [error, {scripts = {}} = {}] = tryCatch(JSON.parse, content);
+const [error, {
+    scripts = {},
+} = {}] = tryCatch(JSON.parse, content);
 ```
 
 ### ✅ Example of correct code

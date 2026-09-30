@@ -78,7 +78,7 @@ export async function handler({fixture, key, to}: z.input<typeof schema>) {
 
 const byName = (name: string) => (item: Binding) => item.name === name;
 
-const positionOf = ({position}: {position: Position}) => position;
+const positionOf = ({position}: {position: Position;}) => position;
 
 const asBinding = ({name, bindings}: Binding): [string, string[]] => [name, bindings];
 
@@ -107,8 +107,11 @@ const finder = (key: string, bound: Binding[]) => ({
         },
     }),
     // The key must be present or the loader cannot classify the plugin, but this is
+    
     // a matcher: `run` only ever passes it to putoutAsync with `fix: false`, so a
+    
     // replacement is never reached. Rewriting to the key itself is the honest
+    
     // no-op — a replacement that printed the binding would be code that cannot run.
     replace: () => ({
         [key]: key,

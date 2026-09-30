@@ -4,14 +4,16 @@
  */
 import type {EditorTransformer} from '#editor-code';
 import type {ParserWithLoader} from '../contract.ts';
-
-const asTuple = (t: TransformerInfo) => [t.id, t] as const;
-
 /**
  * A parser that has been through the category assignment loop in `parsers/index.ts`.
  * Every parser is guaranteed to have a `category`, so we can require it.
  */
 import codeExample from './js/codeExample.ts';
+
+/**
+ * A parser that has been through the category assignment loop in `parsers/index.ts`.
+ * Every parser is guaranteed to have a `category`, so we can require it.
+ */
 import babelParser from './js/babel.ts';
 import espreeParser from './js/espree.tsx';
 import esprima from './js/esprima.ts';
@@ -24,6 +26,9 @@ import {
     mimeTypes,
     fileExtension,
 } from './js/index.ts';
+
+// ... existing imports ...
+const asTuple = (t: TransformerInfo) => [t.id, t] as const;
 
 // ... existing imports ...
 export interface ParserCategory {

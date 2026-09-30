@@ -7,7 +7,9 @@ const plugin = ['check-documented-scripts', checkDocumentedScripts];
 
 const asScript = (name) => `"${name}":"node -e ''"`;
 
-const scripts = (names) => `{"scripts":{${names.map(asScript).join(',')}}}`;
+const scripts = (names) => `{"scripts":{${names
+    .map(asScript)
+    .join(',')}}}`;
 
 const sourceOf = (...files) => print(parseFilesystem(['/', ...files]));
 
