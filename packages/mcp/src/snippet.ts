@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
+import {text as toolText} from './content.ts';
 
 export const name = 'fetch_snippet';
 
@@ -114,13 +115,6 @@ function clip(text: string) {
     return `${text.slice(0, LIMIT)}\n… truncated, ${text.length} chars total`;
 }
 
-const text = (value: string) => ({
-    content: [{
-        type: 'text' as const,
-        text: value,
-    }],
-});
-
 async function run(snippet: string, include: Part[]) {
     const parsed = parseSnippetID(snippet);
     
@@ -168,5 +162,5 @@ export async function handler({snippet, include}: z.input<typeof schema>) {
     
     const [error, result] = await tryToCatch(run, snippet, parts);
     
-    return text(error ? `Error: ${error.message}` : result);
+    return toolText(error ? `Error: ${error.message}` : result);
 }

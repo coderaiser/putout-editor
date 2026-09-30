@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
 import {putoutAsync} from 'putout';
+import {text, errorText} from './content.ts';
 import {compilePlugin} from './plugin.ts';
 
 export const name = 'find_places';
@@ -27,19 +28,9 @@ export async function handler({fixture, plugin}: z.infer<typeof schema>) {
     const [error, result] = await tryToCatch(runFindPlaces, fixture, plugin);
     
     if (error)
-        return {
-            content: [{
-                type: 'text' as const,
-                text: `Error: ${error.message}`,
-            }],
-        };
+        return errorText(error);
     
-    return {
-        content: [{
-            type: 'text' as const,
-            text: JSON.stringify(result),
-        }],
-    };
+    return text(JSON.stringify(result));
 }
 
 async function runFindPlaces(fixture: string, plugin: string) {

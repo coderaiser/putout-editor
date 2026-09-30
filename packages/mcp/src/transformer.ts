@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
 import {putoutAsync} from 'putout';
+import {text, errorText} from './content.ts';
 import {compilePlugin} from './plugin.ts';
 
 export const name = 'transform';
@@ -22,19 +23,9 @@ export async function handler({fixture, plugin}: z.infer<typeof schema>) {
     const [error, result] = await tryToCatch(runTransform, fixture, plugin);
     
     if (error)
-        return {
-            content: [{
-                type: 'text' as const,
-                text: `Error: ${error.message}`,
-            }],
-        };
+        return errorText(error);
     
-    return {
-        content: [{
-            type: 'text' as const,
-            text: result as string,
-        }],
-    };
+    return text(result as string);
 }
 
 async function runTransform(fixture: string, plugin: string) {

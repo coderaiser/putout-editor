@@ -264,3 +264,21 @@ The two regression tests are named for the shape rather than the behaviour —
 `an absolute path, as redlint builds it` and `the nearest package.json wins` — and both were checked
 to **fail** against the old code before being believed. A fixture written by hand is a fixture that
 can be wrong in the same way twice; the second one is `buildTree(process.cwd())`.
+
+## ❌ `packages/mcp` coverage gate is below 100, and it is not from this change
+
+**Open.** Found while extracting the shared MCP content envelope, and confirmed pre-existing by
+stashing the work and re-running at `HEAD`: `tester.ts` reports **92.3%** of functions, and the
+package gate fails on `functions (98%)`. So `bun run check` does not currently pass for `mcp`, and
+CI is either not running it or tolerating it.
+
+The uncovered function is `printValue`, the replacement callback in `finder()` — a matcher built
+for `putoutAsync` with `fix: false`, whose `replace` map nothing ever calls.
+
+I did not fix it, deliberately. Removing the `replace` breaks 6 tests, so it is reachable; covering
+it needs a spec that runs a *transform* against the finder plugin, which is a real behaviour and not
+a contrived one — but it is a separate piece of work from a refactor that was supposed to be
+behaviour-preserving, and folding it in would make that refactor's diff untestable.
+
+What it means: **do not trust `packages/mcp` coverage as evidence that the package is at 100.** It
+was not, before this work, and nothing in the repo says so.

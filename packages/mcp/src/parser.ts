@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
 import {type ParserOptions, parse} from '@babel/parser';
+import {text, errorText} from './content.ts';
 import {queryAST} from './query.ts';
 import {compactAST} from './compact.ts';
 
@@ -46,30 +47,12 @@ export async function handler({source, query, full}: z.input<typeof schema>) {
     const [error, ast] = await tryToCatch(parse, source, parseOptions);
     
     if (error)
-        return {
-            content: [{
-                type: 'text' as const,
-                text: `Error: ${error.message}`,
-            }],
-        };
+        return errorText(error);
     
-    if (query) {
-        const nodes = queryAST(ast, query, source);
-        
-        return {
-            content: [{
-                type: 'text' as const,
-                text: JSON.stringify(nodes),
-            }],
-        };
-    }
+    if (query)
+        return text(JSON.stringify(queryAST(ast, query, source)));
     
     const output = full ? ast : compactAST(ast);
     
-    return {
-        content: [{
-            type: 'text' as const,
-            text: JSON.stringify(output),
-        }],
-    };
+    return text(JSON.stringify(output));
 }
