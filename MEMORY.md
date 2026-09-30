@@ -182,6 +182,16 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   that has to visit nodes it cannot name by hand.
 - **An includer's `fix` receives a bare `path`, not `{path, key}`.** Reading it the traverse way
   reports every place, fixes none, and exits 0.
+- **A replacer must carry a `replace` even when it never fixes anything.** `tester.ts` had a
+  replacement callback on a plugin only ever run with `fix: false`, so it sat at 92.3% of the file
+  and the package gate failed at 98%. Deleting it is worse — the loader then refuses the plugin and
+  six tests break. `replace: () => ({key})` is the honest form: the key is there, and there is no
+  function to leave uncovered. `docs/memory/putout-rules.md` has the measurement.
+- **A scoped `putout <dir>` run is not evidence about a `.ts` file.** `putout packages/mcp` exits 0
+  with no output for TypeScript while `putout probe-ts.ts` reports three errors in the same file.
+  Sweep with `isTS: true` and read the count before believing a rule is clean. And a rule that is
+  *about* naming must not carry a naming guard in its `match` — that hid a real shape in
+  `hoist-arrow-callback` and the fix belongs to the fixer, not the reporter.
 - **`UPDATE=1` regenerates fixtures, and `noTransform` rewrites the *source*** — not the `-fix` twin,
   which is deleted and rewritten from the run. I once recorded it as destructive here; that was
   wrong, and the mechanism is in [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin).

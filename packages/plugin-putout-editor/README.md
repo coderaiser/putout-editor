@@ -188,7 +188,14 @@ predicate is the thing with a name, and the call is not where you look for it. A
 also testable on its own; an inline one is only reachable through the call that uses it.
 
 A block body is left alone — `filter((file) => { ... })` has statements the move would reformat,
-and the predicate is not the point there.
+and the predicate is not the point there. A **destructured** parameter is left alone too, and that
+is the one judgement call: `places.map(({position}) => position)` hoists perfectly well, but the
+name the binding would take is not in the parameter, so the rule reports the shape it can act on
+and the naming question belongs to the fixer.
+
+**Scoped off for spec and test files**, at the root `.putout.json` rather than this package's —
+a `match` here does not reach `packages/client`, where most of the 69 sites it found on arrival
+lived. A spec asserting `find(({type}) => …)` reads better inline, and hoisting it would be noise.
 
 Report-only. The fix needs a **name** for the hoisted callback, and a parameter called `file`
 produces `file` — which shadows the parameter it came from, and a callback whose name is taken in an

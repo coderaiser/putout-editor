@@ -557,3 +557,54 @@ which is a hack that shows in the DOM.
 **The reusable part.** When a name means a class in one file and a type in another, the fix is one
 name. `TreeAdapterConfig` / `TreeAdapterOptions` / `TreeAdapterChild` already read as one family
 across the two files; the collision is `TreeAdapter` itself, and it is the one a reader hits first.
+
+## A replacer needs a `replace`, and a matcher cannot have one
+
+Found closing the `packages/mcp` coverage gate, which sat at 98% for reasons nobody had written
+down. `tester.ts` builds a `finder` plugin to answer "does this pattern match", and it was given a
+`replace` whose callback never runs — the tool only ever passes that plugin to `putoutAsync` with
+`fix: false`, and a replacement callback is reached only under `fix: true`. Measured:
+
+```
+fix: false  -> places=1 replaceCallbackCalls=0
+fixCount: 1 -> code="X;"    replaceCallbackCalls=1
+```
+
+So the callback was 92.3% of a file nobody had looked at. Deleting it is not an option either: with
+`match` and `replace` gone, the loader refuses the plugin — `Cannot determine type of plugin 'rule'` —
+which broke 6 tests. **A replacer must carry a `replace` even when it never fixes anything.**
+
+The fix that satisfies both is an identity replacement, `{[key]: key}`. The key still has to be
+there, but there is no function to leave uncovered, and it states the intent — this is a matcher —
+rather than shipping a callback that prints a binding and could only ever run in a code path nothing
+reaches.
+
+**The general shape.** A plugin that only reports is cheaper to keep honest as
+`replace: () => ({key})` than as a `fix` that is a no-op: the loader needs one of the replacer keys,
+`fix` alone is not enough, and an identity replacement has no branch to cover.
+
+## A new rule's first real test is the rest of the repository, and `.ts` hides half of it
+
+`hoist-arrow-callback` shipped in `plugin-putout-editor`, which is wired in from the root
+`.putout.json`, so it was live everywhere at once. That is the rule `AGENTS.md` states: a new rule is
+on in the whole repository until proven otherwise. The sweep found **69** sites.
+
+Two of those 69 taught me something, and both are traps rather than work:
+
+**A guard I wrote to dodge the fixer also hid real code.** `isHoistable` required an `Identifier`
+parameter, because hoisting `({position}) => position` produces a name the parameter does not give.
+That is a *fixer* problem, and applying it to the *reporter* meant `places.map(({position}) => position)`
+never reported — a shape where a name pays most. Widening it took the count from 9 to 69, which is
+the signal: a guard that is about naming, sitting in a rule that does not name, is filtering the
+wrong thing.
+
+**`.ts` is linted, but a `putout <file>` run reports nothing for it.** `putout packages/mcp` exits 0
+with zero output while `putout probe-ts.ts` reports three errors in the same file. So a scoped
+`putout` run is not evidence that a TypeScript file is clean, and I nearly closed this having only
+checked the ones that happened to be `.js`. Sweep with `isTS: true` and read the count.
+
+**The fix that was right for both was scope, not suppression.** 40 of the 49 remaining sites were
+in `*.spec.*` / `*.test.*` — a spec asserting `find(({type}) => ...)` is clearer inline, and hoisting
+it would be noise. So the rule is off for spec and test files at the **root** config, because a
+`match` in `packages/plugin-putout-editor/.putout.json` does not reach `packages/client` — the
+scoping has to be where the plugin is wired in, and both directions were checked.

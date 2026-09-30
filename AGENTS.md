@@ -455,6 +455,17 @@ governs, then check **both** directions, since a config that cannot be re-enable
 scope. And the check that catches this is `putout .` — linting the plugin's own directory
 passes while the repository is on fire.
 
+**Sweep for the blast radius before fixing, and do not count a scoped `putout <file>` run as
+evidence about a `.ts` file.** `hoist-arrow-callback` had 69 sites once it shipped, and two lessons
+came out of the count rather than out of the fixes. A scoped run — `putout packages/mcp` — exits 0
+with **no output at all** for TypeScript, while `putout probe-ts.ts` reports three errors in the
+same file, so sweep with `isTS: true` and read the number. And if the rule is *about* naming —
+anything a fixer would have to invent a name for — keep that out of the `match`: a guard placed in
+the reporter filters the wrong thing, and `places.map(({position}) => position)` is exactly the
+shape where a name pays. Spec files are usually most of the count, and a spec asserting
+`find(({type}) => …)` reads better inline; scope the rule off for `*.{spec,test}.*` **in the root
+config**, because a `match` in the package's own `.putout.json` does not reach another package.
+
 **An mcp example is a proxy, not the artifact.** `get_example` shipped hand-written copies of
 plugins that also exist as real rules, and they drifted — the `markdown` one reported a
 different message *and* matched on `source.value` where the real rule uses `extract(source)`.
