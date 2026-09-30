@@ -193,18 +193,41 @@ identical, which is the same shape of failure as the bug the rule is about, one 
 knowing before any fixer here mutates a literal in place. `apply-type-check` gets away with
 rewriting `x.type` because a node *type* is not the cached text.
 
-## `UPDATE=1` is destructive in this package
+## How `UPDATE=1` actually works, and what it does to a `-fix` twin
 
-`UPDATE=1 npm test` deleted **four** `-fix` fixtures belonging to *other* rules and left this
-one empty rather than regenerating it. `git checkout -- test/fixture/` brought all of them
-back. Generate the twin by running the rule:
+Read in `@putout/test/lib/fixture.js` and `lib/test.js`, after a claim that it was destructive in this
+package turned out to be wrong. It is not, and the mechanism is worth having.
+
+`isUpdate()` is `Boolean(Number(process.env.UPDATE))` — so `UPDATE=1` and `UPDATE=true` both count,
+and **`UPDATE=0` does not**. It guards exactly three things:
+
+- **`rmFixture`** is called by `noTransform`, `noTransformWithOptions` and `noReportWithOptions`,
+  **before** the lint runs. It unlinks `${name}-fix.js` and `${name}-fix.ts`, wrapped in `tryCatch`,
+  and only when `isUpdate()`. So the `-fix` twin of a fixture under test is deleted and then
+  rewritten from the run. A stale twin cannot survive to fail a later run by being compared against
+  something the rule no longer produces.
+- **`writeFixture`** then writes the *source* fixture back with the fixed `code` for those same
+  operators, and the test reports `source fixture updated` instead of comparing. So
+  `UPDATE=1 … t.noTransform(name)` **rewrites the source fixture in place** — that is the one real
+  hazard, and it is not the `-fix` file. `git checkout -- test/fixture/` is the undo.
+- **`writeFixFixture`** writes `${name}-fix.${ext}` and is what `t.transform` uses, so the twin for a
+  *fixing* rule is generated rather than hand-written.
+
+So the accurate version: **`UPDATE=1` regenerates the fixtures the operators you run touch, and
+`noTransform` rewrites the source.** It is scoped to the fixtures named in the tests you run, which
+is why running the whole suite is safe and running one rule's spec regenerates only that rule's
+pair.
+
+`readFixture` also drives the extension: with no `extension` option it tries `<name>.<ext>`, then
+`<name>.ts`, then `<name>.js`, so a pair can be `.ts` or `.js` and the test follows it.
+
+The reason to use it rather than writing a twin by hand is unchanged — it writes what the rule
+actually produces, and a hand-written twin asserts an output the rule never made, which is what two
+of the fixtures in this package were:
 
 ```js
 const {code} = putout(source, {fixCount: 1, plugins: [['remove-comments', rule]]});
 ```
-
-That writes what the rule actually produces, which is the point — a hand-written twin asserts
-an output the rule never made, and two of those existed here before this was found.
 
 ## `estree-to-babel`, and why every parser funnels through one call
 

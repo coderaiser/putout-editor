@@ -259,6 +259,12 @@ places on a file with no comments at all while every test passed.
 Fixture-based tests through `@putout/test`'s `createTest`, with the `-fix` fixtures generated
 by `UPDATE=1`. Keep the package at 100% coverage.
 
+**`UPDATE=1` rewrites the fixtures you touch, and `noTransform` rewrites the `_source_` one.** The
+`-fix` twin is deleted and rewritten from the run, so a stale twin cannot linger; the hazard is the
+source, which `noTransform` overwrites in place. Keep `git checkout -- lib/*/fixture/` to hand and
+read the diff. `isUpdate()` is `Boolean(Number(UPDATE))`, so `UPDATE=0` does **not** enable it.
+Measured in [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin).
+
 **`report` is the first export of every rule.** Measured in the 🐊**Putout** repo: of the 622
 rule files there with a plain `export const report`, 603 open with it, and the 19 that do not
 are not putout rules — 18 are `eslint-plugin-putout` descriptors leading with

@@ -12,7 +12,7 @@ keeping once the problem is closed, so the cause is not derived a second time.
 | [`coverage.md`](./coverage.md) | the 100% gate was once 100% of a chosen set, and the eleven files that remain |
 | [`tape.md`](./tape.md) | the types are fine; two rules that would write them do not ship |
 | [`putout-patterns.md`](./putout-patterns.md) | moved: the placeholder grammar is now [§3 of `putout-style.md`](../putout-style.md#3-rule-shape) |
-| [`putout-rules.md`](./putout-rules.md) | putout types the whole plugin contract so a rule can be type-checked; how to visit every node; an includer's `fix` takes a bare `path`; a fixer must replace a node, not write to it; `getFilename` is absolute under `redlint`, so a fixture built with `parseFilesystem` never met the runner; a pattern key is a whole name and `{a,b}` is not a `match` alternative |
+| [`putout-rules.md`](./putout-rules.md) | putout types the whole plugin contract so a rule can be type-checked; how to visit every node; an includer's `fix` takes a bare `path`; a fixer must replace a node, not write to it; `getFilename` is absolute under `redlint`, so a fixture built with `parseFilesystem` never met the runner; a pattern key is a whole name and `{a,b}` is not a `match` alternative; `UPDATE=1` regenerates fixtures and `noTransform` rewrites the source |
 | [`fence-gate.md`](./fence-gate.md) | a `js` fence must be JavaScript; the rule is a sub-plugin of the markdown plugin |
 | [`build.md`](./build.md) | an operator must not import a processor, and why `IgnorePlugin` cannot fix it |
 

@@ -90,6 +90,10 @@ packages/plugin-putout-editor/
    `UPDATE=1` rather than writing it by hand, because a hand-written one asserts an output the
    rule never produced — this repo has two of those. **A fixture with no `-fix` twin is a
    no-transform case**, the convention in `@putout/plugin-logical-expressions`.
+   **`UPDATE=1` rewrites the fixtures the operators you run touch, and `noTransform` rewrites the
+   `_source_` fixture, not the `-fix` one** — so keep `git checkout -- lib/*/fixture/` to hand and
+   read the diff. The mechanism is in
+   [`memory/putout-rules.md`](./memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin).
 3. `lib/<rule-name>/index.spec.js` — beside the rule it tests.
    `createTest(import.meta.url, {plugins: [['rule-name', plugin]]})`, then `t.transform(name)`
    for every shape the rule fixes, `t.noTransform(name)` for the ones it must leave alone, and

@@ -182,8 +182,10 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   that has to visit nodes it cannot name by hand.
 - **An includer's `fix` receives a bare `path`, not `{path, key}`.** Reading it the traverse way
   reports every place, fixes none, and exits 0.
-- **`UPDATE=1` is destructive in `plugin-putout-editor`** — it deletes `-fix` fixtures belonging
-  to *other* rules. Generate a twin by running the rule and writing its `code`.
+- **`UPDATE=1` regenerates fixtures, and `noTransform` rewrites the *source*** — not the `-fix` twin,
+  which is deleted and rewritten from the run. I once recorded it as destructive here; that was
+  wrong, and the mechanism is in [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin).
+  Read it before running `UPDATE=1` on a spec, and keep the undo to hand.
 
 ## Keep these three in step
 
