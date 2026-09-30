@@ -26,13 +26,25 @@ type BoundariesConfig = {
     }];
 };
 
+const byPrefix = (prefix: ElementType) => (type: ElementType) => type.startsWith(prefix);
+
+const expanding = (knownTypes: ElementType[]) => (pattern: ElementType) => expandGlob(pattern, knownTypes);
+
+const asAllowed = (type: ElementType): RawPolicy['allow'][number] => ({
+    to: {
+        element: {
+            type,
+        },
+    },
+});
+
 function expandGlob(pattern: ElementType, knownTypes: ElementType[]): ElementType[] {
     if (pattern === '*')
         return [pattern];
     
     if (pattern.endsWith('-*')) {
         const prefix = pattern.slice(0, -1);
-        const matches = knownTypes.filter((t) => t.startsWith(prefix));
+        const matches = knownTypes.filter(byPrefix(prefix));
         
         return matches.length ? matches : [pattern];
     }
@@ -54,7 +66,7 @@ export function buildBoundaries(map: BoundaryMap): BoundariesConfig {
     const policies: RawPolicy[] = [];
     
     for (const from of knownTypes) {
-        const targets = map[from].flatMap((target) => expandGlob(target, knownTypes));
+        const targets = map[from].flatMap(expanding(knownTypes));
         
         policies.push({
             from: {
@@ -62,13 +74,7 @@ export function buildBoundaries(map: BoundaryMap): BoundariesConfig {
                     type: from,
                 },
             },
-            allow: targets.map((type) => ({
-                to: {
-                    element: {
-                        type,
-                    },
-                },
-            })),
+            allow: targets.map(asAllowed),
         });
     }
     

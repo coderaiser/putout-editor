@@ -11,6 +11,8 @@ import {
     type Page,
 } from './test.ts';
 
+const isNotEmpty = (line: string) => line.trim().length > 0;
+
 test('renders the editor application', async ({page}) => {
     await expect(page.getByTestId('toolbar')).toBeVisible();
 });
@@ -224,7 +226,7 @@ test('vim paste below preserves pasted block indentation', async ({page}) => {
     const result = await read();
     const lines = result
         .split('\n')
-        .filter((line) => line.trim().length > 0);
+        .filter(isNotEmpty);
     
     // CONTENT has 4 lines. We yank lines 2-4 (the replace block) and paste below.
     // Result: line 1 + lines 2-4 (original) + lines 2-4 (pasted) = 7 lines

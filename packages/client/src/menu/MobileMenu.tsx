@@ -28,11 +28,13 @@ import {
     fixtures,
     templates,
 } from '../snippet/templates/index.ts';
-import {getParserByID} from '../parser/parsers/index.ts';
+import {getParserByID, type ParserInfo} from '../parser/parsers/index.ts';
 import * as selectors from '../store/selectors.ts';
 import {logEvent} from '../snippet/logger.ts';
 
 const THEME_KEY = 'theme';
+
+const isShownInMenu = (p: ParserInfo) => p.showInMenu;
 
 const readTheme = (): string => globalThis.localStorage && globalThis.localStorage.getItem(THEME_KEY) || 'light';
 
@@ -72,7 +74,7 @@ export default function MobileMenu() {
         applyTheme(theme);
     }, [theme]);
     
-    const parsers = parser.category.parsers.filter((p) => p.showInMenu);
+    const parsers = parser.category.parsers.filter(isShownInMenu);
     
     const canForkAndNotSave = canFork && !canSaveSnippet;
     const savingOrForking = saving || forking;

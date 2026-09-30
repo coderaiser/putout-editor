@@ -13,6 +13,10 @@ type Binding = {
 type Vars = {
     [key: string]: types.Node;
 };
+type Position = {
+    line: number;
+    column: number;
+};
 type Replacement = {
     code?: string;
     changed?: boolean;
@@ -22,10 +26,7 @@ type Replacement = {
 type Report = {
     key: string;
     matched?: number;
-    positions?: {
-        line: number;
-        column: number;
-    }[];
+    positions?: Position[];
     bound?: {
         [key: string]: string[];
     };
@@ -77,7 +78,9 @@ export async function handler({fixture, key, to}: z.input<typeof schema>) {
 
 const byName = (name: string) => (item: Binding) => item.name === name;
 
-const printValue = ({__a}: Vars) => print(__a) || 'X';
+const positionOf = ({position}: {position: Position}) => position;
+
+const asBinding = ({name, bindings}: Binding): [string, string[]] => [name, bindings];
 
 const finder = (key: string, bound: Binding[]) => ({
     report: () => 'matched',
@@ -103,8 +106,12 @@ const finder = (key: string, bound: Binding[]) => ({
             return true;
         },
     }),
+    // The key must be present or the loader cannot classify the plugin, but this is
+    // a matcher: `run` only ever passes it to putoutAsync with `fix: false`, so a
+    // replacement is never reached. Rewriting to the key itself is the honest
+    // no-op — a replacement that printed the binding would be code that cannot run.
     replace: () => ({
-        [key]: printValue,
+        [key]: key,
     }),
 });
 
@@ -143,8 +150,8 @@ async function run(fixture: string, key: string, to?: string): Promise<Report> {
     const out: Report = {
         key,
         matched: places.length,
-        positions: places.map(({position}) => position),
-        bound: Object.fromEntries(bound.map(({name, bindings}) => [name, bindings])),
+        positions: places.map(positionOf),
+        bound: Object.fromEntries(bound.map(asBinding)),
     };
     
     if (!places.length)

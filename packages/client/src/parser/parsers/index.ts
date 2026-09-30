@@ -5,6 +5,8 @@
 import type {EditorTransformer} from '#editor-code';
 import type {ParserWithLoader} from '../contract.ts';
 
+const asTuple = (t: TransformerInfo) => [t.id, t] as const;
+
 /**
  * A parser that has been through the category assignment loop in `parsers/index.ts`.
  * Every parser is guaranteed to have a `category`, so we can require it.
@@ -106,7 +108,7 @@ const buildTuple = (a: ParserInfo | TransformerInfo) => [a.id, a] as const;
 const isShowInMenu = ({showInMenu}: ParserInfo) => showInMenu;
 
 const parserByID: Record<string, ParserInfo> = Object.fromEntries(parsers.map(buildTuple));
-const transformerByID: Record<string, TransformerInfo> = Object.fromEntries(transformers.map((t) => [t.id, t] as const));
+const transformerByID: Record<string, TransformerInfo> = Object.fromEntries(transformers.map(asTuple));
 
 export const categories = [jsCategory];
 export const getCategoryByID = (id: string): ParserCategory | undefined => categoryByID[id];

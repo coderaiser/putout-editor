@@ -8,6 +8,8 @@ import {
 } from '../parsers/index.ts';
 import {useToolbarMenu} from '../../store/ToolbarMenuContext.tsx';
 
+const isShownInMenu = (p: ParserInfo) => p.showInMenu;
+
 interface ParserButtonProps {
     parser: ParserInfo;
     category: ParserCategory;
@@ -26,7 +28,7 @@ export default function ParserButton({parser, category, onParserChange, onParser
     
     const open = openId === MENU_ID;
     const ref = useRef<HTMLDivElement>(null);
-    const parsers = category.parsers.filter((p: ParserInfo) => p.showInMenu);
+    const parsers = category.parsers.filter(isShownInMenu);
     
     useEffect(() => {
         if (!open)

@@ -21,6 +21,8 @@ export interface TreeAdapterFilter {
     test?: FilterTest;
 }
 
+const hasKey = (filter: TreeAdapterFilter) => Boolean(filter.key);
+
 export interface TreeAdapterOptions {
     filters?: TreeAdapterFilter[];
     openByDefault?: (node: unknown, key: string | null) => boolean;
@@ -69,7 +71,7 @@ export class TreeAdapter {
    * Used by UI components to render an appropriate input for each filter.
    */
     getConfigurableFilters() {
-        return (this._adapterOptions.filters || []).filter((filter) => Boolean(filter.key));
+        return (this._adapterOptions.filters || []).filter(hasKey);
     }
     /**
    * A more or less human readable name of the node.

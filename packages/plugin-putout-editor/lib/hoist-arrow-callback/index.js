@@ -22,16 +22,22 @@ const METHODS = [
     'sort',
 ];
 
+// A callback is hoistable when its body is an expression **and** its parameter is
+// a plain identifier. The identifier is the point, not a limitation: the name the
+// hoisted binding would take comes from the parameter, so a destructured one has
+// no name to take. That is a question about the fixer — this rule reports the
+// shape it can act on, and `places.map(({position}) => position)` is a normal
+// expression, not a hoist the rule can describe.
 const isHoistable = ({__a}, path) => {
     if (!isIdentifier(__a))
         return false;
-    
+
     const [argument] = path.node.arguments;
     const {body} = argument;
-    
+
     if (isBlockStatement(body))
         return false;
-    
+
     return !isJSXElement(body) && !isJSXFragment(body);
 };
 

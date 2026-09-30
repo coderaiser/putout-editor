@@ -9,6 +9,7 @@ import type {AstNode} from '../../../types.ts';
 
 const isString = (a: unknown): a is string => typeof a === 'string';
 const isNumber = (a: unknown): a is number => typeof a === 'number';
+const isNotRecordAndTuple = (name: unknown) => name !== 'recordAndTuple';
 const {keys} = Object;
 
 const availablePlugins = [
@@ -130,7 +131,7 @@ export default {
                 
                 return plugin;
             })
-            .filter((name: unknown) => name !== 'recordAndTuple');
+            .filter(isNotRecordAndTuple);
         
         return (babylon as {
             parse: (code: string, options: Record<string, unknown>) => unknown;

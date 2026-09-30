@@ -16,6 +16,9 @@
             "putout-editor/remove-rgb-outside-token-file": "on",
             "putout-editor/remove-z-index-outside-token-file": "on"
         },
+        "*.{spec,test}.{js,jsx,ts,tsx}": {
+            "putout-editor/hoist-arrow-callback": "off"
+        },
         "*.md": {
             "destructuring/apply-object": "off",
             "logical-expressions/apply-destructuring": "off",
