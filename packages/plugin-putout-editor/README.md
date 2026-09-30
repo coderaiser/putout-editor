@@ -24,6 +24,8 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [check-documented-scripts](#check-documented-scripts);
 - ✅ [check-main-imports-in-file](#check-main-imports-in-file);
+- ✅ [check-try-catch-destructure](#check-try-catch-destructure);
+- ✅ [hoist-arrow-callback](#hoist-arrow-callback);
 - ✅ [remove-comments](#remove-comments);
 - ✅ [remove-rgb-outside-token-file](#remove-rgb-outside-token-file);
 - ✅ [remove-undefined-token-file](#remove-undefined-token-file);
@@ -130,6 +132,87 @@ in `index.spec.js`. The story is in [`docs/issues/putout-plugins.md`](../../docs
 ## ✅ Example of correct code
 
 The same document, naming only scripts that exist: `bun run lint`, `bun run test`.
+
+***
+
+## check-try-catch-destructure
+
+`try-catch` returns `[e]` when it catches — a **shorter array**, not `[e, undefined]`. So the
+mechanical rewrite of a `try`/`catch` into the obvious destructuring throws on the very input it was
+written to survive:
+
+```js
+import {tryCatch} from 'try-catch';
+
+const [error, {scripts = {}} = {}] = tryCatch(JSON.parse, content);
+```
+
+A default fires for `undefined`, and `JSON.parse('null')` returns `null`, so the destructure blows up
+**outside** the `try` that was meant to catch it. `{"scripts":null}` does the same one level in, and
+both are real `package.json` contents.
+
+The whole suite was green with this in place. The rule reports the two shapes and pins them with a
+fixture each, because "reports too much" and "reports nothing" being the same green is the failure
+that cost the time.
+
+Report-only: the fix is a judgement call about what to do with the value, so there is no automatic
+one. The shape to prefer is in
+[`docs/memory/putout-rules.md`](../../docs/memory/putout-rules.md#trycatch-returns-a-shorter-array-when-it-catches).
+
+**Worth landing upstream.** The gap is in `@putout/plugin-try-catch` itself — a sibling rule
+complimenting it, not a repo-specific concern.
+
+### ❌ Example of incorrect code
+
+```js
+import {tryCatch} from 'try-catch';
+
+const [error, {scripts = {}} = {}] = tryCatch(JSON.parse, content);
+```
+
+### ✅ Example of correct code
+
+```js
+import {tryCatch} from 'try-catch';
+
+const [error, parsed] = tryCatch(JSON.parse, content);
+const {scripts = {}} = parsed || {};
+```
+
+***
+
+## hoist-arrow-callback
+
+`files.filter((file) => isFile(file))` allocates an arrow and buries the predicate in the call. The
+predicate is the thing with a name, and the call is not where you look for it. A named binding is
+also testable on its own; an inline one is only reachable through the call that uses it.
+
+A block body is left alone — `filter((file) => { ... })` has statements the move would reformat,
+and the predicate is not the point there.
+
+Report-only. The fix needs a **name** for the hoisted callback, and a parameter called `file`
+produces `file` — which shadows the parameter it came from, and a callback whose name is taken in an
+outer scope is a rename decision, not a mechanical one. That belongs in
+[`docs/ideas.md`](../../docs/ideas.md).
+
+The one shape 🐊**Putout** already fixes is `(x) => f(x)` — a callback that only forwards its
+parameter, for `filter`, `find`, `findIndex`, `some` and `every`. `remove-useless-functions`
+rewrites that to `f`, and it should: nothing is lost but the arrow. This rule is about the rest,
+where the callback carries a **predicate the name does not give you**.
+
+### ❌ Example of incorrect code
+
+```js
+const packages = names.filter((name) => name.startsWith('@putout/'));
+```
+
+### ✅ Example of correct code
+
+```js
+const isPutoutPackage = (name) => name.startsWith('@putout/');
+
+const packages = names.filter(isPutoutPackage);
+```
 
 ***
 

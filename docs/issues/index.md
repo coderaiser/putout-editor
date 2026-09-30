@@ -7,7 +7,7 @@ resolved problem left here is documentation that reads as if it were still broke
 | File | Open problem |
 |---|---|
 | [`build.md`](./build.md) | `nest build` reports 279 errors that `tsc` does not |
-| [`putout-plugins.md`](./putout-plugins.md) | two upstream fixers exit clean on lossy cases; a fixer can rewrite a rule and no test notices; `apply-destructuring` drops a `&&` guard; a rule green on every fixture and silent on the real tree |
+| [`putout-plugins.md`](./putout-plugins.md) | two upstream fixers exit clean on lossy cases; a fixer can rewrite a rule and no test notices; `apply-destructuring` drops a `&&` guard; a rule green on every fixture and silent on the real tree; a `tryCatch` rewrite that throws on a real `package.json` |
 | [`scripts.md`](./scripts.md) | the three scripts `AGENTS.md` tells every agent to run were not at the root |
 
 Elsewhere:

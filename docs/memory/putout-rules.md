@@ -475,3 +475,33 @@ is not the thing to check — what the rule does with the returned path is.**
 So a filesystem rule needs a fixture whose shape comes from the runner, not from the helper the
 other fixtures happen to use. `buildTree(process.cwd())` is the other source; before writing one by
 hand, check which of the two shapes it is.
+
+## A pattern key is a whole name, and `{a,b}` is not a `match` alternative
+
+Both cost a round trip on `hoist-arrow-callback`, and neither is guessable from the grammar docs.
+
+**A `__` prefix belongs to a whole name.** `__error` and `__value` are not bindings — only `__a`
+through `__z` are, so a key written `const [__error, {__value}] = …` matches **zero** places and
+looks like a pattern problem. The same key with single letters matches.
+
+**`{a,b}` unions work in `include` and not in a `match` key.** `__:filter((__a) => __b)` is fine as
+an include pattern, but the same union inside a `match` key is parsed as a babel visitor and throws
+`You gave us a visitor for the node type undefined`. So a rule over many methods builds the table
+instead:
+
+```js
+export const match = () => Object.fromEntries(METHODS.map((method) => [
+    `__.${method}((__a) => __b)`,
+    isHoistable,
+]));
+```
+
+**In a `match` visitor, `__a` is a node, not an array** — `__a.name`, not `__a[0]` — and
+**`path.node.arguments` holds the callback at index 0**, because the pattern is anchored on the call
+with the callback already bound, so `arguments.slice(1)` is empty. `print(__b)` also ends in `;`,
+and `template.ast` returns an **array** of nodes rather than one.
+
+So `validate` says `ok`, `test_pattern` says the key matches, and the rule still reports nothing:
+every one of these fails silently rather than throwing. **Check `transform` on a fixture, and
+check the count is what you expect — a rule that matches zero places and a rule that cannot run
+look identical from the outside.**

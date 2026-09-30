@@ -21,6 +21,7 @@ mark it as one.
 | 6 | Cut the CI auto-commit volume | M |
 | 7 | A rule for an assertion that cannot fail informatively | S |
 | 8 | Write up migrating `plugin-putout-editor` to TypeScript | S |
+| 9 | Fixers for `hoist-arrow-callback` and `check-try-catch-destructure` | M |
 
 ## 7. A rule for an assertion that cannot fail informatively
 
@@ -108,3 +109,35 @@ than absent, and a migration is a decision about what that script should start c
   `.js` extension, and that is the part most likely to be quietly worse in TS than in JS.
 
 Size S. The migration itself is M and is not what is being asked for here.
+
+## 9. A fixer for `hoist-arrow-callback`, and one for `check-try-catch-destructure`
+
+**Evidence.** Both rules shipped report-only, and both were written with the fixer in mind — the
+`hoist-arrow-callback` fixer was built, worked, and then removed because the second half of it could
+not be made to land. What is left is a lint that names the problem and nothing that fixes it.
+
+**`hoist-arrow-callback` needs a name, and that is the whole design question.** The obvious move
+takes the parameter's name — `(file) => isFile(file)` becomes `file` — which is exactly right when
+the parameter is unused in the body, and a **shadowing bug** when it is used. So the fixer has to
+decide, and the options are different rules:
+
+- hoist only when the parameter is **unused** in the body, and name it from the method
+  (`isFile` for `filter`, `isX` for `some`), so nothing is ever shadowed;
+- hoist always, and fall back to report-only when the name is taken.
+
+The first is safe and covers most real code. Both need a collision check against the enclosing scope
+before inserting, because a top-level `const` that already exists is a redeclaration, not a hoist.
+
+**`check-try-catch-destructure` is the smaller job.** The fix is mechanical and always the same:
+
+```js
+import {tryCatch} from 'try-catch';
+
+const [error, {a = {}} = {}] = tryCatch(fn, x);
+```
+
+becomes a bind, then a guarded destructure. The risk is the rewrite dropping a default the author
+meant, so the fixer has to prove it round-trips — which is a test, not a code change.
+
+**Both are report-only today** and that is the shape CI enforces, so neither is blocking anything.
+Size M for the arrow one, S for the try/catch one.
