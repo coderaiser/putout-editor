@@ -5,9 +5,9 @@ import * as checkDocumentedScripts from './index.js';
 
 const plugin = ['check-documented-scripts', checkDocumentedScripts];
 
-const scripts = (names) => `{"scripts":{${names
-    .map((name) => `"${name}":"node -e ''"`)
-    .join(',')}}}`;
+const asScript = (name) => `"${name}":"node -e ''"`;
+
+const scripts = (names) => `{"scripts":{${names.map(asScript).join(',')}}}`;
 
 const sourceOf = (...files) => print(parseFilesystem(['/', ...files]));
 

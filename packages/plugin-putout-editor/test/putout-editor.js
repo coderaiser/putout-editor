@@ -22,6 +22,16 @@ test('putout: plugin: putout-editor: no transform: check-documented-scripts', (t
     t.end();
 });
 
+test('putout: plugin: putout-editor: no transform: check-try-catch-destructure', (t) => {
+    t.noTransform('check-try-catch-destructure');
+    t.end();
+});
+
+test('putout: plugin: putout-editor: no transform: hoist-arrow-callback', (t) => {
+    t.noTransform('hoist-arrow-callback');
+    t.end();
+});
+
 test('putout: plugin: putout-editor: no transform: check-main-imports-in-file', (t) => {
     t.noTransform('check-main-imports-in-file');
     t.end();

@@ -6,7 +6,9 @@ const PATTERNS = [
     'color(__a)',
 ];
 
-const entries = (a) => fromEntries(PATTERNS.map((b) => [b, a(b)]));
+const entryOf = (a) => (b) => [b, a(b)];
+
+const entries = (a) => fromEntries(PATTERNS.map(entryOf(a)));
 
 export const report = () => 'colours belong in tokens.css, reach for a var() instead';
 
