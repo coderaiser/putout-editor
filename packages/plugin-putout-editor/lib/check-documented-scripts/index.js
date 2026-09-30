@@ -1,3 +1,5 @@
+import {basename, dirname} from 'node:path';
+import {tryCatch} from 'try-catch';
 import {operator} from 'putout';
 
 const {
@@ -15,9 +17,13 @@ const DOCS = [
 
 const isFile = (file) => getFileType(file) === 'file';
 
-const bareName = (file) => getFilename(file).replace(/^\//, '');
+const bareName = (file) => basename(getFilename(file));
 
 const isDoc = (file) => isFile(file) && DOCS.includes(bareName(file));
+
+const isPackage = (file) => isFile(file) && bareName(file) === PACKAGE;
+
+const isPackageOf = (docs) => (file) => isPackage(file) && dirname(getFilename(file)) === dirname(getFilename(docs));
 
 const CODE = /```[^`]*```|`[^`\n]*`/g;
 const COMMAND = /(?:bun run|npm run|npx madrun|madrun) ([\w:][\w:-]*)/g;
@@ -33,35 +39,39 @@ const isCommand = (content) => {
 };
 
 const knownScripts = (content) => {
-    try {
-        return Object.keys(JSON.parse(content).scripts || {});
-    } catch {
+    const [error, parsed] = tryCatch(JSON.parse, content);
+    const {scripts = {}} = parsed || {};
+    
+    if (error)
         return [];
-    }
+    
+    return Object.keys(scripts || {});
 };
+
+const isMissing = (known) => (script) => !known.has(script);
 
 export const report = (_, {message}) => message;
 
 export const fix = (file) => file;
 
-export const scan = (root, {push, trackFile}) => {
-    const filesOf = (mask) => Array.from(trackFile(root, mask));
+export const scan = (root, {crawlFile, push}) => {
+    const files = crawlFile(root, [PACKAGE, ...DOCS]).filter(isFile);
     
-    const [packageJson] = filesOf(PACKAGE).filter(isFile);
-    const content = packageJson && readFileContent(packageJson);
-    
-    if (!content)
-        return;
-    
-    const known = new Set(knownScripts(content));
-    
-    if (!known.size)
-        return;
-    
-    for (const file of filesOf('*.md').filter(isDoc)) {
+    for (const file of files.filter(isDoc)) {
+        const [packageJson] = files.filter(isPackageOf(file));
+        const content = packageJson && readFileContent(packageJson);
+        
+        if (!content)
+            continue;
+        
+        const known = new Set(knownScripts(content));
+        
+        if (!known.size)
+            continue;
+        
         const missing = Array
             .from(isCommand(readFileContent(file) || ''))
-            .filter((script) => !known.has(script));
+            .filter(isMissing(known));
         
         if (missing.length)
             push(file, {

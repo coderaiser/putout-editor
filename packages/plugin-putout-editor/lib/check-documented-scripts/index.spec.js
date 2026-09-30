@@ -18,6 +18,64 @@ const scan = (...files) => putout(sourceOf(...files), {
     ],
 }).places;
 
+const scanTree = (tree) => putout(print(parseFilesystem(tree)), {
+    fix: false,
+    plugins: [
+        ['filesystem', plugin],
+    ],
+}).places;
+
+test('putout-editor: check-documented-scripts: an absolute path, as redlint builds it', (t) => {
+    const result = scanTree({
+        type: 'directory',
+        filename: '/home/user/repo',
+        files: [{
+            type: 'file',
+            filename: '/home/user/repo/package.json',
+            content: scripts(['lint']),
+        }, {
+            type: 'file',
+            filename: '/home/user/repo/AGENTS.md',
+            content: 'Run `bun run check` first\n',
+        }],
+    }).length;
+    
+    const expected = 1;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: check-documented-scripts: the nearest package.json wins', (t) => {
+    const [place] = scanTree({
+        type: 'directory',
+        filename: '/repo',
+        files: [{
+            type: 'file',
+            filename: '/repo/package.json',
+            content: scripts(['lint']),
+        }, {
+            type: 'directory',
+            filename: '/repo/packages/app',
+            files: [{
+                type: 'file',
+                filename: '/repo/packages/app/package.json',
+                content: scripts(['build']),
+            }, {
+                type: 'file',
+                filename: '/repo/packages/app/AGENTS.md',
+                content: 'Run `bun run build` and `bun run lint` first\n',
+            }],
+        }],
+    });
+    
+    const result = place.message;
+    const expected = '☝️ AGENTS.md: documents scripts that do not exist: lint';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('putout-editor: check-documented-scripts: a script that does not exist', (t) => {
     const [place] = scan(['/package.json', scripts(['lint'])], [
         '/AGENTS.md',
@@ -134,6 +192,33 @@ test('putout-editor: check-documented-scripts: another document', (t) => {
 
 test('putout-editor: check-documented-scripts: package.json that does not parse', (t) => {
     const result = scan(['/package.json', '{not json'], [
+        '/AGENTS.md',
+        'Run `bun run check` first\n',
+    ]).length;
+    
+    const expected = 0;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: check-documented-scripts: package.json that is null', (t) => {
+    const result = scan(['/package.json', 'null'], [
+        '/AGENTS.md',
+        'Run `bun run check` first\n',
+    ]).length;
+    
+    const expected = 0;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('putout-editor: check-documented-scripts: scripts is null', (t) => {
+    const result = scan([
+        '/package.json',
+        '{"scripts":null}',
+    ], [
         '/AGENTS.md',
         'Run `bun run check` first\n',
     ]).length;
