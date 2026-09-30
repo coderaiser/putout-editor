@@ -528,3 +528,32 @@ So `validate` says `ok`, `test_pattern` says the key matches, and the rule still
 every one of these fails silently rather than throwing. **Check `transform` on a fixture, and
 check the count is what you expect — a rule that matches zero places and a rule that cannot run
 look identical from the outside.**
+
+## There are two `TreeAdapter` types, and the tree seam is wider than it looks
+
+Found while assessing whether an AST tree could render a flat list, which is the shape the `/chat`
+plan wants. It is not the cheap adapter it looked like.
+
+**Two declarations, one name.** `editor-ast-tree/tree/types.ts` has a `TreeAdapter` **type** — the
+four-method interface the components take. `parser/TreeAdapter.ts` has a `TreeAdapter` **class** —
+a configurable base with filters, `openByDefault`, and a `WeakMap` of ranges. `TreeAdapterChild` is
+declared in both, and they disagree: `computed` is **required** in the tree's copy and **optional** in
+the parser's. `Tree.tsx` bridges them with `computed: child.computed || false`, which is a
+normalisation that exists only because the two types are not the same.
+
+So the seam the plan would extend is not one interface. Bridging is `treeAdapterFromParseResult`,
+then a `useMemo` in `Tree.tsx` that re-wraps it into the type the components want. A flat-list
+renderer is a *second* implementation of that type, not a new implementation of an existing one — and
+it inherits the bridge, not the adapter.
+
+**What that means for the plan.** The three hooks (`useElementState`, `useFocusEffect`,
+`useHighlight`) take `TreeAdapter` from `./types.ts` and are genuinely adapter-agnostic, so they
+carry over. `Element.tsx` and `RecursiveTreeElement.tsx` are where the recursion lives, and a flat
+list means not using them. So the work is: a flattener, a flat renderer, and the three hooks — which
+is roughly the plan's `FlatNode` proposal, and the plan is right to call it that rather than an
+adapter. The cheap version would be reusing `Element.tsx` with a synthetic single-child adapter,
+which is a hack that shows in the DOM.
+
+**The reusable part.** When a name means a class in one file and a type in another, the fix is one
+name. `TreeAdapterConfig` / `TreeAdapterOptions` / `TreeAdapterChild` already read as one family
+across the two files; the collision is `TreeAdapter` itself, and it is the one a reader hits first.
