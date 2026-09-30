@@ -20,6 +20,12 @@ the part that is not derivable from the tree.
   disappears.
 - **Run `putout .` before committing, not after.** CI's Lint step is `redrun fix:lint` and
   then auto-commits whatever it changed, so unlinted code comes back as a surprise commit.
+- **What "CI green" means here, in order:** `test:dts` → `fix:lint` → kubernetes lint → typos →
+  auto-commit of whatever `fix:lint` changed → `coverage report`. Two consequences worth knowing: the
+  auto-commit has `continue-on-error`, so a lint fix lands on master as
+  `chore: … actions: lint ☘️` without failing the build; and **coverage is a gate, per package** —
+  `packages/mcp/.nycrc.json` has `checkCoverage` at 100 on all four metrics, so a package sitting at
+  98 is a failing gate and not a cosmetic gap.
 
 ## Three files, three jobs — and a thing leaves when it is done
 
