@@ -164,7 +164,9 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   declares, and the inner plugin provably gets `{"optionKeys":[]}` — no root, no `trackFile`. It
   takes `crawlFile(root, [PACKAGE, ...DOCS])` in one call; do not put `trackFile` in an
   `Array.from`, it is a generator. All three present as a rule that reports zero places and looks
-  correct.
+  correct. **The mask is not the suspect** — `findFile` matches `value === name` or the regexp
+  against the basename, so `tokens.css` finds an absolute `tokens.css` and
+  `remove-undefined-token-file` works on the real tree. Check what the rule does with the path.
 - **The template-value grammar is documented upstream — read it, do not probe it.**
   [`putout-script.md`](https://github.com/coderaiser/putout/blob/master/docs/putout-script.md)
   and [`@putout/compare`](https://github.com/coderaiser/putout/tree/master/packages/compare#supported-template-variables)

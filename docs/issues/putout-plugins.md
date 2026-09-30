@@ -242,11 +242,13 @@ path. Over the real tree:
 `isDoc` is false for **all seven** files the rule finds, and the loop body never runs.
 `basename(getFilename(file))` is the fix.
 
-**2. `package.json` matches every package.** The mask is matched against `basename`, so
-`crawlFile(root, ['package.json', ...])` returns all five `package.json` in this repository and
-`files.filter(isPackage)[0]` is `packages/client/package.json` — the root `AGENTS.md` was being
-checked against the *client's* scripts. The rule now takes the `package.json` that is a **sibling**
-of the document, by `dirname`.
+**2. `package.json` matches every package.** A mask is matched against `basename` as well as the
+full path, so `crawlFile(root, ['package.json', ...])` returns all five `package.json` in this
+repository and `files.filter(isPackage)[0]` is `packages/client/package.json` — the root
+`AGENTS.md` was being checked against the *client's* scripts. The rule now takes the `package.json`
+that is a **sibling** of the document, by `dirname`. Three of the root's scripts (`start:dev`,
+`report`, `gen:diagrams`) exist in no package but the root's, so this was a false positive waiting
+for any document that mentioned one.
 
 ### The part worth keeping
 

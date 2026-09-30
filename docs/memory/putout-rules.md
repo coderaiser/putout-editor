@@ -450,19 +450,27 @@ files, and its coverage `exclude` still named the directory it no longer has.
 ## A filesystem rule tested on `parseFilesystem` has never met the runner
 
 `parseFilesystem(['/', ['/package.json', ...], ['/AGENTS.md', ...]])` is the fixture every
-filesystem rule in this package is tested with, and it is **not the tree `redlint` produces**. It
-has two differences that each silently make a rule match nothing:
+filesystem rule in this package is tested with, and it is **not** the tree `redlint` produces. The
+one difference that matters is the shape of a filename:
 
-- **filenames are root-relative.** `buildTree` walks from `cwd`, so `getFilename` returns
-  `/home/you/repo/AGENTS.md`. A rule that strips a leading slash and compares the rest gets
-  `home/you/repo/AGENTS.md`, and every `includes` is false.
-- **one file per name.** A mask is matched against `basename`, so `'package.json'` returns every
-  `package.json` in the tree — five in this repository — and `[0]` is not the root's.
+- **`getFilename` is absolute under `redlint`.** `buildTree` walks from `cwd`, so a document is
+  `/home/you/repo/AGENTS.md`, not `/AGENTS.md`. A rule that strips a leading slash and compares the
+  rest against a list of bare names gets `home/you/repo/AGENTS.md`, so every `includes` is false and
+  the loop body never runs. `basename(getFilename(file))` is the fix.
 
-`check-documented-scripts` had both, reported zero places on the real repository, and passed 194
-tests at 100% coverage. The fix is `basename` plus matching on `dirname`, and the two regression
-tests that pin it are written against a hand-built **absolute** tree
-(`an absolute path, as redlint builds it`) rather than against a root-relative one.
+`check-documented-scripts` did that, reported zero places on the real repository, and passed 194
+tests at 100% coverage. The regression test that pins it is named for the shape rather than the
+behaviour — `an absolute path, as redlint builds it` — and is built by hand as an absolute tree
+rather than through `parseFilesystem`.
+
+**A mask is not a path, so `tokens.css` still finds an absolute `tokens.css`.** Worth stating
+because the obvious guess is the opposite one. `findFile` tests `value === name` *or*
+`getRegExp(name).test(basename(value))`, so a wildcard mask matches any directory and an exact
+mask matches on the basename. `remove-undefined-token-file` asks for `tokens.css` and `*.css` and
+works on the real tree — verified by planting `var(--color-planted-not-a-token)` in `codemirror.css`
+and reading it back out of `redlint scan`. So the defect was never the mask; it was the
+`isDoc`/`isPackage` comparison the rule did on the name afterwards. **A `crawlFile` mask matching
+is not the thing to check — what the rule does with the returned path is.**
 
 So a filesystem rule needs a fixture whose shape comes from the runner, not from the helper the
 other fixtures happen to use. `buildTree(process.cwd())` is the other source; before writing one by
