@@ -141,6 +141,7 @@ question: **does the verdict need a second file?**
 | `remove-z-index-outside-token-file` | no — is this `z-index` a number? | `matchFiles` |
 | `check-main-imports-in-file` | no — is this `main.css` imports only? | `matchFiles` |
 | `remove-undefined-token-file` | **yes** — is this token in `tokens.css`? | `scan` |
+| `check-documented-scripts` | **yes** — is this script in `package.json`? | `scan` |
 
 `matchFiles` is the better shape when it fits: the mask is data, `exclude` is data, and the
 inner plugin is an ordinary replacer over one parsed file.
@@ -181,6 +182,47 @@ A `scan` plugin, by contrast, is called as `scan(mainPath, {push, trackFile, ...
 is the first argument, which is why the cross-file rule in this package is a `scan`. The tell
 is whether the message needs a second file's contents; when it does, a `matchFiles` version
 would be a rewrite that cannot work.
+
+### `matchFiles` cannot be made to work for `check-documented-scripts`
+
+This one was asked for directly, so it is recorded with the measurement rather than the argument.
+Porting the rule to `matchFiles({'*.md': ...})` and logging what the inner plugin is handed, over a
+fixture of `/package.json` + `/AGENTS.md` + `/MEMORY.md`:
+
+```
+inner invocations : 2 (one per matched .md, independently)
+what it got       : {"optionKeys":[]}
+```
+
+The inner plugin runs **once per matched file, in isolation**, with empty options — no root, no
+`trackFile`, no sibling file. It is asked "what scripts exist?" and has nothing to answer with. The
+port does not error; it reports **0 places**, every test stays green, and the rule quietly stops
+protecting `AGENTS.md` and `MEMORY.md`. The two rules that want this are the two that need a second
+file, and `scan` is what they have to be.
+
+### `crawlFile` instead of `trackFile`, when you know the names
+
+A `scan` is handed `trackFile` and `crawlFile`; both wrap `findFile`, and `crawlFile` reuses the
+`crawled` list the runner already built. `trackFile` is a **generator**, there for progress
+reporting — `for (const file of trackFile(...))` — so `Array.from(trackFile(...))` spends memory to
+buy nothing. When the rule knows which files it wants, one call with all of the names is both
+shorter and cheaper:
+
+```js
+export const scan = (root, {crawlFile, push}) => {
+    const files = crawlFile(root, [PACKAGE, ...DOCS]).filter(isFile);
+    const [packageJson] = files.filter(isPackage);
+    const content = packageJson && readFileContent(packageJson);
+    
+    if (!content)
+        return;
+    
+    push(packageJson);
+};
+```
+
+`findFile` takes `string | string[] | Set<string>`, so that is one crawl instead of a mask per
+lookup — which is what `check-documented-scripts` does now, in place of `trackFile` per mask.
 
 ### Report-only is allowed, and it costs one no-op action
 

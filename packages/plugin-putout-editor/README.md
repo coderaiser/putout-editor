@@ -111,6 +111,18 @@ block count, so the prose "any script madrun does not own" is not read as a comm
 It found three: `check`, `test:one` and `coverage:json` were all documented and all missing.
 That is [`docs/issues/scripts.md`](../../docs/issues/scripts.md).
 
+It is a `scan` and not a `matchFiles` rule, because the verdict needs a second file: the answer
+lives in `package.json` and the question is asked of a `.md`. `matchFiles` hands its inner plugin
+one file at a time with no root and no siblings, so the port reports nothing and stays green. The
+measurement is in [`docs/plugins.md`](../../docs/plugins.md#matchfiles-cannot-be-made-to-work-for-check-documented-scripts).
+
+**It only worked once, and did not.** The rule reported nothing on the real repository while
+every unit test passed, for two reasons that the tests could not see: `getFilename` returns an
+**absolute** path under `redlint`, so `isDoc` was false for every file, and `package.json` matched
+all five packages, so the root docs were compared against `packages/client`'s scripts. Both are
+fixed — `basename` and the nearest `package.json` — and the two regression tests that pin them are
+in `index.spec.js`. The story is in [`docs/issues/putout-plugins.md`](../../docs/issues/putout-plugins.md#-check-documented-scripts-never-matched-a-file-redlint-builds-absolute-paths).
+
 ## ❌ Example of incorrect code
 
 `AGENTS.md` names a script the root `package.json` does not define: `bun run check`.

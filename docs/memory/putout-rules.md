@@ -258,6 +258,60 @@ guessable from the types:
   per file, so two files each using an undefined token is two reports, and one file using a token
   twice is one.
 
+## `tryCatch` returns a **shorter** array when it catches
+
+`try-catch` is `return [e]` on a throw, not `[e, undefined]` — the result element is *absent*, not
+empty. So the mechanical rewrite of
+
+```js
+try {
+    return Object.keys(JSON.parse(content).scripts || {});
+} catch {
+    return [];
+}
+```
+
+into the obvious destructuring form throws on exactly the input the rewrite was written to survive:
+
+```js
+import {tryCatch} from 'try-catch';
+
+const broken = (content) => {
+    const [error, {scripts = {}} = {}] = tryCatch(JSON.parse, content);
+    
+    if (error)
+        return [];
+    
+    return Object.keys(scripts);
+};
+```
+
+`JSON.parse('null')` returns `null`, and the **default only fires for `undefined`** — so `null` blows
+up the destructure, outside the `try` that was supposed to be catching it. Same for
+`'{"scripts":null}'`, one level in. Both are real `package.json` contents, not exotic ones.
+
+Bind first, then guard, and keep the `|| {}` on the value you actually index:
+
+```js
+import {tryCatch} from 'try-catch';
+
+const knownScripts = (content) => {
+    const [error, parsed] = tryCatch(JSON.parse, content);
+    const {scripts = {}} = parsed || {};
+    
+    if (error)
+        return [];
+    
+    return Object.keys(scripts || {});
+};
+```
+
+The test that catches it is the obvious one — a fixture holding `null` — and the reason it is worth
+writing is that the whole suite was **green with the broken version**: `'{not json'` throws, so the
+`error` branch returns early and the bad destructure is never reached. Coverage said 100% and the
+rule would have thrown at a real `package.json`.
+
+
 ## A `*-file` rule is a filesystem rule, and it is `off` by default
 
 In the 🐊**Putout** repo the `-file`/`-files` suffix marks a rule that walks the tree rather
@@ -392,3 +446,24 @@ export const traverse = ({push}) => ({
 in a rule" is `remove-comments`, a rule, running under `putout .` with the rest. The
 `scripts/check-comments.js` it replaces was a second gate in a second language over the same
 files, and its coverage `exclude` still named the directory it no longer has.
+
+## A filesystem rule tested on `parseFilesystem` has never met the runner
+
+`parseFilesystem(['/', ['/package.json', ...], ['/AGENTS.md', ...]])` is the fixture every
+filesystem rule in this package is tested with, and it is **not the tree `redlint` produces**. It
+has two differences that each silently make a rule match nothing:
+
+- **filenames are root-relative.** `buildTree` walks from `cwd`, so `getFilename` returns
+  `/home/you/repo/AGENTS.md`. A rule that strips a leading slash and compares the rest gets
+  `home/you/repo/AGENTS.md`, and every `includes` is false.
+- **one file per name.** A mask is matched against `basename`, so `'package.json'` returns every
+  `package.json` in the tree — five in this repository — and `[0]` is not the root's.
+
+`check-documented-scripts` had both, reported zero places on the real repository, and passed 194
+tests at 100% coverage. The fix is `basename` plus matching on `dirname`, and the two regression
+tests that pin it are written against a hand-built **absolute** tree
+(`an absolute path, as redlint builds it`) rather than against a root-relative one.
+
+So a filesystem rule needs a fixture whose shape comes from the runner, not from the helper the
+other fixtures happen to use. `buildTree(process.cwd())` is the other source; before writing one by
+hand, check which of the two shapes it is.

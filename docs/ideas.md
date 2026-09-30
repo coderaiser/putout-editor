@@ -20,6 +20,7 @@ mark it as one.
 | 5 | Review the hot-spot list monthly | S |
 | 6 | Cut the CI auto-commit volume | M |
 | 7 | A rule for an assertion that cannot fail informatively | S |
+| 8 | Write up migrating `plugin-putout-editor` to TypeScript | S |
 
 ## 7. A rule for an assertion that cannot fail informatively
 
@@ -85,3 +86,25 @@ anyone deciding it should have been.
 places, and [`memory/fence-gate.md`](./memory/fence-gate.md) records it stripping a rule's
 own example. Or keep the changes and drop the commits: a rolling lint branch, or a PR instead of
 a push.
+
+## 8. Write up migrating `plugin-putout-editor` to TypeScript
+
+**Evidence.** Asked for directly alongside the `check-documented-scripts` reshape, and not started —
+this is the entry, not the write-up. The package is 17 `index.js` files of plain JS with
+`100%` coverage, a `test:dts` script that currently echoes `no types`, and
+`test("…", "no types")` in its own `package.json`. So the type surface is declared absent rather
+than absent, and a migration is a decision about what that script should start checking.
+
+**What the write-up needs**, so it is not a list of benefits nobody can act on:
+
+- the **benefits**, argued from this package rather than in general - the rule contract is already
+  typed upstream (see `docs/memory/putout-rules.md` § 🦎Putout types the plugin contract), so the
+  claim is "the types exist, this package opts out", not "TypeScript is good";
+- **one rule migrated end to end** as the worked example, not a sketch. A filesystem rule such as
+  `check-main-imports-in-file` is the honest one: it is a `matchFiles` rule with a mask, an
+  `exclude` and an inner plugin, which is most of what needs typing;
+- the **fixtures**, which are deliberately untyped and would need `@ts-expect-error` or a
+  declaration of their own - the `__putout_processor_filesystem(...)` sources are data wearing a
+  `.js` extension, and that is the part most likely to be quietly worse in TS than in JS.
+
+Size S. The migration itself is M and is not what is being asked for here.

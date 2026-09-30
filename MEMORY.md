@@ -156,10 +156,15 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
 - **`docs/issues/scripts.md`** — the three scripts `AGENTS.md` told every agent to run were not at
   the root. Now added, and `check-documented-scripts` keeps the docs and `package.json` in step.
 - **`packages/plugin-putout-editor/lib/check-documented-scripts`** — a rule in this repo, and its
-  two traps are reusable: `trackFile` returns an **iterator** (`.filter` throws, so the spread is
-  load-bearing even though `spread/remove-useless-array` wants it gone), and `getFilename` returns
-  `'/AGENTS.md'` **with** the leading slash, so a bare `includes` silently matches nothing. Both
-  present as a rule that reports zero places and looks correct.
+  traps are reusable. `getFilename` is **absolute** under `redlint` — `/home/you/repo/AGENTS.md`,
+  not `/AGENTS.md` — so strip it with `basename` and not `replace(/^\//, '')`; it reported nothing
+  on this repository while all 194 tests passed. And `crawlFile(root, ['package.json', ...])`
+  matches every `package.json` in the tree, so pick the one that is a **sibling** of the document
+  by `dirname`, not the first. It cannot be a `matchFiles` rule: it asks what `package.json`
+  declares, and the inner plugin provably gets `{"optionKeys":[]}` — no root, no `trackFile`. It
+  takes `crawlFile(root, [PACKAGE, ...DOCS])` in one call; do not put `trackFile` in an
+  `Array.from`, it is a generator. All three present as a rule that reports zero places and looks
+  correct.
 - **The template-value grammar is documented upstream — read it, do not probe it.**
   [`putout-script.md`](https://github.com/coderaiser/putout/blob/master/docs/putout-script.md)
   and [`@putout/compare`](https://github.com/coderaiser/putout/tree/master/packages/compare#supported-template-variables)
