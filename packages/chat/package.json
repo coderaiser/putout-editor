@@ -1,0 +1,69 @@
+{
+  "name": "@putout/editor-chat",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "The putout editor chat: slash commands, and the AST tree beside them",
+  "private": true,
+  "tag": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderaiser/putout-editor.git"
+  },
+  "author": "coderaiser",
+  "scripts": {
+    "check": "madrun check",
+    "build": "madrun build",
+    "build:dev": "madrun build:dev",
+    "start": "madrun start",
+    "test": "madrun test",
+    "test:one": "madrun test:one",
+    "test:e2e": "madrun test:e2e",
+    "coverage": "madrun coverage",
+    "coverage:json": "madrun coverage:json",
+    "lint": "madrun lint",
+    "fix:lint": "madrun fix:lint",
+    "test:dts": "madrun test:dts"
+  },
+  "dependencies": {
+    "@putout/editor-commands": "^1.0.0",
+    "@reduxjs/toolkit": "^2.12.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@putout/eslint-flat": "^4.0.1",
+    "@rspack/cli": "^2.1.3",
+    "@rspack/core": "^2.1.3",
+    "@supertape/loader-css": "^1.0.0",
+    "@supertape/loader-dom": "^1.0.0",
+    "@supertape/loader-jsx": "^1.0.3",
+    "@supertape/loader-ts": "^1.0.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^26.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "css-loader": "^7.1.4",
+    "escover": "^6.5.2",
+    "eslint": "^10.7.0",
+    "eslint-plugin-putout": "^31.2.0",
+    "html-webpack-plugin": "^5.6.3",
+    "http-server": "^14.1.1",
+    "jiti": "^2.7.0",
+    "madrun": "^13.0.2",
+    "postcss-loader": "^8.2.0",
+    "style-loader": "^4.0.0",
+    "superc8": "^12.7.0",
+    "supertape": "^13.6.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "imports": {
+    "#store": "./src/store/index.ts",
+    "#test/store": "./test/store.ts"
+  }
+}

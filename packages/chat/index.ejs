@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Putout Chat <%= htmlWebpackPlugin.options.version %></title>
+  <meta charset="UTF-8">
+  <meta name="description" content="Putout Chat — write 🐊Putout rules by talking to the AST.">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, interactive-widget=resizes-content, viewport-fit=cover">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐊</text></svg>">
+
+  <script>(function(){var t=localStorage.getItem("theme")||"dark";document.documentElement.setAttribute("data-theme",t);})();</script>
+  <%= htmlWebpackPlugin.files.webpackManifest %>
+</head>
+<body>
+<div id="page">
+  <div id="container"></div>
+</div>
+</body>
+</html>

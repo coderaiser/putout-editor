@@ -1,0 +1,23 @@
+/* The token names match the client's `tokens.css` exactly, so the tree
+   components from @putout/editor-commands render with their native colours
+   whether or not the client's stylesheet is loaded. */
+:root {
+    --color-bg-editor: #1a1a2e;
+    --color-bg-message-user: #1e3a5f;
+    --color-bg-message-system: transparent;
+    --color-text-primary: #e2e2e2;
+    --color-text-dim: #555;
+    --color-text-error: #ff6b6b;
+    --color-bg-error: #2d1515;
+    --color-accent: #7dcfff;
+    --color-border: #2a2a2a;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-ui: system-ui, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: var(--color-bg-editor);
+    color: var(--color-text-primary);
+    font-family: var(--font-ui);
+}
