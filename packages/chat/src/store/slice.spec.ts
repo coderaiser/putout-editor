@@ -60,10 +60,12 @@ test('slice: addMessage appends to the thread', (t) => {
 test('slice: addMessage keeps what went before it', (t) => {
     const one = message('a');
     const two = message('b');
+    
     const state = reducer(reducer(
         initialState,
         addMessage(one),
     ), addMessage(two));
+    
     const result = [];
     
     for (const {text} of state.messages) {
@@ -168,6 +170,7 @@ test('slice: reset returns every field to its initial value', (t) => {
         initialState,
         setSource('const a = 1;'),
     ), reset());
+    
     const expected = initialState;
     
     t.deepEqual(result, expected);

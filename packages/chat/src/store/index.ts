@@ -23,4 +23,8 @@ export {
 } from './highlight.ts';
 
 export type {Message} from './state.ts';
-export type {CommandResult, FlatNode, Place} from '@putout/editor-commands';
+export type {
+    CommandResult,
+    FlatNode,
+    Place,
+} from '@putout/editor-commands';
