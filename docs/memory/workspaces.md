@@ -57,6 +57,33 @@ the extensionless form has no entry to resolve to.
 **Relative imports inside one package keep the `.ts` extension.** They resolve on disk and the
 loader handles them; this only applies to a specifier that crosses into `node_modules`.
 
+## A `.css` file has no default export, and declaring one hides that
+
+`packages/client/src/export-tokens.ts` shipped the shape its own plan specified —
+`export {default as tokensUrl} from './css/tokens.css'` — and **no runtime can load it**:
+
+```
+$ bun -e "import './css/tokens.css'"
+error: Cannot find module './css/tokens.css'
+```
+
+Three things made it look right, and each is worth checking for separately:
+
+- **`tsc` passes.** `packages/client/src/types/supertape.d.ts` is `declare module '*.css'`, so
+  the module is `any` and a `default` off it typechecks. The type system is not evidence here.
+- **The spec passed.** It imported `tokens.css` as a value and compared it to the module's own
+  re-export — both sides through supertape's CSS loader. Comparing a re-export to its own source
+  is the tautology to watch for: it can only fail if resolution fails, and the loader was
+  providing resolution.
+- **The package builds.** rspack has `css-loader`, so the bundler is the one environment where
+  this works.
+
+A `.css` import is bundler-only. `import './x.css'` for the side effect is the shape the other
+ten client files use, and the only one that a test runner or a plain `node` can load. So a
+"public export" of a stylesheet is only meaningful to a bundler, which is worth asking about
+before writing one — see the plan's own §8, where chat carries its own `tokens.css` and the
+client one is "if chat imports it in the future".
+
 ## The coverage exclude list, and the one shape that earns an entry
 
 `packages/commands/.nycrc.json` excludes `**/*.types.ts` — not to make the gate pass, but because

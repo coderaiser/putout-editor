@@ -1,4 +1,3 @@
-import tokens from './css/tokens.css';
 import {test} from 'supertape';
 import * as exportTree from './export-tree.ts';
 import * as exportTokens from './export-tokens.ts';
@@ -20,10 +19,10 @@ test('export-tree: exports Tree and nothing else', (t) => {
     t.end();
 });
 
-test('export-tokens: tokensUrl is the tokens.css default export', (t) => {
-    const expected = tokens;
-    const result = exportTokens.tokensUrl;
+test('export-tokens: loads the stylesheet for its side effect', (t) => {
+    const expected: string[] = ['tokens'];
+    const result = Object.keys(exportTokens);
     
-    t.equal(result, expected);
+    t.deepEqual(result, expected);
     t.end();
 });

@@ -10,6 +10,10 @@
     "url": "git+https://github.com/coderaiser/putout-editor.git"
   },
   "author": "coderaiser",
+  "exports": {
+    "./export-tree": "./src/export-tree.ts",
+    "./export-tokens": "./src/export-tokens.ts"
+  },
   "imports": {
     "#editor-ast-json": "./src/editor-ast-json/index.tsx",
     "#editor": "./src/editor/index.ts",
