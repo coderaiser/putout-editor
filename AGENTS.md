@@ -100,7 +100,7 @@ Two consequences worth stating, both hit while writing the 🐊**Putout** fixer 
   several-minute dead end rather than a failure you learn from quickly.
 - **A workspace package is a symlink, and that is not the published build.** `node_modules/putout`
   points at `~/putout/packages/putout`, so a behaviour you measure there is the *workspace's*.
-  Saying so is part of the finding — see the scope caveat in `broken-putout.md`.
+  Saying so is part of the finding — see the scope caveat in `~/broken-putout2.md`.
 
 ## `--fix` emptying a file is the rules working, not a bug
 
@@ -113,8 +113,8 @@ file had nothing else in it. Verified with the control: add a second use of `a` 
 So do not file it, and do not "fix" either rule. The guard is `git`, and a `--fix` run is a
 commit you read — which is the rule below, not a substitute for it. The general shape is the
 one worth keeping: **an emptied file is a fact about the whole rule set, not about the rule
-you isolated.** Six fixer defects with minimal fixtures are in `broken-putout.md` at the
-repo root, with `DEBUG=putout:runner:fix` for attributing one.
+you isolated.** The fixer defects with minimal fixtures are in `~/broken-putout2.md`, with
+`DEBUG=putout:runner:fix` for attributing one.
 
 ## Writing `packages/client` specs
 

@@ -50,7 +50,7 @@ undefined before: false boolean | after: undefined undefined
 
 In TypeScript that is `TS2322: Type 'unknown' is not assignable to type 'boolean'`, and for a
 `value is T` predicate the narrowing is simply wrong downstream. The measured report is in
-`broken-putout.md` §2.
+`~/broken-putout2.md` §1.
 
 `a as boolean && typeof a === 'object'` is what survives. The cast is not a logical expression, so
 there is nothing for the simplification to remove, and the result is a `boolean` for the

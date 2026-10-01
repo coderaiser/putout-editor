@@ -85,8 +85,10 @@ have moved two trees at once; and a round-trip test that parsed with `@babel/par
 with `putout` "found" two `@putout/printer` bugs that do not exist — **`print()` takes what
 `putout`'s own `parse()` produced**, because that one sets `node.raw` and `@babel/parser` does not.
 
-Both reports, with the measured output, are at the repo root: `broken-putout.md` and
-`broken-putout2.md`.
+Both reports were at `~/broken-putout.md` and `~/broken-putout2.md`. **Only `broken-putout2.md`
+survives** — it holds the `as`-cast corruption (§1), the `remove-console` correction (§2) and the
+printer correction (§3) with the measured output. `broken-putout.md`, the rule-by-rule report, is
+gone from disk, so the two prose citations of it below name the surviving report instead.
 
 ---
 
