@@ -1,6 +1,7 @@
 export {compactAST} from './compact.ts';
 export {queryAST} from './query.ts';
 export {compilePlugin, type Rule} from './plugin.ts';
+export {flattenAst} from './flat.ts';
 export {
     text,
     errorText,
