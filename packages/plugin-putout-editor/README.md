@@ -20,6 +20,7 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 
 ## Rules
 
+- ✅ [apply-boolean-cast-to-typeof](#apply-boolean-cast-to-typeof);
 - ✅ [apply-linked-pattern-value](#apply-linked-pattern-value);
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [check-documented-scripts](#check-documented-scripts);
@@ -30,6 +31,66 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 - ✅ [remove-rgb-outside-token-file](#remove-rgb-outside-token-file);
 - ✅ [remove-undefined-token-file](#remove-undefined-token-file);
 - ✅ [remove-z-index-outside-token-file](#remove-z-index-outside-token-file);
+
+***
+
+## apply-boolean-cast-to-typeof
+
+`Boolean(a) && typeof a === 'object'` is a type guard written with a call, and
+`logical-expressions/simplify` rewrites it to `a && typeof a === 'object'` — which returns the
+first falsy **operand**, not `false`. The `Boolean()` was doing the coercion and the
+simplification deletes it:
+
+```
+$ node -e "…"
+null      before: false boolean | after: null      object
+undefined before: false boolean | after: undefined undefined
+0         before: false boolean | after: 0         number
+```
+
+In TypeScript that is `TS2322: Type 'unknown' is not assignable to type 'boolean'`, and for a
+`value is T` predicate the narrowing is simply wrong downstream. The measured report is in
+`broken-putout.md` §2.
+
+`a as boolean && typeof a === 'object'` is what survives. The cast is not a logical expression, so
+there is nothing for the simplification to remove, and the result is a `boolean` for the
+type-checker. This is the shape `packages/client/src/editor/stringify.ts` already uses.
+
+**The key is `Boolean(__a) && typeof __a === "object"`, and that is not obvious.** `__a` is bound
+once and reused, so both sides must name the same placeholder, and a placeholder's name has to be
+a single letter. `__a() && typeof __a === "object"` does **not** match — that reads as calling
+whatever `__a` bound to. Verified with the mcp `test_pattern` tool rather than by reading.
+
+**Two things a replacer has to know, both learned here.**
+
+`match` is the gate and `replace` is unconditional, so the replacer repeats the same guard — but
+returning the path unchanged is **not** how a replacer declines: it still replaces, with whatever
+the operator does with the empty return. `isCoercionCall` is what keeps a cast out, and it checks
+the left side is a `Boolean()` call and *nothing else*, because `(value as boolean) && …` has the
+same shape and would otherwise have its cast stripped.
+
+The cast is built as a **node**, not printed from a string. `path.replaceWithSourceString()` does
+not exist on `NodePath` — the operator throws by name if you reach for it — and the string form
+that does re-parses as plain JavaScript and fails on the `as` outright:
+
+```
+SyntaxError: Unexpected token, expected "," (1:7) - make sure this is an expression.
+```
+
+## ❌ Example of incorrect code
+
+```ts
+const isObject = (value) => Boolean(value) && typeof value === 'object';
+```
+
+## ✅ Example of correct code
+
+```ts
+const isObject = (value) => value as boolean && typeof value === 'object';
+```
+
+The rule matches the `object` guard only. A guard on another type — `typeof value === 'string'` —
+needs a key of its own, and is left alone here.
 
 ***
 

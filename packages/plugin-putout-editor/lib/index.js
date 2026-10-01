@@ -1,3 +1,4 @@
+import * as applyBooleanCastToTypeof from './apply-boolean-cast-to-typeof/index.js';
 import * as applyLinkedPatternValue from './apply-linked-pattern-value/index.js';
 import * as applyPressModifierCase from './apply-press-modifier-case/index.js';
 import * as checkDocumentedScripts from './check-documented-scripts/index.js';
@@ -10,6 +11,7 @@ import * as removeRgbOutsideTokenFile from './remove-rgb-outside-token-file/inde
 import * as removeZIndexOutsideTokenFile from './remove-z-index-outside-token-file/index.js';
 
 export const rules = {
+    'apply-boolean-cast-to-typeof': applyBooleanCastToTypeof,
     'apply-linked-pattern-value': applyLinkedPatternValue,
     'apply-press-modifier-case': applyPressModifierCase,
     'hoist-arrow-callback': hoistArrowCallback,
