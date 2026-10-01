@@ -1,15 +1,23 @@
 import {test} from 'supertape';
 import * as commands from './index.ts';
 
-test('index: exports the moved modules, the ast tools and the commands', (t) => {
+test('index: exports the commands, the ast tools and the tree components', (t) => {
     const expected: string[] = [
+        'AstCodePreview',
+        'AstRow',
+        'AstSearch',
+        'AstStatus',
+        'AstTree',
         'commands',
         'compactAST',
         'compilePlugin',
+        'defaultCollapsed',
         'errorText',
+        'filterNodes',
         'flattenAst',
         'parseCommand',
         'queryAST',
+        'rowsOf',
         'runAst',
         'runClear',
         'runConsole',
@@ -22,6 +30,9 @@ test('index: exports the moved modules, the ast tools and the commands', (t) => 
         'runTransform',
         'runValidate',
         'text',
+        'useTreeState',
+        'visibleRows',
+        'withAncestors',
     ];
     
     const result = Object

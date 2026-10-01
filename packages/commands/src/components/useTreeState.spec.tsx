@@ -7,6 +7,7 @@ import {
 import {
     defaultCollapsed,
     filterNodes,
+    rowsOf,
     useTreeState,
     visibleRows,
     withAncestors,
@@ -74,6 +75,37 @@ const tree: FlatNode[] = [
     identifier(),
     numeric(),
 ];
+
+/**
+ * The bug this pins: `rows` was `filterNodes(visibleRows(...))`, so the default
+ * fold hid a match before the search could reach it and searching for a deep
+ * node type returned nothing. A query has to see the whole tree.
+ */
+test('useTreeState: a query finds a row the default fold hides', (t) => {
+    const result = rowsOf(tree, defaultCollapsed(tree), 'Identifier');
+    const expected = [
+        '0',
+        '1',
+        '2',
+        '3',
+    ];
+    
+    t.deepEqual(result.map(({id}) => id), expected);
+    t.end();
+});
+
+test('useTreeState: rowsOf with no query returns the folded view', (t) => {
+    const result = rowsOf(tree, defaultCollapsed(tree), '');
+    const expected = [
+        '0',
+        '1',
+        '2',
+        '4',
+    ];
+    
+    t.deepEqual(result.map(({id}) => id), expected);
+    t.end();
+});
 
 test('useTreeState: withAncestors keeps the path to a match', (t) => {
     const result = sorted(withAncestors(new Set(['3']), tree));

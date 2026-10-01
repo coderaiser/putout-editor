@@ -21,6 +21,19 @@ export type {
     Place,
 } from './state.types.ts';
 export {commands} from './commands/index.ts';
+export {default as AstTree} from './components/AstTree.tsx';
+export {default as AstRow} from './components/AstRow.tsx';
+export {default as AstSearch} from './components/AstSearch.tsx';
+export {default as AstCodePreview} from './components/AstCodePreview.tsx';
+export {default as AstStatus} from './components/AstStatus.tsx';
+export {
+    useTreeState,
+    filterNodes,
+    visibleRows,
+    rowsOf,
+    withAncestors,
+    defaultCollapsed,
+} from './components/useTreeState.ts';
 export {runAst} from './commands/ast.ts';
 export {runFind} from './commands/find.ts';
 export {runTransform} from './commands/transform.ts';

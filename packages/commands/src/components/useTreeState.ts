@@ -99,6 +99,18 @@ export const visibleRows = (nodes: FlatNode[], collapsed: Set<string>): FlatNode
     });
 };
 
+/**
+ * The rows a query sees, which is every node when there is one and the folded
+ * view when there is not. Shared by the render and by keyboard navigation, so
+ * `j` cannot walk to a row that is not drawn.
+ */
+export const rowsOf = (nodes: FlatNode[], collapsed: Set<string>, query: string): FlatNode[] => {
+    if (query.trim())
+        return filterNodes(nodes, query).rows;
+    
+    return visibleRows(nodes, collapsed);
+};
+
 export const useTreeState = (nodes: FlatNode[]) => {
     const [state, setState] = useState<TreeState>({
         collapsed: defaultCollapsed(nodes),
@@ -124,7 +136,14 @@ export const useTreeState = (nodes: FlatNode[]) => {
             current(event);
     }).current;
     
-    const rows = useCallback(() => filterNodes(visibleRows(nodes, state.collapsed), state.query), [nodes, state.collapsed, state.query]);
+    /**
+     * A query searches the whole tree, not the folded view. Filtering only what
+     * is drawn makes a match unreachable: the default fold hides everything
+     * below depth 1, so searching for a deep node type finds nothing and the
+     * search looks broken. Folding and searching are two different intentions,
+     * so the query wins — and clearing it restores the folds.
+     */
+    const rows = useCallback(() => filterNodes(rowsOf(nodes, state.collapsed, state.query), state.query), [nodes, state.collapsed, state.query]);
     
     const toggle = useCallback((id: string) => setState((previous) => {
         const collapsed = new Set(previous.collapsed);
@@ -156,7 +175,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
     })), []);
     
     const move = useCallback((step: number) => setState((previous) => {
-        const {rows: shown} = filterNodes(visibleRows(nodes, previous.collapsed), previous.query);
+        const shown = rowsOf(nodes, previous.collapsed, previous.query);
         
         if (!shown.length)
             return previous;
