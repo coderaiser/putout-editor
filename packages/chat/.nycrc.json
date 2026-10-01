@@ -6,6 +6,10 @@
         "**/*.spec.*",
         "**/*.config.*",
         "**/.*.*",
+        "src/index.tsx",
+        "src/store/state.ts",
+        "src/store/types.ts",
+        "src/types",
         "e2e/**",
         "test",
         "coverage"

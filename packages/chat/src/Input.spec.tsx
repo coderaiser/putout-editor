@@ -5,7 +5,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import {commands} from '@putout/editor-commands';
-import Input, {matches} from './Input.tsx';
+import Input, {matches, describeOf} from './Input.tsx';
 
 const sent: string[] = [];
 const push = sent.push.bind(sent);
@@ -366,5 +366,304 @@ test('Input: Enter sends a command that is already typed in full', (t) => {
     cleanup();
     
     t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: down arrow moves the pick down the list', (t) => {
+    box();
+    
+    type('/');
+    press('ArrowDown');
+    
+    const first = document.querySelector('.autocomplete__row');
+    const result = first && first.classList.contains('autocomplete__row--picked');
+    const expected = false;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: up arrow wraps the pick to the end of the list', (t) => {
+    box();
+    
+    type('/');
+    press('ArrowUp');
+    
+    const rows = [...document.querySelectorAll('.autocomplete__row')] as Element[];
+    const last = rows.at(-1) as Element;
+    const result = last.classList.contains('autocomplete__row--picked');
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: Escape closes the autocomplete and empties the box', (t) => {
+    box();
+    
+    type('/');
+    press('Escape');
+    
+    const result = {
+        options: options().length,
+        value: value(),
+    };
+    
+    const expected = {
+        options: 0,
+        value: '',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: a non-slash line closes the autocomplete', (t) => {
+    box();
+    
+    type('hello');
+    
+    const result = options().length;
+    const expected = 0;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: Enter empties the box after sending', (t) => {
+    box();
+    
+    type('/help');
+    press('Enter');
+    
+    const result = value();
+    const expected = '';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: Shift+Enter does not send', (t) => {
+    sent.length = 0;
+    box();
+    
+    type('/help');
+    press('Enter', true);
+    
+    const result = sent;
+    const expected: string[] = [];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: an empty line is not sent', (t) => {
+    sent.length = 0;
+    box();
+    
+    type('   ');
+    press('Enter');
+    
+    const result = sent;
+    const expected: string[] = [];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: up arrow on an empty box recalls the last line', (t) => {
+    box(['/help', '/ast']);
+    
+    press('ArrowUp');
+    
+    const result = value();
+    const expected = '/ast';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: up arrow twice reaches further back', (t) => {
+    box(['/help', '/ast']);
+    
+    press('ArrowUp');
+    press('ArrowUp');
+    
+    const result = value();
+    const expected = '/help';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: up arrow at the oldest entry stays on the oldest', (t) => {
+    box(['/help']);
+    
+    press('ArrowUp');
+    press('ArrowUp');
+    press('ArrowUp');
+    
+    const result = value();
+    const expected = '/help';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: down arrow returns towards empty', (t) => {
+    box(['/help']);
+    
+    press('ArrowUp');
+    press('ArrowDown');
+    
+    const result = value();
+    const expected = '';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: down arrow past the newest returns to empty', (t) => {
+    box(['/help', '/ast']);
+    
+    press('ArrowUp');
+    press('ArrowUp');
+    press('ArrowDown');
+    press('ArrowDown');
+    
+    const result = value();
+    const expected = '';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: clicking a row completes that command', (t) => {
+    box();
+    
+    type('/tra');
+    
+    const rows = [...document.querySelectorAll('.autocomplete__row')] as HTMLElement[];
+    const row = rows.at(0) as HTMLElement;
+    
+    fireEvent.mouseDown(row);
+    
+    const result = value();
+    const expected = '/transform ';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: a completed command leaves the dropdown behind', (t) => {
+    box();
+    
+    type('/tra');
+    
+    const rows = [...document.querySelectorAll('.autocomplete__row')] as HTMLElement[];
+    const row = rows.at(0) as HTMLElement;
+    
+    fireEvent.mouseDown(row);
+    
+    const result = document.querySelector('[data-testid="autocomplete"]');
+    const expected = null;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: matches returns nothing for a line that is not a command', (t) => {
+    const result = matches('hello');
+    const expected: string[] = [];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: matches finds every command for a bare slash', (t) => {
+    const result = matches('/').length;
+    const expected = commands.size;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: matches narrows on a prefix', (t) => {
+    const result = matches('/he');
+    const expected = ['/help'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: matches returns nothing when nothing starts with the prefix', (t) => {
+    const result = matches('/zzz');
+    const expected: string[] = [];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: the send button sends the line', (t) => {
+    sent.length = 0;
+    box();
+    
+    type('/help');
+    
+    const button = document.querySelector('[data-testid="send"]') as HTMLButtonElement;
+    
+    fireEvent.click(button);
+    
+    const result = sent;
+    const expected = ['/help'];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: describeOf returns the description of a known command', (t) => {
+    const command = commands.get('ast');
+    const result = describeOf('/ast');
+    const expected = command && command.description;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: describeOf returns nothing for a name that is not a command', (t) => {
+    const result = describeOf('/notacommand');
+    const expected = '';
+    
+    t.equal(result, expected);
     t.end();
 });

@@ -211,3 +211,38 @@ test('useChat: a second command in the same input also runs', async (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('useChat: a rest after a non-source command threads the existing buffer', async (t) => {
+    const {store, send} = setup();
+    
+    // `parseCommand` only fills `rest` after a multi-line *body*, so the first
+    // command has to take one. `/source` is the case whose result feeds the
+    // `result.data` arm; this uses `/validate`, whose result is `text`, so the
+    // recursion takes the other arm and passes the buffer already in the store
+    // through to `/ast` unchanged.
+    await send('/source\nconst a = 1;');
+    await send('/validate\nexport const report = () => "x";\n/ast');
+    
+    const result = store.getState().chat.consoleAst && store.getState().chat.consoleAst.source;
+    const expected = 'const a = 1;';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: a source result with a rest hands the new source to the next command', async (t) => {
+    const {store, send} = setup();
+    
+    // The other arm of the ternary at the end of `send`: a `source` result
+    // *with* a `rest` threads the freshly set buffer into the next command. With
+    // the closure-only form the recursion would parse the previous source, so
+    // the console tree here is of `const b = 2;` and not of what came before.
+    await send('/source\nconst a = 1;');
+    await send('/source\nconst b = 2;\n/ast');
+    
+    const result = store.getState().chat.consoleAst && store.getState().chat.consoleAst.source;
+    const expected = 'const b = 2;';
+    
+    t.equal(result, expected);
+    t.end();
+});

@@ -28,8 +28,16 @@ export const matches = (typed: string): string[] => {
     return result;
 };
 
-/** The description shown beside a `/name` in the dropdown, or nothing. */
-const describeOf = (option: string): string => {
+/**
+ * The description shown beside a `/name` in the dropdown, or nothing.
+ *
+ * Exported for one reason: the `''` arm is unreachable from the component,
+ * because every row in the dropdown comes from `commands` and so always has an
+ * entry. Without a spec of its own that arm is a branch nothing reaches, which
+ * is what the 100% gate is for — and the honest test is the function, not a
+ * dropdown that cannot show the case.
+ */
+export const describeOf = (option: string): string => {
     const command = commands.get(option.slice(1));
     
     return command ? command.description : '';
@@ -109,14 +117,17 @@ export default function Input({history, onSend}: InputProps) {
             return;
         }
         
+        // `cursor` counts how far back the user has walked: 0 is the newest
+        // entry, 1 the one before it. Starting at 0 rather than 1 is what makes
+        // the first `↑` land on the most recent line instead of doing nothing.
         if (key === 'ArrowUp' && !open && !text) {
-            setCursor((at) => Math.max(at - 1, 0));
+            setCursor((at) => Math.min(at + 1, history.length));
             
             return;
         }
         
         if (key === 'ArrowDown' && !open && !text) {
-            setCursor((at) => Math.min(at + 1, history.length));
+            setCursor((at) => Math.max(at - 1, 0));
             
             return;
         }
@@ -131,9 +142,10 @@ export default function Input({history, onSend}: InputProps) {
         text,
     ]);
     
-    // `↑` on an empty box recalls, so the recalled line is read from `history`
-    // here rather than in the key handler: a handler that set both would need
-    // the recalled value immediately, before React re-renders.
+    // `cursor` is how far back in the history the user has walked, so 0 means
+    // "showing the box as it is" and 1 is the most recent line. Reading it here
+    // rather than in the key handler is what makes a single `↑` recall: the
+    // handler bumps the number and this turns it into text on the same render.
     const recalled = cursor > 0 ? history.at(-cursor) : undefined;
     const value = text || recalled || '';
     
