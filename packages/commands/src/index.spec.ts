@@ -1,12 +1,13 @@
 import {test} from 'supertape';
 import * as commands from './index.ts';
 
-test('index: exports the moved modules and the ast flattener', (t) => {
+test('index: exports the moved modules and the ast tools', (t) => {
     const expected: string[] = [
         'compactAST',
         'compilePlugin',
         'errorText',
         'flattenAst',
+        'parseCommand',
         'queryAST',
         'text',
     ];
