@@ -32,6 +32,8 @@
     "@supertape/loader-dom": "^1.0.0",
     "@supertape/loader-jsx": "^1.0.3",
     "@supertape/loader-ts": "^1.0.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^26.0.0",
     "@types/react": "^19.2.18",
     "escover": "^6.5.2",
@@ -40,6 +42,7 @@
     "jiti": "^2.7.0",
     "madrun": "^13.0.2",
     "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "superc8": "^12.7.0",
     "supertape": "^13.6.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
