@@ -9,12 +9,12 @@ export {
     clearThread,
     reset,
     initialState,
-    ChatAppState,
+    nextId,
 } from './slice.ts';
 
 export {createAppStore} from './createStore.ts';
 
-export {rootReducer, RootState} from './root.ts';
+export {rootReducer} from './root.ts';
 
 export {
     setHighlight,
