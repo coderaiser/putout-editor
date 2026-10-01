@@ -22,10 +22,6 @@ const METHODS = [
     'sort',
 ];
 
-// `remove-comments` strips this, and the README section exists because of it: a guard that is
-// about *naming* has no business in a rule that does not name, and skipping a destructured
-// parameter is the fixer's problem, not the reporter's. `places.map(({position}) => position)`
-// hoists perfectly well — it just cannot invent the name.
 const isHoistable = ({__a}, path) => {
     if (!isIdentifier(__a))
         return false;

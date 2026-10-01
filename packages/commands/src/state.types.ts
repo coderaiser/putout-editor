@@ -56,6 +56,7 @@ export interface Command {
     name: string;
     description: string;
     flags: string[];
+    
     /**
      * Takes what it needs: a command that does not read `state`, like
      * `/source` or `/clear`, declares `args` alone and is still assignable.

@@ -43,7 +43,7 @@ test('ast: the source travels with the rows', (t) => {
     t.end();
 });
 
-test('ast: unparseable source is an error', (t) => {
+test('ast: unparsable source is an error', (t) => {
     const result = runAst(noFlags, withSource('const = ;'));
     const expected = 'error';
     

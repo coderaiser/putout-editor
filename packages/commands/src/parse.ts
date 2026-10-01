@@ -47,6 +47,7 @@ function takeFlags(input: string): {
 } {
     const flags: Flags = {};
     const rest: string[] = [];
+    
     const parts = input
         .split(/\s+/)
         .filter(Boolean);
