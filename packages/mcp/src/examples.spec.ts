@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {test} from 'supertape';
 import {z} from 'zod';
 import {tryCatch} from 'try-catch';
-import {compilePlugin} from './plugin.ts';
+import {compilePlugin} from '@putout/editor-commands/plugin';
 import {handler as findPlaces} from './finder.ts';
 import {handler as transform} from './transformer.ts';
 import {

@@ -4,6 +4,7 @@
     "all": true,
     "exclude": [
         "**/*.spec.*",
+        "**/*.types.ts",
         "**/*.config.*",
         "**/.*.*",
         "coverage"

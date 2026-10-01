@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {tryCatch} from 'try-catch';
-import {compilePlugin} from './plugin.ts';
+import {compilePlugin} from '@putout/editor-commands/plugin';
 
 export const name = 'validate';
 
