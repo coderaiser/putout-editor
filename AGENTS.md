@@ -506,6 +506,19 @@ shape where a name pays. Spec files are usually most of the count, and a spec as
 `find(({type}) => …)` reads better inline; scope the rule off for `*.{spec,test}.*` **in the root
 config**, because a `match` in the package's own `.putout.json` does not reach another package.
 
+**`putout --fix` on TypeScript corrupts an `as` cast, and reports nothing.**
+
+```ts
+const b = v as boolean;
+```
+
+comes back as three statements — `const b = v;` / `as;` / `boolean;` — with `places: 0` and exit 0.
+**This is not a rule**: it reproduces with `plugins: []`, so it is parse-and-print, and a CI step
+that checks only the exit code sees a pass. `isTS: true` selects the TypeScript parser and every
+case is clean; `ts: true` and `parser: {plugins: ['typescript']}` do **not** work. The same trap
+in a fixture: a `fixture/*.js` holding `as boolean` is JavaScript only in name, and `t.transform`
+fails on it. Measured, with the full matrix, in `broken-putout2.md` §1.
+
 **An mcp example is a proxy, not the artifact.** `get_example` shipped hand-written copies of
 plugins that also exist as real rules, and they drifted — the `markdown` one reported a
 different message *and* matched on `source.value` where the real rule uses `extract(source)`.

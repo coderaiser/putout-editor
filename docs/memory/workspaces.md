@@ -14,6 +14,36 @@ in a peer of something already present, `bun i --no-save <pkg>` is the command.
 Stating that is part of a finding, not a footnote — the 🐊**Putout** report at the repo root
 carries the caveat because the six defects in it are versioned to what was installed here.
 
+## `--fix` on TypeScript **corrupts an `as` cast**, silently
+
+The worst one, and it is **not a rule** — it reproduces with `plugins: []`, so the damage is in
+parse-and-print.
+
+```ts
+const b = v as boolean;
+```
+
+```sh
+$ putout b.js --fix
+$ cat b.js
+const b = v;
+as;
+boolean;
+```
+
+Three statements, `places: 0`, exit 0. `as` is parsed as an identifier and the annotation is
+printed as its own statement. **Without `isTS: true`, `putout --fix` over TypeScript rewrites the
+file and says nothing** — and a CI step that checks only the exit code sees a pass.
+
+`isTS: true` selects the TypeScript parser and every case is clean — declaration, argument,
+parameter, binary expression, array element, return, `as unknown`. What does **not** work: no
+options, and `ts: true` (both throw `Unexpected token, expected ","`), and
+`parser: {plugins: ['typescript']}` (`parser.parse is not a function`).
+
+The smaller version of the same trap is a **`.js` fixture holding TypeScript**: a `fixture/*.js`
+containing `as boolean` is JavaScript only in name, and `t.transform` fails on it. That is how
+`apply-boolean-cast-to-typeof`'s own `-fix` fixture was caught.
+
 ## `--fix` emptying a file is the rules working — read the whole set, not one rule
 
 ```js
@@ -47,11 +77,16 @@ report — with a root cause and a proposed fixture. Isolating a rule makes a re
 *cleaner*, not *more complete*: the pipeline still runs everything else. The question to ask is
 not "which rule emptied this" but "what else ran, and did it have a reason too".
 
-The same shape has bitten twice in this repo's history in the other direction, so it is worth
-stating as a rule: **a check that passes on a cheaper path than the user takes proves nothing
-about the expensive one.** `t.deepEqual` against a re-export of its own source passed while the
-module was unloadable by every real consumer; a single-tree keyboard spec passed while the
-document-scoped listener would have moved two trees at once.
+The same shape has bitten three times in this repo's history, so it is worth stating as a rule:
+**a check that passes on a cheaper path than the user takes proves nothing about the expensive
+one.** `t.deepEqual` against a re-export of its own source passed while the module was unloadable
+by every real consumer; a single-tree keyboard spec passed while the document-scoped listener would
+have moved two trees at once; and a round-trip test that parsed with `@babel/parser` and printed
+with `putout` "found" two `@putout/printer` bugs that do not exist — **`print()` takes what
+`putout`'s own `parse()` produced**, because that one sets `node.raw` and `@babel/parser` does not.
+
+Both reports, with the measured output, are at the repo root: `broken-putout.md` and
+`broken-putout2.md`.
 
 ---
 
