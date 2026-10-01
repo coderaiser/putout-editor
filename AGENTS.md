@@ -76,6 +76,46 @@ await client.close();
   the handler signature, not `z.infer` — `z.infer` yields the *output* type, making the
   field required and breaking callers that omit it.
 
+## Installing a dependency here: `bun i --no-save`
+
+`bun i <pkg>` writes `bun.lock`, and **this repository does not commit a lock file** — it is
+gitignored on purpose (`MEMORY.md`, `docs/issues/build.md`). A stray `bun i` therefore shows up
+as an unrelated `bun.lock` diff in the middle of a feature commit, and CI installs with
+`bun i -f --no-save` precisely so the tree stays unpinned.
+
+```sh
+bun i --no-save <pkg>       # install into node_modules, leave no lockfile change
+```
+
+Reach for this whenever an install is a **means** — reproducing upstream behaviour, comparing
+the published build against the workspace, or bringing in a peer of something already here.
+It is not the rule for adding a declared dependency: that one goes in the package's
+`package.json` and is installed the ordinary way, because the declaration is the change and
+the lockfile is deliberately not tracked.
+
+Two consequences worth stating, both hit while writing the 🐊**Putout** fixer report:
+
+- **`npm i` does not complete here.** It starts, writes nothing to `node_modules`, and times
+  out — no network to the registry. `bun i --no-save` is what works, so an `npm` attempt is a
+  several-minute dead end rather than a failure you learn from quickly.
+- **A workspace package is a symlink, and that is not the published build.** `node_modules/putout`
+  points at `~/putout/packages/putout`, so a behaviour you measure there is the *workspace's*.
+  Saying so is part of the finding — see the scope caveat in `broken-putout.md`.
+
+## `--fix` emptying a file is the rules working, not a bug
+
+A file can come back from `putout --fix` with **zero bytes**, and it is correct. The two
+halves are `remove-console` (takes `console.log(a)`) and `remove-unused-variables` (then takes
+`const a = 1;`, which the log was the only user of). Both are doing what they are for; the
+file had nothing else in it. Verified with the control: add a second use of `a` and only the
+`console.log` line goes.
+
+So do not file it, and do not "fix" either rule. The guard is `git`, and a `--fix` run is a
+commit you read — which is the rule below, not a substitute for it. The general shape is the
+one worth keeping: **an emptied file is a fact about the whole rule set, not about the rule
+you isolated.** Six fixer defects with minimal fixtures are in `broken-putout.md` at the
+repo root, with `DEBUG=putout:runner:fix` for attributing one.
+
 ## Writing `packages/client` specs
 
 `test/store.ts` exports one shared `makeStore(overrides?, options?)` → `{store, actions}`.

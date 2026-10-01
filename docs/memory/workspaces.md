@@ -1,5 +1,60 @@
 # Workspaces
 
+**Install a means with `bun i --no-save`; only a declared dependency goes in `package.json`.**
+
+There is no committed lock file here — `bun.lock` is gitignored on purpose, and CI installs
+with `bun i -f --no-save`. So a bare `bun i <pkg>` leaves an unrelated lockfile diff in the
+middle of a feature commit, and `npm i` is worse than wrong: it starts, writes nothing to
+`node_modules`, and times out, which is a several-minute dead end rather than a fast failure.
+When an install exists only to compare the published build against the workspace, or to bring
+in a peer of something already present, `bun i --no-save <pkg>` is the command.
+
+**And a workspace package is not the published build.** `node_modules/putout` is a symlink to
+`~/putout/packages/putout`, so anything measured through it is the workspace's behaviour.
+Stating that is part of a finding, not a footnote — the 🐊**Putout** report at the repo root
+carries the caveat because the six defects in it are versioned to what was installed here.
+
+## `--fix` emptying a file is the rules working — read the whole set, not one rule
+
+```js
+const a = 1;
+
+console.log(a);
+```
+
+```sh
+$ putout remove-console.js --fix
+$ wc -c remove-console.js
+1 remove-console.js
+```
+
+Zero bytes, and **correct**. `remove-console` takes the `console.log`, which was the only user
+of `a`, so `remove-unused-variables` then takes `const a = 1;`. Nothing malfunctioned; the file
+had nothing else in it. Neither rule should be "fixed", and it should not be filed.
+
+The control that settles it in one run — give `a` a second user and the file survives:
+
+```js
+const a = 1;
+console.log(a);
+export const b = a + 1;
+// → const a = 1;  +  export const b = a + 1;
+```
+
+**The mistake is the lesson.** I isolated `remove-console` with its own config, got a clean
+reproduction, read the emptied file as data loss, and wrote it up as the worst defect in the
+report — with a root cause and a proposed fixture. Isolating a rule makes a reproduction
+*cleaner*, not *more complete*: the pipeline still runs everything else. The question to ask is
+not "which rule emptied this" but "what else ran, and did it have a reason too".
+
+The same shape has bitten twice in this repo's history in the other direction, so it is worth
+stating as a rule: **a check that passes on a cheaper path than the user takes proves nothing
+about the expensive one.** `t.deepEqual` against a re-export of its own source passed while the
+module was unloadable by every real consumer; a single-tree keyboard spec passed while the
+document-scoped listener would have moved two trees at once.
+
+---
+
 **A package subpath import must not carry a `.ts` extension.**
 
 Moving the four pure modules into `@putout/editor-commands` and having `mcp` delegate to them

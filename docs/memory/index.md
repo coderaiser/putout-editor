@@ -15,6 +15,6 @@ keeping once the problem is closed, so the cause is not derived a second time.
 | [`putout-rules.md`](./putout-rules.md) | putout types the whole plugin contract so a rule can be type-checked; how to visit every node; an includer's `fix` takes a bare `path`; a fixer must replace a node, not write to it; `getFilename` is absolute under `redlint`, so a fixture built with `parseFilesystem` never met the runner; a pattern key is a whole name and `{a,b}` is not a `match` alternative; `UPDATE=1` regenerates fixtures and `noTransform` rewrites the source; a replacer needs a `replace` it never runs; a new rule's blast radius, and why a scoped lint run is silent on `.ts` |
 | [`fence-gate.md`](./fence-gate.md) | a `js` fence must be JavaScript; the rule is a sub-plugin of the markdown plugin |
 | [`build.md`](./build.md) | an operator must not import a processor, and why `IgnorePlugin` cannot fix it |
-| [`workspaces.md`](./workspaces.md) | a package subpath import must not carry a `.ts` extension — `@supertape/loader-ts` resolves it as a relative path, and only under the test runner |
+| [`workspaces.md`](./workspaces.md) | install with `bun i --no-save` and a workspace symlink is not the published build; a package subpath import must not carry a `.ts` extension; a file emptied by `--fix` is the rules working |
 
 The house rules these all point at are in [`../../MEMORY.md`](../../MEMORY.md).
