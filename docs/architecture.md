@@ -8,7 +8,7 @@ where things live and which seam owns what.
 | Package | What it is |
 |---|---|
 | `packages/client` | The editor. The app, the redux store, the CodeMirror panels, and all unit + e2e tests. |
-| `packages/chat` | The chat page. A message thread over the slash commands, and the AST tree beside it. Builds to `out/chat.html`. |
+| `packages/chat` | The chat page. A message thread over the slash commands, and the AST tree beside it. Builds to `out/chat/index.html`, served at `/chat`. |
 | `packages/commands` | The eleven slash commands, the `parseCommand` parser and the shared `compactAST`/`queryAST`. A Node library — no React, no DOM. |
 | `packages/server` | HTTP API behind `putout.cloudcmd.io` (`/api/v1/*`). |
 | `packages/mcp` | MCP server for agents. See its `README.md`; it is independent of the client. |

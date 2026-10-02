@@ -2,10 +2,52 @@
 
 **Open only.** What was fixed is in [`../memory/`](../memory/).
 
+## ❌ `/chat` served a file listing: the page and its own chunk directory had the same name
+
+Reported as "`https://putout.cloudcmd.io/chat` does not work after build". The build was green,
+both pages were in `out/`, and every asset resolved — **and the URL was still wrong**, which is
+the one failure `docs/memory/browser-bundle.md` is about.
+
+The minimum that shows it, with `out/` built and served:
+
+```sh
+$ ls out/
+chat  chat.html  index.html  …          # a directory AND a file, same name
+$ curl -s -o /dev/null -w '%{http_code}\n' localhost:8080/chat
+302
+$ curl -s -D- -o /dev/null localhost:8080/chat | grep -i location
+location: /chat/
+$ curl -s localhost:8080/chat/ | head -3
+<!doctype html>
+<title>Index of /chat/</title>
+```
+
+**Got** — a 302 to a directory listing. **Expected** — the chat page, since `/chat` is what a
+person types.
+
+The cause is that `HtmlWebpackPlugin` wrote `chat.html` while `output.filename` already wrote
+`chat/[name].js`, so `out/` held `chat.html` and `out/chat/` side by side. A static server
+resolves `/chat` to the **directory** — the file beside it never wins — and a directory with no
+`index.html` in it is a listing, not a 404. Nothing in the build reports this: both artifacts
+were produced, `putout .` was clean, and `npm run build` exited 0.
+
+The fix is one filename, `chat/index.html`, so the page lives inside the directory that was
+already named after it and both `/chat` and `/chat/` serve it. **The stylesheet had to move with
+it** — it was emitted at the root of `out/`, and a `href` from a page inside `chat/` into its
+parent is a second silent break of the same kind, so `CssExtractRspackPlugin` now writes
+`chat/[name]-*.css` as well.
+
+**The part worth keeping is where the check has to happen.** Not in `bun run build`, and not in
+the 128 unit tests, all of which passed throughout — the defect is in the *name* of an artifact,
+and no unit test loads `out/`. It is two lines of `curl` against a served `out/`, or the e2e,
+which now navigates to `/chat/` and fails on all seven specs if the name moves back. That is the
+cheapest check in `../memory/browser-bundle.md` paying out on the same class of bug a second
+time, and the reason the e2e's `page.goto` is named in `e2e/test.ts` rather than in each spec.
+
 ## ✅ `packages/client`'s build was red on 45 errors — fixed in `d7592fc`
 
 `plan.md` invariant **I7** is "`npm run build` at root passes". It does now, and
-`out/index.html` and `out/chat.html` are both produced. This entry is kept because
+`out/index.html` and the chat page are both produced. This entry is kept because
 **the first fix made things worse in a way only a browser could see.**
 
 The failure, measured with the tree stashed so it was `HEAD` and predated any

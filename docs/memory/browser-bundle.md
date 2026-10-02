@@ -95,9 +95,15 @@ change in `packages/chat` needs to know on the first day.
   keeping: a component that reached for the store could not be used in both.
 - **`npm run build` at the root runs client then chat, sequentially, and the order is the
   contract.** The client stages into `out-build` and then `rimraf`s and swaps `out/` wholesale;
-  chat writes `out/chat.html` beside the editor's files and deletes nothing. In parallel it is a
+  chat writes `out/chat/` beside the editor's files and deletes nothing. In parallel it is a
   race on one directory. The root `.madrun.ts` names both paths absolutely, because they are
   chained with `&&` and a relative `cd` resolves from inside the previous directory.
+- **The page is `out/chat/index.html`, and the URL is `/chat`.** The chunks go to `out/chat/`,
+  so a page *beside* that directory as `chat.html` loses the name: `/chat` resolves to the
+  directory, and a directory with no `index.html` is a **302 to a file listing**, not the app.
+  Inside the directory, both `/chat` and `/chat/` serve the page. The stylesheet has to move
+  with it — a `href` into the parent directory is one more relative path to break, and it is
+  the kind of break no build reports.
 - **`nanoid` is not a dependency.** RTK re-exports it: `import {nanoid} from '@reduxjs/toolkit'`.
 
 **A new file in `packages/chat` is measured immediately.** `.nycrc.json` is `all: true` with
@@ -114,7 +120,7 @@ from the bundle, and it only runs in a browser. The cheapest possible check is
 three lines, and it found everything above:
 
 ```js
-await page.goto('http://localhost:8080/chat.html');
+await page.goto('http://localhost:8080/chat/');
 await page
     .getByRole('textbox')
     .fill('/source\nconst a = 1;');
