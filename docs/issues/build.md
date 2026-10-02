@@ -46,6 +46,53 @@ numbers to compare are `tsc --noEmit` and the `Found N error(s)` line.
 `nest build` reports `Found 279 error(s)` and exits 1, and every code count above is unchanged
 (64 / 64 / 56 / 32 / 30). Nothing here has been fixed in the tree.
 
+## ❌ every unmatched URL answers 200 with the editor's `index.html`
+
+Found as "`https://putout.cloudcmd.io/chat.html` renders the same as `https://putout.cloudcmd.io`".
+It is not the chat build: it is how `packages/server` serves `out/`, and it predates the chat
+package entirely.
+
+The minimum that shows it, against the real app (`STATIC=../../out node dist/main.js`):
+
+```sh
+$ curl -s -o /dev/null -w '%{http_code} %{content_type}\n' localhost:8080/chat.html
+200 text/html; charset=utf-8          # and the body is <title>Putout Editor 3.5.0</title>
+$ curl -s -o /dev/null -w '%{http_code} %{content_type}\n' localhost:8080/nope-xyz.js
+200 text/html; charset=utf-8          # a missing script answers with a page
+$ curl -s -o /dev/null -w '%{http_code} %{content_type}\n' localhost:8080/runtime-48359543fd44e134-26.js
+200 text/javascript; charset=utf-8    # a real one is correct
+```
+
+**Expected** a 404 for a path that names a file. **Got** the editor's page, with a 200.
+
+The cause is one default. `ServeStaticModule.forRoot({rootPath})` with no `renderPath` registers
+its fallback from `DEFAULT_EXPRESS_RENDER_PATH`, which is **`'{*any}'`**:
+
+```js
+// @nestjs/serve-static/dist/serve-static.constants.js
+export const DEFAULT_EXPRESS_RENDER_PATH = '{*any}';
+```
+
+and the loader turns it into `app.get('{*any}', renderFn)`, where `renderFn` is
+`res.sendFile(indexFilePath)`. So **every** unmatched GET is answered with `out/index.html` and a
+200 — including a `.js`, which the browser then refuses as a script. `app.module.ts` configured
+`rootPath` alone and never said otherwise.
+
+**This is why `curl` on a nonsense path is the check.** A missing asset and a valid route are
+indistinguishable from the outside when both answer 200: `/api/v1/info` returns JSON, a real chunk
+returns JavaScript, and everything else returns the page. Only asking for a name that cannot exist
+separates them.
+
+**`exclude` is the fix, and it takes a RegExp** — `isRouteExcluded` handles one directly, so a
+path matching it falls through to a 404 instead of the fallback. The pattern is `[^\s/]`, not `\w`:
+every hashed asset in this build has a hyphen (`runtime-48359543fd44e134-26.js`) and `\w` does not
+match one, so a `\w` guard answers *every real filename* with the page and looks correct on
+`/nope-xyz.js`. That was measured, not reasoned — the first version of the fix was `\w` and the
+spotted control caught it.
+
+The fallback itself is wanted and is kept: the editor has no router of its own, and `/some/route`
+should still reach it.
+
 ## ❌ do not reach for `IgnorePlugin`
 
 Three attempts, all of which compiled and then broke the app:

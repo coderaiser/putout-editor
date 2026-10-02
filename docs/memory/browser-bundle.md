@@ -104,6 +104,11 @@ change in `packages/chat` needs to know on the first day.
   Inside the directory, both `/chat` and `/chat/` serve the page. The stylesheet has to move
   with it — a `href` into the parent directory is one more relative path to break, and it is
   the kind of break no build reports.
+- **A 200 tells you nothing about *which* page you got.** `/chat.html` answered 200 with the
+  **editor's** `index.html`, because `ServeStaticModule`'s default fallback is
+  `app.get('{*any}')` — every unmatched GET is a `sendFile` of the root `index.html`. So the
+  check that finds it is a **nonsense path**: a real chunk returns `text/javascript`, a missing
+  one returned the page. `curl /nope-xyz.js` and read the *content type*, not the status.
 - **`nanoid` is not a dependency.** RTK re-exports it: `import {nanoid} from '@reduxjs/toolkit'`.
 
 **A new file in `packages/chat` is measured immediately.** `.nycrc.json` is `all: true` with
