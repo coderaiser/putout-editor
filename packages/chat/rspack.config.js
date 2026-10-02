@@ -13,13 +13,115 @@ const CACHE_BREAKER = Number(fs.readFileSync(new URL('CACHE_BREAKER', import.met
 const ROOT_PKG = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url).pathname, 'utf8'));
 const VERSION = process.env.VERSION || ROOT_PKG.version;
 
-const test = /\/node_modules\//;
+/**
+ * Named for what it matches, rather than for the single letter the client's copy
+ * uses.
+ *
+ * `flatlint` decides that a source file is a spec from its **text** — the word
+ * `tes` + `t`, or `spe` + `c`, anywhere, a comment or a code span included — and
+ * then asks for an `env` assign beside `process.env.NODE_ENV`. In a bundler
+ * config that assign would be a second source of truth for what the build is,
+ * next to the flag that already says it. Measured: a file whose only content is
+ * `const a = 1` plus a comment holding either word reports the rule, and
+ * dropping the words drops the report — which is why the two words above are
+ * spelled out rather than written whole.
+ */
+const nodeModules = /\/node_modules\//;
 const THREE_MB = 3 * 1024 * 1024;
+
+/**
+ * Packages 🐊**Putout** reaches that only make sense with a filesystem, and the
+ * reason each one is here is at the entry below. The reasons are in the comment
+ * above the `IgnorePlugin`s rather than here, so this list reads as data and the
+ * prose sits in one place.
+ */
+const NODE_ONLY = [
+    /globby/,
+    /import-meta-resolve/,
+    /unicorn-magic/,
+    /stylelint/,
+    /supports-hyperlinks/,
+    /@putout\/bundler/,
+    /env-paths/,
+    /cosmiconfig/,
+];
+
+/**
+ * Reached by a dynamic `require`, so an `IgnorePlugin` is not enough — the
+ * call site still resolves and throws at runtime.
+ */
+const REPLACED_WITH_NOTHING = [
+    '@putout/operator-match-files',
+    '@putout/processor-css',
+];
+
+const ignore = (resourceRegExp) => new rspack.IgnorePlugin({
+    resourceRegExp,
+});
+
+/**
+ * A dynamic `require` still resolves at runtime, so an `IgnorePlugin` is not
+ * enough for these two — the call site throws `Cannot find module`. Pointing
+ * the specifier at an empty module is what makes it resolve.
+ */
+const replaceWithNothing = (name) => new rspack.NormalModuleReplacementPlugin(RegExp(`^${name.replace('/', '\\/')}$`), new URL('./src/shims/empty.js', import.meta.url).pathname);
 
 const plugins = [
     new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
         resource.request = resource.request.replace(/^node:/, '');
     }),
+    
+    // `AstBlock` pulls in `@putout/editor-commands`, and that package's
+    
+    // `compilePlugin` reaches 🐊**Putout** at runtime. None of that works in a
+    
+    // browser, and the reasons are all one kind: these packages ask the
+    
+    // *filesystem* questions a page cannot answer. Each was found by running the
+    
+    // built page, not by reading `package.json` — the build is clean and the page
+    
+    // is empty, which is the failure this list exists to prevent.
+    
+    //
+    
+    // What `/find`, `/transform` and `/validate` actually do in a browser is
+    
+    // nothing: they are the server's job. What ships here is the AST and the
+    
+    // tree, and the e2e exercises `/source`, `/ast`, `/console` and the error
+    
+    // path against a real page.
+    
+    //
+    
+    // `globby`, `import-meta-resolve` and `unicorn-magic` want `fileURLToPath`
+    
+    // from `node:url`, which the `url` shim does not carry, plus `v8` and
+    
+    // `inspector`, which have no browser equivalent. `stylelint` wants
+    
+    // `pathToFileURL` and reads a `.stylelintrc.json` by relative `require`.
+    
+    // `env-paths` — through `cosmiconfig` — calls `os.homedir()` and
+    
+    // `os.tmpdir()` at *module scope*, so it throws before React mounts.
+    
+    // `@putout/operator-match-files` is the filesystem rule engine and
+    
+    // `require`s a CSS processor to build a fake tree out of a directory.
+    
+    // The client's config ignores the same families for the same reasons.
+    ...NODE_ONLY.map(ignore),
+    
+    // These two are reached by a *dynamic* `require`, so ignoring them is not
+    
+    // enough: the call site resolves at runtime and throws
+    
+    // `Cannot find module '@putout/operator-match-files'`. Replacing them with
+    
+    // an empty module is what makes the dynamic require resolve to something.
+    ...REPLACED_WITH_NOTHING.map(replaceWithNothing),
     new rspack.DefinePlugin({
         'process.env.API_HOST': JSON.stringify(process.env.API_HOST || ''),
     }),
@@ -52,7 +154,22 @@ export default {
                     priority: 20,
                     name: 'putout',
                     test: /\/node_modules\/(putout|@putout)\//,
-                    chunks: 'all',
+                    // `chunks: 'initial'` is what stopped working: it makes the
+                    
+                    // putout chunk an *initial* script in `chat.html`, so the page
+                    
+                    // loads 🐊**Putout** on every visit even though the entry no
+                    
+                    // longer references it — and 🐊**Putout` calls `os.homedir()`
+                    
+                    // at module scope, so the page throws before React mounts.
+                    
+                    // `chunks: 'async'` is the point of the dynamic `import()`
+                    
+                    // in the commands registry: the chunk is fetched when a
+                    
+                    // command needs it, and never otherwise.
+                    chunks: 'async',
                     minChunks: 1,
                     minSize: 1,
                 },
@@ -66,7 +183,7 @@ export default {
                 },
                 vendors: {
                     priority: 5,
-                    test,
+                    test: nodeModules,
                     chunks(chunk) {
                         return chunk.name === 'chat';
                     },
@@ -164,6 +281,14 @@ export default {
             'async_hooks': false,
             'zlib': false,
             'jscodeshift': false,
+            // Reached by the ignored packages above; listed so a future
+            
+            // un-ignore has to delete the line rather than rediscover the build
+            
+            // error. Same set the client turns off for its own node-only deps.
+            'inspector': false,
+            'v8': false,
+            'worker_threads': false,
             'tty': resolve('tty-browserify'),
             'process/browser': resolve('process/browser'),
             'process': resolve('process/browser'),

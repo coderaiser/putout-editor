@@ -1,5 +1,9 @@
-import {test} from 'supertape';
-import {commands} from './index.ts';
+import {test, stub} from 'supertape';
+import {
+    commands,
+    notInBrowser,
+    needsPutout,
+} from './index.ts';
 import type {Command} from '../state.types.ts';
 
 test('index: every key equals its own command name', (t) => {
@@ -74,6 +78,82 @@ const dataOf = (result: unknown) => isText(result) ? result.data : '';
 const linesOf = (result: unknown) => dataOf(result)
     .split('\n')
     .filter(Boolean);
+
+/** The `message` of an error-shaped result, or nothing. */
+const isError = (value: unknown): value is {
+    type: 'error';
+    message: string;
+} => value !== null && typeof value === 'object' && 'message' in value;
+
+const messageOf = (result: unknown) => isError(result) ? result.message : '';
+
+/**
+ * `/find`, `/transform` and `/validate` reach 🐊**Putout** through a dynamic
+ * `import()`, and in a browser bundle that chunk is never fetched. The loader can
+ * fail, and the answer has to be an error a user can read rather than an
+ * unhandled rejection — this is the only thing standing between a failed chunk
+ * and a blank input box.
+ */
+test('index: a putout command that cannot load says so instead of throwing', (t) => {
+    const result = notInBrowser('validate');
+    
+    t.equal(result.type, 'error');
+    t.end();
+});
+
+test('index: notInBrowser names the command it could not run', (t) => {
+    const result = notInBrowser('find');
+    const expected = '/find needs the putout server and does not run in the browser.';
+    
+    t.equal(messageOf(result), expected);
+    t.end();
+});
+
+test('index: a loader that throws answers with notInBrowser', async (t) => {
+    const state = {
+        source: '',
+        plugin: '',
+    };
+    
+    const run = needsPutout('find', 'runFind', stub().rejects(Error('chunk 404')));
+    
+    const result = await run('', state);
+    
+    t.equal(result.type, 'error');
+    t.end();
+});
+
+test('index: a loader that resolves without the export answers with notInBrowser', async (t) => {
+    const state = {
+        source: '',
+        plugin: '',
+    };
+    
+    const run = needsPutout('find', 'runFind', stub().resolves({}));
+    const result = await run('', state);
+    
+    t.equal(result.type, 'error');
+    t.end();
+});
+
+test('index: a loader that resolves with the export runs it', async (t) => {
+    const state = {
+        source: '',
+        plugin: '',
+    };
+    
+    const run = needsPutout('find', 'runFind', stub().resolves({
+        runFind: () => ({
+            type: 'text' as const,
+            data: 'ran',
+        }),
+    }));
+    
+    const result = await run('', state);
+    
+    t.equal(result.type, 'text');
+    t.end();
+});
 
 test('index: an unknown command is not in the map', (t) => {
     const result = [...commands.keys()].includes('notacommand');
