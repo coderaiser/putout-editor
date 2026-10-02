@@ -8,6 +8,30 @@ coverage, and the served page threw `TypeError: homedir is not a function` befor
 React mounted — an empty document, every gate satisfied. Nothing in a build
 reports it, because the failure is a module *evaluating*, not a module resolving.
 
+The same thing then happened again in `packages/client`, and the second time it
+was **my own fix**: 45 errors → 0, a clean build, and a page that threw
+`TypeError: e6 is not a function` with no toolbar and no textboxes. Two green
+builds, two empty pages, one finding.
+
+## The second case: a fix that satisfies the build and breaks the page
+
+The client's build was red on 45 errors. The obvious fix was chat's fix — the same
+`IgnorePlugin` list, the same empty-module replacement — applied to the same
+dependency tree. It compiled. The page was empty.
+
+The failing call was a `matchFiles` rule invoking its `scan`/`fix`, and
+`@putout/operator-match-files` is what those rules *are*. Chat has no filesystem
+and runs no such rules, so stubbing that operator there is free; the client runs
+every rule in `plugin-putout-editor`, so the same stub pulled the operator out
+from under them.
+
+**The same edit is right in one package and wrong in the other, and what decides
+it is what the package does — not which packages it depends on.** That is why the
+two configs no longer share a list even though four entries are identical, and why
+the comment at the client's call site says so rather than naming chat as the
+model. A fix copied between packages is a hypothesis, and the copy is what makes
+it feel like a fact.
+
 ## What 🐊Putout costs a browser, and why each piece is there
 
 Every item below was found by opening the page, one at a time, not by reading a
@@ -75,3 +99,19 @@ completing a fully-typed command instead of sending it (the autocomplete still
 showed one row), and the `↑` recall walking the wrong direction (`cursor`
 clamped with `Math.max(at - 1, 0)` started at 0 and never moved). Both were
 green in every unit test.
+
+## A lint message that names a line is a claim about that line
+
+The same habit applies one level up. `flatlint`'s `add-missing-assign` reported
+`9:49` on a `process.env.NODE_ENV` read in `packages/chat/rspack.config.js`, and
+the client's copy of that line — byte-identical, same column — linted clean. Four
+wrong hypotheses followed (the package directory, `eslint.config.js` vs `.ts`,
+the word `test` in a comment, a binding named `test`), and the fifth was right:
+a `: string` annotation on a *different line* made the file parse as TypeScript
+and the rule started asking for an `env` assign.
+
+Two things carry over. **Check the claim before believing the line** — a control
+falsifies an attribution in one command. And **`--fix` on that rule changes
+nothing and suppresses the report**, so CI (`redrun fix:lint`) never sees it: a
+report that vanishes under `--fix` while the file stays broken deserves more
+attention, not less. Measured in full in `~/broken-flatlint.md`.

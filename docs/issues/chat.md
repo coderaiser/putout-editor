@@ -2,43 +2,63 @@
 
 **Open only.** What was fixed is in [`../memory/`](../memory/).
 
-## ❌ `packages/client`'s own build fails on this branch — `bun run build` cannot pass
+## ✅ `packages/client`'s build was red on 45 errors — fixed in `d7592fc`
 
-`plan.md` invariant **I7** is "`npm run build` at root passes", and it cannot be met
-by chat: the failure is in the client, on a commit that predates any chat work.
-Measured with the working tree stashed, so this is `HEAD`, not my changes:
+`plan.md` invariant **I7** is "`npm run build` at root passes". It does now, and
+`out/index.html` and `out/chat.html` are both produced. This entry is kept because
+**the first fix made things worse in a way only a browser could see.**
+
+The failure, measured with the tree stashed so it was `HEAD` and predated any
+chat work:
 
 ```
 $ cd packages/client && bun run build
 Rspack compiled with 90 errors and 13 warnings in 26.05 s
-Command failed: … rspack build --mode=production && rimraf ../../out && mv ../../out-build ../../out
 ```
 
-45 distinct `ERROR in` blocks. The `Can't resolve` ones are:
+45 distinct `ERROR in` blocks, two causes:
+
+- 43 across `import-meta-resolve` (36), `stylelint` (6), `unicorn-magic` and
+  `supports-hyperlinks`, all asking a browser for `fileURLToPath`,
+  `pathToFileURL` or a named export it does not have;
+- 2 for `typescript` requiring `inspector` and `import-meta-resolve` requiring `v8`.
+
+The second pair was the easy half and the first was the whole build: `fallback`
+already listed nine node-only builtins for this package and `inspector` and `v8`
+were simply not among them. 45 → 43 → 0.
+
+**The part worth keeping: the first fix compiled and the page was empty.** I
+applied the same `REPLACED_WITH_NOTHING` list `packages/chat` uses, which stubs
+`@putout/operator-match-files` to an empty module. The build went green, and the
+served page threw:
 
 ```
-Can't resolve 'inspector'
-Can't resolve 'v8'
+TypeError: e6 is not a function
 ```
 
-**Expected** — either a green build, or an error that names a change I made.
-**Got** a build that has been red for at least the length of this branch.
+with no toolbar, no textboxes, and nothing but a stylesheet. The stack is a
+`matchFiles` rule invoking its `scan`/`fix`, and `operator-match-files` is what
+those rules are. Chat has no filesystem and runs no such rules, so stubbing it
+there costs nothing; the client runs every rule in `plugin-putout-editor`, so the
+same stub removed the operator out from under them.
 
-**Why it matters for chat.** `packages/chat`'s build is clean and writes
-`out/chat.html`, and the root `.madrun.ts` now runs client then chat in that order
-precisely so the client's `rimraf ../../out` cannot take `chat.html` with it. That
-ordering is only *observable* through a green root build, so until the client's
-build is fixed there is no end-to-end check of it — the e2e serves `../../out`,
-which is the one thing that would catch a clobbered `chat.html` in CI.
+**The same fix is right in one package and wrong in the other, and what decides
+it is what the package does — not which packages it depends on.** That is why the
+two configs no longer share a list even though four entries are identical, and
+why the comment at the client's call site names the difference instead of pointing
+at chat as the model. The full write-up, with the two `GREEN`-but-broken cases and
+the cheapest possible check, is in
+[`../memory/browser-bundle.md`](../memory/browser-bundle.md).
 
-**Not attempted.** Fixing the client's bundler config is outside the chat plan, and
-the three packages it touches are all at 100% with green suites — so a change there
-is not something to slip in unreviewed. What is needed is a decision: whether the
-`'v8': false` and `'inspector': false` fallbacks the client's `rspack.config.js`
-already lists are being overridden by a dependency that appeared since, or whether
-the config itself needs the `IgnorePlugin` set chat uses. Either way it is the
-same shape of problem chat hit, and chat's `rspack.config.js` documents its
-version of it.
+**Also fixed in the same commit, and only found by running it:** the root
+`build` script chained `cd packages/client && bun run build && cd packages/chat`,
+and the second `cd` resolves from *inside* the client — `can't cd to
+packages/chat`, with the client having succeeded, which reads as a chat failure.
+Both paths are absolute now.
+
+Verified after the fix, not assumed: the client's e2e is **129 passed, 0 failed**,
+the chat's is **7 passed**, and the built editor mounts with a toolbar, three
+textboxes, an AST panel and two stylesheets and no console error.
 
 ## ❌ the `/chat` plan's step 1 breaks the client's coverage gate
 
