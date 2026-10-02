@@ -61,13 +61,17 @@ once and reused, so both sides must name the same placeholder, and a placeholder
 a single letter. `__a() && typeof __a === "object"` does **not** match — that reads as calling
 whatever `__a` bound to. Verified with the mcp `test_pattern` tool rather than by reading.
 
-**Two things a replacer has to know, both learned here.**
+**A replacer is only reached through the key, so it needs no guard of its own.** The instinct is to
+repeat the `match` guard in `replace` — `match` is the gate and `replace` looks unconditional — but
+both are keyed on the same `CALL`, and the key already decides everything the guard would have
+checked. Measured, not assumed: the cast form `(value as boolean) && typeof value === 'object'`
+matches `Boolean(__a) && typeof __a === "object"` **zero** times, so the replacer is never handed
+one and the guard was unreachable. The three guards in `matcher` and the one in `replacer` were the
+only uncovered lines in the package — a guard nothing can reach is not defensive, it is a branch
+the gate is 100% over.
 
-`match` is the gate and `replace` is unconditional, so the replacer repeats the same guard — but
-returning the path unchanged is **not** how a replacer declines: it still replaces, with whatever
-the operator does with the empty return. `isCoercionCall` is what keeps a cast out, and it checks
-the left side is a `Boolean()` call and *nothing else*, because `(value as boolean) && …` has the
-same shape and would otherwise have its cast stripped.
+What *is* load-bearing is that the key names `Boolean` and not `__a()`: `__a() && typeof __a ===
+"object"` reads as calling whatever `__a` bound to, and matches nothing.
 
 The cast is built as a **node**, not printed from a string. `path.replaceWithSourceString()` does
 not exist on `NodePath` — the operator throws by name if you reach for it — and the string form
