@@ -101,6 +101,18 @@ export const {reducer, actions} = createSlice({
             ...state,
             consoleOpen: !state.consoleOpen,
         }),
+        /**
+         * `/ast` opens the panel rather than toggling it.
+         *
+         * Toggling would be the smaller change and the wrong one: run `/ast`
+         * twice and the panel closes itself, which reads as the command being
+         * broken. This is a separate action so "make it visible" and "flip it"
+         * stop being the same verb.
+         */
+        openConsole: (state) => ({
+            ...state,
+            consoleOpen: true,
+        }),
         
         clearThread: (state) => ({
             ...state,
@@ -119,6 +131,7 @@ export const {
     setPlugin,
     setConsoleAst,
     toggleConsole,
+    openConsole,
     clearThread,
     reset,
 } = actions;

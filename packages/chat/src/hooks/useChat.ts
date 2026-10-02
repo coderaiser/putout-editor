@@ -15,6 +15,7 @@ import {
     reset,
     setConsoleAst,
     toggleConsole,
+    openConsole,
     nextId,
 } from '#store';
 
@@ -104,11 +105,23 @@ export const useChat = () => {
             return;
         }
         
-        if (result.type === 'ast')
+        if (result.type === 'ast') {
             dispatch(setConsoleAst({
                 nodes: result.nodes,
                 source: result.source,
             }));
+            
+            // The panel *is* the answer to `/ast`, so it opens with it. The
+            
+            // header button this replaced left the user to type `/console`
+            
+            // afterwards to see what they had just asked for; `/ast` twice
+            
+            // leaves it open rather than closing it, which `toggleConsole`
+            
+            // here would do.
+            dispatch(openConsole());
+        }
         
         if (command === 'console')
             dispatch(toggleConsole());

@@ -7,6 +7,7 @@ export {
     setPlugin,
     setConsoleAst,
     toggleConsole,
+    openConsole,
     clearThread,
     reset,
     initialState,

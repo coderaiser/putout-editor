@@ -89,6 +89,48 @@ test('useChat: /ast hands the console panel a tree', async (t) => {
     t.end();
 });
 
+test('useChat: /ast opens the console panel', async (t) => {
+    const {store, send} = setup();
+    
+    await send('/source\nconst a = 1;');
+    await send('/ast');
+    
+    const result = store.getState().chat.consoleOpen;
+    const expected = true;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: /ast again leaves the console panel open', async (t) => {
+    const {store, send} = setup();
+    
+    await send('/source\nconst a = 1;');
+    await send('/ast');
+    await send('/ast');
+    
+    // A `toggleConsole` here would close it, and the user would see `/ast`
+    
+    // appear to switch the panel off.
+    const result = store.getState().chat.consoleOpen;
+    const expected = true;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: /ast with no source does not open the panel', async (t) => {
+    const {store, send} = setup();
+    
+    await send('/ast');
+    
+    const result = store.getState().chat.consoleOpen;
+    const expected = false;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('useChat: /console toggles the panel', async (t) => {
     const {store, send} = setup();
     

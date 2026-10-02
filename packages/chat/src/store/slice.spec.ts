@@ -10,6 +10,7 @@ import {
     setConsoleAst,
     setHistoryIndex,
     toggleConsole,
+    openConsole,
     clearThread,
     reset,
     nextId,
@@ -144,6 +145,29 @@ test('slice: toggleConsole closes it again', (t) => {
     const result = state.consoleOpen;
     
     t.notOk(result);
+    t.end();
+});
+
+test('slice: openConsole opens it', (t) => {
+    const state = reducer(initialState, openConsole());
+    
+    const result = state.consoleOpen;
+    
+    t.ok(result);
+    t.end();
+});
+
+test('slice: openConsole on an open panel leaves it open', (t) => {
+    // The point of a separate action: `/ast` twice must not close the panel,
+    // which is what `toggleConsole` here would do.
+    const state = reducer(reducer(
+        initialState,
+        openConsole(),
+    ), openConsole());
+    
+    const result = state.consoleOpen;
+    
+    t.ok(result);
     t.end();
 });
 

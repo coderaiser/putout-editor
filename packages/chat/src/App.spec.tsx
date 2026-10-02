@@ -143,10 +143,50 @@ test('App: the panel shows the tree after /ast', async (t) => {
     await wait();
     send('/ast');
     await wait();
-    send('/console');
-    await wait();
     
     const result = document.querySelectorAll('.console-panel [data-testid="ast-row"]').length > 0;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('App: /ast opens the panel by itself', async (t) => {
+    mount();
+    
+    send('/source\nconst a = 1;');
+    await wait();
+    
+    const before = panel();
+    
+    send('/ast');
+    await wait();
+    
+    const result = before === null && panel() !== null;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('App: /ast again leaves the panel open', async (t) => {
+    mount();
+    
+    send('/source\nconst a = 1;');
+    await wait();
+    send('/ast');
+    await wait();
+    send('/ast');
+    await wait();
+    
+    // `toggleConsole` here would close the panel the second time, which reads
+    
+    // as `/ast` being broken rather than as a toggle.
+    const result = panel() !== null;
     const expected = true;
     
     cleanup();
