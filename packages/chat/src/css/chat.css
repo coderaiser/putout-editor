@@ -452,7 +452,12 @@ body {
     box-sizing: border-box;
     min-height: 46px;
     max-height: 200px;
-    overflow-y: auto;
+    /* `hidden`, not `auto`: a scrollbar on a box that fits its one line is a
+       bar the user can drag and the content cannot move along, and it is on
+       screen for the whole of the first line being typed. `growTo` reads this
+       same `max-height` and turns the scrollbar on exactly when the content
+       outgrows it, which is the one thing `overflow-y` cannot say alone. */
+    overflow-y: hidden;
 }
 
 .input__box::placeholder {
@@ -465,14 +470,21 @@ body {
 }
 
 .input__send {
-    padding: 11px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Square, and the box's own resting height: the label is an arrow, and
+       `padding: 11px 18px` around one glyph is a button twice as wide as it
+       is tall sitting next to a 46px box. */
+    width: 46px;
+    height: 46px;
+    padding: 0;
     border: none;
     border-radius: var(--radius-md);
     background: var(--color-accent);
     color: #fff;
     font-family: var(--font-ui);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 18px;
     cursor: pointer;
     transition: opacity 0.15s;
 }

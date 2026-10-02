@@ -39,6 +39,7 @@ const send = (text: string) => {
     
     fireEvent.keyDown(box(), {
         key: 'Enter',
+        ctrlKey: true,
     });
 };
 

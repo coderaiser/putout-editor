@@ -36,6 +36,11 @@ const MAX_ROWS = 1;
  * Written as a standalone export with its own spec because it is the only part
  * of this component that cannot be checked by rendering: it reads `scrollHeight`
  * and writes `style.height`, and jsdom reports both as 0.
+ *
+ * The scrollbar is set here rather than in `chat.css` because CSS cannot
+ * express it: `overflow-y` has no "only once you hit the cap" mode, and the
+ * cap is the thing being measured here. So the stylesheet starts at `hidden`
+ * and this turns it on exactly when the content is taller than the cap.
  */
 export const growTo = (box: HTMLTextAreaElement | null): void => {
     if (!box)
@@ -43,6 +48,12 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
     
     box.style.height = 'auto';
     box.style.height = `${box.scrollHeight}px`;
+    
+    // Read the cap from the computed style rather than repeating `200` here,
+    // so the two cannot drift apart the way a hard-coded number would.
+    const cap = parseInt(getComputedStyle(box).maxHeight, 10);
+    
+    box.style.overflowY = box.scrollHeight > cap ? 'auto' : 'hidden';
 };
 
 /** Commands whose name starts with what has been typed, `/` included. */
@@ -85,11 +96,10 @@ export default function Input({history, onSend}: InputProps) {
     const options = open ? matches(text) : [];
     
     /**
-     * Whether the box already holds a command in full. `Enter` completes a
-     * *partial* name and sends a *whole* one, so typing `/ast` and pressing
-     * Enter runs `/ast` rather than turning it into `/ast ` and waiting for a
-     * second Enter — a dropdown that is still showing one row the user already
-     * typed in full should not capture the send key.
+     * Whether the box already holds a command in full. A dropdown showing one
+     * row the user has already typed in full is not a choice left to make, so
+     * `Enter` is not a *completion* here — which is what lets the send
+     * shortcut below stay a plain "Enter means newline" rule.
      */
     const exact = options.includes(text);
     
@@ -113,17 +123,44 @@ export default function Input({history, onSend}: InputProps) {
         setPicked(0);
     }, []);
     
-    const onKeyDown = useCallback(({key, shiftKey}: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (key === 'Enter' && !shiftKey) {
-            if (open && options.length && !exact) {
-                complete(options[picked]);
-                return;
-            }
-            
+    const onKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
+        const {
+            key,
+            shiftKey,
+            ctrlKey,
+            metaKey,
+        } = event;
+        
+        // Send is `Ctrl+Enter`, `Cmd+Enter` on macOS — a chord, because `Enter`
+        // is a newline here and a `/source` body is more than one line. The
+        // `preventDefault` matters: without it the browser also puts a newline
+        // in the box on its way past.
+        if (key === 'Enter' && (ctrlKey || metaKey)) {
+            event.preventDefault();
             send();
             
             return;
         }
+        
+        // Enter still completes a *partial* name while the dropdown is up, and
+        // takes precedence over the newline for the same reason: it is a
+        // choice about the text, not about sending it. Also suppressed here —
+        // the browser's newline would land after the completed name.
+        //
+        // `!shiftKey` keeps `Shift+Enter` a newline in every state, which is
+        // what it was when it was the only way to get one.
+        if (key === 'Enter' && !shiftKey && open && options.length && !exact) {
+            event.preventDefault();
+            complete(options[picked]);
+            
+            return;
+        }
+        
+        // Plain `Enter` deliberately reaches no branch below: a `textarea`
+        // inserts the newline itself and fires the `input` event that
+        // `onChange` already turns into state. Re-implementing that here would
+        // be a second place that has to know where the caret is, for a result
+        // the browser hands over correctly.
         
         if (key === 'Tab' && open && options.length) {
             complete(options[picked]);
@@ -233,9 +270,10 @@ export default function Input({history, onSend}: InputProps) {
                 className="input__send"
                 data-testid="send"
                 onClick={send}
+                title="Send (Ctrl+Enter)"
                 type="button"
             >
-                {'Send'}
+                {'↑'}
             </button>
         </div>
     );

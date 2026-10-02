@@ -30,6 +30,11 @@ const mount = () => {
 
 const box = () => document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
 
+/**
+ * `Ctrl+Enter`, because plain `Enter` is a newline now. These tests are about
+ * what lands in the thread, not about the key that sends it, so the chord lives
+ * here once.
+ */
 const send = (text: string) => {
     fireEvent.change(box(), {
         target: {
@@ -39,6 +44,7 @@ const send = (text: string) => {
     
     fireEvent.keyDown(box(), {
         key: 'Enter',
+        ctrlKey: true,
     });
 };
 

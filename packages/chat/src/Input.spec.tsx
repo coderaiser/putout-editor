@@ -55,6 +55,23 @@ const press = (key: string, shiftKey = false) => fireEvent.keyDown(input(), {
     shiftKey,
 });
 
+/**
+ * The two halves of the send chord. They are separate helpers rather than
+ * `press(key, false, modifier)` because a modifier is not a boolean flag on
+ * this handler: `metaKey` is the macOS half, and folding it into a third
+ * positional argument is how a spec ends up pressing `Meta+Enter` while
+ * believing it pressed `Ctrl+Enter`.
+ */
+const pressCtrl = (key: string) => fireEvent.keyDown(input(), {
+    key,
+    ctrlKey: true,
+});
+
+const pressMeta = (key: string) => fireEvent.keyDown(input(), {
+    key,
+    metaKey: true,
+});
+
 const options = () => [...document.querySelectorAll('.autocomplete__row')].map(({textContent}) => textContent || '');
 
 test('Input: typing / opens the autocomplete', (t) => {
@@ -110,249 +127,6 @@ test('Input: Tab completes the picked command into the box', (t) => {
     
     cleanup();
     
-    test('Input: down arrow moves the pick', (t) => {
-        box();
-        
-        type('/');
-        press('ArrowDown');
-        
-        const picked = document.querySelector('.autocomplete__row--picked');
-        const result = picked !== null;
-        const expected = true;
-        
-        cleanup();
-        
-        t.equal(result, expected);
-        t.end();
-    });
-    
-    test('Input: up arrow wraps the pick back to the end of the list', (t) => {
-        box();
-        
-        type('/');
-        press('ArrowUp');
-        
-        const rows = [...document.querySelectorAll('.autocomplete__row')];
-        const last = rows.at(-1) as Element;
-        const result = last.classList.contains('autocomplete__row--picked');
-        const expected = true;
-        
-        cleanup();
-        
-        t.equal(result, expected);
-        t.end();
-    });
-    
-    test('Input: Escape closes the autocomplete and empties the box', (t) => {
-        box();
-        
-        type('/');
-        press('Escape');
-        
-        const result = {
-            options: options().length,
-            value: value(),
-        };
-        
-        const expected = {
-            options: 0,
-            value: '',
-        };
-        
-        cleanup();
-        
-        t.deepEqual(result, expected);
-        t.end();
-    });
-    
-    test('Input: a non-slash line closes the autocomplete', (t) => {
-        box();
-        
-        type('hello');
-        
-        const result = options().length;
-        const expected = 0;
-        
-        cleanup();
-        
-        t.equal(result, expected);
-        t.end();
-    });
-    
-    test('Input: Enter sends the line', (t) => {
-        sent.length = 0;
-        box();
-        
-        type('/help');
-        press('Enter');
-        
-        const result = sent;
-        const expected = ['/help'];
-        
-        cleanup();
-        
-        t.deepEqual(result, expected);
-        t.end();
-    });
-    
-    test('Input: Enter empties the box after sending', (t) => {
-        box();
-        
-        type('/help');
-        press('Enter');
-        
-        test('Input: Shift+Enter does not send', (t) => {
-            sent.length = 0;
-            box();
-            
-            type('/help');
-            press('Enter', true);
-            
-            const result = sent;
-            const expected: string[] = [];
-            
-            cleanup();
-            
-            t.deepEqual(result, expected);
-            t.end();
-        });
-        
-        test('Input: an empty line is not sent', (t) => {
-            sent.length = 0;
-            box();
-            
-            type('   ');
-            press('Enter');
-            
-            const result = sent;
-            const expected: string[] = [];
-            
-            cleanup();
-            
-            t.deepEqual(result, expected);
-            t.end();
-        });
-        
-        test('Input: up arrow on an empty box recalls the last line', (t) => {
-            box(['/help', '/ast']);
-            
-            press('ArrowUp');
-            
-            const result = value();
-            const expected = '/ast';
-            
-            cleanup();
-            
-            t.equal(result, expected);
-            t.end();
-        });
-        
-        test('Input: up arrow twice reaches further back', (t) => {
-            box(['/help', '/ast']);
-            
-            press('ArrowUp');
-            press('ArrowUp');
-            
-            const result = value();
-            const expected = '/help';
-            
-            cleanup();
-            
-            t.equal(result, expected);
-            t.end();
-        });
-        
-        test('Input: down arrow returns towards empty', (t) => {
-            box(['/help']);
-            
-            press('ArrowUp');
-            press('ArrowDown');
-            
-            const result = value();
-            const expected = '';
-            
-            test('Input: matches returns nothing for a line that is not a command', (t) => {
-                const result = matches('hello');
-                const expected: string[] = [];
-                
-                t.deepEqual(result, expected);
-                t.end();
-            });
-            
-            test('Input: matches finds every command for a bare slash', (t) => {
-                const result = matches('/').length;
-                const expected = commands.size;
-                
-                t.equal(result, expected);
-                t.end();
-            });
-            
-            test('Input: matches narrows on a prefix', (t) => {
-                const result = matches('/he');
-                const expected = ['/help'];
-                
-                t.deepEqual(result, expected);
-                t.end();
-            });
-            
-            test('Input: matches returns nothing when nothing starts with the prefix', (t) => {
-                const result = matches('/zzz');
-                const expected: string[] = [];
-                
-                t.deepEqual(result, expected);
-                t.end();
-            });
-            
-            test('Input: the send button sends the line', (t) => {
-                sent.length = 0;
-                box();
-                
-                type('/help');
-                
-                const button = document.querySelector('[data-testid="send"]') as HTMLButtonElement;
-                
-                fireEvent.click(button);
-                
-                const result = sent;
-                const expected = ['/help'];
-                
-                cleanup();
-                
-                t.deepEqual(result, expected);
-                t.end();
-            });
-            
-            cleanup();
-            
-            t.equal(result, expected);
-            t.end();
-        });
-        
-        test('Input: recall walks back down to the empty box and up again', (t) => {
-            box(['/help']);
-            
-            press('ArrowUp');
-            press('ArrowDown');
-            press('ArrowUp');
-            
-            const result = value();
-            const expected = '/help';
-            
-            cleanup();
-            
-            t.equal(result, expected);
-            t.end();
-        });
-        
-        const result = value();
-        const expected = '';
-        
-        cleanup();
-        
-        t.equal(result, expected);
-        t.end();
-    });
-    
     t.equal(result, expected);
     t.end();
 });
@@ -372,20 +146,106 @@ test('Input: Enter completes while the autocomplete is open', (t) => {
     t.end();
 });
 
-test('Input: Enter sends a command that is already typed in full', (t) => {
+test('Input: Enter does not send the line', (t) => {
     sent.length = 0;
     box();
     
-    // `/ast` is a complete name, so the dropdown still shows one row. Enter has
-    
-    // to send rather than complete: otherwise a fully typed command takes two
-    
-    // Enters, which is the bug this pins.
-    type('/ast');
+    type('/help');
     press('Enter');
     
     const result = sent;
+    const expected: string[] = [];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: Enter leaves the typed line in the box', (t) => {
+    box();
+    
+    type('/help');
+    press('Enter');
+    
+    const result = value();
+    const expected = '/help';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: Shift+Enter does not complete while the autocomplete is open', (t) => {
+    box();
+    
+    type('/tra');
+    press('Enter', true);
+    
+    const result = {
+        options: options().length,
+        value: value(),
+    };
+    
+    const expected = {
+        options: 1,
+        value: '/tra',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: Ctrl+Enter sends a command that is already typed in full', (t) => {
+    sent.length = 0;
+    box();
+    
+    // `/ast` is a complete name, so the dropdown still shows one row. The send
+    // chord has to work anyway — a dropdown is not a reason to swallow the
+    // only key that sends.
+    type('/ast');
+    pressCtrl('Enter');
+    
+    const result = sent;
     const expected = ['/ast'];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: Ctrl+Enter sends while a partial name is still open', (t) => {
+    sent.length = 0;
+    box();
+    
+    type('/hel');
+    pressCtrl('Enter');
+    
+    const result = sent;
+    const expected = ['/hel'];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: Cmd+Enter also sends the line', (t) => {
+    sent.length = 0;
+    box();
+    
+    // `Cmd+Enter` is the same handler as `Ctrl+Enter` — a macOS user has no
+    // Control key chord worth the name, and shipping one half of a shortcut
+    // per platform is a bug waiting for the first laptop without a Control.
+    type('/help');
+    pressMeta('Enter');
+    
+    const result = sent;
+    const expected = ['/help'];
     
     cleanup();
     
@@ -462,11 +322,11 @@ test('Input: a non-slash line closes the autocomplete', (t) => {
     t.end();
 });
 
-test('Input: Enter empties the box after sending', (t) => {
+test('Input: Ctrl+Enter empties the box after sending', (t) => {
     box();
     
     type('/help');
-    press('Enter');
+    pressCtrl('Enter');
     
     const result = value();
     const expected = '';
@@ -498,7 +358,7 @@ test('Input: an empty line is not sent', (t) => {
     box();
     
     type('   ');
-    press('Enter');
+    pressCtrl('Enter');
     
     const result = sent;
     const expected: string[] = [];
@@ -513,6 +373,22 @@ test('Input: up arrow on an empty box recalls the last line', (t) => {
     box(['/help', '/ast']);
     
     press('ArrowUp');
+    
+    const result = value();
+    const expected = '/ast';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: recall walks back down towards the empty box', (t) => {
+    box(['/help', '/ast']);
+    
+    press('ArrowUp');
+    press('ArrowUp');
+    press('ArrowDown');
     
     const result = value();
     const expected = '/ast';
@@ -675,6 +551,30 @@ test('Input: the send button sends the line', (t) => {
     t.end();
 });
 
+test('Input: the send button names its shortcut', (t) => {
+    box();
+    
+    // The button is the primary way to send and the label is an arrow, so the
+    // keyboard half has to be discoverable somewhere: a `↑` with no tooltip
+    // leaves the chord to be guessed.
+    const button = document.querySelector('[data-testid="send"]') as HTMLButtonElement;
+    
+    const result = {
+        label: button.textContent,
+        title: button.title,
+    };
+    
+    const expected = {
+        label: '↑',
+        title: 'Send (Ctrl+Enter)',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 test('Input: describeOf returns the description of a known command', (t) => {
     const command = commands.get('ast');
     const result = describeOf('/ast');
@@ -760,5 +660,54 @@ test('Input: growTo does nothing without a box', (t) => {
     const expected = ['survived'];
     
     t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * `growTo` reads the cap from the computed style, so the box has to be in the
+ * document: jsdom resolves `max-height` to `''` on a detached element, which
+ * would make the comparison a `NaN` one and leave the "taller than the cap" arm
+ * unreachable. The cap is the real `200px` from `chat.css` — the point is not
+ * the number but that the function asks the stylesheet rather than carrying a
+ * copy of it.
+ */
+const withOverflow = (height: number, maxHeight: string, run: (element: HTMLTextAreaElement) => void) => {
+    const element = document.createElement('textarea');
+    
+    Object.defineProperty(element, 'scrollHeight', {
+        configurable: true,
+        value: height,
+    });
+    
+    element.style.maxHeight = maxHeight;
+    document.body.append(element);
+    
+    run(element);
+    
+    const {overflowY} = element.style;
+    
+    element.remove();
+    
+    return overflowY;
+};
+
+test('Input: growTo shows no scrollbar while the box is under the cap', (t) => {
+    // The regression: `overflow-y: auto` in the stylesheet draws a scrollbar
+    // track on a one-row box, and it is there for the whole time the user is
+    // typing the first line.
+    const result = withOverflow(96, '200px', growTo);
+    const expected = 'hidden';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: growTo brings the scrollbar back once the box hits the cap', (t) => {
+    // Hiding it and never bringing it back would be the other half of the same
+    // bug: a pasted file taller than the cap would be unreachable.
+    const result = withOverflow(240, '200px', growTo);
+    const expected = 'auto';
+    
+    t.equal(result, expected);
     t.end();
 });
