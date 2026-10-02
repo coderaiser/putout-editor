@@ -22,6 +22,7 @@ mark it as one.
 | 7 | A rule for an assertion that cannot fail informatively | S |
 | 8 | Write up migrating `plugin-putout-editor` to TypeScript | S |
 | 9 | Fixers for `hoist-arrow-callback` and `check-try-catch-destructure` | M |
+| 10 | A rule for a guard the pattern key already made unreachable | S |
 
 ## 7. A rule for an assertion that cannot fail informatively
 
@@ -120,4 +121,28 @@ already exists is a redeclaration, not a hoist. Size M.
 
 **The try/catch one is S.** The rewrite is mechanical and always the same — bind, then guard — so the
 risk is dropping a default the author meant, which is a test rather than a code change.
+
+## 10. A rule for a guard the key already made unreachable
+
+**Evidence.** 1, found by the coverage gate rather than by reading: `apply-boolean-cast-to-typeof`
+sat at 73.33% branches because `matcher` had three `if (...) return false` guards and `replacer` had
+a fourth, and **not one of them could ever be false**. Both are keyed on the same
+`Boolean(__a) && typeof __a === "object"`, and the key decides every case the guards re-checked —
+verified one at a time, and the cast form the README said the guard existed to protect matches the
+key **zero** times.
+
+**Why it pays.** The guards read as defensive and are not, which is worse than not having them: a
+reader checks the guard instead of checking the key, so a key that is too loose looks safe. And a
+100%-coverage gate is the only thing in this repo that noticed — 253 tests, all green, and the
+uncovered lines were the whole defect. That is `docs/memory/putout-rules.md`'s "a pattern key is a
+whole name" from the other end: the key is not a prefilter for the matcher, it **is** the matcher.
+
+**How.** A rule cannot see the other half of a plugin, so this is not expressible as a lint rule —
+it is a *coverage* rule: an uncovered branch in a rule whose `match` and `replace` share a key, in a
+package with `checkCoverage`, is a guard that the key made dead. `@putout/plugin-*` has no such
+check, and it belongs upstream. Here the cheap form is a `t.noReport` per guard, the same way
+`no-comments` needed one: a fixture where the shape the guard rejects is present, asserting the
+plugin still reports nothing. The guards are deleted rather than covered —
+[`../issues/putout-plugins.md`](../issues/putout-plugins.md) has the measurement, and
+`AGENTS.md`'s "a rule name is a claim about what it checks" is the same argument about a comment.
 

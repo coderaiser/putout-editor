@@ -80,6 +80,33 @@ already carried it. The page rendered two elements with one identity and
 Playwright refused in strict mode. A component that has a testid does not get
 another from its parent.
 
+## Four things about the chat package itself
+
+Kept apart from the bundle story above, because none of them is about a browser — they are what a
+change in `packages/chat` needs to know on the first day.
+
+- **A spec that touches Redux needs a `<Provider>`, and `test/store.ts` is the way to get one.**
+  `makeStore(overrides?, options?)` returns `{store, actions}`; import it as `#test/store` rather
+  than hand-rolling `configureStore`. Everything else — `App`, `Chat`, `Input`, `ConsolePanel` —
+  reads the store, so this is most of the components, not an edge case.
+- **The TUI tree has no Redux dependency at all** (`src/components/*` takes `FlatNode[]` and
+  `source` as props), so its six specs mount with no Provider. That is the property that lets the
+  same `AstTree` render inside a chat message and inside the console panel, and it is worth
+  keeping: a component that reached for the store could not be used in both.
+- **`npm run build` at the root runs client then chat, sequentially, and the order is the
+  contract.** The client stages into `out-build` and then `rimraf`s and swaps `out/` wholesale;
+  chat writes `out/chat.html` beside the editor's files and deletes nothing. In parallel it is a
+  race on one directory. The root `.madrun.ts` names both paths absolutely, because they are
+  chained with `&&` and a relative `cd` resolves from inside the previous directory.
+- **`nanoid` is not a dependency.** RTK re-exports it: `import {nanoid} from '@reduxjs/toolkit'`.
+
+**A new file in `packages/chat` is measured immediately.** `.nycrc.json` is `all: true` with
+`checkCoverage`, so a file nothing imports is still counted and the gate goes red on it. The same
+thing happened in `packages/client` when the build fix added `src/shims/empty.js`: a bundler-only
+module, 0%, and the fix was a **spec beside it** — not another `exclude` entry, because
+`docs/memory/coverage.md` is explicit that adding a path to `exclude` is a claim a file cannot be
+covered. `src/shims/jest-validate.ts` beside it already had one, and that is the precedent.
+
 ## The lesson worth keeping
 
 **A passing build is evidence about the build.** The page is a different program
