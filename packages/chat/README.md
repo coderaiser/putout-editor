@@ -16,8 +16,27 @@ beside it.
 | `src/messages/` | One component per result type. |
 | `src/components/` | The AST tree — six components, self-contained, no Redux. |
 | `src/console/ConsolePanel.tsx` | The tree beside the thread. |
+| `src/ThemeToggle.tsx` | Light/dark, on the editor's `localStorage` key. |
+| `src/css/chat.css` | The palette and every rule. Claude's colours, both themes. |
 | `src/store/` | The redux store: one `chat` slice. |
 | `test/store.ts` | `makeStore(overrides)` — the one store factory, for specs. |
+
+## Colours
+
+Claude's palette, in the client's token *names* — so `--color-accent` means the
+same thing on both pages and the tree restyles with the page. Warm cream in
+light, warm charcoal in dark, and one terracotta accent used sparingly: nothing
+is pure white, pure black or fully saturated.
+
+Dark and light are driven by `data-theme` on `<html>`, exactly as
+`ThemeButton` in `packages/client` does it, and the key in `localStorage` is the
+same `theme` — so a choice made on one page is already in force on the other.
+With no stored choice the page follows `prefers-color-scheme`, which is what the
+client's own `tokens.css` does.
+
+**Changing a colour means adding a token, not writing a hex in a rule.** The
+rules read `var(--color-…)` throughout, and `AstTree.css` falls back to the same
+light values so a tree on its own matches the page.
 
 ## The commands come from elsewhere
 

@@ -8,7 +8,11 @@ import {Provider} from 'react-redux';
 import type {ReactNode} from 'react';
 import {commands} from '@putout/editor-commands';
 import {makeStore} from '#test/store';
-import Input, {matches, describeOf} from './Input.tsx';
+import Input, {
+    matches,
+    describeOf,
+    growTo,
+} from './Input.tsx';
 
 const sent: string[] = [];
 const push = sent.push.bind(sent);
@@ -685,5 +689,76 @@ test('Input: describeOf returns nothing for a name that is not a command', (t) =
     const expected = '';
     
     t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * jsdom lays nothing out, so `scrollHeight` is 0 for every element. The stub
+ * is what makes this test say something: without it `growTo` would set every
+ * height to `0px` and pass, which is the same green as a box that never grows.
+ */
+const withScrollHeight = (height: number, run: (element: HTMLTextAreaElement) => void) => {
+    const element = document.createElement('textarea');
+    
+    Object.defineProperty(element, 'scrollHeight', {
+        configurable: true,
+        value: height,
+    });
+    
+    run(element);
+    
+    return element.style.height;
+};
+
+test('Input: growTo sizes the box to its content', (t) => {
+    const result = withScrollHeight(96, growTo);
+    const expected = '96px';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: growTo clears the height first, so shrinking works', (t) => {
+    const element = document.createElement('textarea');
+    const set: string[] = [];
+    
+    // `style.height` is the observation point: the point of writing `'auto'`
+    // before the measurement is that a box which has already grown would
+    // otherwise measure itself and never shrink back.
+    Object.defineProperty(element, 'style', {
+        configurable: true,
+        get() {
+            return {
+                set height(value: string) {
+                    set.push(value);
+                },
+            };
+        },
+    });
+    
+    Object.defineProperty(element, 'scrollHeight', {
+        configurable: true,
+        value: 24,
+    });
+    
+    growTo(element);
+    
+    const result = set;
+    const expected = [
+        'auto',
+        '24px',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: growTo does nothing without a box', (t) => {
+    growTo(null);
+    
+    const result = ['survived'];
+    const expected = ['survived'];
+    
+    t.deepEqual(result, expected);
     t.end();
 });

@@ -4,6 +4,7 @@ import type {RootState} from '#store/types';
 import {useConsole} from './hooks/useConsole.ts';
 import Chat from './Chat.tsx';
 import ConsolePanel from './console/ConsolePanel.tsx';
+import ThemeToggle from './ThemeToggle.tsx';
 
 /**
  * The page: a header, the thread, and the console panel when it is open. The
@@ -34,19 +35,22 @@ export default function App() {
                 <span className="chat-header__title">
                     {'🐊 putout chat'}
                 </span>
-                <button
-                    className={[
-                        'chat-header__btn',
-                        consoleOpen && 'chat-header__btn--active',
-                    ]
-                        .filter(Boolean)
-                        .join(' ')}
-                    data-testid="console-toggle"
-                    onClick={() => dispatch(toggleConsole())}
-                    type="button"
-                >
-                    {`console ${consoleOpen ? '⊟' : '⊞'}`}
-                </button>
+                <div className="chat-header__actions">
+                    <ThemeToggle/>
+                    <button
+                        className={[
+                            'chat-header__btn',
+                            consoleOpen && 'chat-header__btn--active',
+                        ]
+                            .filter(Boolean)
+                            .join(' ')}
+                        data-testid="console-toggle"
+                        onClick={() => dispatch(toggleConsole())}
+                        type="button"
+                    >
+                        {`console ${consoleOpen ? '⊟' : '⊞'}`}
+                    </button>
+                </div>
             </header>
             <div className="chat-app__body">
                 <Chat/>

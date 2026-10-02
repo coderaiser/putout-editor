@@ -2,6 +2,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {commands} from '@putout/editor-commands';
 import {
     useCallback,
+    useEffect,
+    useRef,
     useState,
     type ChangeEvent,
     type KeyboardEvent,
@@ -14,7 +16,34 @@ export interface InputProps {
     onSend: (input: string) => void;
 }
 
-const MAX_LINES = 6;
+/**
+ * One visible row, not six.
+ *
+ * `rows` is the box's *height*, so a multi-line value made the composer a tall
+ * empty box from the first paint — the thread got a third of the screen for a
+ * control that is empty. One row is Claude's resting shape.
+ *
+ * It also is not enough on its own: a `textarea` does **not** grow with its
+ * content, it scrolls, so `max-height` alone caps an empty box and does nothing
+ * for a long one. `growTo` below sets the height from `scrollHeight`, and the
+ * `max-height` in `chat.css` is what stops a pasted file from eating the page.
+ */
+const MAX_ROWS = 1;
+
+/**
+ * Size the box to its content, up to whatever `max-height` allows.
+ *
+ * Written as a standalone export with its own spec because it is the only part
+ * of this component that cannot be checked by rendering: it reads `scrollHeight`
+ * and writes `style.height`, and jsdom reports both as 0.
+ */
+export const growTo = (box: HTMLTextAreaElement | null): void => {
+    if (!box)
+        return;
+    
+    box.style.height = 'auto';
+    box.style.height = `${box.scrollHeight}px`;
+};
 
 /** Commands whose name starts with what has been typed, `/` included. */
 export const matches = (typed: string): string[] => {
@@ -152,6 +181,14 @@ export default function Input({history, onSend}: InputProps) {
     // handler bumps the number and this turns it into text on the same render.
     const recalled = cursor >= 0 ? history.at(!cursor ? history.length - 1 : history.length - cursor - 1) : undefined;
     const value = text || recalled || '';
+    const box = useRef<HTMLTextAreaElement>(null);
+    
+    // `value` rather than `text`, because a recalled line is a multi-line
+    // command arriving without a keystroke — resizing on `text` would leave the
+    // box one row tall showing five lines of recalled source.
+    useEffect(() => {
+        growTo(box.current);
+    }, [value]);
     
     return (
         <div className="input">
@@ -188,7 +225,8 @@ export default function Input({history, onSend}: InputProps) {
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder="Message or /command…"
-                rows={MAX_LINES}
+                ref={box}
+                rows={MAX_ROWS}
                 value={value}
             />
             <button
