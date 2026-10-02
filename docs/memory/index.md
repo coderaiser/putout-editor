@@ -16,5 +16,6 @@ keeping once the problem is closed, so the cause is not derived a second time.
 | [`fence-gate.md`](./fence-gate.md) | a `js` fence must be JavaScript; the rule is a sub-plugin of the markdown plugin |
 | [`build.md`](./build.md) | an operator must not import a processor, and why `IgnorePlugin` cannot fix it |
 | [`workspaces.md`](./workspaces.md) | install with `bun i --no-save` and a workspace symlink is not the published build; a package subpath import must not carry a `.ts` extension; `print()` takes what `putout`'s `parse()` produced; `--fix` corrupts an `as` cast without `isTS`, and a file emptied by `--fix` is the rules working |
+| [`browser-bundle.md`](./browser-bundle.md) | a green build says nothing about whether the page runs: 🐊Putout calls `os.homedir()` at module scope, an `IgnorePlugin` does not fix a dynamic `require`, and `chunks: 'all'` makes a lazy chunk eager |
 
 The house rules these all point at are in [`../../MEMORY.md`](../../MEMORY.md).
