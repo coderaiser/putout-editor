@@ -253,9 +253,13 @@ export default {
                 fullySpecified: false,
             },
             // Both files are prebuilt in `node_modules`, and transpiling them buys
+            
             // nothing — neither writes syntax a browser cannot read — while costing
+            
             // build time. The client's copy has carried this exclude for the same
+            
             // reason; without it, swc-loader also lowers `await import(url)` into a
+            
             // context require that no specifier can satisfy.
             exclude: [
                 join(__dirname, 'node_modules', 'hermes-parser'),
@@ -346,14 +350,23 @@ export default {
         chat: './src/index.tsx',
     },
     // The remaining two warnings are both from `hermes-parser`, and both are the
+    
     // bundler announcing that it replaced a node global with a mock:
+    
     // `"__filename" is used and has been mocked`, and the same for `__dirname`.
+    
     // The message names the switch: *set `node.__dirname` to disable this
+    
     // warning*, and `'mock'` is the value that says it without the report.
+    
     //
+    
     // The file is a WASM loader for `hermes-parser`, reached through
+    
     // 🐊**Putout**'s loader on `/find`, `/transform` and `/validate` — the three
+    
     // commands that answer "needs a server" in a browser, so nothing this page
+    
     // renders calls it.
     node: {
         __dirname: 'mock',
