@@ -8,6 +8,7 @@ import {
     setSource,
     setPlugin,
     setConsoleAst,
+    setHistoryIndex,
     toggleConsole,
     clearThread,
     reset,
@@ -184,5 +185,36 @@ test('slice: nextId never repeats, so a key on id is stable', (t) => {
     const result = first === second;
     
     t.notOk(result);
+    t.end();
+});
+
+test('slice: setHistoryIndex stores the cursor', (t) => {
+    const state = reducer(initialState, setHistoryIndex(2));
+    
+    const result = state.historyIndex;
+    const expected = 2;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('slice: pushHistory resets the cursor to the empty box', (t) => {
+    const walked = reducer(initialState, setHistoryIndex(2));
+    const state = reducer(walked, pushHistory('/ast'));
+    
+    const result = state.historyIndex;
+    const expected = -1;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('slice: pushHistory keeps the line it was given', (t) => {
+    const state = reducer(initialState, pushHistory('/ast'));
+    
+    const result = state.history;
+    const expected = ['/ast'];
+    
+    t.deepEqual(result, expected);
     t.end();
 });

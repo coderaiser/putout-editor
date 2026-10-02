@@ -1,3 +1,4 @@
+import {useDispatch, useSelector} from 'react-redux';
 import {commands} from '@putout/editor-commands';
 import {
     useCallback,
@@ -5,6 +6,8 @@ import {
     type ChangeEvent,
     type KeyboardEvent,
 } from 'react';
+import {setHistoryIndex} from '#store';
+import type {RootState} from '#store/types';
 
 export interface InputProps {
     history: string[];
@@ -44,8 +47,9 @@ export const describeOf = (option: string): string => {
 };
 
 export default function Input({history, onSend}: InputProps) {
+    const dispatch = useDispatch();
+    const cursor = useSelector((root: RootState) => root.chat.historyIndex);
     const [text, setText] = useState('');
-    const [cursor, setCursor] = useState(0);
     const [picked, setPicked] = useState(0);
     
     const open = text.startsWith('/');
@@ -66,9 +70,9 @@ export default function Input({history, onSend}: InputProps) {
         
         onSend(text);
         setText('');
-        setCursor(0);
+        dispatch(setHistoryIndex(-1));
         setPicked(0);
-    }, [onSend, text]);
+    }, [dispatch, onSend, text]);
     
     const onChange = ({target}: ChangeEvent<HTMLTextAreaElement>) => {
         setText(target.value);
@@ -121,13 +125,13 @@ export default function Input({history, onSend}: InputProps) {
         // entry, 1 the one before it. Starting at 0 rather than 1 is what makes
         // the first `↑` land on the most recent line instead of doing nothing.
         if (key === 'ArrowUp' && !open && !text) {
-            setCursor((at) => Math.min(at + 1, history.length));
+            dispatch(setHistoryIndex(Math.min(cursor + 1, history.length)));
             
             return;
         }
         
         if (key === 'ArrowDown' && !open && !text) {
-            setCursor((at) => Math.max(at - 1, 0));
+            dispatch(setHistoryIndex(Math.max(cursor - 1, -1)));
             
             return;
         }
@@ -146,7 +150,7 @@ export default function Input({history, onSend}: InputProps) {
     // "showing the box as it is" and 1 is the most recent line. Reading it here
     // rather than in the key handler is what makes a single `↑` recall: the
     // handler bumps the number and this turns it into text on the same render.
-    const recalled = cursor > 0 ? history.at(-cursor) : undefined;
+    const recalled = cursor >= 0 ? history.at(!cursor ? history.length - 1 : history.length - cursor - 1) : undefined;
     const value = text || recalled || '';
     
     return (

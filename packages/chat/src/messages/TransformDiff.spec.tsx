@@ -11,7 +11,7 @@ const diff = (before: string, after: string) => render(
 );
 
 test('TransformDiff: renders a before block', (t) => {
-    diff('const a = 1;', 'const a = 1;');
+    diff('const a = 1;', 'const b = 1;');
     
     const element = document.querySelector('.transform-diff__code--before');
     const result = element && element.textContent;
@@ -68,6 +68,31 @@ test('TransformDiff: carries the transform-diff testid', (t) => {
     
     const result = document.querySelector('[data-testid="transform-diff"]') !== null;
     const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('TransformDiff: an unchanged transform says so rather than drawing the text twice', (t) => {
+    diff('const a = 1;', 'const a = 1;');
+    
+    const element = document.querySelector('[data-testid="transform-diff"]');
+    const result = element && element.textContent;
+    const expected = 'No changes';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('TransformDiff: an unchanged transform draws no before or after block', (t) => {
+    diff('const a = 1;', 'const a = 1;');
+    
+    const result = document.querySelectorAll('.transform-diff__side').length;
+    const expected = 0;
     
     cleanup();
     

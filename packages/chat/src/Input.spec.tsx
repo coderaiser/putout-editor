@@ -4,18 +4,38 @@ import {
     cleanup,
     fireEvent,
 } from '@testing-library/react';
+import {Provider} from 'react-redux';
+import type {ReactNode} from 'react';
 import {commands} from '@putout/editor-commands';
+import {makeStore} from '#test/store';
 import Input, {matches, describeOf} from './Input.tsx';
 
 const sent: string[] = [];
 const push = sent.push.bind(sent);
 
-const box = (history: string[] = []) => render(
-    <Input
+/**
+ * `Input` reads the recall cursor from the store, so every render needs a
+ * `Provider` — and it is `makeStore`, the factory the page uses, so a spec
+ * cannot pass against a store the app never builds.
+ */
+const box = (history: string[] = []) => {
+    const store = makeStore({
+        history,
+    });
+    
+    const wrapper = ({children}: {children: ReactNode;}) => (
+        <Provider store={store}>
+            {children}
+        </Provider>
+    );
+    
+    return render(<Input
         history={history}
         onSend={push}
-    />,
-);
+    />, {
+        wrapper,
+    });
+};
 
 const input = () => document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
 const value = () => input().value;

@@ -2,6 +2,7 @@ export {
     reducer,
     addMessage,
     pushHistory,
+    setHistoryIndex,
     setSource,
     setPlugin,
     setConsoleAst,

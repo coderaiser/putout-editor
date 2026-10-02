@@ -7,6 +7,17 @@ export interface ChatAppState {
     source: string;
     plugin: string;
     history: string[];
+    
+    /**
+     * How far back the `↑` recall has walked: `-1` is the empty box, `0` the
+     * most recent line, `1` the one before it.
+     *
+     * In the store rather than in `Input`'s own state, because the cursor has to
+     * survive a re-render that is not caused by typing — a command's answer
+     * landing in the thread re-renders the input, and a `useState` cursor set in a
+     * keydown handler would be fine only by accident.
+     */
+    historyIndex: number;
     consoleAst: {
         nodes: FlatNode[];
         source: string;
@@ -19,6 +30,7 @@ export const initialState: ChatAppState = {
     source: '',
     plugin: '',
     history: [],
+    historyIndex: -1,
     consoleAst: null,
     consoleOpen: false,
 };
@@ -48,6 +60,10 @@ export const {reducer, actions} = createSlice({
         /**
          * The echo of a sent line, and the `↑` recall it feeds. Pushed before
          * the command runs, so a command that throws cannot lose what was typed.
+         *
+         * `historyIndex` resets to `-1` here: a new line means the box is empty
+         * again, and leaving the cursor where it was would make the next `↑` jump
+         * to a line from before the one just typed.
          */
         pushHistory: (state, {payload}: PayloadAction<string>) => ({
             ...state,
@@ -55,6 +71,12 @@ export const {reducer, actions} = createSlice({
                 ...state.history,
                 payload,
             ],
+            historyIndex: -1,
+        }),
+        
+        setHistoryIndex: (state, {payload}: PayloadAction<number>) => ({
+            ...state,
+            historyIndex: payload,
         }),
         
         setSource: (state, {payload}: PayloadAction<string>) => ({
@@ -92,6 +114,7 @@ export const {reducer, actions} = createSlice({
 export const {
     addMessage,
     pushHistory,
+    setHistoryIndex,
     setSource,
     setPlugin,
     setConsoleAst,
