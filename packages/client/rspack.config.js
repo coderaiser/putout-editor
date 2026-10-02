@@ -24,6 +24,30 @@ const VERSION = process.env.VERSION || ROOT_PKG.version;
 const test = /\/node_modules\//;
 const THREE_MB = 3 * 1024 * 1024;
 
+/**
+ * Node-only packages, ignored rather than shimmed. The reasons are at the
+ * `NODE_ONLY.map(ignore)` call, so this list reads as data and the prose sits in
+ * one place.
+ */
+const NODE_ONLY = [
+    /globby/,
+    /import-meta-resolve/,
+    /unicorn-magic/,
+    /stylelint/,
+    /supports-hyperlinks/,
+];
+
+/** Reached by a dynamic `require`, so they need replacing rather than ignoring. */
+const REPLACED_WITH_NOTHING = [
+    '@putout/processor-css',
+];
+
+const ignore = (resourceRegExp) => new rspack.IgnorePlugin({
+    resourceRegExp,
+});
+
+const replaceWithNothing = (name) => new rspack.NormalModuleReplacementPlugin(RegExp(`^${name.replace('/', '\\/')}$`), new URL('./src/shims/empty.js', import.meta.url).pathname);
+
 const plugins = [
     new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
         resource.request = resource.request.replace(/^node:/, '');
@@ -52,6 +76,58 @@ const plugins = [
         resourceRegExp: /^eslint6?$/,
     }),
     new rspack.ContextReplacementPlugin(/@putout\/engine-loader/, /NEVER_MATCH^/),
+    
+    // Node-only packages 🐊**Putout** reaches transitively. They ask questions a
+    
+    // browser cannot answer — `unicorn-magic` and `import-meta-resolve` want
+    
+    // `fileURLToPath` from `node:url`, which the `url` shim above does not carry,
+    
+    // `stylelint` wants `pathToFileURL`, and `supports-hyperlinks` wants a named
+    
+    // export `supports-color` does not have.
+    
+    //
+    
+    // These were 43 of the 45 errors this build reported; the other two were the
+    
+    // `v8` and `inspector` fallbacks further down. Nothing here is reached at
+    
+    // runtime: the page parses and *displays* an AST, it does not lint one.
+    
+    // `packages/chat/rspack.config.js` carries the same list, and the reasoning is
+    
+    // written out in full in docs/memory/browser-bundle.md.
+    ...NODE_ONLY.map(ignore),
+    
+    // `@putout/processor-css` is reached by a *dynamic* `require`, so ignoring it
+    
+    // is not enough — the call site resolves at runtime and throws
+    
+    // `Cannot find module '@putout/processor-css'`. Pointing the specifier at an
+    
+    // empty module is what makes the dynamic require resolve.
+    
+    //
+    
+    // `@putout/operator-match-files` is deliberately **not** on either list, and
+    
+    // that is the opposite of what chat does with it. Chat has no filesystem and
+    
+    // no rules that match files, so stubbing the operator there is free. This
+    
+    // package *does* run `matchFiles` rules — every rule in
+    
+    // `packages/plugin-putout-editor` — and stubbing it built cleanly and then
+    
+    // threw `TypeError: e6 is not a function` before React mounted, because a
+    
+    // rule's `scan`/`fix` came back as `undefined` where a function was
+    
+    // expected. A green build is not a working page; that is the whole lesson of
+    
+    // docs/memory/browser-bundle.md.
+    ...REPLACED_WITH_NOTHING.map(replaceWithNothing),
     // mini-css-extract-plugin is not compatible with rspack, use the native equivalent
     new rspack.CssExtractRspackPlugin({
         filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
@@ -264,6 +340,19 @@ export default {
             'async_hooks': false,
             'zlib': false,
             'jscodeshift': false,
+            // `typescript` does `require("inspector")` inside a branch it never
+            
+            // takes in a browser, and `import-meta-resolve` imports `v8`.
+            
+            // Neither has a browser equivalent and neither is reached — the page
+            
+            // only ever *displays* a parsed AST.
+            
+            // These two were the whole of the build failure: 45 errors, 43 of
+            
+            // them one of these two resolvers. See docs/issues/chat.md.
+            'inspector': false,
+            'v8': false,
             'process/browser': resolve('process/browser'),
             'tty': resolve('tty-browserify'),
             'process': resolve('process/browser'),
