@@ -129,14 +129,24 @@ const plugins = [
         process: 'process/browser',
     }),
     new rspack.CssExtractRspackPlugin({
-        filename: DEV ? '[name].css' : `[name]-[contenthash]-${CACHE_BREAKER}.css`,
+        // In `chat/`, beside the page that links it. Left at the root of `out/`
+        // the href breaks the moment the page moves into the directory: the
+        // stylesheet is a sibling of `index.html` now, and the editor's own
+        // `app-*.css` is the one file that still belongs at the root.
+        filename: DEV ? 'chat/[name].css' : `chat/[name]-[contenthash]-${CACHE_BREAKER}.css`,
     }),
     // html-webpack-plugin is kept as-is rather than swapped for HtmlRspackPlugin:
     // the latter supports only a subset of EJS, and `index.ejs` relies on full EJS.
     new HtmlWebpackPlugin({
         favicon: './favicon.png',
         inject: 'body',
-        filename: 'chat.html',
+        // `chat/index.html`, not `chat.html`. The chunks already go to `out/chat/`,
+        // and a page beside a directory of the same name loses: `/chat` resolves
+        // to the **directory** — a 302 to `/chat/`, and `/chat/` is a file
+        // listing, because the server only serves an `index.html` inside it.
+        // Inside the directory, `/chat` and `/chat/` both serve the page and the
+        // chunk paths are unchanged.
+        filename: 'chat/index.html',
         template: './index.ejs',
         version: VERSION,
     }),

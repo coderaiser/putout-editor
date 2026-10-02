@@ -48,18 +48,24 @@ failure.
 
 ## `out/` is shared
 
-`bun run build` writes `out/chat.html` and `out/chat/` next to the editor's own
-files and **does not delete `out`** — the client's build does that, and the two
-would otherwise race. The root `build` script runs the client first and chat
-second for the same reason; the ordering is verified in both directions in the
-commit that added it.
+`bun run build` writes `out/chat/` next to the editor's own files and **does not
+delete `out`** — the client's build does that, and the two would otherwise race.
+The root `build` script runs the client first and chat second for the same
+reason; the ordering is verified in both directions in the commit that added it.
+
+**The page is `out/chat/index.html`, not `out/chat.html`.** The chunks already go
+to `out/chat/`, and a page *beside* a directory of the same name loses: `/chat`
+resolves to the directory, and with no `index.html` inside it, the server answers
+with a 302 to `/chat/` and then a file listing. Inside the directory, `/chat` and
+`/chat/` both serve the app. The stylesheet moved with it for the same reason — a
+`href` to a file in the parent directory is one more relative path to break.
 
 ## The gate
 
 ```bash
 bun run check    # putout . && tsc --noEmit && coverage, in that order
 bun run test     # unit
-bun run build    # then `bun run start` and open /chat.html
+bun run build    # then `bun run start` and open /chat
 bun run test:e2e # playwright, against the built bundle
 ```
 

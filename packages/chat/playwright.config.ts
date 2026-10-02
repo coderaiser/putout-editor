@@ -8,9 +8,9 @@ export default defineConfig({
     forbidOnly: Boolean(process.env.CI),
     reporter: 'list',
     use: {
-        // The chat is served as `chat.html` beside the editor's `index.html`,
-        // from the same `../../out`. So the base URL is the editor's and every
-        // spec has to name the page itself.
+        // The chat is served from `out/chat/`, beside the editor's `index.html`
+        // at the root of the same `../../out`, so the base URL is the editor's and
+        // every spec has to name the page itself.
         baseURL: 'http://localhost:8080',
         storageState: undefined,
     },

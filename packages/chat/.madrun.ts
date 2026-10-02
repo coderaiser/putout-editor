@@ -41,8 +41,8 @@ export default {
 /**
  * Unlike the client, this does not `rimraf ../../out` and swap a staged
  * directory in: `out` is shared, and the client's own build deletes it. Chat
- * writes `out/chat.html` and `out/chat/` next to the editor's files, so the two
- * builds are order-independent.
+ * writes `out/chat/` next to the editor's files, so the two builds are
+ * order-independent.
  */
 function build(env: string) {
     return `NODE_ENV=${env} rspack build --mode=${env}`;
