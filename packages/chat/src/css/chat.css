@@ -21,13 +21,13 @@ body {
     color: var(--color-text-primary);
     font-family: var(--font-ui);
     
-    .app {
+    .chat-app {
         display: flex;
         flex-direction: column;
         height: 100vh;
     }
     
-    .app__header {
+    .chat-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -36,13 +36,13 @@ body {
         border-bottom: 1px solid var(--color-border);
     }
     
-    .app__title {
+    .chat-header__title {
         margin: 0;
         font-size: 16px;
         font-weight: 600;
     }
     
-    .app__console {
+    .chat-header__btn {
         color: var(--color-accent);
         font-family: var(--font-mono);
         font-size: 13px;
@@ -50,19 +50,19 @@ body {
     }
     
     /* One column by default; the console panel is a second column once open. */
-    .app__body {
+    .chat-app__body {
         display: grid;
         grid-template-columns: 1fr;
         flex: 1;
         min-height: 0;
     }
     
-    .app--split .app__body {
+    .chat-app--split .chat-app__body {
         grid-template-columns: 1fr 1fr;
     }
     
     @media (width <= 768px) {
-        .app--split .app__body {
+        .chat-app--split .chat-app__body {
             grid-template-columns: 1fr;
             grid-template-rows: 1fr 1fr;
         }
@@ -203,4 +203,18 @@ body {
         color: var(--color-text-dim);
     }
 
+}
+
+.chat-console {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 8px;
+    border-left: 1px solid var(--color-border);
+}
+
+.chat-console > .console-panel {
+    flex: 1;
+    min-height: 0;
+    border: 0;
 }

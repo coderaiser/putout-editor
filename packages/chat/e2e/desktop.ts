@@ -67,6 +67,19 @@ test('console panel toggles on /console', async ({page}) => {
     await expect(page.locator('.console-panel')).toBeVisible();
 });
 
+test('the header button opens the console without a command', async ({page}) => {
+    // The button dispatches `toggleConsole` itself rather than sending `/console`,
+    // so this is a different path to the same panel — and the one a user takes.
+    await expect(page.locator('.chat-console')).toHaveCount(0);
+    
+    await page
+        .getByTestId('console-toggle')
+        .click();
+    
+    await expect(page.locator('.chat-console')).toBeVisible();
+    await expect(page.getByTestId('console-toggle')).toContainText('⊟');
+});
+
 test('error shown for unknown command', async ({page}) => {
     await send(page, '/notacommand');
     

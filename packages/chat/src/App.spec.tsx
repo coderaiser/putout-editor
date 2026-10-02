@@ -63,7 +63,7 @@ test('App: the console panel is absent by default', (t) => {
 test('App: the app is not in split layout by default', (t) => {
     mount();
     
-    const result = document.querySelector('.app--split');
+    const result = document.querySelector('.chat-app--split');
     const expected = null;
     
     cleanup();
@@ -93,7 +93,7 @@ test('App: /console puts the app into split layout', async (t) => {
     send('/console');
     await wait();
     
-    const result = document.querySelector('.app--split') !== null;
+    const result = document.querySelector('.chat-app--split') !== null;
     const expected = true;
     
     cleanup();
@@ -157,9 +157,9 @@ test('App: the panel shows the tree after /ast', async (t) => {
 test('App: the header names the editor', (t) => {
     mount();
     
-    const title = document.querySelector('.app__title');
+    const title = document.querySelector('.chat-header__title');
     const result = title && title.textContent;
-    const expected = 'putout editor';
+    const expected = '🐊 putout chat';
     
     cleanup();
     
@@ -172,7 +172,7 @@ test('App: the header offers the console toggle', (t) => {
     
     const element = toggle();
     const result = element && element.textContent;
-    const expected = '[console]';
+    const expected = 'console ⊞';
     
     cleanup();
     
@@ -188,7 +188,7 @@ test('App: the header reads hide console once it is open', async (t) => {
     
     const element = toggle();
     const result = element && element.textContent;
-    const expected = '[hide console]';
+    const expected = 'console ⊟';
     
     cleanup();
     
@@ -205,5 +205,70 @@ test('App: the chat is always on screen', (t) => {
     cleanup();
     
     t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The header control dispatches `toggleConsole` itself rather than sending the
+ * `/console` command. A click has to be a click — and because both go through
+ * the same reducer, the button and the command cannot leave the panel in
+ * different states, which is the whole reason the button dispatches directly.
+ */
+test('App: clicking the header control opens the console panel', (t) => {
+    mount();
+    
+    fireEvent.click(document.querySelector('[data-testid="console-toggle"]') as HTMLElement);
+    
+    const result = document.querySelector('.chat-console') !== null;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('App: clicking the header control again closes it', (t) => {
+    mount();
+    
+    const button = document.querySelector('[data-testid="console-toggle"]') as HTMLElement;
+    
+    fireEvent.click(button);
+    fireEvent.click(button);
+    
+    const result = document.querySelector('.chat-console');
+    const expected = null;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('App: the header control carries the active class only while open', (t) => {
+    mount();
+    
+    const button = document.querySelector('[data-testid="console-toggle"]') as HTMLElement;
+    const active = () => button.classList.contains('chat-header__btn--active');
+    
+    const before = active();
+    
+    fireEvent.click(button);
+    
+    const after = active();
+    
+    const result = {
+        before,
+        after,
+    };
+    
+    const expected = {
+        before: false,
+        after: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
     t.end();
 });
