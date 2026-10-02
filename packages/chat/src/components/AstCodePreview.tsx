@@ -1,4 +1,4 @@
-import type {FlatNode} from '../state.types.ts';
+import type {FlatNode} from '@putout/editor-commands';
 
 export interface AstCodePreviewProps {
     source: string;

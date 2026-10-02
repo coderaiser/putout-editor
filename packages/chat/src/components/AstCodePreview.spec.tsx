@@ -1,7 +1,7 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
+import type {FlatNode} from '@putout/editor-commands';
 import AstCodePreview, {linesOf, markedLine} from './AstCodePreview.tsx';
-import type {FlatNode} from '../state.types.ts';
 
 const read = (selector: string) => {
     const element = document.querySelector(selector);

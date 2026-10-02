@@ -1,0 +1,175 @@
+/**
+ * The TUI tree. One stylesheet for all six components, because they are one
+ * widget: a change to the row's type colours changes what the search bar and the
+ * status bar sit next to, and three files would make that a three-file diff.
+ *
+ * Every colour is a token with a hex fallback on the same declaration, so the
+ * tree renders standalone — mounted in a spec, or in the console panel before
+ * `chat.css` has loaded. The names match the client's `tokens.css` exactly, so
+ * importing that stylesheet later restyles this rather than fighting it.
+ */
+
+.ast {
+    --ast-bg: var(--color-bg-editor, #1a1a2e);
+    --ast-fg: var(--color-text-primary, #e2e2e2);
+    --ast-dim: var(--color-text-dim, #555);
+    --ast-accent: var(--color-accent, #7dcfff);
+    --ast-border: var(--color-border, #2a2a2a);
+    --ast-match: #ffc66d;
+    --ast-selected: var(--color-bg-message-user, #1e3a5f);
+
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--ast-border);
+    border-radius: 6px;
+    background: var(--ast-bg);
+    color: var(--ast-fg);
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+}
+
+/* `ast-output` is the root's testid, and the root is also the keyboard target:
+   two trees on one page must each answer their own keypresses, which is why the
+   listener is bound here rather than to `document`. */
+.ast:focus-visible {
+    outline: 1px solid var(--ast-accent);
+}
+
+.ast__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+}
+
+.ast__tree {
+    overflow: auto;
+    padding: 4px 0;
+}
+
+.ast__empty {
+    padding: 12px;
+    color: var(--ast-dim);
+}
+
+/* Rows */
+
+.ast-row {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    padding: 1px 8px;
+    white-space: pre;
+    cursor: pointer;
+}
+
+.ast-row:hover {
+    background: var(--ast-selected);
+}
+
+.ast-row--selected {
+    background: var(--ast-selected);
+}
+
+.ast-row--dimmed {
+    opacity: 0.45;
+}
+
+.ast-row__caret,
+.ast-row__connectors {
+    color: var(--ast-dim);
+}
+
+.ast-row__type {
+    color: var(--ast-accent);
+}
+
+.ast-row__detail {
+    color: var(--ast-fg);
+}
+
+.ast-row__pos {
+    margin-left: auto;
+    color: var(--ast-dim);
+}
+
+.ast-match {
+    background: var(--ast-match);
+    color: #1a1a2e;
+}
+
+/* Search bar */
+
+.ast-search {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--ast-border);
+}
+
+.ast-search__icon {
+    color: var(--ast-dim);
+}
+
+.ast-search__input {
+    flex: 1;
+    min-width: 0;
+    padding: 2px 4px;
+    border: 1px solid var(--ast-border);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+}
+
+.ast-search__count {
+    color: var(--ast-dim);
+    white-space: nowrap;
+}
+
+/* Code preview */
+
+.ast-code {
+    overflow: auto;
+    padding: 4px 0;
+    border-left: 1px solid var(--ast-border);
+}
+
+.ast-code__line {
+    display: flex;
+    gap: 8px;
+    padding: 0 8px;
+    white-space: pre;
+}
+
+.ast-code__line--active {
+    background: var(--ast-selected);
+}
+
+.ast-code__number {
+    min-width: 3em;
+    color: var(--ast-dim);
+    text-align: right;
+}
+
+/* Status bar */
+
+.ast-status {
+    display: flex;
+    gap: 12px;
+    padding: 4px 8px;
+    border-top: 1px solid var(--ast-border);
+    color: var(--ast-dim);
+}
+
+.ast-status__type {
+    color: var(--ast-accent);
+}
+
+.ast-status__help {
+    margin-left: auto;
+}

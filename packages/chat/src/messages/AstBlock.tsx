@@ -1,4 +1,5 @@
-import {AstTree, type FlatNode} from '@putout/editor-commands';
+import type {FlatNode} from '@putout/editor-commands';
+import AstTree from '../components/AstTree.tsx';
 
 export interface AstBlockProps {
     nodes: FlatNode[];
@@ -6,10 +7,10 @@ export interface AstBlockProps {
 }
 
 /**
- * The `/ast` reply, and the whole reason this package is a chat rather than a
- * form: the tree is `@putout/editor-commands`' own `AstTree`, not the client's
- * `Tree.tsx`. It is self-contained — props in, events out — so the import is
- * a package boundary and not an alias into the editor's store.
+ * The `/ast` reply. `AstTree` lives here rather than in
+ * `@putout/editor-commands`: that package is a Node library with no React and
+ * no DOM, and the tree is a view. It is self-contained — props in, events out —
+ * so nothing here reaches for the store.
  *
  * The `data-testid` lives here and **not** on a wrapper of `AstTree`: `AstTree`
  * already carries `ast-output` itself, and putting a second one on this wrapper

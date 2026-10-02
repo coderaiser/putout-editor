@@ -4,8 +4,8 @@ import {
     cleanup,
     fireEvent,
 } from '@testing-library/react';
+import type {FlatNode} from '@putout/editor-commands';
 import AstTree from './AstTree.tsx';
-import type {FlatNode} from '../state.types.ts';
 
 const read = (selector: string) => {
     const element = document.querySelector(selector);

@@ -1,9 +1,13 @@
+// The stylesheet is imported from the component rather than from the entry, so
+// the tree carries its own colours wherever it is mounted — a chat message, the
+// console panel, or a spec.
+import './AstTree.css';
+import type {FlatNode} from '@putout/editor-commands';
 import {useTreeState} from './useTreeState.ts';
 import AstRow from './AstRow.tsx';
 import AstSearch from './AstSearch.tsx';
 import AstCodePreview from './AstCodePreview.tsx';
 import AstStatus from './AstStatus.tsx';
-import type {FlatNode} from '../state.types.ts';
 
 export interface AstTreeProps {
     nodes: FlatNode[];

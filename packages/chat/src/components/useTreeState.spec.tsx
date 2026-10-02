@@ -4,6 +4,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
+import type {FlatNode} from '@putout/editor-commands';
 import {
     defaultCollapsed,
     filterNodes,
@@ -12,7 +13,6 @@ import {
     visibleRows,
     withAncestors,
 } from './useTreeState.ts';
-import type {FlatNode} from '../state.types.ts';
 
 const node = (id: string, pid: string | null, depth: number, type = 'Node', detail = ''): FlatNode => ({
     id,

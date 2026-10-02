@@ -3,22 +3,14 @@ import * as api from './index.ts';
 
 test('index: exports the commands, the ast tools and the tree components', (t) => {
     const expected: string[] = [
-        'AstCodePreview',
-        'AstRow',
-        'AstSearch',
-        'AstStatus',
-        'AstTree',
         'commands',
         'compactAST',
-        'defaultCollapsed',
         'errorText',
-        'filterNodes',
         'flattenAst',
         'needsPutout',
         'notInBrowser',
         'parseCommand',
         'queryAST',
-        'rowsOf',
         'runAst',
         'runClear',
         'runConsole',
@@ -28,9 +20,6 @@ test('index: exports the commands, the ast tools and the tree components', (t) =
         'runSource',
         'runTestPattern',
         'text',
-        'useTreeState',
-        'visibleRows',
-        'withAncestors',
     ];
     
     const result = Object
@@ -57,5 +46,22 @@ test('index: does not re-export compilePlugin, which drags in putout', (t) => {
     const result = 'compilePlugin' in api;
     
     t.notOk(result);
+    t.end();
+});
+
+/**
+ * The barrel must stay free of React. This package is a Node library — the mcp
+ * uses the commands and has no DOM — so a component exported here would put
+ * React and `@testing-library` into every Node consumer's graph. The tree lives
+ * in `packages/chat/src/components/`; this asserts it has not come back.
+ */
+test('index: exports no React component', (t) => {
+    const components = Object
+        .keys(api)
+        .filter((name) => /^(Ast|use)/.test(name));
+    
+    const expected: string[] = [];
+    
+    t.deepEqual(components, expected);
     t.end();
 });

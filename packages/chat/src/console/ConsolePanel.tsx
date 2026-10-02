@@ -1,4 +1,4 @@
-import {AstTree} from '@putout/editor-commands';
+import AstTree from '../components/AstTree.tsx';
 import type {ConsoleAst} from '../hooks/useConsole.ts';
 
 export interface ConsolePanelProps {

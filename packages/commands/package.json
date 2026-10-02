@@ -2,7 +2,7 @@
   "name": "@putout/editor-commands",
   "version": "1.0.0",
   "type": "module",
-  "description": "Slash commands for the putout editor chat, and the AST tree renderer",
+  "description": "Slash commands shared by the putout editor chat and MCP server",
   "private": true,
   "tag": false,
   "repository": {

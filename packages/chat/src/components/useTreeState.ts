@@ -1,10 +1,10 @@
+import type {FlatNode} from '@putout/editor-commands';
 import {
     useCallback,
     useEffect,
     useRef,
     useState,
 } from 'react';
-import type {FlatNode} from '../state.types.ts';
 
 export type Focus = 'search' | 'tree';
 
