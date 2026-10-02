@@ -1,8 +1,18 @@
 import process from 'node:process';
+import {dirname, join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import fs from 'node:fs';
 import {rspack} from '@rspack/core';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+
+// The client's copy opens with these two as well. Beyond the convention, the
+// `node` option below is keyed on `__dirname`/`__filename`, and
+// `nodejs/convert-commonjs-to-esm/common` reports the *identifier* wherever it
+// appears — so the names have to exist here for that rule to be satisfied at
+// all, whatever value `node` is given.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const {resolve} = createRequire(import.meta.url);
 
@@ -70,6 +80,18 @@ const plugins = [
     new rspack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
         resource.request = resource.request.replace(/^node:/, '');
     }),
+    // The `Critical dependency: the request of a dependency is an expression`
+    // warning is this one. `@putout/engine-loader` does `await import(url)` on a
+    // **variable**, so the bundler cannot see a specifier and warns that the
+    // whole directory of candidates may be pulled in —
+    // [webpack#198](https://github.com/webpack/webpack/issues/198).
+    //
+    // `NEVER_MATCH^` matches no request, so the context module is cut without the
+    // package becoming unresolvable — which is what an `IgnorePlugin` here would
+    // do, and what `docs/memory/browser-bundle.md` records as the three attempts
+    // that each compiled and then broke the page. The client has carried this
+    // since long before chat existed.
+    new rspack.ContextReplacementPlugin(/@putout\/engine-loader/, /NEVER_MATCH^/),
     
     // `AstBlock` pulls in `@putout/editor-commands`, and that package's
     
@@ -230,6 +252,15 @@ export default {
             resolve: {
                 fullySpecified: false,
             },
+            // Both files are prebuilt in `node_modules`, and transpiling them buys
+            // nothing — neither writes syntax a browser cannot read — while costing
+            // build time. The client's copy has carried this exclude for the same
+            // reason; without it, swc-loader also lowers `await import(url)` into a
+            // context require that no specifier can satisfy.
+            exclude: [
+                join(__dirname, 'node_modules', 'hermes-parser'),
+                join(__dirname, 'node_modules', '@putout/engine-loader'),
+            ],
             use: [{
                 loader: 'builtin:swc-loader',
                 options: {
@@ -313,6 +344,20 @@ export default {
     
     entry: {
         chat: './src/index.tsx',
+    },
+    // The remaining two warnings are both from `hermes-parser`, and both are the
+    // bundler announcing that it replaced a node global with a mock:
+    // `"__filename" is used and has been mocked`, and the same for `__dirname`.
+    // The message names the switch: *set `node.__dirname` to disable this
+    // warning*, and `'mock'` is the value that says it without the report.
+    //
+    // The file is a WASM loader for `hermes-parser`, reached through
+    // 🐊**Putout**'s loader on `/find`, `/transform` and `/validate` — the three
+    // commands that answer "needs a server" in a browser, so nothing this page
+    // renders calls it.
+    node: {
+        __dirname: 'mock',
+        __filename: 'mock',
     },
     // `out` is shared with the client, so nothing here deletes it: chat adds
     

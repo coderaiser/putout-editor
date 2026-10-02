@@ -46,6 +46,72 @@ numbers to compare are `tsc --noEmit` and the `Found N error(s)` line.
 `nest build` reports `Found 279 error(s)` and exits 1, and every code count above is unchanged
 (64 / 64 / 56 / 32 / 30). Nothing here has been fixed in the tree.
 
+## ❌ `objects-braces-inside-array` injects a blank line between every pair of comment lines
+
+Upstream, from `@putout/plugin-putout` — not a rule of ours. Found by a `chore: putout-editor:
+actions: lint ☘️` auto-commit that inserted six whitespace-only lines into a **comment** in
+`packages/chat/rspack.config.js`, on a file that reported nothing at all.
+
+The minimum that reproduces it. Starting from an array whose element wraps onto three lines with
+two consecutive comment lines, `putout --fix` returns this — one whitespace-only line inserted per
+gap between comment lines, alongside the collapse the rule actually exists for:
+
+```diff
+ export const p = [
+     {
+         a: 1,
+         // c1
++
+         // c2
+         b: 2,
+     },
+ ];
+```
+
+which it then collapses as well:
+
+```js
+export const p = [{
+    a: 1,
+    // c1
+    
+    // c2
+    b: 2,
+}];
+```
+
+**Expected** — the collapse, with the comment left alone. The count is mechanical: **N comment lines
+produce N−1 inserted lines**, which is what makes it obvious once you have seen it.
+
+The ❌ input is shown as a `diff` rather than a `js` block on purpose: the shape above is exactly
+what `objects-braces-inside-array` reports, and a `js` fence is linted as real JavaScript — so
+writing the repro as `js` makes this repository's own lint report the bug it is describing. That is
+`AGENTS.md`'s fence gate doing its job on a finding rather than on code.
+
+Three measurements, one variable at a time:
+
+| # | What | Result |
+|---|---|---|
+| A | the file **reported** before `--fix` | **nothing** — zero places |
+| B | the file **after** `--fix` | 6 blank lines added, and `--fix` printed no rule name and no count |
+| C | a 3-line comment instead of 2 | 2 blank lines, one per gap |
+
+**A is the finding.** A fixer that rewrites a file the linter did not report is not a formatting
+preference — it is a change with no error behind it, and `redrun fix:lint` runs it on every push,
+which is how six blank lines arrived inside a comment nobody had touched.
+
+**Why it is invisible here, and why that is the point.** Every check that would have caught it
+passes: `putout .` on the original file is clean, `bun run check` is clean, the build is clean, and
+the mangled result is *also* clean, so the second push has nothing to report either. Only reading
+the commit shows it. That is `docs/lessons.md`'s pattern again — a fixer acting on something no
+check was watching — and it is why the commit was worth reading rather than merging blind.
+
+The workaround in this repository is to keep a comment inside an array element to **one line**.
+That is not a guess about length — with N comment lines the rule injects **N−1** blank lines, and
+N=1 is the only value with no gap to fill. Verified both ends: two lines inject one, three inject
+two, and one injects none. Rewriting a six-line paragraph as six one-line comments is worse than
+the original; moving the explanation to the README is better.
+
 ## ❌ every unmatched URL answers 200 with the editor's `index.html`
 
 Found as "`https://putout.cloudcmd.io/chat.html` renders the same as `https://putout.cloudcmd.io`".
