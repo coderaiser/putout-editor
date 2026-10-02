@@ -141,10 +141,15 @@ const plugins = [
         favicon: './favicon.png',
         inject: 'body',
         // `chat/index.html`, not `chat.html`. The chunks already go to `out/chat/`,
+        
         // and a page beside a directory of the same name loses: `/chat` resolves
+        
         // to the **directory** — a 302 to `/chat/`, and `/chat/` is a file
+        
         // listing, because the server only serves an `index.html` inside it.
+        
         // Inside the directory, `/chat` and `/chat/` both serve the page and the
+        
         // chunk paths are unchanged.
         filename: 'chat/index.html',
         template: './index.ejs',

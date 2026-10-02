@@ -17,7 +17,7 @@
     --ast-border: var(--color-border, #2a2a2a);
     --ast-match: #ffc66d;
     --ast-selected: var(--color-bg-message-user, #1e3a5f);
-
+    
     display: flex;
     flex-direction: column;
     min-height: 0;
