@@ -11,7 +11,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | `check-main-imports-in-file`         | filesystem | a rule in `main.css`, which is an entry point and holds only imports   | [a filesystem rule, and when it needs two files](../plugins.md#matchfiles-is-for-one-file-a-rule-that-compares-two-needs-scan) |
 | `check-try-catch-destructure`       | code       | the `tryCatch` rewrite that throws on a real `package.json`             | [a rewrite that keeps the suite green](../memory/putout-rules.md#trycatch-returns-a-shorter-array-when-it-catches) |
 | `hoist-arrow-callback`              | code       | an inline callback buries the predicate in the call                     | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
-| `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes) |
+| `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes), and [one comment reported twice](#-remove-comments-reports-one-comment-twice-when-it-sits-between-two-statements) |
 | `remove-rgb-outside-token-file`      | filesystem | the one hardcoded colour outside `css/tokens.css`                     | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
 | `remove-undefined-token-file`        | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        | [a `scan` delegates to a matcher](../memory/putout-rules.md#a-scan-can-still-delegate-to-a-matcher) |
 | `remove-z-index-outside-token-file`  | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
@@ -119,6 +119,55 @@ The same shape is in this file twice more: the `convert-optional-to-logical` fix
 clean on lossy cases, and the fence that `--fix` "corrected" until the example was gone. All
 three are a fixer acting on something no check was watching. It is a recurrence of *a check that
 passed on a cheaper path than the user takes* in [`../../AGENTS.md`](../../AGENTS.md).
+
+## ❌ `remove-comments` reports one comment twice, when it sits between two statements
+
+The rule's own `filter` asks three questions of a node — `leadingComments`, `trailingComments`,
+`innerComments` — and a parser attaches a comment sitting *between* two statements to **both** of
+them. The `include` list has `Statement` in it, so both statements report the same comment.
+
+Minimum repro, in a directory where the rule is on (`packages/plugin-putout-editor`, whose
+`.putout.json` sets `putout-editor/remove-comments: on` for `*.js`):
+
+```js
+const a = [
+    1,
+];
+
+// between two
+const b = 2;
+```
+
+**Got** — two places, one comment:
+
+```
+lib/__probeB.js
+ 1:0  error   A rule says what the code already says  putout-editor/remove-comments
+ 6:0  error   A rule says what the code already says  putout-editor/remove-comments
+```
+
+**Expected** — one. There is one comment in the file.
+
+The control that settles it is the same comment **above** the first statement rather than between
+two, which reports once — so the count follows the comment's position, not its number:
+
+| Shape                                   | `remove-comments` places |
+|-----------------------------------------|--------------------------|
+| `// c` then `const a = 1;`               | 1                        |
+| `const a = 1;` blank line `// c` blank line `const b = 2;` | 2          |
+
+`lib/hoist-arrow-callback/index.js` reported `10:0` and `29:0` for its single comment on lines
+25–28, and that pair is what put `putout .` on this branch to red: a file with one comment and two
+errors reads as two problems, and `--fix` takes the comment away on the first one.
+
+**The fix is not in the reporter, and that is the part worth keeping.** The count is only wrong; the
+`fix` sets all three arrays to `[]`, so either report removes the comment and the second is a no-op.
+A rule that over-reports is annoying; one that *under*-reports after a fix is dangerous, and this is
+not that. So the duplicate is filed, and the comment in `hoist-arrow-callback/index.js` was deleted
+rather than the rule taught to count — `AGENTS.md` says the plugin carries no comments, and the
+README section for `hoist-arrow-callback` already says all of it ("A **destructured** parameter is
+left alone too … the naming question belongs to the fixer"). The comment was a third copy of a
+paragraph that exists twice already.
 
 ## ❌ `apply-destructuring` drops the `&&` guard on a `return`
 
