@@ -30,6 +30,13 @@ const mount = () => {
 
 const box = () => document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
 
+const wait = () => setTimeout(20);
+
+/**
+ * `Ctrl+Enter`, because plain `Enter` is a newline now. Every test below types
+ * one whole line and expects it sent, so the chord is the thing being modelled
+ * here rather than repeated in each.
+ */
 const send = (text: string) => {
     fireEvent.change(box(), {
         target: {
@@ -42,10 +49,6 @@ const send = (text: string) => {
         ctrlKey: true,
     });
 };
-
-const wait = () => setTimeout(20);
-
-const toggle = () => document.querySelector('[data-testid="console-toggle"]');
 
 const panel = () => document.querySelector('[data-testid="console-panel"]');
 
@@ -109,7 +112,10 @@ test('App: /console with no /ast yet shows the empty panel', async (t) => {
     send('/console');
     await wait();
     
-    const element = panel();
+    // The panel's own header carries the `✕` and the title, so the panel's
+    
+    // `textContent` is no longer only the hint — the hint is its own element.
+    const element = document.querySelector('[data-testid="console-empty"]');
     const result = element && element.textContent;
     const expected = 'Run /ast to populate the tree';
     
@@ -208,35 +214,6 @@ test('App: the header names the editor', (t) => {
     t.end();
 });
 
-test('App: the header offers the console toggle', (t) => {
-    mount();
-    
-    const element = toggle();
-    const result = element && element.textContent;
-    const expected = 'console ⊞';
-    
-    cleanup();
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('App: the header reads hide console once it is open', async (t) => {
-    mount();
-    
-    send('/console');
-    await wait();
-    
-    const element = toggle();
-    const result = element && element.textContent;
-    const expected = 'console ⊟';
-    
-    cleanup();
-    
-    t.equal(result, expected);
-    t.end();
-});
-
 test('App: the chat is always on screen', (t) => {
     mount();
     
@@ -250,32 +227,18 @@ test('App: the chat is always on screen', (t) => {
 });
 
 /**
- * The header control dispatches `toggleConsole` itself rather than sending the
- * `/console` command. A click has to be a click — and because both go through
- * the same reducer, the button and the command cannot leave the panel in
- * different states, which is the whole reason the button dispatches directly.
+ * The `✕` is the only way to dismiss the panel without typing a command, which
+ * is what the header button used to be for. It dispatches `toggleConsole`, the
+ * same action `/console` does, so the two cannot leave the panel in different
+ * states.
  */
-test('App: clicking the header control opens the console panel', (t) => {
+test('App: the panel ✕ closes the console', async (t) => {
     mount();
     
-    fireEvent.click(document.querySelector('[data-testid="console-toggle"]') as HTMLElement);
+    send('/console');
+    await wait();
     
-    const result = document.querySelector('.chat-console') !== null;
-    const expected = true;
-    
-    cleanup();
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('App: clicking the header control again closes it', (t) => {
-    mount();
-    
-    const button = document.querySelector('[data-testid="console-toggle"]') as HTMLElement;
-    
-    fireEvent.click(button);
-    fireEvent.click(button);
+    fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
     
     const result = document.querySelector('.chat-console');
     const expected = null;
@@ -286,30 +249,37 @@ test('App: clicking the header control again closes it', (t) => {
     t.end();
 });
 
-test('App: the header control carries the active class only while open', (t) => {
+test('App: the panel ✕ comes back after /console', async (t) => {
     mount();
     
-    const button = document.querySelector('[data-testid="console-toggle"]') as HTMLElement;
-    const active = () => button.classList.contains('chat-header__btn--active');
+    // The `✕` is gone with the panel, so a spec that only ever closed it would
     
-    const before = active();
+    // pass for a panel that could never be reopened. Three `/console`s: open,
     
-    fireEvent.click(button);
+    // closed, open again.
+    send('/console');
+    await wait();
+    fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
+    send('/console');
+    await wait();
     
-    const after = active();
-    
-    const result = {
-        before,
-        after,
-    };
-    
-    const expected = {
-        before: false,
-        after: true,
-    };
+    const result = document.querySelector('[data-testid="console-close"]') !== null;
+    const expected = true;
     
     cleanup();
     
-    t.deepEqual(result, expected);
+    t.equal(result, expected);
+    t.end();
+});
+
+test('App: the header has no console button', (t) => {
+    mount();
+    
+    const result = document.querySelector('[data-testid="console-toggle"]');
+    const expected = null;
+    
+    cleanup();
+    
+    t.equal(result, expected);
     t.end();
 });

@@ -1,5 +1,4 @@
-import {useDispatch, useSelector} from 'react-redux';
-import {toggleConsole} from '#store';
+import {useSelector} from 'react-redux';
 import type {RootState} from '#store/types';
 import {useConsole} from './hooks/useConsole.ts';
 import Chat from './Chat.tsx';
@@ -9,15 +8,17 @@ import ThemeToggle from './ThemeToggle.tsx';
 /**
  * The page: a header, the thread, and the console panel when it is open. The
  * panel is hidden by default — `consoleOpen` starts `false` in the slice — so
- * anything testing the console has to open it first.
+ * anything testing the console has to open it first, and the two ways to do
+ * that are both inside the thread rather than in this header: `/console`, and
+ * `/ast` opening it to show what it just parsed.
  *
- * The header control dispatches `toggleConsole` itself rather than routing
- * through the `/console` command: the command exists so the button's state has
- * one source of truth, and a click has to be a click rather than a line typed
- * into a box. Both go through the same reducer, so the two cannot disagree.
+ * There was a header button here, and what it cost is the reason it is gone.
+ * A control that opens a panel already has a command that opens it, and the
+ * button had to keep a piece of state in sync with it — plus its own label, its
+ * own active class, and three tests. The panel's own `✕` covers the case the
+ * button did not: dismissing it without typing a command.
  */
 export default function App() {
-    const dispatch = useDispatch();
     const consoleOpen = useSelector((root: RootState) => root.chat.consoleOpen);
     const ast = useConsole();
     
@@ -35,22 +36,7 @@ export default function App() {
                 <span className="chat-header__title">
                     {'🐊 putout chat'}
                 </span>
-                <div className="chat-header__actions">
-                    <ThemeToggle/>
-                    <button
-                        className={[
-                            'chat-header__btn',
-                            consoleOpen && 'chat-header__btn--active',
-                        ]
-                            .filter(Boolean)
-                            .join(' ')}
-                        data-testid="console-toggle"
-                        onClick={() => dispatch(toggleConsole())}
-                        type="button"
-                    >
-                        {`console ${consoleOpen ? '⊟' : '⊞'}`}
-                    </button>
-                </div>
+                <ThemeToggle/>
             </header>
             <div className="chat-app__body">
                 <Chat/>

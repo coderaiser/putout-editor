@@ -156,12 +156,8 @@ body {
     color: var(--color-text-strong);
 }
 
-.chat-header__actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
+/* No `__actions` wrapper: one control is not a group, and the header is
+   already `justify-content: space-between`. */
 .chat-header__btn {
     padding: 5px 12px;
     border: 1px solid var(--color-border);
@@ -177,12 +173,6 @@ body {
 .chat-header__btn:hover {
     background: var(--color-hover);
     color: var(--color-text-strong);
-}
-
-.chat-header__btn--active {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-    background: var(--color-accent-soft);
 }
 
 .chat-header__btn:focus-visible {
@@ -542,22 +532,51 @@ body {
     background: var(--color-bg-page);
 }
 
+/* A column, not a box around one tree: the header is a sibling of the tree so
+   the `✕` stays put while the tree scrolls under it. */
 .console-panel {
+    display: flex;
+    flex-direction: column;
     overflow: auto;
     border-left: 1px solid var(--color-border);
+}
+
+.console-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 4px 8px;
+    flex-shrink: 0;
+}
+
+.console-panel__title {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
 .chat-console > .console-panel {
     flex: 1;
     min-height: 0;
     border: 0;
+    /* The tree scrolls itself, and a second scroll container around it would
+       put two scrollbars on one panel. */
+    overflow: hidden;
 }
 
 .console-panel--empty {
     display: flex;
+    flex-direction: column;
+}
+
+.console-panel__hint {
+    display: flex;
+    flex: 1;
     align-items: center;
     justify-content: center;
-    height: 100%;
     padding: 16px;
     color: var(--color-text-dim);
     font-size: 14px;

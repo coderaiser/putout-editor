@@ -1,6 +1,13 @@
 import {test} from 'supertape';
-import {render, cleanup} from '@testing-library/react';
+import {
+    render,
+    cleanup,
+    fireEvent,
+} from '@testing-library/react';
+import {Provider} from 'react-redux';
+import type {ReactNode} from 'react';
 import type {FlatNode} from '@putout/editor-commands';
+import {makeStore} from '#test/store';
 import ConsolePanel from './ConsolePanel.tsx';
 
 const node = (id: string): FlatNode => ({
@@ -15,19 +22,38 @@ const node = (id: string): FlatNode => ({
     endCol: 10,
 });
 
-const panel = (nodes: FlatNode[] | null) => render(
-    <ConsolePanel
+/**
+ * The `✕` dispatches `toggleConsole`, so the panel needs a store like any other
+ * consumer of one — and it is `makeStore` again, preloaded open, because a spec
+ * that built its own would be testing a store the page never runs.
+ */
+const panel = (nodes: FlatNode[] | null) => {
+    const store = makeStore({
+        consoleOpen: true,
+    });
+    
+    const wrapper = ({children}: {children: ReactNode;}) => (
+        <Provider store={store}>
+            {children}
+        </Provider>
+    );
+    
+    render(<ConsolePanel
         ast={nodes && {
             nodes,
             source: 'const a = 1;',
         }}
-    />,
-);
+    />, {
+        wrapper,
+    });
+    
+    return store;
+};
 
 test('ConsolePanel: no ast says so rather than showing a blank box', (t) => {
     panel(null);
     
-    const element = document.querySelector('[data-testid="console-panel"]');
+    const element = document.querySelector('[data-testid="console-empty"]');
     const result = element && element.textContent;
     const expected = 'Run /ast to populate the tree';
     
@@ -56,6 +82,38 @@ test('ConsolePanel: the empty panel draws no tree', (t) => {
     
     const result = document.querySelectorAll('[data-testid="ast-row"]').length;
     const expected = 0;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('ConsolePanel: the ✕ closes the panel', (t) => {
+    const store = panel([
+        node('0'),
+    ]);
+    
+    fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
+    
+    const result = store.getState().chat.consoleOpen;
+    const expected = false;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('ConsolePanel: the ✕ is on the empty panel too', (t) => {
+    // A panel with nothing in it is the one that looks like a dead end, and it
+    // is the one the user most needs a way out of.
+    const store = panel(null);
+    
+    fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
+    
+    const result = store.getState().chat.consoleOpen;
+    const expected = false;
     
     cleanup();
     
