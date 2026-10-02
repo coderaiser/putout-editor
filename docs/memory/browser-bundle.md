@@ -80,7 +80,21 @@ already carried it. The page rendered two elements with one identity and
 Playwright refused in strict mode. A component that has a testid does not get
 another from its parent.
 
-## Four things about the chat package itself
+**The same class arrives from the other end: a feature that renders the thing
+twice.** `/ast` answers in the thread *and* opens the console panel with the
+same tree, so from that moment the page has two `AstTree` instances and every
+`ast-*` testid on it is duplicated. Two e2e specs that had been fine failed
+with `strict mode violation: getByTestId('ast-search') resolved to 2 elements`
+the first time `/ast` was run after it.
+
+The fix is the scoping, not a rename: `page.getByTestId('chat').getByTestId(...)`,
+because the panel is a **sibling** of `[data-testid="chat"]`, not a descendant.
+Two instances is the design — the tree components hold no Redux precisely so
+they can be used in both places — so a testid that names one of them has to say
+which. Note this one is invisible to the unit suite: `querySelector` returns
+the first match, and Playwright's strict mode is a different tool being strict.
+
+## Things about the chat package itself
 
 Kept apart from the bundle story above, because none of them is about a browser — they are what a
 change in `packages/chat` needs to know on the first day.
@@ -110,6 +124,21 @@ change in `packages/chat` needs to know on the first day.
   check that finds it is a **nonsense path**: a real chunk returns `text/javascript`, a missing
   one returned the page. `curl /nope-xyz.js` and read the *content type*, not the status.
 - **`nanoid` is not a dependency.** RTK re-exports it: `import {nanoid} from '@reduxjs/toolkit'`.
+- **`getComputedStyle` is `''` on a detached element, and `parseInt('')` is `NaN`.**
+  `growTo` reads the cap off `getComputedStyle(box).maxHeight` and compares it to
+  `scrollHeight`, so a spec that builds its box with `document.createElement` and
+  never appends it gets `NaN > NaN`, the comparison is always false, and the
+  "taller than the cap" branch is **unreachable** — which the 100% gate reports
+  as a missing branch rather than as a wrong assertion. The spec appends the
+  element to `document.body` and removes it after. Measured, and it is the same
+  trap as a detached-element measurement anywhere else: check the thing is in the
+  state you are about to measure.
+- **`Enter` is a newline and `Ctrl+Enter` sends.** Plain `Enter` reaches no
+  branch in `Input`'s key handler on purpose — the browser inserts the newline
+  and `onChange` picks it up. A spec that sends a line has to press the chord,
+  or it is testing nothing: it will pass on the code before the change as well.
+  The e2e is what actually settles the binding, because only it runs in a
+  browser; a `fireEvent.keyDown` cannot produce a newline in jsdom.
 
 **A new file in `packages/chat` is measured immediately.** `.nycrc.json` is `all: true` with
 `checkCoverage`, so a file nothing imports is still counted and the gate goes red on it. The same

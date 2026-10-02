@@ -1,8 +1,24 @@
 # 🐊**Putout** Editor — Chat
 
 The chat half of the editor. A message thread where a slash command runs
-🐊**Putout** over the source you set, and — behind `/console` — the AST tree
-beside it.
+🐊**Putout** over the source you set, and — behind `/ast` or `/console` — the AST
+tree beside it.
+
+## Keys
+
+| Key | What it does |
+|---|---|
+| `Enter` | Newline. Also completes a `/name` while the dropdown is open. |
+| `Shift+Enter` | Newline, always — including while the dropdown is open. |
+| `Ctrl+Enter` | Send. `Cmd+Enter` on macOS. |
+| `Tab` | Complete the picked `/name`. |
+| `↑` / `↓` | Walk the history when the box is empty; move the pick when it is not. |
+| `Escape` | Close the dropdown and empty the box. |
+
+`Enter` is a newline rather than a send because `/source` takes a multi-line body,
+and a `/source` line is not something you can finish on one keystroke. The `↑`
+button is there for the same reason: a keybinding nobody can see is not a
+keybinding, so it carries the chord in its tooltip.
 
 ## What is where
 
@@ -11,11 +27,11 @@ beside it.
 | `src/index.tsx` | The entry: `<Provider><App/></Provider>`. |
 | `src/App.tsx` | Header, chat panel, and the console panel when it is open. |
 | `src/Chat.tsx` | The message thread and the input area. |
-| `src/Input.tsx` | Textarea, `/` autocomplete, and `↑` history recall. |
+| `src/Input.tsx` | Textarea, `/` autocomplete, `↑` history recall, and `growTo`. |
 | `src/Message.tsx` | Switches on `result.type` and renders the block. |
 | `src/messages/` | One component per result type. |
 | `src/components/` | The AST tree — six components, self-contained, no Redux. |
-| `src/console/ConsolePanel.tsx` | The tree beside the thread. |
+| `src/console/ConsolePanel.tsx` | The tree beside the thread, and the `✕` that closes it. |
 | `src/ThemeToggle.tsx` | Light/dark, on the editor's `localStorage` key. |
 | `src/css/chat.css` | The palette and every rule. Claude's colours, both themes. |
 | `src/store/` | The redux store: one `chat` slice. |

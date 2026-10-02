@@ -23,6 +23,49 @@ mark it as one.
 | 8 | Write up migrating `plugin-putout-editor` to TypeScript | S |
 | 9 | Fixers for `hoist-arrow-callback` and `check-try-catch-destructure` | M |
 | 10 | A rule for a guard the pattern key already made unreachable | S |
+| 11 | Splicing the newline into a controlled textarea by hand — **rejected** | S |
+
+## 11. Splicing the newline into a controlled textarea by hand — rejected
+
+**Evidence.** `plan.md` for the `/chat` composer flip, §8, prescribes it: *"Plain
+Enter newline insertion in a controlled textarea — React controls `value` via
+state. The browser's default newline behaviour is suppressed by React's synthetic
+event system in some configurations. The safest approach: call
+`event.preventDefault()` on plain Enter to suppress any default, then manually
+insert `\n` at the cursor position via `setText`. The cursor restore via
+`requestAnimationFrame` is necessary because `setSelectionRange` on a textarea
+whose value just changed via state needs the DOM to re-render first."*
+
+**It was never written, and it is not needed.** A `textarea` inserts the newline
+itself and fires the `input` event, which React's `onChange` already turns into
+state — React does not suppress it. Measured, not assumed: the e2e presses
+`Enter` in a real Chromium and asserts both halves,
+
+```ts
+await expect(box(page)).toHaveValue('/help\n');
+await expect(userMessages(page)).toHaveCount(0);
+```
+
+and passes.
+
+**The caret maths would have worked in a spec, which is the part worth keeping.**
+The reason to be suspicious of a hand-rolled version here is not that it cannot
+be tested. Probed: on a jsdom `textarea` with `value = '/help'`, `selectionStart`
+is `5` and `setSelectionRange` and `requestAnimationFrame` both exist, so a spec
+would have got the expected value and gone green. The machinery would have been
+paid for by a test that cannot tell whether the browser was doing the same thing
+or the component was. The checks that *could* have caught it — a real
+keystroke — are the e2e's, and the e2e only exists because this was measured
+there first.
+
+**The cost is not the code, it is the second copy.** The hand-rolled version has
+to know where the caret is, and so does the browser, and now they can disagree.
+Leaving it alone means the newline behaviour is the platform's.
+
+**Why it is still here.** Because the next plan to touch a controlled textarea
+in this repo will say the same thing, and "React suppresses it" reads as a
+measured fact. It is not; it is a plausible mechanism that was checked against
+an e2e and found wrong.
 
 ## 7. A rule for an assertion that cannot fail informatively
 

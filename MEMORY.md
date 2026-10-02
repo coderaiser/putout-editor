@@ -201,6 +201,19 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   linger. `isUpdate()` is `Boolean(Number(UPDATE))`, so `UPDATE=0` is **off**. The mechanism is in
   [`docs/memory/putout-rules.md`](./docs/memory/putout-rules.md#how-update1-actually-works-and-what-it-does-to-a--fix-twin);
   keep `git checkout -- lib/*/fixture/` to hand.
+- **A plan's prescription is a hypothesis, and the e2e is the instrument.** `plan.md` §8 said React
+  suppresses the browser's newline in a controlled textarea and told the implementer to splice `\n`
+  in by hand at the caret. It does not, and the hand-rolled version would have *passed* — jsdom's
+  `selectionStart` reports the caret position, so the spec would have gone green on the machinery
+  instead of the behaviour. What settled it was one Chromium test. Same shape as the four wrong
+  mechanisms in "Say what is actually wrong": a plausible story survives a unit suite and dies in a
+  browser. [`docs/ideas.md`](./docs/ideas.md) §11 is the rejected version and the measurement.
+- **A feature that renders a component twice duplicates every testid on it.** `/ast` answers in the
+  thread and opens the console panel with the same tree, so `ast-search` and `ast-output` each
+  resolve to two elements and Playwright refuses in strict mode — invisible to `querySelector`,
+  which returns the first match. Scope the locator to the container that is a *sibling* of the
+  other, not a descendant of it. In
+  [`docs/memory/browser-bundle.md`](./docs/memory/browser-bundle.md).
 
 ## Keep these three in step
 
