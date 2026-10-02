@@ -2,6 +2,44 @@
 
 **Open only.** What was fixed is in [`../memory/`](../memory/).
 
+## ❌ `packages/client`'s own build fails on this branch — `bun run build` cannot pass
+
+`plan.md` invariant **I7** is "`npm run build` at root passes", and it cannot be met
+by chat: the failure is in the client, on a commit that predates any chat work.
+Measured with the working tree stashed, so this is `HEAD`, not my changes:
+
+```
+$ cd packages/client && bun run build
+Rspack compiled with 90 errors and 13 warnings in 26.05 s
+Command failed: … rspack build --mode=production && rimraf ../../out && mv ../../out-build ../../out
+```
+
+45 distinct `ERROR in` blocks. The `Can't resolve` ones are:
+
+```
+Can't resolve 'inspector'
+Can't resolve 'v8'
+```
+
+**Expected** — either a green build, or an error that names a change I made.
+**Got** a build that has been red for at least the length of this branch.
+
+**Why it matters for chat.** `packages/chat`'s build is clean and writes
+`out/chat.html`, and the root `.madrun.ts` now runs client then chat in that order
+precisely so the client's `rimraf ../../out` cannot take `chat.html` with it. That
+ordering is only *observable* through a green root build, so until the client's
+build is fixed there is no end-to-end check of it — the e2e serves `../../out`,
+which is the one thing that would catch a clobbered `chat.html` in CI.
+
+**Not attempted.** Fixing the client's bundler config is outside the chat plan, and
+the three packages it touches are all at 100% with green suites — so a change there
+is not something to slip in unreviewed. What is needed is a decision: whether the
+`'v8': false` and `'inspector': false` fallbacks the client's `rspack.config.js`
+already lists are being overridden by a dependency that appeared since, or whether
+the config itself needs the `IgnorePlugin` set chat uses. Either way it is the
+same shape of problem chat hit, and chat's `rspack.config.js` documents its
+version of it.
+
 ## ❌ the `/chat` plan's step 1 breaks the client's coverage gate
 
 `plan-c.chat.md` §0.1 adds two files to `packages/client/src` — `export-tree.ts` and
