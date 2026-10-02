@@ -14,27 +14,45 @@ beside it.
 | `src/Input.tsx` | Textarea, `/` autocomplete, and `↑` history recall. |
 | `src/Message.tsx` | Switches on `result.type` and renders the block. |
 | `src/messages/` | One component per result type. |
+| `src/components/` | The AST tree — six components, self-contained, no Redux. |
 | `src/console/ConsolePanel.tsx` | The tree beside the thread. |
 | `src/store/` | The redux store: one `chat` slice. |
-| `test/store.ts` | `makeStore()` — the one store factory, for specs. |
+| `test/store.ts` | `makeStore(overrides)` — the one store factory, for specs. |
 
 ## The commands come from elsewhere
 
 Nothing here implements a command. `@putout/editor-commands` owns the eleven of
-them, the `parseCommand` parser, and the `AstTree` renderer; this package is the
-page around them. The dependency arrow is one-way — `chat → commands`, and
-`commands` knows nothing about this package or about the client.
+them and the `parseCommand` parser; this package is the page around them. The
+dependency arrow is one-way — `chat → commands`, and `commands` is a Node
+library that exports no component, because the mcp uses it too and has no DOM.
+`index.spec.ts` there asserts that absence.
 
-The tree in particular is *not* the client's. The client exports
-`export-tree.ts` for consumers that want its `Tree.tsx`, and chat does not use
-it: `commands/components/AstTree.tsx` is self-contained, takes `FlatNode[]` and
-`source` as props, and manages its own selection.
+**The tree is here rather than in the client's `Tree.tsx`.** The client exports
+`export-tree.ts` for consumers that want its own tree; this package uses
+`src/components/AstTree.tsx`, which is self-contained — props in, events out,
+each instance binding its keydown listener to its own root div so a chat message
+and the console panel cannot fight over a keypress.
+
+## Three commands need a server
+
+`/find`, `/transform` and `/validate` reach 🐊**Putout** through a dynamic
+`import()`. 🐊**Putout** cannot be bundled for a browser — it calls
+`os.homedir()` at module scope — so that chunk is fetched only when one of them
+is typed. In a browser the three answer that they need the server. `/ast`,
+`/source`, `/console` and `/help` work with no server at all.
+
+See [`docs/memory/browser-bundle.md`](../../docs/memory/browser-bundle.md) for
+what `rspack.config.js` ignores and why, and
+[`docs/issues/chat.md`](../../docs/issues/chat.md) for the client's own build
+failure.
 
 ## `out/` is shared
 
 `bun run build` writes `out/chat.html` and `out/chat/` next to the editor's own
 files and **does not delete `out`** — the client's build does that, and the two
-would otherwise race. Build order does not matter; run both.
+would otherwise race. The root `build` script runs the client first and chat
+second for the same reason; the ordering is verified in both directions in the
+commit that added it.
 
 ## The gate
 
