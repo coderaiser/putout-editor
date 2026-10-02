@@ -1,10 +1,28 @@
 # Chat
 
-**Open only.** What was fixed is in [`../memory/`](../memory/).
+**Open only.** What was fixed is in [`../memory/`](../../memory/).
 
-## ❌ `/chat` served a file listing: the page and its own chunk directory had the same name
+## ✅ `/chat` served a file listing: the page and its own chunk directory had the same name
 
-Reported as "`https://putout.cloudcmd.io/chat` does not work after build". The build was green,
+Fixed in `a6a1bc7` — `HtmlWebpackPlugin` writes `chat/index.html`, and the
+stylesheet moved into the directory with it. Re-checked against a built `out/` on
+this branch rather than taken from the commit message:
+
+```
+$ ls out/ | grep -i chat
+chat                                  # a directory, and no chat.html beside it
+$ curl -s -D- -o /dev/null localhost:8080/chat | head -2
+HTTP/1.1 302 Found
+location: /chat/
+$ curl -s localhost:8080/chat/ | head -c 60
+<!doctype html><html><head><title>Putout Chat 3.5.0</title>
+```
+
+The redirect is still there and is fine — it is the *directory* that used to
+answer with a listing, because a directory with no `index.html` in it is a
+listing rather than a 404. `docs/memory/browser-bundle.md` keeps the cause.
+
+Reported as "https://putout.cloudcmd.io/chat does not work after build". The build was green,
 both pages were in `out/`, and every asset resolved — **and the URL was still wrong**, which is
 the one failure `docs/memory/browser-bundle.md` is about.
 
@@ -102,7 +120,11 @@ Verified after the fix, not assumed: the client's e2e is **129 passed, 0 failed*
 the chat's is **7 passed**, and the built editor mounts with a toolbar, three
 textboxes, an AST panel and two stylesheets and no console error.
 
-## ❌ the `/chat` plan's step 1 breaks the client's coverage gate
+## ✅ the `/chat` plan's step 1 breaks the client's coverage gate
+
+Resolved by decision, not by a fix — see the end of this entry. Kept because the
+measurement is the argument, and because the two files are still there on a
+maintainer's choice rather than on an accident.
 
 `plan-c.chat.md` §0.1 adds two files to `packages/client/src` — `export-tree.ts` and
 `export-tokens.ts` — and invariant I3 requires client coverage to stay at 100. Those cannot both
