@@ -16,9 +16,28 @@ const devEnv = {
     NODE_OPTIONS,
 };
 
+/**
+ * Client first, chat second, **sequentially**.
+ *
+ * The client's build is `rspack build && rimraf ../../out && mv ../../out-build
+ * ../../out` — it stages into `out-build` and then replaces `out/` wholesale.
+ * Chat writes `out/chat.html` and `out/chat/` beside the editor's files and
+ * deletes nothing, so the order is the whole contract: chat first and the
+ * client's `rimraf` takes `chat.html` with it; the two in parallel and it is a
+ * race on the same directory.
+ *
+ * `madfork build` cannot express that — it fans out to packages without an order
+ * — so the two are named. `packages/server` has no `build`, so nothing else is
+ * lost by not fanning out.
+ */
+const build = [
+    'cd packages/client && bun run build',
+    'cd packages/chat && bun run build',
+].join(' && ');
+
 export default {
     'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
-    'build': () => 'madfork build',
+    'build': () => build,
     'start': () => [startEnv, 'node bin/putout-editor.js'],
     'start:dev': () => [devEnv, 'node bin/putout-editor.js'],
     'test': () => 'madfork test',
