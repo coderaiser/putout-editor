@@ -109,6 +109,29 @@ await client.close();
   the handler signature, not `z.infer` — `z.infer` yields the *output* type, making the
   field required and breaking callers that omit it.
 
+## The `tape` on `PATH` may not be this repo's `tape`
+
+`node_modules/.bin/tape` is **`@putout/test`'s** bin, not supertape's — and that
+wrapper is the only thing that wires 🐊**Putout**'s **clause coverage**. Running
+`node node_modules/supertape/bin/tracer.js` gives a correct test run with the
+type checker silently doing nothing.
+
+Two consequences, both measured (`docs/memory/printer.md` has the full reading):
+
+- **`1..0 / # pass 0 / # ✅ ok` is a suite that ran nothing**, and it exits 0. Read
+  the **count**, not the exit code. `supertape@13.6.2` added the guard — every
+  pattern matching nothing is a `FAIL` — but `@putout/test` may pin a nested
+  `13.6.1`, which returns `OK` instead.
+- **A coverage report at 100% branches and 0% functions** is the same bug seen
+  from `c8`: branches are counted per source location as the printer walks it, so
+  a module that was loaded but never *called* still reports its `if`s. Read the
+  **function** count before believing the gate.
+
+`which tape` answers the wrong question — a global `~/.local/bin/tape` can sit
+earlier on `PATH` than the repo's, and a `bun i` can add a nested copy under a
+dependency. The 284-test, 36%-coverage run that started all of this is written
+up in `~/broken.md` §1.
+
 ## Installing a dependency here: `bun i --no-save`
 
 `bun i <pkg>` writes `bun.lock`, and **this repository does not commit a lock file** — it is
