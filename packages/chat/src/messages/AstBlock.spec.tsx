@@ -14,6 +14,48 @@ import AstBlock from './AstBlock.tsx';
 
 const SOURCE = 'const add = (a, b) => a + b;';
 
+interface Pointer {
+    coarse: boolean;
+}
+
+const noop = () => {};
+
+/**
+ * A `(pointer: coarse)` stub, wrapping the render.
+ *
+ * `matches` is a **getter**, not a snapshot: `useIsMobile` calls `matchMedia`
+ * once and re-reads `query.matches` inside its `change` listener, so a plain
+ * property would freeze at the value it had when the tree mounted.
+ *
+ * Restored after `fn` rather than for the file, because the component reads the
+ * query at mount — a stub left behind would quietly change every spec that runs
+ * after it.
+ */
+const withPointer = (coarse: boolean, fn: () => void) => {
+    const original = globalThis.matchMedia;
+    
+    const pointer: Pointer = {
+        coarse,
+    };
+    
+    globalThis.matchMedia = ((query: string) => ({
+        get matches() {
+            return query === '(pointer: coarse)' && pointer.coarse;
+        },
+        media: query,
+        onchange: null,
+        addEventListener: noop,
+        removeEventListener: noop,
+        addListener: noop,
+        removeListener: noop,
+        dispatchEvent: () => true,
+    })) as unknown as typeof globalThis.matchMedia;
+    
+    fn();
+    
+    globalThis.matchMedia = original;
+};
+
 /**
  * The rows built the way the app builds them — through the `/ast` command —
  * rather than by hand. A hand-written `FlatNode[]` is a fixture that agrees with
@@ -161,4 +203,69 @@ test('AstBlock: an empty tree says so rather than showing a blank box', (t) => {
     
     t.equal(result, expected);
     t.end();
+});
+
+/**
+ * The hint the block renders for each pointer type.
+ *
+ * The whole path is under test — `useIsMobile` in `AstBlock`, the `mobile` prop
+ * through `AstTree`, and `AstStatus` — because each hop is a place a rename
+ * could quietly stop passing it. Read off the DOM rather than mocked, so a
+ * broken thread shows up as the desktop hint on a coarse pointer.
+ */
+const hint = (): string | null => {
+    const element = document.querySelector('.ast-status__help');
+    
+    return element && element.textContent;
+};
+
+test('AstBlock: shows the short hint on a coarse pointer', (t) => {
+    withPointer(true, () => {
+        block(rows());
+        
+        const result = hint();
+        const expected = '↑↓ · space · /';
+        
+        cleanup();
+        
+        t.equal(result, expected);
+        t.end();
+    });
+});
+
+test('AstBlock: shows the full hint on a fine pointer', (t) => {
+    withPointer(false, () => {
+        block(rows());
+        
+        const result = hint();
+        const expected = '↑↓/jk navigate · h/l fold/expand · space/enter expand · / search · tab switch';
+        
+        cleanup();
+        
+        t.equal(result, expected);
+        t.end();
+    });
+});
+
+/**
+ * The code preview is hidden by **CSS**, not by an `if`.
+ *
+ * That is the design (`AstTree.css`'s `@media (pointer: coarse)`), and this
+ * asserts the consequence so the choice is recorded: the element is still in the
+ * DOM on a coarse pointer, because hiding it in JS would mean `AstTree` has to
+ * know about pointers to render a tree. The e2e is what checks it is not
+ * *visible*; jsdom has no layout, so it can only check that it is still there.
+ */
+test('AstBlock: keeps the code preview mounted on a coarse pointer', (t) => {
+    withPointer(true, () => {
+        block(rows());
+        
+        const result = document.querySelector('.ast-code') !== null;
+        const expected = true;
+        
+        cleanup();
+        
+        t.equal(result, expected);
+        t.end();
+    });
 });

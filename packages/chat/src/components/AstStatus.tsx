@@ -5,11 +5,27 @@ export interface AstStatusProps {
     
     /** The collapsed count, for the `3 hidden` tail. */
     hidden: number;
+    
+    /**
+     * Coarse pointer, which shortens the hint.
+     *
+     * A prop rather than a `matchMedia` read inside the component: the answer
+     * comes from `useIsMobile` so it can be *updated*, and a component that
+     * read the query itself would need its own listener and its own copy of the
+     * subscription. What it is for is narrow — the full hint is 62 characters
+     * and wraps to four lines on a 390px screen.
+     */
+    mobile?: boolean;
 }
 
 const DASH = '—';
 
-export default function AstStatus({selected, hidden}: AstStatusProps) {
+const HINT_FULL = '↑↓/jk navigate · h/l fold/expand · space/enter expand · / search · tab switch';
+const HINT_SHORT = '↑↓ · space · /';
+
+export const hintOf = (mobile?: boolean): string => mobile ? HINT_SHORT : HINT_FULL;
+
+export default function AstStatus({selected, hidden, mobile}: AstStatusProps) {
     return (
         <div
             className="ast-status"
@@ -27,7 +43,7 @@ export default function AstStatus({selected, hidden}: AstStatusProps) {
                 </span>
             )}
             <span className="ast-status__help">
-                {'↑↓/jk navigate · space/enter expand · / search · tab switch'}
+                {hintOf(mobile)}
             </span>
         </div>
     );

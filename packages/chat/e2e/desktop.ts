@@ -412,6 +412,64 @@ test('k in the filter clears it and returns focus to the tree', async ({page}) =
     await expect(tree(page)).toBeFocused();
 });
 
+/**
+ * The desktop keeps **both** halves of the hint: the full text, and the code
+ * preview beside the tree.
+ *
+ * The counterpart to the four mobile specs. A `@media (pointer: coarse)` block
+ * that leaked — an unclosed brace, or a selector that matched more than it
+ * meant to — would leave the desktop with one column and a hidden preview, and
+ * every mobile spec would stay green because they only ever run on a phone.
+ */
+test('/ast shows the full hint and the code preview on desktop', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const status = page
+        .getByTestId('chat')
+        .getByTestId('ast-status');
+    
+    await expect(status).toContainText('h/l fold/expand');
+    await expect(status).toContainText('tab switch');
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .locator('.ast-code')
+    ).toBeVisible();
+});
+
+/**
+ * Two columns on desktop — the geometry behind the mobile `1fr`.
+ *
+ * Asserted as "the tree is narrower than the body", which is what a
+ * two-column grid means, rather than as a pixel width that a font-size change
+ * would move.
+ */
+test('/ast shows two columns on desktop', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const measured = await page.evaluate(() => {
+        const tree = document.querySelector('.ast__tree') as HTMLElement;
+        const body = document.querySelector('.ast__body') as HTMLElement;
+        
+        return {
+            body: body.getBoundingClientRect().width,
+            tree: tree.getBoundingClientRect().width,
+        };
+    });
+    
+    const expected = true;
+    
+    expect({
+        // the preview takes a share, so the tree is strictly narrower
+        twoColumns: measured.tree < measured.body,
+    }).toEqual({
+        twoColumns: expected,
+    });
+});
+
 test('console panel toggles on /console', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     

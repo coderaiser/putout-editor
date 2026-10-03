@@ -417,3 +417,109 @@ test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
     await expect(page.locator('.message--user')).toHaveCount(1);
     await expect(box(page)).toHaveValue('');
 });
+
+/**
+ * The code preview is gone on a touchscreen.
+ *
+ * `toBeHidden()`, **not** `toHaveCount(0)`. The element is still mounted —
+ * `AstTree` renders it unconditionally and `@media (pointer: coarse)` in
+ * `AstTree.css` gives it `display: none` — so a count assertion would fail on
+ * the correct implementation and pass on a broken one. `toBeHidden()` matches
+ * `display: none` and also matches `visibility: hidden`, which is why the CSS
+ * comment pins the two together.
+ */
+test('/ast hides the code preview on a touchscreen', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const preview = page
+        .getByTestId('chat')
+        .locator('.ast-code');
+    
+    await expect(preview).toBeHidden();
+});
+
+/**
+ * …and the tree gets the whole width, which is the actual reason.
+ *
+ * A `minmax(0, 1fr)` two-column grid on 390px gives each column 190px, so the
+ * tree — the point of `/ast` — was the half that ran out of room. Measured
+ * against the viewport rather than against the old value, so the assertion is
+ * about "the tree has the screen" and not about a number the grid happens to
+ * produce today.
+ */
+test('/ast gives the tree the full width on a touchscreen', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const measured = await page.evaluate(() => {
+        const tree = document.querySelector('.ast__tree') as HTMLElement;
+        const body = document.querySelector('.ast__body') as HTMLElement;
+        
+        return {
+            body: body.getBoundingClientRect().width,
+            tree: tree.getBoundingClientRect().width,
+        };
+    });
+    
+    const expected = true;
+    
+    expect({
+        // within a pixel: the two are the same box
+        fullWidth: measured.tree - measured.body > -1,
+    }).toEqual({
+        fullWidth: expected,
+    });
+});
+
+/**
+ * The short hint, and the absence of the keyboard-only bindings.
+ *
+ * Both halves: the full hint is 62 characters and wraps to four lines on a
+ * 390px screen, and its tail — `jk navigate`, `tab switch` — is keys a
+ * touchscreen does not have. A version that only shortened the text but kept
+ * `jk` would pass a length check and still be teaching the wrong thing.
+ */
+test('/ast shows the short hint on a touchscreen', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const status = page
+        .getByTestId('chat')
+        .getByTestId('ast-status');
+    
+    await expect(status).toContainText('↑↓ · space · /');
+    await expect(status).not.toContainText('jk');
+    await expect(status).not.toContainText('tab switch');
+});
+
+/**
+ * The hint fits on one line.
+ *
+ * The reason the short hint exists, asserted as geometry. `clientHeight` is the
+ * rendered height, so "wraps to four lines" becomes `clientHeight > lineHeight`
+ * — and the threshold is one line of slack for the sub-pixel rounding the other
+ * mobile specs already have to allow for.
+ */
+test('/ast hint is one line tall on a touchscreen', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const measured = await page.evaluate(() => {
+        const help = document.querySelector('.ast-status__help') as HTMLElement;
+        const {lineHeight} = getComputedStyle(help);
+        
+        return {
+            height: help.getBoundingClientRect().height,
+            lineHeight: parseFloat(lineHeight),
+        };
+    });
+    
+    const expected = true;
+    
+    expect({
+        singleLine: measured.height <= measured.lineHeight * 1.5,
+    }).toEqual({
+        singleLine: expected,
+    });
+});

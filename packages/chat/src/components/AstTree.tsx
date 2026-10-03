@@ -12,6 +12,18 @@ import AstStatus from './AstStatus.tsx';
 export interface AstTreeProps {
     nodes: FlatNode[];
     source: string;
+    
+    /**
+     * Coarse pointer, threaded to `AstStatus` for the hint.
+     *
+     * Optional and defaulting to `false` so the tree can be mounted anywhere —
+     * a spec, the console panel — without the caller having to know about
+     * pointers at all. Only the **hint** is decided in JS; the code preview is
+     * hidden by `@media (pointer: coarse)` in `AstTree.css`, because a column
+     * that is not rendered cannot be un-rendered by CSS and one that is
+     * rendered-then-hidden still costs a `minmax(0, 1fr)` to size.
+     */
+    mobile?: boolean;
 }
 
 const siblingOf = (pid: string) => (node: FlatNode) => node.pid === pid;
@@ -43,7 +55,7 @@ const isLast = (nodes: FlatNode[], node: FlatNode) => {
     return last.id === node.id;
 };
 
-export default function AstTree({nodes, source}: AstTreeProps) {
+export default function AstTree({nodes, source, mobile}: AstTreeProps) {
     const state = useTreeState(nodes);
     const {
         rows,
@@ -103,6 +115,7 @@ export default function AstTree({nodes, source}: AstTreeProps) {
             </div>
             <AstStatus
                 hidden={nodes.length - rows.length}
+                mobile={mobile}
                 selected={selected}
             />
         </div>

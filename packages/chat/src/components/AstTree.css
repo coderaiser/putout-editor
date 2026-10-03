@@ -47,6 +47,29 @@
     min-height: 0;
 }
 
+/**
+ * One column on touch, and the code preview gone.
+ *
+ * On a 390px screen two `minmax(0, 1fr)` columns are 190px each, which is
+ * enough for `Program` and `VariableDeclarator` and not enough for anything with
+ * a `detail` — so the tree, which is the point of `/ast`, was the half that ran
+ * out of room. `grid-template-columns: 1fr` gives the tree the whole width.
+ *
+ * `display: none` on the preview, not `visibility: hidden`, because the grid
+ * track it sat in is still sized and a hidden-but-present element still occupies
+ * it. The e2e asserts `toBeHidden()`, which matches `display: none` and *not* a
+ * zero-opacity element — so the two are pinned to each other.
+ */
+@media (pointer: coarse) {
+    .ast__body {
+        grid-template-columns: 1fr;
+    }
+
+    .ast-code {
+        display: none;
+    }
+}
+
 .ast__tree {
     overflow: auto;
     padding: 4px 0;

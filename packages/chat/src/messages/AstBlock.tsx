@@ -1,4 +1,5 @@
 import type {FlatNode} from '@putout/editor-commands';
+import {useIsMobile} from '../hooks/useIsMobile.ts';
 import AstTree from '../components/AstTree.tsx';
 
 export interface AstBlockProps {
@@ -17,11 +18,19 @@ export interface AstBlockProps {
  * gives a page two elements with the same testid — which is what the e2e caught,
  * as a strict-mode violation rather than as anything subtle. A testid is an
  * identity, and a component that has one does not get another from its parent.
+ *
+ * `useIsMobile()` here rather than in `AstTree` because the answer is a
+ * **property of the page**, not of a tree: the same tree is mounted in the chat
+ * thread and in the console panel, and two subscriptions answering the same
+ * question is one more thing to keep in step.
  */
 export default function AstBlock({nodes, source}: AstBlockProps) {
+    const mobile = useIsMobile();
+    
     return (
         <div className="ast-block">
             <AstTree
+                mobile={mobile}
                 nodes={nodes}
                 source={source}
             />

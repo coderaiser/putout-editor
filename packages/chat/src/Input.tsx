@@ -10,6 +10,7 @@ import {
 } from 'react';
 import {setHistoryIndex} from '#store';
 import type {RootState} from '#store/types';
+import {isCoarsePointer} from './hooks/useIsMobile.ts';
 
 export interface InputProps {
     history: string[];
@@ -106,8 +107,15 @@ export const enterSends = (coarse: boolean): boolean => !coarse;
  *
  * `false` where `matchMedia` is missing, which is the keyboard binding and the
  * safe default: a browser without the query still has a keyboard.
+ *
+ * **Re-exported**, not re-declared. The question is now asked in two places —
+ * here for the key binding, and in `useIsMobile` for the layout — and two
+ * copies of `(pointer: coarse)` is one more thing to keep in step. `Input` keeps
+ * exporting it because `Input.spec.tsx` imports it from here, and moving an
+ * import in a package whose only consumer is its own spec is churn, not
+ * clarity.
  */
-export const isCoarsePointer = (): boolean => typeof globalThis !== 'undefined' && typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(pointer: coarse)').matches;
+export {isCoarsePointer} from './hooks/useIsMobile.ts';
 
 export default function Input({history, onSend}: InputProps) {
     const dispatch = useDispatch();
