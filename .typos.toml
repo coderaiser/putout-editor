@@ -1,3 +1,13 @@
+[default.extend-words]
+# `hel` is a deliberate partial command prefix in `Input.spec.tsx`: the test types
+# `/hel` so the autocomplete dropdown is still open and `exact` is false, which is
+# what `Ctrl+Enter sends while a partial name is still open` is actually about.
+# Rewriting it to `/help` would make `exact` true and leave that test duplicating
+# `Ctrl+Enter sends a command that is already typed in full` — green, and testing
+# nothing. `/he` in the `matches` specs is the same idea and is not flagged,
+# because `he` is a word.
+hel = "hel"
+
 [files]
 extend-exclude = [
   "Input.spec.tsx",
