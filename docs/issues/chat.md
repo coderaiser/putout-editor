@@ -2,6 +2,66 @@
 
 **Open only.** What was fixed is in [`../memory/`](../../memory/).
 
+## ❌ the composer is 40px wider than a phone, and the dropdown with it
+
+`.input` is `width: 100%` with `padding: 12px 20px 18px` and **no `box-sizing`**, so it is
+`content-box` and adds its own horizontal padding on top of `width: 100%`. `.autocomplete` has
+the same shape through `left: 20px; right: 20px`. Both in `src/css/chat.css`.
+
+Measured with `getBoundingClientRect()` on `devices['iPhone 12']` (390×664), built bundle:
+
+```js
+const measured = {
+    winW: 390,
+    docScrollW: 430,
+    input: {left: 0, right: 430},
+    send: {right: 410},
+    autocomplete: {left: 20, right: 410},
+};
+```
+
+**Expected** — everything inside 390. **Got** — `document.scrollWidth` 430 on a 390px screen, so
+the *whole document* scrolls sideways on every phone, and the send button's right edge sits at
+410px: 20px of the button is off-screen and cannot be tapped. The dropdown's last ~20px is
+likewise unreachable.
+
+`box-sizing: border-box` on the two selectors fixes it, verified by re-measuring:
+`docScrollW` 430 → 390, `send.right` 410 → 370, `autocomplete.right` 410 → 370.
+
+**Not the bug it looks like.** The desktop e2e passes, because at 1280px wide the 40px is
+invisible. It is also not a keyboard problem: the grown box caps correctly at `max-height: 200px`
+with `overflow-y: auto`, the dropdown does not overflow the top, and the 46×46 send button is a
+valid tap target. Measured all three; they are fine.
+
+**The unit suite cannot see this.** Nothing in `src/` changes — it is `chat.css`, and no spec
+asserts geometry. `docs/memory/browser-bundle.md` is the neighbouring lesson: a green build says
+nothing about what a screen looks like.
+
+## ❌ `packages/chat` e2e does not run in CI at all
+
+`.github/workflows/e2e.yml` runs `redrun test:e2e` with `working-directory: packages/client`.
+`redrun` collects scripts from the cwd and every **parent** directory (`parentDirectories` in
+`redrun/bin/redrun.js`) — it never descends into a sibling package. The root has a `test:e2e`
+and the client has one; `packages/chat`'s is never collected.
+
+So a green `E2E` job says nothing about the chat page, and its 15 specs have only ever run
+locally. A chat e2e failure reaches master unnoticed.
+
+**The fix is one step**, and it is not a `redrun` invocation — see the PATH trap in
+[`../memory/workspaces.md`](../memory/workspaces.md):
+
+```yaml
+      - name: Chat e2e
+        run: bun run test:e2e
+        working-directory: packages/chat
+```
+
+**The part worth keeping: a green badge is evidence about the job that ran.** This is
+`MEMORY.md`'s "a check that passes on a cheaper path than the user takes" in its plainest form —
+the job is green because it tests the editor, not because anything is broken. `redrun`'s
+name suggests otherwise: "run multiple npm-scripts fast" reads as *all* of them, and it is
+*all of them on the way up*.
+
 ## ✅ `/chat` served a file listing: the page and its own chunk directory had the same name
 
 Fixed in `a6a1bc7` — `HtmlWebpackPlugin` writes `chat/index.html`, and the
