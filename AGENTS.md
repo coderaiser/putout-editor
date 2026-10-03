@@ -225,6 +225,30 @@ before committing.
   and cancels the mode again. See `e2e/desktop.ts`.
 - **Clipboard tests need `context.grantPermissions(['clipboard-read', 'clipboard-write'])`**,
   which is Chromium-only — keep them in `e2e/desktop.ts`, out of the mobile projects.
+- **`packages/chat`'s e2e does not run in CI.** `e2e.yml` runs `redrun test:e2e` with
+  `working-directory: packages/client`, and `redrun` collects from the cwd and every *parent*
+  — never a sibling package. A green `E2E` badge is evidence about the editor alone. See
+  [`docs/issues/chat.md`](docs/issues/chat.md).
+- **A green e2e badge is not evidence about a screen.** `packages/chat` had a composer
+  40px wider than a phone for its whole life and 15 green desktop specs. Geometry has to be
+  *asserted* — `getBoundingClientRect().right` against `window.innerWidth`, or
+  `document.documentElement.scrollWidth` — because no unit spec measures CSS and a screenshot
+  comparison passes on a layout that is 10% too wide.
+
+## Measuring a page instead of guessing at it
+
+`packages/chat`'s mobile bugs were found by adding a throwaway Playwright project and reading
+geometry, not by reading CSS. The recipe, because it is cheap and it settles the question:
+
+1. add a project to `playwright.config.ts` with `testMatch: ['**/__probe.ts']` and
+   `...devices['iPhone 12']`;
+2. `page.evaluate()` a `getBoundingClientRect()` dump — `offsetWidth` rounds,
+   `scrollWidth` includes overflow, and neither says *where* the overflow is;
+3. `bun run build` first, or the probe measures the old bundle;
+4. delete the probe, or wire it as the regression test.
+
+Apply the candidate fix and **re-measure** before committing. A one-line CSS declaration looks
+like a no-op in a diff, and the before/after numbers belong in the commit body.
 
 ## Reading a deployed snippet
 

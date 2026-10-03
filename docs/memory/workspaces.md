@@ -14,6 +14,24 @@ in a peer of something already present, `bun i --no-save <pkg>` is the command.
 Stating that is part of a finding, not a footnote — the 🐊**Putout** report at the repo root
 carries the caveat because the six defects in it are versioned to what was installed here.
 
+## `redrun` walks *up*, not *down* — and the name reads the other way
+
+`redrun <script>` collects scripts from the cwd and every **parent** directory
+(`parentDirectories` in `redrun/bin/redrun.js`), then runs them joined. It never descends into a
+sibling package.
+
+So `redrun test:e2e` from `packages/client` runs the client's and the root's — and nothing in
+`packages/chat`, `packages/mcp` or `packages/commands`. Those scripts are not slow, they are
+**absent**, and the job is green.
+
+"run multiple npm-scripts fast" reads as *all of them*. It is *all of them on the way up*. Worth
+knowing before trusting a badge: a passing `E2E` job was evidence about the editor alone while
+`packages/chat`'s 15 specs ran only locally. Open problem in
+[`../issues/chat.md`](../issues/chat.md) — the fix is a workflow step, not a note.
+
+For a script that must run in one package, use `bun run <script>` with a `working-directory`:
+it also puts `node_modules/.bin` on `PATH`, the thing `redrun` does not reliably do.
+
 ## A nested `node_modules/` in a workspace breaks `redrun`, and nothing says so
 
 The e2e job runs `redrun build` with `working-directory: packages/client`, and it failed on this

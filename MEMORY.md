@@ -238,6 +238,20 @@ that owns it; a convention belongs here.
   check whether it is exactly the set that fails. And when you uncover that, do not
   commit the tightened gate red and do not lower it — land the measurement, write the
   finding with the real number, and say plainly that the remaining work is tests.
+- **A config entry that silently does nothing is the same failure wearing a fix's clothes.**
+  The typos gate flagged `'/hel'`; the right answer was to allow that one token, and the
+  key written first (`extend-words`) is a **no-op** — the checker tokenises `'/hel'` as one
+  identifier, so a word-level allow never matches it. It looked like a fix because a broader
+  `extend-exclude` added moments earlier was underneath it carrying the build. So: when you
+  change a gate's config, **remove the thing that was already making it pass and confirm it
+  goes red.** If it stays green, your entry is doing nothing and you have shipped a comment
+  and a config key that will mislead the next reader. `extend-identifiers` is the key that
+  works; the reasoning sits in `.typos.toml` where the entry does.
+- **A badge is evidence about the job that ran.** The `E2E` job was green and `packages/chat`
+  had never run in it: `redrun` collects scripts from the cwd and every *parent*, never a
+  sibling package, so a chat spec could fail unnoticed forever. "run multiple npm-scripts
+  fast" reads as *all of them*; it is *all of them on the way up*. When a badge matters,
+  open it and count what it actually ran — `docs/memory/workspaces.md`.
 - Measure before restructuring. Three plans in this repo were wrong on inspection rather
   than on principle: a re-export kept "so no importer changes" that kept a cycle alive; a
   context moved out of `store/` that `boundaries/dependencies` forbids; a `reducers.ts`
