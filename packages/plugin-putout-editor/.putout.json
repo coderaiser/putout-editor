@@ -5,7 +5,9 @@
         },
         "*.md": {
             "putout-editor": "off",
-            "logical-expressions/apply-destructuring": "off"
+            "logical-expressions/apply-destructuring": "off",
+            "logical-expressions/simplify": "off",
+            "typescript/apply-type-guards": "off"
         }
     }
 }

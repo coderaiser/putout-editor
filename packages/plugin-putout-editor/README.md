@@ -20,6 +20,8 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 
 ## Rules
 
+- ✅ [apply-boolean-cast-to-typeof](#apply-boolean-cast-to-typeof);
+- ✅ [apply-box-sizing-to-sized-element](#apply-box-sizing-to-sized-element);
 - ✅ [apply-linked-pattern-value](#apply-linked-pattern-value);
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [check-documented-scripts](#check-documented-scripts);
@@ -30,6 +32,70 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 - ✅ [remove-rgb-outside-token-file](#remove-rgb-outside-token-file);
 - ✅ [remove-undefined-token-file](#remove-undefined-token-file);
 - ✅ [remove-z-index-outside-token-file](#remove-z-index-outside-token-file);
+
+***
+
+## apply-boolean-cast-to-typeof
+
+`Boolean(a) && typeof a === 'object'` is a type guard written with a call, and
+`logical-expressions/simplify` rewrites it to `a && typeof a === 'object'` — which returns the
+first falsy **operand**, not `false`. The `Boolean()` was doing the coercion and the
+simplification deletes it:
+
+```
+$ node -e "…"
+null      before: false boolean | after: null      object
+undefined before: false boolean | after: undefined undefined
+0         before: false boolean | after: 0         number
+```
+
+In TypeScript that is `TS2322: Type 'unknown' is not assignable to type 'boolean'`, and for a
+`value is T` predicate the narrowing is simply wrong downstream. The measured report is in
+`~/broken-putout2.md` §1.
+
+`a as boolean && typeof a === 'object'` is what survives. The cast is not a logical expression, so
+there is nothing for the simplification to remove, and the result is a `boolean` for the
+type-checker. This is the shape `packages/client/src/editor/stringify.ts` already uses.
+
+**The key is `Boolean(__a) && typeof __a === "object"`, and that is not obvious.** `__a` is bound
+once and reused, so both sides must name the same placeholder, and a placeholder's name has to be
+a single letter. `__a() && typeof __a === "object"` does **not** match — that reads as calling
+whatever `__a` bound to. Verified with the mcp `test_pattern` tool rather than by reading.
+
+**A replacer is only reached through the key, so it needs no guard of its own.** The instinct is to
+repeat the `match` guard in `replace` — `match` is the gate and `replace` looks unconditional — but
+both are keyed on the same `CALL`, and the key already decides everything the guard would have
+checked. Measured, not assumed: the cast form `(value as boolean) && typeof value === 'object'`
+matches `Boolean(__a) && typeof __a === "object"` **zero** times, so the replacer is never handed
+one and the guard was unreachable. The three guards in `matcher` and the one in `replacer` were the
+only uncovered lines in the package — a guard nothing can reach is not defensive, it is a branch
+the gate is 100% over.
+
+What *is* load-bearing is that the key names `Boolean` and not `__a()`: `__a() && typeof __a ===
+"object"` reads as calling whatever `__a` bound to, and matches nothing.
+
+The cast is built as a **node**, not printed from a string. `path.replaceWithSourceString()` does
+not exist on `NodePath` — the operator throws by name if you reach for it — and the string form
+that does re-parses as plain JavaScript and fails on the `as` outright:
+
+```
+SyntaxError: Unexpected token, expected "," (1:7) - make sure this is an expression.
+```
+
+## ❌ Example of incorrect code
+
+```ts
+const isObject = (value) => Boolean(value) && typeof value === 'object';
+```
+
+## ✅ Example of correct code
+
+```ts
+const isObject = (value) => value as boolean && typeof value === 'object';
+```
+
+The rule matches the `object` guard only. A guard on another type — `typeof value === 'string'` —
+needs a key of its own, and is left alone here.
 
 ***
 
@@ -365,6 +431,60 @@ Found: seven raw `z-index` numbers across three stylesheets, now a `--z-*` scale
 ```css
 .a {
     z-index: var(--z-dialog);
+}
+```
+
+***
+
+## apply-box-sizing-to-sized-element
+
+A selector that sets a width **and** horizontal padding, with no `box-sizing`. The three
+together are the whole shape and each alone is fine — a width with no padding is not affected,
+padding with no width is not either. It is the sum that overflows: `width: 100%` plus
+`padding: 0 20px` is 40px wider than the parent, and nothing on the element says so.
+
+Four things are deliberately **not** reported, each measured against this repository rather
+than reasoned about:
+
+- `max-width` — an element capped at 85% shrinks to its content and never overflows.
+  `max-width: 85%` with padding is the shape working as intended, and there are four of them.
+- `min-width` — excluded for being rare enough that a false positive would cost more than a miss.
+- a `width` of `calc(100% - 10px)` — the author has already subtracted the padding by hand, and
+  adding `box-sizing` would make the element 10px narrower than they wrote. One of these:
+  `.shareInfo input` in `ShareDialog.css`.
+- `padding: 0` — a bare `0` prints as an empty string through this parser, so the zero test has to
+  accept the empty form as well. `.input__send` in `chat.css` is this shape.
+
+`box-sizing` — either value — settles it, so a selector that declares the property is left
+alone. `content-box` counts: that is the author having said so on purpose.
+
+Vertical-only padding is not this rule's business, so `padding: 12px 0` passes. `padding-block`
+is deliberately absent — it is vertical in a horizontal-tb document, and a rule that has to
+reason about writing modes to be correct is a rule nobody enables.
+
+Found on `packages/chat`: three selectors, of which the bug report named two. The composer was
+40px wider than an iPhone 12 and 20px of the send button sat off-screen —
+[the finding](../../docs/memory/chat-layout.md).
+
+`matchFiles` reports **one place per file** while the fix reaches **every** matching selector,
+including at `fixCount: 1`.
+
+### ❌ Example of incorrect code
+
+```css
+.input {
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+```
+
+### ✅ Example of correct code
+
+```css
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px 18px;
 }
 ```
 

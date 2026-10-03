@@ -1,0 +1,316 @@
+import {
+    test,
+    expect,
+    type Page,
+} from './test.ts';
+
+const box = (page: Page) => page.getByRole('textbox');
+
+/**
+ * `fill` then `Ctrl+Enter`, not `type` then `Enter`: `fill` sets the value in one
+ * go, and a multi-line `/source` body would otherwise be typed key by key, so
+ * the `Enter` that ends a line would land in the middle of the source instead of
+ * being part of the send chord.
+ */
+const send = async (page: Page, text: string) => {
+    await box(page).fill(text);
+    await page.keyboard.press('Control+Enter');
+};
+
+/**
+ * The tree in the *thread*, as opposed to the one in the console panel.
+ *
+ * `/ast` answers twice — once as a message and once in the panel — so every
+ * `ast-*` testid on the page is duplicated the moment `/ast` has run, and a bare
+ * `getByTestId('ast-search')` is a strict-mode violation rather than a passing
+ * test. The panel is a sibling of `[data-testid="chat"]`, not a descendant, so
+ * scoping to the thread picks the message copy.
+ */
+const tree = (page: Page) => page
+    .getByTestId('chat')
+    .getByTestId('ast-output');
+
+const search = (page: Page) => page
+    .getByTestId('chat')
+    .getByTestId('ast-search');
+
+const userMessages = (page: Page) => page.locator('.message--user');
+
+test('renders the chat application', async ({page}) => {
+    await expect(page.getByTestId('app')).toBeVisible();
+});
+
+test('shows ast tree for pasted source', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await expect(tree(page)).toBeVisible();
+    await expect(tree(page)).toContainText('Program');
+    await expect(tree(page)).toContainText('VariableDeclaration');
+});
+
+/**
+ * The seed, asserted in the shape a user meets it: no `/source` sent, `/ast`
+ * typed, and a tree. A unit spec can only check that the seed parses; this is
+ * the one that checks the page draws it.
+ */
+test('/ast works with no source sent', async ({page}) => {
+    await send(page, '/ast');
+    
+    await expect(tree(page)).toBeVisible();
+    await expect(tree(page)).toContainText('Program');
+});
+
+test('search filters tree', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await search(page).fill('VariableDeclaration');
+    
+    // The ancestor stays on screen and is *dimmed* — that is the filter's
+    
+    // design, not a leftover row: a match is only reachable through its parents.
+    
+    // So the first row is `Program` and the match is the next one. Asserting on
+    
+    // `.first()` would have passed for a filter that kept everything and failed
+    
+    // for a filter that worked.
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('ast-row');
+    
+    await expect(rows.first()).toHaveClass(/ast-row--dimmed/);
+    await expect(rows.nth(1)).toContainText('VariableDeclaration');
+    
+    // And the nodes that match nothing are gone: the tree had four drawn rows
+    
+    // for this source and the query leaves two.
+    await expect(rows).toHaveCount(2);
+});
+
+/**
+ * The assertion the old `search filters tree` never made.
+ *
+ * That spec was green throughout and asserted rows and dimming — so a filter
+ * that kept everything, and a highlight that was wired to nothing, both passed
+ * it. This asks for the *class*: the rows that matched must be marked, and the
+ * ancestors on the way to them must not be. A filter working and highlighting
+ * nothing is exactly what shipped.
+ */
+test('search marks the rows that matched', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await search(page).fill('VariableDeclaration');
+    
+    const marked = page
+        .getByTestId('chat')
+        .locator('.ast-row--match');
+    
+    // One match, and it is *not* `Program` — the ancestor is dimmed instead.
+    await expect(marked).toHaveCount(1);
+    await expect(marked).toContainText('VariableDeclaration');
+    
+    const dimmed = page
+        .getByTestId('chat')
+        .locator('.ast-row--dimmed');
+    
+    await expect(dimmed).toHaveCount(1);
+});
+
+/**
+ * `ArrowRight` and `ArrowLeft`, over the real key handler rather than the pure
+ * moves the unit specs cover — this is the only place the binding itself is
+ * exercised, and a binding that was never wired passes every pure test.
+ *
+ * The count is the assertion: expanding a folded node adds rows, folding it
+ * takes them away, and the selection is what decides which.
+ */
+
+/**
+ * `ArrowRight` and `ArrowLeft`, over the real key handler rather than the pure
+ * moves the unit specs cover — this is the only place the binding itself is
+ * exercised, and a binding that was never wired passes every pure test.
+ *
+ * `defaultCollapsed` folds everything below depth 1, so `Program` and
+ * `VariableDeclaration` are open and `VariableDeclarator` is shut. Three
+ * `ArrowDown`s land on it, and it is the first row with children of its own
+ * still hidden — which is why the assertion starts from its caret rather than
+ * from a row count that would be right by accident one row earlier.
+ */
+test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('ast-row');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    
+    const selected = page
+        .getByTestId('chat')
+        .locator('.ast-row--selected');
+    
+    await expect(selected).toContainText('VariableDeclarator');
+    
+    // `▸` is the folded caret. Asserting it is what makes the three presses
+    
+    // above meaningful — landing on a row that is already open would give a
+    
+    // green run for a sequence that expanded nothing.
+    const caret = await selected
+        .locator('.ast-row__caret')
+        .textContent();
+    
+    const expectedCaret = '▸';
+    
+    expect(caret).toBe(expectedCaret);
+    
+    const folded = await rows.count();
+    
+    await page.keyboard.press('ArrowRight');
+    
+    const expanded = await rows.count();
+    expect(expanded).toBeGreaterThan(folded);
+    
+    await page.keyboard.press('ArrowLeft');
+    
+    const refolded = await rows.count();
+    expect(refolded).toBe(folded);
+});
+
+test('console panel toggles on /console', async ({page}) => {
+    await expect(page.getByTestId('console-panel')).toHaveCount(0);
+    
+    await send(page, '/console');
+    
+    await expect(page.locator('.console-panel')).toBeVisible();
+});
+
+test('the panel ✕ closes the console', async ({page}) => {
+    await send(page, '/console');
+    await expect(page.locator('.console-panel')).toBeVisible();
+    
+    // The `✕` is the only way to dismiss the panel without typing a command —
+    
+    // the header button this replaced could only ever open it.
+    await page
+        .getByTestId('console-close')
+        .click();
+    
+    await expect(page.locator('.chat-console')).toHaveCount(0);
+});
+
+/**
+ * Reverses `0e987ac`, and the reason it does not take anything away is the spec
+ * above: `/ast` already answers *in the thread*, so the panel was a second view
+ * of something on screen rather than the only way to see it.
+ *
+ * `/console` and the panel's own ✕ still open and close it by hand — those are
+ * asserted elsewhere, and this is only about what `/ast` does on its own.
+ */
+test('/ast leaves the console panel closed', async ({page}) => {
+    await expect(page.getByTestId('console-panel')).toHaveCount(0);
+    
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    // The tree is in the thread — that is what `shows ast tree for pasted
+    
+    // source` asserts — so the panel opening here would be a duplicate taking
+    
+    // half the thread.
+    await expect(page.locator('.console-panel')).toHaveCount(0);
+});
+
+test('Ctrl+Enter sends the line', async ({page}) => {
+    await box(page).fill('/help');
+    await page.keyboard.press('Control+Enter');
+    
+    await expect(userMessages(page)).toHaveCount(1);
+    await expect(box(page)).toHaveValue('');
+});
+
+test('Enter sends the line on a keyboard', async ({page}) => {
+    await box(page).fill('/help');
+    await page.keyboard.press('Enter');
+    
+    await expect(userMessages(page)).toHaveCount(1);
+    await expect(box(page)).toHaveValue('');
+});
+
+test('Shift+Enter builds a multi-line /source body', async ({page}) => {
+    await box(page).fill('/source\nconst a = 1;');
+    await page.keyboard.press('Shift+Enter');
+    await page.keyboard.insertText('const b = 2;');
+    
+    await expect(box(page)).toHaveValue('/source\nconst a = 1;\nconst b = 2;');
+    
+    await page.keyboard.press('Control+Enter');
+    
+    // Two lines of source survived as a body rather than being sent as two
+    
+    // separate commands, which is the whole reason `/source` takes a rest.
+    await expect(userMessages(page)).toHaveCount(1);
+    await expect(page.locator('.source-block__line')).toHaveCount(2);
+});
+
+test('the send button sends the line', async ({page}) => {
+    // The button is the primary way to send now that `Enter` is a newline, so
+    // it is the one path that cannot be about the chord at all.
+    await box(page).fill('/help');
+    await page
+        .getByTestId('send')
+        .click();
+    
+    await expect(userMessages(page)).toHaveCount(1);
+    await expect(box(page)).toHaveValue('');
+});
+
+test('/console again hides the panel', async ({page}) => {
+    await send(page, '/console');
+    await expect(page.locator('.chat-console')).toBeVisible();
+    
+    await send(page, '/console');
+    
+    await expect(page.locator('.chat-console')).toHaveCount(0);
+});
+
+test('up arrow recalls the last sent line', async ({page}) => {
+    await send(page, '/help');
+    
+    await expect(box(page)).toHaveValue('');
+    
+    await box(page).press('ArrowUp');
+    
+    await expect(box(page)).toHaveValue('/help');
+});
+
+test('the header has no console toggle button', async ({page}) => {
+    // `App.spec.tsx` asserts the same thing in jsdom; this is the user-facing
+    // half, and it is the one that would read as a missing button.
+    await expect(page.getByTestId('console-toggle')).toHaveCount(0);
+    await expect(page.locator('.chat-header__actions')).toHaveCount(0);
+});
+
+test('error shown for unknown command', async ({page}) => {
+    await send(page, '/notacommand');
+    
+    await expect(page.locator('.error-block')).toBeVisible();
+});
+
+test('autocomplete opens on slash', async ({page}) => {
+    await box(page).fill('/');
+    
+    await expect(page.locator('.autocomplete')).toBeVisible();
+    await expect(page.locator('.autocomplete')).toContainText('/ast');
+});

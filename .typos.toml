@@ -1,2 +1,25 @@
+[default.extend-identifiers]
+# `hel` is a deliberate partial command prefix in `Input.spec.tsx`, and the
+# checker reads `/hel` as one identifier rather than as the word `hel` — so this
+# has to be `extend-identifiers`, and `extend-words` silently does nothing.
+#
+# The test types `/hel` so the autocomplete dropdown is still open AND `exact` is
+# false, which is the only state where the `Ctrl+Enter` chord has to beat
+# autocomplete completion. Measured, per candidate:
+#
+#     /hel   dropdown open  options ['/help']  exact false
+#     /he    dropdown open  options ['/help']  exact false
+#     /help  dropdown open  options ['/help']  exact true
+#
+# Rewriting it to `/help` is what the checker asks for and it empties the test:
+# `exact` becomes true, and `Ctrl+Enter sends while a partial name is still open`
+# becomes a second copy of `Ctrl+Enter sends a command that is already typed in
+# full` — green, and testing nothing.
+#
+# This is one word, not the whole file: excluding `Input.spec.tsx` silences the
+# gate for every other line in it, and `docs/memory/coverage.md`'s rule is the
+# reason — a gate satisfied by excluding what it does not cover is not a gate.
+hel = "hel"
+
 [files]
 extend-exclude = ["ChangeLog", "*.woff*", "*.ttf", "*.svg", "*.eot", "*.css"]

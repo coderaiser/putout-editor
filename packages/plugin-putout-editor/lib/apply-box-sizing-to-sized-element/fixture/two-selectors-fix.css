@@ -1,0 +1,11 @@
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+
+.chat__thread {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px 20px;
+}

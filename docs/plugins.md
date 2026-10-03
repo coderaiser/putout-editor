@@ -134,6 +134,40 @@ nothing is modified; run `redlint fix` and the changes are applied.
 That is why `packages/client` runs `redlint fix` inside its `fix:lint`: so the filesystem
 rules are enforced by the lint CI already runs, with no extra step.
 
+### The css AST is not babel's, and that is the expensive half
+
+A rule for a `*.css` file is not writing JavaScript patterns against a CSS parser it
+cannot see. `happy-style` lowers the document to JS **call expressions**, so there is no
+`Declaration` node with a `property` field to visit: a rule matches the *call* and reads
+`arguments`.
+
+```js
+rule(selector([classSelector('input')]), [
+    declaration('box-sizing', 'border-box'),
+]);
+```
+
+`rule(__a, __b)` binds the selector and the declaration list, and `__b.elements` is where the
+declarations are. Three things cost time here and are all recorded:
+
+- a `functionValue` argument list carries an **`operator(...)` node for every separator**, so
+  `calc(100% - 10px)` has three arguments and the middle one is not a value;
+- `extra.rawValue` is what the printer reads, so rewriting a property means moving `value`,
+  `raw` **and** `extra.rawValue` together;
+- a value with no node of its own is a **bare string** — `color: red` is `'red'`. That is
+  correct and it round-trips, which is how a missing node type stays invisible:
+  `apply-box-sizing-to-sized-element`'s first draft read `padding` by *name* only and
+  reported `padding: 12px 0`, which pads no inline axis at all.
+
+Ask the **mcp** server rather than probing: `formats` carries the css and markdown ASTs
+together with the npm package each was read from, and `parse` cannot help — it is a babel
+parser, so a css source comes back `Unexpected token (1:0)`. `AGENTS.md` has the same table
+under "The two non-babel ASTs".
+
+The values that have a node of their own are `dimension`, `percentage`, `color`, `string`,
+`valueList`, `functionValue`, `brackets`, `parentheses` and `unicodeRange`. There is no
+`Ratio` — `16 / 9` is `Number, Operator, Number` — and a comma is an `Operator`.
+
 ### `matchFiles` is for one file; a rule that compares two needs `scan`
 
 There are two ways to write a filesystem rule, and which one applies is decided by a single

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
-import {text as toolText} from './content.ts';
+import {text as toolText} from '@putout/editor-commands/content';
 
 export const name = 'fetch_snippet';
 

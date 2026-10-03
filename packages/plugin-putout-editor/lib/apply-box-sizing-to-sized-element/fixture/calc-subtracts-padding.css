@@ -1,0 +1,5 @@
+.shareInfo input {
+    font-size: 15px;
+    padding: 5px;
+    width: calc(100% - 10px);
+}
