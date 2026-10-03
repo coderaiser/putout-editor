@@ -2,6 +2,58 @@
 
 **Open only.** What was fixed is in [`../memory/`](../../memory/).
 
+## ❌ a Playwright measurement taken right after `page.goto` reads an unmounted page
+
+Found while writing the mobile e2e for the composer overflow below, and it is the reason one of
+those three specs passed on a build that is 40px too wide.
+
+`e2e/test.ts` navigates in a fixture and hands the page to the spec. A geometry assertion that
+calls `page.evaluate` immediately afterwards measures a document React has not painted yet, and
+`document.documentElement.scrollWidth` of an empty document **is the viewport width** — so the
+assertion passes. The minimum that shows it, against the unfixed `chat.css` on
+`devices['iPhone 12']`:
+
+```ts
+test('probe', async ({page}) => {
+    const before = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        hasInput: Boolean(document.querySelector('.input')),
+    }));
+
+    await expect(page.getByTestId('input')).toBeVisible();
+
+    const after = await page.evaluate(() => document.documentElement.scrollWidth);
+
+    console.log({before, after});
+});
+```
+
+**Got** — `{before: {scrollWidth: 390, hasInput: false}, after: 430}`, on three consecutive
+runs, with no navigation in between.
+
+```js
+{
+  "before": {"scrollWidth": 390, "hasInput": false},
+  "after": 430
+}
+```
+
+**Expected** — 430 for both, because the composer is `content-box` and 40px too wide in that
+build and it is on screen for the whole of the test.
+
+So `the composer fits the viewport width` **passed** on the broken build and would have stayed
+green for ever. `page.goto` resolves on `load`, and `createRoot().render()` in `index.tsx`
+happens after it.
+
+**The rule it gives: a measurement is an assertion about a page, so wait for the page.** Every
+geometry assertion in `e2e/mobile.ts` waits for `data-testid="input"` first, and the comment on
+the spec says why. An assertion that can pass on an empty document is not a weaker check — it is
+a check of nothing.
+
+This is `MEMORY.md`'s "a check that passes on a cheaper path than the user takes", and the
+cheaper path was *an empty page*: the assertion ran before the thing it asserts about existed.
+`docs/memory/e2e.md` is the neighbouring lesson.
+
 ## ❌ the composer is 40px wider than a phone, and the dropdown with it
 
 `.input` is `width: 100%` with `padding: 12px 20px 18px` and **no `box-sizing`**, so it is
