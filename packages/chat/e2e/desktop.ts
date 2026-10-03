@@ -491,7 +491,7 @@ test('ast row type colour differs by category', async ({page}) => {
         .locator(`[data-category="${category}"] .ast-row__type`)
         .first()
         .evaluate((element) => getComputedStyle(element).color);
-
+    
     const result = await colourOf('statement');
     const expected = await colourOf('declaration');
     
@@ -522,22 +522,31 @@ test('each drawn category renders a distinct colour', async ({page}) => {
         .locator('[data-testid="ast-output"]')
         .first()
         .focus();
-
-    // `l` expands where it stands, then walks in: Program, VariableDeclaration,
-    // VariableDeclarator — which is what brings `Identifier` and
-    // `ArrowFunctionExpression` out from under the default fold
+    
+    // `l` expands where it stands, then walks in. Five presses reach Program,
+    // VariableDeclaration and VariableDeclarator.
+    
+    // That is what brings `Identifier` and `ArrowFunctionExpression` out from
+    // under the default fold.
+    
     for (const key of ['l', 'l', 'l', 'l', 'l'])
         await page.keyboard.press(key);
-
+    
     const measured = await page.evaluate(() => {
         const rows = [...document.querySelectorAll('.ast-row[data-category]')];
         
-        // A concise arrow, and **not** `rows.map(({getAttribute}) =>
-        // getAttribute('data-category'))`: pulling the method off the element
-        // detaches it from its receiver, and the browser's `getAttribute` reads
-        // `Symbol(attributes)` off `this`. Same trap as `AstBlock.spec.tsx`
-        // records for happy-dom.
-        const categories = [...new Set(rows.map((element) => element.getAttribute('data-category') as string))];
+        const categories = new Set<string>();
+        
+        // A `for..of`, not `rows.map((element) =>
+        // element.getAttribute('data-category'))`: two rules, both learned here.
+        // `hoist-arrow-callback` wants an inline callback lifted to a top-level
+        // declaration, which is wrong for code that has to run *inside the page* —
+        // it closes over `rows`. And the destructured form
+        // `rows.map(({getAttribute}) => getAttribute(...))` detaches the method
+        // from its receiver, which the browser's `getAttribute` reads `this` off.
+        // Same trap as `AstBlock.spec.tsx` records for happy-dom.
+        for (const element of rows)
+            categories.add(element.getAttribute('data-category') as string);
         
         const colours = [];
         
@@ -550,7 +559,7 @@ test('each drawn category renders a distinct colour', async ({page}) => {
         }
         
         return {
-            categories: categories.length,
+            categories: categories.size,
             distinctColours: new Set(colours).size,
         };
     });
