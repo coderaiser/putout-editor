@@ -24,7 +24,10 @@ test('probe', async ({page}) => {
     
     const after = await page.evaluate(() => document.documentElement.scrollWidth);
     
-    console.log({before, after});
+    console.log({
+        before,
+        after,
+    });
 });
 ```
 
@@ -46,6 +49,72 @@ a check of nothing.
 This is `MEMORY.md`'s "a check that passes on a cheaper path than the user takes", and the
 cheaper path was *an empty page*: the assertion ran before the thing it asserts about existed.
 `docs/memory/e2e.md` is the neighbouring lesson.
+
+## ❌ `plan-v3.md` §2: the `PATH` export is not coming back
+
+**Rejected, and it is the one item in v3 that is forbidden rather than merely
+unwise.** `AGENTS.md` puts it in a trap, and so does this branch's own history.
+
+`plan-v3.md` §2 asks for `packages/chat/.madrun.ts` to prefix its build with
+`export PATH="$PWD/../../node_modules/.bin:$PATH"`, which is the workaround the
+author of the plan says they "already found manually". That exact export was
+**added, diagnosed, and removed on this branch**: `89208bc` fixed the real cause
+and `06be1bc` took the export out.
+
+The real cause was a nested `packages/client/node_modules` — from the client alone
+pinning `@types/node@^22` while four other workspaces wanted `^26`. `redrun` stops
+at that nested tree and puts its **non-existent** `.bin` on `PATH`, so every local
+binary vanished and the e2e build failed with `rspack: not found`. The version
+pin was the fix; the export had been a workaround for the symptom. See
+[`../memory/workspaces.md`](../memory/workspaces.md) for the measurement.
+
+So the plan is proposing the second attempt at a bug whose first attempt is in this
+branch's log. **Not done, and the commit history is the reason.**
+
+The diagnosis in §2 is also self-refuting: it says `bun run` puts `node_modules/.bin`
+on `PATH` and therefore the bare `rspack` already resolves — which is the whole
+premise. The export is only reached in the shells that do not have the bin
+directory, and those are the shells `redrun` was breaking.
+
+## ❌ `plan-v3.md` §4: the `100vh` guard rule does not have a shape
+
+**Rejected, for three independent reasons.** The first is expensive to rediscover,
+which is why it is written down.
+
+**The AST in the plan does not exist in this repo.** §4 proposes
+
+```js
+traverse(ast, {
+    Declaration(path) {
+        const {property, value} = path.node;
+        
+        if (is(property, 'height') && /\b100vh\b/.test(value))
+            places.push(path);
+    },
+});
+```
+
+There is no `Declaration` visitor with `node.property` / `node.value` in putout's
+CSS processing. A rule sees `rule(selector([...]), [declaration('height', ...)])` —
+a `CallExpression` — and reaches the declarations through `__b.elements`. Getting
+this right cost most of the time in
+[`../memory/putout-rules.md`](../memory/putout-rules.md)'s neighbourhood; the
+working shape is `apply-box-sizing-to-sized-element`.
+
+**The name breaks the convention.** `apply-dvh-in-chat-css` is named after a
+*package*. Rules here are named after the shape they detect, and `apply-box-sizing-to-sized-element`
+— which covers the same ground from the same stylesheets — is the model.
+
+**A rule cannot be scoped to `packages/chat/` at all.** That is the entire reason
+`matchFiles` exists: a 🐊**Putout** rule sees one AST and knows nothing about
+filenames. §4 half-admits this and then writes a `find`-based code rule anyway. A
+filesystem rule that could be scoped would also be `off` by default and need a
+`.filesystem.json` match to turn on — three moving parts to protect a one-token
+edit that already carries a comment explaining itself.
+
+**What is in its place:** `the document does not scroll` in `e2e/mobile.ts`. That
+is the property the `dvh` choice actually rests on, it is asserted, and it fails if
+the reasoning ever stops being true. A rule cannot do that — only a spec can.
 
 ## 📝 the composer as a CodeMirror editor — route recorded, not started
 
@@ -113,7 +182,7 @@ The redirect is still there and is fine — it is the *directory* that used to
 answer with a listing, because a directory with no `index.html` in it is a
 listing rather than a 404. `docs/memory/browser-bundle.md` keeps the cause.
 
-Reported as "https://putout.cloudcmd.io/chat does not work after build". The build was green,
+Reported as "<https://putout.cloudcmd.io/chat> does not work after build". The build was green,
 both pages were in `out/`, and every asset resolved — **and the URL was still wrong**, which is
 the one failure `docs/memory/browser-bundle.md` is about.
 
