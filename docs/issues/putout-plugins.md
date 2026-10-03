@@ -360,3 +360,61 @@ empty form too.
 
 Both are now `no report` fixtures. A rule that would have fired on either is a rule people
 disable, and the cost of a false positive in a lint rule is much higher than a miss.
+
+## ❌ `apply-type-check` can assign an identifier to itself
+
+Found because it fired on this repository. CI's `fix:lint` ran `putout . --fix` over
+`/home/coderaiser/happy-css`, and nine files stopped working.
+
+The rewrite, as a diff — the "after" line is the whole finding:
+
+```diff
+-const isDeclaration = (node) => node.type === 'Declaration';
++const isDeclaration = isDeclaration;
+```
+
+That "after" is not a style mistake, it does not parse as working code: every one of those
+is a `const` bound to itself, which throws the moment the module loads.
+
+```
+$ npx tape 'lib/parser/visitors/atrule/atrule.spec.js'
+ReferenceError: Cannot access 'isDeclaration' before initialization
+```
+
+**Expected** — `isDeclaration(node)`, imported from `types`, which is what
+`@putout/plugin-putout`'s rule of the same name does. **Got** — the identifier
+**being declared on that very line**, substituted for the helper.
+
+The rule sees `node.type === 'Declaration'`, knows a type check wants an `is*`
+call, and finds `isDeclaration` in scope — because the file declares it two lines
+up, as the very thing it is about to overwrite. It cannot know the two are the
+same binding. `x = x` is not a worse style choice here; it does not parse as
+working code.
+
+**Nine files, and the Lint job auto-committed it as
+`chore: happy-style: actions: lint ☘️`** — the `continue-on-error` behaviour
+`MEMORY.md` records. So the repository was broken on `master` by a green step, and
+the revert is `9c88918`.
+
+The nine: `color-profile`, `counter-style`, `font-face`, `font-palette-values`,
+`keyframes`, `page`, `property`, `view-transition`, `rule/rule` in the parser, plus
+`css-import`, `get-number` and `keyframe-rule` in the printer. The last three got
+the correct treatment — `isUnaryExpression` and `isStringLiteral` *are* real
+exports, so the rewrite there is valid.
+
+### The generalisable half
+
+**A fixer that cannot tell a binding from its own name will eventually write one.**
+This is the same shape as
+[the `tryCatch` rewrite that throws on a real `package.json`](#-a-rewrite-that-keeps-the-suite-green)
+and the [`apply-destructuring` guard loss](#-apply-destructuring-drops-the--guard-on-a-return):
+a rewrite that is correct in the abstract and catastrophic on the instance it
+meets. Two things make it survivable and neither is the rule being right:
+
+- the suite runs **after** the lint in CI, which is why this was caught at all;
+- `MEMORY.md`'s "when you fix something, move it" — a revert with the reason in the
+  message is what stops the next person from re-running `--fix` and re-breaking it.
+
+**A `js` fence in a markdown file is linted as real JavaScript** (`AGENTS.md`), so
+this is reachable from documentation too — worth knowing before writing an example
+of the shape the rule matches.
