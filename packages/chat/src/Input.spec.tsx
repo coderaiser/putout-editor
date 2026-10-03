@@ -1,17 +1,20 @@
 import {test} from 'supertape';
-import {
-    render,
-    cleanup,
-    fireEvent,
-} from '@testing-library/react';
 import {Provider} from 'react-redux';
 import type {ReactNode} from 'react';
 import {commands} from '@putout/editor-commands';
+import {
+    render,
+    cleanup,
+    act,
+    fireEvent,
+} from '@testing-library/react';
 import {makeStore} from '#test/store';
 import Input, {
     matches,
     describeOf,
+    enterSends,
     growTo,
+    isCoarsePointer,
 } from './Input.tsx';
 
 const sent: string[] = [];
@@ -73,6 +76,208 @@ const pressMeta = (key: string) => fireEvent.keyDown(input(), {
 });
 
 const options = () => [...document.querySelectorAll('.autocomplete__row')].map(({textContent}) => textContent || '');
+
+/**
+ * happy-dom *does* implement `matchMedia`, and answers `false` for
+ * `(pointer: coarse)` — so every other spec in this file is the **desktop**
+ * case without saying so. This is the other one: a stub that reports a
+ * touchscreen, where `Enter` is a newline.
+ *
+ * `state.coarse` is mutable and the stub reads it on every call, so a spec can
+ * flip the device mid-test — the case `useEffect`'s `change` listener exists
+ * for, and the one a mount-time-only read could never answer.
+ *
+ * Installed and removed around the call rather than for the file, because the
+ * component reads it at mount — a spec that leaves it behind would quietly
+ * change every spec that runs after it.
+ */
+interface Pointer {
+    coarse: boolean;
+    listeners: Set<(event: MediaQueryListEvent) => void>;
+}
+
+// The deprecated `addListener`/`removeListener` pair is here because
+// `MediaQueryList` still declares it and happy-dom's own implementation
+// answers it. `noop` is the file's existing name for that.
+const noop = () => {};
+
+const withPointer = (fn: (pointer: Pointer) => void) => {
+    const original = globalThis.matchMedia;
+    
+    const pointer: Pointer = {
+        coarse: true,
+        listeners: new Set(),
+    };
+    
+    globalThis.matchMedia = ((query: string) => ({
+        get matches() {
+            return query === '(pointer: coarse)' && pointer.coarse;
+        },
+        media: query,
+        onchange: null,
+        addEventListener: (_: string, listener: (event: MediaQueryListEvent) => void) => {
+            pointer.listeners.add(listener);
+        },
+        removeEventListener: (_: string, listener: (event: MediaQueryListEvent) => void) => {
+            pointer.listeners.delete(listener);
+        },
+        dispatchEvent: () => true,
+        addListener: noop,
+        removeListener: noop,
+    })) as unknown as typeof globalThis.matchMedia;
+    
+    fn(pointer);
+    
+    cleanup();
+    globalThis.matchMedia = original;
+    
+    return pointer;
+};
+
+/** Fire the query's own `change` listeners, as a browser does on an orientation flip. */
+const flip = (pointer: Pointer) => {
+    act(() => {
+        for (const listener of pointer.listeners)
+            listener({} as MediaQueryListEvent);
+    });
+};
+
+test('Input: Enter is a newline on a coarse pointer, and sends nothing', (t) => {
+    sent.length = 0;
+    
+    withPointer(() => {
+        box();
+        type('/help');
+        press('Enter');
+    });
+    
+    const result = sent;
+    const expected: string[] = [];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: a coarse pointer still sends on Ctrl+Enter', (t) => {
+    sent.length = 0;
+    
+    withPointer(() => {
+        box();
+        type('/help');
+        pressCtrl('Enter');
+    });
+    
+    const result = sent;
+    const expected = ['/help'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The mount-time read is not the whole of it: a tablet undocked into a
+ * keyboard changes the answer while the page is up, and re-mounting to find out
+ * would throw away the composer mid-sentence. So the `change` listener applies
+ * it — and this is the only test that reaches that callback.
+ */
+test('Input: the binding follows a change of pointer type', (t) => {
+    sent.length = 0;
+    
+    withPointer((pointer) => {
+        box();
+        type('/help');
+        
+        pointer.coarse = false;
+        flip(pointer);
+        
+        press('Enter');
+    });
+    
+    const result = sent;
+    const expected = ['/help'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: the pointer listener is removed on unmount', (t) => {
+    sent.length = 0;
+    
+    let attached = 0;
+    
+    const pointer = withPointer((registered) => {
+        box();
+        attached = registered.listeners.size;
+    });
+    
+    // `withPointer` calls `cleanup()`, which runs the effect's own teardown. So
+    // this asserts the *detach*: a `removeEventListener` that never ran would
+    // leave the listener attached to a `MediaQueryList` that outlives the
+    // component.
+    const result = {
+        attached,
+        detached: pointer.listeners.size,
+    };
+    
+    const expected = {
+        attached: 1,
+        detached: 0,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: the effect does nothing without matchMedia', (t) => {
+    sent.length = 0;
+    
+    const original = globalThis.matchMedia;
+    
+    Reflect.deleteProperty(globalThis, 'matchMedia');
+    
+    box();
+    type('/help');
+    press('Enter');
+    
+    const result = sent;
+    const expected = ['/help'];
+    
+    cleanup();
+    globalThis.matchMedia = original;
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('Input: isCoarsePointer is false without matchMedia', (t) => {
+    const original = globalThis.matchMedia;
+    
+    Reflect.deleteProperty(globalThis, 'matchMedia');
+    
+    const result = isCoarsePointer();
+    const expected = false;
+    
+    globalThis.matchMedia = original;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: enterSends is true for a fine pointer', (t) => {
+    const result = enterSends(false);
+    const expected = true;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: enterSends is false for a coarse pointer', (t) => {
+    const result = enterSends(true);
+    const expected = false;
+    
+    t.equal(result, expected);
+    t.end();
+});
 
 test('Input: typing / opens the autocomplete', (t) => {
     box();
@@ -146,7 +351,12 @@ test('Input: Enter completes while the autocomplete is open', (t) => {
     t.end();
 });
 
-test('Input: Enter does not send the line', (t) => {
+/**
+ * The desktop binding, and the half of the reversal of `69f5634` that the rest of
+ * this file no longer covers: happy-dom answers `false` for `(pointer: coarse)`,
+ * so an unmounted `matchMedia` stub *is* the desktop case here.
+ */
+test('Input: Enter sends the line on a keyboard', (t) => {
     sent.length = 0;
     box();
     
@@ -154,7 +364,7 @@ test('Input: Enter does not send the line', (t) => {
     press('Enter');
     
     const result = sent;
-    const expected: string[] = [];
+    const expected = ['/help'];
     
     cleanup();
     
@@ -162,18 +372,24 @@ test('Input: Enter does not send the line', (t) => {
     t.end();
 });
 
-test('Input: Enter leaves the typed line in the box', (t) => {
+/**
+ * The reason `69f5634` chose the newline, and the escape hatch it leaves: a
+ * `/source` body is more than one line, so `Shift+Enter` is how you get there
+ * without pasting.
+ */
+test('Input: Shift+Enter is a newline on a keyboard', (t) => {
+    sent.length = 0;
     box();
     
-    type('/help');
-    press('Enter');
+    type('/source');
+    press('Enter', true);
     
-    const result = value();
-    const expected = '/help';
+    const result = sent;
+    const expected: string[] = [];
     
     cleanup();
     
-    t.equal(result, expected);
+    t.deepEqual(result, expected);
     t.end();
 });
 

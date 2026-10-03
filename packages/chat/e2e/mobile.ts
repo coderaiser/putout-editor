@@ -122,3 +122,30 @@ test('air between a command and its answer', async ({page}) => {
     
     expect(result).toBeGreaterThanOrEqual(expected);
 });
+
+/**
+ * The other half of the binding, and the reason the desktop one exists.
+ *
+ * `devices['iPhone 12']` reports `(pointer: coarse)`, so `Enter` is a newline
+ * here — the virtual keyboard's own return key, with no chord available to send
+ * anything else. The two specs are in two projects because a binding chosen by
+ * pointer type is not a binding one project can check.
+ */
+test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) => {
+    await box(page).fill('/help');
+    await page.keyboard.press('Enter');
+    
+    // Both halves are the point: a newline that also sent would post a
+    
+    // half-typed line, and this is the assertion that would have caught it.
+    await expect(box(page)).toHaveValue('/help\n');
+    await expect(page.locator('.message--user')).toHaveCount(0);
+});
+
+test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
+    await box(page).fill('/help');
+    await page.keyboard.press('Control+Enter');
+    
+    await expect(page.locator('.message--user')).toHaveCount(1);
+    await expect(box(page)).toHaveValue('');
+});

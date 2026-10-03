@@ -240,15 +240,12 @@ test('Ctrl+Enter sends the line', async ({page}) => {
     await expect(box(page)).toHaveValue('');
 });
 
-test('Enter adds a newline and does not send', async ({page}) => {
+test('Enter sends the line on a keyboard', async ({page}) => {
     await box(page).fill('/help');
     await page.keyboard.press('Enter');
     
-    // Both halves are the point: a newline that also sent would post a
-    
-    // half-typed line, and this is the assertion that would have caught it.
-    await expect(box(page)).toHaveValue('/help\n');
-    await expect(userMessages(page)).toHaveCount(0);
+    await expect(userMessages(page)).toHaveCount(1);
+    await expect(box(page)).toHaveValue('');
 });
 
 test('Shift+Enter builds a multi-line /source body', async ({page}) => {

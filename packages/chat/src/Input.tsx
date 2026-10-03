@@ -87,6 +87,42 @@ export const describeOf = (option: string): string => {
     return command ? command.description : '';
 };
 
+/**
+ * Whether a plain `Enter` sends, given the pointer type.
+ *
+ * `(pointer: coarse)` is the *intent* test, not a width one: a narrow desktop
+ * window still has a keyboard, and a tablet in a dock has a pointer. So:
+ *
+ * | Key | Touch | Desktop |
+ * |---|---|---|
+ * | `Enter` | newline | **send** |
+ * | `Shift+Enter` | newline | newline |
+ * | `Ctrl`/`Cmd+Enter` | send | send |
+ *
+ * This reverses `69f5634`, which made `Enter` a newline everywhere because
+ * `/source` takes a body and one keystroke cannot finish a line. That reason
+ * holds on a keyboard — it is why `Shift+Enter` survives here — and inverts on a
+ * touchscreen, where the virtual keyboard's own return key is the only newline
+ * available and a chat where return cannot send is a chat with no send key but
+ * the button.
+ *
+ * A function rather than a module-level constant so a spec can state which case
+ * it is exercising. happy-dom *does* implement `matchMedia` and answers `false`
+ * for `(pointer: coarse)`, so the default in a spec is the desktop case without
+ * saying so — which is why the touch case below installs its own stub.
+ */
+export const enterSends = (coarse: boolean): boolean => !coarse;
+
+/**
+ * Reads the pointer type once, at mount, rather than per keystroke: a
+ * `matchMedia` call inside the key handler would run on every keypress, and the
+ * answer does not change while the page is up unless the device is re-plugged.
+ *
+ * `false` where `matchMedia` is missing, which is the keyboard binding and the
+ * safe default: a browser without the query still has a keyboard.
+ */
+export const isCoarsePointer = (): boolean => typeof globalThis !== 'undefined' && typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(pointer: coarse)').matches;
+
 export default function Input({history, onSend}: InputProps) {
     const dispatch = useDispatch();
     const cursor = useSelector((root: RootState) => root.chat.historyIndex);
@@ -124,6 +160,33 @@ export default function Input({history, onSend}: InputProps) {
         setPicked(0);
     }, []);
     
+    /**
+ * Read once at mount and kept in state, so the key handler reads one boolean
+ * rather than calling `matchMedia` per keystroke. The listener below is the
+ * stated limitation: a page left open across a device change (a tablet undocked
+ * into a keyboard) keeps the binding it mounted with, and re-mounting on the
+ * query would throw away the composer mid-sentence. That is a better trade than
+ * the alternative for a chat box.
+ */
+    const [coarse, setCoarse] = useState(isCoarsePointer);
+    
+    useEffect(() => {
+        if (typeof globalThis.matchMedia !== 'function')
+            return;
+        
+        const query = globalThis.matchMedia('(pointer: coarse)');
+        
+        const onChange = () => {
+            setCoarse(query.matches);
+        };
+        
+        query.addEventListener('change', onChange);
+        
+        return () => {
+            query.removeEventListener('change', onChange);
+        };
+    }, []);
+    
     const onKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
         const {
             key,
@@ -132,33 +195,40 @@ export default function Input({history, onSend}: InputProps) {
             metaKey,
         } = event;
         
-        // Send is `Ctrl+Enter`, `Cmd+Enter` on macOS — a chord, because `Enter`
-        // is a newline here and a `/source` body is more than one line. The
-        // `preventDefault` matters: without it the browser also puts a newline
-        // in the box on its way past.
-        if (key === 'Enter' && (ctrlKey || metaKey)) {
-            event.preventDefault();
-            send();
-            
-            return;
-        }
-        
         // Enter still completes a *partial* name while the dropdown is up, and
-        // takes precedence over the newline for the same reason: it is a
-        // choice about the text, not about sending it. Also suppressed here —
-        // the browser's newline would land after the completed name.
+        // takes precedence over both the newline and the send: it is a choice
+        // about the text, not about sending it. Also suppressed here — the
+        // browser's newline would land after the completed name.
         //
         // `!shiftKey` keeps `Shift+Enter` a newline in every state, which is
-        // what it was when it was the only way to get one.
-        if (key === 'Enter' && !shiftKey && open && options.length && !exact) {
+        // what it was when it was the only way to get one, and on a touchscreen
+        // where `Enter` sends it is the *only* way to get one.
+        if (key === 'Enter' && !shiftKey && !ctrlKey && !metaKey && open && options.length && !exact) {
             event.preventDefault();
             complete(options[picked]);
             
             return;
         }
         
-        // Plain `Enter` deliberately reaches no branch below: a `textarea`
-        // inserts the newline itself and fires the `input` event that
+        // Send is `Enter` on a keyboard, `Ctrl`/`Cmd+Enter` everywhere, and never
+        // `Shift+Enter` — which is the newline on both, and on a touchscreen is
+        // the *only* way to get one, since a virtual keyboard has no chord.
+        //
+        // `!shiftKey` is the whole of that last claim, so it is here rather than
+        // in `enterSends`: `enterSends` answers which device this is, and the
+        // modifier is a fact about the keypress.
+        //
+        // The `preventDefault` matters: without it the browser also puts a
+        // newline in the box on its way past.
+        if (key === 'Enter' && !shiftKey && (ctrlKey || metaKey || enterSends(coarse))) {
+            event.preventDefault();
+            send();
+            
+            return;
+        }
+        
+        // Plain `Enter` deliberately reaches no branch below on a keyboard: a
+        // `textarea` inserts the newline itself and fires the `input` event that
         // `onChange` already turns into state. Re-implementing that here would
         // be a second place that has to know where the caret is, for a result
         // the browser hands over correctly.
@@ -202,6 +272,7 @@ export default function Input({history, onSend}: InputProps) {
             return;
         }
     }, [
+        coarse,
         complete,
         exact,
         history.length,
