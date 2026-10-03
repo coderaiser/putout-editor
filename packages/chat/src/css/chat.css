@@ -227,6 +227,16 @@ body {
     margin-bottom: 20px;
 }
 
+/* Air *within* one message, between the user's own line and the answer. The
+   flex `gap` on `.chat__thread` is between messages, and a command and its
+   answer are one message - `.message--user` and `<MessageRow>` as two children
+   of this div - so the gap counts one child and contributes nothing. Without
+   this the echo and the answer sit flush and read as one block of text;
+   measured 0px from the bottom of the pill to the top of the answer. */
+.message--user + .message {
+    margin-top: 8px;
+}
+
 /* The user's own line is a right-aligned raised pill; the answer is plain text
    with no bubble at all, which is what makes the two roles readable apart. */
 .message--user {

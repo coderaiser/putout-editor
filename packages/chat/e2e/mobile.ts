@@ -31,6 +31,15 @@ const rectOf = async (page: Page, selector: string) => {
     return result;
 };
 
+/**
+ * `fill` then `Ctrl+Enter`, not `type` then `Enter`, for the reason
+ * `desktop.ts` gives: a multi-line body would have its `Enter` land mid-source.
+ */
+const send = async (page: Page, text: string) => {
+    await box(page).fill(text);
+    await page.keyboard.press('Control+Enter');
+};
+
 /** The width of `iPhone 12`, and the number every assertion below is written against. */
 const VIEWPORT = 390;
 
@@ -83,4 +92,33 @@ test('the autocomplete dropdown is on screen', async ({page}) => {
     };
     
     expect(expected.withinViewport).toBe(true);
+});
+
+/**
+ * The gap *inside* one message, not between messages.
+ *
+ * `.chat__message` already has `gap: 12px` between messages, and a command and
+ * its answer are one message: `.message--user` then `<MessageRow>` as two
+ * children of a single `.chat__message`. So the flex `gap` counts one child and
+ * contributes nothing, and with no margin of their own the echo and the answer
+ * sit flush — one block of text.
+ *
+ * Measured from the bottom of `.message--user` to the top of the answer, which
+ * is 0 today. Geometry rather than a screenshot, for the reason the specs above
+ * give: a 40px overflow renders a page that looks almost right.
+ */
+test('air between a command and its answer', async ({page}) => {
+    await send(page, '/help');
+    
+    const result = await page.evaluate(() => {
+        const user = document.querySelector('.message--user')!.getBoundingClientRect();
+        
+        const answer = document.querySelector('.chat__message .message:not(.message--user)')!.getBoundingClientRect();
+        
+        return answer.top - user.bottom;
+    });
+    
+    const expected = 8;
+    
+    expect(result).toBeGreaterThanOrEqual(expected);
 });
