@@ -400,6 +400,13 @@ const Harness = ({nodes}: HarnessProps) => {
             >
                 select
             </button>
+            <button
+                data-testid="filter"
+                onClick={() => state.setQuery('Identifier')}
+                type="button"
+            >
+                filter
+            </button>
         </div>
     );
 };
@@ -636,6 +643,318 @@ test('useTreeState: escape in search clears the query and returns focus', (t) =>
     cleanup();
     
     t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * `h` and `l`, the vim spellings of the two arrows.
+ *
+ * Bound to the *same* handler arms as `ArrowLeft`/`ArrowRight` rather than to
+ * copies of them, which is why the assertions are about the tree's own state:
+ * a separate implementation would drift from the arrow the first time one of
+ * them changed. Tree-only, because `state.focus === 'search'` returns before
+ * the `h`/`l` arms — asserted separately below.
+ */
+test('useTreeState: h folds what ArrowLeft folds', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    // `ArrowRight` selects row 0 and expands `Program`, so three rows are drawn
+    // and `ArrowDown` can walk to row 1 — the two drawn by default would not
+    // leave a row below the top to navigate to.
+    press('ArrowRight');
+    press('ArrowDown');
+    press('h');
+    
+    const result = {
+        // `VariableDeclaration` folds in place: same row, children hidden
+        rows: read('rows'),
+        selected: read('selected'),
+    };
+    
+    cleanup();
+    
+    const expected = {
+        rows: '2',
+        selected: '1',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: l expands what ArrowRight expands', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowRight');
+    press('ArrowDown');
+    press('l');
+    
+    const result = read('rows');
+    
+    cleanup();
+    const expected = '4';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The guard, as its own test.
+ *
+ * With focus on the filter, `h` must type an `h` and nothing else — no fold, no
+ * selection change. One combined test would pass if `h` did *both*.
+ */
+test('useTreeState: h and l do nothing while the filter has focus', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('/');
+    const before = read('rows');
+    
+    press('h');
+    press('l');
+    
+    const result = {
+        focus: read('focus'),
+        // counted, not spelled out: the fixture's row count is its own detail,
+        // and "the letters changed nothing" is the claim
+        unchanged: read('rows') === before,
+    };
+    
+    cleanup();
+    
+    const expected = {
+        focus: 'search',
+        unchanged: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * Tab out of the tree and into the filter — the cycle the plan draws:
+ *
+ *     editor -> Tab -> tree -> Tab -> filter -> Tab -> editor
+ *
+ * `preventDefault` is what keeps it: without it the browser moves focus as well
+ * and the handler's `setFocus('search')` races the browser's own tab order to
+ * the next focusable element. `e2e/desktop.ts` is what proves the race is
+ * settled in the filter's favour; the observable here is the state.
+ */
+test('useTreeState: Tab in tree mode sets focus to the search', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('Tab');
+    
+    const expected = 'search';
+    const result = read('focus');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: Tab in search mode returns focus to the tree', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('Tab');
+    press('Tab');
+    
+    const expected = 'tree';
+    const result = read('focus');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * `k` on the **first** row hands over to the filter, and does so **without
+ * moving the selection**.
+ *
+ * "First" means the first *drawn* row, not the first node — a query that leaves
+ * three of fifty rows on screen still has a top, and a filter that made `k` walk
+ * to a hidden row would be worse than not having it. The fixture folds below
+ * depth 1, so `ArrowDown` lands on `Program` and the second `k` is under test.
+ *
+ * `k` rather than `j`: plan.md's cycle diagram says "k / ArrowUp (from Program =
+ * first row) → moves focus to filter input", and the filter bar renders above
+ * the tree. The prose under the diagram names `j`/`ArrowDown`, which cannot
+ * work — two rows are drawn by default, so `j` from the first can never reach
+ * the second. See `docs/issues/chat.md`.
+ */
+test('useTreeState: k from the first row moves focus to the search', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowDown');
+    const atTop = read('selected');
+    
+    press('k');
+    
+    const result = {
+        focus: read('focus'),
+        selected: read('selected'),
+    };
+    
+    cleanup();
+    
+    const expected = {
+        focus: 'search',
+        selected: atTop,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowUp from the first row moves focus to the search too', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowDown');
+    press('ArrowUp');
+    
+    const expected = 'search';
+    const result = read('focus');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * `k` **below** the top keeps walking up — the other half of the rule, and the
+ * one a `k`-always-focuses-the-filter implementation gets wrong.
+ *
+ * `ArrowRight` twice first, because the fixture draws two rows and one `k` is
+ * not enough to be below the top: `ArrowRight` selects row 0 and expands it,
+ * the second walks into row 1.
+ */
+test('useTreeState: k below the first row keeps selecting', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    // expand `Program`, then walk two rows down, so `k` is not at the top
+    press('ArrowRight');
+    press('ArrowDown');
+    press('ArrowDown');
+    press('k');
+    
+    const result = {
+        focus: read('focus'),
+        selected: read('selected'),
+    };
+    
+    cleanup();
+    
+    const expected = {
+        focus: 'tree',
+        // one row back up from `VariableDeclarator`
+        selected: '1',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * `k` from the filter goes back up to the tree, and `k` in the tree still walks
+ * up. One key, two behaviours keyed on focus — which is why they are separate
+ * tests rather than one that presses both.
+ */
+test('useTreeState: k in search mode sets focus to the tree', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('/');
+    press('k');
+    
+    const expected = 'tree';
+    const result = read('focus');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: k in tree mode still walks up', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowDown');
+    press('ArrowDown');
+    press('k');
+    
+    const result = {
+        focus: read('focus'),
+        selected: read('selected'),
+    };
+    
+    cleanup();
+    
+    const expected = {
+        focus: 'tree',
+        selected: '0',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * `ArrowUp` in the filter is the same as `k`, and **it clears the query**.
+ *
+ * The clear is the half that is easy to lose: the plan has `k`/`ArrowUp`
+ * clearing and returning, matching `Escape`. A filter that keeps its text but
+ * loses focus leaves the user looking at a filtered tree with no filter box and
+ * no obvious way back, so the query is asserted alongside the focus.
+ */
+test('useTreeState: ArrowUp in search mode clears the query and returns focus', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('/');
+    act(() => {
+        const button = document.querySelector('[data-testid="filter"]') as HTMLButtonElement;
+        button.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    });
+    
+    press('ArrowUp');
+    
+    const result = {
+        focus: read('focus'),
+        query: read('query'),
+    };
+    
+    cleanup();
+    
+    const expected = {
+        focus: 'tree',
+        query: '',
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 

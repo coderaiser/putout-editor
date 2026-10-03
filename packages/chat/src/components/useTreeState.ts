@@ -327,15 +327,83 @@ export const useTreeState = (nodes: FlatNode[]) => {
         select(move.id);
     }, [select, toggle]);
     
+    /**
+     * The root div, kept on a ref because two things need it and neither can get
+     * it any other way: the `keydown` listener binds to *this* tree's own element
+     * — two trees on one page each keep their own selection — and `goToTree` has
+     * to put **real** focus back on it.
+     */
+    const element = useRef<HTMLDivElement | null>(null);
+    
+    /**
+     * Leave the filter and take real focus back to the tree.
+     *
+     * `setFocus('tree')` alone is a lie the user can see: the state says the
+     * tree is focused while the caret is still in the input, so the next
+     * keypress goes into the filter. `AstSearch` has the mirror-image fix on its
+     * side (`useEffect` on `focused` calls `input.focus()`), and this is its
+     * partner.
+     *
+     * Called **from the handler** rather than from an effect keyed on
+     * `state.focus`, because the input's `onBlur` also sets focus back to the
+     * tree — an effect would then yank focus out of whatever the user clicked
+     * next. Only a keypress means "go there on purpose".
+     *
+     * Declared above the key handler because that handler closes over it.
+     */
+    const goToTree = useCallback(() => {
+        setQuery('');
+        setFocus('tree');
+        
+        // Bound to a local, which is the only form that both narrows and stops
+        // reading `.current` twice: it is mutable, so two reads are two values as
+        // far as the compiler is concerned. Optional chaining is off in this repo
+        // for the same reason.
+        const {current} = element;
+        
+        if (current)
+            current.focus();
+    }, [setFocus, setQuery]);
+    
     useEffect(() => {
         latest.current = (event: KeyboardEvent) => {
             const {key} = event;
             
             if (state.focus === 'search') {
-                if (key === 'Escape') {
-                    setQuery('');
-                    setFocus('tree');
+                // `Escape` and `k`/`ArrowUp` are the same verb: leave the filter
+                // and take the text with it. Clearing matters as much as the
+                // focus move — a filter that keeps its query but loses focus
+                // leaves a filtered tree with no filter box and no way back.
+                //
+                // `preventDefault` is **not** optional here. The listener is on
+                // `.ast` and the event's target is the input, so the browser
+                // still inserts the character unless the default is cancelled:
+                // `k` would both leave the filter *and* leave a `k` behind in it.
+                // The unit specs cannot see this — they assert the state, and the
+                // state was right — which is why the e2e presses a real key.
+                if (key === 'Escape' || key === 'k' || key === 'ArrowUp') {
+                    event.preventDefault();
+                    goToTree();
                 }
+                
+                // `Tab` is handled here rather than left to the browser so the
+                // cycle closes in the tree: the plan's order is tree -> filter ->
+                // tree, and letting the browser walk its own tab order instead
+                // would put whatever is between the two in between them.
+                if (key === 'Tab') {
+                    event.preventDefault();
+                    goToTree();
+                }
+                
+                return;
+            }
+            
+            // `Tab` out of the tree and into the filter. `preventDefault` is
+            // what keeps the handler's answer: without it the browser also moves
+            // focus, and the two race for the same element.
+            if (key === 'Tab') {
+                event.preventDefault();
+                setFocus('search');
                 
                 return;
             }
@@ -347,12 +415,33 @@ export const useTreeState = (nodes: FlatNode[]) => {
             }
             
             if (key === 'ArrowUp' || key === 'k') {
+                // `k` on the **first** row hands over to the filter, which is
+                // what plan.md's cycle diagram says — "k / ArrowUp (from Program
+                // = first row) → moves focus to filter input".
+                //
+                // The prose under the diagram says `j`/`ArrowDown` here
+                // instead, and that cannot be what was meant: `defaultCollapsed`
+                // folds everything below depth 1, so the tree draws **two** rows
+                // by default, and `j` on the first of two rows can never reach
+                // the second. That reading breaks navigation outright, and three
+                // specs that walked the tree with `ArrowDown` caught it. `k` is
+                // also the honest direction: the filter bar renders *above* the
+                // tree, so up from the top row is where it is.
+                const shown = rowsOf(nodes, state.collapsed, state.query);
+                const atTop = shown.length > 0 && state.selected === shown[0].id;
+                
+                if (atTop) {
+                    setFocus('search');
+                    
+                    return;
+                }
+                
                 move(-1);
                 
                 return;
             }
             
-            if (key === 'ArrowRight') {
+            if (key === 'ArrowRight' || key === 'l') {
                 const shown = rowsOf(nodes, state.collapsed, state.query);
                 
                 applyMove(expandMove(nodes, state.collapsed, state.selected, shown));
@@ -360,7 +449,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
                 return;
             }
             
-            if (key === 'ArrowLeft') {
+            if (key === 'ArrowLeft' || key === 'h') {
                 applyMove(foldMove(nodes, state.collapsed, state.selected));
                 
                 return;
@@ -378,6 +467,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
         };
     }, [
         applyMove,
+        goToTree,
         move,
         nodes,
         setFocus,
@@ -395,13 +485,22 @@ export const useTreeState = (nodes: FlatNode[]) => {
      * that knows the element. It is also the only version whose `null` case is
      * real — React calls it on unmount, so the detach path is exercised rather
      * than being a branch nothing can reach.
+     *
+     * The element is kept on the way through, because `goToTree` above has to
+     * put **real** focus back on this div and a callback ref is the only handle
+     * that has it.
      */
-    const root = useCallback((element: HTMLDivElement | null) => {
-        if (element === null)
+    const root = useCallback((node: HTMLDivElement | null) => {
+        const previous = element.current;
+        
+        if (previous !== null)
+            previous.removeEventListener('keydown', onKeyDown);
+        
+        if (node === null)
             return;
         
-        element.removeEventListener('keydown', onKeyDown);
-        element.addEventListener('keydown', onKeyDown);
+        element.current = node;
+        node.addEventListener('keydown', onKeyDown);
     }, [onKeyDown]);
     
     return {

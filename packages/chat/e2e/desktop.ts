@@ -297,6 +297,121 @@ test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
     expect(refolded).toBe(folded);
 });
 
+/**
+ * `h` and `l` over the real key handler.
+ *
+ * The row count is the assertion, and it is the same count
+ * `ArrowRight expands and ArrowLeft folds the tree` uses — so this is that test
+ * with `h`/`l` in place of the arrows, which is the only way a binding that was
+ * never wired could not be caught by the pure specs.
+ */
+test('h and l fold and expand the tree', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('ast-row');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    // three rows down to `VariableDeclarator`, which `defaultCollapsed` shut
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    
+    const folded = await rows.count();
+    
+    await page.keyboard.press('l');
+    
+    const expanded = await rows.count();
+    expect(expanded).toBeGreaterThan(folded);
+    
+    await page.keyboard.press('h');
+    
+    const refolded = await rows.count();
+    expect(refolded).toBe(folded);
+});
+
+/**
+ * The tab cycle, over real focus rather than over the component's state.
+ *
+ * `toBeFocused()` is the whole point: `useTreeState` only owns a `focus`
+ * *string*, and a handler that set it while real focus stayed on the tree would
+ * pass every unit spec here. This is the check that the string and the caret
+ * agree.
+ *
+ * `Tab` in the tree is `preventDefault`ed, so the browser does not also walk its
+ * own tab order — the assertion is that the *filter* has focus, not merely that
+ * focus moved.
+ */
+test('Tab moves focus from the tree to the filter, and back', async ({page}) => {
+    await send(page, '/ast');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('Tab');
+    await expect(search(page)).toBeFocused();
+    
+    await page.keyboard.press('Tab');
+    await expect(tree(page)).toBeFocused();
+});
+
+/**
+ * `k` from the first row hands over to the filter — the same handover as `Tab`,
+ * reached with the key a vim user presses, and the other half of the cycle.
+ *
+ * `ArrowDown` first to put a row under the caret; the default fold leaves two
+ * rows drawn, so the first `ArrowDown` lands on `Program` and the second is the
+ * one that would have walked to `VariableDeclaration`. This presses it and
+ * asserts the filter took focus instead, which is the behaviour the plan's
+ * diagram specifies and its prose gets wrong.
+ */
+test('k from the first row moves focus to the filter', async ({page}) => {
+    await send(page, '/ast');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('k');
+    
+    await expect(search(page)).toBeFocused();
+});
+
+/**
+ * And `k` in the filter comes back to the tree, clearing the filter on the way.
+ *
+ * The clear is half the assertion. A filter that kept its text but handed focus
+ * back would leave the user looking at a filtered tree with no filter box and no
+ * obvious way to undo it.
+ */
+test('k in the filter clears it and returns focus to the tree', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('/');
+    await search(page).fill('VariableDeclaration');
+    
+    await page.keyboard.press('k');
+    
+    await expect(search(page)).toHaveValue('');
+    await expect(tree(page)).toBeFocused();
+});
+
 test('console panel toggles on /console', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     
