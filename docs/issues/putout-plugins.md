@@ -323,20 +323,6 @@ allowed to assert.
 `matchFiles` reports a **file**, not a node. A stylesheet with two matching selectors produces
 **one** place — while `fix` reaches **both**, and does so even at `fixCount: 1`:
 
-```js
-.input {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 12px 20px 18px;
-}
-
-.chat__thread {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 24px 20px;
-}
-```
-
 ```css
 .input {
     box-sizing: border-box;

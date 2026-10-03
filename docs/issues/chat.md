@@ -19,24 +19,17 @@ test('probe', async ({page}) => {
         scrollWidth: document.documentElement.scrollWidth,
         hasInput: Boolean(document.querySelector('.input')),
     }));
-
+    
     await expect(page.getByTestId('input')).toBeVisible();
-
+    
     const after = await page.evaluate(() => document.documentElement.scrollWidth);
-
+    
     console.log({before, after});
 });
 ```
 
-**Got** — `{before: {scrollWidth: 390, hasInput: false}, after: 430}`, on three consecutive
+**Got** — `before: {scrollWidth: 390, hasInput: false}`, `after: 430`, on three consecutive
 runs, with no navigation in between.
-
-```js
-{
-  "before": {"scrollWidth": 390, "hasInput": false},
-  "after": 430
-}
-```
 
 **Expected** — 430 for both, because the composer is `content-box` and 40px too wide in that
 build and it is on screen for the whole of the test.
