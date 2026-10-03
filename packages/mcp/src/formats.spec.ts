@@ -131,6 +131,19 @@ test('local formats: css names the rule pattern key a matcher uses', (t) => {
     t.end();
 });
 
+/**
+ * The three added in `happy-style` 1.0.6, each of which used to be a bare opaque
+ * string. This is the difference between a rule that can rewrite the inside of
+ * `[full-start]` and one that cannot.
+ */
+test('local formats: css names the bracketed value nodes', (t) => {
+    const [css] = parse().filter(({id}: {id: string;}) => id === 'css');
+    const result = css.ast.includes('brackets');
+    
+    t.ok(result);
+    t.end();
+});
+
 test('local formats: css names declaration and how to read one', (t) => {
     const [css] = parse().filter(({id}: {id: string;}) => id === 'css');
     const result = css.ast.includes('arguments[0]');

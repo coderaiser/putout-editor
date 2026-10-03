@@ -49,7 +49,9 @@ Each is declaration('<property>', <value>): the property is
 arguments[0].value, and extra.rawValue must move with it when you rewrite one.
 Values: valueList([...]), functionValue('<name>', [...]), dimension(n, 'px'),
 percentage(n), operator('-') between arguments, and a bare quoted string for
-a keyword — box-sizing: border-box is declaration('box-sizing', 'border-box').`;
+a keyword — box-sizing: border-box is declaration('box-sizing', 'border-box').
+brackets([...]) and parentheses([...]) wrap children the same way, and
+unicodeRange('U+0-7F') is one token with no children.`;
 
 /** Read out of `happy-mark` the same way, and the top level is a flat array. */
 const MARKDOWN_AST = `A flat array of calls: heading(<level>, 'text'), paragraph(...inline...),

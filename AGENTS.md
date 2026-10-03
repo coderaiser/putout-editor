@@ -61,7 +61,11 @@ Two traps in that line, both of which have produced a fix that parsed and was wr
   means moving `value`, `raw` **and** `extra.rawValue` together, or the output is
   `width: border-box`.
 
-`formats` carries both ASTs with the package each was read from, so re-deriving
+`brackets([...])`, `parentheses([...])` and `unicodeRange('U+0-7F')` are real
+nodes as of `happy-style` 1.0.6; before that each was one opaque string, so
+`grid-template-columns: [full-start] …` was not reachable by any rule.
+
+`formats` carries the ASTs with the package each was read from, so re-deriving
 them is a matter of running the package rather than of probing. `parse` cannot do
 it — it is a babel parser, so a css or markdown source comes back
 `Unexpected token (1:0)`.
