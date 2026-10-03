@@ -14,6 +14,44 @@ in a peer of something already present, `bun i --no-save <pkg>` is the command.
 Stating that is part of a finding, not a footnote — the 🐊**Putout** report at the repo root
 carries the caveat because the six defects in it are versioned to what was installed here.
 
+## A nested `node_modules/` in a workspace breaks `redrun`, and nothing says so
+
+The e2e job runs `redrun build` with `working-directory: packages/client`, and it failed on this
+branch with `/bin/sh: 1: rspack: not found` while passing on `master`. The build script is
+byte-identical on both, so the difference is the **install layout**, not the code.
+
+`redrun` walks up from the cwd and stops at the **first** directory containing a `node_modules`
+(`nodeModulesDir` in `redrun/bin/redrun.js`), then puts `<that>/node_modules/.bin` on `PATH` via
+`envir`. A nested `packages/<pkg>/node_modules/` therefore hijacks it — and such a directory has
+no `.bin`, so every local binary in the build goes missing at once.
+
+What creates it: the client was the only workspace pinned to `@types/node@^22` while the other
+four were on `^26`. Adding `packages/chat` changed which version won the hoisted root slot, and
+the client ended up with `packages/client/node_modules/@types/node@22.20.5` nested beside a root
+holding `26.6.4`.
+
+```
+$ ls -d packages/*/node_modules        # master: commands, mcp, server — never client
+$ ls -d packages/*/node_modules        # branch:  client only
+```
+
+So the version skew was *asymmetric*: it only ever hurt the package that lost the root slot, and
+that package is the one `redrun` happens to be invoked from. **Aligning the version is the fix**
+— one `@types/node` means nothing nests, and the walk reaches the root as it did on master.
+
+Two things this cost that are worth keeping:
+
+- **`bun i -f --no-save` does not remove a stale nested directory.** The first run after the
+  version bump still reported the old `22.20.5` nested and still failed, which read as "the fix
+  does not work". `rm -rf node_modules packages/*/node_modules` first, or the second conclusion
+  is drawn from the first tree.
+- **`--help` is not how you find this.** The failing step names a binary, not a dependency, and
+  the binary is present at the root the whole time. The question is *which `node_modules` redrun
+  picked*, and that is one `statSync` away.
+
+The build scripts also export the root `.bin` on `PATH` themselves now, so a future skew degrades
+to "still builds" rather than "CI is red with a message that points at the wrong thing".
+
 ## `--fix` on TypeScript **corrupts an `as` cast**, silently
 
 The worst one, and it is **not a rule** — it reproduces with `plugins: []`, so the damage is in
