@@ -21,6 +21,7 @@ Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
 ## Rules
 
 - ✅ [apply-boolean-cast-to-typeof](#apply-boolean-cast-to-typeof);
+- ✅ [apply-box-sizing-to-sized-element](#apply-box-sizing-to-sized-element);
 - ✅ [apply-linked-pattern-value](#apply-linked-pattern-value);
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
 - ✅ [check-documented-scripts](#check-documented-scripts);
@@ -430,6 +431,60 @@ Found: seven raw `z-index` numbers across three stylesheets, now a `--z-*` scale
 ```css
 .a {
     z-index: var(--z-dialog);
+}
+```
+
+***
+
+## apply-box-sizing-to-sized-element
+
+A selector that sets a width **and** horizontal padding, with no `box-sizing`. The three
+together are the whole shape and each alone is fine — a width with no padding is not affected,
+padding with no width is not either. It is the sum that overflows: `width: 100%` plus
+`padding: 0 20px` is 40px wider than the parent, and nothing on the element says so.
+
+Four things are deliberately **not** reported, each measured against this repository rather
+than reasoned about:
+
+- `max-width` — an element capped at 85% shrinks to its content and never overflows.
+  `max-width: 85%` with padding is the shape working as intended, and there are four of them.
+- `min-width` — excluded for being rare enough that a false positive would cost more than a miss.
+- a `width` of `calc(100% - 10px)` — the author has already subtracted the padding by hand, and
+  adding `box-sizing` would make the element 10px narrower than they wrote. One of these:
+  `.shareInfo input` in `ShareDialog.css`.
+- `padding: 0` — a bare `0` prints as an empty string through this parser, so the zero test has to
+  accept the empty form as well. `.input__send` in `chat.css` is this shape.
+
+`box-sizing` — either value — settles it, so a selector that declares the property is left
+alone. `content-box` counts: that is the author having said so on purpose.
+
+Vertical-only padding is not this rule's business, so `padding: 12px 0` passes. `padding-block`
+is deliberately absent — it is vertical in a horizontal-tb document, and a rule that has to
+reason about writing modes to be correct is a rule nobody enables.
+
+Found on `packages/chat`: three selectors, of which the bug report named two. The composer was
+40px wider than an iPhone 12 and 20px of the send button sat off-screen —
+[the finding](../../docs/memory/chat-layout.md).
+
+`matchFiles` reports **one place per file** while the fix reaches **every** matching selector,
+including at `fixCount: 1`.
+
+### ❌ Example of incorrect code
+
+```css
+.input {
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+```
+
+### ✅ Example of correct code
+
+```css
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px 18px;
 }
 ```
 

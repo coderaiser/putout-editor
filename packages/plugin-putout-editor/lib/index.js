@@ -1,4 +1,5 @@
 import * as applyBooleanCastToTypeof from './apply-boolean-cast-to-typeof/index.js';
+import * as applyBoxSizingToSizedElement from './apply-box-sizing-to-sized-element/index.js';
 import * as applyLinkedPatternValue from './apply-linked-pattern-value/index.js';
 import * as applyPressModifierCase from './apply-press-modifier-case/index.js';
 import * as checkDocumentedScripts from './check-documented-scripts/index.js';
@@ -12,6 +13,7 @@ import * as removeZIndexOutsideTokenFile from './remove-z-index-outside-token-fi
 
 export const rules = {
     'apply-boolean-cast-to-typeof': applyBooleanCastToTypeof,
+    'apply-box-sizing-to-sized-element': applyBoxSizingToSizedElement,
     'apply-linked-pattern-value': applyLinkedPatternValue,
     'apply-press-modifier-case': applyPressModifierCase,
     'hoist-arrow-callback': hoistArrowCallback,

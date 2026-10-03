@@ -1,0 +1,9 @@
+.input {
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+
+.chat__thread {
+    width: 100%;
+    padding: 24px 20px;
+}

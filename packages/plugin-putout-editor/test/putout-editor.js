@@ -12,6 +12,11 @@ test('putout: plugin: putout-editor: transform: apply-boolean-cast-to-typeof', (
     t.end();
 });
 
+test('putout: plugin: putout-editor: no transform: apply-box-sizing-to-sized-element', (t) => {
+    t.noTransform('apply-box-sizing-to-sized-element');
+    t.end();
+});
+
 test('putout: plugin: putout-editor: transform: apply-linked-pattern-value', (t) => {
     t.transform('apply-linked-pattern-value');
     t.end();
