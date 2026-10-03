@@ -31,13 +31,6 @@ export default defineConfig({
             ...devices['iPhone 12'],
             colorScheme: 'dark',
         },
-    }, {
-        name: 'probe-chrome',
-        testMatch: ['**/__probe.ts'],
-        use: {
-            ...devices['iPhone 12'],
-            colorScheme: 'dark',
-        },
     }],
     // `bun run start` serves the prebuilt bundle in ../../out, not `src/`. A
     

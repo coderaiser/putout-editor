@@ -211,6 +211,13 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 24px 20px;
+    /* `border-box` for the reason `.input` has it, and this is the third element
+       with the shape. Fixing the two named in the plan turned out to leave the
+       document at 430 wide: this thread is `width: 100%` with the same 20px of
+       horizontal padding, so it overflowed by exactly as much and the mobile e2e
+       kept failing after the "fix". The rule that finds all three at once is
+       row 11, `apply-box-sizing-to-sized-element`. */
+    box-sizing: border-box;
     max-width: 760px;
     margin: 0 auto;
     width: 100%;
@@ -418,6 +425,13 @@ body {
     gap: 8px;
     align-items: flex-end;
     padding: 12px 20px 18px;
+    /* `border-box`, and this is the whole fix. `width: 100%` on a `content-box`
+       element adds its own horizontal padding on top, so on a 390px phone this
+       was 430 wide, the document scrolled sideways, and 20px of the send button
+       sat off-screen and could not be tapped. `.input__box` already declared it
+       for the same reason on its own `max-height`, which is why only the two
+       containers measured wrong. */
+    box-sizing: border-box;
     max-width: 760px;
     margin: 0 auto;
     width: 100%;
@@ -494,6 +508,11 @@ body {
     bottom: 100%;
     left: 20px;
     right: 20px;
+    /* `border-box` for the same reason `.input` has it: `left: 20px` and
+       `right: 20px` are offsets from the padding edge of a `content-box` box,
+       and the 1px border added a further 2px. This spans 20 -> 410 on a 390px
+       screen, so the last command in the list was off-screen. */
+    box-sizing: border-box;
     max-height: 260px;
     overflow-y: auto;
     border: 1px solid var(--color-border);
