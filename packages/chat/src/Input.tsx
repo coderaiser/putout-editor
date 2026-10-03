@@ -50,6 +50,7 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
     box.style.height = `${box.scrollHeight}px`;
     
     // Read the cap from the computed style rather than repeating `200` here,
+    
     // so the two cannot drift apart the way a hard-coded number would.
     const cap = parseInt(getComputedStyle(box).maxHeight, 10);
     
@@ -161,7 +162,6 @@ export default function Input({history, onSend}: InputProps) {
         // `onChange` already turns into state. Re-implementing that here would
         // be a second place that has to know where the caret is, for a result
         // the browser hands over correctly.
-        
         if (key === 'Tab' && open && options.length) {
             complete(options[picked]);
             

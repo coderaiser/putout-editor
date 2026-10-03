@@ -204,7 +204,9 @@ test('Input: Ctrl+Enter sends a command that is already typed in full', (t) => {
     box();
     
     // `/ast` is a complete name, so the dropdown still shows one row. The send
+    
     // chord has to work anyway — a dropdown is not a reason to swallow the
+    
     // only key that sends.
     type('/ast');
     pressCtrl('Enter');
@@ -239,7 +241,9 @@ test('Input: Cmd+Enter also sends the line', (t) => {
     box();
     
     // `Cmd+Enter` is the same handler as `Ctrl+Enter` — a macOS user has no
+    
     // Control key chord worth the name, and shipping one half of a shortcut
+    
     // per platform is a bug waiting for the first laptop without a Control.
     type('/help');
     pressMeta('Enter');
@@ -555,7 +559,9 @@ test('Input: the send button names its shortcut', (t) => {
     box();
     
     // The button is the primary way to send and the label is an arrow, so the
+    
     // keyboard half has to be discoverable somewhere: a `↑` with no tooltip
+    
     // leaves the chord to be guessed.
     const button = document.querySelector('[data-testid="send"]') as HTMLButtonElement;
     
