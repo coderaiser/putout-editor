@@ -49,10 +49,24 @@ jobs:
       - name: E2E tests
         run: redrun test:e2e
         working-directory: packages/client
+      # `packages/chat`'s e2e is its own step and not another `redrun`
+      # invocation. `redrun` collects from the cwd and every *parent*
+      # (`parentDirectories` in `redrun/bin/redrun.js`), never a sibling, so the
+      # step above collects the root's and the client's and chat's is never run -
+      # a green `E2E` badge that says nothing about the chat page at all.
+      #
+      # `bun run`, not `redrun`: `bun run` puts `node_modules/.bin` on `PATH` and
+      # `redrun` does not reliably, which is the trap in
+      # `docs/memory/workspaces.md`. `playwright` is only on that PATH through it.
+      - name: Chat e2e
+        run: bun run test:e2e
+        working-directory: packages/chat
       - name: Upload test results on failure
         uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-test-results
-          path: packages/client/test-results/
+          path: |
+            packages/client/test-results/
+            packages/chat/test-results/
           retention-days: 14
