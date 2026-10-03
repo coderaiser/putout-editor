@@ -21,6 +21,23 @@ export default defineConfig({
             ...devices['Desktop Chrome'],
             colorScheme: 'dark',
         },
+    }, {
+        // `iPhone 12`, not a newer device: the composer bug in `chat.css` was
+        // measured at 390 and every assertion below is that number. A device
+        // with a different width would make them mean something else.
+        name: 'mobile-chrome',
+        testMatch: ['**/mobile.ts'],
+        use: {
+            ...devices['iPhone 12'],
+            colorScheme: 'dark',
+        },
+    }, {
+        name: 'probe-chrome',
+        testMatch: ['**/__probe.ts'],
+        use: {
+            ...devices['iPhone 12'],
+            colorScheme: 'dark',
+        },
     }],
     // `bun run start` serves the prebuilt bundle in ../../out, not `src/`. A
     
