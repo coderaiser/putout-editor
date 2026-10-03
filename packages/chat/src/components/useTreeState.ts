@@ -111,6 +111,123 @@ export const rowsOf = (nodes: FlatNode[], collapsed: Set<string>, query: string)
     return visibleRows(nodes, collapsed);
 };
 
+/**
+ * What `ArrowLeft` / `ArrowRight` do, as an action rather than an id.
+ *
+ * `fold` is "collapse this node in place" and `walk` is "select that other
+ * node". Returning an id alone cannot express the difference, because
+ * `ArrowRight` on a collapsed node and `ArrowLeft` on an expanded one both
+ * answer "this same node" — and in one case the node has to expand and in the
+ * other it has to collapse. So both moves say which, and the handler applies.
+ *
+ * `noop` is the end of the tree: a leaf asked to fold, a root asked to collapse.
+ * Neither is an error, and both are what every tree viewer does.
+ */
+export type TreeMove = {
+    kind: 'fold';
+    id: string;
+} | {
+    kind: 'walk';
+    id: string;
+} | {
+    kind: 'noop';
+};
+
+/**
+ * `ArrowRight`: reveal the next level.
+ *
+ * A collapsed node expands where it stands, an expanded one hands over to its
+ * first child. `shown` is passed rather than recomputed because the caller
+ * already has it, and `rowsOf` over a live query is not free.
+ */
+export const expandMove = (nodes: FlatNode[], collapsed: Set<string>, selected: string | null, shown: FlatNode[]): TreeMove => {
+    if (selected === null) {
+        const [first] = shown;
+        
+        return first ? {
+            kind: 'walk',
+            id: first.id,
+        } : {
+            kind: 'noop',
+        };
+    }
+    
+    if (collapsed.has(selected))
+        return {
+            kind: 'fold',
+            id: selected,
+        };
+    
+    const {id} = nodes.find(({id: nodeId}) => nodeId === selected) as FlatNode;
+    const child = nodes.find(({pid}) => pid === id);
+    
+    if (!child)
+        return {
+            kind: 'noop',
+        };
+    
+    return {
+        kind: 'walk',
+        id: child.id,
+    };
+};
+
+/**
+ * Whether a node has any children at all, over the whole tree rather than the
+ * drawn rows: a folded subtree's last child is not on screen, so asking only
+ * what is visible would call a node a leaf the moment its sibling folded away.
+ *
+ * Top level rather than an arrow inside `foldMove` — the rule is a fixed point
+ * here, and a named helper is what makes it one.
+ */
+export const hasChildren = (nodes: FlatNode[], id: string): boolean => nodes.some(({pid}) => pid === id);
+
+/**
+ * `ArrowLeft`: collapse, or walk out.
+ *
+ * The mirror of `expandMove`. A node that is already collapsed hands over to its
+ * parent — there is nothing further down to hide, so the next thing `ArrowRight`
+ * would reveal is up here. A leaf stays put.
+ */
+export const foldMove = (nodes: FlatNode[], collapsed: Set<string>, selected: string | null): TreeMove => {
+    if (selected === null)
+        return {
+            kind: 'noop',
+        };
+    
+    const node = nodes.find(({id}) => id === selected);
+    
+    if (!node)
+        return {
+            kind: 'noop',
+        };
+    
+    const {pid} = node;
+    
+    if (collapsed.has(selected)) {
+        if (pid === null)
+            return {
+                kind: 'noop',
+            };
+        
+        return {
+            kind: 'walk',
+            id: pid,
+        };
+    }
+    
+    // Expanded. A node with nothing under it has nothing to collapse.
+    if (!hasChildren(nodes, selected))
+        return {
+            kind: 'noop',
+        };
+    
+    return {
+        kind: 'fold',
+        id: selected,
+    };
+};
+
 export const useTreeState = (nodes: FlatNode[]) => {
     const [state, setState] = useState<TreeState>({
         collapsed: defaultCollapsed(nodes),
@@ -190,6 +307,26 @@ export const useTreeState = (nodes: FlatNode[]) => {
         };
     }), [nodes]);
     
+    /**
+     * Applying a `TreeMove` in one place, so `ArrowLeft` and `ArrowRight` are
+     * the only two keys that know the tree has folds at all. `fold` toggles
+     * because that is what a collapsed node wants and what an expanded one wants
+     * — the two arrows are the same verb pointed at opposite ends.
+     */
+    const applyMove = useCallback((move: TreeMove) => {
+        if (move.kind === 'noop')
+            return;
+        
+        if (move.kind === 'fold') {
+            toggle(move.id);
+            select(move.id);
+            
+            return;
+        }
+        
+        select(move.id);
+    }, [select, toggle]);
+    
     useEffect(() => {
         latest.current = (event: KeyboardEvent) => {
             const {key} = event;
@@ -215,6 +352,20 @@ export const useTreeState = (nodes: FlatNode[]) => {
                 return;
             }
             
+            if (key === 'ArrowRight') {
+                const shown = rowsOf(nodes, state.collapsed, state.query);
+                
+                applyMove(expandMove(nodes, state.collapsed, state.selected, shown));
+                
+                return;
+            }
+            
+            if (key === 'ArrowLeft') {
+                applyMove(foldMove(nodes, state.collapsed, state.selected));
+                
+                return;
+            }
+            
             if (key === 'Enter' || key === ' ') {
                 if (state.selected)
                     toggle(state.selected);
@@ -226,10 +377,14 @@ export const useTreeState = (nodes: FlatNode[]) => {
                 setFocus('search');
         };
     }, [
+        applyMove,
         move,
+        nodes,
         setFocus,
         setQuery,
+        state.collapsed,
         state.focus,
+        state.query,
         state.selected,
         toggle,
     ]);

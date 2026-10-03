@@ -33,6 +33,7 @@ const row = (over: Partial<FlatNode> = {}) => render(
         hasChildren={false}
         collapsed={false}
         dimmed={false}
+        matched={false}
         last={false}
         node={node(over)}
         onSelect={noop}
@@ -166,6 +167,7 @@ test('AstRow: carries the selected class', (t) => {
             hasChildren={false}
             collapsed={false}
             dimmed={false}
+            matched={false}
             last={false}
             node={node()}
             onSelect={noop}
@@ -189,6 +191,7 @@ test('AstRow: carries the dimmed class for an ancestor of a match', (t) => {
             hasChildren={false}
             collapsed={false}
             dimmed={true}
+            matched={false}
             last={false}
             node={node()}
             onSelect={noop}
@@ -199,6 +202,63 @@ test('AstRow: carries the dimmed class for an ancestor of a match', (t) => {
     
     const result = document.querySelector('.ast-row--dimmed') !== null;
     const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The other half of the search, and the one that was never wired.
+ *
+ * `filterNodes` has computed `matched` - the ids whose own text matches - since
+ * the tree was written, and `AstTree.tsx` destructured `{rows, dimmed}` and
+ * dropped it. `.ast-match` and `--ast-match` sat in `AstTree.css` unused. So the
+ * search filtered and dimmed, and nothing was ever *marked*: the rows that
+ * matched looked exactly like the ancestors that were only on the path to one.
+ */
+test('AstRow: carries the match class for a row that matched', (t) => {
+    render(
+        <AstRow
+            hasChildren={false}
+            collapsed={false}
+            dimmed={false}
+            last={false}
+            matched={true}
+            node={node()}
+            onSelect={noop}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const result = document.querySelector('.ast-row--match') !== null;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('AstRow: carries no match class for an ordinary row', (t) => {
+    render(
+        <AstRow
+            hasChildren={false}
+            collapsed={false}
+            dimmed={false}
+            last={false}
+            matched={false}
+            node={node()}
+            onSelect={noop}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const result = document.querySelector('.ast-row--match') !== null;
+    const expected = false;
     
     cleanup();
     
@@ -217,6 +277,7 @@ test('AstRow: clicking reports the id', (t) => {
             hasChildren={false}
             collapsed={false}
             dimmed={false}
+            matched={false}
             last={false}
             node={node({
                 id: '7',
@@ -249,6 +310,7 @@ test('AstRow: clicking a node with children also folds it', (t) => {
             hasChildren={true}
             collapsed={false}
             dimmed={false}
+            matched={false}
             last={false}
             node={node({
                 id: '2',

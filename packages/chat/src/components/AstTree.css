@@ -98,7 +98,12 @@
     color: var(--ast-dim);
 }
 
-.ast-match {
+/* The row that *matched*, as opposed to `ast-row--dimmed`, which is a row only
+   on the path to one. Both were written together and only half was ever used:
+   `filterNodes` computed `matched`, `AstTree` dropped it, and this rule sat
+   here against a class nothing carried — so a search filtered and dimmed and
+   nothing was marked. */
+.ast-row--match {
     background: var(--ast-match);
     color: var(--color-text-strong, #141413);
     border-radius: 2px;

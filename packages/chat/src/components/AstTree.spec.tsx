@@ -178,6 +178,32 @@ test('AstTree: a dimmed ancestor keeps its row', (t) => {
     t.end();
 });
 
+/**
+ * The join, at the level where it was missing. `a dimmed ancestor keeps its row`
+ * above asserts the count of dimmed rows; this asserts that the row that
+ * *matched* is distinguishable from them, which is the half the component was
+ * not passing down.
+ */
+test('AstTree: a matched row is marked, and a dimmed one is not', (t) => {
+    tree();
+    
+    const search = document.querySelector('[data-testid="ast-search"]') as HTMLInputElement;
+    
+    fireEvent.change(search, {
+        target: {
+            value: 'Identifier',
+        },
+    });
+    
+    const result = document.querySelectorAll('.ast-row--match').length;
+    const expected = 1;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('AstTree: carries every required data-testid', (t) => {
     tree();
     const found = [];

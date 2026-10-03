@@ -89,6 +89,104 @@ test('search filters tree', async ({page}) => {
     await expect(rows).toHaveCount(2);
 });
 
+/**
+ * The assertion the old `search filters tree` never made.
+ *
+ * That spec was green throughout and asserted rows and dimming — so a filter
+ * that kept everything, and a highlight that was wired to nothing, both passed
+ * it. This asks for the *class*: the rows that matched must be marked, and the
+ * ancestors on the way to them must not be. A filter working and highlighting
+ * nothing is exactly what shipped.
+ */
+test('search marks the rows that matched', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await search(page).fill('VariableDeclaration');
+    
+    const marked = page
+        .getByTestId('chat')
+        .locator('.ast-row--match');
+    
+    // One match, and it is *not* `Program` — the ancestor is dimmed instead.
+    await expect(marked).toHaveCount(1);
+    await expect(marked).toContainText('VariableDeclaration');
+    
+    const dimmed = page
+        .getByTestId('chat')
+        .locator('.ast-row--dimmed');
+    
+    await expect(dimmed).toHaveCount(1);
+});
+
+/**
+ * `ArrowRight` and `ArrowLeft`, over the real key handler rather than the pure
+ * moves the unit specs cover — this is the only place the binding itself is
+ * exercised, and a binding that was never wired passes every pure test.
+ *
+ * The count is the assertion: expanding a folded node adds rows, folding it
+ * takes them away, and the selection is what decides which.
+ */
+
+/**
+ * `ArrowRight` and `ArrowLeft`, over the real key handler rather than the pure
+ * moves the unit specs cover — this is the only place the binding itself is
+ * exercised, and a binding that was never wired passes every pure test.
+ *
+ * `defaultCollapsed` folds everything below depth 1, so `Program` and
+ * `VariableDeclaration` are open and `VariableDeclarator` is shut. Three
+ * `ArrowDown`s land on it, and it is the first row with children of its own
+ * still hidden — which is why the assertion starts from its caret rather than
+ * from a row count that would be right by accident one row earlier.
+ */
+test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('ast-row');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    
+    const selected = page
+        .getByTestId('chat')
+        .locator('.ast-row--selected');
+    
+    await expect(selected).toContainText('VariableDeclarator');
+    
+    // `▸` is the folded caret. Asserting it is what makes the three presses
+    
+    // above meaningful — landing on a row that is already open would give a
+    
+    // green run for a sequence that expanded nothing.
+    const caret = await selected
+        .locator('.ast-row__caret')
+        .textContent();
+    const expectedCaret = '▸';
+    
+    expect(caret).toBe(expectedCaret);
+    
+    const folded = await rows.count();
+    
+    await page.keyboard.press('ArrowRight');
+    
+    const expanded = await rows.count();
+    expect(expanded).toBeGreaterThan(folded);
+    
+    await page.keyboard.press('ArrowLeft');
+    
+    const refolded = await rows.count();
+    expect(refolded).toBe(folded);
+});
+
 test('console panel toggles on /console', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     

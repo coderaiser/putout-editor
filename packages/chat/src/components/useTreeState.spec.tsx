@@ -7,9 +7,12 @@ import {
 import type {FlatNode} from '@putout/editor-commands';
 import {
     defaultCollapsed,
+    expandMove,
     filterNodes,
+    foldMove,
     rowsOf,
     useTreeState,
+    type TreeMove,
     visibleRows,
     withAncestors,
 } from './useTreeState.ts';
@@ -75,6 +78,147 @@ const tree: FlatNode[] = [
     identifier(),
     numeric(),
 ];
+
+/**
+ * `ArrowRight` / `ArrowLeft`, as the two pure moves every tree viewer has.
+ *
+ * Both answer with a `TreeMove` rather than an id, because "select this same
+ * node" is ambiguous on its own: `ArrowRight` on a collapsed node and
+ * `ArrowLeft` on an expanded one both name the node that is already selected,
+ * and in the first it has to expand and in the second it has to collapse. So
+ * the move says which, and the handler applies it — which is also what keeps
+ * these testable without a component.
+ */
+test('useTreeState: expandMove expands a collapsed node', (t) => {
+    const collapsed = new Set(['1']);
+    
+    const result = expandMove(tree, collapsed, '1', rowsOf(tree, collapsed, ''));
+    const expected: TreeMove = {
+        kind: 'fold',
+        id: '1',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: expandMove on an expanded node moves to its first child', (t) => {
+    const collapsed = new Set(['3']);
+    
+    const result = expandMove(tree, collapsed, '1', rowsOf(tree, collapsed, ''));
+    const expected: TreeMove = {
+        kind: 'walk',
+        id: '2',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: expandMove on a leaf is a no-op', (t) => {
+    const collapsed = new Set<string>();
+    
+    const result = expandMove(tree, collapsed, '4', rowsOf(tree, collapsed, ''));
+    const expected: TreeMove = {
+        kind: 'noop',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: expandMove with nothing selected takes the first row', (t) => {
+    const collapsed = new Set<string>();
+    
+    const result = expandMove(tree, collapsed, null, rowsOf(tree, collapsed, ''));
+    const expected: TreeMove = {
+        kind: 'walk',
+        id: '0',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: expandMove on an empty tree is a no-op', (t) => {
+    const result = expandMove([], new Set<string>(), null, []);
+    const expected: TreeMove = {
+        kind: 'noop',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: foldMove collapses an expanded node', (t) => {
+    const collapsed = new Set(['3']);
+    
+    const result = foldMove(tree, collapsed, '1');
+    const expected: TreeMove = {
+        kind: 'fold',
+        id: '1',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: foldMove on a collapsed node walks out to its parent', (t) => {
+    const collapsed = new Set(['1', '3']);
+    
+    const result = foldMove(tree, collapsed, '1');
+    const expected: TreeMove = {
+        kind: 'walk',
+        id: '0',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: foldMove on a collapsed root is a no-op', (t) => {
+    const collapsed = new Set(['0']);
+    
+    const result = foldMove(tree, collapsed, '0');
+    const expected: TreeMove = {
+        kind: 'noop',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: foldMove on a leaf is a no-op', (t) => {
+    const collapsed = new Set(['3']);
+    
+    const result = foldMove(tree, collapsed, '4');
+    const expected: TreeMove = {
+        kind: 'noop',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: foldMove with nothing selected is a no-op', (t) => {
+    const result = foldMove(tree, new Set<string>(), null);
+    const expected: TreeMove = {
+        kind: 'noop',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('useTreeState: foldMove on an id that is not in the tree is a no-op', (t) => {
+    const result = foldMove(tree, new Set<string>(), 'nowhere');
+    const expected: TreeMove = {
+        kind: 'noop',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
 
 /**
  * The bug this pins: `rows` was `filterNodes(visibleRows(...))`, so the default
@@ -289,6 +433,151 @@ test('useTreeState: arrow down selects the first row', (t) => {
     );
     
     press('ArrowDown');
+    
+    const expected = '0';
+    const result = read('selected');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The two arrow keys, over the real listener rather than the pure moves — the
+ * pure specs above say what each move *decides*, and cannot notice that the key
+ * was never bound to it.
+ */
+test('useTreeState: ArrowRight walks into a child', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    // Nothing is selected, so the first `ArrowRight` takes the first row...
+    press('ArrowRight');
+    
+    // ...and the second walks into `Program`'s child.
+    press('ArrowRight');
+    
+    const expected = '1';
+    const result = read('selected');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowRight expands a folded node where it stands', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowRight');
+    press('ArrowDown');
+    press('ArrowDown');
+    
+    // `2` is a `VariableDeclarator`, and `defaultCollapsed` folds everything
+    
+    // below depth 1, so it is shut and `ArrowRight` reveals its own children
+    
+    // without moving off it: `VariableDeclarator`'s own child appears, so three
+    
+    // rows become four, and the selection stays where it was.
+    press('ArrowRight');
+    
+    const result = read('rows');
+    const expected = '5';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowLeft folds the selected node', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowRight');
+    press('ArrowDown');
+    
+    press('ArrowLeft');
+    
+    // `Program` folds, and its child goes with it: two rows left.
+    const result = read('rows');
+    const expected = '2';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowLeft on a folded node walks out to its parent', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowRight');
+    press('ArrowDown');
+    press('ArrowDown');
+    press('ArrowRight');
+    press('ArrowLeft');
+    press('ArrowLeft');
+    
+    const expected = '1';
+    const result = read('selected');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowLeft on the root is a no-op', (t) => {
+    render(
+        <Harness nodes={tree}/>,
+    );
+    
+    press('ArrowRight');
+    press('ArrowLeft');
+    
+    const expected = '0';
+    const result = read('selected');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowRight with nothing drawn is a no-op', (t) => {
+    render(
+        <Harness nodes={[]}/>,
+    );
+    
+    press('ArrowRight');
+    
+    const expected = '-';
+    const result = read('selected');
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useTreeState: ArrowLeft folds a root with nothing under it', (t) => {
+    render(
+        <Harness nodes={[
+            program(),
+        ]}/>,
+    );
+    
+    press('ArrowRight');
+    press('ArrowLeft');
     
     const expected = '0';
     const result = read('selected');

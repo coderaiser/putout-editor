@@ -14,6 +14,15 @@ export interface AstRowProps {
     
     /** The row is on the path to a match — shown, but dimmed. */
     dimmed: boolean;
+    
+    /**
+     * The row's *own* text is the query — shown, and marked.
+     *
+     * The other half of `dimmed`, and the half that was missing: the filter
+     * computed this set from the first version and the component never read it,
+     * so a match and the ancestors on the way to it looked alike.
+     */
+    matched: boolean;
     selected: boolean;
     onSelect: (id: string) => void;
     
@@ -47,13 +56,14 @@ export const connectorsOf = (depth: number, last: boolean) => {
     return `${BLANK.repeat(depth - 1)}${last ? ELBOW : TEE} `;
 };
 
-export default function AstRow({node, hasChildren, collapsed, last, dimmed, selected, onSelect, onToggle}: AstRowProps) {
+export default function AstRow({node, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: AstRowProps) {
     return (
         <div
             className={[
                 'ast-row',
                 selected && 'ast-row--selected',
                 dimmed && 'ast-row--dimmed',
+                matched && 'ast-row--match',
             ]
                 .filter(Boolean)
                 .join(' ')}

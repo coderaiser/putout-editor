@@ -45,7 +45,11 @@ const isLast = (nodes: FlatNode[], node: FlatNode) => {
 
 export default function AstTree({nodes, source}: AstTreeProps) {
     const state = useTreeState(nodes);
-    const {rows, dimmed} = state.visible;
+    const {
+        rows,
+        dimmed,
+        matched,
+    } = state.visible;
     
     const parents = new Set(nodes
         .map(({pid}) => pid)
@@ -84,6 +88,7 @@ export default function AstTree({nodes, source}: AstTreeProps) {
                             hasChildren={parents.has(node.id)}
                             key={node.id}
                             last={isLast(nodes, node)}
+                            matched={matched.has(node.id)}
                             node={node}
                             onSelect={state.select}
                             onToggle={state.toggle}
