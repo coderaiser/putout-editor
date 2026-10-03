@@ -1,5 +1,6 @@
 import {test} from 'supertape';
 import {makeStore} from '#test/store';
+import {INITIAL_SOURCE} from '#store';
 
 test('test/store: the store starts at the initial state', (t) => {
     const store = makeStore();
@@ -7,7 +8,7 @@ test('test/store: the store starts at the initial state', (t) => {
     const result = store.getState().chat;
     const expected = {
         messages: [],
-        source: '',
+        source: INITIAL_SOURCE,
         plugin: '',
         history: [],
         historyIndex: -1,
@@ -44,7 +45,7 @@ test('test/store: two stores do not share state', (t) => {
     });
     
     const result = two.getState().chat.source;
-    const expected = '';
+    const expected = INITIAL_SOURCE;
     
     t.equal(result, expected);
     t.end();

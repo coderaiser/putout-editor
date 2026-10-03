@@ -1,3 +1,4 @@
+import {montag} from 'montag';
 import {createSlice, type PayloadAction} from '@reduxjs/toolkit';
 import type {FlatNode} from '@putout/editor-commands';
 import type {Message} from './state.ts';
@@ -25,9 +26,30 @@ export interface ChatAppState {
     consoleOpen: boolean;
 }
 
+/**
+ * The rule the chat starts with, so `/ast` answers with a tree on a fresh page
+ * rather than "no source".
+ *
+ * Written here rather than imported from `packages/client`, whose Replacer
+ * template seeds its `initialCode` the same way: `config/boundaries-config.ts`
+ * makes `editor` reachable only from `parser`/`store`/`snippet`/`ui`/panels/
+ * `app`, and `docs/architecture.md` records the arrow policy as enforced by
+ * `boundaries/dependencies`. The idea travels; the import does not.
+ *
+ * A working 🐊**Putout** rule rather than a bare `const`, because the first
+ * thing anyone types here is `/ast` and an expression parses into a tree with
+ * nothing in it to look at. `export {report}` at the end rather than
+ * `export const`, so the seed reads as the shape the docs show.
+ */
+export const INITIAL_SOURCE = montag`
+    const report = () => \`Hello 🐊\`;
+    
+    export {report};
+`;
+
 export const initialState: ChatAppState = {
     messages: [],
-    source: '',
+    source: INITIAL_SOURCE,
     plugin: '',
     history: [],
     historyIndex: -1,

@@ -11,6 +11,7 @@ export {
     clearThread,
     reset,
     initialState,
+    INITIAL_SOURCE,
     nextId,
 } from './slice.ts';
 

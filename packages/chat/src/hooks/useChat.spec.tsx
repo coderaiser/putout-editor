@@ -5,6 +5,7 @@ import type {ReactNode} from 'react';
 import type {Store} from '@reduxjs/toolkit';
 import {makeStore} from '#test/store';
 import type {RootState} from '#store/types';
+import {initialState, INITIAL_SOURCE} from '#store';
 import {useChat} from './useChat.ts';
 
 type ChatStore = Store<RootState>;
@@ -15,8 +16,14 @@ const wrap = (store: Store) => ({children}: {children: ReactNode;}) => (
     </Provider>
 );
 
-const setup = () => {
-    const store = makeStore();
+/**
+ * `overrides` is how a spec asks for a state the seed no longer gives by
+ * default — an empty `source`, mostly. Before the seed, `setup()` started with
+ * `''` and "no source" was the default; now it is a choice, and a spec that
+ * wants it has to say so rather than inherit it by accident.
+ */
+const setup = (overrides: Parameters<typeof makeStore>[0] = {}) => {
+    const store = makeStore(overrides);
     const wrapper = wrap(store);
     
     const {result} = renderHook(() => useChat(), {
@@ -120,12 +127,67 @@ test('useChat: /ast again leaves the console panel open', async (t) => {
 });
 
 test('useChat: /ast with no source does not open the panel', async (t) => {
-    const {store, send} = setup();
+    const {store, send} = setup({
+        source: '',
+    });
     
     await send('/ast');
     
     const result = store.getState().chat.consoleOpen;
     const expected = false;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The seed, asserted by what it does rather than by what it is.
+ *
+ * `source !== ''` would pass on any non-empty string, including one that does
+ * not parse — and the failure this guards against is exactly that: `/ast`
+ * answering "no source" on a fresh page. So both halves are here: the text is
+ * the one `initialState` declares, and the test after it is the one that
+ * matters, because it is the only one that would notice a seed which does not
+ * parse.
+ */
+test('useChat: the source starts as the seed the slice declares', (t) => {
+    const {store} = setup();
+    
+    const result = store.getState().chat.source;
+    const expected = initialState.source;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: /ast on a fresh page answers with a tree', async (t) => {
+    const {store, send} = setup();
+    
+    await send('/ast');
+    
+    // `messages.at(-1)` rather than the last message by index, and bound before
+    
+    // the `?.` — the root `.putout.json` turns on
+    
+    // `optional-chaining/convert-optional-to-logical`, and the fixer would
+    
+    // rewrite this to `&&`, which does not narrow and hands the typing back.
+    const {messages} = store.getState().chat;
+    const [last] = messages.slice(-1);
+    const result = last.result && last.result.type;
+    const expected = 'ast';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: /ast on a fresh page answers with a tree, not an error', async (t) => {
+    const {store, send} = setup();
+    
+    await send('/ast');
+    
+    const result = store.getState().chat.consoleAst !== null;
+    const expected = true;
     
     t.equal(result, expected);
     t.end();
@@ -163,14 +225,19 @@ test('useChat: /clear empties the thread but keeps the source', async (t) => {
     t.end();
 });
 
-test('useChat: /reset empties the source too', async (t) => {
+test('useChat: /reset puts the seed back, not an empty source', async (t) => {
     const {store, send} = setup();
     
     await send('/source\nconst a = 1;');
     await send('/reset');
     
+    // `/reset` is `() => initialState`, and `initialState` now carries the seed.
+    
+    // It empties the source back to the *start*, which is what the user means by
+    
+    // "reset" — an empty box would put `/ast` back to answering "no source".
     const result = store.getState().chat.source;
-    const expected = '';
+    const expected = INITIAL_SOURCE;
     
     t.equal(result, expected);
     t.end();
@@ -215,7 +282,9 @@ test('useChat: a line that is not a command is ignored', async (t) => {
 });
 
 test('useChat: /ast with no source answers with an error', async (t) => {
-    const {store, send} = setup();
+    const {store, send} = setup({
+        source: '',
+    });
     
     await send('/ast');
     

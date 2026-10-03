@@ -49,6 +49,18 @@ test('shows ast tree for pasted source', async ({page}) => {
     await expect(tree(page)).toContainText('VariableDeclaration');
 });
 
+/**
+ * The seed, asserted in the shape a user meets it: no `/source` sent, `/ast`
+ * typed, and a tree. A unit spec can only check that the seed parses; this is
+ * the one that checks the page draws it.
+ */
+test('/ast works with no source sent', async ({page}) => {
+    await send(page, '/ast');
+    
+    await expect(tree(page)).toBeVisible();
+    await expect(tree(page)).toContainText('Program');
+});
+
 test('search filters tree', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
     await send(page, '/ast');
