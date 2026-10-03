@@ -17,20 +17,6 @@ export interface InputProps {
 }
 
 /**
- * One visible row, not six.
- *
- * `rows` is the box's *height*, so a multi-line value made the composer a tall
- * empty box from the first paint — the thread got a third of the screen for a
- * control that is empty. One row is Claude's resting shape.
- *
- * It also is not enough on its own: a `textarea` does **not** grow with its
- * content, it scrolls, so `max-height` alone caps an empty box and does nothing
- * for a long one. `growTo` below sets the height from `scrollHeight`, and the
- * `max-height` in `chat.css` is what stops a pasted file from eating the page.
- */
-const MAX_ROWS = 1;
-
-/**
  * Size the box to its content, up to whatever `max-height` allows.
  *
  * Written as a standalone export with its own spec because it is the only part
@@ -334,7 +320,6 @@ export default function Input({history, onSend}: InputProps) {
                 onKeyDown={onKeyDown}
                 placeholder="Message or /command…"
                 ref={box}
-                rows={MAX_ROWS}
                 value={value}
             />
             <button
