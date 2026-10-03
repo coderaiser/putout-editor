@@ -27,15 +27,44 @@ temp spec file.
 | Tool | Use it to |
 |---|---|
 | `docs` | Reference overview, or `section: 'style'`/`'template'`/`'api'`/`'errors'` |
-| `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule |
+| `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule. For **css** and **markdown** it also carries `ast` — *how a rule reaches a node* — and `source`, the npm package it was read out of |
 | `get_example` | Known-good plugin + fixture. Order: replacer -> includer -> traverser -> scanner |
 | `validate` | Check a plugin compiles -> `ok` or `plugin_syntax (line N, col N): ...` |
-| `parse` | Get an AST. Compact by default, `full: true` for raw with `loc` |
+| `parse` | Get an AST. Compact by default, `full: true` for raw with `loc`. **JavaScript only** — a `css` or `markdown` source comes back `Unexpected token (1:0)` |
 | `test_pattern` | Test one 🦎**PutoutScript** key: does it match, how many places, what each `__a` bound to |
 | `name_pattern` | The inverse: given a snippet, which patterns match, and a generalised key for it |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
 | `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |
+
+### The two non-babel ASTs, and why `parse` cannot help with them
+
+`happy-style` and `happy-mark` — the packages behind the **css** and **markdown**
+processors — lower their document to JS **call expressions**. There is no
+`Declaration` node with a `property` field to visit, and no `Heading` node to
+visit: a rule matches the *call* and reads `arguments`.
+
+```js
+// css — a rule matches 'rule(__a, __b)' and the declarations are __b.elements
+rule(selector([classSelector('input')]), [
+    declaration('box-sizing', 'border-box'),
+    declaration('width', functionValue('calc', [percentage(100), operator('-'), dimension(10, 'px')])),
+]);
+```
+
+Two traps in that line, both of which have produced a fix that parsed and was wrong:
+
+- a `functionValue` argument list carries an **`operator(...)` node for every
+  separator**, so `calc(100% - 10px)` has three arguments and the middle one is
+  not a value;
+- `extra.rawValue` is what the printer reads for a property, so rewriting one
+  means moving `value`, `raw` **and** `extra.rawValue` together, or the output is
+  `width: border-box`.
+
+`formats` carries both ASTs with the package each was read from, so re-deriving
+them is a matter of running the package rather than of probing. `parse` cannot do
+it — it is a babel parser, so a css or markdown source comes back
+`Unexpected token (1:0)`.
 
 From the repo root — its `args` are relative:
 
