@@ -94,14 +94,25 @@ test('ConsolePanel: the ✕ closes the panel', (t) => {
         node('0'),
     ]);
     
+    const before = store.getState().chat.consoleOpen;
+    
     fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
     
-    const result = store.getState().chat.consoleOpen;
-    const expected = false;
+    const after = store.getState().chat.consoleOpen;
+    
+    const result = {
+        before,
+        after,
+    };
+    
+    const expected = {
+        before: true,
+        after: false,
+    };
     
     cleanup();
     
-    t.equal(result, expected);
+    t.deepEqual(result, expected);
     t.end();
 });
 
@@ -114,6 +125,48 @@ test('ConsolePanel: the ✕ is on the empty panel too', (t) => {
     
     const result = store.getState().chat.consoleOpen;
     const expected = false;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('ConsolePanel: the ✕ is present on both panels', (t) => {
+    panel(null);
+    
+    const empty = document.querySelector('[data-testid="console-close"]') !== null;
+    
+    cleanup();
+    
+    panel([
+        node('0'),
+    ]);
+    
+    const populated = document.querySelector('[data-testid="console-close"]') !== null;
+    
+    const result = {
+        empty,
+        populated,
+    };
+    
+    const expected = {
+        empty: true,
+        populated: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('ConsolePanel: the header says what the panel is', (t) => {
+    panel(null);
+    
+    const element = document.querySelector('.console-panel__title');
+    const result = element && element.textContent;
+    const expected = 'AST';
     
     cleanup();
     
