@@ -7,8 +7,6 @@ import {
 const box = (page: Page) => page.getByRole('textbox');
 
 /**
- * The geometry of one element, in CSS pixels.
- *
  * `getBoundingClientRect()` rather than `offsetWidth` or `scrollWidth`: the first
  * rounds to an integer, the second includes overflow but does not say *where* it
  * is, and neither reports the left edge — so "the send button hangs off the
@@ -20,16 +18,39 @@ const rectOf = async (page: Page, selector: string) => {
         .locator(selector)
         .first()
         .evaluate((element) => {
-            const {left, right} = element.getBoundingClientRect();
+            const {
+                top,
+                right,
+                bottom,
+                left,
+            } = element.getBoundingClientRect();
             
             return {
-                left,
+                top,
                 right,
+                bottom,
+                left,
             };
         });
     
     return result;
 };
+
+/** The 1px slack: `getBoundingClientRect` rounds, the stylesheet does not. */
+const SLOP = 1;
+
+/**
+ * Whether `inner` sits inside `outer` on both axes.
+ *
+ * A named predicate rather than four comparisons repeated in each spec, because
+ * the answer is the thing under test and the arithmetic is not.
+ */
+const within = (inner: Rect, outer: Rect) => ({
+    horizontally: inner.left >= outer.left && inner.right <= outer.right,
+    vertically: inner.top >= outer.top && inner.bottom <= outer.bottom,
+});
+
+type Rect = Awaited<ReturnType<typeof rectOf>>;
 
 /**
  * `fill` then `Ctrl+Enter`, not `type` then `Enter`, for the reason
@@ -79,6 +100,136 @@ test('the send button is on screen', async ({page}) => {
     };
     
     expect(expected.onScreen).toBe(true);
+});
+
+/**
+ * The send button inside the textarea — **on touch as well as on a keyboard**.
+ *
+ * The plan split this by pointer type and kept the button *outside* on a
+ * touchscreen, reasoning that it must stay "large and outside the text area".
+ * The decision for this run is the opposite one, and it is the same UI Claude
+ * ships on a phone: **the button is inside the textarea on every pointer type.**
+ *
+ * What survives of the plan's concern is the *size*, so it is asserted here
+ * separately rather than folded into this spec — a composer whose button is 32px
+ * tall needs a hit area of 44 to be usable with a thumb, and containment says
+ * nothing about either.
+ */
+test('the send button sits inside the textarea boundary on a touchscreen', async ({page}) => {
+    const send = await rectOf(page, '.input__send');
+    const box = await rectOf(page, '.input__box');
+    
+    const result = within(send, {
+        top: box.top - SLOP,
+        right: box.right + SLOP,
+        bottom: box.bottom + SLOP,
+        left: box.left - SLOP,
+    });
+    
+    const expected = {
+        horizontally: true,
+        vertically: true,
+    };
+    
+    expect(result).toEqual(expected);
+});
+
+/**
+ * The thumb-sized part: a 32px button painted inside the box, with a **44px
+ * tappable region** around it.
+ *
+ * Measured by **scanning**, not by probing four corners at a hardcoded offset.
+ * The first version of this spec probed at `right + 6` and came back `TEXTAREA`
+ * on the two outward corners — the `::before` is `inset: -6px`, so the hit area
+ * is exactly 44px and `right + 6` is its *exclusive* edge. A corner probe is
+ * therefore one pixel from being a coin flip, and it says nothing about how big
+ * the region really is. Walking a row and a column and counting how many pixels
+ * belong to the button answers the real question — "how big is the target a
+ * thumb gets" — and reports 44 for the same layout a 32px-wide probe would have
+ * described as failing.
+ *
+ * `document.elementFromPoint` rather than a Playwright action, because it asks
+ * what is really there instead of what ought to be clickable.
+ */
+test('the send button has a thumb-sized hit area on a touchscreen', async ({page}) => {
+    const send = await rectOf(page, '.input__send');
+    
+    const hit = await page.evaluate(({top, right, bottom, left}) => {
+        // inside `evaluate`, so these cannot come from module scope: the function
+        // body is serialised and run in the page.
+        const HIT = '#';
+        const MISS = '.';
+        
+        // 8px past each painted edge: enough to see past the 32px button, and
+        // short of the textarea's own 12px padding so nothing else claims it.
+        const slop = 8;
+        
+        // A character rather than a boolean, so the scan can accumulate a count
+        // without an `if` on a truthy value at every pixel.
+        const mark = (x: number, y: number) => {
+            const element = document.elementFromPoint(x, y);
+            
+            return element && element.closest('.input__send') ? HIT : MISS;
+        };
+        
+        const middleX = (left + right) / 2;
+        const middleY = (top + bottom) / 2;
+        
+        let width = 0;
+        
+        // a horizontal row through the middle of the button
+        for (let x = Math.floor(left - slop); x <= Math.floor(right + slop); x++)
+            if (mark(x, middleY) === HIT)
+                width++;
+        
+        let height = 0;
+        
+        // a vertical column through the middle of the button
+        for (let y = Math.floor(top - slop); y <= Math.floor(bottom + slop); y++)
+            if (mark(middleX, y) === HIT)
+                height++;
+        
+        return {
+            height,
+            width,
+        };
+    }, send);
+    
+    const expected = {
+        height: 44,
+        width: 44,
+    };
+    
+    expect(hit).toEqual(expected);
+});
+
+/**
+ * The textarea keeps a right margin for the button.
+ *
+ * Containment would pass for a button laid over the middle of the box; the
+ * padding is what stops the text running under it.
+ */
+test('the textarea reserves room for the send button on a touchscreen', async ({page}) => {
+    const send = await rectOf(page, '.input__send');
+    
+    const padding = await page
+        .locator('.input__box')
+        .first()
+        .evaluate((element) => {
+            const {paddingRight} = getComputedStyle(element);
+            
+            return parseInt(paddingRight, 10);
+        });
+    
+    const result = {
+        fitsIn: padding >= send.right - send.left,
+    };
+    
+    const expected = {
+        fitsIn: true,
+    };
+    
+    expect(result).toEqual(expected);
 });
 
 test('the autocomplete dropdown is on screen', async ({page}) => {

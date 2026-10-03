@@ -933,3 +933,94 @@ test('Input: growTo brings the scrollbar back once the box hits the cap', (t) =>
     t.equal(result, expected);
     t.end();
 });
+
+/**
+ * The composer is a Claude-style box: the button is **inside** the textarea.
+ *
+ * The layout itself is `chat.css` and only geometry can check it — that is
+ * `e2e/desktop.ts` and `e2e/mobile.ts`, which assert containment against
+ * `getBoundingClientRect()`. jsdom returns zeros for layout, so a spec here can
+ * only assert the *structure* the stylesheet depends on, and that structure is
+ * load-bearing rather than incidental:
+ *
+ * `.input` is `position: relative`, and `.input__send` is `position: absolute`
+ * inside it. Move the button out of `.input` — one wrapper div — and every rule
+ * in the stylesheet silently stops applying, the button falls back to `static`,
+ * and **no unit spec fails**. The DOM relationship is the contract the CSS is
+ * written against, so it gets a spec.
+ */
+test('Input: the send button is a sibling of the textarea inside .input', (t) => {
+    box();
+    
+    const parent = (document.querySelector('.input__send') as HTMLElement).parentElement as HTMLElement;
+    const children = [...parent.children] as HTMLElement[];
+    const result = {
+        // `position: absolute` resolves against `.input`, so the button has to
+        // be its child and not a child of something else.
+        insideInput: parent.classList.contains('input'),
+        
+        // after the textarea in source order, so it paints over it
+        afterBox: children.findIndex(({classList}) => classList.contains('input__send')) >
+            children.findIndex(({classList}) => classList.contains('input__box')),
+    };
+    
+    const expected = {
+        insideInput: true,
+        afterBox: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The button is a real `<button type="button">`, not a clickable `<div>`.
+ *
+ * It is absolutely positioned *over* the textarea now, so a keyboard user
+ * reaching it with `Tab` lands on it — and `Enter`/`Space` only send if it is a
+ * button. A `<div onClick>` would break both, and the geometry specs would still
+ * be green.
+ */
+test('Input: the send button is a type=button element a keyboard can activate', (t) => {
+    box();
+    
+    const send = document.querySelector('.input__send') as HTMLButtonElement;
+    const result = {
+        // `submit` inside a form would reload the page instead of sending
+        type: send.type,
+    };
+    
+    const expected = {
+        type: 'button',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * It is not disabled: a button that can never be pressed would still satisfy
+ * every containment and padding assertion above, and the one send affordance a
+ * touchscreen has would be silently dead.
+ */
+test('Input: the send button is not disabled', (t) => {
+    box();
+    
+    const send = document.querySelector('.input__send') as HTMLButtonElement;
+    const result = {
+        disabled: send.disabled,
+    };
+    
+    const expected = {
+        disabled: false,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});

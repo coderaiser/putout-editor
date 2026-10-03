@@ -36,8 +36,117 @@ const search = (page: Page) => page
 
 const userMessages = (page: Page) => page.locator('.message--user');
 
+/**
+ * The full geometry of one element, in CSS pixels.
+ *
+ * `left`/`right` alone cannot say "inside the box" — that needs `top` and
+ * `bottom` as well, and the composer's assertion is two-dimensional: the send
+ * button has to be within the textarea on *both* axes, or it is beside it on
+ * one and inside on the other.
+ *
+ * `getBoundingClientRect()` rather than `offsetWidth`/`scrollWidth`, which
+ * round and include overflow respectively without saying where anything is.
+ */
+const rectOf = async (page: Page, selector: string) => page
+    .locator(selector)
+    .first()
+    .evaluate((element) => {
+        const {
+            top,
+            right,
+            bottom,
+            left,
+        } = element.getBoundingClientRect();
+        
+        return {
+            top,
+            right,
+            bottom,
+            left,
+        };
+    });
+
+/** The 1px slack: `getBoundingClientRect` rounds, the stylesheet does not. */
+const SLOP = 1;
+
+/**
+ * Whether `inner` sits inside `outer` on both axes.
+ *
+ * A named predicate rather than four comparisons repeated in each spec, because
+ * the answer is the thing under test and the arithmetic is not.
+ */
+const within = (inner: Rect, outer: Rect) => ({
+    horizontally: inner.left >= outer.left && inner.right <= outer.right,
+    vertically: inner.top >= outer.top && inner.bottom <= outer.bottom,
+});
+
+type Rect = Awaited<ReturnType<typeof rectOf>>;
+
 test('renders the chat application', async ({page}) => {
     await expect(page.getByTestId('app')).toBeVisible();
+});
+
+/**
+ * The send button inside the textarea, which is Claude's shape and the reason
+ * the flex row went away.
+ *
+ * A **containment** assertion, not a position one: the plan asked for
+ * `send.right <= box.right + 2`, which is true for the old 46px button too as
+ * long as the textarea is wide — a 720px-wide desktop textarea swallowed a
+ * button sitting *outside* it without complaint. Containment is what actually
+ * distinguishes "in the corner" from "next to it", and it fails the old layout
+ * on the vertical axis, where the old button's bottom was 18px below the box's.
+ */
+test('the send button sits inside the textarea boundary', async ({page}) => {
+    const send = await rectOf(page, '.input__send');
+    const box = await rectOf(page, '.input__box');
+    
+    const result = within(send, {
+        top: box.top - SLOP,
+        right: box.right + SLOP,
+        bottom: box.bottom + SLOP,
+        left: box.left - SLOP,
+    });
+    
+    const expected = {
+        horizontally: true,
+        vertically: true,
+    };
+    
+    expect(result).toEqual(expected);
+});
+
+/**
+ * The button must not sit *on* the text.
+ *
+ * Containment alone would pass for a button laid over the middle of the box.
+ * What makes it a composer is that the text keeps a right margin the button
+ * fits in, so the padding is at least the button's width — and this is the
+ * assertion that catches `.input__box { padding-right: 52px }` being dropped
+ * while the button stays absolutely positioned.
+ */
+test('the textarea reserves room for the send button', async ({page}) => {
+    const send = await rectOf(page, '.input__send');
+    
+    const paddingRight = await page
+        .locator('.input__box')
+        .first()
+        .evaluate((element) => {
+            const {paddingRight} = getComputedStyle(element);
+            
+            return parseInt(paddingRight, 10);
+        });
+    
+    // the button sits inside the padding box, so the two must agree
+    const result = {
+        fitsIn: paddingRight >= send.right - send.left,
+    };
+    
+    const expected = {
+        fitsIn: true,
+    };
+    
+    expect(result).toEqual(expected);
 });
 
 test('shows ast tree for pasted source', async ({page}) => {
