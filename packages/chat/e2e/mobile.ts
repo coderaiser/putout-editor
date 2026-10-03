@@ -95,6 +95,123 @@ test('the autocomplete dropdown is on screen', async ({page}) => {
 });
 
 /**
+ * Vertical geometry, which the three specs above do not touch at all: they are
+ * all horizontal assertions, so a layout that put the composer at the top of the
+ * page — behind the header, or floating in the middle — would pass every one of
+ * them.
+ *
+ * `plan-v3.md` §1 calls this a blank-page bug. It is not: `.chat` measures 611px
+ * and the composer's bottom edge is the viewport's bottom edge. These specs are
+ * here because *that was never asserted*, not because it is currently broken —
+ * see `docs/issues/chat.md`.
+ *
+ * The numbers are `getBoundingClientRect()` values in CSS pixels, which is the
+ * same unit `page.viewportSize()` reports, so the two are directly comparable.
+ */
+test('the thread fills the space under the header', async ({page}) => {
+    await expect(page.getByTestId('input')).toBeVisible();
+    
+    const measured = await page.evaluate(() => {
+        const of = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
+        
+        return {
+            headerBottom: Math.round(of('.chat-header').bottom),
+            threadTop: Math.round(of('.chat__thread').top),
+            threadHeight: Math.round(of('.chat__thread').height),
+            bodyHeight: Math.round(of('.chat-app__body').height),
+        };
+    });
+    
+    // The thread starts where the header ends, and fills the body it is given.
+    // `> 0` was the first version and it was **too weak to fail**: collapsing
+    // `.chat` to zero still leaves the thread's own 48px of padding, so it
+    // measured 48 and passed. Measured against the body instead — 534 of 611
+    // today — a collapse reads as 48 of 611 and cannot pass.
+    const expected = {
+        threadStartsUnderHeader: true,
+        threadFillsMostOfTheBody: true,
+    };
+    
+    expect({
+        threadStartsUnderHeader: measured.threadTop === measured.headerBottom,
+        threadFillsMostOfTheBody: measured.threadHeight > measured.bodyHeight / 2,
+    }).toEqual(expected);
+});
+
+/**
+ * The composer sits at the bottom, not floating.
+ *
+ * `gap` is `viewportHeight - input.bottom`, and it is **0** today — the composer's
+ * bottom edge *is* the viewport's bottom edge. The threshold of 120 is slack, not
+ * a target: it catches a composer stranded mid-page without turning a one-pixel
+ * rounding difference into a failure.
+ */
+test('the composer is at the bottom of the viewport', async ({page}) => {
+    await expect(page.getByTestId('input')).toBeVisible();
+    
+    const measured = await page.evaluate(() => {
+        const {bottom} = document.querySelector('.input')!.getBoundingClientRect();
+        
+        return Math.round(globalThis.innerHeight - bottom);
+    });
+    
+    const expected = 0;
+    
+    expect(measured).toBe(expected);
+});
+
+/**
+ * The send button is below the header and above the fold.
+ *
+ * Measured: `top` 600, `bottom` 646, on a 664px viewport. The `52` in the lower
+ * bound is the header's height — the button must not be behind it, which is what
+ * a collapsed thread looks like.
+ */
+test('the send button is below the header and above the fold', async ({page}) => {
+    await expect(page.getByTestId('send')).toBeVisible();
+    
+    const measured = await page.evaluate(() => {
+        const {top, bottom} = document.querySelector('[data-testid="send"]')!.getBoundingClientRect();
+        
+        return {
+            top: Math.round(top),
+            viewportHeight: globalThis.innerHeight,
+            withinViewport: bottom <= globalThis.innerHeight,
+        };
+    });
+    
+    // The button belongs in the **lower half** of the viewport, not merely below
+    // the header. `top > 52` was the first version and it was too weak to fail:
+    // a collapsed `.chat` puts the button at y≈101, which clears 52 and passes.
+    // Measured today: top 600 of 664. A collapse reads as 101 of 664.
+    const expected = {
+        inLowerHalf: true,
+        withinViewport: true,
+    };
+    
+    expect({
+        inLowerHalf: measured.top > measured.viewportHeight / 2,
+        withinViewport: measured.withinViewport,
+    }).toEqual(expected);
+});
+
+/**
+ * The document must not scroll on its own.
+ *
+ * This is the load-bearing fact behind `100dvh` on `.chat-app`: `dvh` tracks the
+ * *visible* viewport, so a page that scrolls would resize the app shell as the
+ * user scrolled. The thread has its own `overflow-y: auto`, so nothing scrolls
+ * the document, and `dvh` therefore cannot thrash here. If this ever fails, the
+ * `dvh` choice needs revisiting rather than this number.
+ */
+test('the document does not scroll', async ({page}) => {
+    const measured = await page.evaluate(() => document.documentElement.scrollHeight <= globalThis.innerHeight + 1);
+    const expected = true;
+    
+    expect(measured).toBe(expected);
+});
+
+/**
  * The gap *inside* one message, not between messages.
  *
  * `.chat__message` already has `gap: 12px` between messages, and a command and
