@@ -33,9 +33,29 @@ temp spec file.
 | `parse` | Get an AST. Compact by default, `full: true` for raw with `loc`. **JavaScript only** — a `css` or `markdown` source comes back `Unexpected token (1:0)` |
 | `test_pattern` | Test one 🦎**PutoutScript** key: does it match, how many places, what each `__a` bound to |
 | `name_pattern` | The inverse: given a snippet, which patterns match, and a generalised key for it |
+| `type_check` | Run a **clause table** (`@putout/printer`'s `createTypeChecker`) over a fixture: which arm decided each node, and which arm nothing reaches |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
 | `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |
+
+### `type_check` — and the two things that are easy to get wrong
+
+`type_check` is 🐊**Putout**'s own clause machinery, reached through
+`@putout/printer`. `createTypeChecker` takes an **ordered** list of clauses and
+the first match wins, so the table doubles as a list of arms and the tool reports
+which arm each node took.
+
+- **`' -> '` is not a selector.** `parseTypeNames` routes any string containing
+  `' -> '` through `createTuple`, which splits on **spaces** and keeps only the
+  last token as the type name. So `'-: parentPath -> !CallExpression'` is
+  selector `parentPath` against `CallExpression`, negated — not what the string
+  reads like. Run it; do not infer it.
+- **`['+', fn]` is not offered.** `fn` is a live function and cannot arrive over
+  JSON, so the schema is `z.array(z.string())`. A rule needing a function clause
+  is written with `validate` or `transform` instead.
+- The coverage map is keyed `at:uri:line:column` and `report()`'s `setLine` does
+  `Number(line) + index + 1`. The **third field must be numeric** — a filename
+  there prints `NaN`.
 
 ### The two non-babel ASTs, and why `parse` cannot help with them
 
