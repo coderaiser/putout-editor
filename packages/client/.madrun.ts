@@ -12,6 +12,8 @@ const env = {
     NODE_OPTIONS: '--max_old_space_size=5048',
 };
 
+const bin = 'export PATH="$PWD/../../node_modules/.bin:$PATH"';
+
 export default {
     'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
     'test': () => [
@@ -76,5 +78,5 @@ function build(env: string) {
     const mv = 'mv ../../out-build ../../out';
     const rspack = `NODE_ENV=${env} rspack build --mode=${env}`;
     
-    return `${rspack} && ${rm} && ${mv}`;
+    return `${bin} && ${rspack} && ${rm} && ${mv}`;
 }

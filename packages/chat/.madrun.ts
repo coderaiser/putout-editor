@@ -9,6 +9,8 @@ const testEnv = defineEnv({
     jsx: true,
 });
 
+const bin = 'export PATH="$PWD/../../node_modules/.bin:$PATH"';
+
 export default {
     'check': async () => `putout . && ${await run(['test:dts', 'coverage'])}`,
     'test': () => [
@@ -45,5 +47,5 @@ export default {
  * order-independent.
  */
 function build(env: string) {
-    return `NODE_ENV=${env} rspack build --mode=${env}`;
+    return `${bin} && NODE_ENV=${env} rspack build --mode=${env}`;
 }
