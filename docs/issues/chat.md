@@ -54,65 +54,51 @@ This is `MEMORY.md`'s "a check that passes on a cheaper path than the user takes
 cheaper path was *an empty page*: the assertion ran before the thing it asserts about existed.
 `docs/memory/e2e.md` is the neighbouring lesson.
 
-## ❌ the composer is 40px wider than a phone, and the dropdown with it
+## 📝 the composer as a CodeMirror editor — route recorded, not started
 
-`.input` is `width: 100%` with `padding: 12px 20px 18px` and **no `box-sizing`**, so it is
-`content-box` and adds its own horizontal padding on top of `width: 100%`. `.autocomplete` has
-the same shape through `left: 20px; right: 20px`. Both in `src/css/chat.css`.
+Idea 5 in the plan, and the only row it calls "a project, not a step". Recorded
+here rather than started, because starting it would reverse a decision somebody
+wrote down.
 
-Measured with `getBoundingClientRect()` on `devices['iPhone 12']` (390×664), built bundle:
+The client has a full CodeMirror setup — `@codemirror/view`, `@codemirror/state`,
+`@codemirror/lang-javascript`, `@replit/codemirror-vim`, and eleven modules under
+`packages/client/src/editor/`. Chat's dependencies are exactly five and none of
+them is any of those.
 
-```js
-const measured = {
-    winW: 390,
-    docScrollW: 430,
-    input: {left: 0, right: 430},
-    send: {right: 410},
-    autocomplete: {left: 20, right: 410},
-};
-```
+**The blocker is the seam, not the code.** `config/boundaries-config.ts` restricts
+`editor` to `['parser']`, and `docs/architecture.md` records the arrow policy as
+enforced by `boundaries/dependencies`. `packages/chat/README.md` says the tree
+components hold no Redux and are reused in both places, and `AstTree` was copied
+into chat *specifically so the two could not fight*. Importing the client's editor
+reverses that.
 
-**Expected** — everything inside 390. **Got** — `document.scrollWidth` 430 on a 390px screen, so
-the *whole document* scrolls sideways on every phone, and the send button's right edge sits at
-410px: 20px of the button is off-screen and cannot be tapped. The dropdown's last ~20px is
-likewise unreachable.
+Two honest routes:
 
-`box-sizing: border-box` on the two selectors fixes it, verified by re-measuring:
-`docScrollW` 430 → 390, `send.right` 410 → 370, `autocomplete.right` 410 → 370.
+- **Extract.** Move the editor into a package both depend on, widen the boundaries
+  map, and make the arrows say so. This is the route the architecture wants, and
+  it is several days.
+- **Build a small one in chat.** CodeMirror without vim, without search, with JS
+  highlighting and line numbers — roughly `create-editor.ts` plus an `Editor.tsx`.
+  Days, not weeks, and it keeps the seam.
 
-**Not the bug it looks like.** The desktop e2e passes, because at 1280px wide the 40px is
-invisible. It is also not a keyboard problem: the grown box caps correctly at `max-height: 200px`
-with `overflow-y: auto`, the dropdown does not overflow the top, and the 46×46 send button is a
-valid tap target. Measured all three; they are fine.
+**The recommendation is the second**, for one reason: the seam exists because two
+editors sharing a document would fight over the caret, the undo stack and the
+selection. Extracting shares the code and keeps that risk; a small editor in chat
+does not share anything.
 
-**The unit suite cannot see this.** Nothing in `src/` changes — it is `chat.css`, and no spec
-asserts geometry. `docs/memory/browser-bundle.md` is the neighbouring lesson: a green build says
-nothing about what a screen looks like.
+**Whatever the route, the e2e list is the spec for the swap** and each item needs a
+passing test *before* it starts:
 
-## ❌ `packages/chat` e2e does not run in CI at all
+1. `Enter` behaviour per pointer type — **exists**, `e2e/desktop.ts` and
+   `e2e/mobile.ts`
+2. `↑` recalls the last line, `↓` walks back — `↑` exists, `↓` does not
+3. `/` opens the autocomplete and completes — exists in `Input.spec.tsx`, not e2e
+4. `Ctrl+Enter` sends — exists in both projects
+5. the box still grows and caps at `max-height` — `growTo` is unit-tested, not
+   measured in a browser
 
-`.github/workflows/e2e.yml` runs `redrun test:e2e` with `working-directory: packages/client`.
-`redrun` collects scripts from the cwd and every **parent** directory (`parentDirectories` in
-`redrun/bin/redrun.js`) — it never descends into a sibling package. The root has a `test:e2e`
-and the client has one; `packages/chat`'s is never collected.
-
-So a green `E2E` job says nothing about the chat page, and its 15 specs have only ever run
-locally. A chat e2e failure reaches master unnoticed.
-
-**The fix is one step**, and it is not a `redrun` invocation — see the PATH trap in
-[`../memory/workspaces.md`](../memory/workspaces.md):
-
-```yaml
-      - name: Chat e2e
-        run: bun run test:e2e
-        working-directory: packages/chat
-```
-
-**The part worth keeping: a green badge is evidence about the job that ran.** This is
-`MEMORY.md`'s "a check that passes on a cheaper path than the user takes" in its plainest form —
-the job is green because it tests the editor, not because anything is broken. `redrun`'s
-name suggests otherwise: "run multiple npm-scripts fast" reads as *all* of them, and it is
-*all of them on the way up*.
+Only 1 and 4 are e2e today. 2, 3 and 5 have no e2e at all, so a swap would land
+with three of its five guarantees unmeasured.
 
 ## ✅ `/chat` served a file listing: the page and its own chunk directory had the same name
 

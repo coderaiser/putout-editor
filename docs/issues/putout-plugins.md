@@ -6,6 +6,7 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | Rule                                 | Kind       | What it found                                                         | Finding |
 |--------------------------------------|------------|-----------------------------------------------------------------------|---------|
 | `apply-linked-pattern-value`         | code       | a pattern key with `__a__`, which matches nothing and exits 0          | [a replacement that only reports has not done the thing](#-a-fixer-that-cannot-detect-its-own-lossy-cases-exits-clean) |
+| `apply-box-sizing-to-sized-element`  | filesystem | the chat composer, 40px wider than a phone; and one button in `mobile.css` | [one place per file, every selector fixed](#-matchfiles-reports-one-place-per-file-while-the-fix-reaches-every-match) |
 | `apply-press-modifier-case`          | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing | [fixers that lose a guard](#-apply-destructuring-drops-the--guard-on-a-return) |
 | `check-documented-scripts`            | filesystem | docs naming `bun run` scripts that `package.json` does not have    | [`matchFiles` cannot answer a question about a second file](../plugins.md#matchfiles-cannot-be-made-to-work-for-check-documented-scripts) |
 | `check-main-imports-in-file`         | filesystem | a rule in `main.css`, which is an entry point and holds only imports   | [a filesystem rule, and when it needs two files](../plugins.md#matchfiles-is-for-one-file-a-rule-that-compares-two-needs-scan) |
@@ -313,3 +314,63 @@ The two regression tests are named for the shape rather than the behaviour —
 `an absolute path, as redlint builds it` and `the nearest package.json wins` — and both were checked
 to **fail** against the old code before being believed. A fixture written by hand is a fixture that
 can be wrong in the same way twice; the second one is `buildTree(process.cwd())`.
+
+## `matchFiles` reports one place per file, while the fix reaches every match
+
+Found while writing `apply-box-sizing-to-sized-element`, and it changed what two of its specs are
+allowed to assert.
+
+`matchFiles` reports a **file**, not a node. A stylesheet with two matching selectors produces
+**one** place — while `fix` reaches **both**, and does so even at `fixCount: 1`:
+
+```js
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+
+.chat__thread {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px 20px;
+}
+```
+
+```css
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+
+.chat__thread {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px 20px;
+}
+```
+
+**Expected** — two places, or a way to ask. **Got** — one, with both fixed.
+
+So the rule's two specs are deliberately different, and the reason is written on them:
+`two selectors are both fixed` asserts the **text**, and `one place per file` asserts the
+**count**. Asserting the count at 2 would have been the natural thing to write and it would have
+been wrong about a property of the operator, not of the rule.
+
+**The generalisable half:** a spec that asserts a count is asserting the runner as much as the
+rule, and the two are different subjects. Where a fixer is what a rule is for, the fixed text is
+the assertion — the count is trivia that a future runner change would move.
+
+### The part worth keeping
+
+**Two false positives were found by measuring the whole tree, and both were the author's intent
+written down.** `.shareInfo input` in `ShareDialog.css` is `width: calc(100% - 10px)` with
+`padding: 5px` — the author subtracted the padding by hand, and `box-sizing: border-box` would
+have made the input 10px *narrower* than they wrote. `.input__send` in `chat.css` is
+`width: 46px; padding: 0`, which is a width with no padding at all — and was only caught because
+a bare `0` comes back from this parser as an empty string, so the zero test has to accept the
+empty form too.
+
+Both are now `no report` fixtures. A rule that would have fired on either is a rule people
+disable, and the cost of a false positive in a lint rule is much higher than a miss.
