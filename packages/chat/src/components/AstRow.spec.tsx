@@ -345,3 +345,62 @@ test('AstRow: indents by depth', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+/**
+ * `data-category`, which is how the row gets its colour.
+ *
+ * An **attribute**, not an inline `style` and not a class per category. The
+ * reason is that `AstTree.css` selects on it — `.ast-row[data-category="call"]
+ * .ast-row__type { color: var(--ast-c-call) }` — so the eight colours are one
+ * stylesheet concern and adding a ninth type is a `Set` entry plus a selector,
+ * with no JSX edit and no `style` prop that could drift from the stylesheet.
+ *
+ * Read off the DOM because a category that is computed but not applied is the
+ * failure this is here to catch.
+ *
+ * The attribute is read through a helper rather than with `?.` on the spot:
+ * optional chaining is off in this repo, and one helper keeps the two cases
+ * below saying only what they are about.
+ */
+const category = () => {
+    const element = document.querySelector('[data-testid="ast-row"]');
+    
+    return element && element.getAttribute('data-category');
+};
+
+test('AstRow: carries its type category as data-category', (t) => {
+    row({
+        type: 'CallExpression',
+    });
+    
+    const result = category();
+    const expected = 'call';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The unknown-type arm, on the row rather than only on the function.
+ *
+ * `categoryOf` returns `other` for anything it does not know, and this is what
+ * that looks like in the DOM: an attribute whose value no selector in
+ * `AstTree.css` matches, so the row keeps `.ast-row__type`'s accent. jsdom has
+ * no cascade, so the *colour* is the e2e's job — what is checked here is that
+ * the attribute is present and says `other` rather than `null`.
+ */
+test('AstRow: an unknown type falls back to the other category', (t) => {
+    row({
+        type: 'SomethingUnknown',
+    });
+    
+    const result = category();
+    const expected = 'other';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});

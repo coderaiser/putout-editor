@@ -435,7 +435,7 @@ test('/ast shows the full hint and the code preview on desktop', async ({page}) 
     await expect(
         page
             .getByTestId('chat')
-            .locator('.ast-code')
+            .locator('.ast-code'),
     ).toBeVisible();
 });
 
@@ -467,6 +467,143 @@ test('/ast shows two columns on desktop', async ({page}) => {
         twoColumns: measured.tree < measured.body,
     }).toEqual({
         twoColumns: expected,
+    });
+});
+
+/**
+ * Two categories render two colours.
+ *
+ * The assertion the plan asks for, and the only one that can be made about a
+ * colour: `getComputedStyle` needs a real cascade, so jsdom is out and this is
+ * an e2e. "Different" rather than a hex value, because the same token resolves
+ * differently in light and dark and a literal would pin the theme as well as
+ * the hue.
+ *
+ * `declaration` and `statement` are the pair because `VariableDeclaration` and
+ * `Program` are both on screen in every `/ast` reply, so the spec needs no
+ * fixture beyond `send(page, '/ast')`.
+ */
+test('ast row type colour differs by category', async ({page}) => {
+    await send(page, '/ast');
+    
+    const colourOf = (category: string) => page
+        .getByTestId('chat')
+        .locator(`[data-category="${category}"] .ast-row__type`)
+        .first()
+        .evaluate((element) => getComputedStyle(element).color);
+
+    const result = await colourOf('statement');
+    const expected = await colourOf('declaration');
+    
+    expect(result).not.toBe(expected);
+});
+
+/**
+ * Every drawn category renders its own colour.
+ *
+ * One pair would pass on a stylesheet that colours statements and declarations
+ * and leaves everything else on the accent, so this is a **count of distinct
+ * colours across distinct categories** — and the categories are read off the
+ * drawn rows rather than named, so a category nothing matched cannot be counted
+ * as if it had.
+ *
+ * That is the first version's bug: it probed four named categories and got 3
+ * distinct colours out of 4, because two probes returned `null` for rows the
+ * default fold had hidden — and `null` was accepted as a colour. So this walks
+ * what is actually on screen, which cannot produce a `null`, and asserts that at
+ * least four categories are there — the tree is expanded first, or a two-row
+ * default view has nothing to compare.
+ */
+test('each drawn category renders a distinct colour', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+
+    // `l` expands where it stands, then walks in: Program, VariableDeclaration,
+    // VariableDeclarator — which is what brings `Identifier` and
+    // `ArrowFunctionExpression` out from under the default fold
+    for (const key of ['l', 'l', 'l', 'l', 'l'])
+        await page.keyboard.press(key);
+
+    const measured = await page.evaluate(() => {
+        const rows = [...document.querySelectorAll('.ast-row[data-category]')];
+        
+        // A concise arrow, and **not** `rows.map(({getAttribute}) =>
+        // getAttribute('data-category'))`: pulling the method off the element
+        // detaches it from its receiver, and the browser's `getAttribute` reads
+        // `Symbol(attributes)` off `this`. Same trap as `AstBlock.spec.tsx`
+        // records for happy-dom.
+        const categories = [...new Set(rows.map((element) => element.getAttribute('data-category') as string))];
+        
+        const colours = [];
+        
+        for (const category of categories) {
+            const type = document.querySelector(
+                `.ast-row[data-category="${category}"] .ast-row__type`,
+            ) as HTMLElement;
+            
+            colours.push(getComputedStyle(type).color);
+        }
+        
+        return {
+            categories: categories.length,
+            distinctColours: new Set(colours).size,
+        };
+    });
+    
+    const expected = {
+        categories: measured.categories,
+        distinctColours: measured.categories,
+    };
+    
+    // the tree must actually have enough categories for the comparison to mean
+    // anything; a two-row default view would make this trivially true
+    expect(measured.categories).toBeGreaterThanOrEqual(4);
+    expect(measured).toEqual(expected);
+});
+
+/**
+ * A matched row keeps its category colour.
+ *
+ * The plan's own trap: `.ast-row--match` sets `color` on the **row**, and if it
+ * reached `.ast-row__type` the amber highlight would flatten every filtered type
+ * to one colour and the whole scheme would stop working the moment you searched.
+ * This asserts the cascade resolves in the right direction rather than trusting
+ * the reasoning, because "it should be fine by specificity" is exactly the kind
+ * of claim that is fine until someone adds `!important`.
+ */
+test('a matched row keeps its category colour', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+    
+    await search(page).fill('VariableDeclaration');
+    
+    const result = await page.evaluate(() => {
+        const matched = document.querySelector(
+            '.ast-row--match[data-category="declaration"] .ast-row__type',
+        ) as HTMLElement;
+        
+        const dimmed = document.querySelector(
+            '.ast-row--dimmed[data-category="statement"] .ast-row__type',
+        ) as HTMLElement;
+        
+        return {
+            dimmed: dimmed && getComputedStyle(dimmed).color,
+            matched: matched && getComputedStyle(matched).color,
+        };
+    });
+    
+    const expected = true;
+    
+    expect({
+        // the matched row is still a declaration-blue, not the row's amber
+        keepsColour: result.matched !== result.dimmed,
+    }).toEqual({
+        keepsColour: expected,
     });
 });
 

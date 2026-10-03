@@ -1,4 +1,5 @@
 import type {FlatNode} from '@putout/editor-commands';
+import {categoryOf} from './typeColor.ts';
 
 export interface AstRowProps {
     node: FlatNode;
@@ -69,6 +70,13 @@ export default function AstRow({node, hasChildren, collapsed, last, dimmed, matc
                 .join(' ')}
             data-testid="ast-row"
             data-type={node.type}
+            /*
+             * The colour, by attribute rather than by `style` or by a class per
+             * category: `AstTree.css` owns all eight selectors, so adding a type
+             * is a `Set` entry and a rule, with no JSX to keep in step and no
+             * inline value that could drift from the stylesheet's token.
+             */
+            data-category={categoryOf(node.type)}
             onClick={() => {
                 onSelect(node.id);
                 

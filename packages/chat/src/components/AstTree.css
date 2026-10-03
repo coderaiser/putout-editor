@@ -20,6 +20,39 @@
     --ast-match: var(--color-marked, #f5e6a8);
     --ast-selected: var(--color-selected, #f0eee6);
     
+    /*
+     * Type-category colours.
+     *
+     * Derived from the palette already in this file, not from `happy-style`:
+     * plan.md §4 says to check that package first, and it exports four
+     * functions — `convertCssToJs`, `convertJsToCss`, `parseCss`, `printCss` —
+     * and no tokens at all. It is a css-to-JS **parser**, so there is nothing to
+     * read a palette out of. (The plan also names `happy-style@1.0.7`; 1.0.5 is
+     * installed here, and neither version ships a theme.)
+     *
+     * These are the **light** values, chosen to sit on `--ast-bg: #fff` and to be
+     * distinguishable from each other at 13px monospace. The dark set is
+     * `[data-theme='dark'] .ast` below, because these have no `--color-*`
+     * counterpart to inherit — the one deliberate exception to the
+     * `var(--color-*, fallback)` pattern the other six tokens use, and the reason
+     * is that there is nothing on the page to inherit *from*.
+     *
+     * Hues follow VS Code's dark theme, which is what the plan's reference image
+     * shows: gold statements, blue declarations, violet expressions, teal calls,
+     * warm literals, plain-text identifiers, red control flow.
+     */
+    --ast-c-statement: #9a6b00;
+    --ast-c-declaration: #2a6fb0;
+    --ast-c-expression: #6d3fc4;
+    --ast-c-call: #0e7a6e;
+    --ast-c-literal: #b45309;
+    /* the foreground itself: an identifier is what everything else decorates */
+    --ast-c-identifier: var(--ast-fg);
+    --ast-c-control: #b91c1c;
+    /* `other` takes the accent `.ast-row__type` already had, so an unrecognised
+       node reads as "no opinion" rather than as a bug */
+    --ast-c-other: var(--ast-accent);
+    
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -38,6 +71,70 @@
    listener is bound here rather than to `document`. */
 .ast:focus-visible {
     outline: 1px solid var(--ast-accent);
+}
+
+/**
+ * The eight category colours, on the dark background.
+ *
+ * Scoped to `[data-theme='dark'] .ast` rather than `@media (prefers-color-scheme)`
+ * because `chat.css` keys its own dark palette off the attribute and a media
+ * query here would disagree with it the moment a user overrode the theme — a
+ * light tree with dark category colours is the failure this avoids.
+ *
+ * Lighter and less saturated than the light set for the same reason
+ * `chat.css`'s dark text is: pure hues at full strength on `#1f1e1d` glare.
+ */
+[data-theme='dark'] .ast {
+    --ast-c-statement: #d4a72c;
+    --ast-c-declaration: #6cb6ff;
+    --ast-c-expression: #b392f0;
+    --ast-c-call: #5eead4;
+    --ast-c-literal: #f0a868;
+    --ast-c-control: #f87171;
+}
+
+/**
+ * The category rules themselves.
+ *
+ * `.ast-row__type { color: var(--ast-accent) }` below is the fallback and stays:
+ * it is what an `other` row gets, and what a row would get if these selectors
+ * were deleted.
+ *
+ * `.ast-row--match` sets `color` on the **row**, and `.ast-row--dimmed` too, but
+ * neither sets anything on `.ast-row__type`, which is the only element these
+ * rules touch — so a filtered row keeps its category colour. That is the answer
+ * to the plan's own worry, and it is structural rather than an `!important`.
+ *
+ * Specificity is `.ast-row[data-category="x"] .ast-row__type` — an attribute
+ * selector plus two classes — against `.ast-row__type`'s single class, so the
+ * order these appear in this file does not matter.
+ */
+.ast-row[data-category='statement'] .ast-row__type {
+    color: var(--ast-c-statement);
+}
+
+.ast-row[data-category='declaration'] .ast-row__type {
+    color: var(--ast-c-declaration);
+}
+
+.ast-row[data-category='expression'] .ast-row__type {
+    color: var(--ast-c-expression);
+}
+
+.ast-row[data-category='call'] .ast-row__type {
+    color: var(--ast-c-call);
+}
+
+.ast-row[data-category='literal'] .ast-row__type {
+    color: var(--ast-c-literal);
+}
+
+.ast-row[data-category='identifier'] .ast-row__type {
+    color: var(--ast-c-identifier);
+}
+
+.ast-row[data-category='control'] .ast-row__type {
+    color: var(--ast-c-control);
 }
 
 .ast__body {
@@ -108,6 +205,12 @@
     color: var(--ast-dim);
 }
 
+/*
+ * The fallback, and deliberately still here: it is what an `other` row gets,
+ * and it is what every row would get if the seven category selectors above were
+ * deleted. `--ast-c-other` names the same value so the token is declared beside
+ * its seven siblings; nothing selects on it, and that is the point.
+ */
 .ast-row__type {
     color: var(--ast-accent);
 }
