@@ -142,9 +142,16 @@ test('App: /console again hides the panel', async (t) => {
     t.end();
 });
 
+/**
+ * `/ast` *feeds* the panel even though it no longer opens it, so a `/ast` before
+ * a `/console` still shows the tree. That is the behaviour `0e987ac` was for,
+ * and it survives the reversal: `setConsoleAst` is untouched.
+ */
 test('App: the panel shows the tree after /ast', async (t) => {
     mount();
     
+    send('/console');
+    await wait();
     send('/source\nconst a = 1;');
     await wait();
     send('/ast');
@@ -159,19 +166,22 @@ test('App: the panel shows the tree after /ast', async (t) => {
     t.end();
 });
 
-test('App: /ast opens the panel by itself', async (t) => {
+test('App: /ast leaves the panel closed', async (t) => {
     mount();
     
     send('/source\nconst a = 1;');
     await wait();
     
-    const before = panel();
-    
     send('/ast');
     await wait();
     
-    const result = before === null && panel() !== null;
-    const expected = true;
+    // The tree is in the thread — `Message` renders `AstBlock` for an `ast`
+    
+    // result — so `/ast` opening the panel as well would be a second copy
+    
+    // taking half the thread.
+    const result = panel();
+    const expected = null;
     
     cleanup();
     
@@ -179,19 +189,15 @@ test('App: /ast opens the panel by itself', async (t) => {
     t.end();
 });
 
-test('App: /ast again leaves the panel open', async (t) => {
+test('App: /console still opens the panel', async (t) => {
     mount();
     
-    send('/source\nconst a = 1;');
-    await wait();
-    send('/ast');
-    await wait();
     send('/ast');
     await wait();
     
-    // `toggleConsole` here would close the panel the second time, which reads
+    send('/console');
+    await wait();
     
-    // as `/ast` being broken rather than as a toggle.
     const result = panel() !== null;
     const expected = true;
     

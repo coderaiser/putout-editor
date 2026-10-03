@@ -170,6 +170,7 @@ test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
     const caret = await selected
         .locator('.ast-row__caret')
         .textContent();
+    
     const expectedCaret = '▸';
     
     expect(caret).toBe(expectedCaret);
@@ -209,21 +210,26 @@ test('the panel ✕ closes the console', async ({page}) => {
     await expect(page.locator('.chat-console')).toHaveCount(0);
 });
 
-test('/ast opens the console panel on its own', async ({page}) => {
+/**
+ * Reverses `0e987ac`, and the reason it does not take anything away is the spec
+ * above: `/ast` already answers *in the thread*, so the panel was a second view
+ * of something on screen rather than the only way to see it.
+ *
+ * `/console` and the panel's own ✕ still open and close it by hand — those are
+ * asserted elsewhere, and this is only about what `/ast` does on its own.
+ */
+test('/ast leaves the console panel closed', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     
     await send(page, '/source\nconst add = (a, b) => a + b;');
     await send(page, '/ast');
     
-    // No second `/console`: the tree just asked for *is* the panel, and a
+    // The tree is in the thread — that is what `shows ast tree for pasted
     
-    // toggle here would close the panel on a second `/ast`.
-    await expect(page.locator('.console-panel')).toBeVisible();
-    await expect(
-        page
-            .locator('.console-panel [data-testid="ast-row"]')
-            .first(),
-    ).toBeVisible();
+    // source` asserts — so the panel opening here would be a duplicate taking
+    
+    // half the thread.
+    await expect(page.locator('.console-panel')).toHaveCount(0);
 });
 
 test('Ctrl+Enter sends the line', async ({page}) => {

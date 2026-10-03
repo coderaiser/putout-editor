@@ -96,31 +96,34 @@ test('useChat: /ast hands the console panel a tree', async (t) => {
     t.end();
 });
 
-test('useChat: /ast opens the console panel', async (t) => {
+/**
+ * Reverses `0e987ac`. Its reason was that the header button left the user to
+ * type `/console` to see what they had just asked for — and the answer to that
+ * is the tree in the *thread*, which `AstBlock` has always rendered. The panel
+ * is a second view of something already on screen.
+ */
+test('useChat: /ast leaves the console panel closed', async (t) => {
     const {store, send} = setup();
     
     await send('/source\nconst a = 1;');
     await send('/ast');
     
     const result = store.getState().chat.consoleOpen;
-    const expected = true;
+    const expected = false;
     
     t.equal(result, expected);
     t.end();
 });
 
-test('useChat: /ast again leaves the console panel open', async (t) => {
+test('useChat: /ast twice still leaves the console panel closed', async (t) => {
     const {store, send} = setup();
     
     await send('/source\nconst a = 1;');
     await send('/ast');
     await send('/ast');
     
-    // A `toggleConsole` here would close it, and the user would see `/ast`
-    
-    // appear to switch the panel off.
     const result = store.getState().chat.consoleOpen;
-    const expected = true;
+    const expected = false;
     
     t.equal(result, expected);
     t.end();

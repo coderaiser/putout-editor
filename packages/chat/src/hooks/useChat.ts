@@ -15,7 +15,6 @@ import {
     reset,
     setConsoleAst,
     toggleConsole,
-    openConsole,
     nextId,
 } from '#store';
 
@@ -106,21 +105,18 @@ export const useChat = () => {
         }
         
         if (result.type === 'ast') {
+            // The panel is still *fed* by `/ast` — it survives a `/clear` that
+            // empties the transcript it came from — but `/ast` no longer
+            // *opens* it. Reverses `0e987ac`, whose reason was that the header
+            // button left the user to type `/console` to see what they had just
+            // asked for; the answer to that is the tree in the thread, which
+            // `Message` has always rendered through `AstBlock`. Opening the
+            // panel as well gave every `/ast` two copies of one tree, and the
+            // panel took half the thread.
             dispatch(setConsoleAst({
                 nodes: result.nodes,
                 source: result.source,
             }));
-            
-            // The panel *is* the answer to `/ast`, so it opens with it. The
-            
-            // header button this replaced left the user to type `/console`
-            
-            // afterwards to see what they had just asked for; `/ast` twice
-            
-            // leaves it open rather than closing it, which `toggleConsole`
-            
-            // here would do.
-            dispatch(openConsole());
         }
         
         if (command === 'console')
