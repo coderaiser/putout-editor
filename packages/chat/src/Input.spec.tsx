@@ -279,26 +279,31 @@ test('Input: enterSends is false for a coarse pointer', (t) => {
     t.end();
 });
 
-test('Input: typing / opens the autocomplete', (t) => {
-    box();
+/**
+ * The autocomplete used to open on `/`, because `/` was how a command started.
+ * Now the first word *is* the command, so there is no sigil left to key on and
+ * the honest question is "is what I have typed a command name so far".
+ *
+ * `matches` keeps the empty-prefix case — it answers every name — while the
+ * component gates on a non-empty box, so an idle composer is quiet and the
+ * list is still reachable by the function. `matches` closing on a space is the
+ * other half: once a word has ended, the user is typing an argument and a
+ * command name is no longer what they want completed.
+ */
+test('Input: matches closes once a space ends the command word', (t) => {
+    const result = matches('source const a = 1;');
+    const expected: string[] = [];
     
-    type('/');
-    
-    const result = document.querySelector('[data-testid="autocomplete"]') !== null;
-    const expected = true;
-    
-    cleanup();
-    
-    t.equal(result, expected);
+    t.deepEqual(result, expected);
     t.end();
 });
 
-test('Input: the autocomplete lists every command', (t) => {
+test('Input: typing a command prefix opens the autocomplete', (t) => {
     box();
     
-    type('/');
+    type('tra');
     
-    const result = options().length === commands.size;
+    const result = document.querySelector('[data-testid="autocomplete"]') !== null;
     const expected = true;
     
     cleanup();
@@ -310,7 +315,7 @@ test('Input: the autocomplete lists every command', (t) => {
 test('Input: the autocomplete narrows as a name is typed', (t) => {
     box();
     
-    type('/tra');
+    type('tra');
     
     const result = options().length;
     const expected = 1;
@@ -321,14 +326,68 @@ test('Input: the autocomplete narrows as a name is typed', (t) => {
     t.end();
 });
 
+/**
+ * The row's own name, read off the element rather than sliced out of the row's
+ * whole text.
+ *
+ * `.autocomplete__row` holds the name **and** the description, so
+ * `textContent` is both concatenated and asserting on it would pin the
+ * description too — this test is about the name having no slash on it. There is
+ * no separate name element, so the name is the text before the description
+ * span, and reading it that way keeps the assertion about one thing.
+ */
+test('Input: the autocomplete shows bare names, with no slash', (t) => {
+    box();
+    
+    type('tra');
+    
+    const row = document.querySelector('.autocomplete__row');
+    const name = row && row.firstChild;
+    const result = name && name.textContent;
+    const expected = 'transform';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: a space closes the autocomplete, since the word has ended', (t) => {
+    box();
+    
+    type('tra ');
+    
+    const result = options().length;
+    const expected = 0;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('Input: a word no command starts with never opens the autocomplete', (t) => {
+    box();
+    
+    type('hello');
+    
+    const result = options().length;
+    const expected = 0;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('Input: Tab completes the picked command into the box', (t) => {
     box();
     
-    type('/tra');
+    type('tra');
     press('Tab');
     
     const result = value();
-    const expected = '/transform ';
+    const expected = 'transform ';
     
     cleanup();
     
@@ -339,11 +398,11 @@ test('Input: Tab completes the picked command into the box', (t) => {
 test('Input: Enter completes while the autocomplete is open', (t) => {
     box();
     
-    type('/tra');
+    type('tra');
     press('Enter');
     
     const result = value();
-    const expected = '/transform ';
+    const expected = 'transform ';
     
     cleanup();
     
@@ -396,7 +455,7 @@ test('Input: Shift+Enter is a newline on a keyboard', (t) => {
 test('Input: Shift+Enter does not complete while the autocomplete is open', (t) => {
     box();
     
-    type('/tra');
+    type('tra');
     press('Enter', true);
     
     const result = {
@@ -406,7 +465,7 @@ test('Input: Shift+Enter does not complete while the autocomplete is open', (t) 
     
     const expected = {
         options: 1,
-        value: '/tra',
+        value: 'tra',
     };
     
     cleanup();
@@ -476,7 +535,7 @@ test('Input: Cmd+Enter also sends the line', (t) => {
 test('Input: down arrow moves the pick down the list', (t) => {
     box();
     
-    type('/');
+    type('c');
     press('ArrowDown');
     
     const first = document.querySelector('.autocomplete__row');
@@ -492,7 +551,7 @@ test('Input: down arrow moves the pick down the list', (t) => {
 test('Input: up arrow wraps the pick to the end of the list', (t) => {
     box();
     
-    type('/');
+    type('c');
     press('ArrowUp');
     
     const rows = [...document.querySelectorAll('.autocomplete__row')] as Element[];
@@ -509,7 +568,7 @@ test('Input: up arrow wraps the pick to the end of the list', (t) => {
 test('Input: Escape closes the autocomplete and empties the box', (t) => {
     box();
     
-    type('/');
+    type('c');
     press('Escape');
     
     const result = {
@@ -525,20 +584,6 @@ test('Input: Escape closes the autocomplete and empties the box', (t) => {
     cleanup();
     
     t.deepEqual(result, expected);
-    t.end();
-});
-
-test('Input: a non-slash line closes the autocomplete', (t) => {
-    box();
-    
-    type('hello');
-    
-    const result = options().length;
-    const expected = 0;
-    
-    cleanup();
-    
-    t.equal(result, expected);
     t.end();
 });
 
@@ -685,7 +730,7 @@ test('Input: down arrow past the newest returns to empty', (t) => {
 test('Input: clicking a row completes that command', (t) => {
     box();
     
-    type('/tra');
+    type('tra');
     
     const rows = [...document.querySelectorAll('.autocomplete__row')] as HTMLElement[];
     const row = rows.at(0) as HTMLElement;
@@ -693,7 +738,7 @@ test('Input: clicking a row completes that command', (t) => {
     fireEvent.mouseDown(row);
     
     const result = value();
-    const expected = '/transform ';
+    const expected = 'transform ';
     
     cleanup();
     
@@ -704,7 +749,7 @@ test('Input: clicking a row completes that command', (t) => {
 test('Input: a completed command leaves the dropdown behind', (t) => {
     box();
     
-    type('/tra');
+    type('tra');
     
     const rows = [...document.querySelectorAll('.autocomplete__row')] as HTMLElement[];
     const row = rows.at(0) as HTMLElement;
@@ -728,8 +773,8 @@ test('Input: matches returns nothing for a line that is not a command', (t) => {
     t.end();
 });
 
-test('Input: matches finds every command for a bare slash', (t) => {
-    const result = matches('/').length;
+test('Input: matches finds every command for a prefix nothing is typed yet', (t) => {
+    const result = matches('').length;
     const expected = commands.size;
     
     t.equal(result, expected);
@@ -737,15 +782,15 @@ test('Input: matches finds every command for a bare slash', (t) => {
 });
 
 test('Input: matches narrows on a prefix', (t) => {
-    const result = matches('/he');
-    const expected = ['/help'];
+    const result = matches('he');
+    const expected = ['help'];
     
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('Input: matches returns nothing when nothing starts with the prefix', (t) => {
-    const result = matches('/zzz');
+    const result = matches('zzz');
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
@@ -799,7 +844,7 @@ test('Input: the send button names its shortcut', (t) => {
 
 test('Input: describeOf returns the description of a known command', (t) => {
     const command = commands.get('ast');
-    const result = describeOf('/ast');
+    const result = describeOf('ast');
     const expected = command && command.description;
     
     t.equal(result, expected);
@@ -807,7 +852,7 @@ test('Input: describeOf returns the description of a known command', (t) => {
 });
 
 test('Input: describeOf returns nothing for a name that is not a command', (t) => {
-    const result = describeOf('/notacommand');
+    const result = describeOf('notacommand');
     const expected = '';
     
     t.equal(result, expected);

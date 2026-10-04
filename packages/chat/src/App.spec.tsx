@@ -76,10 +76,10 @@ test('App: the app is not in split layout by default', (t) => {
     t.end();
 });
 
-test('App: /console makes the panel appear', async (t) => {
+test('App: console makes the panel appear', async (t) => {
     mount();
     
-    send('/console');
+    send('console');
     await wait();
     
     const result = panel() !== null;
@@ -91,10 +91,10 @@ test('App: /console makes the panel appear', async (t) => {
     t.end();
 });
 
-test('App: /console puts the app into split layout', async (t) => {
+test('App: console puts the app into split layout', async (t) => {
     mount();
     
-    send('/console');
+    send('console');
     await wait();
     
     const result = document.querySelector('.chat-app--split') !== null;
@@ -106,10 +106,10 @@ test('App: /console puts the app into split layout', async (t) => {
     t.end();
 });
 
-test('App: /console with no /ast yet shows the empty panel', async (t) => {
+test('App: console with no ast yet shows the empty panel', async (t) => {
     mount();
     
-    send('/console');
+    send('console');
     await wait();
     
     // The panel's own header carries the `✕` and the title, so the panel's
@@ -125,12 +125,12 @@ test('App: /console with no /ast yet shows the empty panel', async (t) => {
     t.end();
 });
 
-test('App: /console again hides the panel', async (t) => {
+test('App: console again hides the panel', async (t) => {
     mount();
     
-    send('/console');
+    send('console');
     await wait();
-    send('/console');
+    send('console');
     await wait();
     
     const result = panel();
@@ -147,14 +147,14 @@ test('App: /console again hides the panel', async (t) => {
  * a `/console` still shows the tree. That is the behaviour `0e987ac` was for,
  * and it survives the reversal: `setConsoleAst` is untouched.
  */
-test('App: the panel shows the tree after /ast', async (t) => {
+test('App: the panel shows the tree after ast', async (t) => {
     mount();
     
-    send('/console');
+    send('console');
     await wait();
-    send('/source\nconst a = 1;');
+    send('source\nconst a = 1;');
     await wait();
-    send('/ast');
+    send('ast');
     await wait();
     
     const result = document.querySelectorAll('.console-panel [data-testid="ast-row"]').length > 0;
@@ -169,10 +169,10 @@ test('App: the panel shows the tree after /ast', async (t) => {
 test('App: /ast leaves the panel closed', async (t) => {
     mount();
     
-    send('/source\nconst a = 1;');
+    send('source\nconst a = 1;');
     await wait();
     
-    send('/ast');
+    send('ast');
     await wait();
     
     // The tree is in the thread — `Message` renders `AstBlock` for an `ast`
@@ -189,13 +189,13 @@ test('App: /ast leaves the panel closed', async (t) => {
     t.end();
 });
 
-test('App: /console still opens the panel', async (t) => {
+test('App: console still opens the panel', async (t) => {
     mount();
     
-    send('/ast');
+    send('ast');
     await wait();
     
-    send('/console');
+    send('console');
     await wait();
     
     const result = panel() !== null;
@@ -241,7 +241,7 @@ test('App: the chat is always on screen', (t) => {
 test('App: the panel ✕ closes the console', async (t) => {
     mount();
     
-    send('/console');
+    send('console');
     await wait();
     
     fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
@@ -263,10 +263,10 @@ test('App: the panel ✕ comes back after /console', async (t) => {
     // pass for a panel that could never be reopened. Three `/console`s: open,
     
     // closed, open again.
-    send('/console');
+    send('console');
     await wait();
     fireEvent.click(document.querySelector('[data-testid="console-close"]') as HTMLElement);
-    send('/console');
+    send('console');
     await wait();
     
     const result = document.querySelector('[data-testid="console-close"]') !== null;

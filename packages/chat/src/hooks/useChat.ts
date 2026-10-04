@@ -18,9 +18,27 @@ import {
     nextId,
 } from '#store';
 
+/**
+ * The two ways a line can name nothing.
+ *
+ * A bare word and a misspelling are the *same* thing now: `parseCommand` takes
+ * the first word as the command and does not know the vocabulary, so `hello`
+ * and `astt` both arrive here as an unregistered name. One answer for both is
+ * the point — v8 §3 asked for a separate "not a command" error for plain text,
+ * and with no slash in the grammar that branch would exist only to say the same
+ * sentence. `parseError` covers the one case that is genuinely different: an
+ * input with no first word at all.
+ *
+ * No slash anywhere, because there is nothing to prefix one to.
+ */
 const unknown = (name: string): CommandResult => ({
     type: 'error',
-    message: `Unknown command: /${name}. Try /help.`,
+    message: `Unknown command: ${name}. Try help.`,
+});
+
+const parseError = (error: string): CommandResult => ({
+    type: 'error',
+    message: error,
 });
 
 /**
@@ -46,10 +64,23 @@ export const useChat = () => {
      * old source.
      */
     const send = useCallback(async (input: string, source = state.source) => {
-        const parsed = parseCommand(input);
+        // The registry's own keys, so "a body ends at the next command" is
+        // measured against the same list the dispatch below uses. Without them
+        // a `source` body would swallow every following line.
+        const parsed = parseCommand(input, commands.keys());
         
-        if (!('command' in parsed))
+        // An input with no first word at all — the one thing the parser
+        // refuses. It used to be dropped silently, which is the v8 §3 defect
+        // in its purest form: a line sent and no answer.
+        if (!('command' in parsed)) {
+            dispatch(addMessage({
+                id: nextId(),
+                text: input,
+                result: parseError(parsed.error),
+            }));
+            
             return;
+        }
         
         const {
             command,

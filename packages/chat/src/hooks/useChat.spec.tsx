@@ -47,10 +47,10 @@ const texts = (store: ChatStore): string[] => store
     .messages
     .map(({text}) => text);
 
-test('useChat: /source sets the buffer and answers', async (t) => {
+test('useChat: source sets the buffer and answers', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
+    await send('source\nconst a = 1;');
     
     const result = store.getState().chat.source;
     const expected = 'const a = 1;';
@@ -59,13 +59,13 @@ test('useChat: /source sets the buffer and answers', async (t) => {
     t.end();
 });
 
-test('useChat: /source records the line in the thread', async (t) => {
+test('useChat: source records the line in the thread', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
+    await send('source\nconst a = 1;');
     
     const result = texts(store);
-    const expected = ['/source\nconst a = 1;'];
+    const expected = ['source\nconst a = 1;'];
     
     t.deepEqual(result, expected);
     t.end();
@@ -74,20 +74,20 @@ test('useChat: /source records the line in the thread', async (t) => {
 test('useChat: a sent line goes into the history', async (t) => {
     const {store, send} = setup();
     
-    await send('/help');
+    await send('help');
     
     const result = store.getState().chat.history;
-    const expected = ['/help'];
+    const expected = ['help'];
     
     t.deepEqual(result, expected);
     t.end();
 });
 
-test('useChat: /ast hands the console panel a tree', async (t) => {
+test('useChat: ast hands the console panel a tree', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
-    await send('/ast');
+    await send('source\nconst a = 1;');
+    await send('ast');
     
     const result = store.getState().chat.consoleAst && store.getState().chat.consoleAst.source;
     const expected = 'const a = 1;';
@@ -102,11 +102,11 @@ test('useChat: /ast hands the console panel a tree', async (t) => {
  * is the tree in the *thread*, which `AstBlock` has always rendered. The panel
  * is a second view of something already on screen.
  */
-test('useChat: /ast leaves the console panel closed', async (t) => {
+test('useChat: ast leaves the console panel closed', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
-    await send('/ast');
+    await send('source\nconst a = 1;');
+    await send('ast');
     
     const result = store.getState().chat.consoleOpen;
     const expected = false;
@@ -115,12 +115,12 @@ test('useChat: /ast leaves the console panel closed', async (t) => {
     t.end();
 });
 
-test('useChat: /ast twice still leaves the console panel closed', async (t) => {
+test('useChat: ast twice still leaves the console panel closed', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
-    await send('/ast');
-    await send('/ast');
+    await send('source\nconst a = 1;');
+    await send('ast');
+    await send('ast');
     
     const result = store.getState().chat.consoleOpen;
     const expected = false;
@@ -129,12 +129,12 @@ test('useChat: /ast twice still leaves the console panel closed', async (t) => {
     t.end();
 });
 
-test('useChat: /ast with no source does not open the panel', async (t) => {
+test('useChat: ast with no source does not open the panel', async (t) => {
     const {store, send} = setup({
         source: '',
     });
     
-    await send('/ast');
+    await send('ast');
     
     const result = store.getState().chat.consoleOpen;
     const expected = false;
@@ -163,10 +163,10 @@ test('useChat: the source starts as the seed the slice declares', (t) => {
     t.end();
 });
 
-test('useChat: /ast on a fresh page answers with a tree', async (t) => {
+test('useChat: ast on a fresh page answers with a tree', async (t) => {
     const {store, send} = setup();
     
-    await send('/ast');
+    await send('ast');
     
     // `messages.at(-1)` rather than the last message by index, and bound before
     
@@ -184,10 +184,10 @@ test('useChat: /ast on a fresh page answers with a tree', async (t) => {
     t.end();
 });
 
-test('useChat: /ast on a fresh page answers with a tree, not an error', async (t) => {
+test('useChat: ast on a fresh page answers with a tree, not an error', async (t) => {
     const {store, send} = setup();
     
-    await send('/ast');
+    await send('ast');
     
     const result = store.getState().chat.consoleAst !== null;
     const expected = true;
@@ -199,7 +199,7 @@ test('useChat: /ast on a fresh page answers with a tree, not an error', async (t
 test('useChat: /console toggles the panel', async (t) => {
     const {store, send} = setup();
     
-    await send('/console');
+    await send('console');
     
     const result = store.getState().chat.consoleOpen;
     const expected = true;
@@ -211,8 +211,8 @@ test('useChat: /console toggles the panel', async (t) => {
 test('useChat: /clear empties the thread but keeps the source', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
-    await send('/clear');
+    await send('source\nconst a = 1;');
+    await send('clear');
     
     const result = {
         messages: store.getState().chat.messages.length,
@@ -231,8 +231,8 @@ test('useChat: /clear empties the thread but keeps the source', async (t) => {
 test('useChat: /reset puts the seed back, not an empty source', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
-    await send('/reset');
+    await send('source\nconst a = 1;');
+    await send('reset');
     
     // `/reset` is `() => initialState`, and `initialState` now carries the seed.
     
@@ -249,7 +249,7 @@ test('useChat: /reset puts the seed back, not an empty source', async (t) => {
 test('useChat: an unknown command answers with an error', async (t) => {
     const {store, send} = setup();
     
-    await send('/notacommand');
+    await send('notacommand');
     
     const [last] = store.getState().chat.messages;
     const result = last.result && last.result.type;
@@ -262,34 +262,30 @@ test('useChat: an unknown command answers with an error', async (t) => {
 test('useChat: an unknown command names itself in the error', async (t) => {
     const {store, send} = setup();
     
-    await send('/notacommand');
+    await send('notacommand');
     
     const [last] = store.getState().chat.messages;
     const result = last.result && last.result.type === 'error' && last.result.message;
-    const expected = 'Unknown command: /notacommand. Try /help.';
+    const expected = 'Unknown command: notacommand. Try help.';
     
     t.equal(result, expected);
     t.end();
 });
 
-test('useChat: a line that is not a command is ignored', async (t) => {
+/**
+ * Reverses the "a line that is not a command is ignored" test.
+ *
+ * That one asserted `messages.length === 0` for `hello`, so typing a sentence
+ * and pressing Send produced **nothing at all** — no echo, no error, and a box
+ * that looked broken. With no slash in the grammar a bare word is not "not a
+ * command", it is a first word that names no command, so it takes the same
+ * path as `notacommand` above. One answer for both rather than a bare-word
+ * branch and an unknown-command branch that disagree.
+ */
+test('useChat: plain text answers with an error rather than vanishing', async (t) => {
     const {store, send} = setup();
     
     await send('hello');
-    
-    const result = store.getState().chat.messages.length;
-    const expected = 0;
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('useChat: /ast with no source answers with an error', async (t) => {
-    const {store, send} = setup({
-        source: '',
-    });
-    
-    await send('/ast');
     
     const [last] = store.getState().chat.messages;
     const result = last.result && last.result.type;
@@ -299,11 +295,52 @@ test('useChat: /ast with no source answers with an error', async (t) => {
     t.end();
 });
 
-test('useChat: /find reports where a plugin matches', async (t) => {
+test('useChat: plain text is echoed as what the user typed', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;');
-    await send('/find\nexport const report = () => "x";\nexport const replace = () => ({"const __a = __b": "let __a = __b"});');
+    await send('what does this do?');
+    
+    const [last] = store.getState().chat.messages;
+    const result = last.text;
+    const expected = 'what does this do?';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: an empty line answers with the parse error', async (t) => {
+    const {store, send} = setup();
+    
+    await send('   ');
+    
+    const [last] = store.getState().chat.messages;
+    const result = last.result && last.result.type === 'error' && last.result.message;
+    const expected = 'Empty command';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: ast with no source answers with an error', async (t) => {
+    const {store, send} = setup({
+        source: '',
+    });
+    
+    await send('ast');
+    
+    const [last] = store.getState().chat.messages;
+    const result = last.result && last.result.type;
+    const expected = 'error';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('useChat: find reports where a plugin matches', async (t) => {
+    const {store, send} = setup();
+    
+    await send('source\nconst a = 1;');
+    await send('find\nexport const report = () => "x";\nexport const replace = () => ({"const __a = __b": "let __a = __b"});');
     
     const {messages} = store.getState().chat;
     const last = messages.at(-1);
@@ -317,7 +354,7 @@ test('useChat: /find reports where a plugin matches', async (t) => {
 test('useChat: a second command in the same input also runs', async (t) => {
     const {store, send} = setup();
     
-    await send('/source\nconst a = 1;\n/ast');
+    await send('source\nconst a = 1;\nast');
     
     const result = store.getState().chat.consoleAst !== null;
     const expected = true;
@@ -334,8 +371,8 @@ test('useChat: a rest after a non-source command threads the existing buffer', a
     // `result.data` arm; this uses `/validate`, whose result is `text`, so the
     // recursion takes the other arm and passes the buffer already in the store
     // through to `/ast` unchanged.
-    await send('/source\nconst a = 1;');
-    await send('/validate\nexport const report = () => "x";\n/ast');
+    await send('source\nconst a = 1;');
+    await send('validate\nexport const report = () => "x";\nast');
     
     const result = store.getState().chat.consoleAst && store.getState().chat.consoleAst.source;
     const expected = 'const a = 1;';
@@ -351,8 +388,8 @@ test('useChat: a source result with a rest hands the new source to the next comm
     // *with* a `rest` threads the freshly set buffer into the next command. With
     // the closure-only form the recursion would parse the previous source, so
     // the console tree here is of `const b = 2;` and not of what came before.
-    await send('/source\nconst a = 1;');
-    await send('/source\nconst b = 2;\n/ast');
+    await send('source\nconst a = 1;');
+    await send('source\nconst b = 2;\nast');
     
     const result = store.getState().chat.consoleAst && store.getState().chat.consoleAst.source;
     const expected = 'const b = 2;';

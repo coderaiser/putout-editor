@@ -50,10 +50,10 @@ const send = (text: string) => {
 
 const wait = () => setTimeout(10);
 
-test('Chat: /source puts the source message in the thread', async (t) => {
+test('Chat: source puts the source message in the thread', async (t) => {
     mount();
     
-    send('/source\nconst a = 1;');
+    send('source\nconst a = 1;');
     await wait();
     
     const result = document.querySelector('[data-testid="source-block"]') !== null;
@@ -65,10 +65,10 @@ test('Chat: /source puts the source message in the thread', async (t) => {
     t.end();
 });
 
-test('Chat: /source updates the store', async (t) => {
+test('Chat: source updates the store', async (t) => {
     const store = mount();
     
-    send('/source\nconst a = 1;');
+    send('source\nconst a = 1;');
     await wait();
     
     const result = store.getState().chat.source;
@@ -80,12 +80,12 @@ test('Chat: /source updates the store', async (t) => {
     t.end();
 });
 
-test('Chat: /ast renders the tree with the ast-output testid', async (t) => {
+test('Chat: ast renders the tree with the ast-output testid', async (t) => {
     mount();
     
-    send('/source\nconst a = 1;');
+    send('source\nconst a = 1;');
     await wait();
-    send('/ast');
+    send('ast');
     await wait();
     
     const result = document.querySelector('[data-testid="ast-output"]') !== null;
@@ -100,9 +100,9 @@ test('Chat: /ast renders the tree with the ast-output testid', async (t) => {
 test('Chat: the tree shows the Program the source parsed to', async (t) => {
     mount();
     
-    send('/source\nconst a = 1;');
+    send('source\nconst a = 1;');
     await wait();
-    send('/ast');
+    send('ast');
     await wait();
     
     const rows = document.querySelectorAll('[data-testid="ast-row"]');
@@ -118,7 +118,7 @@ test('Chat: the tree shows the Program the source parsed to', async (t) => {
 test('Chat: an unknown command renders the error block', async (t) => {
     mount();
     
-    send('/notacommand');
+    send('notacommand');
     await wait();
     
     const result = document.querySelector('.error-block') !== null;
@@ -133,12 +133,12 @@ test('Chat: an unknown command renders the error block', async (t) => {
 test('Chat: the sent line is echoed as the user message', async (t) => {
     mount();
     
-    send('/help');
+    send('help');
     await wait();
     
     const user = document.querySelector('.message--user');
     const result = user && user.textContent;
-    const expected = '/help';
+    const expected = 'help';
     
     cleanup();
     

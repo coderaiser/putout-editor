@@ -44,32 +44,46 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
     box.style.overflowY = box.scrollHeight > cap ? 'auto' : 'hidden';
 };
 
-/** Commands whose name starts with what has been typed, `/` included. */
+/**
+ * Commands whose name starts with what has been typed, in registry order.
+ *
+ * There is no sigil to key on any more — `/` was how a command used to start,
+ * and now the first word is the command — so this answers a different question
+ * than it used to: not "what did the user type after a slash" but "is what
+ * they have typed so far the start of a command name".
+ *
+ * An **empty** prefix matches every command, which is what makes the list
+ * reachable at all; the component gates on a non-empty box so an idle composer
+ * stays quiet. A space closes it, because a space ends the command word and
+ * whatever follows is an argument.
+ */
 export const matches = (typed: string): string[] => {
-    if (!typed.startsWith('/'))
+    if (/\s/.test(typed))
         return [];
     
-    const names = [...commands.keys()];
     const result: string[] = [];
     
-    for (const name of names)
-        if (name.startsWith(typed.slice(1)))
-            result.push(`/${name}`);
+    for (const name of commands.keys())
+        if (name.startsWith(typed))
+            result.push(name);
     
     return result;
 };
 
 /**
- * The description shown beside a `/name` in the dropdown, or nothing.
+ * The description shown beside a name in the dropdown, or nothing.
  *
  * Exported for one reason: the `''` arm is unreachable from the component,
  * because every row in the dropdown comes from `commands` and so always has an
  * entry. Without a spec of its own that arm is a branch nothing reaches, which
  * is what the 100% gate is for — and the honest test is the function, not a
  * dropdown that cannot show the case.
+ *
+ * The option is the bare name, so unlike the `/`-keyed version this does not
+ * slice a sigil off the front.
  */
 export const describeOf = (option: string): string => {
-    const command = commands.get(option.slice(1));
+    const command = commands.get(option);
     
     return command ? command.description : '';
 };
@@ -123,8 +137,16 @@ export default function Input({history, onSend}: InputProps) {
     const [text, setText] = useState('');
     const [picked, setPicked] = useState(0);
     
-    const open = text.startsWith('/');
-    const options = open ? matches(text) : [];
+    // Open on a non-empty box, not on a sigil. `matches` answers every command
+    // for an empty prefix — that is what keeps the list reachable through the
+    // function — so the "the user has actually typed something" half of the
+    // decision lives here, and an idle composer shows no dropdown.
+    // `open` is a flag, never a count: every use below is a guard (`open && …`),
+    // so `text !== ''` is the honest test rather than a truthiness one — a rule
+    // that wants a boolean here is right that `length > 0` says nothing extra to
+    // a `&&` whose left side is already a boolean.
+    const options = matches(text);
+    const open = text !== '' && options.length > 0;
     
     /**
      * Whether the box already holds a command in full. A dropdown showing one
