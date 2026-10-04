@@ -4,6 +4,23 @@ import {categoryOf} from './typeColor.ts';
 export interface AstRowProps {
     node: FlatNode;
     
+    /**
+     * One boolean per ancestor level, root first, saying whether **that**
+     * ancestor was the last child of its own parent.
+     *
+     * `false` means something continues below it and the level draws `│  `;
+     * `true` means nothing does and it draws blanks. `AstRow` cannot work this
+     * out itself — it is handed one node, and the answer is about every node
+     * above it — so it is computed here over the whole `nodes` list and passed
+     * down.
+     *
+     * Over **all** nodes, not the drawn ones, for the reason `isLast` gives: a
+     * folded subtree's last child is not on screen, so asking only the visible
+     * rows would call the second-to-last visible child "last" and blank out a
+     * pipe that is still there.
+     */
+    ancestorLastFlags: boolean[];
+    
     /** Whether any row names this one as its parent. */
     hasChildren: boolean;
     
@@ -33,8 +50,9 @@ export interface AstRowProps {
 
 const OPEN = '▾';
 const CLOSED = '▸';
-const TEE = '├─';
-const ELBOW = '└─';
+const TEE = '├─ ';
+const ELBOW = '└─ ';
+const PIPE = '│  ';
 const BLANK = '   ';
 
 /** A leaf gets no caret at all, which is two spaces rather than nothing. */
@@ -46,18 +64,50 @@ export const caretOf = (hasChildren: boolean, collapsed: boolean) => {
 };
 
 /**
- * The `│  ` prefix a deeper row carries, one three-space group per ancestor
- * level, then `├─ ` or `└─ ` for this row. A row at depth 0 has no connectors —
- * the tree's root is not a child of anything.
+ * The `│  ` / `   ` prefix for a row's ancestor levels, then its own `├─ ` or
+ * `└─ `.
+ *
+ * A row at depth `d` carries `d - 1` prefix slots, and **slot `k` describes the
+ * ancestor at depth `k + 1`** — not the root. That is the part plan.md's
+ * `slice(0, depth - 1)` got wrong, and it is worth spelling out because the
+ * off-by-one is invisible in the case everybody tries first.
+ *
+ * The reason is what a pipe *means*. `│` says "there is something below this
+ * level", and the thing below a depth-2 row's first slot is its **parent**, not
+ * the root:
+ *
+ * ```text
+ * Program                                d0
+ * ├── VariableDeclaration   not last     d1   ├─
+ * │   ├── VariableDeclarator not last    d2   │  ├─   <- pipe: parent continues
+ * │   └── NumericLiteral     last        d2   │  └─   <- pipe: parent continues
+ * └── ExpressionStatement    last        d1      └─
+ *     └── CallExpression     last        d2         └─  <- blank: parent ended
+ * ```
+ *
+ * So the flags array — root first — has its **root entry dropped** and the
+ * parent through to the great-grandparent kept: `slice(1, depth)`. The root never
+ * needs a pipe in any case, because a `Program` has no siblings.
+ *
+ * The old `BLANK.repeat(depth - 1)` could not express this at all, which is why
+ * every branch of a tree looked like it ran to the bottom of the file.
  */
-export const connectorsOf = (depth: number, last: boolean) => {
+/** One ancestor level: a pipe where something continues, blanks where it ended. */
+const levelOf = (isLast: boolean): string => isLast ? BLANK : PIPE;
+
+export const connectorsOf = (depth: number, last: boolean, ancestorLastFlags: boolean[]): string => {
     if (!depth)
         return '';
     
-    return `${BLANK.repeat(depth - 1)}${last ? ELBOW : TEE} `;
+    const prefix = ancestorLastFlags
+        .slice(1, depth)
+        .map(levelOf)
+        .join('');
+    
+    return `${prefix}${last ? ELBOW : TEE}`;
 };
 
-export default function AstRow({node, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: AstRowProps) {
+export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: AstRowProps) {
     return (
         <div
             className={[
@@ -84,15 +134,12 @@ export default function AstRow({node, hasChildren, collapsed, last, dimmed, matc
                     onToggle(node.id);
             }}
             role="treeitem"
-            style={{
-                paddingLeft: `${node.depth * 12}px`,
-            }}
         >
             <span className="ast-row__caret">
                 {caretOf(hasChildren, collapsed)}
             </span>
             <span className="ast-row__connectors">
-                {connectorsOf(node.depth, last)}
+                {connectorsOf(node.depth, last, ancestorLastFlags)}
             </span>
             <span className="ast-row__type">
                 {node.type}

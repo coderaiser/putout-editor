@@ -30,6 +30,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
 
 const row = (over: Partial<FlatNode> = {}) => render(
     <AstRow
+        ancestorLastFlags={[]}
         hasChildren={false}
         collapsed={false}
         dimmed={false}
@@ -42,8 +43,23 @@ const row = (over: Partial<FlatNode> = {}) => render(
     />,
 );
 
+/**
+ * The connectors, which are a **tree drawing** and not an indent.
+ *
+ * They used to be `BLANK.repeat(depth - 1)` then `TEE`/`ELBOW` — three blanks per
+ * ancestor level, always, whether or not that ancestor had a sibling after it.
+ * The result could not distinguish "the parent is the last of its siblings, so
+ * nothing continues on the left" from "it is not, so a `│` belongs here", which
+ * is the one thing a tree drawing exists to show.
+ *
+ * So each row is handed `ancestorLastFlags`: one boolean per ancestor level, from
+ * the root down, saying whether *that* ancestor was the last child of its own
+ * parent. `false` draws `│  `, `true` draws three blanks. The slice is
+ * `[0, depth - 1)` because the immediate parent is the row's own `TEE`/`ELBOW`
+ * and has no pipe of its own.
+ */
 test('AstRow: depth 0 carries no connectors', (t) => {
-    const result = connectorsOf(0, false);
+    const result = connectorsOf(0, false, []);
     const expected = '';
     
     t.equal(result, expected);
@@ -51,7 +67,7 @@ test('AstRow: depth 0 carries no connectors', (t) => {
 });
 
 test('AstRow: a non-last child gets the tee', (t) => {
-    const result = connectorsOf(1, false);
+    const result = connectorsOf(1, false, [true]);
     const expected = '├─ ';
     
     t.equal(result, expected);
@@ -59,24 +75,65 @@ test('AstRow: a non-last child gets the tee', (t) => {
 });
 
 test('AstRow: a last child gets the elbow', (t) => {
-    const result = connectorsOf(1, true);
+    const result = connectorsOf(1, true, [true]);
     const expected = '└─ ';
     
     t.equal(result, expected);
     t.end();
 });
 
-test('AstRow: depth 2 indents one group before its connector', (t) => {
-    const result = connectorsOf(2, false);
+/**
+ * The pipe case, which is the whole point: an ancestor that is **not** the last
+ * of its siblings has something continuing below it, so the level draws `│`.
+ *
+ * `[true, false]` at depth 2 reads root-first — the root was last, the parent was
+ * not — and the prefix is `[0, 1)`, so one pipe and then this row's elbow.
+ */
+test('AstRow: a non-last ancestor draws a pipe', (t) => {
+    const result = connectorsOf(2, true, [
+        true,
+        false,
+    ]);
+    const expected = '│  └─ ';
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * …and the mirror image: a last ancestor draws blanks, because nothing hangs
+ * below it.
+ *
+ * The pair above is the regression test. With `BLANK.repeat(depth - 1)` this
+ * case and the one above rendered **identically**, so a tree could not show
+ * where a branch ended.
+ */
+test('AstRow: a last ancestor draws blanks', (t) => {
+    const result = connectorsOf(2, false, [
+        true,
+        true,
+    ]);
     const expected = '   ├─ ';
     
     t.equal(result, expected);
     t.end();
 });
 
-test('AstRow: depth 3 indents two groups', (t) => {
-    const result = connectorsOf(3, true);
-    const expected = '      └─ ';
+/**
+ * Mixed ancestors, which is the case a depth count alone cannot express.
+ *
+ * Pipe at level 0, blank at level 1, tee for this row: `│     ├─ `. The four
+ * spaces in the middle are one pipe slot plus one blank slot, and getting the
+ * slice wrong by one shifts the whole pattern by a level — so this is the spec
+ * that pins the slice.
+ */
+test('AstRow: mixed ancestors alternate pipe and blank', (t) => {
+    const result = connectorsOf(3, false, [
+        true,
+        false,
+        true,
+    ]);
+    const expected = '│     ├─ ';
     
     t.equal(result, expected);
     t.end();
@@ -164,6 +221,7 @@ test('AstRow: renders the line:col', (t) => {
 test('AstRow: carries the selected class', (t) => {
     render(
         <AstRow
+            ancestorLastFlags={[]}
             hasChildren={false}
             collapsed={false}
             dimmed={false}
@@ -188,6 +246,7 @@ test('AstRow: carries the selected class', (t) => {
 test('AstRow: carries the dimmed class for an ancestor of a match', (t) => {
     render(
         <AstRow
+            ancestorLastFlags={[]}
             hasChildren={false}
             collapsed={false}
             dimmed={true}
@@ -221,6 +280,7 @@ test('AstRow: carries the dimmed class for an ancestor of a match', (t) => {
 test('AstRow: carries the match class for a row that matched', (t) => {
     render(
         <AstRow
+            ancestorLastFlags={[]}
             hasChildren={false}
             collapsed={false}
             dimmed={false}
@@ -245,6 +305,7 @@ test('AstRow: carries the match class for a row that matched', (t) => {
 test('AstRow: carries no match class for an ordinary row', (t) => {
     render(
         <AstRow
+            ancestorLastFlags={[]}
             hasChildren={false}
             collapsed={false}
             dimmed={false}
@@ -274,6 +335,7 @@ test('AstRow: clicking reports the id', (t) => {
     
     render(
         <AstRow
+            ancestorLastFlags={[]}
             hasChildren={false}
             collapsed={false}
             dimmed={false}
@@ -307,6 +369,7 @@ test('AstRow: clicking a node with children also folds it', (t) => {
     
     render(
         <AstRow
+            ancestorLastFlags={[]}
             hasChildren={true}
             collapsed={false}
             dimmed={false}
@@ -332,13 +395,26 @@ test('AstRow: clicking a node with children also folds it', (t) => {
     t.end();
 });
 
-test('AstRow: indents by depth', (t) => {
+/**
+ * The row carries **no** `paddingLeft`, and that is the point.
+ *
+ * It used to be `depth * 12` on top of the connector characters, which double
+ * counted the indent: a depth-3 row was 36px further right *and* six characters
+ * in. The connectors are the indent now, and they are proportional to the actual
+ * tree rather than to a guess about character width.
+ *
+ * Asserted as its own spec because it is a removal, and a removal has no
+ * failure mode anyone notices until the tree is deeply nested and pushed off
+ * screen — which no jsdom measurement would catch.
+ */
+test('AstRow: the indent is the connectors, not padding', (t) => {
     row({
         depth: 3,
     });
     
-    const result = (document.querySelector('[data-testid="ast-row"]') as HTMLElement).style.paddingLeft;
-    const expected = '36px';
+    const element = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
+    const result = element.style.paddingLeft;
+    const expected = '';
     
     cleanup();
     

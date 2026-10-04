@@ -55,6 +55,43 @@ const isLast = (nodes: FlatNode[], node: FlatNode) => {
     return last.id === node.id;
 };
 
+/**
+ * Whether each ancestor of `node` was the last child of *its* parent, root
+ * first.
+ *
+ * The answer `AstRow` needs and cannot get itself: it is handed one node, and
+ * what decides whether a level draws `│  ` or three blanks is whether something
+ * continues below that level — which is a fact about every node above this one.
+ * So it is computed here over the whole list and passed down as one boolean per
+ * level.
+ *
+ * `isLast`-by-id rather than by position, so it does not depend on the order
+ * `flattenAst` happened to emit siblings in.
+ */
+/** `isLast` with its list bound, so the map below is a bare function call. */
+const lastOf = (nodes: FlatNode[]) => (ancestor: FlatNode): boolean => isLast(nodes, ancestor);
+
+const chainOf = (nodes: FlatNode[], node: FlatNode): FlatNode[] => {
+    const parent = node.pid === null ? null : nodes.find(({id}) => id === node.pid);
+    
+    // Reachable, and covered: `nodes` is a prop, and `FlatNode.pid` is
+    // `string | null`, so a caller can hand over a node whose parent is not in
+    // the list. `visibleRows` survives that (`parents.get(parent) || null` ends
+    // its walk) and so must this. An earlier version of this comment claimed the
+    // case could not arise because `flattenAst` resolves every `pid` — true of
+    // `flattenAst`, and not a property of the prop.
+    if (!parent)
+        return [];
+    
+    return [
+        ...chainOf(nodes, parent),
+        parent,
+    ];
+};
+
+const ancestorLastFlags = (nodes: FlatNode[], node: FlatNode): boolean[] => chainOf(nodes, node)
+    .map(lastOf(nodes));
+
 export default function AstTree({nodes, source, mobile}: AstTreeProps) {
     const state = useTreeState(nodes);
     const {
@@ -95,6 +132,7 @@ export default function AstTree({nodes, source, mobile}: AstTreeProps) {
                     )}
                     {rows.map((node) => (
                         <AstRow
+                            ancestorLastFlags={ancestorLastFlags(nodes, node)}
                             collapsed={state.collapsed.has(node.id)}
                             dimmed={dimmed.has(node.id)}
                             hasChildren={parents.has(node.id)}

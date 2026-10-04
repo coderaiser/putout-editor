@@ -190,6 +190,30 @@ body {
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
+/*
+ * The icon-only variant.
+ *
+ * The text version's `padding: 5px 12px` and its default font size exist to fit
+ * a word like "light", and left in place they put a 68px box around a 16px
+ * glyph — measured on the built bundle before this rule, which is the
+ * "unnecessary header space" plan.md §4 asks to reclaim. A fixed square also
+ * means the button does not change width when the glyph changes, so the header
+ * does not reflow on the click.
+ *
+ * No `min-width` to release: this box is a flex item, not a sized element, and
+ * `apply-box-sizing-to-sized-element` has nothing to say about it.
+ */
+.chat-header__btn--icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1;
+}
+
 .chat-header__btn:hover {
     background: var(--color-hover);
     color: var(--color-text-strong);

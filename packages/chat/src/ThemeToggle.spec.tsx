@@ -116,6 +116,97 @@ test('theme: currentTheme ignores a stored value that is not a theme', (t) => {
     localStorage.removeItem('theme');
 });
 
+/**
+ * The button shows what **clicking it does**, not what is in force.
+ *
+ * It used to render `${theme} ${icon}`, which read "light ☾" on a light page:
+ * a word naming the current state beside a glyph naming the other one, so the
+ * label and the icon contradicted each other and neither said what a click did.
+ * A user could not tell whether the button reported or offered.
+ *
+ * So the word is gone and the glyph is the action — ☀ on a dark page (click for
+ * light), ☾ on a light one (click for dark) — and `aria-label` says the same
+ * thing in words for anyone who cannot see a glyph at all.
+ */
+test('theme: the glyph names the theme a click would switch to', (t) => {
+    localStorage.removeItem('theme');
+    applyTheme('dark');
+    
+    render(
+        <ThemeToggle/>,
+    );
+    
+    const button = document.querySelector('[data-testid="theme-toggle"]');
+    const result = button && button.textContent;
+    const expected = '☀';
+    
+    cleanup();
+    localStorage.removeItem('theme');
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('theme: a light page offers dark', (t) => {
+    localStorage.removeItem('theme');
+    applyTheme('light');
+    
+    render(
+        <ThemeToggle/>,
+    );
+    
+    const button = document.querySelector('[data-testid="theme-toggle"]');
+    const result = button && button.textContent;
+    const expected = '☾';
+    
+    cleanup();
+    localStorage.removeItem('theme');
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('theme: the label says the action, so it needs no glyph', (t) => {
+    localStorage.removeItem('theme');
+    applyTheme('dark');
+    
+    render(
+        <ThemeToggle/>,
+    );
+    
+    const button = document.querySelector('[data-testid="theme-toggle"]');
+    const result = button && button.getAttribute('aria-label');
+    const expected = 'Switch to light mode';
+    
+    cleanup();
+    localStorage.removeItem('theme');
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('theme: the label follows the theme when it changes', (t) => {
+    localStorage.removeItem('theme');
+    applyTheme('dark');
+    
+    render(
+        <ThemeToggle/>,
+    );
+    
+    const button = document.querySelector('[data-testid="theme-toggle"]') as HTMLButtonElement;
+    
+    fireEvent.click(button);
+    
+    const result = button.getAttribute('aria-label');
+    const expected = 'Switch to dark mode';
+    
+    cleanup();
+    localStorage.removeItem('theme');
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('theme: a click flips the theme and writes it', (t) => {
     localStorage.removeItem('theme');
     applyTheme('light');
@@ -128,10 +219,12 @@ test('theme: a click flips the theme and writes it', (t) => {
     
     fireEvent.click(button);
     
-    const result = [button.textContent, localStorage.getItem('theme'), document.documentElement.getAttribute('data-theme')];
+    const result = [
+        localStorage.getItem('theme'),
+        document.documentElement.getAttribute('data-theme'),
+    ];
     
     const expected = [
-        'dark ☀',
         'dark',
         'dark',
     ];
@@ -142,7 +235,14 @@ test('theme: a click flips the theme and writes it', (t) => {
     cleanup();
 });
 
-test('theme: the button shows the theme in force', (t) => {
+/**
+ * The icon-only class, which is what drops the padding the text label needed.
+ *
+ * Asserted because the class is load-bearing and otherwise invisible: without it
+ * `.chat-header__btn`'s `padding: 5px 12px` leaves a 68px-wide box around a
+ * 16px glyph, which is the "unnecessary header space" plan.md §4 is about.
+ */
+test('theme: the button carries the icon-only class', (t) => {
     localStorage.removeItem('theme');
     applyTheme('dark');
     
@@ -150,13 +250,12 @@ test('theme: the button shows the theme in force', (t) => {
         <ThemeToggle/>,
     );
     
-    const button = document.querySelector('[data-testid="theme-toggle"]') as HTMLButtonElement;
-    const result = [button.textContent];
-    const expected = ['dark ☀'];
-    
-    t.deepEqual(result, expected);
-    t.end();
+    const button = document.querySelector('[data-testid="theme-toggle"]');
+    const result = button && button.className.includes('chat-header__btn--icon');
     
     cleanup();
     localStorage.removeItem('theme');
+    
+    t.ok(result);
+    t.end();
 });

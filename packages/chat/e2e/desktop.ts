@@ -706,7 +706,10 @@ test('Shift+Enter builds a multi-line /source body', async ({page}) => {
     // The **last** source block, not the first: the seed's own `source` example
     // is one too, so `toHaveCount(2)` would be counting the seed plus half of
     // this spec. Scoping to the end says "the block this line produced".
-    const lines = page.locator('.source-block').last().locator('.source-block__line');
+    const lines = page
+        .locator('.source-block')
+        .last()
+        .locator('.source-block__line');
     await expect(lines).toHaveCount(2);
 });
 
@@ -821,11 +824,14 @@ test('a long user message stays right and its answer stays left', async ({page})
     await send(page, `help ${'x'.repeat(200)}`);
     
     const result = await page.evaluate(() => {
-        const pills = document.querySelectorAll('.message--user');
-        const pill = pills[pills.length - 1].getBoundingClientRect();
+        // Spread first: `NodeListOf` has no `.at()`, and `apply-at` wants
+        // `.at(-1)` over `[length - 1]` — both together mean the NodeList becomes
+        // a plain array on the way through.
+        const pills = [...document.querySelectorAll('.message--user')];
+        const pill = pills.at(-1)!.getBoundingClientRect();
         
-        const answers = document.querySelectorAll('.message--system');
-        const answer = answers[answers.length - 1].getBoundingClientRect();
+        const answers = [...document.querySelectorAll('.message--system')];
+        const answer = answers.at(-1)!.getBoundingClientRect();
         
         return {
             answerLeft: Math.round(answer.left),
@@ -835,4 +841,103 @@ test('a long user message stays right and its answer stays left', async ({page})
     
     // the answer starts at the thread's content edge; the pill is pushed right
     expect(result.pillLeft).toBeGreaterThan(result.answerLeft);
+});
+
+/**
+ * The toggle is a square, not a box around a word.
+ *
+ * The only place this is checkable: jsdom reports every width as 0, so the unit
+ * spec can only assert the class is present. Measured, because the point of the
+ * change is size — the text version's `padding: 5px 12px` put a 68px box around
+ * a 16px glyph, and that is exactly the header space plan.md §4 asks back.
+ */
+test('the theme toggle is a square icon button', async ({page}) => {
+    const measured = await page.evaluate(() => {
+        const button = document.querySelector('.chat-header__btn--icon')!.getBoundingClientRect();
+        
+        return {
+            height: Math.round(button.height),
+            width: Math.round(button.width),
+        };
+    });
+    
+    // square, and small enough to be a control rather than a label
+    expect(Math.abs(measured.width - measured.height)).toBeLessThanOrEqual(1);
+    expect(measured.width).toBeLessThanOrEqual(40);
+});
+
+/**
+ * …and it is at the far right of the header, which the text label also reached.
+ *
+ * The plan's "a bit more to the right" request. It was never actually a
+ * positioning problem — `justify-content: space-between` already put the button
+ * at the edge — and dropping the word is what leaves the air. Asserted as
+ * geometry so a future `padding` change cannot quietly undo it.
+ */
+test('the theme toggle sits at the right of the header', async ({page}) => {
+    const result = await page.evaluate(() => {
+        const header = document.querySelector('.chat-header')!.getBoundingClientRect();
+        const button = document.querySelector('.chat-header__btn--icon')!.getBoundingClientRect();
+        
+        // the header's own 20px padding is the gutter
+        return Math.round(header.right - button.right);
+    });
+    
+    expect(result).toBe(20);
+});
+
+/**
+ * Sending scrolls the answer into view.
+ *
+ * Found by screenshotting the page after the work above, and it is the worst
+ * defect in this file: a user types `ast`, presses send, and **nothing appears to
+ * happen** — the tree renders below the fold of a thread that was already full.
+ * Measured: `scrollTop` stays `0` after a send, with `scrollHeight` 849 against a
+ * 568px box.
+ *
+ * It is not new, and the seed is why nobody had to notice: an empty thread fits
+ * its box, so early on every answer was on screen for free. The seeded `source`
+ * example and the help together are 849px of content in a 568px box, which makes
+ * the shortfall permanent rather than occasional.
+ *
+ * `within` 2px of the bottom rather than "scrolled at all": a thread that scrolls
+ * to some arbitrary offset would pass a weaker check and still hide the answer.
+ */
+test('sending scrolls the answer into view', async ({page}) => {
+    const box = page.getByRole('textbox');
+    
+    await box.fill('ast');
+    await page.keyboard.press('Control+Enter');
+    
+    const result = await page.evaluate(() => {
+        const thread = document.querySelector('.chat__thread') as HTMLElement;
+        
+        return {
+            atBottom: Math.abs(thread.scrollHeight - thread.clientHeight - thread.scrollTop) <= 2,
+            overflows: thread.scrollHeight > thread.clientHeight,
+        };
+    });
+    
+    // both halves: nothing to scroll in a thread that fits would pass on its own
+    expect(result).toEqual({
+        atBottom: true,
+        overflows: true,
+    });
+});
+
+/**
+ * …and it is still there on load, which is the other half.
+ *
+ * The opening screen shows a worked example and the help. If the thread is
+ * scrolled to the top on arrival, a first-time visitor sees the `source` echo and
+ * has to scroll to discover that the tool can answer at all.
+ */
+test('the thread opens scrolled to its last message', async ({page}) => {
+    const result = await page.evaluate(() => {
+        const thread = document.querySelector('.chat__thread') as HTMLElement;
+        
+        return Math.abs(thread.scrollHeight - thread.clientHeight - thread.scrollTop) <= 2;
+    });
+    
+    expect(result).toBe(true);
 });

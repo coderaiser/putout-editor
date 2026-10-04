@@ -462,3 +462,153 @@ test('AstTree: blurring the search hands the keys back to the tree', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+/**
+ * A row's connectors, found by **type** rather than by index.
+ *
+ * Indexing was the first attempt and it produced a confident wrong answer: nodes
+ * deeper than the second level are collapsed by default (`useTreeState`'s
+ * `collapsedByDefault`), so a six-node fixture draws five rows and every index
+ * below the fold is off by one. Looking a row up by the type it is supposed to be
+ * says what the spec means, and cannot be shifted by a default elsewhere.
+ */
+const connectorsOf = (type: string): string => {
+    const row = document.querySelector(`[data-testid="ast-row"][data-type="${type}"]`);
+    const element = row && row.querySelector('.ast-row__connectors');
+    
+    return element && element.textContent ? element.textContent : '';
+};
+
+/**
+ * A `Program` with a `VariableDeclaration` holding two children, plus a second
+ * top-level statement — the shape the drawing in `AstRow.tsx` uses.
+ */
+const branched = [
+    program(),
+    declaration(),
+    declarator(),
+    identifier(),
+    numeric(),
+    node('5', '0', 1, 'ExpressionStatement'),
+];
+
+/**
+ * The connectors, read off a **real** tree rather than a hand-passed array.
+ *
+ * The `connectorsOf` specs prove the function maps flags to glyphs. This proves
+ * `AstTree` computes those flags correctly — and that is the half a unit test of
+ * the function cannot reach, because a caller can always pass the wrong array and
+ * the function will faithfully draw the wrong thing.
+ *
+ * With the old `BLANK.repeat(depth - 1)` these two rows rendered identically and
+ * the branch structure was invisible.
+ */
+test('AstTree: a branch under a non-last parent draws pipes', (t) => {
+    render(
+        <AstTree
+            nodes={branched}
+            source={SOURCE}
+        />,
+    );
+    
+    // both sit under `declaration`, which is not the last child of `Program`,
+    // so the branch continues past both of them
+    const result = {
+        declarator: connectorsOf('VariableDeclarator'),
+        numeric: connectorsOf('NumericLiteral'),
+    };
+    
+    const expected = {
+        declarator: '│  ├─ ',
+        numeric: '│  └─ ',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The last top-level statement draws **blanks** — the contrast that gives the
+ * first spec its meaning.
+ *
+ * If both halves drew pipes, or both drew blanks, the spec above would pass with
+ * a constant instead of a computed prefix. Together the two say the pipe follows
+ * the parent's position among its siblings.
+ */
+test('AstTree: a last branch draws blanks where the pipe stops', (t) => {
+    render(
+        <AstTree
+            nodes={[
+                ...branched,
+                node('6', '5', 2, 'CallExpression'),
+            ]}
+            source={SOURCE}
+        />,
+    );
+    
+    // `ExpressionStatement` is the last child of `Program`, so nothing continues
+    // below it and its child indents with blanks
+    const result = connectorsOf('CallExpression');
+    const expected = '   └─ ';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * Folding a subtree does not change the pipes of the rows still on screen.
+ *
+ * The flags are computed over **all** nodes rather than the drawn ones, because a
+ * folded child's last sibling is not on screen: asking only the visible rows
+ * would call the second-to-last visible child "last" and erase a pipe that is
+ * still really there.
+ *
+ * Folding `declaration` hides `numeric` — the last child — and this checks
+ * `declaration`'s own connector is unchanged, which is what would move if the
+ * flags were computed over `rows`.
+ */
+test('AstTree: folding does not redraw the pipes above it', (t) => {
+    render(
+        <AstTree
+            nodes={branched}
+            source={SOURCE}
+        />,
+    );
+    
+    const result = connectorsOf('VariableDeclaration');
+    
+    fireEvent.click(document.querySelector('[data-type="VariableDeclaration"]') as Element);
+    
+    const folded = connectorsOf('VariableDeclaration');
+    
+    cleanup();
+    
+    // a pair, with both expecteds written out: `expected = result` is the shape
+    // where a rename quietly makes the two always equal
+    t.deepEqual([result, folded], ['├─ ', '├─ ']);
+    t.end();
+});
+
+test('AstTree: a dangling parent draws the row rather than throwing', (t) => {
+    render(
+        <AstTree
+            nodes={[
+                program(),
+                node('9', 'nowhere', 1, 'Orphan'),
+            ]}
+            source={SOURCE}
+        />,
+    );
+    
+    const result = connectorsOf('Orphan');
+    const expected = '└─ ';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});

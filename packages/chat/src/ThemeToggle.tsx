@@ -43,6 +43,23 @@ export const applyTheme = (theme: Theme): void => {
 
 export const nextTheme = (theme: Theme): Theme => theme === 'light' ? 'dark' : 'light';
 
+/**
+ * The button says what **clicking it** does, and says it twice.
+ *
+ * It used to render `${theme} ${icon}`: on a light page that read "light ☾", a
+ * word naming the current state beside a glyph naming the other one, so the
+ * label and the icon contradicted each other and neither said what a click did.
+ * A user could not tell whether the button reported the theme or offered the
+ * other one — which is what plan.md §4 is about.
+ *
+ * So the word is gone and the glyph is the **action**: ☀ on a dark page (click
+ * for light), ☾ on a light one (click for dark). `aria-label` says the same in
+ * words, and `title` repeats it for a mouse, because a glyph is not a label.
+ */
+const labelOf = (theme: Theme): string => theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+
+const glyphOf = (theme: Theme): string => theme === 'dark' ? '☀' : '☾';
+
 export default function ThemeToggle() {
     const [theme, setTheme] = useState(currentTheme);
     
@@ -52,13 +69,14 @@ export default function ThemeToggle() {
     
     return (
         <button
-            aria-label="Toggle theme"
-            className="chat-header__btn"
+            aria-label={labelOf(theme)}
+            className="chat-header__btn chat-header__btn--icon"
             data-testid="theme-toggle"
             onClick={() => setTheme(nextTheme(theme))}
+            title={labelOf(theme)}
             type="button"
         >
-            {`${theme} ${theme === 'light' ? '☾' : '☀'}`}
+            {glyphOf(theme)}
         </button>
     );
 }
