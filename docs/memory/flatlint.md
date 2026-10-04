@@ -85,7 +85,13 @@ export const replace = () => ({
 So: **a plain `🛩 PutoutScript` `replace` map, and a `report` that returns a
 constant string.** The same contract `@putout/plugin-*` uses — which is the whole
 of "it is backed in putout": the *plugin* shape, `@putout/test`, `loadPlugins`
-and `@putout/operator-keyword` are all the same packages.
+and `@putout/operator-keyword` are all the same packages. Nineteen of the 33
+shipped plugins are exactly these two exports; the other fourteen add the
+`match` described below.
+
+All 33 open with `report`, and `replace` is present in every one — so
+`packages/plugin-putout-editor`'s "`report` is the first export of every rule"
+holds in a codebase that shares no lint config with this one.
 
 > **Correction.** An earlier version of this file said *"flatlint has no `report`
 > concept at all"*, from reading `lib/flatlint.js` and never opening a plugin.
@@ -183,14 +189,101 @@ not the rule** — `t.transform('function')` reads `fixture/function.js` against
 
 - one directory per rule, `index.js` beside a `fixture/` of `name.js` +
   `name-fix.js` pairs;
-- `report` **first**, then `replace` — the convention already in `AGENTS.md`
-  ("`report` is the first export of every rule");
-- a `fixCount`-style **bound**, because an unfixed oscillation is a hang.
+- `report` **first**, then `match` (if any), then `replace` — the convention
+  already in `AGENTS.md` ("`report` is the first export of every rule"), and all
+  33 shipped plugins put it there;
+- a `fixCount`-style **bound**, because an unfixed oscillation is a hang;
+- a `match` key must be a `replace` key, or it does nothing — and the negative
+  fixture is the only thing that tells you it works.
 
-The one difference from a 🐊**Putout** rule: **there is no `match`.** A
-`replace` map *is* the match — the key is the pattern and the presence of the key
-is the condition. So a rule whose shape should not fire can only be excluded by
-the pattern not matching, and a `t.noReport` fixture is how you prove it.
+## And it DOES have a `match` — 14 of the 33 plugins
+
+> **Correction, twice.** An earlier version of this file said *"flatlint has no
+> `report` concept at all"*, then *"there is no `match`"*. Both came from reading
+> `lib/flatlint.js` and **never opening a plugin**. Measured by importing every
+> plugin in `/home/coderaiser/flatlint/lib/plugins` and calling `match()` and
+> `replace()`: **14 of 33 plugins (42%) export `match`, 49 keys in all.**
+>
+> The `report` correction was in the direction that mattered — `report` is the one
+> thing flatlint shares with putout — so this second one is worse, because
+> `match` is the thing a rule author reaches for when a token pattern is too
+> broad, and the doc told them not to.
+
+The whole mechanism is one line of `lib/runner/replacer.js`, quoted verbatim. It
+is a `text` fence and not a `js` one because a `js` fence is linted as real
+JavaScript here, and this repo's own `optional-chaining` rule would demand a
+rewrite of a quote that has to stay exactly as it is:
+
+```text
+const match = plugin.match?.() || returns({});
+```
+
+`match` is not a putout-shaped `match` that flatlint happens to ignore. It is
+**the same contract, one unit lighter**, and it is keyed by *the same key it
+guards*:
+
+```js
+import {
+    closeRoundBrace,
+    colon,
+} from '#types';
+
+export const report = () => 'Add missing round brace';
+
+export const match = () => ({
+    '__a(__args': (vars, path) => !path.isNextPunctuator(closeRoundBrace),
+    '__a;': (vars, path) => !path.isPrevPunctuator(colon),
+});
+
+export const replace = () => ({
+    '__a(__args': '__a(__args)',
+    '__a;': '__a);',
+});
+```
+
+Two facts that decide how you write it, both measured rather than read off:
+
+| | |
+|---|---|
+| a `match` key that is **not** a `replace` key | **0 of 49** — the convention holds in every shipped plugin |
+| `replace` keys acting with **no** guard | **51 of 100** — so `match` is per-key, not per-plugin |
+
+The second number is the one that changes the advice. A guard is not the norm; a
+`replace` key with no guard is the *majority*, so "add a `match`" is a decision
+about one key and not a requirement of the plugin.
+
+### What a `match` fn actually gets
+
+`(vars, path) => boolean`. `vars` is the `__a`/`__b` bindings the key declared;
+`path` is a **token** path with **22** methods — `getPrev`, `getAllPrev`,
+`getAllNext`, `isPrevKeyword`, `isNextKeyword`, `isPrevIdentifier`,
+`isNextIdentifier`, `isPrevPunctuator`, `isNextPunctuator`,
+`isCurrentPunctuator`, `isPrevDeclarationKeyword`, `isPrevAnyDeclarationKeyword`,
+`isNextCompare`, `isNextCompareAll`, `isNextDeclarationKeyword`,
+`isNextTemplateHead`, `isNextTemplateTail`, `isInsideTemplate`, `isPrevInvalid`,
+`isNext`, and the two raw `tokens`/`start`/`end` reads.
+
+There is no `parentPath` and no `node`, because there is no AST — which is the
+one place flatlint is genuinely lighter than putout rather than the same.
+
+Returning false skips that occurrence **entirely**: no fix *and* no report, so a
+guarded-out shape produces no `places` either. That is what makes a guard a
+guard, and it is why the negative fixture is the only proof one exists.
+
+### The failure mode worth knowing, because nothing catches it
+
+A `match` key that is not a `replace` key is **dead**: the runner looks the
+guard up by the replace key it is iterating, so that guard is never called and
+the rule fires on every occurrence its author believed they had excluded. Run it
+with the guard returning `false` and `const a = 1;` still becomes
+`const a = 1 = 0;` — silently, with exit 0, and with every test green if there
+is no negative fixture.
+
+No shipped plugin has this bug, which is exactly why it is worth naming: it is
+invisible from the code and only a `match`-key-vs-`replace`-key comparison finds
+it. The `flatlint_rule` MCP tool now does that comparison, off the AST — a key
+is a *pattern*, so `'(__args) {'` ends in a brace and a brace-counting reader
+calls a fourteen-key plugin an empty one.
 
 ## Reuse, concretely
 

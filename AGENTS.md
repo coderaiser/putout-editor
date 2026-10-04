@@ -35,7 +35,7 @@ temp spec file.
 | `name_pattern` | The inverse: given a snippet, which patterns match, and a generalised key for it |
 | `type_check` | Run a **clause table** (`@putout/printer`'s `createTypeChecker`) over a fixture: which arm decided each node, and which arm nothing reaches |
 | `printer_visitor` | Write a **`@putout/printer` visitor** the way happy-mark/style/sql do — `(path, api) => void` keyed by node type. `action: "contract"` for the api; a visitor is checked for invented api keys, a name that is not a node type, and writing nothing |
-| `flatlint_rule` | Write a **flatlint rule** — `{report, replace}`, no `match` — plus its fixture pair and spec. `action: "contract"` for the shape and the `@putout/test` harness; a pattern scaffolds all four files |
+| `flatlint_rule` | Write a **flatlint rule** — `{report, match?, replace}` — plus its fixture pair and spec. `match` is optional and keyed by the replace key it guards; a `match` key absent from `replace` is **dead**, and that is what the check reports. `action: "contract"` for the shape, `path`'s 22 methods and the `@putout/test` harness; a pattern scaffolds all four files |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
 | `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |
