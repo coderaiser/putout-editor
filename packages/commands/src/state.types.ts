@@ -54,6 +54,18 @@ export type CommandResult =
 
 export interface Command {
     name: string;
+    
+    /**
+     * What follows the name, in the shell's brackets — `source [source]`,
+     * `ast [--full] [--query type]`, `clear []`.
+     *
+     * Declared on the command rather than derived from `flags`, because the
+     * flags are only the `--` options: what a command takes as its *argument*
+     * is not in that list, and `help` is the only place a user is told. A
+     * command that takes nothing writes `[]` rather than leaving it out, so a
+     * row is never ambiguous about whether the brackets were forgotten.
+     */
+    usage: string;
     description: string;
     flags: string[];
     

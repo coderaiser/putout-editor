@@ -32,7 +32,7 @@ import type {
  */
 export const notInBrowser = (name: string): CommandResult => ({
     type: 'error',
-    message: `/${name} needs the putout server and does not run in the browser.`,
+    message: `${name} needs the putout server and does not run in the browser.`,
 });
 
 type Runner = Command['run'];
@@ -61,11 +61,13 @@ export const needsPutout = (name: string, exportName: string, load: () => Promis
 
 const listed: Command[] = [{
     name: 'source',
+    usage: '[source]',
     description: 'set the source every other command reads',
     flags: [],
     run: runSource,
 }, {
     name: 'ast',
+    usage: '[--full] [--query type]',
     description: 'parse the source and show the tree',
     flags: [
         'full',
@@ -74,46 +76,55 @@ const listed: Command[] = [{
     run: (args: string, state: ChatState, flags: Flags = {}) => runAst(flags, state),
 }, {
     name: 'find',
+    usage: '[plugin]',
     description: 'report where a plugin matches, changing nothing',
     flags: [],
     run: needsPutout('find', 'runFind', async () => await import('./find.ts')),
 }, {
     name: 'transform',
+    usage: '[plugin]',
     description: 'apply a plugin once and show before and after',
     flags: [],
     run: needsPutout('transform', 'runTransform', async () => await import('./transform.ts')),
 }, {
     name: 'validate',
+    usage: '[plugin]',
     description: 'check a plugin for syntax errors',
     flags: [],
     run: needsPutout('validate', 'runValidate', async () => await import('./validate.ts')),
 }, {
     name: 'test-pattern',
+    usage: '[key]',
     description: 'does this key match, where, and what does each __a bind to',
     flags: [],
     run: runTestPattern,
 }, {
     name: 'name-pattern',
+    usage: '[snippet]',
     description: 'generalise a snippet into a pattern key',
     flags: [],
     run: runNamePattern,
 }, {
     name: 'console',
+    usage: '[off]',
     description: 'toggle the tree panel beside the chat',
     flags: [],
     run: (args: string) => runConsole(args !== 'off'),
 }, {
     name: 'clear',
+    usage: '[]',
     description: 'clear the thread, keeping the source',
     flags: [],
     run: runClear,
 }, {
     name: 'reset',
+    usage: '[]',
     description: 'clear the thread and empty the source',
     flags: [],
     run: runReset,
 }, {
     name: 'help',
+    usage: '[]',
     description: 'list every command',
     flags: [],
     run: (): CommandResult => runHelp(listed),

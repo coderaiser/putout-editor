@@ -1,20 +1,14 @@
 import {test} from 'supertape';
 import {parseCommand} from './parse.ts';
 
-test('parse: a bare slash is help', (t) => {
-    const result = parseCommand('/');
-    const expected = {
-        command: 'help',
-        args: '',
-        flags: {},
-    };
-    
-    t.deepEqual(result, expected);
-    t.end();
-});
+const names = [
+    'source',
+    'ast',
+    'help',
+];
 
-test('parse: a command with no argument', (t) => {
-    const result = parseCommand('/ast');
+test('parse: a command is its first word', (t) => {
+    const result = parseCommand('ast', names);
     const expected = {
         command: 'ast',
         args: '',
@@ -25,8 +19,32 @@ test('parse: a command with no argument', (t) => {
     t.end();
 });
 
+test('parse: a bare word is a command name, not an error', (t) => {
+    const result = parseCommand('hello', names);
+    const expected = {
+        command: 'hello',
+        args: '',
+        flags: {},
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('parse: a slash is part of the word, so it names no command', (t) => {
+    const result = parseCommand('/ast', names);
+    const expected = {
+        command: '/ast',
+        args: '',
+        flags: {},
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 test('parse: a boolean flag', (t) => {
-    const result = parseCommand('/ast --full');
+    const result = parseCommand('ast --full', names);
     const expected = {
         command: 'ast',
         args: '',
@@ -40,7 +58,7 @@ test('parse: a boolean flag', (t) => {
 });
 
 test('parse: a flag with a value', (t) => {
-    const result = parseCommand('/ast --query VariableDeclaration');
+    const result = parseCommand('ast --query VariableDeclaration', names);
     const expected = {
         command: 'ast',
         args: '',
@@ -54,7 +72,7 @@ test('parse: a flag with a value', (t) => {
 });
 
 test('parse: an unknown flag is ignored, not an error', (t) => {
-    const result = parseCommand('/ast --nope');
+    const result = parseCommand('ast --nope', names);
     const expected = {
         command: 'ast',
         args: '',
@@ -66,7 +84,7 @@ test('parse: an unknown flag is ignored, not an error', (t) => {
 });
 
 test('parse: a quoted argument keeps its spaces', (t) => {
-    const result = parseCommand('/source "const a = 1;"');
+    const result = parseCommand('source "const a = 1;"', names);
     const expected = {
         command: 'source',
         args: 'const a = 1;',
@@ -78,7 +96,7 @@ test('parse: a quoted argument keeps its spaces', (t) => {
 });
 
 test('parse: a single-quoted argument keeps its spaces', (t) => {
-    const result = parseCommand('/source \'const a = 1;\'');
+    const result = parseCommand('source \'const a = 1;\'', names);
     const expected = {
         command: 'source',
         args: 'const a = 1;',
@@ -90,7 +108,7 @@ test('parse: a single-quoted argument keeps its spaces', (t) => {
 });
 
 test('parse: mismatched quotes are left alone', (t) => {
-    const result = parseCommand('/source "const a = 1;\'');
+    const result = parseCommand('source "const a = 1;\'', names);
     const expected = {
         command: 'source',
         args: '"const a = 1;\'',
@@ -102,7 +120,7 @@ test('parse: mismatched quotes are left alone', (t) => {
 });
 
 test('parse: inline code after the command is the argument', (t) => {
-    const result = parseCommand('/source const a = 1;');
+    const result = parseCommand('source const a = 1;', names);
     const expected = {
         command: 'source',
         args: 'const a = 1;',
@@ -114,7 +132,7 @@ test('parse: inline code after the command is the argument', (t) => {
 });
 
 test('parse: everything after the first newline is the body', (t) => {
-    const result = parseCommand('/source\nconst a = 1;\nconst b = 2;');
+    const result = parseCommand('source\nconst a = 1;\nconst b = 2;', names);
     const expected = {
         command: 'source',
         args: 'const a = 1;\nconst b = 2;',
@@ -125,13 +143,37 @@ test('parse: everything after the first newline is the body', (t) => {
     t.end();
 });
 
-test('parse: a body stops at the next command', (t) => {
-    const result = parseCommand('/source\nconst a = 1;\n/ast');
+test('parse: a body stops at the next known command', (t) => {
+    const result = parseCommand('source\nconst a = 1;\nast', names);
     const expected = {
         command: 'source',
         args: 'const a = 1;',
         flags: {},
-        rest: '/ast',
+        rest: 'ast',
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('parse: with no known commands a body runs to the end', (t) => {
+    const result = parseCommand('source\nconst a = 1;\nast');
+    const expected = {
+        command: 'source',
+        args: 'const a = 1;\nast',
+        flags: {},
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('parse: a line that merely starts with a command word is body', (t) => {
+    const result = parseCommand('source\nast();\nconst b = 2;', names);
+    const expected = {
+        command: 'source',
+        args: 'ast();\nconst b = 2;',
+        flags: {},
     };
     
     t.deepEqual(result, expected);
@@ -139,7 +181,7 @@ test('parse: a body stops at the next command', (t) => {
 });
 
 test('parse: a multiline plugin body is kept whole', (t) => {
-    const result = parseCommand('/find\nexport const report = () => "z";\nexport const replace = () => ({});');
+    const result = parseCommand('find\nexport const report = () => "z";\nexport const replace = () => ({});', names);
     const expected = {
         command: 'find',
         args: 'export const report = () => "z";\nexport const replace = () => ({});',
@@ -150,18 +192,8 @@ test('parse: a multiline plugin body is kept whole', (t) => {
     t.end();
 });
 
-test('parse: a bare word is an error result', (t) => {
-    const result = parseCommand('hello');
-    const expected = {
-        error: 'Not a command: hello',
-    };
-    
-    t.deepEqual(result, expected);
-    t.end();
-});
-
 test('parse: empty input is an error result', (t) => {
-    const result = parseCommand('');
+    const result = parseCommand('', names);
     const expected = {
         error: 'Empty command',
     };
@@ -171,7 +203,7 @@ test('parse: empty input is an error result', (t) => {
 });
 
 test('parse: whitespace only is an error result', (t) => {
-    const result = parseCommand('   \n  ');
+    const result = parseCommand('   \n  ', names);
     const expected = {
         error: 'Empty command',
     };
@@ -180,18 +212,8 @@ test('parse: whitespace only is an error result', (t) => {
     t.end();
 });
 
-test('parse: text that is not a command is an error result', (t) => {
-    const result = parseCommand('what does this do?');
-    const expected = {
-        error: 'Not a command: what does this do?',
-    };
-    
-    t.deepEqual(result, expected);
-    t.end();
-});
-
 test('parse: a command may be preceded by whitespace', (t) => {
-    const result = parseCommand('  /ast --full');
+    const result = parseCommand('  ast --full', names);
     const expected = {
         command: 'ast',
         args: '',

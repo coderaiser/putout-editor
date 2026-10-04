@@ -22,11 +22,11 @@ test('index: every key equals its own command name', (t) => {
     t.end();
 });
 
-test('index: every command has a name, a description, flags and run', (t) => {
+test('index: every command has a name, a usage, a description, flags and run', (t) => {
     const missing: string[] = [];
     
     for (const [name, command] of commands) {
-        if (!command.name || !command.description || !command.run)
+        if (!command.name || !command.usage || !command.description || !command.run)
             missing.push(name);
     }
     
@@ -38,21 +38,21 @@ test('index: every command has a name, a description, flags and run', (t) => {
 });
 
 /**
- * The count is a regression check on `/help` alone: `help` is built from the
+ * The count is a regression check on `help` alone: `help` is built from the
  * same list the map is, so dropping a command entirely shrinks both sides and
  * this still passes. What it catches is a command added to the map whose row
  * never reaches the help text.
  */
-test('index: /help lists every command in the map', (t) => {
+test('index: help lists every command in the map', (t) => {
     const expected = commands.size;
     
     t.equal(linesOf(runHelp()).length, expected);
     t.end();
 });
 
-test('index: /help names every command', (t) => {
+test('index: help names every command', (t) => {
     const data = dataOf(runHelp());
-    const result = [...commands.keys()].filter((name) => !data.includes(`/${name}`));
+    const result = [...commands.keys()].filter((name) => !data.includes(`${name} `));
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
@@ -88,7 +88,7 @@ const isError = (value: unknown): value is {
 const messageOf = (result: unknown) => isError(result) ? result.message : '';
 
 /**
- * `/find`, `/transform` and `/validate` reach 🐊**Putout** through a dynamic
+ * `find`, `transform` and `validate` reach 🐊**Putout** through a dynamic
  * `import()`, and in a browser bundle that chunk is never fetched. The loader can
  * fail, and the answer has to be an error a user can read rather than an
  * unhandled rejection — this is the only thing standing between a failed chunk
@@ -103,7 +103,7 @@ test('index: a putout command that cannot load says so instead of throwing', (t)
 
 test('index: notInBrowser names the command it could not run', (t) => {
     const result = notInBrowser('find');
-    const expected = '/find needs the putout server and does not run in the browser.';
+    const expected = 'find needs the putout server and does not run in the browser.';
     
     t.equal(messageOf(result), expected);
     t.end();

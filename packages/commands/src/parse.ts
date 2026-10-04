@@ -85,12 +85,33 @@ function takeFlags(input: string): {
 }
 
 /**
- * Everything after the first newline is the body — that is how `/source` and
- * `/find` take multi-line code, per the C1 rule. A body ends at the next line
- * that starts a command, so `/source` followed by `/ast` in one input does not
- * swallow the `/ast`.
+ * Whether a line of a body is a **new command** rather than more of the source.
+ *
+ * A line whose first word is not a command name cannot be one, so `source`
+ * followed by `const a = 1;` keeps its `;` and `source` followed by
+ * `ast();` — first word `ast()` — does not have its body cut in half. That
+ * second case is the one a bare `startsWith(name)` test gets wrong, and a
+ * `source` body is exactly the place it would bite: a snippet of real code
+ * calling something named after a command.
+ *
+ * The names come from the caller rather than from this module, because
+ * `parse.ts` is below `commands/index.ts` and importing the registry back up
+ * would be a cycle. `parseCommand` is called with the same map `useChat`
+ * dispatches on, so "a command" means the same thing in both.
  */
-function splitBody(input: string): {
+const startsCommand = (line: string, names: Set<string>) => {
+    const [first] = trim(line).split(/\s+/);
+    
+    return names.has(first);
+};
+
+/**
+ * Everything after the first newline is the body — that is how `source` and
+ * `find` take multi-line code. A body ends at the next line that begins a
+ * command, so `source` followed by `ast` in one input does not swallow the
+ * `ast`.
+ */
+function splitBody(input: string, names: Set<string>): {
     body: string;
     rest: string;
 } {
@@ -100,7 +121,7 @@ function splitBody(input: string): {
         if (!index)
             continue;
         
-        if (!trim(line).startsWith('/'))
+        if (!startsCommand(line, names))
             continue;
         
         return {
@@ -123,7 +144,21 @@ function splitBody(input: string): {
     };
 }
 
-export function parseCommand(input: string): ParsedCommand | ParseError {
+/**
+ * The first word of the first line is the command. There is no slash: the
+ * command **is** the first word, so `ast` and `/ast` are different strings and
+ * only the first names anything.
+ *
+ * The word is not checked against `names` here. The parser answers "what were
+ * the parts", and an unrecognised first word is still a command-shaped answer
+ * — it is the dispatcher that owns the vocabulary and the suggestion, so
+ * `parseCommand('hello')` cannot know whether `hello` deserves "did you mean"
+ * or a plain error.
+ *
+ * `names` is what a body is measured against, and it defaults to empty: a
+ * caller with no registry has no commands, so nothing can end a body early.
+ */
+export function parseCommand(input: string, names: Iterable<string> = []): ParsedCommand | ParseError {
     const text = trim(input);
     
     if (!text)
@@ -135,28 +170,14 @@ export function parseCommand(input: string): ParsedCommand | ParseError {
     
     const head = newline === -1 ? text : text.slice(0, newline);
     
-    if (!head.startsWith('/'))
-        return {
-            error: `Not a command: ${head}`,
-        };
+    const [name] = head.split(/\s+/);
     
-    const [name] = head
-        .slice(1)
-        .split(/\s+/);
-    
-    if (!name)
-        return {
-            command: 'help',
-            args: '',
-            flags: {},
-        };
-    
-    const inline = newline === -1 ? head.slice(1 + name.length) : '';
+    const inline = newline === -1 ? head.slice(name.length) : '';
     
     const {body, rest} = newline === -1 ? {
         body: '',
         rest: '',
-    } : splitBody(text.slice(newline + 1));
+    } : splitBody(text.slice(newline + 1), new Set(names));
     
     const {flags, rest: afterFlags} = takeFlags(inline);
     
