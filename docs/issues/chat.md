@@ -352,3 +352,79 @@ answers nonsense rather than throwing. The rule that would have caught it is
 [idea 12](../ideas.md#12-a-rule-for-calling-a-method-with-no-receiver--rejected-putout-blocks-the-fix) —
 **rejected**, with the measured blocker: putout refuses a replacement that introduces a name the
 pattern does not bind.
+
+## ❌ a `min-width: 0` one level too deep changes nothing at all
+
+Found while fixing the seeded thread's horizontal overflow (see
+[`../memory/chat-layout.md`](../memory/chat-layout.md#the-seeded-thread-and-the-three-things-it-broke)).
+
+`.chat-app__body` is `display: grid`, `.chat` is its item, and `.chat__thread` is
+inside `.chat`. The thread's content is wider than a phone — a `white-space: pre`
+source listing and a `nowrap` help table — so on a 390px viewport
+`document.scrollWidth` was 514.
+
+**The minimum that reproduces it**
+
+```css
+.chat-app__body {
+    display: grid;
+}
+
+.chat {
+    min-width: auto; /* the default */
+}
+
+.chat__thread {
+    min-width: 0; /* correct, and inert */
+}
+```
+
+**What I got** — `.chat` stayed 514px wide and `scrollWidth` stayed 514. Putting
+`min-width: 0` on `.chat` fixed it.
+
+**What I expected** — the thread's content is what overflows, so capping the
+thread's minimum should cap it.
+
+The reason is that `min-width: auto` on `.chat` — a **grid item** — refuses to
+shrink below its content, and `.chat__thread` is a child of it, so the child's
+own `min-width` is never consulted. The rule was not weaker on the thread, it was
+absent.
+
+**Not filed as a rule.** `apply-box-sizing-to-sized-element` is about `width` on a
+sized element and this is about the `min-*` *defaults* of a flex or grid item —
+different shape, and a fixer would have to decide which of the two ancestors the
+rule meant. Written up here because the failure is silent: the CSS is correct,
+the lint is clean, and the layout is wrong.
+
+## ❌ a rename that changes what parses leaves the old spelling in six strings
+
+Removing the `/` prefix from the command grammar left every user-facing message
+naming a command that no longer parses.
+
+**The minimum that reproduces it**
+
+```js
+// parse.ts — the command is the first word, so this names nothing
+const parsed = parseCommand('/ast'); // → { command: '/ast' }
+```
+
+```ts
+// ast.ts, unchanged
+message: 'No source. Use /source first.',
+```
+
+**What I got** — four commands answer `No source. Use /source first.` (in `ast`,
+`find`, `transform`, `test-pattern`) and the chat shows `No AST. Run /ast first.`
+and `Run /ast to populate the tree`.
+
+**What I expected** — the strings follow the grammar, as the code did.
+
+The awkward part is that these are the messages a user is given *before* they have
+a source — every one of them is read at exactly the moment the hint would be
+followed. And `grep` for the command name finds the definition; each call site is
+a different file, in a different package, inside a string literal.
+
+**The check that would catch it**: after changing what the parser accepts, search
+for the old spelling in text rather than in identifiers. Nothing in `putout .`
+does this, and a rule for it would have to know both the old and new spelling —
+which makes it a rename helper rather than a lint.

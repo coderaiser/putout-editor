@@ -82,3 +82,78 @@ because the fix is a `waitFor` that has to stay in the spec. The short version:
 `page.goto` resolves on `load`, React mounts after it, and
 `document.documentElement.scrollWidth` of an empty document **is** the viewport width — so a
 geometry assertion taken immediately passes on a layout that is 40px too wide.
+## The seeded thread, and the three things it broke
+
+`packages/chat` no longer opens on an empty thread: it opens with a worked
+`source` example (the `replacer` template from `packages/client`, copied for the
+boundaries rule) and the help. Seeding it fixed "a user opened this and has no
+idea what to type" and immediately broke three things, each of which is a lesson
+rather than a fix.
+
+**The whole document scrolled sideways on a phone.** `document.scrollWidth` was
+514 on a 390px viewport, because the thread's content — a `white-space: pre` source
+listing and a help table with a `nowrap` column — is wider than a phone and
+neither could shrink. The fix is `min-width: 0` on **`.chat`**, and the part worth
+keeping is *where*: the first attempt put it on `.chat__thread` and changed
+nothing, because `.chat` is the grid item and a grid item defaults to
+`min-width: auto`. A rule one level too deep is not weaker, it is absent.
+`the composer fits the viewport width` was green for weeks and went red.
+
+**A measurement that flags the right thing is not the same as one that flags
+everything.** The "no element hangs off the right edge" probe reported thirteen
+elements, all inside `.source-block`, which is `overflow-x: auto` **on purpose** —
+a long line of code is supposed to be wider than a phone and to scroll in its own
+box. The probe now walks ancestors and only reports what the page cannot scroll
+to, which is the defect.
+
+**Two viewport heights, and the difference is 18px.** `getBoundingClientRect()`
+and `page.viewportSize()` disagree on `devices['iPhone 12']`, so a spec comparing
+them fails at zero slack for a reason that has nothing to do with the layout. Both
+numbers now come from inside the page.
+
+**Coverage fell from 100% and nothing had broken.** `Message`'s `places` and
+`transform` branches stopped being reached: they had been covered because `find`'s
+answer used to be the *first* message in an otherwise empty thread. Adding a
+message to the set moved what the number was measuring. Confirmed by stashing and
+re-running rather than assuming. This is the "100% is a number about the set"
+lesson arriving a second time, and the same shape as
+[`coverage.md`](./coverage.md).
+
+## A component with three specs and no call sites
+
+`HelpBlock` — the help table — was built, fully covered, and never rendered.
+`help` answered with `type: 'text'` and `Message` mapped every `text` to a
+`TextBlock`, so the component had no route into the page at all.
+
+Worth stating as a rule of thumb, because the coverage number actively hid it:
+**coverage measures whether a line ran, not whether a user can reach it.** A
+component imported by nothing has no spec that would notice, so its specs keep
+passing forever. The check that catches this is not more unit tests — it is
+`grep` for the component's name outside its own directory.
+
+The same class of thing was true of the **autocomplete**: it opened on `/`,
+because `/` used to be how a command started. With no sigil left, the honest
+trigger is "is what has been typed so far the start of a command name", so `Input`
+matches by prefix and closes on whitespace — a space ends the command word and
+what follows is an argument.
+
+## A hint that names a command which no longer parses
+
+Removing the slash from the grammar left six user-facing strings behind: four
+`No source. Use /source first.` (one in each of `ast`, `find`, `transform`,
+`test-pattern` — i.e. every command reached *before* there is a source, which is
+exactly when a user reads it), plus two empty-state hints in the chat.
+
+`grep` for `source` finds the definition, and the call site is a different file in
+a different package inside a **string**. A rename that changes what parses has to
+be followed by a search for the old spelling in text, not only in identifiers.
+
+## `align-spaces` aligns blank lines; it does not strip them
+
+`putout/align-spaces` compares the whole file against `alignSpaces(text)`, which
+makes each blank line carry **the same indentation as the line below it**. Reading
+the message — "Keep whitespaces in blank lines" — as "remove whitespace from blank
+lines" produces the opposite of what the rule wants, and the error is reported at
+`1:1` with no line, so it is worth looking up rather than guessing at. The rule
+text is in `node_modules/align-spaces/lib/align-spaces.js` and it is nineteen
+lines.

@@ -1,22 +1,48 @@
 # 🐊**Putout** Editor — Chat
 
-The chat half of the editor. A message thread where a slash command runs
-🐊**Putout** over the source you set, and — behind `/ast` or `/console` — the AST
+The chat half of the editor. A message thread where a command runs
+🐊**Putout** over the source you set, and — behind `ast` or `console` — the AST
 tree beside it.
+
+## A command is its first word
+
+There is no slash. The first word of what you type **is** the command, so `ast`
+is `ast` and `/ast` is a first word that names nothing:
+
+```
+ast
+source [the code]
+find [a plugin]
+```
+
+Every command declares what it takes, in the shell's brackets, and `help` prints
+it. The thread opens with a worked example and the help, so there is something to
+read before anything is typed.
+
+| Command | Takes |
+|---|---|
+| `source` | the code every other command reads |
+| `ast` | `--full`, `--query type` |
+| `find` / `transform` / `validate` | a plugin |
+| `test-pattern` | a key · `name-pattern` a snippet |
+| `console` | `off` to close · `clear` · `reset` · `help` |
+
+A `source` body ends at the next line whose **first word is a command**, so
+`source` and `ast` can be sent as one input.
 
 ## Keys
 
 | Key | What it does |
 |---|---|
-| `Enter` | Newline. Also completes a `/name` while the dropdown is open. |
+| `Enter` | Newline. Also completes a name while the dropdown is open. |
 | `Shift+Enter` | Newline, always — including while the dropdown is open. |
 | `Ctrl+Enter` | Send. `Cmd+Enter` on macOS. |
-| `Tab` | Complete the picked `/name`. |
+| `Tab` | Complete the picked name. |
 | `↑` / `↓` | Walk the history when the box is empty; move the pick when it is not. |
 | `Escape` | Close the dropdown and empty the box. |
 
-`Enter` is a newline rather than a send because `/source` takes a multi-line body,
-and a `/source` line is not something you can finish on one keystroke. The `↑`
+`Enter` is a newline rather than a send because `source` takes a multi-line body,
+and a `source` line is not something you can finish on one keystroke. The `↑`
 button is there for the same reason: a keybinding nobody can see is not a
 keybinding, so it carries the chord in its tooltip.
 
@@ -27,7 +53,7 @@ keybinding, so it carries the chord in its tooltip.
 | `src/index.tsx` | The entry: `<Provider><App/></Provider>`. |
 | `src/App.tsx` | Header, chat panel, and the console panel when it is open. |
 | `src/Chat.tsx` | The message thread and the input area. |
-| `src/Input.tsx` | Textarea, `/` autocomplete, `↑` history recall, and `growTo`. |
+| `src/Input.tsx` | Textarea, name autocomplete, `↑` history recall, and `growTo`. |
 | `src/Message.tsx` | Switches on `result.type` and renders the block. |
 | `src/messages/` | One component per result type. |
 | `src/components/` | The AST tree — six components, self-contained, no Redux. |
@@ -44,6 +70,11 @@ same thing on both pages and the tree restyles with the page. Warm cream in
 light, warm charcoal in dark, and one terracotta accent used sparingly: nothing
 is pure white, pure black or fully saturated.
 
+The AST's eight category colours are **measured, not eyeballed**: `src/components/tokens.spec.ts`
+recomputes the WCAG contrast of every dark category against the background the
+tree is painted on, and fails below 4.5:1. The light values are tuned for cream
+and the dark ones for `#1f1e1d`, and the weakest category is 6.29:1.
+
 Dark and light are driven by `data-theme` on `<html>`, exactly as
 `ThemeButton` in `packages/client` does it, and the key in `localStorage` is the
 same `theme` — so a choice made on one page is already in force on the other.
@@ -52,7 +83,9 @@ client's own `tokens.css` does.
 
 **Changing a colour means adding a token, not writing a hex in a rule.** The
 rules read `var(--color-…)` throughout, and `AstTree.css` falls back to the same
-light values so a tree on its own matches the page.
+light values so a tree on its own matches the page. The eight category tokens are
+the one deliberate exception — they have no `--color-*` counterpart to inherit,
+and `tokens.spec.ts` is what holds them to the contrast floor.
 
 ## The commands come from elsewhere
 
@@ -70,11 +103,11 @@ and the console panel cannot fight over a keypress.
 
 ## Three commands need a server
 
-`/find`, `/transform` and `/validate` reach 🐊**Putout** through a dynamic
+`find`, `transform` and `validate` reach 🐊**Putout** through a dynamic
 `import()`. 🐊**Putout** cannot be bundled for a browser — it calls
 `os.homedir()` at module scope — so that chunk is fetched only when one of them
-is typed. In a browser the three answer that they need the server. `/ast`,
-`/source`, `/console` and `/help` work with no server at all.
+is typed. In a browser the three answer that they need the server. `ast`,
+`source`, `console` and `help` work with no server at all.
 
 See [`docs/memory/browser-bundle.md`](../../docs/memory/browser-bundle.md) for
 what `rspack.config.js` ignores and why, and
