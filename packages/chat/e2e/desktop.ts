@@ -793,8 +793,10 @@ test('the user message is right-aligned', async ({page}) => {
     await send(page, 'help');
     
     const result = await page.evaluate(() => {
-        const pills = document.querySelectorAll('.message--user');
-        const pill = pills[pills.length - 1].getBoundingClientRect();
+        // Spread then `.at(-1)`: `NodeListOf` has no `.at()`, and the seed means
+        // the last pill is this spec's line rather than the opening example's.
+        const pills = [...document.querySelectorAll('.message--user')];
+        const pill = pills.at(-1)!.getBoundingClientRect();
         const thread = document.querySelector('.chat__thread')!.getBoundingClientRect();
         
         return {

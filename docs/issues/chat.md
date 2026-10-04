@@ -410,7 +410,10 @@ const parsed = parseCommand('/ast'); // → { command: '/ast' }
 
 ```ts
 // ast.ts, unchanged
-message: 'No source. Use /source first.',
+const answer = (): CommandResult => ({
+    type: 'error',
+    message: 'No source. Use /source first.',
+});
 ```
 
 **What I got** — four commands answer `No source. Use /source first.` (in `ast`,
