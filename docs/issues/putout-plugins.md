@@ -418,3 +418,78 @@ meets. Two things make it survivable and neither is the rule being right:
 **A `js` fence in a markdown file is linted as real JavaScript** (`AGENTS.md`), so
 this is reachable from documentation too — worth knowing before writing an example
 of the shape the rule matches.
+
+## 💡 a check that rejects a working rule, because it was written from the entry point and never read the runner
+
+`flatlint_rule` answered `✗ has a match export … a match is putout's shape and is
+ignored here` — for a language that **honours `match`**. An author following that
+advice would have deleted a guard the engine runs.
+
+This is not a rule of ours, so it has no row in the table above; it is the most
+expensive kind of entry in this file, because it was a **tool that was wrong
+rather than silent**.
+
+### The minimum that reproduces it
+
+```js
+export const report = () => `Add missing '=>'`;
+
+export const match = () => ({
+    '(__args) {': (vars, path) => !isIdentifier(path.getPrev()),
+});
+
+export const replace = () => ({
+    '(__args) {': '(__args) => {',
+});
+```
+
+That is `lib/plugins/add-missing-arrow/index.js` from flatlint, verbatim. **Got:**
+`ok: false`, with a message telling the author to remove the `match`. **Expected:**
+`ok: true`.
+
+### Where the claim came from
+
+`docs/memory/flatlint.md` said *"there is no `match`"*, and it said it from having
+read `lib/flatlint.js` — a nine-line `parse → run → print` — and never opened a
+plugin. The runner answers it in one line, quoted verbatim — a `text` fence because a
+`js` fence is linted as real JavaScript here and `optional-chaining` would demand
+a rewrite of a quote that must stay exactly as it is:
+
+```text
+const match = plugin.match?.() || returns({});
+```
+
+Measured by importing every plugin and calling `match()` and `replace()`:
+**14 of 33 plugins (42%) export `match`, 49 keys.** The same file had already
+recorded an earlier version of itself saying flatlint has *"no `report`
+concept at all"*, also from not opening a plugin. **Twice from the same omission,
+on the same file, in opposite directions.**
+
+### Why the check could not have caught it
+
+The check read the **exports** — `report`, `replace`, `match` — and decided
+correctness from the *presence of a name*. It never asked what the name means, so
+it could only ever encode the belief it was written from. There was no fixture
+carrying a `match`, and the one real fixture it did have,
+`remove-useless-assign`, is a two-export plugin that looks **identical** under
+both beliefs — so the whole suite stayed green while the tool rejected 42% of the
+rules it was supposed to help write.
+
+The replacement check reads the two maps and compares **keys**: a guard whose key
+is absent from `replace` is dead, because the runner looks the guard up by the
+replace key it is iterating. It is on the AST, since a key is a *pattern* —
+`'(__args) {'` ends in a brace, and the brace-counting first attempt called a
+fourteen-key plugin an empty one.
+
+### The generalisable half
+
+**"A check cannot be written from the name of a thing; it has to be written from
+what the thing does."** Both halves of that were violated here — the claim came
+from the entry point, and the check was written from the claim.
+
+The pin that would have caught it costs one line: **feed the checker every rule
+in the target codebase and assert none is rejected.** 33 files, one loop, and it
+answers "is this tool fit for purpose" instead of "does this rule have three
+exports". `docs/memory/flatlint.md` records the same trap for `report`; the
+lesson is not flatlint-specific, it is that a doc which says a thing *cannot*
+happen needs its evidence to be a measurement and not an omission.
