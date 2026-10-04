@@ -29,7 +29,7 @@ temp spec file.
 | `docs` | Reference overview, or `section: 'style'`/`'template'`/`'api'`/`'errors'` |
 | `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule. For **css** and **markdown** it also carries `ast` — *how a rule reaches a node* — and `source`, the npm package it was read out of |
 | `get_example` | Known-good plugin + fixture. Order: replacer -> includer -> traverser -> scanner |
-| `validate` | Check a plugin compiles -> `ok` or `plugin_syntax (line N, col N): ...` |
+| `validate` | Check a plugin compiles **and has the shape the runner needs** -> `ok`, `plugin_syntax (line N, col N): ...`, or `plugin_shape: ...` |
 | `parse` | Get an AST. Compact by default, `full: true` for raw with `loc`. **JavaScript only** — a `css` or `markdown` source comes back `Unexpected token (1:0)` |
 | `test_pattern` | Test one 🦎**PutoutScript** key: does it match, how many places, what each `__a` bound to |
 | `name_pattern` | The inverse: given a snippet, which patterns match, and a generalised key for it |
@@ -121,10 +121,18 @@ await client.close();
   natively and doesn't need it; add it back only if you spawn the server with `node`.
 - **Tools not listed means not connected** — check your editor's MCP settings for a `putout`
   entry pointing at `packages/mcp/src/index.ts`, then restart.
-- **`validate` checks syntax only; `transform` runs the compiled output.** `compileRule`
+- **`validate` checks syntax and shape; `transform` runs the compiled output.** `compileRule`
   pipes the plugin through `@putout/plugin-putout` before execution — `path.remove()`
   becomes `remove(path)`, missing imports are inserted. When behaviour looks wrong,
   call `transform` and read what actually ran.
+- **`ok` from `validate` used to mean "compiles", which is not "runs."** It also checks
+  that the plugin has `report` plus one of `fix`, `find`, `traverse`, `replace`,
+  `include`, `exclude`, `rules`, `declare`, `scan`, and answers `plugin_shape: …` when
+  it does not — because a `report`-only plugin compiles and then throws
+  `Looks like 'fix' is not a 'function' but 'undefined'` in the very next tool call.
+  The general form is in
+  [`docs/issues/putout-plugins.md`](./docs/issues/putout-plugins.md): a check that
+  passes on a cheaper path than the user takes.
 - **`putout` lint exits 0 on plugin code inside `montag`/template literals** — it parses the
   string, not the code. Only `validate`/`transform` see through that.
 - **`tsc` and `zod`**: for a schema field with `.default()`, use `z.input<typeof schema>` in

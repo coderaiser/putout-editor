@@ -493,3 +493,39 @@ answers "is this tool fit for purpose" instead of "does this rule have three
 exports". `docs/memory/flatlint.md` records the same trap for `report`; the
 lesson is not flatlint-specific, it is that a doc which says a thing *cannot*
 happen needs its evidence to be a measurement and not an omission.
+
+## ✅ `validate` answered `ok` for a plugin the runner rejects — **closed**
+
+The most expensive gap the mcp had, and the clearest instance of the lesson
+[`../lessons.md`](../lessons.md) records: *a check that passes on a cheaper path
+than the user takes*.
+
+**The minimum**
+
+```js
+// mcp `validate`, before this commit
+compilePlugin('export const report = () => "x";');
+```
+
+**What I got** — `ok`.
+
+**What I expected** — a report that this is not a rule yet.
+
+Because it compiles. `find_places` then answers `Looks like 'find' is not a
+'function' but 'undefined'`, and `transform` the same for `fix`. The tool whose own
+description says *"call this before calling find_places"* was green on precisely
+the plugin that breaks `find_places`, so the round trip cost the user the error
+and taught them that `ok` means more than it does.
+
+`validate` now also checks the **shape** — `report` plus one of `fix`, `find`,
+`traverse`, `replace`, `include`, `exclude`, `rules`, `declare`, `scan` — and
+answers `plugin_shape: …` naming the keys and pointing at `find_places`. The list
+is read off the compiled module, so it is judged on what the loader will find
+rather than on how the plugin was typed.
+
+**The other half is the direction that matters.** A shape check can be wrong by
+*rejecting* a working rule, which is worse than the gap: the user is told their
+traverser is broken when it is fine. So the spec enumerates one plugin per
+accepted key and requires all of them to stay `ok`. That is the half that caught
+the real mistake here — `fix` was missing from the first list, and the suite failed
+on the existing `report` + `fix` test rather than on anything new.
