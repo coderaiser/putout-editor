@@ -223,6 +223,25 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    /* plan.md v8 §1.1 wanted `flex: 1` here, diagnosed as "the thread collapses
+       to zero height on first load". Measured on `devices['iPhone 12']` against
+       the built bundle: `.chat` is already 611px of a 611px body and the input
+       is at the fold — so it does not collapse, and the rule would be inert.
+       The diagnosis was right about the *grid*: `.chat-app__body` is a grid, and
+       `flex: 1` on a grid item does nothing either. What actually keeps the
+       thread open is `min-height: 0` plus the grid row stretching, both of
+       which are already here. Left off deliberately, with the measurement above
+       rather than the plan's reasoning.
+
+       `min-width: 0` **is** load-bearing, and it is here rather than on
+       `.chat__thread` because this box is the grid item. A grid item defaults to
+       `min-width: auto`, which refuses to shrink below its content, and this
+       box's content is a `white-space: pre` source listing and a help table
+       with a `nowrap` column. Measured with `min-width: 0` on the thread
+       instead: `.chat` still came out 514px wide in a 390px viewport and
+       `document.scrollWidth` was 514 — the rule was one level too deep to be
+       reached. */
+    min-width: 0;
 }
 
 /* The thread is centred and narrow — Claude's measure. A line of code is hard
@@ -231,6 +250,16 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 24px 20px;
+    /* `min-width: 0`, and the reason is a seeded answer rather than a width.
+
+       `flex`/`grid` items default to `min-width: auto`, which refuses to shrink
+       below their content. The thread's content is a `white-space: pre` source
+       listing and a `nowrap` help table, so on a 390px phone the thread sized
+       itself to 514px, `.chat` followed, and `document.scrollWidth` became 514 —
+       the whole document scrolled sideways on every first visit. The long lines
+       are correct (`pre` is what makes code readable); what has to give is the
+       *thread* giving them its width. */
+    min-width: 0;
     /* `border-box` for the reason `.input` has it, and this is the third element
        with the shape. Fixing the two named in the plan turned out to leave the
        document at 430 wide: this thread is `width: 100%` with the same 20px of
@@ -245,6 +274,16 @@ body {
 
 .chat__message {
     margin-bottom: 20px;
+    /* A flex column, so `align-self: flex-end` on the pill means something.
+       It did not before: the box was a block, and `margin-left: auto` on an
+       inline-block child of a block is ignored — so the pill left-aligned and
+       the rounded end meant nothing. Measured: `pill.left` was the thread's
+       content edge and `thread.right - pill.right` was 740px on a 760px thread.
+       `align-items: flex-start` keeps the answer from stretching, so an error
+       box stays its own width. */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 /* Air *within* one message, between the user's own line and the answer. The
@@ -260,9 +299,10 @@ body {
 /* The user's own line is a right-aligned raised pill; the answer is plain text
    with no bubble at all, which is what makes the two roles readable apart. */
 .message--user {
-    display: inline-block;
+    /* `align-self` replaces `margin-left: auto` and `display: inline-block`
+       together — neither of which could right-align inside a block. */
+    align-self: flex-end;
     max-width: 85%;
-    margin-left: auto;
     padding: 10px 16px;
     border-radius: var(--radius-lg);
     background: var(--color-bg-message-user);
@@ -395,6 +435,11 @@ body {
 .help-block__description {
     color: var(--color-text-muted);
     font-family: var(--font-ui);
+    /* The name column is `nowrap` because `source [source]` reads as one unit
+       and breaking it would make it a different string. The description is the
+       other half of the trade: it wraps, so a long row costs height rather than
+       width, and the table can fit a phone. */
+    overflow-wrap: anywhere;
 }
 
 /* The diff is two labelled panes, and the tint carries the meaning so the

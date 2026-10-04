@@ -8,7 +8,7 @@ const box = (page: Page) => page.getByRole('textbox');
 
 /**
  * `fill` then `Ctrl+Enter`, not `type` then `Enter`: `fill` sets the value in one
- * go, and a multi-line `/source` body would otherwise be typed key by key, so
+ * go, and a multi-line `source` body would otherwise be typed key by key, so
  * the `Enter` that ends a line would land in the middle of the source instead of
  * being part of the send chord.
  */
@@ -20,8 +20,8 @@ const send = async (page: Page, text: string) => {
 /**
  * The tree in the *thread*, as opposed to the one in the console panel.
  *
- * `/ast` answers twice — once as a message and once in the panel — so every
- * `ast-*` testid on the page is duplicated the moment `/ast` has run, and a bare
+ * `ast` answers twice — once as a message and once in the panel — so every
+ * `ast-*` testid on the page is duplicated the moment `ast` has run, and a bare
  * `getByTestId('ast-search')` is a strict-mode violation rather than a passing
  * test. The panel is a sibling of `[data-testid="chat"]`, not a descendant, so
  * scoping to the thread picks the message copy.
@@ -35,6 +35,19 @@ const search = (page: Page) => page
     .getByTestId('ast-search');
 
 const userMessages = (page: Page) => page.locator('.message--user');
+
+/**
+ * How many `.message--user` the seed puts on the page before anything is typed.
+ *
+ * **Two**: the worked `source` example and the `help` that follows it. Each is a
+ * pair of an echo and an answer, and the echo is a user pill — so the seed is
+ * two pills, not one, which is the sort of thing to count once here rather than
+ * to discover as a failing spec. Every count below is this **plus** what the
+ * spec sent, rather than a bare number: a literal `1` would assert the old blank
+ * start screen, and a literal `3` would assert today's seed and break the day
+ * the seed changes.
+ */
+const SEEDED_USER_MESSAGES = 2;
 
 /**
  * The full geometry of one element, in CSS pixels.
@@ -150,8 +163,8 @@ test('the textarea reserves room for the send button', async ({page}) => {
 });
 
 test('shows ast tree for pasted source', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     await expect(tree(page)).toBeVisible();
     await expect(tree(page)).toContainText('Program');
@@ -159,20 +172,20 @@ test('shows ast tree for pasted source', async ({page}) => {
 });
 
 /**
- * The seed, asserted in the shape a user meets it: no `/source` sent, `/ast`
+ * The seed, asserted in the shape a user meets it: no `source` sent, `ast`
  * typed, and a tree. A unit spec can only check that the seed parses; this is
  * the one that checks the page draws it.
  */
-test('/ast works with no source sent', async ({page}) => {
-    await send(page, '/ast');
+test('ast works with no source sent', async ({page}) => {
+    await send(page, 'ast');
     
     await expect(tree(page)).toBeVisible();
     await expect(tree(page)).toContainText('Program');
 });
 
 test('search filters tree', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     await search(page).fill('VariableDeclaration');
     
@@ -208,8 +221,8 @@ test('search filters tree', async ({page}) => {
  * nothing is exactly what shipped.
  */
 test('search marks the rows that matched', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     await search(page).fill('VariableDeclaration');
     
@@ -249,8 +262,8 @@ test('search marks the rows that matched', async ({page}) => {
  * from a row count that would be right by accident one row earlier.
  */
 test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const rows = page
         .getByTestId('chat')
@@ -306,8 +319,8 @@ test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
  * never wired could not be caught by the pure specs.
  */
 test('h and l fold and expand the tree', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const rows = page
         .getByTestId('chat')
@@ -349,7 +362,7 @@ test('h and l fold and expand the tree', async ({page}) => {
  * focus moved.
  */
 test('Tab moves focus from the tree to the filter, and back', async ({page}) => {
-    await send(page, '/ast');
+    await send(page, 'ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -374,7 +387,7 @@ test('Tab moves focus from the tree to the filter, and back', async ({page}) => 
  * diagram specifies and its prose gets wrong.
  */
 test('k from the first row moves focus to the filter', async ({page}) => {
-    await send(page, '/ast');
+    await send(page, 'ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -395,8 +408,8 @@ test('k from the first row moves focus to the filter', async ({page}) => {
  * obvious way to undo it.
  */
 test('k in the filter clears it and returns focus to the tree', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -421,9 +434,9 @@ test('k in the filter clears it and returns focus to the tree', async ({page}) =
  * meant to — would leave the desktop with one column and a hidden preview, and
  * every mobile spec would stay green because they only ever run on a phone.
  */
-test('/ast shows the full hint and the code preview on desktop', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+test('ast shows the full hint and the code preview on desktop', async ({page}) => {
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const status = page
         .getByTestId('chat')
@@ -446,9 +459,9 @@ test('/ast shows the full hint and the code preview on desktop', async ({page}) 
  * two-column grid means, rather than as a pixel width that a font-size change
  * would move.
  */
-test('/ast shows two columns on desktop', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+test('ast shows two columns on desktop', async ({page}) => {
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const measured = await page.evaluate(() => {
         const tree = document.querySelector('.ast__tree') as HTMLElement;
@@ -480,11 +493,11 @@ test('/ast shows two columns on desktop', async ({page}) => {
  * the hue.
  *
  * `declaration` and `statement` are the pair because `VariableDeclaration` and
- * `Program` are both on screen in every `/ast` reply, so the spec needs no
- * fixture beyond `send(page, '/ast')`.
+ * `Program` are both on screen in every `ast` reply, so the spec needs no
+ * fixture beyond `send(page, 'ast')`.
  */
 test('ast row type colour differs by category', async ({page}) => {
-    await send(page, '/ast');
+    await send(page, 'ast');
     
     const colourOf = (category: string) => page
         .getByTestId('chat')
@@ -515,8 +528,8 @@ test('ast row type colour differs by category', async ({page}) => {
  * default view has nothing to compare.
  */
 test('each drawn category renders a distinct colour', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -586,8 +599,8 @@ test('each drawn category renders a distinct colour', async ({page}) => {
  * of claim that is fine until someone adds `!important`.
  */
 test('a matched row keeps its category colour', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     await search(page).fill('VariableDeclaration');
     
@@ -619,13 +632,13 @@ test('a matched row keeps its category colour', async ({page}) => {
 test('console panel toggles on /console', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     
-    await send(page, '/console');
+    await send(page, 'console');
     
     await expect(page.locator('.console-panel')).toBeVisible();
 });
 
 test('the panel ✕ closes the console', async ({page}) => {
-    await send(page, '/console');
+    await send(page, 'console');
     await expect(page.locator('.console-panel')).toBeVisible();
     
     // The `✕` is the only way to dismiss the panel without typing a command —
@@ -640,17 +653,17 @@ test('the panel ✕ closes the console', async ({page}) => {
 
 /**
  * Reverses `0e987ac`, and the reason it does not take anything away is the spec
- * above: `/ast` already answers *in the thread*, so the panel was a second view
+ * above: `ast` already answers *in the thread*, so the panel was a second view
  * of something on screen rather than the only way to see it.
  *
- * `/console` and the panel's own ✕ still open and close it by hand — those are
- * asserted elsewhere, and this is only about what `/ast` does on its own.
+ * `console` and the panel's own ✕ still open and close it by hand — those are
+ * asserted elsewhere, and this is only about what `ast` does on its own.
  */
-test('/ast leaves the console panel closed', async ({page}) => {
+test('ast leaves the console panel closed', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     // The tree is in the thread — that is what `shows ast tree for pasted
     
@@ -661,66 +674,71 @@ test('/ast leaves the console panel closed', async ({page}) => {
 });
 
 test('Ctrl+Enter sends the line', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).fill('help');
     await page.keyboard.press('Control+Enter');
     
-    await expect(userMessages(page)).toHaveCount(1);
+    await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
     await expect(box(page)).toHaveValue('');
 });
 
 test('Enter sends the line on a keyboard', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).fill('help');
     await page.keyboard.press('Enter');
     
-    await expect(userMessages(page)).toHaveCount(1);
+    await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
     await expect(box(page)).toHaveValue('');
 });
 
 test('Shift+Enter builds a multi-line /source body', async ({page}) => {
-    await box(page).fill('/source\nconst a = 1;');
+    await box(page).fill('source\nconst a = 1;');
     await page.keyboard.press('Shift+Enter');
     await page.keyboard.insertText('const b = 2;');
     
-    await expect(box(page)).toHaveValue('/source\nconst a = 1;\nconst b = 2;');
+    await expect(box(page)).toHaveValue('source\nconst a = 1;\nconst b = 2;');
     
     await page.keyboard.press('Control+Enter');
     
     // Two lines of source survived as a body rather than being sent as two
     
-    // separate commands, which is the whole reason `/source` takes a rest.
-    await expect(userMessages(page)).toHaveCount(1);
-    await expect(page.locator('.source-block__line')).toHaveCount(2);
+    // separate commands, which is the whole reason `source` takes a rest.
+    await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
+    
+    // The **last** source block, not the first: the seed's own `source` example
+    // is one too, so `toHaveCount(2)` would be counting the seed plus half of
+    // this spec. Scoping to the end says "the block this line produced".
+    const lines = page.locator('.source-block').last().locator('.source-block__line');
+    await expect(lines).toHaveCount(2);
 });
 
 test('the send button sends the line', async ({page}) => {
     // The button is the primary way to send now that `Enter` is a newline, so
     // it is the one path that cannot be about the chord at all.
-    await box(page).fill('/help');
+    await box(page).fill('help');
     await page
         .getByTestId('send')
         .click();
     
-    await expect(userMessages(page)).toHaveCount(1);
+    await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
     await expect(box(page)).toHaveValue('');
 });
 
-test('/console again hides the panel', async ({page}) => {
-    await send(page, '/console');
+test('console again hides the panel', async ({page}) => {
+    await send(page, 'console');
     await expect(page.locator('.chat-console')).toBeVisible();
     
-    await send(page, '/console');
+    await send(page, 'console');
     
     await expect(page.locator('.chat-console')).toHaveCount(0);
 });
 
 test('up arrow recalls the last sent line', async ({page}) => {
-    await send(page, '/help');
+    await send(page, 'help');
     
     await expect(box(page)).toHaveValue('');
     
     await box(page).press('ArrowUp');
     
-    await expect(box(page)).toHaveValue('/help');
+    await expect(box(page)).toHaveValue('help');
 });
 
 test('the header has no console toggle button', async ({page}) => {
@@ -730,15 +748,91 @@ test('the header has no console toggle button', async ({page}) => {
     await expect(page.locator('.chat-header__actions')).toHaveCount(0);
 });
 
-test('error shown for unknown command', async ({page}) => {
-    await send(page, '/notacommand');
+test('error shown for an unknown command', async ({page}) => {
+    await send(page, 'notacommand');
     
     await expect(page.locator('.error-block')).toBeVisible();
 });
 
-test('autocomplete opens on slash', async ({page}) => {
-    await box(page).fill('/');
+test('autocomplete opens on a command prefix', async ({page}) => {
+    await box(page).fill('a');
     
     await expect(page.locator('.autocomplete')).toBeVisible();
-    await expect(page.locator('.autocomplete')).toContainText('/ast');
+    await expect(page.locator('.autocomplete')).toContainText('ast');
+});
+
+/**
+ * An **empty** box shows no dropdown, which is the other half of the rule.
+ *
+ * `matches('')` answers every command, so the list is reachable through the
+ * function; the component gates on a non-empty box so an idle composer is
+ * quiet. A dropdown hanging over an empty input on page load would be the
+ * behaviour to prevent — it is the reason the gate exists, and it is invisible
+ * in every other spec because they all type first.
+ */
+test('an empty box shows no autocomplete', async ({page}) => {
+    await expect(page.getByTestId('input')).toHaveValue('');
+    
+    await expect(page.locator('.autocomplete')).toHaveCount(0);
+});
+
+/**
+ * The user's own line is on the **right**, which is what the bubble shape says.
+ *
+ * Measured, not asserted from the stylesheet. `.message--user` carried
+ * `display: inline-block; margin-left: auto`, and an `auto` margin only does
+ * anything inside a flex or grid box — its parent `.chat__message` was a plain
+ * block, so the pill sat at the left edge and the rounded end was meaningless.
+ * A test on `align-self` would have passed without the browser agreeing, so this
+ * reads the two boxes and compares where they end.
+ */
+test('the user message is right-aligned', async ({page}) => {
+    await send(page, 'help');
+    
+    const result = await page.evaluate(() => {
+        const pills = document.querySelectorAll('.message--user');
+        const pill = pills[pills.length - 1].getBoundingClientRect();
+        const thread = document.querySelector('.chat__thread')!.getBoundingClientRect();
+        
+        return {
+            // the thread's own 20px padding is the gutter, so the pill should
+            // reach the content edge and no further
+            gap: Math.round(thread.right - pill.right),
+        };
+    });
+    
+    const expected = {
+        gap: 20,
+    };
+    
+    expect(result).toEqual(expected);
+});
+
+/**
+ * A **long** line is right-aligned too, not just a short one.
+ *
+ * The obvious half-measure fix is `text-align: right` on the parent, which
+ * right-aligns the system answers as well — every one of them reads as
+ * something the tool said rather than something the user typed. This sends a
+ * line long enough to hit the `max-width: 85%` cap and checks the answer below
+ * it is still on the left, so the two roles cannot be confused by a fix.
+ */
+test('a long user message stays right and its answer stays left', async ({page}) => {
+    await send(page, `help ${'x'.repeat(200)}`);
+    
+    const result = await page.evaluate(() => {
+        const pills = document.querySelectorAll('.message--user');
+        const pill = pills[pills.length - 1].getBoundingClientRect();
+        
+        const answers = document.querySelectorAll('.message--system');
+        const answer = answers[answers.length - 1].getBoundingClientRect();
+        
+        return {
+            answerLeft: Math.round(answer.left),
+            pillLeft: Math.round(pill.left),
+        };
+    });
+    
+    // the answer starts at the thread's content edge; the pill is pushed right
+    expect(result.pillLeft).toBeGreaterThan(result.answerLeft);
 });

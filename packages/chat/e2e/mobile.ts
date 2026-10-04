@@ -7,6 +7,17 @@ import {
 const box = (page: Page) => page.getByRole('textbox');
 
 /**
+ * The thread is not empty on load — it opens seeded with a worked `source`
+ * example — so a bare `toHaveCount(0)` for "nothing was sent" would pass on a
+ * build that sent the line and failed on a build that did not, purely by
+ * counting the seed. `SEEDED` is that count, so "no new message" is expressed
+ * as "still only the seed" and the assertion is about what the spec did.
+ */
+const SEEDED = 2;
+
+const userMessages = (page: Page) => page.locator('.message--user');
+
+/**
  * `getBoundingClientRect()` rather than `offsetWidth` or `scrollWidth`: the first
  * rounds to an integer, the second includes overflow but does not say *where* it
  * is, and neither reports the left edge — so "the send button hangs off the
@@ -233,7 +244,10 @@ test('the textarea reserves room for the send button on a touchscreen', async ({
 });
 
 test('the autocomplete dropdown is on screen', async ({page}) => {
-    await box(page).fill('/');
+    // A **prefix**, not an empty box: there is no sigil to type any more, so the
+    // dropdown opens on a command name being started — and an empty box is
+    // deliberately quiet, which is the other half of that rule.
+    await box(page).fill('c');
     
     const {left, right} = await rectOf(page, '.autocomplete');
     const expected = {
@@ -376,12 +390,14 @@ test('the document does not scroll', async ({page}) => {
  * give: a 40px overflow renders a page that looks almost right.
  */
 test('air between a command and its answer', async ({page}) => {
-    await send(page, '/help');
+    await send(page, 'help');
     
     const result = await page.evaluate(() => {
-        const user = document.querySelector('.message--user')!.getBoundingClientRect();
+        const pills = [...document.querySelectorAll('.message--user')];
+        const user = pills.at(-1)!.getBoundingClientRect();
         
-        const answer = document.querySelector('.chat__message .message:not(.message--user)')!.getBoundingClientRect();
+        const answers = [...document.querySelectorAll('.chat__message .message:not(.message--user)')];
+        const answer = answers.at(-1)!.getBoundingClientRect();
         
         return answer.top - user.bottom;
     });
@@ -400,21 +416,21 @@ test('air between a command and its answer', async ({page}) => {
  * pointer type is not a binding one project can check.
  */
 test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).fill('help');
     await page.keyboard.press('Enter');
     
     // Both halves are the point: a newline that also sent would post a
     
     // half-typed line, and this is the assertion that would have caught it.
-    await expect(box(page)).toHaveValue('/help\n');
-    await expect(page.locator('.message--user')).toHaveCount(0);
+    await expect(box(page)).toHaveValue('help\n');
+    await expect(userMessages(page)).toHaveCount(SEEDED);
 });
 
 test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).fill('help');
     await page.keyboard.press('Control+Enter');
     
-    await expect(page.locator('.message--user')).toHaveCount(1);
+    await expect(userMessages(page)).toHaveCount(SEEDED + 1);
     await expect(box(page)).toHaveValue('');
 });
 
@@ -428,9 +444,9 @@ test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
  * `display: none` and also matches `visibility: hidden`, which is why the CSS
  * comment pins the two together.
  */
-test('/ast hides the code preview on a touchscreen', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+test('ast hides the code preview on a touchscreen', async ({page}) => {
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const preview = page
         .getByTestId('chat')
@@ -443,14 +459,14 @@ test('/ast hides the code preview on a touchscreen', async ({page}) => {
  * …and the tree gets the whole width, which is the actual reason.
  *
  * A `minmax(0, 1fr)` two-column grid on 390px gives each column 190px, so the
- * tree — the point of `/ast` — was the half that ran out of room. Measured
+ * tree — the point of `ast` — was the half that ran out of room. Measured
  * against the viewport rather than against the old value, so the assertion is
  * about "the tree has the screen" and not about a number the grid happens to
  * produce today.
  */
-test('/ast gives the tree the full width on a touchscreen', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+test('ast gives the tree the full width on a touchscreen', async ({page}) => {
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const measured = await page.evaluate(() => {
         const tree = document.querySelector('.ast__tree') as HTMLElement;
@@ -480,9 +496,9 @@ test('/ast gives the tree the full width on a touchscreen', async ({page}) => {
  * touchscreen does not have. A version that only shortened the text but kept
  * `jk` would pass a length check and still be teaching the wrong thing.
  */
-test('/ast shows the short hint on a touchscreen', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+test('ast shows the short hint on a touchscreen', async ({page}) => {
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const status = page
         .getByTestId('chat')
@@ -501,9 +517,9 @@ test('/ast shows the short hint on a touchscreen', async ({page}) => {
  * — and the threshold is one line of slack for the sub-pixel rounding the other
  * mobile specs already have to allow for.
  */
-test('/ast hint is one line tall on a touchscreen', async ({page}) => {
-    await send(page, '/source\nconst add = (a, b) => a + b;');
-    await send(page, '/ast');
+test('ast hint is one line tall on a touchscreen', async ({page}) => {
+    await send(page, 'source\nconst add = (a, b) => a + b;');
+    await send(page, 'ast');
     
     const measured = await page.evaluate(() => {
         const help = document.querySelector('.ast-status__help') as HTMLElement;
@@ -522,4 +538,120 @@ test('/ast hint is one line tall on a touchscreen', async ({page}) => {
     }).toEqual({
         singleLine: expected,
     });
+});
+
+/**
+ * The opening thread has to fit, because it is what every first visit shows.
+ *
+ * Found by measuring rather than by reading the plan: the plan's six items do
+ * not mention this, and it appeared the moment the thread was seeded. Both
+ * seeded answers are wider than 390px — the `source` example is a rule with a
+ * `replace` object, and the help table has a `name usage` column that is
+ * `white-space: nowrap` — and neither could shrink, so `.chat__thread` grew
+ * past the viewport and the whole **document** scrolled sideways.
+ *
+ * `scrollWidth`, not `innerWidth`, for the reason the composer spec above gives:
+ * the viewport does not change, the content inside it does. And the seed is
+ * what makes this a load-time assertion rather than a `send()` one — it is on
+ * screen before anything is typed.
+ */
+test('the opening thread fits the viewport width', async ({page}) => {
+    await expect(page.getByTestId('input')).toBeVisible();
+    
+    const result = await page.evaluate(() => document.documentElement.scrollWidth);
+    const expected = VIEWPORT;
+    
+    expect(result).toBe(expected);
+});
+
+/**
+ * Nothing hangs off the right edge **where the user cannot reach it**.
+ *
+ * The composer spec above established the technique — probe every element whose
+ * `right` is past the viewport — and it is repeated here because the two
+ * overflows have nothing to do with each other, so a fix for one that silently
+ * fixed the other would mean the measurement stopped measuring.
+ *
+ * The ancestor walk is the whole point, and it took a failing run to learn. The
+ * first version flagged every element past the edge and failed on thirteen of
+ * them — all inside `.source-block`, which is `overflow-x: auto` **on purpose**.
+ * A long line of code is supposed to be wider than a phone and scroll inside its
+ * own box; that is what the box is for. Flagging it measures the styling rather
+ * than the defect.
+ *
+ * What is left after the walk is a real bug: an element the page cannot scroll
+ * to reach. That is the `.chat` overflow this work fixed, and it is invisible to
+ * a count of `scrollWidth` alone, which says *that* a document overflows and not
+ * *what*.
+ */
+test('nothing hangs off the right edge out of reach of a scroll', async ({page}) => {
+    await expect(page.getByTestId('input')).toBeVisible();
+    
+    const wide = await page.evaluate(() => {
+        const scrolls = [
+            'auto',
+            'scroll',
+            'hidden',
+        ];
+        const result: string[] = [];
+        
+        for (const element of document.querySelectorAll('*')) {
+            const {right} = element.getBoundingClientRect();
+            
+            if (right <= innerWidth + 1)
+                continue;
+            
+            let parent = element.parentElement;
+            let reachable = false;
+            
+            while (parent) {
+                if (scrolls.includes(getComputedStyle(parent).overflowX)) {
+                    reachable = true;
+                    
+                    break;
+                }
+                
+                parent = parent.parentElement;
+            }
+            
+            if (!reachable)
+                result.push(`${element.tagName}.${element.className}`);
+        }
+        
+        return result;
+    });
+    
+    const expected: string[] = [];
+    
+    expect(wide).toEqual(expected);
+});
+
+/**
+ * The input still reaches the bottom of the screen.
+ *
+ * The seed made the thread tall enough to scroll, which is the first time this
+ * page has had content taller than its box on load — so "the composer is
+ * reachable" stops being implied by the layout and has to be asserted. This is
+ * the regression guard for `flex: 1` on `.chat`: without a definite height the
+ * thread would push the input off the bottom rather than scroll.
+ */
+test('the input is at the bottom of the viewport on load', async ({page}) => {
+    await expect(page.getByTestId('input')).toBeVisible();
+    
+    // **Both** numbers measured inside the page. `page.viewportSize()` is what
+    // Playwright was configured with and `getBoundingClientRect()` is what the
+    // browser laid out, and on `devices['iPhone 12']` those disagree by 18px —
+    // enough for this to fail at `viewport - bottom === 0` and to pass for the
+    // wrong reason if the slack were widened. One source, one coordinate system.
+    const measured = await page.evaluate(() => {
+        const input = document.querySelector('.input') as HTMLElement;
+        
+        return {
+            bottom: input.getBoundingClientRect().bottom,
+            viewport: innerHeight,
+        };
+    });
+    
+    // Within a pixel of the fold: the composer is the last thing on the page.
+    expect(measured.viewport - measured.bottom).toBeLessThanOrEqual(1);
 });

@@ -172,8 +172,10 @@ test('Chat: the thread renders the seeded messages', (t) => {
     mount();
     
     const rendered = document.querySelectorAll('[data-testid="message"]').length;
-    const commands = [...document.querySelectorAll('.message--user')]
-        .map(({textContent}) => (textContent || '').split('\n')[0]);
+    const commands = [];
+    
+    for (const {textContent} of document.querySelectorAll('.message--user'))
+        commands.push((textContent || '').split('\n')[0]);
     
     const result = {
         count: rendered === initialState.messages.length,
