@@ -1,6 +1,10 @@
 import {montag} from 'montag';
 import {createSlice, type PayloadAction} from '@reduxjs/toolkit';
-import type {FlatNode} from '@putout/editor-commands';
+import {
+    commands,
+    runHelp,
+    type FlatNode,
+} from '@putout/editor-commands';
 import type {Message} from './state.ts';
 
 export interface ChatAppState {
@@ -27,28 +31,64 @@ export interface ChatAppState {
 }
 
 /**
- * The rule the chat starts with, so `/ast` answers with a tree on a fresh page
+ * The rule the chat opens on, so `ast` answers with a tree on a fresh page
  * rather than "no source".
  *
- * Written here rather than imported from `packages/client`, whose Replacer
- * template seeds its `initialCode` the same way: `config/boundaries-config.ts`
- * makes `editor` reachable only from `parser`/`store`/`snippet`/`ui`/panels/
- * `app`, and `docs/architecture.md` records the arrow policy as enforced by
- * `boundaries/dependencies`. The idea travels; the import does not.
+ * The `replacer` template from `packages/client`'s New menu, copied rather
+ * than imported: `config/boundaries-config.ts` makes `editor` reachable only
+ * from `parser`/`store`/`snippet`/`ui`/panels/`app`, and `docs/architecture.md`
+ * records the arrow policy as enforced by `boundaries/dependencies`. The idea
+ * travels; the import does not — which is also why the copy can drift from the
+ * template, and why `slice.spec` pins what the seed actually contains.
  *
  * A working 🐊**Putout** rule rather than a bare `const`, because the first
- * thing anyone types here is `/ast` and an expression parses into a tree with
+ * thing anyone types here is `ast` and an expression parses into a tree with
  * nothing in it to look at. `export {report}` at the end rather than
  * `export const`, so the seed reads as the shape the docs show.
  */
 export const INITIAL_SOURCE = montag`
-    const report = () => \`Hello 🐊\`;
+    // convert-ternary-to-if
     
-    export {report};
+    export const report = () => \`Use 'if' instead of ternary 🧹\`;
+    
+    export const replace = () => ({
+        '__a ? __b : __c': 'if (__a) __b; else __c;',
+    });
 `;
 
+/**
+ * The two messages the page opens with: `source`, already used, and `help`.
+ *
+ * This is the answer to "a user opened this in a browser and has no idea what
+ * to type". A command list on its own is a reference — it says what exists,
+ * not what a line of this looks like or that the tool answers at all. So the
+ * thread opens with a **worked example**: the echo of the `source` command and
+ * its own output, immediately followed by the help.
+ *
+ * The ids are 0 and 1 rather than `nextId()`, because these are the first two
+ * messages by construction and the counter is shared with everything the user
+ * sends afterwards. Handing out 0 and 1 keeps `slice.spec`'s "starts empty"
+ * arithmetic honest and costs nothing.
+ *
+ * `runHelp` and not a written-out list, so the seeded help and the answer to
+ * typing `help` are the same string — they are built from the same registry, so
+ * adding a command cannot leave the opening screen behind.
+ */
+const seeded = (): Message[] => [{
+    id: 0,
+    text: `source\n${INITIAL_SOURCE}`,
+    result: {
+        type: 'source',
+        data: INITIAL_SOURCE,
+    },
+}, {
+    id: 1,
+    text: 'help',
+    result: runHelp([...commands.values()]),
+}];
+
 export const initialState: ChatAppState = {
-    messages: [],
+    messages: seeded(),
     source: INITIAL_SOURCE,
     plugin: '',
     history: [],

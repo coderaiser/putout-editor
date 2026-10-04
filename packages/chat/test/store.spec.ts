@@ -1,13 +1,25 @@
 import {test} from 'supertape';
 import {makeStore} from '#test/store';
-import {INITIAL_SOURCE} from '#store';
+import {
+    initialState,
+    INITIAL_SOURCE,
+} from '#store';
 
+/**
+ * `makeStore()` with no overrides is the state the **page** starts in.
+ *
+ * `messages` is the seed rather than `[]`, which is the change from a thread
+ * that opened empty — see `slice.spec`'s "starts on the seeded thread". It is
+ * spelled out here rather than deferred to `initialState` on purpose: this spec
+ * exists to catch a field that silently stops being seeded, and a
+ * `deepEqual(result, initialState)` would pass for that.
+ */
 test('test/store: the store starts at the initial state', (t) => {
     const store = makeStore();
     
     const result = store.getState().chat;
     const expected = {
-        messages: [],
+        messages: initialState.messages,
         source: INITIAL_SOURCE,
         plugin: '',
         history: [],

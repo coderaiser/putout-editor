@@ -41,11 +41,22 @@ const setup = (overrides: Parameters<typeof makeStore>[0] = {}) => {
     };
 };
 
+/**
+ * The thread's own texts, seed included.
+ *
+ * The page no longer opens on an empty thread — it opens with a worked `source`
+ * example and the help — so an expectation has to say which part of the thread
+ * it is about. `sent` takes the slice **after** the seed, which is what a
+ * sending command actually changed.
+ */
 const texts = (store: ChatStore): string[] => store
     .getState()
     .chat
     .messages
     .map(({text}) => text);
+
+const sent = (store: ChatStore): string[] => texts(store)
+    .slice(initialState.messages.length);
 
 test('useChat: source sets the buffer and answers', async (t) => {
     const {store, send} = setup();
@@ -64,7 +75,7 @@ test('useChat: source records the line in the thread', async (t) => {
     
     await send('source\nconst a = 1;');
     
-    const result = texts(store);
+    const result = sent(store);
     const expected = ['source\nconst a = 1;'];
     
     t.deepEqual(result, expected);
@@ -251,7 +262,7 @@ test('useChat: an unknown command answers with an error', async (t) => {
     
     await send('notacommand');
     
-    const [last] = store.getState().chat.messages;
+    const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.type;
     const expected = 'error';
     
@@ -264,7 +275,7 @@ test('useChat: an unknown command names itself in the error', async (t) => {
     
     await send('notacommand');
     
-    const [last] = store.getState().chat.messages;
+    const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.type === 'error' && last.result.message;
     const expected = 'Unknown command: notacommand. Try help.';
     
@@ -287,7 +298,7 @@ test('useChat: plain text answers with an error rather than vanishing', async (t
     
     await send('hello');
     
-    const [last] = store.getState().chat.messages;
+    const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.type;
     const expected = 'error';
     
@@ -300,7 +311,7 @@ test('useChat: plain text is echoed as what the user typed', async (t) => {
     
     await send('what does this do?');
     
-    const [last] = store.getState().chat.messages;
+    const last = store.getState().chat.messages.at(-1);
     const result = last.text;
     const expected = 'what does this do?';
     
@@ -313,7 +324,7 @@ test('useChat: an empty line answers with the parse error', async (t) => {
     
     await send('   ');
     
-    const [last] = store.getState().chat.messages;
+    const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.type === 'error' && last.result.message;
     const expected = 'Empty command';
     
@@ -328,7 +339,7 @@ test('useChat: ast with no source answers with an error', async (t) => {
     
     await send('ast');
     
-    const [last] = store.getState().chat.messages;
+    const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.type;
     const expected = 'error';
     

@@ -2,6 +2,7 @@ import type {Message as MessageModel} from '#store';
 import TextBlock from './messages/TextBlock.tsx';
 import ErrorBlock from './messages/ErrorBlock.tsx';
 import SourceBlock from './messages/SourceBlock.tsx';
+import HelpBlock from './messages/HelpBlock.tsx';
 import PlacesList from './messages/PlacesList.tsx';
 import TransformDiff from './messages/TransformDiff.tsx';
 import AstBlock from './messages/AstBlock.tsx';
@@ -11,12 +12,19 @@ export interface MessageProps {
 }
 
 /**
- * `/help` answers with `text` too — its data is the formatted table — so it is
- * recognised by the command that produced it rather than by its result type.
- * That is the same reason `useChat` keys `/clear` and `/reset` on their names.
+ * `help` answers with `text` — its data is the formatted list — so it is
+ * recognised by **the command that produced it**, not by its result type, which
+ * is the same reason `useChat` keys `clear` and `reset` on their names. Only
+ * `help` gets the table; every other `text` answer stays a `TextBlock`.
+ *
+ * This is what makes `HelpBlock` reachable at all. It had three specs and no
+ * call site: `help` rendered as plain text, so the table was built, tested and
+ * never shown — a component with full coverage that no user could see. The
+ * seeded opening thread needs `help` to *be* the help, so this is the branch
+ * that shows it.
  */
 const Result = ({message}: MessageProps) => {
-    const {result} = message;
+    const {result, text} = message;
     
     if (!result)
         return null;
@@ -24,6 +32,11 @@ const Result = ({message}: MessageProps) => {
     if (result.type === 'error')
         return (
             <ErrorBlock message={result.message}/>
+        );
+    
+    if (text === 'help' && result.type === 'text')
+        return (
+            <HelpBlock/>
         );
     
     if (result.type === 'ast')
