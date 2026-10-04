@@ -68,8 +68,12 @@ test('local flatlint_rule: schema has the fields the tool reads', (t) => {
  * The real plugin passes, unchanged.
  *
  * The regression that matters: a checker that rejects flatlint's own shipped
- * rule is worse than no checker, and the rule is two exports with a `replace`
- * map and no `match`.
+ * rule is worse than no checker. `remove-useless-assign` is the two-export case
+ * — `report` and a `replace` map — and it has to stay accepted.
+ *
+ * It is not the case the false claim got wrong, because it is the one shape that
+ * looks the same either way. The 14 plugins that also export a `match` are the
+ * ones the claim would have rejected, and they have their own spec below.
  */
 test('local flatlint_rule: accepts the shipped rule unchanged', (t) => {
     const {
@@ -101,30 +105,346 @@ test('local flatlint_rule: accepts the shipped rule unchanged', (t) => {
 });
 
 /**
- * A `match` export is the putout shape, and flatlint ignores it.
+ * A real plugin that HAS a `match`, and it has to pass.
  *
- * The check that catches a rule written by muscle memory from putout: it would
- * look right, run, and never fire, because in flatlint the replace KEY is the
- * matcher.
+ * `add-missing-arrow`, from `lib/plugins/add-missing-arrow/index.js` — copied
+ * rather than invented because an invented fixture would agree with an invented
+ * check. Its key, `'(__args) {'`, is the whole reason this spec exists: it
+ * **ends in a brace**, so the regex-and-brace-count reader this check replaced
+ * read it as zero replace keys and would have called the plugin broken.
  *
- * Two assertions, because the two facts are different. `hasMatch` is true — the
- * rule **does** carry one — and `ok` is false, which is what the tool reports.
- * A single `t.notOk(hasMatch)` here would have passed for a rule with no `match`
- * at all and been silent about the thing it names.
+ * This is the regression for the false claim it replaced: the tool used to
+ * answer `✗ has a match export … is ignored here`, which would have had an
+ * author delete a guard that flatlint does honour.
  */
-test('local flatlint_rule: rejects a rule carrying a putout-style match', (t) => {
-    const {hasMatch, ok} = runCheck(`${REAL}
+const WITH_MATCH = `export const report = () => \`Add missing '=>'\`;
 
-export const match = () => ({'a': 'b'});`);
+export const match = () => ({
+    '(__args) {': (vars, path) => !isIdentifier(path.getPrev()),
+});
+
+export const replace = () => ({
+    '(__args) {': '(__args) => {',
+    ') = ({': ') => ({',
+});`;
+
+test('local flatlint_rule: accepts a real plugin that has a match', (t) => {
+    const {
+        deadMatchKeys,
+        hasMatch,
+        ok,
+        unguarded,
+    } = runCheck(WITH_MATCH);
     
     const result = {
+        deadMatchKeys,
+        hasMatch,
+        ok,
+        unguarded,
+    };
+    
+    const expected = {
+        // its one guard covers a key that exists, so nothing is dead
+        deadMatchKeys: [],
+        hasMatch: true,
+        ok: true,
+        // `') = ({'` is the key with no guard — the norm, not a defect
+        unguarded: 1,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A `match` key that is not a `replace` key is DEAD, and that is the finding.
+ *
+ * `lib/runner/replacer.js` looks the guard up BY the replace key it is
+ * iterating, so a guard under a key nothing replaces is never called and the rule
+ * fires on every occurrence the author believed they had excluded. Verified by
+ * running flatlint: with the guard returning false, `const a = 1;` still became
+ * `const a = 1 = 0;`.
+ *
+ * The negative is what makes it a test. `hasMatch` is true here for the same
+ * reason it is true above, so a check that only counted exports would pass both
+ * cases and catch neither.
+ */
+test('local flatlint_rule: flags a match key that guards no replace key', (t) => {
+    const {
+        deadMatchKeys,
+        hasMatch,
+        ok,
+    } = runCheck(`export const report = () => 'the message';
+
+export const match = () => ({'let __a;': () => false});
+
+export const replace = () => ({'const __a;': 'const __a = 0;'});`);
+    
+    const result = {
+        deadMatchKeys,
         hasMatch,
         ok,
     };
     
     const expected = {
+        deadMatchKeys: ['let __a;'],
         hasMatch: true,
         ok: false,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A `match` written with a **block body** is read, not skipped.
+ *
+ * Every shipped plugin uses the concise form `() => ({...})`, so this arm is
+ * unreachable from real input — which is exactly why it needs a spec: 14 of 33
+ * plugins exercise the concise path and nothing would have told us the block
+ * path was dead. `export function report()` exists in flatlint
+ * (`wrap-assignment-in-parens`), so the block form is legal and reachable.
+ *
+ * Asserting `ok` alone would pass for a reader that returned nothing at all, so
+ * the assertion is on the *keys* — the only proof the body was parsed.
+ */
+test('local flatlint_rule: reads a match written with a block body', (t) => {
+    const {
+        deadMatchKeys,
+        hasMatch,
+        ok,
+    } = runCheck(`export const report = () => 'the message';
+
+export const match = function() {
+    return {
+        'const __a;': () => false,
+    };
+};
+
+export const replace = () => ({
+    'const __a;': 'const __a = 0;',
+});`);
+    
+    const result = {
+        // the guard under `const __a;` was found, and it guards a real key
+        deadMatchKeys,
+        hasMatch,
+        ok,
+    };
+    
+    const expected = {
+        deadMatchKeys: [],
+        hasMatch: true,
+        ok: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A `match` this cannot read is **skipped, not guessed at**.
+ *
+ * The other three ways an arrow body fails to yield an object — an empty block,
+ * a block that returns a non-object, and an `init` that is not a function at
+ * all. Each reads as *no keys*, which is the property that matters: a key the
+ * reader cannot see must not be invented as a dead guard, because that would
+ * report a defect in a perfectly good rule.
+ *
+ * All three in one source, because one assertion covers the property and three
+ * assertions would each cover a line.
+ */
+test('local flatlint_rule: an unreadable match shape yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(`export const report = () => 'the message';
+
+export const match = 42;
+
+export const replace = () => ({
+    'const __a;': 'const __a = 0;',
+});`);
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    const expected = {
+        // `match` is not a function shape at all — no keys read, none invented
+        deadMatchKeys: [],
+        ok: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('local flatlint_rule: a match with an empty block body yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(`export const report = () => 'the message';
+
+export const match = () => {};
+
+export const replace = () => ({
+    'const __a;': 'const __a = 0;',
+});`);
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    const expected = {
+        deadMatchKeys: [],
+        ok: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('local flatlint_rule: a match returning a non-object yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(`export const report = () => 'the message';
+
+export const match = () => {
+    return 42;
+};
+
+export const replace = () => ({
+    'const __a;': 'const __a = 0;',
+});`);
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    const expected = {
+        deadMatchKeys: [],
+        ok: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The four ways a key or an export cannot be read, and what each must do.
+ *
+ * All of them read as **no keys**, never as invented ones. That is the property
+ * under test: a guard the reader cannot see is not evidence of a defect, so
+ * reporting one would put a false finding on a correct rule. Each is its own
+ * source because each hits a different arm of the walk, and one assertion per
+ * test because supertape allows exactly one.
+ */
+const readable = (matchSource: string) => `export const report = () => 'the message';
+
+${matchSource}
+
+export const replace = () => ({
+    'const __a;': 'const __a = 0;',
+});`;
+
+const noKeys = {
+    deadMatchKeys: [],
+    ok: true,
+};
+
+test('local flatlint_rule: a spread in the match map yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(readable(`export const match = () => ({
+    ...base,
+    'const __a;': () => false,
+});`));
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    t.deepEqual(result, noKeys);
+    t.end();
+});
+
+test('local flatlint_rule: a computed match key yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(readable(`export const match = () => ({
+    [name]: () => false,
+});`));
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    t.deepEqual(result, noKeys);
+    t.end();
+});
+
+test('local flatlint_rule: a match with no initializer yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(readable('export let match;'));
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    t.deepEqual(result, noKeys);
+    t.end();
+});
+
+test('local flatlint_rule: a match returning a bare identifier yields no keys', (t) => {
+    const {deadMatchKeys, ok} = runCheck(readable('export const match = () => base;'));
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    t.deepEqual(result, noKeys);
+    t.end();
+});
+
+test('local flatlint_rule: a re-export is skipped rather than dereferenced', (t) => {
+    // `ExportNamedDeclaration` with no `declaration` — the null the fixer made
+    // a `TypeError`, so the arm that skips it is the whole point of this spec
+    const {deadMatchKeys, ok} = runCheck(`export {match};
+
+export const report = () => 'the message';
+
+export const match = () => ({
+    'const __a;': () => false,
+});
+
+export const replace = () => ({
+    'const __a;': 'const __a = 0;',
+});`);
+    
+    const result = {
+        deadMatchKeys,
+        ok,
+    };
+    
+    t.deepEqual(result, noKeys);
+    t.end();
+});
+
+/**
+ * The success line, for a rule that HAS a guard.
+ *
+ * `runCheck` is pinned above for both cases; this is the one branch that only
+ * the handler reaches, and it is a **ternary**, so the unguarded fixture answers
+ * only half of it.
+ */
+test('local flatlint_rule: says a guard is accounted for when there is one', async (t) => {
+    const text = await answer({
+        rule: WITH_MATCH,
+    });
+    
+    const result = {
+        countedGuards: text.includes('every match key guards a replace key'),
+        ok: text.includes('✓'),
+    };
+    
+    const expected = {
+        countedGuards: true,
+        ok: true,
     };
     
     t.deepEqual(result, expected);
@@ -165,13 +485,17 @@ test('local flatlint_rule: the contract names the fixture convention', async (t)
     const result = {
         // named after the FIXTURE, not the rule — the thing you get wrong first
         fixtureNotRule: text.includes('named after the FIXTURE'),
-        noMatch: text.includes('no `match`'),
-        reportFirst: text.includes('`report` comes first'),
+        // `match` is documented as real and optional, not absent — the claim it
+        // replaces cost 14 of the 33 shipped plugins their guard
+        documentsMatch: text.includes('`match` is OPTIONAL'),
+        documentsDeadKey: text.includes('absent from `replace` is DEAD'),
+        reportFirst: text.includes('`report` first, as in every rule'),
     };
     
     const expected = {
+        documentsDeadKey: true,
+        documentsMatch: true,
         fixtureNotRule: true,
-        noMatch: true,
         reportFirst: true,
     };
     
@@ -373,30 +697,33 @@ test('local flatlint_rule: accepts a rule through the handler', async (t) => {
 /**
  * Every complaint at once — the input that should produce the longest report.
  *
- * `replace` first (so the ordering note fires), a `match` (which flatlint
- * ignores), and no `report` at all. A rule with all three is exactly what
- * putout muscle memory produces, and all of it is said in one pass. The missing
- * `replace` is a separate input, in the `runCheck` spec above.
+ * `replace` first (so the ordering note fires), no `report` at all, and a
+ * `match` whose key is not in `replace` (so the dead-guard finding fires, and the
+ * unguarded note with it). A rule with all of that is what putout muscle memory
+ * plus a typo produces, and all of it is said in one pass. The missing `replace`
+ * is a separate input, in the `runCheck` spec above.
  */
 test('local flatlint_rule: reports every problem at once', async (t) => {
     const text = await answer({
         rule: `export const replace = () => ({'a __b': 'a c'});
 
-export const match = () => ({'a __b': 'a c'});`,
+export const match = () => ({'x __y': () => false});`,
     });
     
     const result = {
         notOk: !text.includes('✓'),
+        saysDeadGuard: text.includes('is not a key in `replace`'),
         saysNoReport: text.includes('no `report` export'),
-        saysPutoutMatch: text.includes('a `match` export'),
         saysOrder: text.includes('not `report`'),
+        saysUnguarded: text.includes('have no `match` guard'),
     };
     
     const expected = {
         notOk: true,
+        saysDeadGuard: true,
         saysNoReport: true,
-        saysPutoutMatch: true,
         saysOrder: true,
+        saysUnguarded: true,
     };
     
     t.deepEqual(result, expected);

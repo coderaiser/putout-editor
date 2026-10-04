@@ -1,40 +1,62 @@
 import {z} from 'zod';
 import {tryCatch} from 'try-catch';
 import {montag} from 'montag';
-import {parse} from 'putout';
+import {parse, type types} from 'putout';
 
 export const name = 'flatlint_rule';
 
 export const description =
     'Write a flatlint rule — a token-level linter that fixes syntax errors, ' +
     'shaped exactly like a putout plugin: `report` first, then a `replace` map of ' +
-    'PutoutScript keys. flatlint has NO `match`: the key is the pattern and its ' +
-    'presence is the condition. It also has no AST, so a rule works on a file that ' +
-    'does not parse. ' +
-    'Call {action: "contract"} for the full shape including the test harness and the ' +
-    'fixture layout; pass `pattern` to get the rule, fixture and spec generated; pass ' +
-    '`rule` to have one checked — invented keys, a missing `report`, and a pattern ' +
-    'that matches nothing are all reported.';
+    'PutoutScript keys, and an OPTIONAL `match` map keyed by the SAME replace keys. ' +
+    'A match fn is `(vars, path) => boolean`, and returning false skips that ' +
+    'occurrence entirely — no fix AND no report. flatlint has no AST, so a rule ' +
+    'works on a file that does not parse. ' +
+    'Call {action: "contract"} for the full shape including `path`, the test ' +
+    'harness and the fixture layout; pass `pattern` to get the rule, fixture and ' +
+    'spec generated; pass `rule` to have one checked — a missing `report`, and a ' +
+    '`match` key that is absent from `replace` (which flatlint silently ignores, ' +
+    'so the guard does nothing) are both reported.';
 
 /**
  * What a flatlint plugin is, in one object.
  *
- * `{report, replace}` — the same pair `packages/plugin-putout-editor` exports, and
- * the reason a flatlint spec is a `createTest` spec with `t.report` and
- * `t.transform`. What is **absent** is `match`: a `replace` map is the matcher.
+ * `{report, match?, replace}` — the pair `packages/plugin-putout-editor` exports
+ * plus an **optional** `match`. `replace` decides *what* matches; `match` only
+ * decides *whether to act* on an occurrence that already matched. Same contract
+ * putout uses, one unit lighter: a guard is looked up in the `match` map by the
+ * very `replace` key it guards.
  */
 const CONTRACT = montag`
 A flatlint plugin, in full:
     
-    export const report = () => \`Remove useless '='\`;
+    import {isIdentifier} from '#types';
     
+    export const report = () => \`Add missing '=>'\`;
+    
+    export const match = () => ({
+        '(__args) {': (vars, path) => !isIdentifier(path.getPrev()),
+    });
     export const replace = () => ({
-        'import __a = from "__b"': 'import __a from "__b"',
-        'function __a = (': 'function __a(',
+        '(__args) {': '(__args) => {',
     });
 
-Two exports and no \`match\`: the KEY is the pattern and its presence is the
-condition. \`report\` comes first, as in every rule in this repo.
+\`report\` first, as in every rule in this repo. \`match\` is OPTIONAL — 19 of the 33
+shipped plugins have none — and when present it is keyed by the SAME key it
+guards. A \`match\` key absent from \`replace\` is DEAD: the runner looks the guard up
+by the replace key, so that guard is never called and the rule fires anyway.
+
+A match fn is \`(vars, path) => boolean\`. Returning false skips that occurrence
+ENTIRELY — no fix and no report — which is how you exclude a shape the token
+pattern cannot express on its own. \`vars\` holds the \`__a\`/\`__b\` bindings the key
+declared, and \`path\` is a TOKEN path, not a NodePath: there is no AST and no
+\`parentPath\`. Its 22 methods are getPrev, getAllPrev, getAllNext, isPrevKeyword,
+isNextKeyword, isPrevIdentifier, isNextIdentifier, isPrevPunctuator,
+isNextPunctuator, isCurrentPunctuator, isPrevDeclarationKeyword,
+isPrevAnyDeclarationKeyword, isNextCompare, isNextCompareAll,
+isNextDeclarationKeyword, isNextTemplateHead, isNextTemplateTail,
+isInsideTemplate, isPrevInvalid and isNext. Punctuators are the \`#types\`
+constants (\`closeRoundBrace\`, \`colon\`, \`assign\`), never bare strings.
 
 The directory:
     
@@ -67,7 +89,9 @@ And the spec, which is a @putout/test spec — flatlint swaps only \`lint\`:
     });
 
 \`t.transform\` is named after the FIXTURE, not the rule. \`t.noReport('<case>')\`
-is how you prove the rule stays quiet on a shape it must not touch.`.replace(/[ \t]+$/gm, '');
+is how you prove a \`match\` guard holds — and a fixture it must NOT touch is the
+only proof there is, because a guard that never fires and no guard at all produce
+the same green test.`.replace(/[ \t]+$/gm, '');
 
 export const schema = z.object({
     action: z
@@ -157,6 +181,81 @@ const hasExport = (source: string, what: 'report' | 'replace'): boolean => {
     return RegExp(pattern).test(source);
 };
 
+/**
+ * The keys of an `export const <name> = () => ({...})` map.
+ *
+ * Read off the AST rather than with a regex because a key is a *pattern* and a
+ * pattern is full of braces, quotes and `__x` — `'(__args) {'` closes a brace
+ * range that a brace-counter gets wrong, which is how a first attempt at this
+ * reported `add-missing-round-brace` as having **zero** replace keys when it has
+ * fourteen. The walk also skips a computed key instead of guessing at it.
+ */
+const keysOf = (program: types.Program, name: string): string[] => {
+    const keys: string[] = [];
+    
+    for (const node of program.body) {
+        if (node.type !== 'ExportNamedDeclaration')
+            continue;
+        
+        const {declaration} = node;
+        
+        // `declaration` is null on a re-export, so it is BOTH checked — `?:` would
+        // be rewritten to this, and `&&` alone is not the same test: it lets a
+        // null through to `.declarations`
+        if (!declaration || declaration.type !== 'VariableDeclaration')
+            continue;
+        
+        for (const {id, init} of declaration.declarations) {
+            if (id.type !== 'Identifier' || id.name !== name)
+                continue;
+            
+            // bound to a local rather than `objectOf(init)?.properties`, which the
+            // fixer rewrote into a call twice
+            const object = objectOf(init);
+            
+            for (const property of object ? object.properties : []) {
+                if (property.type !== 'ObjectProperty')
+                    continue;
+                
+                const {key} = property;
+                
+                if (property.computed || key.type !== 'StringLiteral')
+                    continue;
+                
+                keys.push(key.value);
+            }
+        }
+    }
+    
+    return keys;
+};
+
+/** The object literal an arrow or function `() => ({...})` evaluates to. */
+const objectOf = (node?: types.Node | null): types.ObjectExpression | null => {
+    if (!node)
+        return null;
+    
+    if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression')
+        return null;
+    
+    const {body} = node;
+    
+    if (body.type === 'ObjectExpression')
+        return body;
+    
+    if (body.type !== 'BlockStatement')
+        return null;
+    
+    const [first] = body.body;
+    
+    if (!first || first.type !== 'ReturnStatement')
+        return null;
+    
+    const {argument} = first;
+    
+    return argument && argument.type === 'ObjectExpression' ? argument : null;
+};
+
 export interface Check {
     exported: string[];
     firstIsReport: boolean;
@@ -166,13 +265,23 @@ export interface Check {
     ok: boolean;
     placeholders: number;
     problem: string | null;
+    
+    /** `match` keys that guard nothing, because `replace` has no such key. */
+    deadMatchKeys: string[];
+    
+    /** `replace` keys acting with no guard at all — the majority, so a note. */
+    unguarded: number;
 }
 
+/** The `__x` keys of one map that the other map does not have. */
+const missingFrom = (keys: string[]) => (key: string) => !keys.includes(key);
+
 export const runCheck = (rule: string): Check => {
-    const [error] = tryCatch(parse, rule, {});
+    const [error, ast] = tryCatch(parse, rule, {});
     
     if (error)
         return {
+            deadMatchKeys: [],
             exported: [],
             firstIsReport: false,
             hasMatch: false,
@@ -181,6 +290,7 @@ export const runCheck = (rule: string): Check => {
             ok: false,
             placeholders: 0,
             problem: `does not parse: ${(error as Error).message}`,
+            unguarded: 0,
         };
     
     // the export NAMES, in source order — `report` first is the house
@@ -190,15 +300,29 @@ export const runCheck = (rule: string): Check => {
     for (const [, name_] of rule.matchAll(/export\s+(?:const|function)\s+([A-Za-z_$][\w$]*)/g))
         exported.push(name_);
     
+    const {program} = ast as types.File;
+    const matchKeys = keysOf(program, 'match');
+    const replaceKeys = keysOf(program, 'replace');
+    const hasReplace = hasExport(rule, 'replace');
+    
+    // a guard is looked up by the replace key it guards, so a `match` key with
+    // no twin in `replace` is never called — the rule fires on every occurrence
+    // the author believed they had excluded
+    const deadMatchKeys = matchKeys.filter(missingFrom(replaceKeys));
+    
     return {
+        deadMatchKeys,
         exported,
         firstIsReport: exported[0] === 'report',
         hasMatch: exported.includes('match'),
         hasReport: hasExport(rule, 'report'),
-        hasReplace: hasExport(rule, 'replace'),
-        ok: hasExport(rule, 'report') && hasExport(rule, 'replace') && !exported.includes('match'),
+        hasReplace,
+        ok: hasExport(rule, 'report') && hasReplace && !deadMatchKeys.length,
         placeholders: (rule.match(/__[ab]\b/g) || []).length,
         problem: null,
+        unguarded: hasReplace
+            ? replaceKeys.filter(missingFrom(matchKeys)).length
+            : 0,
     };
 };
 
@@ -231,16 +355,19 @@ export function handler({action, pattern, to, rule, name}: Schema) {
             lines.push('✗ no `report` export — every rule in this repo has one, and `t.report` needs it');
         
         if (!result.hasReplace)
-            lines.push('✗ no `replace` export — in flatlint the replace MAP is the matcher, there is nothing else to match with');
+            lines.push('✗ no `replace` export — the replace map decides what matches, so there is nothing to act on');
         
-        if (result.hasMatch)
-            lines.push('✗ has a `match` export. flatlint matches on the presence of a replace KEY; a `match` is putout\'s shape and is ignored here');
+        for (const key of result.deadMatchKeys)
+            lines.push(`✗ \`match\` guards ${JSON.stringify(key)}, which is not a key in \`replace\`. The runner looks a guard up BY the replace key it guards, so this one is never called — the rule fires on every occurrence you meant to exclude`);
         
         if (result.exported.length > 1 && !result.firstIsReport)
             lines.push(`? first export is \`${result.exported[0]}\`, not \`report\` — the convention in this repo is report first`);
         
+        if (result.hasMatch && result.unguarded)
+            lines.push(`? ${result.unguarded} of the replace keys have no \`match\` guard. That is the norm — 51 of the 100 keys across the shipped plugins are unguarded — so it is only a note when you meant to guard one`);
+        
         if (result.ok && result.firstIsReport)
-            lines.push('✓ report first, replace second, no match');
+            lines.push(result.hasMatch ? '✓ report first, every match key guards a replace key' : '✓ report first, no guard needed');
         
         return {
             content: [{
