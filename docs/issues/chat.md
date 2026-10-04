@@ -1,6 +1,6 @@
 # Chat
 
-**Open only.** What was fixed is in [`../memory/`](../../memory/).
+**Open only.** What was fixed is in [`../memory/`](../memory/index.md).
 
 ## ❌ a Playwright measurement taken right after `page.goto` reads an unmounted page
 

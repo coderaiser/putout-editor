@@ -67,23 +67,130 @@ Dropped: `@putout/printer`. `lib/printer/` is its own. Because there is no AST,
 printing is `tokens.map(({value}) => value).join('')` — and whitespace *is* a
 token, so the printer has to decide what to do with it.
 
+## A flatlint plugin is a **putout rule** — `report` and all
+
+Measured from `/home/coderaiser/flatlint` (v5.10.3, the source checkout;
+v5.10.2 is what is installed here):
+
+```js
+export const report = () => `Remove useless '='`;
+
+export const replace = () => ({
+    'import __a = from "__b"': 'import __a from "__b"',
+    'import {__a} = from "__b"': 'import {__a} from "__b"',
+    'function __a = (': 'function __a(',
+});
+```
+
+So: **a plain `🛩 PutoutScript` `replace` map, and a `report` that returns a
+constant string.** The same contract `@putout/plugin-*` uses — which is the whole
+of "it is backed in putout": the *plugin* shape, `@putout/test`, `loadPlugins`
+and `@putout/operator-keyword` are all the same packages.
+
+> **Correction.** An earlier version of this file said *"flatlint has no `report`
+> concept at all"*, from reading `lib/flatlint.js` and never opening a plugin.
+> That is wrong, and it is wrong in the direction that matters: `report` is the
+> one thing flatlint shares with putout, so the claim also produced a false
+> reason for the size difference below. The real reason is the **unit**.
+
+## How it is tested — an adapter, not a framework
+
+`lib/test/test.js` in full:
+
+```js
+import {createTest as createPutoutTest} from '@putout/test';
+import {lint} from '#flatlint';
+
+const tupleToObject = (fn) => (...a) => {
+    const [code, places] = fn(...a);
+    
+    return {
+        code,
+        places,
+    };
+};
+
+export const createTest = (url, options) => {
+    return createPutoutTest(url, {
+        lint: tupleToObject(lint),
+        ...options,
+    });
+};
+```
+
+**Seven lines, and that is the whole story.** `putout` returns `{code, places}`
+and flatlint returns the **tuple** `[code, places]`, so the adapter's only job is
+to reshape one into the other and hand `lint` to the same `createTest`. Every
+`t.*` operator — `t.report`, `t.transform`, `t.noReport` — is therefore
+**`@putout/test`'s**, unchanged.
+
+And `@putout/test` is what `samadhi` reaches:
+
+```
+putout ──▶ @putout/test ──▶ @putout/cli-process-file ──▶ samadhi
+                                 │                            │
+                                 └─ injects eslint,           └─ mocking, which is how
+                                    putoutAsync, printer         the overridable deps
+                                    via `overrides`             are replaced in tests
+```
+
+`initProcessFile` destructures `eslint`, `putoutAsync`, `simpleImport` and
+`printer` out of its own `overrides` — that is the seam `samadhi` mocks. So
+**flatlint is tested by putout's own harness, with a `lint` swapped in**, and
+that is the piece worth knowing before writing a rule in it.
+
+The spec is the standard shape, fixtures beside the rule:
+
+```js
+// lib/plugins/remove-useless-assign/index.spec.js
+import {createTest} from '#test';
+import * as plugin from '#plugin-remove-useless-assign';
+
+const test = createTest(import.meta.url, {
+    plugins: [
+        ['remove-useless-assign', plugin],
+    ],
+});
+
+test('flatlint: remove-useless-assign: report', (t) => {
+    t.report('remove-useless-assign', `Remove useless '='`);
+    t.end();
+});
+
+test('flatlint: remove-useless-assign: transform', (t) => {
+    t.transform('remove-useless-assign');
+    t.end();
+});
+```
+
+```text
+lib/plugins/remove-useless-assign/
+├── fixture/
+│   ├── remove-useless-assign.js        the shape, unfixed
+│   ├── remove-useless-assign-fix.js    the expected output
+│   ├── function.js                     one shape per fixture
+│   └── function-fix.js
+├── index.js
+└── index.spec.js
+```
+
+**One fixture pair per shape, and `t.transform` is named after the *fixture*,
+not the rule** — `t.transform('function')` reads `fixture/function.js` against
+`fixture/function-fix.js`. That is the same convention as
+`packages/plugin-putout-editor`, and it is the part you get wrong first.
+
 ## Where this changes how I write a rule here
 
-**`loadPlugins` is shared, so the plugin *contract* is shared.** A flatlint
-plugin is a **matcher over tokens**, and the shape that generalises to
-`packages/plugin-putout-editor` is:
-
-- one directory per rule, `index.js` beside a `fixture/`;
-- a `match`-style predicate that decides *this token sequence is the rule's*,
-  and `report` first in the file — the convention already recorded in
-  `AGENTS.md` ("`report` is the first export of every rule");
+- one directory per rule, `index.js` beside a `fixture/` of `name.js` +
+  `name-fix.js` pairs;
+- `report` **first**, then `replace` — the convention already in `AGENTS.md`
+  ("`report` is the first export of every rule");
 - a `fixCount`-style **bound**, because an unfixed oscillation is a hang.
 
-The one thing not to import: flatlint has no `report` concept at all — it emits
-`places` with a `position` and no message, because the CLI prints the filename
-and line. That is why a token-level engine can be 33 rules and 🐊**Putout** is
-116: **it never learned to say what is wrong.** The moment a message is needed,
-you need a match that has structure, which is `jessy` and the AST.
+The one difference from a 🐊**Putout** rule: **there is no `match`.** A
+`replace` map *is* the match — the key is the pattern and the presence of the key
+is the condition. So a rule whose shape should not fire can only be excluded by
+the pattern not matching, and a `t.noReport` fixture is how you prove it.
 
 ## Reuse, concretely
 

@@ -187,7 +187,7 @@ package with `checkCoverage`, is a guard that the key made dead. `@putout/plugin
 check, and it belongs upstream. Here the cheap form is a `t.noReport` per guard, the same way
 `no-comments` needed one: a fixture where the shape the guard rejects is present, asserting the
 plugin still reports nothing. The guards are deleted rather than covered —
-[`../issues/putout-plugins.md`](../issues/putout-plugins.md) has the measurement, and
+[`issues/putout-plugins.md`](./issues/putout-plugins.md) has the measurement, and
 `AGENTS.md`'s "a rule name is a claim about what it checks" is the same argument about a comment.
 
 ## 12. A rule for calling a method with no receiver — rejected, putout blocks the fix

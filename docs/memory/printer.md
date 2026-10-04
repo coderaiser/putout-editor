@@ -155,3 +155,94 @@ test is not a covered test" rule.
 - **`fixCount` is flatlint's, not this one's** — see
   [`flatlint.md`](./flatlint.md). Different bound, different problem: flatlint's
   stops an oscillating *fix loop*, the printer's counts *predicate coverage*.
+
+## A **visitor** is how a non-JS language prints itself
+
+`@putout/printer` prints a **babel** AST. A processor — `happy-mark`,
+`happy-style`, `happy-sql` — parses its own language into a **JS-shaped** AST of
+call expressions (`rule(selector([...]), [declaration('color', 'red')])`) and
+then prints *that* with visitors of its own.
+
+## The whole contract, in one line
+
+`currentTraversers = {...baseVisitors, ...visitors}` — so **a visitor is keyed by
+node type and overrides the base one.** The second argument is the printer API:
+
+```js
+export const StringLiteral = (path, {write}) => {
+    write(path.node.value);
+};
+```
+
+| Key | What it does |
+|---|---|
+| `write(text)` | emit one token — the only way to put a character on the page |
+| `print(key)` | print a 🛩 PutoutScript **pattern** and let it match |
+| `traverse(node)` | recurse; takes a path or an array of paths |
+| `indent()` | write the current indent; `indent.inc()` / `indent.dec()` / `indent.getLevel()` |
+| `maybe.print/newline/space/linebreak/breakline` | emit only when the format wants it |
+| `quote`, `debug`, `store` | quoting, tracing, per-print state |
+
+`path` is the `NodePath`: `.node` for the payload, `.get(name)` for a child (or
+an **array** of children — `path.get('arguments')` gives you a list).
+
+A structural visitor, from `happy-style`'s `rule`:
+
+```js
+export function rule(path, {write, traverse, indent}) {
+    const [selectorArg, declarationsArg] = path.get('arguments');
+    
+    indent();
+    traverse(selectorArg);
+    write(' {\n');
+    indent.inc();
+    
+    for (const decl of declarationsArg.get('elements'))
+        traverse(decl);
+    
+    indent.dec();
+    indent();
+    write('}\n');
+}
+```
+
+**That is the whole thing.** There is no visitor base class, no registration, no
+schema — a function, named for the node type it handles, receiving `(path, api)`.
+
+## Why a language needs *two* files per construct
+
+A construct has to be both **recognised** and **printed**, and those are two
+different questions. `happy-mark/lib/printer/visitors/call-expression/is.js` is
+the recogniser, and it is three one-liners over the *call*:
+
+```js
+export const isHeading = (path) => {
+    const {name} = path.node.callee;
+    
+    return name === 'heading';
+};
+```
+
+`path.node.callee.name` is the whole trick — the callee **is** the construct
+name. `isTable`, `isParagraph` are the same shape. So a new markdown block is
+two additions: an `is*` predicate, and a visitor keyed on `CallExpression` that
+dispatches through them.
+
+## The two traps, both measured
+
+**An unknown node type throws**, and it throws from `maybeThrow` with the type
+in the message:
+
+```
+☝️ Node type 'Frobnicate' is not supported yet by @putout/printer: 'path'
+```
+
+So a parser that emits a node the printer has no visitor for is a **hard** error
+at print time, not a silent gap — which is what makes "add the visitor" a
+compile-step task rather than a debugging one.
+
+**`write` is the only way out.** There is no `console.log`, no `return` value,
+and the printer does not inspect what a visitor did. A visitor that forgets a
+`write` produces output that is missing that token and nothing else — no error,
+no warning. `getTokens()` on the printer instance is the only way to see what was
+actually emitted.

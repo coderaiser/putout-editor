@@ -10,6 +10,8 @@ import * as examples from './examples.ts';
 import * as tester from './tester.ts';
 import * as namer from './namer.ts';
 import * as typecheck from './typecheck.ts';
+import * as visitor from './visitor.ts';
+import * as flatlint from './flatlint.ts';
 
 type AnyRegister = (name: string, config: {
     description: string;
@@ -35,6 +37,8 @@ export function createServer(): McpServer {
     register(tester.name, {description: tester.description, inputSchema: tester.schema}, tester.handler);
     register(namer.name, {description: namer.description, inputSchema: namer.schema}, namer.handler);
     register(typecheck.name, {description: typecheck.description, inputSchema: typecheck.schema}, typecheck.handler);
+    register(visitor.name, {description: visitor.description, inputSchema: visitor.schema}, visitor.handler);
+    register(flatlint.name, {description: flatlint.description, inputSchema: flatlint.schema}, flatlint.handler);
     
     return server;
 }

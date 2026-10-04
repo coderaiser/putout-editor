@@ -644,3 +644,42 @@ in `*.spec.*` / `*.test.*` — a spec asserting `find(({type}) => ...)` is clear
 it would be noise. So the rule is off for spec and test files at the **root** config, because a
 `match` in `packages/plugin-putout-editor/.putout.json` does not reach `packages/client` — the
 scoping has to be where the plugin is wired in, and both directions were checked.
+
+## Use `putout --fix` for the mechanical classes — a regex over source is not a refactoring tool
+
+Learned the hard way while writing the `flatlint_rule` and `printer_visitor`
+tools. Six classes of lint error came up, and **every one of them was a
+`--fix` away**:
+
+| Class | Rule | Fixed by hand first |
+|---|---|---|
+| `t.equal(x, true)` | `tape/convert-equal-to-ok` | yes |
+| `t.ok(s.includes('X'))` | `tape/convert-ok-to-match` | yes |
+| `t.deepEqual(expected, {…})` | `tape/switch-expected-with-result` | yes |
+| blank lines in a block | `putout/align-spaces` | yes |
+| double quotes | `@stylistic/quotes` | yes |
+| `[...].join('\n')` | `montag/apply` | yes |
+| inline arrow in `filter` | `putout-editor/hoist-arrow-callback` | yes |
+| `return/remove-useless`, `new/remove-useless` | putout | yes |
+
+**A python `re.sub` over the spec file took four repair rounds and left it
+syntactically broken** — an unterminated string, then mixed `result`/`answer`
+references, then a `key: expr,: true,` from a backreference collision. Every one
+of those was a **semantic** mistake: a regex cannot tell that the object under
+test is built from the string, so renaming one and not the other silently
+changes what is asserted.
+
+**What was actually needed from outside 🐊**, and it is a short list:
+
+- a *decision* (does this `result` hold the string, or the object built from it?)
+- a *rename* across a scope (`result` <-> `answer`)
+- one edit adding the explanatory comment a rule could not produce
+
+Everything else is 🐊's. The correct sequence is **write it in the shape the
+rules want, run `putout --fix`, then read the diff and run `tsc` + the suite** —
+not a script, and not hand-fixing 20 findings one at a time.
+
+**And the gate earned its keep**: after the rewrite, the suite caught that
+`t.notOk(hasMatch)` asserted the *opposite* of what the test name said —
+`hasMatch` means "carries a `match` export", which is `true` for that fixture.
+No script would have found that; the assertion was inverted and passing-shaped.
