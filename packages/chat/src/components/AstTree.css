@@ -81,16 +81,50 @@
  * query here would disagree with it the moment a user overrode the theme — a
  * light tree with dark category colours is the failure this avoids.
  *
- * Lighter and less saturated than the light set for the same reason
- * `chat.css`'s dark text is: pure hues at full strength on `#1f1e1d` glare.
+ * These are the hues from the design session, mapped onto the categories rather
+ * than onto node types: the design coloured `Program` cyan and
+ * `VariableDeclaration` violet individually, and eight buckets that cover every
+ * babel type is the more maintainable shape — a ninth type is a `Set` entry and a
+ * selector rather than another rule.
+ *
+ * | category     | design hue | from            |
+ * |--------------|------------|-----------------|
+ * | statement    | cyan       | `Program`       |
+ * | declaration  | violet     | `Variable*`     |
+ * | expression   | amber      | `Binary*`, `Arrow*` |
+ * | call         | blue       | `Call*`, `Member*`   |
+ * | literal      | orange     | `Numeric*`, `String*` |
+ * | identifier   | green      | `Identifier`    |
+ * | control      | pink       | `Return*`, `If*`, `For*` |
+ *
+ * The mapping is a judgement and this measures it: contrast against the dark
+ * background `--color-bg-editor: #1f1e1d`, WCAG 2.1 relative-luminance ratio.
+ * Every one clears AA (4.5:1) comfortably and the **weakest** category is 6.29:1,
+ * against 5.33:1 for the previous set — so "wrong hue" from the plan is right
+ * about the look and this is the number behind it. `AstStatus.spec.tsx`'s sibling
+ * `tokens.spec.ts` recomputes it, so a future palette that reads better and
+ * dimmer does not pass silently.
+ *
+ * `identifier` is overridden here where the light set inherits it from
+ * `--ast-fg`: the design gave `Identifier` its own green, and an identifier row
+ * in plain foreground is the one row whose colour says nothing.
  */
 [data-theme='dark'] .ast {
-    --ast-c-statement: #d4a72c;
-    --ast-c-declaration: #6cb6ff;
-    --ast-c-expression: #b392f0;
-    --ast-c-call: #5eead4;
-    --ast-c-literal: #f0a868;
-    --ast-c-control: #f87171;
+    --ast-c-statement: #7dcfff;
+    --ast-c-declaration: #bb9af7;
+    --ast-c-expression: #e0af68;
+    --ast-c-call: #7aa2f7;
+    --ast-c-literal: #ff9e64;
+    --ast-c-identifier: #9ece6a;
+    --ast-c-control: #f7768e;
+    /*
+     * The accent, which is also `--ast-c-other`. On light it is Claude's
+     * terracotta `#c15f3c`, chosen for cream; on `#1f1e1d` it measures 5.33:1 and
+     * reads as a smudge. `#c0caf5` is 10.31:1 — and since `--ast-c-other` is
+     * declared as `var(--ast-accent)`, this one line also fixes every node type
+     * the `Set` does not recognise, which is the case with no opinion to offer.
+     */
+    --ast-accent: #c0caf5;
 }
 
 /**
