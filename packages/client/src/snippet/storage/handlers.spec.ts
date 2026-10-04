@@ -7,7 +7,10 @@
  */
 import {test} from 'supertape';
 import '../../../test/msw/env.ts';
-import {server} from '../../../test/msw/server.ts';
+import {
+    listen,
+    server,
+} from '../../../test/msw/server.ts';
 import {handlers} from '../../../test/msw/handlers/index.ts';
 import {
     gistURL,
@@ -27,10 +30,6 @@ import {
     makeGistResponse,
     type GistResponse,
 } from '../../../test/msw/fixtures/gist.ts';
-
-const listen = () => server.listen({
-    onUnhandledRequest: 'error',
-});
 
 test('msw handlers: gist URLs are under /api/v1', (t) => {
     const result = [

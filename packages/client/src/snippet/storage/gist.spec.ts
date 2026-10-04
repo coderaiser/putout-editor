@@ -1,6 +1,9 @@
 import {test} from 'supertape';
 import {http, HttpResponse} from 'msw';
-import {server} from '../../../test/msw/server.ts';
+import {
+    listen,
+    server,
+} from '../../../test/msw/server.ts';
 import {
     makeGistHandlers,
     gistErrorHandler,
@@ -38,10 +41,6 @@ const withHash = async <T>(hash: string, run: () => Promise<T>): Promise<T> => {
         globalThis.location.hash = orig;
     }
 };
-
-const listen = () => server.listen({
-    onUnhandledRequest: 'error',
-});
 
 test('gist: matchesURL: true for gist hash', (t) => {
     const orig = globalThis.location.hash;
