@@ -12,7 +12,7 @@ test('transform: no source is an error', async (t) => {
     const result = await runTransform(plugin, withSource(''));
     const expected = {
         type: 'error',
-        message: 'No source. Use /source first.',
+        message: 'No source. Use source first.',
     };
     
     t.deepEqual(result, expected);

@@ -21,11 +21,11 @@ test('ErrorBlock: carries the error-block class the e2e gate looks for', (t) => 
 });
 
 test('ErrorBlock: shows the message', (t) => {
-    error('No source. Use /source first.');
+    error('No source. Use source first.');
     
     const element = document.querySelector('[data-testid="error-block"]');
     const result = element && element.textContent;
-    const expected = 'No source. Use /source first.';
+    const expected = 'No source. Use source first.';
     
     cleanup();
     

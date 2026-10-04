@@ -12,7 +12,7 @@ test('ast: no source is an error', (t) => {
     const result = runAst(noFlags, withSource(''));
     const expected = {
         type: 'error',
-        message: 'No source. Use /source first.',
+        message: 'No source. Use source first.',
     };
     
     t.deepEqual(result, expected);

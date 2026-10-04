@@ -12,7 +12,7 @@ const linesOf = (text: string): string[] => text.split('\n');
  * shipped in a chat message.
  *
  * `before === after` says so in one line instead of drawing the same text twice.
- * A `/transform` that matched nothing is a *result* — it is how a user learns
+ * A `transform` that matched nothing is a *result* — it is how a user learns
  * their rule does not fire — and two identical blocks would look like a broken
  * render rather than an answer.
  */

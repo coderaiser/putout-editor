@@ -3,9 +3,9 @@ export interface SourceBlockProps {
 }
 
 /**
- * The echo of `/source`, line-numbered, because the number is what a later
+ * The echo of `source`, line-numbered, because the number is what a later
  * `line:col` refers to. An empty source says so rather than rendering an empty
- * box: `/source` with no argument is a real way to clear the buffer, and it is
+ * box: `source` with no argument is a real way to clear the buffer, and it is
  * the one case where there is nothing to show.
  */
 export default function SourceBlock({data}: SourceBlockProps) {

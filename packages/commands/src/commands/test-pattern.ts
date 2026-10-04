@@ -13,7 +13,7 @@ type Vars = {
 const NO_MATCH = 'Nothing matched. A placeholder only takes a type from the shape around it, so "f(__a)" matches a call.';
 
 /**
- * `/test-pattern` answers the three questions a pattern is asked before a rule
+ * `test-pattern` answers the three questions a pattern is asked before a rule
  * is written around it: does the key match, how many places, and what each
  * `__a` bound to. The replacement is rewritten to the key itself — it is only
  * ever run with `fix: false`, and a replacement that printed the binding would
@@ -25,7 +25,7 @@ export const runTestPattern = async (args: string, state: ChatState): Promise<Co
     if (!source)
         return {
             type: 'error',
-            message: 'No source. Use /source first.',
+            message: 'No source. Use source first.',
         };
     
     if (!args)

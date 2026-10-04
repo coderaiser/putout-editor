@@ -151,8 +151,8 @@ export const {reducer, actions} = createSlice({
             plugin: payload,
         }),
         /**
-         * `/ast` hands the console panel its own copy of the tree, so the panel
-         * survives a `/clear` that empties the transcript it came from.
+         * `ast` hands the console panel its own copy of the tree, so the panel
+         * survives a `clear` that empties the transcript it came from.
          */
         setConsoleAst: (state, {payload}: PayloadAction<{nodes: FlatNode[];source: string;}>) => ({
             ...state,
@@ -164,9 +164,9 @@ export const {reducer, actions} = createSlice({
             consoleOpen: !state.consoleOpen,
         }),
         /**
-         * `/ast` opens the panel rather than toggling it.
+         * `ast` opens the panel rather than toggling it.
          *
-         * Toggling would be the smaller change and the wrong one: run `/ast`
+         * Toggling would be the smaller change and the wrong one: run `ast`
          * twice and the panel closes itself, which reads as the command being
          * broken. This is a separate action so "make it visible" and "flip it"
          * stop being the same verb.

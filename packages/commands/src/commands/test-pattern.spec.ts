@@ -10,7 +10,7 @@ test('test-pattern: no source is an error', async (t) => {
     const result = await runTestPattern('const __a = __b', withSource(''));
     const expected = {
         type: 'error',
-        message: 'No source. Use /source first.',
+        message: 'No source. Use source first.',
     };
     
     t.deepEqual(result, expected);

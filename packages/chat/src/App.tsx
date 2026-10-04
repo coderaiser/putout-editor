@@ -9,8 +9,8 @@ import ThemeToggle from './ThemeToggle.tsx';
  * The page: a header, the thread, and the console panel when it is open. The
  * panel is hidden by default — `consoleOpen` starts `false` in the slice — so
  * anything testing the console has to open it first, and the two ways to do
- * that are both inside the thread rather than in this header: `/console`, and
- * `/ast` opening it to show what it just parsed.
+ * that are both inside the thread rather than in this header: `console`, and
+ * `ast` opening it to show what it just parsed.
  *
  * There was a header button here, and what it cost is the reason it is gone.
  * A control that opens a panel already has a command that opens it, and the

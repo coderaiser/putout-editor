@@ -101,7 +101,7 @@ export const describeOf = (option: string): string => {
  * | `Ctrl`/`Cmd+Enter` | send | send |
  *
  * This reverses `69f5634`, which made `Enter` a newline everywhere because
- * `/source` takes a body and one keystroke cannot finish a line. That reason
+ * `source` takes a body and one keystroke cannot finish a line. That reason
  * holds on a keyboard — it is why `Shift+Enter` survives here — and inverts on a
  * touchscreen, where the virtual keyboard's own return key is the only newline
  * available and a chat where return cannot send is a chat with no send key but

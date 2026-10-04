@@ -197,7 +197,7 @@ test('AstBlock: an empty tree says so rather than showing a blank box', (t) => {
     
     const element = document.querySelector('.ast__empty');
     const result = element && element.textContent;
-    const expected = 'No AST. Run /ast first.';
+    const expected = 'No AST. Run ast first.';
     
     cleanup();
     

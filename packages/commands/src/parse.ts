@@ -146,7 +146,7 @@ function splitBody(input: string, names: Set<string>): {
 
 /**
  * The first word of the first line is the command. There is no slash: the
- * command **is** the first word, so `ast` and `/ast` are different strings and
+ * command **is** the first word, so `ast` and `ast` are different strings and
  * only the first names anything.
  *
  * The word is not checked against `names` here. The parser answers "what were

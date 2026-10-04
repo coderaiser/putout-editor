@@ -117,7 +117,7 @@ test('App: console with no ast yet shows the empty panel', async (t) => {
     // `textContent` is no longer only the hint — the hint is its own element.
     const element = document.querySelector('[data-testid="console-empty"]');
     const result = element && element.textContent;
-    const expected = 'Run /ast to populate the tree';
+    const expected = 'Run ast to populate the tree';
     
     cleanup();
     

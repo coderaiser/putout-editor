@@ -8,7 +8,7 @@ export interface AstBlockProps {
 }
 
 /**
- * The `/ast` reply. `AstTree` lives here rather than in
+ * The `ast` reply. `AstTree` lives here rather than in
  * `@putout/editor-commands`: that package is a Node library with no React and
  * no DOM, and the tree is a view. It is self-contained — props in, events out —
  * so nothing here reaches for the store.

@@ -55,7 +55,7 @@ test('ConsolePanel: no ast says so rather than showing a blank box', (t) => {
     
     const element = document.querySelector('[data-testid="console-empty"]');
     const result = element && element.textContent;
-    const expected = 'Run /ast to populate the tree';
+    const expected = 'Run ast to populate the tree';
     
     cleanup();
     

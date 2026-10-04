@@ -8,17 +8,17 @@ export interface ConsolePanelProps {
 }
 
 /**
- * The tree beside the thread, rendering the same `AstTree` an `/ast` message
+ * The tree beside the thread, rendering the same `AstTree` an `ast` message
  * does. Two instances can be on the page at once, and they do not fight: each
  * `useTreeState` binds its keydown listener to its own root div rather than to
  * `document`, so a keypress reaches one tree and not both.
  *
  * The `✕` is here rather than in the header because this is the one thing the
  * header control could not do. Toggling a panel *open* has two ways already —
- * `/console`, and `/ast` opening it to show what it just parsed — but closing
+ * `console`, and `ast` opening it to show what it just parsed — but closing
  * it meant typing a command to dismiss something you opened by clicking, and a
  * panel covering half the thread with no way out of it is a trap rather than a
- * control. It dispatches `toggleConsole`, the same action `/console` does, so
+ * control. It dispatches `toggleConsole`, the same action `console` does, so
  * the two cannot leave the panel in different states.
  */
 export default function ConsolePanel({ast}: ConsolePanelProps) {
@@ -52,7 +52,7 @@ export default function ConsolePanel({ast}: ConsolePanelProps) {
                     className="console-panel__hint"
                     data-testid="console-empty"
                 >
-                    {'Run /ast to populate the tree'}
+                    {'Run ast to populate the tree'}
                 </span>
             </div>
         );

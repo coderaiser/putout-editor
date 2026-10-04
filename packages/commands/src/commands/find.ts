@@ -8,7 +8,7 @@ import type {
 } from '../state.types.ts';
 
 /**
- * `/find` runs the plugin over the current source and reports where it matched,
+ * `find` runs the plugin over the current source and reports where it matched,
  * changing nothing. A plugin that matches nowhere is a result with zero places,
  * not an error — "no matches" is the answer the user asked for.
  */
@@ -18,7 +18,7 @@ export const runFind = async (args: string, state: ChatState): Promise<CommandRe
     if (!source)
         return {
             type: 'error',
-            message: 'No source. Use /source first.',
+            message: 'No source. Use source first.',
         };
     
     if (!args)

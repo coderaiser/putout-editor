@@ -66,7 +66,7 @@ test('AstTree: an empty tree says so rather than showing a blank box', (t) => {
     tree([]);
     
     const result = read('.ast__empty');
-    const expected = 'No AST. Run /ast first.';
+    const expected = 'No AST. Run ast first.';
     
     cleanup();
     

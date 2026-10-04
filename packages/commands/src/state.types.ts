@@ -71,8 +71,8 @@ export interface Command {
     
     /**
      * Takes what it needs: a command that does not read `state`, like
-     * `/source` or `/clear`, declares `args` alone and is still assignable.
-     * `/find`, `/transform` and `/test-pattern` reach 🐊**Putout**, which is
+     * `source` or `clear`, declares `args` alone and is still assignable.
+     * `find`, `transform` and `test-pattern` reach 🐊**Putout**, which is
      * async, so a run may return a promise the caller awaits.
      */
     run: (args: string, state: ChatState) => CommandResult | Promise<CommandResult>;

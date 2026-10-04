@@ -127,7 +127,7 @@ export default function AstTree({nodes, source, mobile}: AstTreeProps) {
                 >
                     {rows.length === 0 && (
                         <div className="ast__empty">
-                            {'No AST. Run /ast first.'}
+                            {'No AST. Run ast first.'}
                         </div>
                     )}
                     {rows.map((node) => (

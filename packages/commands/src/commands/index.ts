@@ -21,11 +21,11 @@ import type {
  * `putout`, and `putout` cannot be bundled for a browser: it reads a config
  * file through `cosmiconfig`, resolves plugins with `globby`, and its own rule
  * set calls `os.homedir()` at module scope. Importing any of the three
- * statically therefore breaks the whole page — `/ast` and `/source` would go
+ * statically therefore breaks the whole page — `ast` and `source` would go
  * down with them, and they are the ones the chat is for.
  *
  * A dynamic `import()` puts them in their own chunk, so the page loads without
- * them and a user who types `/find` gets that chunk or an error — never a blank
+ * them and a user who types `find` gets that chunk or an error — never a blank
  * screen for the commands that do work. The trade is stated here because it is a
  * real one: in a browser these three report that they need the server, rather
  * than running.
@@ -54,7 +54,7 @@ export const needsPutout = (name: string, exportName: string, load: () => Promis
     if (!run)
         return notInBrowser(name);
     
-    // `Command.run` is `(args, state)` — the registry's `/ast` entry reads its
+    // `Command.run` is `(args, state)` — the registry's `ast` entry reads its
     // own flags, so there is no third argument to pass here either.
     return run(args, state);
 };

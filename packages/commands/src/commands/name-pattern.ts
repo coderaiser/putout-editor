@@ -69,7 +69,7 @@ const blankLeaves = (node: Walked | Walked[], state: {
 };
 
 /**
- * `/name-pattern` is the inverse of `/test-pattern`: rather than asking whether
+ * `name-pattern` is the inverse of `test-pattern`: rather than asking whether
  * a key matches, it takes a snippet and reports the key that generalises it,
  * so a rule can be written from an example instead of guessed at.
  */

@@ -9,7 +9,7 @@ export interface ConsoleAst {
 }
 
 /**
- * Whether a message is an `/ast` answer.
+ * Whether a message is an `ast` answer.
  *
  * A `switch` on `result.type`, not `result?.type === 'ast'`: the root config
  * turns `?.` into a logical expression, and `convert-optional-to-logical` then
@@ -28,9 +28,9 @@ const isAst = (message: Message): boolean => {
 };
 
 /**
- * The most recent `/ast` result, for the console panel. Read from the store's
+ * The most recent `ast` result, for the console panel. Read from the store's
  * own `consoleAst` rather than by scanning the transcript: the panel is meant to
- * survive a `/clear` that empties the thread it came from, and a scan would go
+ * survive a `clear` that empties the thread it came from, and a scan would go
  * blank at exactly that moment.
  */
 export const useConsole = (): ConsoleAst | null => {
@@ -41,9 +41,9 @@ export const useConsole = (): ConsoleAst | null => {
 };
 
 /**
- * The **newest** `/ast` message in a thread, or `null`.
+ * The **newest** `ast` message in a thread, or `null`.
  *
- * Iterating backwards: a transcript is append-only, so the last `/ast` is the
+ * Iterating backwards: a transcript is append-only, so the last `ast` is the
  * one a user means, and a forward scan would return the first — the stale one —
  * for every thread with more than one.
  */

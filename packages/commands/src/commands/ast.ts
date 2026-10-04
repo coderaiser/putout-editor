@@ -22,7 +22,7 @@ const parseOptions: ParserOptions = {
 };
 
 /**
- * `/ast` parses the current source into the rows the tree component renders.
+ * `ast` parses the current source into the rows the tree component renders.
  * `source` travels with the rows so `AstTree` has both without a second lookup,
  * and `--query` narrows to positions instead of the whole tree.
  */
@@ -32,7 +32,7 @@ export const runAst = (flags: Flags, state: ChatState): CommandResult => {
     if (!source)
         return {
             type: 'error',
-            message: 'No source. Use /source first.',
+            message: 'No source. Use source first.',
         };
     
     const [error, ast] = tryCatch(parse, source, parseOptions);

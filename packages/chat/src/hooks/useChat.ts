@@ -47,7 +47,7 @@ const parseError = (error: string): CommandResult => ({
  * here, so `Input` and `Chat` are both thin and a command's effect on the store
  * is a single function to read.
  *
- * `/console` is the one command with no state of its own: the registry's `run`
+ * `console` is the one command with no state of its own: the registry's `run`
  * returns text, and the panel toggle is dispatched from here. A command module
  * that had to know about the store would break the one-way arrow
  * `chat → commands`.
@@ -60,7 +60,7 @@ export const useChat = () => {
      * `source` is passed in rather than read from the selector, because the
      * recursion into `rest` happens in the same tick as the state effect above:
      * a closure over `state.source` would still hold the value from *before* this
-     * command ran, so `/source` followed by `/ast` in one input would parse the
+     * command ran, so `source` followed by `ast` in one input would parse the
      * old source.
      */
     const send = useCallback(async (input: string, source = state.source) => {
@@ -107,13 +107,13 @@ export const useChat = () => {
             plugin: state.plugin,
         };
         
-        // `Command.run` is `(args, state)` — the registry's `/ast` entry reads
+        // `Command.run` is `(args, state)` — the registry's `ast` entry reads
         // its own flags, and `parseCommand` has already folded them into `args`
         // for everything else. A third argument would be a signature the
         // commands package does not have.
         const result = await entry.run(args, chat);
         
-        // `/clear` and `/reset` both answer with `text` — the command modules
+        // `clear` and `reset` both answer with `text` — the command modules
         // have no store and cannot report a state change. So which store effect
         // happens is keyed on the *command name*, not on the result type, and
         // the data those two return is a message, not a state change.
@@ -121,7 +121,7 @@ export const useChat = () => {
             dispatch(setSource(result.data));
         
         if (command === 'clear') {
-            // `/clear` and `/reset` are answered *after* the state effect, or the
+            // `clear` and `reset` are answered *after* the state effect, or the
             // answer itself would be the one message left in the thread they just
             // emptied. A user who clears the thread sees an empty thread.
             dispatch(clearThread());
@@ -136,13 +136,13 @@ export const useChat = () => {
         }
         
         if (result.type === 'ast') {
-            // The panel is still *fed* by `/ast` — it survives a `/clear` that
-            // empties the transcript it came from — but `/ast` no longer
+            // The panel is still *fed* by `ast` — it survives a `clear` that
+            // empties the transcript it came from — but `ast` no longer
             // *opens* it. Reverses `0e987ac`, whose reason was that the header
-            // button left the user to type `/console` to see what they had just
+            // button left the user to type `console` to see what they had just
             // asked for; the answer to that is the tree in the thread, which
             // `Message` has always rendered through `AstBlock`. Opening the
-            // panel as well gave every `/ast` two copies of one tree, and the
+            // panel as well gave every `ast` two copies of one tree, and the
             // panel took half the thread.
             dispatch(setConsoleAst({
                 nodes: result.nodes,
@@ -161,9 +161,9 @@ export const useChat = () => {
         
         // `rest` runs *after* this message is dispatched, so a thread reading
         
-        // `/source\n…\n/ast` in one input keeps both answers in the order they were
+        // `source\n…\nast` in one input keeps both answers in the order they were
         
-        // sent. Recursing earlier would append `/ast` above `/source`.
+        // sent. Recursing earlier would append `ast` above `source`.
         if (rest)
             await send(rest, result.type === 'source' ? result.data : source);
     }, [dispatch, state.source, state.plugin]);
