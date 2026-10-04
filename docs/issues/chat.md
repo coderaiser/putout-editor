@@ -321,3 +321,34 @@ them with `src/export.spec.ts` (3 tests: the re-export is the same binding as th
 `export-tree` exports `Tree` and nothing else). Client is back to 100% ×4 at 1048 tests. The
 alternative — dropping both files — would also have satisfied I1 and I3 with no code, since v2 needs
 neither. Noted here so the choice is not re-litigated without knowing both options were measured.
+
+## ✅ calling a method pulled off a destructured parameter — in the browser, not just happy-dom
+
+**The minimum code that reproduces it**
+
+```js
+const rows = [...document.querySelectorAll('.ast-row[data-category]')];
+
+// inside `page.evaluate`, in a real browser:
+rows.map(({getAttribute}) => getAttribute('data-category'));
+```
+
+**The result I got**
+
+```
+Error: page.evaluate: TypeError: Illegal invocation
+    at eval (eval at evaluate (:311:30), <anonymous>:5:11)
+```
+
+**What I expected**
+
+`rows.map(element => element.getAttribute('data-category'))`. Destructuring a parameter takes the
+*value* out of the object; a method taken that way is a bare function, and calling it binds `this`
+to `undefined`.
+
+**Resolved** — the call site is a `for..of`, and the reason is written down there. This is the
+browser half of a trap `AstBlock.spec.tsx` already documents for happy-dom, where the same line
+answers nonsense rather than throwing. The rule that would have caught it is
+[idea 12](../ideas.md#12-a-rule-for-calling-a-method-with-no-receiver--rejected-putout-blocks-the-fix) —
+**rejected**, with the measured blocker: putout refuses a replacement that introduces a name the
+pattern does not bind.

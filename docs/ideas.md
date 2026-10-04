@@ -24,6 +24,7 @@ mark it as one.
 | 9 | Fixers for `hoist-arrow-callback` and `check-try-catch-destructure` | M |
 | 10 | A rule for a guard the pattern key already made unreachable | S |
 | 11 | Splicing the newline into a controlled textarea by hand — **rejected** | S |
+| 12 | A rule for calling a method with no receiver — **rejected** | S |
 
 ## 11. Splicing the newline into a controlled textarea by hand — rejected
 
@@ -189,3 +190,48 @@ plugin still reports nothing. The guards are deleted rather than covered —
 [`../issues/putout-plugins.md`](../issues/putout-plugins.md) has the measurement, and
 `AGENTS.md`'s "a rule name is a claim about what it checks" is the same argument about a comment.
 
+## 12. A rule for calling a method with no receiver — rejected, putout blocks the fix
+
+**Evidence.** `rows.map(({getAttribute}) => getAttribute('data-category'))` — written in
+`packages/chat/e2e/desktop.ts` this run and it failed **twice** before it worked, both times in
+a way no unit spec could see. In a browser, `page.evaluate: TypeError: Illegal invocation`. In
+happy-dom, `getAttribute` reads `Symbol(attributes)` off `this` and answers nonsense. The trap is
+already recorded for happy-dom in `AstBlock.spec.tsx`; the browser half is new.
+
+**The blast radius is zero.** Measured over every `.ts`/`.tsx`/`.js`/`.mjs` in `packages/` and
+`scripts/` (`find | grep -v node_modules`, parsed with `putout`'s own parser, walking every
+`ArrayExpression`): **0 sites**. The repo does not do this, which is why a rule would be a guard
+on the house style rather than a cleanup.
+
+**Why it is rejected rather than filed as open.** The rule was written, with the fixtures, and
+`putout` refuses the *replacement*:
+
+```
+☝️ Looks like template values not linked: ["__","__a","__b"] -> ["__","__c","__a","__b"]
+```
+
+The fix has to name the object it came from, and the pattern does not bind it. `AGENTS.md` already
+says this in advance — *"anything a fixer would have to invent a name for"* keeps the guard out of
+the `match`, because a guard placed in the reporter filters the wrong thing — and a rule that only
+reports cannot run in the normal runner at all, so it would not be a rule here even if it
+compiled.
+
+Every escape was measured and none works:
+
+| Attempt | Result |
+|---|---|
+| `__.method((__c) => __c.__a(__b))` | `__c` is unbound in the pattern — the error above |
+| `__.method(({__a}) => __a.__a(__b))` | `__a` binds twice with two meanings |
+| `__.method(({__a: __c}) => __c.__a(__b))` | `__c` is still new |
+| report-only plugin | cannot run: `find`/`scan` with no `fix` throws |
+
+So the rule is not buildable in 🐊**Putout** today, and `docs/issues/putout-plugins.md` already
+carries the general version of this gap. **What is in the tree instead** is the thing that
+actually prevents it: `AstBlock.spec.tsx` names the trap for happy-dom, and the e2e comment in
+`packages/chat/e2e/desktop.ts` names it for the browser.
+
+**What would make it buildable.** Either 🐊**Putout** allows a replacement to introduce a placeholder
+and synthesise a name for it (the same question as idea 9's fixers, and the same answer: a name is
+a decision, not a rewrite), or the rule moves to `redlint`, where a report-only scanner is a
+legitimate shape. The second is the smaller change and the reason this is filed rather than
+dropped.
