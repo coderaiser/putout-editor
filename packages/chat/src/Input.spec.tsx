@@ -16,6 +16,7 @@ import Input, {
     growTo,
     isCoarsePointer,
 } from './Input.tsx';
+import {prefixOf} from './sigil.ts';
 
 const sent: string[] = [];
 const push = sent.push.bind(sent);
@@ -332,11 +333,11 @@ test('Input: the autocomplete narrows as a name is typed', (t) => {
  *
  * `.autocomplete__row` holds the name **and** the description, so
  * `textContent` is both concatenated and asserting on it would pin the
- * description too — this test is about the name having no slash on it. There is
+ * description too — this test is about the name carrying its slash. There is
  * no separate name element, so the name is the text before the description
  * span, and reading it that way keeps the assertion about one thing.
  */
-test('Input: the autocomplete shows bare names, with no slash', (t) => {
+test('Input: the autocomplete shows slashed names', (t) => {
     box();
     
     type('tra');
@@ -344,7 +345,7 @@ test('Input: the autocomplete shows bare names, with no slash', (t) => {
     const row = document.querySelector('.autocomplete__row');
     const name = row && row.firstChild;
     const result = name && name.textContent;
-    const expected = 'transform';
+    const expected = '/transform';
     
     cleanup();
     
@@ -387,7 +388,7 @@ test('Input: Tab completes the picked command into the box', (t) => {
     press('Tab');
     
     const result = value();
-    const expected = 'transform ';
+    const expected = '/transform ';
     
     cleanup();
     
@@ -402,7 +403,7 @@ test('Input: Enter completes while the autocomplete is open', (t) => {
     press('Enter');
     
     const result = value();
-    const expected = 'transform ';
+    const expected = '/transform ';
     
     cleanup();
     
@@ -738,7 +739,7 @@ test('Input: clicking a row completes that command', (t) => {
     fireEvent.mouseDown(row);
     
     const result = value();
-    const expected = 'transform ';
+    const expected = '/transform ';
     
     cleanup();
     
@@ -783,7 +784,7 @@ test('Input: matches finds every command for a prefix nothing is typed yet', (t)
 
 test('Input: matches narrows on a prefix', (t) => {
     const result = matches('he');
-    const expected = ['help'];
+    const expected = ['/help'];
     
     t.deepEqual(result, expected);
     t.end();
@@ -845,6 +846,20 @@ test('Input: the send button names its shortcut', (t) => {
 test('Input: describeOf returns the description of a known command', (t) => {
     const command = commands.get('ast');
     const result = describeOf('ast');
+    const expected = command && command.description;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The component calls `describeOf` on a slashed option, so the strip happens
+ * at the call site — `commands.get('/ast')` is `undefined` and would render
+ * the `''` arm for every row. This pins the wrapping, not just the function.
+ */
+test('Input: describeOf reads past the slash of a suggested name', (t) => {
+    const command = commands.get('ast');
+    const result = describeOf(prefixOf('/ast'));
     const expected = command && command.description;
     
     t.equal(result, expected);
@@ -1120,8 +1135,8 @@ test('Input: the textarea opts out of iOS text rewriting', (t) => {
  * moment a slash is required. Measured, not inferred:
  *
  * ```
- * matches('as')   -> ['ast']
- * matches('/as')  -> []
+ * matches('as')   -> ['/ast']
+ * matches('/as')  -> ['/ast']
  * ```
  *
  * So the sigil is stripped *here* rather than in each caller. A dropdown that
@@ -1130,7 +1145,7 @@ test('Input: the textarea opts out of iOS text rewriting', (t) => {
  */
 test('Input: matches reads past the leading slash', (t) => {
     const result = matches('/as');
-    const expected = ['ast'];
+    const expected = ['/ast'];
     
     t.deepEqual(result, expected);
     t.end();
@@ -1143,7 +1158,7 @@ test('Input: matches reads past the leading slash', (t) => {
  */
 test('Input: matches still answers a bare prefix', (t) => {
     const result = matches('as');
-    const expected = ['ast'];
+    const expected = ['/ast'];
     
     t.deepEqual(result, expected);
     t.end();
@@ -1191,6 +1206,37 @@ test('Input: Tab completes past the sigil and keeps it', (t) => {
  * to `/ast ` instead of sending. `Ctrl+Enter` still worked, which is why only a
  * keyboard user's first `Enter` would have looked broken.
  */
+/**
+ * …and a bare finished name completes with a slash instead of sending.
+ *
+ * Forgiving matching means `ast` still opens the row, but the row is `/ast`
+ * and the box holds `ast` — sending it would answer "Not a command". So a
+ * bare `Enter` completes to `/ast ` (a line the page runs) and sends nothing.
+ * Without this spec the bare→slash Enter path is unpinned.
+ */
+test('Input: Enter on a bare finished name completes it with a slash', (t) => {
+    sent.length = 0;
+    box();
+    
+    type('ast');
+    press('Enter');
+    
+    const result = {
+        value: value(),
+        sent,
+    };
+    
+    const expected = {
+        value: '/ast ',
+        sent: [],
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 test('Input: Enter on a finished sigil-prefixed command sends it', (t) => {
     sent.length = 0;
     box();

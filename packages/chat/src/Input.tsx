@@ -48,9 +48,10 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
 /**
  * Commands whose name starts with what has been typed, in registry order.
  *
- * The sigil is skipped, so `/as` offers what `as` offers: `/` alone is a prefix
- * of every command and opens the whole list, which is what makes it usable as a
- * menu key.
+ * The sigil is skipped for matching, so `/as` offers what `as` offers: `/`
+ * alone is a prefix of every command and opens the whole list, which is what
+ * makes it usable as a menu key. The returned names carry the sigil, so the
+ * dropdown teaches lines the page runs — matching is forgiving, display is not.
  *
  * An **empty** prefix matches every command, which is what makes the list
  * reachable at all; the component gates on a non-empty box so an idle composer
@@ -67,7 +68,7 @@ export const matches = (typed: string): string[] => {
     
     for (const name of commands.keys())
         if (name.startsWith(prefix))
-            result.push(name);
+            result.push(`${SIGIL}${name}`);
     
     return result;
 };
@@ -81,8 +82,9 @@ export const matches = (typed: string): string[] => {
  * is what the 100% gate is for — and the honest test is the function, not a
  * dropdown that cannot show the case.
  *
- * The option is the bare name, so unlike the `/`-keyed version this does not
- * slice a sigil off the front.
+ * The option is the slashed suggestion, so the sigil is stripped at the call
+ * site (`describeOf(prefixOf(option))`) — a direct `commands.get(option)` on
+ * `/ast` is `undefined`, and every row would render the `''` arm instead.
  */
 export const describeOf = (option: string): string => {
     const command = commands.get(option);
@@ -156,11 +158,13 @@ export default function Input({history, onSend}: InputProps) {
      * `Enter` is not a *completion* here — which is what lets the send
      * shortcut below stay a plain "Enter means newline" rule.
      *
-     * `prefixOf` rather than `text`, because `/ast` is as complete as `ast` and a
-     * direct comparison says it is not — so plain `Enter` on a finished
-     * slash-prefixed command would complete it to `/ast ` and send nothing.
+     * Compared directly against `options`, which holds `/ast`: only a slashed
+     * full name is exact and sends. A bare `ast` is deliberately *not* exact —
+     * normalizing it here would send `ast`, a line the page answers "Not a
+     * command"; instead it falls into the completion branch above and becomes
+     * `/ast `, a line the page runs.
      */
-    const exact = options.includes(prefixOf(text));
+    const exact = options.includes(text);
     
     const send = useCallback(() => {
         if (!text.trim())
@@ -178,18 +182,17 @@ export default function Input({history, onSend}: InputProps) {
     };
     
     /**
-     * Put the finished name in the box, keeping the sigil the user already typed.
+     * Put the finished name in the box, with its slash.
      *
-     * The sigil is echoed rather than forced: someone who typed `/tra` wants
-     * `/tra`, and someone who typed `tra` gets `tra` — which they are then told is
-     * not a command, a truthful answer to a line that has none.
+     * The sigil is forced rather than echoed: the option already carries one,
+     * and `prefixOf` strips it before `SIGIL` is put back — so `tra`+Tab and
+     * `/tra`+Tab both give `/transform `, a line the page runs, and never
+     * `//transform `.
      */
     const complete = useCallback((value: string) => {
-        const sigil = text.startsWith(SIGIL) ? SIGIL : '';
-        
-        setText(`${sigil}${value} `);
+        setText(`${SIGIL}${prefixOf(value)} `);
         setPicked(0);
-    }, [text]);
+    }, []);
     
     /**
  * Read once at mount and kept in state, so the key handler reads one boolean
@@ -352,7 +355,7 @@ export default function Input({history, onSend}: InputProps) {
                         >
                             {option}
                             <span className="autocomplete__description">
-                                {describeOf(option)}
+                                {describeOf(prefixOf(option))}
                             </span>
                         </div>
                     ))}
