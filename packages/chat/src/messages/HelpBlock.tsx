@@ -24,7 +24,7 @@ export default function HelpBlock() {
                         key={name}
                     >
                         <td className="help-block__name">
-                            {`${name} ${usage}`}
+                            {`/${name} ${usage}`}
                         </td>
                         <td className="help-block__description">
                             {description}

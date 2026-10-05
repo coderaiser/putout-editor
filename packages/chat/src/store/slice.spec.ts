@@ -348,7 +348,7 @@ test('slice: the seeded source echoes the command and its body', (t) => {
 test('slice: the seeded help answer is the command list', (t) => {
     const [, second] = initialState.messages;
     const data = second.result && second.result.type === 'text' ? second.result.data : '';
-    const result = data.includes('source [source]');
+    const result = data.includes('/source [source]');
     
     t.ok(result);
     t.end();

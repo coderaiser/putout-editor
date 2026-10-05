@@ -39,7 +39,7 @@ test('HelpBlock: names every command', (t) => {
     // carrying its usage — and not a transcription of it that could pass while
     // the component printed something else.
     for (const {name, usage} of commands.values())
-        expected.push(`${name} ${usage}`);
+        expected.push(`/${name} ${usage}`);
     
     cleanup();
     
@@ -80,7 +80,7 @@ test('HelpBlock: shows the usage beside each name', (t) => {
     const first = document.querySelector('.help-block__name');
     const source = commands.get('source');
     const result = first && first.textContent;
-    const expected = source && `${source.name} ${source.usage}`;
+    const expected = source && `/${source.name} ${source.usage}`;
     
     cleanup();
     
@@ -102,11 +102,33 @@ test('HelpBlock: a command that takes nothing still shows its brackets', (t) => 
     );
     
     const names = textsOf('.help-block__name');
-    const result = names.includes('help []');
+    const result = names.includes('/help []');
     const expected = true;
     
     cleanup();
     
     t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * Every row carries the sigil, so the table teaches lines the page runs.
+ *
+ * The negated filter rather than a positive check: asserting slashed rows
+ * exist passes on a half-slashed table, while `!startsWith('/')` failing on
+ * the first bare row catches one `name usage` left behind in eleven.
+ */
+test('HelpBlock: every row starts with a slash', (t) => {
+    render(
+        <HelpBlock/>,
+    );
+    
+    const names = textsOf('.help-block__name');
+    const result = names.filter((name) => !name.startsWith('/'));
+    const expected: string[] = [];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
     t.end();
 });

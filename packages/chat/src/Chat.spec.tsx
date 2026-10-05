@@ -248,7 +248,7 @@ test('Chat: the help table shows each command with its usage', async (t) => {
     
     const first = document.querySelector('.help-block__name');
     const result = first && first.textContent;
-    const expected = 'source [source]';
+    const expected = '/source [source]';
     
     cleanup();
     
