@@ -552,7 +552,7 @@ body {
        that number against the button's measured width, so the two cannot drift
        apart silently. The **left** was 52px too, because `12px 52px` is two
        values and both sides got the same one, and on a 390px phone that pushed
-       the placeholder "help — list every command" far enough from the edge to
+       the placeholder "/help — list every command" far enough from the edge to
        read as centred. It is 16px now, matching the thread's own gutter. */
     padding: 12px 52px 12px 16px;
     border: 1px solid var(--color-border);

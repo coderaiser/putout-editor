@@ -381,7 +381,7 @@ export default function Input({history, onSend}: InputProps) {
                 data-testid="input"
                 onChange={onChange}
                 onKeyDown={onKeyDown}
-                placeholder="help — list every command"
+                placeholder="/help — list every command"
                 ref={box}
                 spellCheck={false}
                 value={value}

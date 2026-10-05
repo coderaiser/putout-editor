@@ -281,7 +281,7 @@ test('useChat: an unknown command names itself in the error', async (t) => {
     
     const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.type === 'error' && last.result.message;
-    const expected = 'Unknown command: notacommand. Try help.';
+    const expected = 'Unknown command: notacommand. Try /help.';
     
     t.equal(result, expected);
     t.end();
@@ -469,7 +469,7 @@ test('useChat: a sigil-prefixed misspelling is an unknown command, not plain tex
     
     const last = store.getState().chat.messages.at(-1);
     const result = last.result && last.result.message;
-    const expected = 'Unknown command: hello. Try help.';
+    const expected = 'Unknown command: hello. Try /help.';
     
     t.equal(result, expected);
     t.end();

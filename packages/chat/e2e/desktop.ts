@@ -167,7 +167,7 @@ test('the textarea reserves room for the send button', async ({page}) => {
  *
  * `padding: 12px 52px` gave both sides 52px, because 52 is the send button's
  * lane and that number belongs on the right only. On the left it pushed the
- * placeholder "help — list every command" so far from the edge that the composer
+ * placeholder "/help — list every command" so far from the edge that the composer
  * read as centred — a screenshot is how this was found, and no assertion caught
  * it, because the test above only reads `paddingRight`.
  *

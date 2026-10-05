@@ -36,7 +36,7 @@ const notACommand = (): CommandResult => ({
 
 const unknown = (name: string): CommandResult => ({
     type: 'error',
-    message: `Unknown command: ${name}. Try help.`,
+    message: `Unknown command: ${name}. Try /help.`,
 });
 
 const parseError = (error: string): CommandResult => ({
