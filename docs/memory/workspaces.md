@@ -243,3 +243,30 @@ That is the whole test for an exclusion: *is there a statement here that a test 
 instead, and is at 100%. The line between the two is not "small" or "boring", it is "has runtime
 code", which is the same distinction `packages/mcp/.nycrc.json` and `packages/client/.nycrc.json`
 already draw.
+
+## A workspace fan-out that aborts on a missing script hides the packages that passed
+
+A root `check` implemented as a fan-out (`madrun`/`madrun-fork` over every workspace
+package) **stops at the first package that does not define a script** and reports
+that, rather than the packages that ran. So `madrun check` printed
+
+```
+1..1029
+# tests 1029
+# pass 1029
+
+🌿 packages/client
+One of scripts not found: test:one
+Command failed: .../node_modules/redrun/bin/redrun.js test:one
+```
+
+— 1029 green tests and a non-zero exit from **one run**, and the exit is the part
+a reader takes away. Same shape as
+[`../memory/tape.md`](./tape.md)'s "read the count, not the exit code", and the
+same failure mode: the number that looks like the verdict is not the one that is.
+
+The scripts `AGENTS.md` tells every agent to run (`check`, `test:one`,
+`coverage:json`) now exist at the root **and** in every workspace package.
+
+**How to re-check it**, rather than reading any claim about it: run the three
+commands and confirm none of them prints `one of scripts not found`.

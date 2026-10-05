@@ -166,6 +166,14 @@ already exists is a redeclaration, not a hoist. Size M.
 **The try/catch one is S.** The rewrite is mechanical and always the same — bind, then guard — so the
 risk is dropping a default the author meant, which is a test rather than a code change.
 
+**Seen, not hypothetical.** `SHAPES.some((shape) => isFunction(plugin[shape]))` is exactly the shape
+this idea describes — the parameter *is* used in the body, so hoisting it to `some(isFunction)` would
+bind `isFunction` to itself at the top level and shadow the outer one, which is a
+`Cannot access 'isDeclaration' before initialization` in the making. The call site is a `for..of` now
+with the reason written beside it, in `packages/mcp/src/validator.ts`. So the "unused parameter"
+guard in the first option is not a nicety: it is the difference between a fix and a broken module,
+and the rule will not see it because the *parameter* is used.
+
 ## 10. A rule for a guard the key already made unreachable
 
 **Evidence.** 1, found by the coverage gate rather than by reading: `apply-boolean-cast-to-typeof`

@@ -208,7 +208,7 @@ two, and they are in [`docs/issues/`](./docs/issues/index.md).
   instead of the behaviour. What settled it was one Chromium test. Same shape as the four wrong
   mechanisms in "Say what is actually wrong": a plausible story survives a unit suite and dies in a
   browser. [`docs/ideas.md`](./docs/ideas.md) §11 is the rejected version and the measurement.
-- **A feature that renders a component twice duplicates every testid on it.** `/ast` answers in the
+- **A feature that renders a component twice duplicates every testid on it.** `ast` answers in the
   thread and opens the console panel with the same tree, so `ast-search` and `ast-output` each
   resolve to two elements and Playwright refuses in strict mode — invisible to `querySelector`,
   which returns the first match. Scope the locator to the container that is a *sibling* of the

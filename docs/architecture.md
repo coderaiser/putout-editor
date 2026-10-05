@@ -60,11 +60,15 @@ Four consequences worth knowing before you move code:
   its graph would be a dependency nobody could satisfy. `index.spec.ts` asserts the barrel
   stays free of `Ast*` and `use*` exports so it is not "helpfully" added back.
 - **The arrow from chat to 🐊Putout is dotted because it is a `dynamic import`.**
-  `/find`, `/transform` and `/validate` reach 🐊**Putout** through a chunk the page only
+  `find`, `transform` and `validate` reach 🐊**Putout** through a chunk the page only
   fetches when one of them is typed, because 🐊**Putout** cannot be bundled for a browser at
   all — it calls `os.homedir()` at module scope. In a browser those three answer that they
-  need the server; `/ast`, `/source`, `/console` and `/help` work with no server. See
+  need the server; `ast`, `source`, `console` and `help` work with no server. See
   `packages/chat/rspack.config.js` for what is ignored and why.
+- **A command is its first word — there is no sigil.** `parseCommand` takes the first word
+  of the first line as the command, and the registry's own keys are handed to it so a
+  `source` body can end at the next command. So `/ast` is a first word that names nothing,
+  and nothing in the grammar, the messages or the docs may print a slash in front of one.
 - **The server is not a thin wrapper over the editor.** It has its own `compactAST`/`queryAST`
   and an empty `TransformModule`, so a change to the client's parser has no server counterpart
   to keep in step.

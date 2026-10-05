@@ -98,13 +98,9 @@ test('local validate: a rule with no fix and no find is not ok', (t) => {
 });
 
 test('local validate: names what is missing', (t) => {
-    const result = handler({
-        plugin: 'export const report = () => "x";',
-    });
-    
-    // A **string** pattern rather than `/a|b|c/`: `tape/convert-match-regexp-to-string`
-    // rejects a regexp here, and the alternative is seven separate assertions for
-    // what is one property — that the message lists the shapes.
+    // One property — that the message lists the shapes — so seven `includes`
+    // checks rather than seven assertions, and `includes` rather than a regexp
+    // because `tape/convert-match-regexp-to-string` rejects one there.
     const shapes = [
         'fix',
         'find',
@@ -115,9 +111,16 @@ test('local validate: names what is missing', (t) => {
         'declare',
     ];
     
-    const missing = shapes.filter((shape) => !result.content[0].text.includes(shape));
+    const {content} = handler({
+        plugin: 'export const report = () => "x";',
+    });
+    const [answer] = content;
     
-    t.deepEqual(missing, []);
+    const missing = shapes.filter((shape) => !answer.text.includes(shape));
+    
+    const expected: string[] = [];
+    
+    t.deepEqual(missing, expected);
     t.end();
 });
 
@@ -127,11 +130,17 @@ test('local validate: names what is missing', (t) => {
  * fail in.
  */
 test('local validate: the error points at find_places', (t) => {
-    const result = handler({
+    const {content} = handler({
         plugin: 'export const report = () => "x";',
     });
+    const [answer] = content;
     
-    t.match(result.content[0].text, /find_places/);
+    // `t.match` with a **string** rather than `t.ok(...includes(...))`: this
+    // repo's `tape/convert-ok-to-match` asks for the former, and
+    // `convert-match-regexp-to-string` asks that it not be a regexp.
+    const expected = 'find_places';
+    
+    t.match(answer.text, expected);
     t.end();
 });
 

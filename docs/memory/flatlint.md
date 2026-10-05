@@ -294,3 +294,35 @@ calls a fourteen-key plugin an empty one.
   The editor's `apply-batch` runs on *parsed* source, so a file with a syntax
   error cannot be transformed at all. A token pass that can still fix
   `import {a, from 'b'}` is reachable where a plugin is not.
+## A check written from the *name* of a thing cannot know what it does
+
+`flatlint_rule` answered `✗ has a match export … a match is putout's shape and is
+ignored here` — for a language that **honours `match`**. An author following that
+advice would have deleted a guard the engine runs, so this was a tool that was
+*wrong* rather than silent, which is the expensive kind.
+
+The check read the **exports** — `report`, `replace`, `match` — and decided
+correctness from the *presence of a name*. It never asked what the name means, so
+it could only encode the belief it was written from. Two reasons the whole suite
+stayed green while it rejected 42% of the rules it exists to help write:
+
+- there was no fixture carrying a `match`, and
+- the one real fixture, `remove-useless-assign`, is a two-export plugin that
+  looks **identical** under both beliefs.
+
+The replacement check reads the two maps and compares **keys**: a guard whose key
+is absent from `replace` is dead, because the runner looks a guard up by the
+replace key it is iterating. It has to be on the AST, since a key is a *pattern* —
+`'(__args) {'` ends in a brace, and a brace-counting first attempt called a
+fourteen-key plugin an empty one.
+
+**The generalisable half**, which is not flatlint-specific: *a check cannot be
+written from the name of a thing; it has to be written from what the thing does.*
+Both halves of that were violated — the claim came from the entry point, and the
+check was written from the claim.
+
+**The pin that catches this class** is one loop: feed the checker **every** rule in
+the target codebase and assert none is rejected. 33 files, and it answers "is this
+tool fit for purpose" instead of "does this rule have three exports". A doc which
+says a thing *cannot* happen needs its evidence to be a measurement and not an
+omission.

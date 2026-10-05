@@ -139,3 +139,18 @@ bun run test:e2e # playwright, against the built bundle
 
 `e2e/` serves the **prebuilt** bundle in `../../out`, not `src/`. A change under
 `src/` is invisible to those tests until `bun run build`.
+
+## Read the count, not the exit code
+
+`bun run test` here prints `1..368 / # tests 368 / # pass 368`, and those three
+numbers are the result. **The exit code is not**, and there is a setup on this
+machine where every package in the repository reports **no TAP output at all**
+and exits `0`: a `tape` from the sibling 🐊**Putout** checkout is earlier on
+`PATH`, it resolves its own `supertape` from there, and it matches no spec files
+under this tree. Written up in [`docs/issues/scripts.md`](../../docs/issues/scripts.md).
+
+To run a suite with a known binary:
+
+```bash
+node ./node_modules/supertape/bin/tracer.js "src/**/*.spec.{ts,tsx}"
+```
