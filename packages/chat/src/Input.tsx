@@ -344,12 +344,28 @@ export default function Input({history, onSend}: InputProps) {
                 </div>
             )}
             <textarea
+                /*
+                 * iOS Safari rewrites this field without being asked: it
+                 * capitalises the first character and autocorrects the rest, so
+                 * `/ast` arrives as `/Ast` and `parseCommand` answers "Unknown
+                 * command". This box takes command names, not prose, so all three
+                 * opt-outs are on. `spellCheck` also stops the red squiggle under
+                 * every plugin name in a pasted `source` body.
+                 *
+                 * React spells these in camelCase and the DOM stores them
+                 * lowercase, which is why the spec reads them with
+                 * `getAttribute('autocapitalize')` — the camelCase spelling returns
+                 * `null` and the assertion would pass on a bare textarea.
+                 */
+                autoCapitalize="none"
+                autoCorrect="off"
                 className="input__box"
                 data-testid="input"
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder="help — list every command"
                 ref={box}
+                spellCheck={false}
                 value={value}
             />
             <button

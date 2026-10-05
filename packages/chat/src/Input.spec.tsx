@@ -1069,3 +1069,43 @@ test('Input: the send button is not disabled', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+/**
+ * iOS rewrites what is typed into the command box, and both rewrites break it.
+ *
+ * The composer takes command *names* — `ast`, `source`, `find` — and iOS Safari
+ * capitalises the first character of any field and runs autocorrect over the rest,
+ * so `/ast` arrives as `/Ast`, which `parseCommand` does not know and answers with
+ * "Unknown command". Nothing in a unit spec can reproduce that: it is the
+ * platform's own text handling, and the only honest assertion is that the opt-outs
+ * are actually on the element.
+ *
+ * Read with `getAttribute` in **lowercase**. React's prop is `autoCapitalize`, but
+ * the DOM stores the HTML attribute lowercased, so `getAttribute('autoCapitalize')`
+ * returns `null` and the test would pass on a textarea with no attribute at all.
+ * That is the trap: an assertion that cannot fail.
+ *
+ * One object rather than three tests, because they are one decision - this is a
+ * command box, not prose - and supertape allows one assertion per test anyway.
+ */
+test('Input: the textarea opts out of iOS text rewriting', (t) => {
+    box();
+    
+    const element = document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
+    const result = {
+        autocapitalize: element.getAttribute('autocapitalize'),
+        autocorrect: element.getAttribute('autocorrect'),
+        spellcheck: element.getAttribute('spellcheck'),
+    };
+    
+    const expected = {
+        autocapitalize: 'none',
+        autocorrect: 'off',
+        spellcheck: 'false',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
