@@ -283,3 +283,26 @@ since it matched `text === 'help'` exactly, which silently stopped rendering
 **The check that catches it** is exercising the *new* grammar at the seam rather
 than only where the specs already were. Every existing spec passed throughout; the
 defect lived entirely in the input shape the specs had never used.
+
+## ❌ plan.md §0 I7 and §3.3 name files and states that do not match the tree
+
+Both were verified while running the §5 gate, and both would send the next person
+looking for something that is not there.
+
+**I7 — `npm run build` → both output files exist.** The gate lists
+`out/index.html` and `out/chat.html`. The chat emits `out/chat/index.html`, and
+`rspack.config.js` says so (`filename: 'chat/index.html'`) because the two
+packages share one `out`. So `out/chat.html` is never created, and a check for it
+fails on a build that is completely correct.
+
+**§3.3 — `send('…')` helper.** §3.4 and §3.5 say "every `send` call" becomes
+`/ast`, `/source\n…`, and so on. That is right, but incomplete: `desktop.ts` also
+has three specs that `box(page).fill(...)` and then press a key directly, and two
+assertions on `toHaveValue(...)` that compare **box contents**, not sends — the
+`↑` recall spec, and the `Shift+Enter` multi-line spec. Those read the text the
+user typed, so the sigil is in the expected value too, and no `send` call
+mentions them.
+
+**The check that catches it** is that a gate names something specific. I7 reads as
+a command to run and produces a false negative; §3.3 reads as a complete list and
+leaves three specs failing for a reason the plan did not mention.
