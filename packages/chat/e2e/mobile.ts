@@ -243,6 +243,28 @@ test('the textarea reserves room for the send button on a touchscreen', async ({
     expect(result).toEqual(expected);
 });
 
+/**
+ * The **left** padding is the thread's gutter, and on a 390px phone the 52px it
+ * used to inherit from the button's lane was a seventh of the whole composer.
+ *
+ * That is why this is asserted on the mobile project rather than only on the
+ * desktop one: the same number is a cosmetic annoyance at 1280px and the reason
+ * the placeholder reads as centred on a phone. The value is measured rather than
+ * inferred from the thread's own padding, so the two cannot drift apart.
+ */
+test('the textarea placeholder is not pushed right by the button lane', async ({page}) => {
+    const padding = await page
+        .locator('.input__box')
+        .first()
+        .evaluate((element) => {
+            const {paddingLeft} = getComputedStyle(element);
+            
+            return parseInt(paddingLeft, 10);
+        });
+    
+    expect(padding).toBe(16);
+});
+
 test('the autocomplete dropdown is on screen', async ({page}) => {
     // A **prefix**, not an empty box: there is no sigil to type any more, so the
     // dropdown opens on a command name being started — and an empty box is

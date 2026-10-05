@@ -545,12 +545,16 @@ body {
 .input__box {
     flex: 1;
     resize: none;
-    /* `12px 52px`: the right padding is the button's lane. 52 = a 32px button
-       plus 8px of air each side, and it is what keeps a line of text from
-       running underneath the button — the assertion in `e2e/desktop.ts` and
-       `e2e/mobile.ts` compares this number against the button's measured width,
-       so the two cannot drift apart silently. */
-    padding: 12px 52px;
+    /* Four values, because only one number was ever wanted here.
+       `52px` on the **right** is the button's lane: a 32px button plus 8px of air
+       each side, and it is what keeps a line of text from running underneath the
+       button — the assertion in `e2e/desktop.ts` and `e2e/mobile.ts` compares
+       that number against the button's measured width, so the two cannot drift
+       apart silently. The **left** was 52px too, because `12px 52px` is two
+       values and both sides got the same one, and on a 390px phone that pushed
+       the placeholder "help — list every command" far enough from the edge to
+       read as centred. It is 16px now, matching the thread's own gutter. */
+    padding: 12px 52px 12px 16px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-bg-editor);

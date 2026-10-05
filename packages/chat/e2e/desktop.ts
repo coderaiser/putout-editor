@@ -162,6 +162,42 @@ test('the textarea reserves room for the send button', async ({page}) => {
     expect(result).toEqual(expected);
 });
 
+/**
+ * …and the **left** padding is the thread's own gutter, not the button's lane.
+ *
+ * `padding: 12px 52px` gave both sides 52px, because 52 is the send button's
+ * lane and that number belongs on the right only. On the left it pushed the
+ * placeholder "help — list every command" so far from the edge that the composer
+ * read as centred — a screenshot is how this was found, and no assertion caught
+ * it, because the test above only reads `paddingRight`.
+ *
+ * Asserted as an exact number rather than "smaller than the right": the two are
+ * equal today, which is the defect, so a bound that only compared them would pass
+ * on the build this fixes.
+ */
+test('the textarea left padding matches the thread gutter, not the button lane', async ({page}) => {
+    const padding = await page
+        .locator('.input__box')
+        .first()
+        .evaluate((element) => {
+            const {
+                paddingLeft,
+                paddingRight,
+            } = getComputedStyle(element);
+            
+            return {
+                left: parseInt(paddingLeft, 10),
+                right: parseInt(paddingRight, 10),
+            };
+        });
+    
+    // both halves: the value itself, and that it is no longer the button's lane
+    expect(padding).toEqual({
+        left: 16,
+        right: 52,
+    });
+});
+
 test('shows ast tree for pasted source', async ({page}) => {
     await send(page, 'source\nconst add = (a, b) => a + b;');
     await send(page, 'ast');
