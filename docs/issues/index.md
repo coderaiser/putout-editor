@@ -9,7 +9,7 @@ resolved problem left here is documentation that reads as if it were still broke
 | [`build.md`](./build.md) | `nest build` reports 279 errors that `tsc` does not; `objects-braces-inside-array` injects a blank line between every pair of comment lines in a file that reported nothing; every unmatched URL answers 200 with the editor's `index.html`, so a missing `.js` is served as a page |
 | [`chat.md`](./chat.md) | a Playwright measurement taken right after `page.goto` reads an unmounted page, so a geometry assertion passes on a broken layout; a `PATH` export offered as the fix for `rspack: not found`, which this branch already added, diagnosed and removed once for cause; the composer-as-CodeMirror route, recorded and not started; a `min-width: 0` one level below the grid item is inert, so the CSS is correct and the layout is wrong |
 | [`putout-plugins.md`](./putout-plugins.md) | two upstream fixers exit clean on lossy cases; a fixer can rewrite a rule and no test notices; `remove-comments` reports one comment twice; `apply-destructuring` drops a `&&` guard; `apply-type-check` assigns an identifier to itself and CI committed it; a rule green on every fixture and silent on the real tree; a `tryCatch` rewrite that throws on a real `package.json`; `matchFiles` reports one place per file |
-| [`scripts.md`](./scripts.md) | a `tape` from the sibling 🐊**Putout** checkout on `PATH` makes **every** suite run 0 tests and exit 0 |
+| [`scripts.md`](./scripts.md) | a `tape` from the sibling 🐊**Putout** checkout on `PATH` makes **every** suite run 0 tests and exit 0; a nested `supertape` under `@putout/test` does the same with the **right** binary, printing no count at all and reporting 41.76% coverage of files no test imported |
 
 Elsewhere:
 

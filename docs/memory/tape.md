@@ -29,3 +29,34 @@ const expected: string[] = [];
 
 A missing rule is an argument, not a reason for a lenient spec.
 
+## A silent suite prints nothing, and coverage still prints a number
+
+`supertape`'s emitter lives in a **module-level** `mainEmitter`. So if the CLI and
+the specs end up importing **two different copies** of `supertape`, the tests
+register on one and the CLI drains the other — and the run is a clean exit 0 with
+**zero bytes on stdout and stderr**. Not `1..0`: nothing at all, so "read the
+count, not the exit code" has no count to read.
+
+It happens when `@putout/test` holds a nested `supertape` the root does not have:
+`bin/test.js` imports `supertape/bin/supertape`, which resolves *nearest first*,
+while a spec's bare `import {test} from 'supertape'` resolves to the root copy.
+Two instances, one `mainEmitter`.
+
+Check they are one before trusting a green suite — `NESTED` is
+`node_modules/@putout/test/node_modules/supertape/lib/supertape.js` and `ROOT` is
+`node_modules/supertape/lib/supertape.js`:
+
+```sh
+node -e "Promise.all([import('NESTED'), import('ROOT')]).then(([a, b]) => console.log(a.default === b.default))"
+```
+
+`false` means the suite ran nothing. Fix with a root `overrides` pin rather than
+deleting the directory — `node_modules` is gitignored, so an edit there is not a
+change, it is a rumour.
+
+**The trap worth remembering** is that `c8`'s `all: true` then reports coverage
+for files **no test imported** — 41.76% lines that read as "coverage is low"
+rather than "coverage is measuring nothing". Both streams silent, exit code 0,
+and a percentage that looks like a measurement. See
+[`../issues/scripts.md`](../issues/scripts.md).
+

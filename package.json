@@ -52,6 +52,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "overrides": {
+    "supertape": "13.6.2"
+  },
   "publishConfig": {
     "access": "public"
   }
