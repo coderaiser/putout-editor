@@ -52,7 +52,7 @@ test('index: help lists every command in the map', (t) => {
 
 test('index: help names every command', (t) => {
     const data = dataOf(runHelp());
-    const result = [...commands.keys()].filter((name) => !data.includes(`${name} `));
+    const result = [...commands.keys()].filter((name) => !data.includes(`/${name} `));
     const expected: string[] = [];
     
     t.deepEqual(result, expected);

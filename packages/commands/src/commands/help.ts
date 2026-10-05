@@ -28,16 +28,16 @@ export interface HelpRow {
  * here — a command that is not listed is a command nobody finds, so the list and
  * the map cannot drift without `help.spec.ts` noticing.
  *
- * The name is bare. A leading `/` would be a second way to write the same
- * command, and the parser does not accept it, so printing it would teach a
- * spelling that answers "unknown command".
+ * The name carries its leading `/`, because that is the spelling the page runs:
+ * the chat sends only sigil-prefixed lines, so printing a bare name would teach
+ * a line the page answers "Not a command".
  */
 export const runHelp = (list: HelpRow[]): CommandResult => ({
     type: 'text',
     data: list
-        .map(({name, usage, description}) => `${`${name} ${usage}`.padEnd(widthOf(list))}${description}`)
+        .map(({name, usage, description}) => `${`/${name} ${usage}`.padEnd(widthOf(list))}${description}`)
         .join('\n'),
 });
 
 /** The widest `name + usage`, so every description starts in the same column. */
-const widthOf = (list: HelpRow[]): number => Math.max(...list.map(({name, usage}) => `${name} ${usage}`.length)) + GAP;
+const widthOf = (list: HelpRow[]): number => Math.max(...list.map(({name, usage}) => `/${name} ${usage}`.length)) + GAP;

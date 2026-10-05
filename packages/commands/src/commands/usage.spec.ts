@@ -53,9 +53,9 @@ test('index: every command declares the input it takes', (t) => {
 test('index: help prints the usage beside the name', (t) => {
     const result = helpText()
         .split('\n')
-        .find((line) => line.startsWith('source'));
+        .find((line) => line.startsWith('/source'));
     
-    const expected = 'source [source]';
+    const expected = '/source [source]';
     
     t.ok(result && result.startsWith(expected));
     t.end();
@@ -64,21 +64,21 @@ test('index: help prints the usage beside the name', (t) => {
 test('index: help prints a command that takes nothing as the name alone', (t) => {
     const row = helpText()
         .split('\n')
-        .find((line) => line.startsWith('help '));
+        .find((line) => line.startsWith('/help '));
     
-    // `help []` and the gap after it: the brackets say "takes nothing" rather
+    // `/help []` and the gap after it: the brackets say "takes nothing" rather
     // than being absent, so a row is never ambiguous about a forgotten usage.
-    const result = isUndefined(row) ? '' : row.slice(0, 'help [] '.length);
-    const expected = 'help [] ';
+    const result = isUndefined(row) ? '' : row.slice(0, '/help [] '.length);
+    const expected = '/help [] ';
     
     t.equal(result, expected);
     t.end();
 });
 
-test('index: help names every command without a slash', (t) => {
+test('index: help names every command with a slash', (t) => {
     const slashes = helpText()
         .split('\n')
-        .filter((line) => line.startsWith('/'));
+        .filter((line) => !line.startsWith('/'));
     
     const expected: string[] = [];
     
