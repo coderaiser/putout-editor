@@ -139,35 +139,36 @@
  * rules touch — so a filtered row keeps its category colour. That is the answer
  * to the plan's own worry, and it is structural rather than an `!important`.
  *
- * Specificity is `.ast-row[data-category="x"] .ast-row__type` — an attribute
- * selector plus two classes — against `.ast-row__type`'s single class, so the
- * order these appear in this file does not matter.
+ * The selector is `.ast-row__type[data-category="x"]` — the attribute and the
+ * element it colours on one node, so there is no ancestor hop and nothing to keep
+ * in step. It is the same specificity the descendant form it replaces had, so the
+ * order these appear in this file still does not matter.
  */
-.ast-row[data-category='statement'] .ast-row__type {
+.ast-row__type[data-category='statement'] {
     color: var(--ast-c-statement);
 }
 
-.ast-row[data-category='declaration'] .ast-row__type {
+.ast-row__type[data-category='declaration'] {
     color: var(--ast-c-declaration);
 }
 
-.ast-row[data-category='expression'] .ast-row__type {
+.ast-row__type[data-category='expression'] {
     color: var(--ast-c-expression);
 }
 
-.ast-row[data-category='call'] .ast-row__type {
+.ast-row__type[data-category='call'] {
     color: var(--ast-c-call);
 }
 
-.ast-row[data-category='literal'] .ast-row__type {
+.ast-row__type[data-category='literal'] {
     color: var(--ast-c-literal);
 }
 
-.ast-row[data-category='identifier'] .ast-row__type {
+.ast-row__type[data-category='identifier'] {
     color: var(--ast-c-identifier);
 }
 
-.ast-row[data-category='control'] .ast-row__type {
+.ast-row__type[data-category='control'] {
     color: var(--ast-c-control);
 }
 

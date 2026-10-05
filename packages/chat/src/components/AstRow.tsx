@@ -120,13 +120,6 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
                 .join(' ')}
             data-testid="ast-row"
             data-type={node.type}
-            /*
-             * The colour, by attribute rather than by `style` or by a class per
-             * category: `AstTree.css` owns all eight selectors, so adding a type
-             * is a `Set` entry and a rule, with no JSX to keep in step and no
-             * inline value that could drift from the stylesheet's token.
-             */
-            data-category={categoryOf(node.type)}
             onClick={() => {
                 onSelect(node.id);
                 
@@ -135,13 +128,36 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
             }}
             role="treeitem"
         >
-            <span className="ast-row__caret">
-                {caretOf(hasChildren, collapsed)}
-            </span>
+            {/*
+             * Connectors first, then caret, then the label - and the order is
+             * the drawing rather than a presentation detail. A two-character
+             * caret sitting to the left of its own branch marker puts this row's
+             * `├` under the *parent's* caret instead of under the parent's `├`,
+             * and the vertical line stops reading as continuous, which is the one
+             * thing a tree drawing exists to do.
+             */}
             <span className="ast-row__connectors">
                 {connectorsOf(node.depth, last, ancestorLastFlags)}
             </span>
-            <span className="ast-row__type">
+            <span className="ast-row__caret">
+                {caretOf(hasChildren, collapsed)}
+            </span>
+            {/*
+             * The colour, by attribute rather than by `style` or by a class per
+             * category: `AstTree.css` owns all eight selectors, so adding a type
+             * is a `Set` entry and a rule, with no JSX to keep in step and no
+             * inline value that could drift from the stylesheet's token.
+             *
+             * On this span rather than on the row, so the selector is
+             * `.ast-row__type[data-category="x"]` — the attribute and the
+             * element it colours on one node, with no ancestor hop. Same
+             * specificity as the descendant form it replaces, so the cascade
+             * order is unchanged and no rule had to move.
+             */}
+            <span
+                className="ast-row__type"
+                data-category={categoryOf(node.type)}
+            >
                 {node.type}
             </span>
             {node.detail && (

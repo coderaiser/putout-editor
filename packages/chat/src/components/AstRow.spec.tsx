@@ -426,10 +426,11 @@ test('AstRow: the indent is the connectors, not padding', (t) => {
  * `data-category`, which is how the row gets its colour.
  *
  * An **attribute**, not an inline `style` and not a class per category. The
- * reason is that `AstTree.css` selects on it — `.ast-row[data-category="call"]
- * .ast-row__type { color: var(--ast-c-call) }` — so the eight colours are one
- * stylesheet concern and adding a ninth type is a `Set` entry plus a selector,
- * with no JSX edit and no `style` prop that could drift from the stylesheet.
+ * reason is that `AstTree.css` selects on it —
+ * `.ast-row__type[data-category='call'] { color: var(--ast-c-call) }` — so the
+ * eight colours are one stylesheet concern and adding a ninth type is a `Set`
+ * entry plus a selector, with no JSX edit and no `style` prop that could drift
+ * from the stylesheet.
  *
  * Read off the DOM because a category that is computed but not applied is the
  * failure this is here to catch.
@@ -439,7 +440,10 @@ test('AstRow: the indent is the connectors, not padding', (t) => {
  * below saying only what they are about.
  */
 const category = () => {
-    const element = document.querySelector('[data-testid="ast-row"]');
+    // On the type span, not the row: the attribute moved there so the CSS selector
+    // is `.ast-row__type[data-category="x"]` with no ancestor hop. Reading it off
+    // the row would return null and fail here, rather than quietly passing.
+    const element = document.querySelector('.ast-row__type');
     
     return element && element.getAttribute('data-category');
 };
@@ -478,5 +482,87 @@ test('AstRow: an unknown type falls back to the other category', (t) => {
     cleanup();
     
     t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * Connectors come **before** the caret, and the order is the drawing.
+ *
+ * Rendered the other way round, a depth-1 row is `▾ ├─ VariableDeclaration` - the
+ * caret sits to the left of its own branch marker, so the `├` of this row lands
+ * under the caret of its parent rather than under the parent's own `├`. The
+ * vertical line stops reading as continuous, which is the one thing a tree
+ * drawing is for.
+ *
+ * `children` order rather than the rendered string, because the two can disagree:
+ * a CSS `order` would reorder the box and leave the DOM saying otherwise, and
+ * this is a claim about the tree, not about a picture of it.
+ */
+test('AstRow: connectors are rendered before the caret', (t) => {
+    render(
+        <AstRow
+            ancestorLastFlags={[false, true]}
+            collapsed={false}
+            dimmed={false}
+            hasChildren={true}
+            last={false}
+            matched={false}
+            node={node({
+                depth: 2,
+                type: 'VariableDeclaration',
+            })}
+            onSelect={noop}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
+    const children = [...row.children];
+    const at = (name: string) => children.findIndex(({classList}) => classList.contains(name));
+    const result = {
+        connectorsBeforeCaret: at('ast-row__connectors') < at('ast-row__caret'),
+        caretAfterConnectors: at('ast-row__caret') > 0,
+    };
+    
+    const expected = {
+        connectorsBeforeCaret: true,
+        caretAfterConnectors: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The category attribute sits on the **type span**, not on the row.
+ *
+ * The colour selectors used to be `.ast-row[data-category="x"] .ast-row__type`,
+ * which needed the attribute on an ancestor of the element it colours. With the
+ * attribute on the type itself they become `.ast-row__type[data-category="x"]`,
+ * and the row no longer carries an attribute nothing reads.
+ */
+test('AstRow: the type span carries data-category', (t) => {
+    row({
+        type: 'CallExpression',
+    });
+    
+    const type = document.querySelector('.ast-row__type') as HTMLElement;
+    const rowElement = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
+    const result = {
+        onType: type.getAttribute('data-category'),
+        onRow: rowElement.getAttribute('data-category'),
+    };
+    
+    const expected = {
+        onType: 'call',
+        onRow: null,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
     t.end();
 });

@@ -537,7 +537,9 @@ test('ast row type colour differs by category', async ({page}) => {
     
     const colourOf = (category: string) => page
         .getByTestId('chat')
-        .locator(`[data-category="${category}"] .ast-row__type`)
+        // On the type span: the attribute moved there so the CSS selector is
+        // `.ast-row__type[data-category="x"]` with no ancestor hop.
+        .locator(`.ast-row__type[data-category="${category}"]`)
         .first()
         .evaluate((element) => getComputedStyle(element).color);
     
@@ -582,7 +584,8 @@ test('each drawn category renders a distinct colour', async ({page}) => {
         await page.keyboard.press(key);
     
     const measured = await page.evaluate(() => {
-        const rows = [...document.querySelectorAll('.ast-row[data-category]')];
+        // On the type span, since the attribute moved there with the CSS.
+        const rows = [...document.querySelectorAll('.ast-row__type[data-category]')];
         
         const categories = new Set<string>();
         
@@ -601,7 +604,7 @@ test('each drawn category renders a distinct colour', async ({page}) => {
         
         for (const category of categories) {
             const type = document.querySelector(
-                `.ast-row[data-category="${category}"] .ast-row__type`,
+                `.ast-row__type[data-category="${category}"]`,
             ) as HTMLElement;
             
             colours.push(getComputedStyle(type).color);
@@ -642,11 +645,11 @@ test('a matched row keeps its category colour', async ({page}) => {
     
     const result = await page.evaluate(() => {
         const matched = document.querySelector(
-            '.ast-row--match[data-category="declaration"] .ast-row__type',
+            '.ast-row--match .ast-row__type[data-category="declaration"]',
         ) as HTMLElement;
         
         const dimmed = document.querySelector(
-            '.ast-row--dimmed[data-category="statement"] .ast-row__type',
+            '.ast-row--dimmed .ast-row__type[data-category="statement"]',
         ) as HTMLElement;
         
         return {
@@ -996,4 +999,89 @@ test('the thread opens scrolled to its last message', async ({page}) => {
     });
     
     expect(result).toBe(true);
+});
+
+/**
+ * The connectors are drawn **before** the caret, so the vertical line is
+ * continuous down the tree.
+ *
+ * The caret is two characters wide and used to come first, which put a depth-1
+ * row's `├` under its parent's *caret* rather than under the parent's own `├`. The
+ * jsdom spec pins the DOM order; this pins the pixels, because the two can
+ * disagree — a CSS `order` reorders the box and leaves the DOM saying otherwise,
+ * and that is exactly the kind of change that leaves a green unit suite.
+ *
+ * Measured as each span's `left` relative to the row, so "connectors start at the
+ * left edge" is asserted rather than assumed.
+ */
+test('AST connectors are drawn before the caret, keeping the tree line continuous', async ({page}) => {
+    await send(page, '/source\nconst a = 1;');
+    await send(page, '/ast');
+    
+    const rows = page.getByTestId('chat').getByTestId('ast-row');
+    await expect(rows.first()).toBeVisible();
+    
+    // depth 1: a non-root row must begin with a branch marker, not with a caret
+    const result = await rows.nth(1).evaluate((row) => {
+        const box = row.getBoundingClientRect();
+        // the row's own padding is `1px 8px`, so its content edge is not its
+        // border edge - measuring against the border asserts the padding instead
+        const content = box.left + parseInt(getComputedStyle(row).paddingLeft, 10);
+        const at = (name: string) => (row.querySelector(`.${name}`) as HTMLElement)
+            .getBoundingClientRect()
+            .left;
+        
+        return {
+            connectorsFromContentEdge: at('ast-row__connectors') - content,
+            caretAfterConnectors: at('ast-row__caret') > at('ast-row__connectors'),
+            connectorsIsFirstChild: row.children[0].classList.contains('ast-row__connectors'),
+        };
+    });
+    
+    const expected = {
+        connectorsFromContentEdge: 0,
+        caretAfterConnectors: true,
+        connectorsIsFirstChild: true,
+    };
+    
+    expect(result).toEqual(expected);
+});
+
+/**
+ * …and the caret is still the row's own marker, in the same place it always was.
+ *
+ * The other half: swapping two spans could equally have swapped them the wrong
+ * way, or dropped the caret into the connectors. A depth-1 row must still show a
+ * branch marker **and** a caret, and the caret must not have leaked into the
+ * connector string.
+ */
+test('AST rows keep their caret separate from the branch marker', async ({page}) => {
+    // Two statements, so Program has two children and the first draws a **tee**.
+    //
+    // With one statement it is the only child and draws an elbow, and this
+    // assertion would pass with no sibling anywhere to be a tee against.
+    await send(page, '/source\nconst a = 1;\nconst b = 2;');
+    await send(page, '/ast');
+    
+    const row = page
+        .getByTestId('chat')
+        .getByTestId('ast-row')
+        .nth(1);
+    const connectors = await row.locator('.ast-row__connectors').textContent();
+    const caret = await row.locator('.ast-row__caret').textContent();
+    
+    const result = {
+        connector: connectors,
+        hasCaret: Boolean(caret && caret.trim()),
+        // the caret glyphs must not have leaked into the connector string
+        connectorsAreBranchOnly: !/[▾▸]/.test(connectors || ''),
+    };
+    
+    const expected = {
+        connector: '├─ ',
+        hasCaret: true,
+        connectorsAreBranchOnly: true,
+    };
+    
+    expect(result).toEqual(expected);
 });
