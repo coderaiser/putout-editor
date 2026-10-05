@@ -10,6 +10,7 @@ import {
 } from 'react';
 import {setHistoryIndex} from '#store';
 import type {RootState} from '#store/types';
+import {prefixOf, SIGIL} from './sigil.ts';
 import {isCoarsePointer} from './hooks/useIsMobile.ts';
 
 export interface InputProps {
@@ -47,10 +48,9 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
 /**
  * Commands whose name starts with what has been typed, in registry order.
  *
- * There is no sigil to key on any more — `/` was how a command used to start,
- * and now the first word is the command — so this answers a different question
- * than it used to: not "what did the user type after a slash" but "is what
- * they have typed so far the start of a command name".
+ * The sigil is skipped, so `/as` offers what `as` offers: `/` alone is a prefix
+ * of every command and opens the whole list, which is what makes it usable as a
+ * menu key.
  *
  * An **empty** prefix matches every command, which is what makes the list
  * reachable at all; the component gates on a non-empty box so an idle composer
@@ -58,13 +58,15 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
  * whatever follows is an argument.
  */
 export const matches = (typed: string): string[] => {
-    if (/\s/.test(typed))
+    const prefix = prefixOf(typed);
+    
+    if (/\s/.test(prefix))
         return [];
     
     const result: string[] = [];
     
     for (const name of commands.keys())
-        if (name.startsWith(typed))
+        if (name.startsWith(prefix))
             result.push(name);
     
     return result;
@@ -153,8 +155,12 @@ export default function Input({history, onSend}: InputProps) {
      * row the user has already typed in full is not a choice left to make, so
      * `Enter` is not a *completion* here — which is what lets the send
      * shortcut below stay a plain "Enter means newline" rule.
+     *
+     * `prefixOf` rather than `text`, because `/ast` is as complete as `ast` and a
+     * direct comparison says it is not — so plain `Enter` on a finished
+     * slash-prefixed command would complete it to `/ast ` and send nothing.
      */
-    const exact = options.includes(text);
+    const exact = options.includes(prefixOf(text));
     
     const send = useCallback(() => {
         if (!text.trim())
@@ -171,10 +177,19 @@ export default function Input({history, onSend}: InputProps) {
         setPicked(0);
     };
     
+    /**
+     * Put the finished name in the box, keeping the sigil the user already typed.
+     *
+     * The sigil is echoed rather than forced: someone who typed `/tra` wants
+     * `/tra`, and someone who typed `tra` gets `tra` — which they are then told is
+     * not a command, a truthful answer to a line that has none.
+     */
     const complete = useCallback((value: string) => {
-        setText(`${value} `);
+        const sigil = text.startsWith(SIGIL) ? SIGIL : '';
+        
+        setText(`${sigil}${value} `);
         setPicked(0);
-    }, []);
+    }, [text]);
     
     /**
  * Read once at mount and kept in state, so the key handler reads one boolean

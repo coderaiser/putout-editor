@@ -199,8 +199,8 @@ test('the textarea left padding matches the thread gutter, not the button lane',
 });
 
 test('shows ast tree for pasted source', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     await expect(tree(page)).toBeVisible();
     await expect(tree(page)).toContainText('Program');
@@ -213,15 +213,15 @@ test('shows ast tree for pasted source', async ({page}) => {
  * the one that checks the page draws it.
  */
 test('ast works with no source sent', async ({page}) => {
-    await send(page, 'ast');
+    await send(page, '/ast');
     
     await expect(tree(page)).toBeVisible();
     await expect(tree(page)).toContainText('Program');
 });
 
 test('search filters tree', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     await search(page).fill('VariableDeclaration');
     
@@ -257,8 +257,8 @@ test('search filters tree', async ({page}) => {
  * nothing is exactly what shipped.
  */
 test('search marks the rows that matched', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     await search(page).fill('VariableDeclaration');
     
@@ -298,8 +298,8 @@ test('search marks the rows that matched', async ({page}) => {
  * from a row count that would be right by accident one row earlier.
  */
 test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const rows = page
         .getByTestId('chat')
@@ -355,8 +355,8 @@ test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
  * never wired could not be caught by the pure specs.
  */
 test('h and l fold and expand the tree', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const rows = page
         .getByTestId('chat')
@@ -398,7 +398,7 @@ test('h and l fold and expand the tree', async ({page}) => {
  * focus moved.
  */
 test('Tab moves focus from the tree to the filter, and back', async ({page}) => {
-    await send(page, 'ast');
+    await send(page, '/ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -423,7 +423,7 @@ test('Tab moves focus from the tree to the filter, and back', async ({page}) => 
  * diagram specifies and its prose gets wrong.
  */
 test('k from the first row moves focus to the filter', async ({page}) => {
-    await send(page, 'ast');
+    await send(page, '/ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -444,8 +444,8 @@ test('k from the first row moves focus to the filter', async ({page}) => {
  * obvious way to undo it.
  */
 test('k in the filter clears it and returns focus to the tree', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -471,8 +471,8 @@ test('k in the filter clears it and returns focus to the tree', async ({page}) =
  * every mobile spec would stay green because they only ever run on a phone.
  */
 test('ast shows the full hint and the code preview on desktop', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const status = page
         .getByTestId('chat')
@@ -496,8 +496,8 @@ test('ast shows the full hint and the code preview on desktop', async ({page}) =
  * would move.
  */
 test('ast shows two columns on desktop', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const measured = await page.evaluate(() => {
         const tree = document.querySelector('.ast__tree') as HTMLElement;
@@ -530,10 +530,10 @@ test('ast shows two columns on desktop', async ({page}) => {
  *
  * `declaration` and `statement` are the pair because `VariableDeclaration` and
  * `Program` are both on screen in every `ast` reply, so the spec needs no
- * fixture beyond `send(page, 'ast')`.
+ * fixture beyond `send(page, '/ast')`.
  */
 test('ast row type colour differs by category', async ({page}) => {
-    await send(page, 'ast');
+    await send(page, '/ast');
     
     const colourOf = (category: string) => page
         .getByTestId('chat')
@@ -564,8 +564,8 @@ test('ast row type colour differs by category', async ({page}) => {
  * default view has nothing to compare.
  */
 test('each drawn category renders a distinct colour', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     await page
         .locator('[data-testid="ast-output"]')
@@ -635,8 +635,8 @@ test('each drawn category renders a distinct colour', async ({page}) => {
  * of claim that is fine until someone adds `!important`.
  */
 test('a matched row keeps its category colour', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     await search(page).fill('VariableDeclaration');
     
@@ -668,13 +668,13 @@ test('a matched row keeps its category colour', async ({page}) => {
 test('console panel toggles on /console', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     
-    await send(page, 'console');
+    await send(page, '/console');
     
     await expect(page.locator('.console-panel')).toBeVisible();
 });
 
 test('the panel ✕ closes the console', async ({page}) => {
-    await send(page, 'console');
+    await send(page, '/console');
     await expect(page.locator('.console-panel')).toBeVisible();
     
     // The `✕` is the only way to dismiss the panel without typing a command —
@@ -698,8 +698,8 @@ test('the panel ✕ closes the console', async ({page}) => {
 test('ast leaves the console panel closed', async ({page}) => {
     await expect(page.getByTestId('console-panel')).toHaveCount(0);
     
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     // The tree is in the thread — that is what `shows ast tree for pasted
     
@@ -710,7 +710,7 @@ test('ast leaves the console panel closed', async ({page}) => {
 });
 
 test('Ctrl+Enter sends the line', async ({page}) => {
-    await box(page).fill('help');
+    await box(page).fill('/help');
     await page.keyboard.press('Control+Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
@@ -718,7 +718,7 @@ test('Ctrl+Enter sends the line', async ({page}) => {
 });
 
 test('Enter sends the line on a keyboard', async ({page}) => {
-    await box(page).fill('help');
+    await box(page).fill('/help');
     await page.keyboard.press('Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
@@ -726,11 +726,11 @@ test('Enter sends the line on a keyboard', async ({page}) => {
 });
 
 test('Shift+Enter builds a multi-line /source body', async ({page}) => {
-    await box(page).fill('source\nconst a = 1;');
+    await box(page).fill('/source\nconst a = 1;');
     await page.keyboard.press('Shift+Enter');
     await page.keyboard.insertText('const b = 2;');
     
-    await expect(box(page)).toHaveValue('source\nconst a = 1;\nconst b = 2;');
+    await expect(box(page)).toHaveValue('/source\nconst a = 1;\nconst b = 2;');
     
     await page.keyboard.press('Control+Enter');
     
@@ -752,7 +752,7 @@ test('Shift+Enter builds a multi-line /source body', async ({page}) => {
 test('the send button sends the line', async ({page}) => {
     // The button is the primary way to send now that `Enter` is a newline, so
     // it is the one path that cannot be about the chord at all.
-    await box(page).fill('help');
+    await box(page).fill('/help');
     await page
         .getByTestId('send')
         .click();
@@ -762,22 +762,24 @@ test('the send button sends the line', async ({page}) => {
 });
 
 test('console again hides the panel', async ({page}) => {
-    await send(page, 'console');
+    await send(page, '/console');
     await expect(page.locator('.chat-console')).toBeVisible();
     
-    await send(page, 'console');
+    await send(page, '/console');
     
     await expect(page.locator('.chat-console')).toHaveCount(0);
 });
 
 test('up arrow recalls the last sent line', async ({page}) => {
-    await send(page, 'help');
+    await send(page, '/help');
     
     await expect(box(page)).toHaveValue('');
     
     await box(page).press('ArrowUp');
     
-    await expect(box(page)).toHaveValue('help');
+    // The sigil comes back with it: `↑` recalls the line that was sent, and a
+    // recalled `help` would be answered "Not a command" when sent again.
+    await expect(box(page)).toHaveValue('/help');
 });
 
 test('the header has no console toggle button', async ({page}) => {
@@ -788,9 +790,25 @@ test('the header has no console toggle button', async ({page}) => {
 });
 
 test('error shown for an unknown command', async ({page}) => {
-    await send(page, 'notacommand');
+    await send(page, '/notacommand');
     
     await expect(page.locator('.error-block')).toBeVisible();
+});
+
+/**
+ * A sentence is not a command, and is told so in the words that fix it.
+ *
+ * Separate from the unknown-command spec above on purpose: the two look alike from
+ * the outside — both show `.error-block` — and folding them together is what let
+ * plain text be answered "Unknown command: hello world" for so long. Asserting the
+ * **message** is the whole point, since visibility alone cannot tell them apart.
+ */
+test('plain text without a sigil is told to start with one', async ({page}) => {
+    await send(page, 'hello world');
+    
+    const error = page.locator('.error-block');
+    await expect(error).toBeVisible();
+    await expect(error).toContainText('Start with /');
 });
 
 test('autocomplete opens on a command prefix', async ({page}) => {
@@ -826,7 +844,7 @@ test('an empty box shows no autocomplete', async ({page}) => {
  * reads the two boxes and compares where they end.
  */
 test('the user message is right-aligned', async ({page}) => {
-    await send(page, 'help');
+    await send(page, '/help');
     
     const result = await page.evaluate(() => {
         // Spread then `.at(-1)`: `NodeListOf` has no `.at()`, and the seed means
@@ -944,7 +962,7 @@ test('the theme toggle sits at the right of the header', async ({page}) => {
 test('sending scrolls the answer into view', async ({page}) => {
     const box = page.getByRole('textbox');
     
-    await box.fill('ast');
+    await box.fill('/ast');
     await page.keyboard.press('Control+Enter');
     
     const result = await page.evaluate(() => {

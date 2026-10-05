@@ -282,9 +282,12 @@ test('slice: opens with a worked source example and the help', (t) => {
     for (const {text} of initialState.messages)
         result.push(text.split('\n')[0]);
     
+    // With the sigil, because these are lines the page itself shows as runnable:
+    // a seeded `source` without one is a line `useChat` now answers "Not a
+    // command", so the opening screen would demonstrate something that fails.
     const expected = [
-        'source',
-        'help',
+        '/source',
+        '/help',
     ];
     
     t.deepEqual(result, expected);
@@ -334,7 +337,9 @@ test('slice: the seeded source is a rule with a report and a replace', (t) => {
  */
 test('slice: the seeded source echoes the command and its body', (t) => {
     const [first] = initialState.messages;
-    const result = first.text.startsWith('source\n');
+    
+    // The sigil is part of the echo, as it is of every line the page accepts.
+    const result = first.text.startsWith('/source\n');
     
     t.ok(result);
     t.end();

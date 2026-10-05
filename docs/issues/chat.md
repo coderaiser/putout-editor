@@ -242,3 +242,44 @@ a different file, in a different package, inside a string literal.
 for the old spelling in text rather than in identifiers. Nothing in `putout .`
 does this, and a rule for it would have to know both the old and new spelling —
 which makes it a rename helper rather than a lint.
+
+## ❌ plan.md §3.1 asserts the autocomplete "already works" with a slash, and it does not
+
+Found while implementing §3. The claim is load-bearing — it is the reason the plan
+lists no change to `Input.tsx` for the slash — and it is false.
+
+**The minimum**
+
+```js
+const bare = matches('as');
+const sigil = matches('/as');
+// bare -> ['ast'], sigil -> []
+```
+
+**Expected** — both `['ast']`, so requiring a sigil does not change what the
+dropdown offers. **Got** — the second is `[]`, so the moment `/` became required the
+autocomplete stopped appearing entirely, and no test failed: `matches` was only
+ever called with slash-less input, and the specs that exercise the dropdown type a
+prefix without a sigil.
+
+**Why.** `matches` tests `name.startsWith(typed)` against the whole box, and no
+command name starts with `/`.
+
+The same gap had two quieter halves, which is why one fix was not enough:
+
+- `exact = options.includes(text)` — `options` holds bare names, so `/ast` read as
+  a *partial* name and plain `Enter` completed it to `/ast ` instead of sending.
+  `Ctrl+Enter` still worked, so only the first `Enter` looked broken.
+- `complete()` wrote the bare name, so `/tra` + `Tab` produced `transform ` — a
+  line with no sigil, which `useChat` then answers "Not a command". The dropdown
+  handed the user a line it refused to run.
+
+All three now go through one `prefixOf`, in `src/sigil.ts`. It is its own module
+because the three callers are different components — `Message.tsx` needs it too,
+since it matched `text === 'help'` exactly, which silently stopped rendering
+`HelpBlock` for every line the page itself accepts. That is the same shape as the
+`HelpBlock` entry above: a component with full coverage and no reachable call site.
+
+**The check that catches it** is exercising the *new* grammar at the seam rather
+than only where the specs already were. Every existing spec passed throughout; the
+defect lived entirely in the input shape the specs had never used.

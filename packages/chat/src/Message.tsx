@@ -1,4 +1,5 @@
 import type {Message as MessageModel} from '#store';
+import {prefixOf} from './sigil.ts';
 import TextBlock from './messages/TextBlock.tsx';
 import ErrorBlock from './messages/ErrorBlock.tsx';
 import SourceBlock from './messages/SourceBlock.tsx';
@@ -34,7 +35,11 @@ const Result = ({message}: MessageProps) => {
             <ErrorBlock message={result.message}/>
         );
     
-    if (text === 'help' && result.type === 'text')
+    // `prefixOf`, not an exact match: the thread now shows the sigil the user
+    // typed, so `/help` is the same answer as `help` — and comparing against the
+    // bare literal silently stopped rendering the table for every line the page
+    // itself accepts, which is how `HelpBlock` became unreachable again.
+    if (prefixOf(text) === 'help' && result.type === 'text')
         return (
             <HelpBlock/>
         );

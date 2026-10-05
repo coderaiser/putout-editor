@@ -76,14 +76,14 @@ export const INITIAL_SOURCE = montag`
  */
 const seeded = (): Message[] => [{
     id: 0,
-    text: `source\n${INITIAL_SOURCE}`,
+    text: `/source\n${INITIAL_SOURCE}`,
     result: {
         type: 'source',
         data: INITIAL_SOURCE,
     },
 }, {
     id: 1,
-    text: 'help',
+    text: '/help',
     result: runHelp([...commands.values()]),
 }];
 

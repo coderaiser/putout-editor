@@ -17,20 +17,23 @@ import {
     toggleConsole,
     nextId,
 } from '#store';
+import {addressed} from '../sigil.ts';
 
 /**
- * The two ways a line can name nothing.
+ * The two ways a line can name nothing, and they are no longer the same thing.
  *
- * A bare word and a misspelling are the *same* thing now: `parseCommand` takes
- * the first word as the command and does not know the vocabulary, so `hello`
- * and `astt` both arrive here as an unregistered name. One answer for both is
- * the point — v8 §3 asked for a separate "not a command" error for plain text,
- * and with no slash in the grammar that branch would exist only to say the same
- * sentence. `parseError` covers the one case that is genuinely different: an
- * input with no first word at all.
- *
- * No slash anywhere, because there is nothing to prefix one to.
+ * A line that does not start with `/` is not addressed to the registry at all — it
+ * is a sentence — so it gets an answer that says what to do about it. A line that
+ * *does* start with `/` and names something unregistered is a misspelling, and gets
+ * the unknown-command answer. Folding them together, as this used to, meant a
+ * whole sentence was answered "Unknown command: hello world", which is the wrong
+ * half of the question every time the user was not aiming at the tool.
  */
+const notACommand = (): CommandResult => ({
+    type: 'error',
+    message: 'Not a command. Start with / — try /help.',
+});
+
 const unknown = (name: string): CommandResult => ({
     type: 'error',
     message: `Unknown command: ${name}. Try help.`,
@@ -62,12 +65,25 @@ export const useChat = () => {
      * a closure over `state.source` would still hold the value from *before* this
      * command ran, so `source` followed by `ast` in one input would parse the
      * old source.
+     *
+     * What a line does, once it is known to be addressed to the registry.
+     *
+     * Split from `send` because the sigil is a property of the line the **user**
+     * sent, not of every line this runs. `parseCommand` ends a `source` body at the
+     * next command name, so `/source\n…\nast` recurses into `ast` — and that `ast` is
+     * part of an input the user already addressed with a sigil on the first line.
+     * Re-gating it would demand a slash mid-input and break the one form of
+     * multi-command input the parser goes out of its way to support.
+     *
+     * `line` is what the parser sees (no sigil) and `echo` is what the thread shows
+     * (with it), because the two genuinely differ: the bubble has to read back
+     * `/ast` while the registry is handed `ast`.
      */
-    const send = useCallback(async (input: string, source = state.source) => {
+    const run = useCallback(async (line: string, echo: string, source: string): Promise<void> => {
         // The registry's own keys, so "a body ends at the next command" is
         // measured against the same list the dispatch below uses. Without them
         // a `source` body would swallow every following line.
-        const parsed = parseCommand(input, commands.keys());
+        const parsed = parseCommand(line, commands.keys());
         
         // An input with no first word at all — the one thing the parser
         // refuses. It used to be dropped silently, which is the v8 §3 defect
@@ -75,7 +91,7 @@ export const useChat = () => {
         if (!('command' in parsed)) {
             dispatch(addMessage({
                 id: nextId(),
-                text: input,
+                text: echo,
                 result: parseError(parsed.error),
             }));
             
@@ -88,14 +104,14 @@ export const useChat = () => {
             rest,
         } = parsed;
         
-        dispatch(pushHistory(input));
+        dispatch(pushHistory(echo));
         
         const entry = commands.get(command);
         
         if (!entry) {
             dispatch(addMessage({
                 id: nextId(),
-                text: input,
+                text: echo,
                 result: unknown(command),
             }));
             
@@ -155,18 +171,47 @@ export const useChat = () => {
         
         dispatch(addMessage({
             id: nextId(),
-            text: input,
+            text: echo,
             result,
         }));
         
         // `rest` runs *after* this message is dispatched, so a thread reading
         
         // `source\n…\nast` in one input keeps both answers in the order they were
-        
+        //
         // sent. Recursing earlier would append `ast` above `source`.
         if (rest)
-            await send(rest, result.type === 'source' ? result.data : source);
-    }, [dispatch, state.source, state.plugin]);
+            await run(rest, rest, result.type === 'source' ? result.data : source);
+    }, [dispatch, state.plugin]);
+    
+    /**
+     * The sigil gate, and the one arm that is deliberately not a gate.
+     *
+     * `trimmed &&` rather than the `startsWith` test alone, because an empty line
+     * is not "missing its sigil" — there is nothing there to prefix — and
+     * `parseCommand` already answers it, with `Empty command`. Gating on it would
+     * replace a true statement about the input with a false one, and would retire
+     * the parser's own error branch.
+     *
+     * `slice(1)` is why a `/`-prefixed misspelling reports `hello` and not
+     * `/hello`: the registry is handed the name, so the name it cannot find is the
+     * one to name.
+     */
+    const send = useCallback(async (input: string, source = state.source) => {
+        const trimmed = input.trimStart();
+        
+        if (trimmed && !addressed(trimmed)) {
+            dispatch(addMessage({
+                id: nextId(),
+                text: input,
+                result: notACommand(),
+            }));
+            
+            return;
+        }
+        
+        await run(trimmed.slice(1), trimmed, source);
+    }, [dispatch, run, state.source]);
     
     return {
         send,

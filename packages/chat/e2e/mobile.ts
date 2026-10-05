@@ -411,8 +411,27 @@ test('the document does not scroll', async ({page}) => {
  * is 0 today. Geometry rather than a screenshot, for the reason the specs above
  * give: a 40px overflow renders a page that looks almost right.
  */
+/**
+ * A sentence is not a command — and on a touchscreen this is the path most likely
+ * to produce one, since the send button is a tap away and there is no `Ctrl+Enter`
+ * chord to signal "this is a command".
+ *
+ * Sent by tapping the button rather than with the chord, so it is the route a
+ * phone user actually takes. The **message** is asserted, not just that an error
+ * appeared: `.error-block` is what an unknown command shows too, and visibility
+ * alone cannot tell the two apart.
+ */
+test('a sentence is told to start with a sigil on a touchscreen', async ({page}) => {
+    await box(page).fill('hello world');
+    await page.getByTestId('send').tap();
+    
+    const error = page.locator('.error-block');
+    await expect(error).toBeVisible();
+    await expect(error).toContainText('Start with /');
+});
+
 test('air between a command and its answer', async ({page}) => {
-    await send(page, 'help');
+    await send(page, '/help');
     
     const result = await page.evaluate(() => {
         const pills = [...document.querySelectorAll('.message--user')];
@@ -438,18 +457,18 @@ test('air between a command and its answer', async ({page}) => {
  * pointer type is not a binding one project can check.
  */
 test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) => {
-    await box(page).fill('help');
+    await box(page).fill('/help');
     await page.keyboard.press('Enter');
     
     // Both halves are the point: a newline that also sent would post a
     
     // half-typed line, and this is the assertion that would have caught it.
-    await expect(box(page)).toHaveValue('help\n');
+    await expect(box(page)).toHaveValue('/help\n');
     await expect(userMessages(page)).toHaveCount(SEEDED);
 });
 
 test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
-    await box(page).fill('help');
+    await box(page).fill('/help');
     await page.keyboard.press('Control+Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED + 1);
@@ -467,8 +486,8 @@ test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
  * comment pins the two together.
  */
 test('ast hides the code preview on a touchscreen', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const preview = page
         .getByTestId('chat')
@@ -487,8 +506,8 @@ test('ast hides the code preview on a touchscreen', async ({page}) => {
  * produce today.
  */
 test('ast gives the tree the full width on a touchscreen', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const measured = await page.evaluate(() => {
         const tree = document.querySelector('.ast__tree') as HTMLElement;
@@ -519,8 +538,8 @@ test('ast gives the tree the full width on a touchscreen', async ({page}) => {
  * `jk` would pass a length check and still be teaching the wrong thing.
  */
 test('ast shows the short hint on a touchscreen', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const status = page
         .getByTestId('chat')
@@ -540,8 +559,8 @@ test('ast shows the short hint on a touchscreen', async ({page}) => {
  * mobile specs already have to allow for.
  */
 test('ast hint is one line tall on a touchscreen', async ({page}) => {
-    await send(page, 'source\nconst add = (a, b) => a + b;');
-    await send(page, 'ast');
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
     
     const measured = await page.evaluate(() => {
         const help = document.querySelector('.ast-status__help') as HTMLElement;

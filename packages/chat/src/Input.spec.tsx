@@ -1109,3 +1109,100 @@ test('Input: the textarea opts out of iOS text rewriting', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+/**
+ * The autocomplete has to read **past** the sigil, or requiring one kills it.
+ *
+ * §3 of the plan asserts the dropdown "already works" with a leading slash,
+ * because it filters on the characters after `/`. It does not: `matches` tests
+ * `name.startsWith(typed)` on the whole box, and no command name starts with
+ * `/`, so `matches('/as')` is `[]` — the dropdown silently stops appearing the
+ * moment a slash is required. Measured, not inferred:
+ *
+ * ```
+ * matches('as')   -> ['ast']
+ * matches('/as')  -> []
+ * ```
+ *
+ * So the sigil is stripped *here* rather than in each caller. A dropdown that
+ * only worked when the caller remembered to trim would be a second grammar
+ * spread across two files.
+ */
+test('Input: matches reads past the leading slash', (t) => {
+    const result = matches('/as');
+    const expected = ['ast'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * …and a bare name still matches, because the recall cursor (`↑`) and a pasted
+ * command both arrive without one, and a dropdown that only opened on a
+ * hand-typed sigil would be a worse version of the bug above.
+ */
+test('Input: matches still answers a bare prefix', (t) => {
+    const result = matches('as');
+    const expected = ['ast'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The slash alone is a prefix of every command, so it opens the list rather than
+ * closing it — which is what makes the sigil usable as a menu key.
+ */
+test('Input: the sigil on its own opens the list of every command', (t) => {
+    const result = matches('/').length;
+    const expected = commands.size;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * Completing a slash-prefixed name keeps the slash.
+ *
+ * `complete` used to write the bare name, so `/tra` + `Tab` produced `transform `
+ * — a line with no sigil, which `useChat` answers "Not a command". The dropdown
+ * would hand the user a line it then refused to run.
+ */
+test('Input: Tab completes past the sigil and keeps it', (t) => {
+    box();
+    
+    type('/tra');
+    press('Tab');
+    
+    const result = value();
+    const expected = '/transform ';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * …and the `exact` half, which is the one that would have bitten silently.
+ *
+ * `options` holds bare names, so `options.includes('/ast')` is false: a finished
+ * slash-prefixed command read as a *partial* one, and plain `Enter` completed it
+ * to `/ast ` instead of sending. `Ctrl+Enter` still worked, which is why only a
+ * keyboard user's first `Enter` would have looked broken.
+ */
+test('Input: Enter on a finished sigil-prefixed command sends it', (t) => {
+    sent.length = 0;
+    box();
+    
+    type('/ast');
+    press('Enter');
+    
+    const result = sent;
+    const expected = ['/ast'];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});

@@ -58,7 +58,7 @@ const wait = () => setTimeout(10);
 test('Chat: source puts the source message in the thread', async (t) => {
     mount();
     
-    send('source\nconst a = 1;');
+    send('/source\nconst a = 1;');
     await wait();
     
     const result = document.querySelector('[data-testid="source-block"]') !== null;
@@ -73,7 +73,7 @@ test('Chat: source puts the source message in the thread', async (t) => {
 test('Chat: source updates the store', async (t) => {
     const store = mount();
     
-    send('source\nconst a = 1;');
+    send('/source\nconst a = 1;');
     await wait();
     
     const result = store.getState().chat.source;
@@ -88,9 +88,9 @@ test('Chat: source updates the store', async (t) => {
 test('Chat: ast renders the tree with the ast-output testid', async (t) => {
     mount();
     
-    send('source\nconst a = 1;');
+    send('/source\nconst a = 1;');
     await wait();
-    send('ast');
+    send('/ast');
     await wait();
     
     const result = document.querySelector('[data-testid="ast-output"]') !== null;
@@ -105,9 +105,9 @@ test('Chat: ast renders the tree with the ast-output testid', async (t) => {
 test('Chat: the tree shows the Program the source parsed to', async (t) => {
     mount();
     
-    send('source\nconst a = 1;');
+    send('/source\nconst a = 1;');
     await wait();
-    send('ast');
+    send('/ast');
     await wait();
     
     const rows = document.querySelectorAll('[data-testid="ast-row"]');
@@ -123,7 +123,7 @@ test('Chat: the tree shows the Program the source parsed to', async (t) => {
 test('Chat: an unknown command renders the error block', async (t) => {
     mount();
     
-    send('notacommand');
+    send('/notacommand');
     await wait();
     
     const result = document.querySelector('.error-block') !== null;
@@ -145,13 +145,13 @@ test('Chat: an unknown command renders the error block', async (t) => {
 test('Chat: the sent line is echoed as the user message', async (t) => {
     mount();
     
-    send('help');
+    send('/help');
     await wait();
     
     const pills = [...document.querySelectorAll('.message--user')];
     const user = pills.at(-1);
     const result = user && user.textContent;
-    const expected = 'help';
+    const expected = '/help';
     
     cleanup();
     
@@ -182,9 +182,11 @@ test('Chat: the thread renders the seeded messages', (t) => {
         commands: commands.slice(0, 2),
     };
     
+    // Seeded with the sigil, since these are the lines the page opens with and
+    // the ones it now accepts.
     const expected = {
         count: true,
-        commands: ['source', 'help'],
+        commands: ['/source', '/help'],
     };
     
     cleanup();
@@ -218,7 +220,7 @@ test('Chat: the chat carries the chat testid', (t) => {
 test('Chat: help renders the table, not plain text', async (t) => {
     mount();
     
-    send('help');
+    send('/help');
     await wait();
     
     const result = document.querySelector('[data-testid="help-block"]') !== null;
@@ -241,7 +243,7 @@ test('Chat: help renders the table, not plain text', async (t) => {
 test('Chat: the help table shows each command with its usage', async (t) => {
     mount();
     
-    send('help');
+    send('/help');
     await wait();
     
     const first = document.querySelector('.help-block__name');
@@ -267,7 +269,7 @@ test('Chat: the help table shows each command with its usage', async (t) => {
 test('Chat: find renders the places list', async (t) => {
     mount();
     
-    send('find\nexport const report = () => "x";\nexport const replace = () => ({"const __a = __b": "let __a = __b"});');
+    send('/find\nexport const report = () => "x";\nexport const replace = () => ({"const __a = __b": "let __a = __b"});');
     await wait();
     
     const result = document.querySelector('[data-testid="places-list"]') !== null;
