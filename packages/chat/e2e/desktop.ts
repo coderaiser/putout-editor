@@ -4,7 +4,12 @@ import {
     type Page,
 } from './test.ts';
 
-const box = (page: Page) => page.getByRole('textbox');
+/**
+ * Scope to `data-testid="input"`, not `getByRole('textbox')`: once `/ast` runs,
+ * `AstSearch` puts a second `<input>` on the page. Playwright strict mode then
+ * refuses `getByRole('textbox')` — two elements match and the locator throws.
+ */
+const box = (page: Page) => page.getByTestId('input');
 
 /**
  * `fill` then `Ctrl+Enter`, not `type` then `Enter`: `fill` sets the value in one
@@ -963,7 +968,7 @@ test('the theme toggle sits at the right of the header', async ({page}) => {
  * to some arbitrary offset would pass a weaker check and still hide the answer.
  */
 test('sending scrolls the answer into view', async ({page}) => {
-    const box = page.getByRole('textbox');
+    const box = page.getByTestId('input');
     
     await box.fill('/ast');
     await page.keyboard.press('Control+Enter');

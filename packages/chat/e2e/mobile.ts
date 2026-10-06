@@ -4,7 +4,12 @@ import {
     type Page,
 } from './test.ts';
 
-const box = (page: Page) => page.getByRole('textbox');
+/**
+ * Scope to `data-testid="input"`, not `getByRole('textbox')`: once `/ast` runs,
+ * `AstSearch` puts a second `<input>` on the page. Playwright strict mode then
+ * refuses `getByRole('textbox')` — two elements match and the locator throws.
+ */
+const box = (page: Page) => page.getByTestId('input');
 
 /**
  * The thread is not empty on load — it opens seeded with a worked `source`
