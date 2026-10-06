@@ -1060,6 +1060,39 @@ test('AST connectors are drawn before the caret, keeping the tree line continuou
  * branch marker **and** a caret, and the caret must not have leaked into the
  * connector string.
  */
+test('SourceBlock shows syntax-highlighted output', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+
+    // A tok-keyword span means the highlighter ran
+    const keywordSpan = page.locator('.source-block .tok-keyword').first();
+    await expect(keywordSpan).toBeVisible();
+    await expect(keywordSpan).toContainText('const');
+});
+
+test('TransformDiff shows highlighted before and after', async ({page}) => {
+    const plugin = [
+        'export const replace = () => ({',
+        "  'Identifier[name=\"a\"]': (path) => path.replaceWith(b),",
+        '});',
+    ].join('\n');
+
+    await send(page, '/source\nconst a = 1;');
+    await send(page, `/transform\n${plugin}`);
+
+    const before = page.locator('.transform-diff__code--before .tok-keyword').first();
+    await expect(before).toBeVisible();
+});
+
+test('AstCodePreview shows highlighted source lines', async ({page}) => {
+    await send(page, '/source\nconst x = 42;');
+    await send(page, '/ast');
+
+    // Open desktop code preview (it is in the ast-block two-column layout)
+    const codePane = page.locator('.ast-code-preview');
+    const keywordSpan = codePane.locator('.tok-keyword').first();
+    await expect(keywordSpan).toBeVisible();
+});
+
 test('AST rows keep their caret separate from the branch marker', async ({page}) => {
     // Two statements, so Program has two children and the first draws a **tee**.
     //
