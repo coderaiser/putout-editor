@@ -7,11 +7,11 @@
  * `getAttribute` needs. Every spec that reads the DOM goes through here so the
  * trap is in one place.
  */
-export const textsOf = (selector: string): (string | null)[] => {
-    const result: (string | null)[] = [];
+export const textsOf = (selector: string): string[] => {
+    const result: string[] = [];
     
     for (const element of document.querySelectorAll(selector))
-        result.push(element.textContent);
+        result.push(element.textContent ?? '');
     
     return result;
 };
