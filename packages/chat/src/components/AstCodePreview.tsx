@@ -1,4 +1,5 @@
 import type {FlatNode} from '@putout/editor-commands';
+import {highlight} from '../highlight.ts';
 
 export interface AstCodePreviewProps {
     source: string;
@@ -25,12 +26,51 @@ export const linesOf = (source: string): string[] => {
     return source.split('\n');
 };
 
-/** A `|` inserted at the selected column, so the cursor position is visible. */
+/**
+ * Insert a column marker into an already-highlighted HTML string at the
+ * position corresponding to plain-text column `col`.
+ *
+ * The highlighted string has extra characters from `<span class="...">` and
+ * `</span>` tags. We count only non-tag characters to find the right insertion
+ * point, then splice the marker span in.
+ */
+export const insertMarker = (html: string, col: number): string => {
+    if (!col)
+        return html;
+    
+    let plain = 0; // count of non-tag characters seen
+    let i = 0;
+    
+    // current position in `html`
+    while (i < html.length && plain < col) {
+        if (html[i] === '<') {
+            // Skip the whole tag without counting characters
+            while (i < html.length && html[i] !== '>')
+                i++;
+            
+            i++; // skip '>'
+        } else {
+            plain++;
+            i++;
+        }
+    }
+    
+    return `${html.slice(0, i)}<span class="ast-col-marker">|</span>${html.slice(i)}`;
+};
+
+/**
+ * A `|` inserted at the selected column, so the cursor position is visible.
+ * The plain-text line is highlighted first; `insertMarker` then splices the
+ * marker span into the HTML at the character offset that holds the same
+ * column, so the `|` never sits inside a tag.
+ */
 export function markedLine(text: string, col: number): string {
     if (!col)
         return text;
     
-    return `${text.slice(0, col)}|${text.slice(col)}`;
+    const html = highlight(text);
+    
+    return insertMarker(html, col);
 }
 
 export default function AstCodePreview({source, selected}: AstCodePreviewProps) {
@@ -38,7 +78,7 @@ export default function AstCodePreview({source, selected}: AstCodePreviewProps) 
     
     return (
         <div
-            className="ast-code"
+            className="ast-code-preview tok-scope"
             data-testid="ast-code-preview"
         >
             {lines.map((line, index) => {

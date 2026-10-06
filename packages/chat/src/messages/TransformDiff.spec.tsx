@@ -99,3 +99,29 @@ test('TransformDiff: an unchanged transform draws no before or after block', (t)
     t.equal(result, expected);
     t.end();
 });
+
+test('TransformDiff: before block contains tok- spans', (t) => {
+    diff('const a = 1;', 'const a = 2;');
+    
+    const code = document.querySelector('.transform-diff__code--before');
+    const result = code && code.innerHTML.includes('tok-') || false;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('TransformDiff: after block contains tok- spans', (t) => {
+    diff('const a = 1;', 'const a = 2;');
+    
+    const code = document.querySelector('.transform-diff__code--after');
+    const result = code && code.innerHTML.includes('tok-') || false;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});

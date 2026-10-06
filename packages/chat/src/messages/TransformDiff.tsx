@@ -1,9 +1,9 @@
+import {highlight} from '../highlight.ts';
+
 export interface TransformDiffProps {
     before: string;
     after: string;
 }
-
-const linesOf = (text: string): string[] => text.split('\n');
 
 /**
  * Before and after, side by side rather than as a computed diff. A `putout`
@@ -27,6 +27,10 @@ export default function TransformDiff({before, after}: TransformDiffProps) {
             </div>
         );
     
+    // Highlight each side after splitting, so the spans stay inside their
+    // source line and never straddle a newline.
+    const highlightedLines = (code: string) => highlight(code).split('\n');
+    
     return (
         <div
             className="transform-diff"
@@ -36,14 +40,17 @@ export default function TransformDiff({before, after}: TransformDiffProps) {
                 <h4 className="transform-diff__title">
                     {'before'}
                 </h4>
-                <pre className="transform-diff__code transform-diff__code--before">
-                    {linesOf(before).map((line, index) => (
+                <pre
+                    className="transform-diff__code transform-diff__code--before tok-scope"
+                >
+                    {highlightedLines(before).map((html, index) => (
                         <code
                             className="transform-diff__line"
                             key={index}
-                        >
-                            {line}
-                        </code>
+                            dangerouslySetInnerHTML={{
+                                __html: html,
+                            }}
+                        />
                     ))}
                 </pre>
             </div>
@@ -51,14 +58,17 @@ export default function TransformDiff({before, after}: TransformDiffProps) {
                 <h4 className="transform-diff__title">
                     {'after'}
                 </h4>
-                <pre className="transform-diff__code transform-diff__code--after">
-                    {linesOf(after).map((line, index) => (
+                <pre
+                    className="transform-diff__code transform-diff__code--after tok-scope"
+                >
+                    {highlightedLines(after).map((html, index) => (
                         <code
                             className="transform-diff__line"
                             key={index}
-                        >
-                            {line}
-                        </code>
+                            dangerouslySetInnerHTML={{
+                                __html: html,
+                            }}
+                        />
                     ))}
                 </pre>
             </div>

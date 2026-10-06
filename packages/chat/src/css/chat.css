@@ -1,3 +1,5 @@
+@import './highlight.css';
+
 /**
  * Claude's palette, in the client's shape.
  *
@@ -750,7 +752,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .chat-header__btn,
     .input__send {
         transition: none;
     }

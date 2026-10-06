@@ -1,0 +1,41 @@
+/*
+ * Maps @lezer/highlight's `tok-*` class names to the editor colour tokens.
+ * `classHighlighter` from `@lezer/highlight` produces these class names
+ * automatically from the grammar's tag system — one CSS rule per tag family
+ * is all that is needed.
+ *
+ * These rules apply inside `.tok-scope` (set on the code block's container)
+ * so they do not bleed into the AST tree or the rest of the UI.
+ */
+.tok-scope .tok-keyword        { color: var(--ast-c-control);     } /* const, return, if */
+.tok-scope .tok-definitionKeyword { color: var(--ast-c-control);  } /* function, class */
+.tok-scope .tok-variableName   { color: var(--color-text-strong); }
+.tok-scope .tok-definition.tok-variableName { color: var(--ast-c-declaration); } /* const x = */
+.tok-scope .tok-propertyName   { color: var(--ast-c-expression);  }
+.tok-scope .tok-string         { color: var(--ast-c-literal);     }
+.tok-scope .tok-number         { color: var(--ast-c-literal);     }
+.tok-scope .tok-bool           { color: var(--ast-c-literal);     }
+.tok-scope .tok-null           { color: var(--ast-c-literal);     }
+.tok-scope .tok-comment        {
+    color: var(--color-text-dim);
+    font-style: italic;
+}
+.tok-scope .tok-lineComment    {
+    color: var(--color-text-dim);
+    font-style: italic;
+}
+.tok-scope .tok-blockComment   {
+    color: var(--color-text-dim);
+    font-style: italic;
+}
+.tok-scope .tok-typeName       { color: var(--ast-c-statement);   }
+.tok-scope .tok-className      { color: var(--ast-c-statement);   }
+.tok-scope .tok-operator       { color: var(--color-text-strong); }
+.tok-scope .tok-punctuation    { color: var(--color-text-dim);    }
+.tok-scope .tok-bracket        { color: var(--color-text-strong); }
+.tok-scope .tok-brace          { color: var(--color-text-strong); }
+.tok-scope .tok-angleBracket   { color: var(--color-text-strong); }
+.tok-scope .tok-regexp         { color: var(--ast-c-literal);     }
+.tok-scope .tok-atom           { color: var(--ast-c-call);        } /* this, super */
+.tok-scope .tok-self           { color: var(--ast-c-call);        }
+.tok-scope .tok-function.tok-variableName { color: var(--ast-c-call); }
