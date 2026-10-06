@@ -46,6 +46,9 @@ jobs:
       - name: Build for e2e
         run: redrun build
         working-directory: packages/client
+      - name: Build chat for e2e
+        run: bun run build
+        working-directory: packages/chat
       - name: E2E tests
         run: redrun test:e2e
         working-directory: packages/client
