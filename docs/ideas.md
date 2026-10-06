@@ -22,6 +22,51 @@ mark it as one.
 | 7 | A rule for an assertion that cannot fail informatively | S |
 | 8 | Write up migrating `plugin-putout-editor` to TypeScript | S |
 | 9 | Fixers for `hoist-arrow-callback` and `check-try-catch-destructure` | M |
+| 10 | A rule for a guard the pattern key already made unreachable | S |
+| 11 | Splicing the newline into a controlled textarea by hand — **rejected** | S |
+| 12 | A rule for calling a method with no receiver — **rejected** | S |
+
+## 11. Splicing the newline into a controlled textarea by hand — rejected
+
+**Evidence.** `plan.md` for the `/chat` composer flip, §8, prescribes it: *"Plain
+Enter newline insertion in a controlled textarea — React controls `value` via
+state. The browser's default newline behaviour is suppressed by React's synthetic
+event system in some configurations. The safest approach: call
+`event.preventDefault()` on plain Enter to suppress any default, then manually
+insert `\n` at the cursor position via `setText`. The cursor restore via
+`requestAnimationFrame` is necessary because `setSelectionRange` on a textarea
+whose value just changed via state needs the DOM to re-render first."*
+
+**It was never written, and it is not needed.** A `textarea` inserts the newline
+itself and fires the `input` event, which React's `onChange` already turns into
+state — React does not suppress it. Measured, not assumed: the e2e presses
+`Enter` in a real Chromium and asserts both halves,
+
+```ts
+await expect(box(page)).toHaveValue('/help\n');
+await expect(userMessages(page)).toHaveCount(0);
+```
+
+and passes.
+
+**The caret maths would have worked in a spec, which is the part worth keeping.**
+The reason to be suspicious of a hand-rolled version here is not that it cannot
+be tested. Probed: on a jsdom `textarea` with `value = '/help'`, `selectionStart`
+is `5` and `setSelectionRange` and `requestAnimationFrame` both exist, so a spec
+would have got the expected value and gone green. The machinery would have been
+paid for by a test that cannot tell whether the browser was doing the same thing
+or the component was. The checks that *could* have caught it — a real
+keystroke — are the e2e's, and the e2e only exists because this was measured
+there first.
+
+**The cost is not the code, it is the second copy.** The hand-rolled version has
+to know where the caret is, and so does the browser, and now they can disagree.
+Leaving it alone means the newline behaviour is the platform's.
+
+**Why it is still here.** Because the next plan to touch a controlled textarea
+in this repo will say the same thing, and "React suppresses it" reads as a
+measured fact. It is not; it is a plausible mechanism that was checked against
+an e2e and found wrong.
 
 ## 7. A rule for an assertion that cannot fail informatively
 
@@ -121,3 +166,80 @@ already exists is a redeclaration, not a hoist. Size M.
 **The try/catch one is S.** The rewrite is mechanical and always the same — bind, then guard — so the
 risk is dropping a default the author meant, which is a test rather than a code change.
 
+**Seen, not hypothetical.** `SHAPES.some((shape) => isFunction(plugin[shape]))` is exactly the shape
+this idea describes — the parameter *is* used in the body, so hoisting it to `some(isFunction)` would
+bind `isFunction` to itself at the top level and shadow the outer one, which is a
+`Cannot access 'isDeclaration' before initialization` in the making. The call site is a `for..of` now
+with the reason written beside it, in `packages/mcp/src/validator.ts`. So the "unused parameter"
+guard in the first option is not a nicety: it is the difference between a fix and a broken module,
+and the rule will not see it because the *parameter* is used.
+
+## 10. A rule for a guard the key already made unreachable
+
+**Evidence.** 1, found by the coverage gate rather than by reading: `apply-boolean-cast-to-typeof`
+sat at 73.33% branches because `matcher` had three `if (...) return false` guards and `replacer` had
+a fourth, and **not one of them could ever be false**. Both are keyed on the same
+`Boolean(__a) && typeof __a === "object"`, and the key decides every case the guards re-checked —
+verified one at a time, and the cast form the README said the guard existed to protect matches the
+key **zero** times.
+
+**Why it pays.** The guards read as defensive and are not, which is worse than not having them: a
+reader checks the guard instead of checking the key, so a key that is too loose looks safe. And a
+100%-coverage gate is the only thing in this repo that noticed — 253 tests, all green, and the
+uncovered lines were the whole defect. That is `docs/memory/putout-rules.md`'s "a pattern key is a
+whole name" from the other end: the key is not a prefilter for the matcher, it **is** the matcher.
+
+**How.** A rule cannot see the other half of a plugin, so this is not expressible as a lint rule —
+it is a *coverage* rule: an uncovered branch in a rule whose `match` and `replace` share a key, in a
+package with `checkCoverage`, is a guard that the key made dead. `@putout/plugin-*` has no such
+check, and it belongs upstream. Here the cheap form is a `t.noReport` per guard, the same way
+`no-comments` needed one: a fixture where the shape the guard rejects is present, asserting the
+plugin still reports nothing. The guards are deleted rather than covered —
+[`issues/putout-plugins.md`](./issues/putout-plugins.md) has the measurement, and
+`AGENTS.md`'s "a rule name is a claim about what it checks" is the same argument about a comment.
+
+## 12. A rule for calling a method with no receiver — rejected, putout blocks the fix
+
+**Evidence.** `rows.map(({getAttribute}) => getAttribute('data-category'))` — written in
+`packages/chat/e2e/desktop.ts` this run and it failed **twice** before it worked, both times in
+a way no unit spec could see. In a browser, `page.evaluate: TypeError: Illegal invocation`. In
+happy-dom, `getAttribute` reads `Symbol(attributes)` off `this` and answers nonsense. The trap is
+already recorded for happy-dom in `AstBlock.spec.tsx`; the browser half is new.
+
+**The blast radius is zero.** Measured over every `.ts`/`.tsx`/`.js`/`.mjs` in `packages/` and
+`scripts/` (`find | grep -v node_modules`, parsed with `putout`'s own parser, walking every
+`ArrayExpression`): **0 sites**. The repo does not do this, which is why a rule would be a guard
+on the house style rather than a cleanup.
+
+**Why it is rejected rather than filed as open.** The rule was written, with the fixtures, and
+`putout` refuses the *replacement*:
+
+```
+☝️ Looks like template values not linked: ["__","__a","__b"] -> ["__","__c","__a","__b"]
+```
+
+The fix has to name the object it came from, and the pattern does not bind it. `AGENTS.md` already
+says this in advance — *"anything a fixer would have to invent a name for"* keeps the guard out of
+the `match`, because a guard placed in the reporter filters the wrong thing — and a rule that only
+reports cannot run in the normal runner at all, so it would not be a rule here even if it
+compiled.
+
+Every escape was measured and none works:
+
+| Attempt | Result |
+|---|---|
+| `__.method((__c) => __c.__a(__b))` | `__c` is unbound in the pattern — the error above |
+| `__.method(({__a}) => __a.__a(__b))` | `__a` binds twice with two meanings |
+| `__.method(({__a: __c}) => __c.__a(__b))` | `__c` is still new |
+| report-only plugin | cannot run: `find`/`scan` with no `fix` throws |
+
+So the rule is not buildable in 🐊**Putout** today, and `docs/issues/putout-plugins.md` already
+carries the general version of this gap. **What is in the tree instead** is the thing that
+actually prevents it: `AstBlock.spec.tsx` names the trap for happy-dom, and the e2e comment in
+`packages/chat/e2e/desktop.ts` names it for the browser.
+
+**What would make it buildable.** Either 🐊**Putout** allows a replacement to introduce a placeholder
+and synthesise a name for it (the same question as idea 9's fixers, and the same answer: a name is
+a decision, not a rewrite), or the rule moves to `redlint`, where a report-only scanner is a
+legitimate shape. The second is the smaller change and the reason this is filed rather than
+dropped.

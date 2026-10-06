@@ -1,0 +1,272 @@
+# Workspaces
+
+**Install a means with `bun i --no-save`; only a declared dependency goes in `package.json`.**
+
+There is no committed lock file here — `bun.lock` is gitignored on purpose, and CI installs
+with `bun i -f --no-save`. So a bare `bun i <pkg>` leaves an unrelated lockfile diff in the
+middle of a feature commit, and `npm i` is worse than wrong: it starts, writes nothing to
+`node_modules`, and times out, which is a several-minute dead end rather than a fast failure.
+When an install exists only to compare the published build against the workspace, or to bring
+in a peer of something already present, `bun i --no-save <pkg>` is the command.
+
+**And a workspace package is not the published build.** `node_modules/putout` is a symlink to
+`~/putout/packages/putout`, so anything measured through it is the workspace's behaviour.
+Stating that is part of a finding, not a footnote — the 🐊**Putout** report at the repo root
+carries the caveat because the six defects in it are versioned to what was installed here.
+
+## `redrun` walks *up*, not *down* — and the name reads the other way
+
+`redrun <script>` collects scripts from the cwd and every **parent** directory
+(`parentDirectories` in `redrun/bin/redrun.js`), then runs them joined. It never descends into a
+sibling package.
+
+So `redrun test:e2e` from `packages/client` runs the client's and the root's — and nothing in
+`packages/chat`, `packages/mcp` or `packages/commands`. Those scripts are not slow, they are
+**absent**, and the job is green.
+
+"run multiple npm-scripts fast" reads as *all of them*. It is *all of them on the way up*. Worth
+knowing before trusting a badge: a passing `E2E` job was evidence about the editor alone while
+`packages/chat`'s 15 specs ran only locally. Open problem in
+[`../issues/chat.md`](../issues/chat.md) — the fix is a workflow step, not a note.
+
+For a script that must run in one package, use `bun run <script>` with a `working-directory`:
+it also puts `node_modules/.bin` on `PATH`, the thing `redrun` does not reliably do.
+
+## A nested `node_modules/` in a workspace breaks `redrun`, and nothing says so
+
+The e2e job runs `redrun build` with `working-directory: packages/client`, and it failed on this
+branch with `/bin/sh: 1: rspack: not found` while passing on `master`. The build script is
+byte-identical on both, so the difference is the **install layout**, not the code.
+
+`redrun` walks up from the cwd and stops at the **first** directory containing a `node_modules`
+(`nodeModulesDir` in `redrun/bin/redrun.js`), then puts `<that>/node_modules/.bin` on `PATH` via
+`envir`. A nested `packages/<pkg>/node_modules/` therefore hijacks it — and such a directory has
+no `.bin`, so every local binary in the build goes missing at once.
+
+What creates it: the client was the only workspace pinned to `@types/node@^22` while the other
+four were on `^26`. Adding `packages/chat` changed which version won the hoisted root slot, and
+the client ended up with `packages/client/node_modules/@types/node@22.20.5` nested beside a root
+holding `26.6.4`.
+
+```
+$ ls -d packages/*/node_modules        # master: commands, mcp, server — never client
+$ ls -d packages/*/node_modules        # branch:  client only
+```
+
+So the version skew was *asymmetric*: it only ever hurt the package that lost the root slot, and
+that package is the one `redrun` happens to be invoked from. **Aligning the version is the fix**
+— one `@types/node` means nothing nests, and the walk reaches the root as it did on master.
+
+Two things this cost that are worth keeping:
+
+- **`bun i -f --no-save` does not remove a stale nested directory.** The first run after the
+  version bump still reported the old `22.20.5` nested and still failed, which read as "the fix
+  does not work". `rm -rf node_modules packages/*/node_modules` first, or the second conclusion
+  is drawn from the first tree.
+- **`--help` is not how you find this.** The failing step names a binary, not a dependency, and
+  the binary is present at the root the whole time. The question is *which `node_modules` redrun
+  picked*, and that is one `statSync` away.
+
+The build scripts also export the root `.bin` on `PATH` themselves now, so a future skew degrades
+to "still builds" rather than "CI is red with a message that points at the wrong thing".
+
+## `--fix` on TypeScript **corrupts an `as` cast**, silently
+
+The worst one, and it is **not a rule** — it reproduces with `plugins: []`, so the damage is in
+parse-and-print.
+
+```ts
+const b = v as boolean;
+```
+
+```sh
+$ putout b.js --fix
+$ cat b.js
+const b = v;
+as;
+boolean;
+```
+
+Three statements, `places: 0`, exit 0. `as` is parsed as an identifier and the annotation is
+printed as its own statement. **Without `isTS: true`, `putout --fix` over TypeScript rewrites the
+file and says nothing** — and a CI step that checks only the exit code sees a pass.
+
+`isTS: true` selects the TypeScript parser and every case is clean — declaration, argument,
+parameter, binary expression, array element, return, `as unknown`. What does **not** work: no
+options, and `ts: true` (both throw `Unexpected token, expected ","`), and
+`parser: {plugins: ['typescript']}` (`parser.parse is not a function`).
+
+The smaller version of the same trap is a **`.js` fixture holding TypeScript**: a `fixture/*.js`
+containing `as boolean` is JavaScript only in name, and `t.transform` fails on it. That is how
+`apply-boolean-cast-to-typeof`'s own `-fix` fixture was caught.
+
+## `--fix` emptying a file is the rules working — read the whole set, not one rule
+
+```js
+const a = 1;
+
+console.log(a);
+```
+
+```sh
+$ putout remove-console.js --fix
+$ wc -c remove-console.js
+1 remove-console.js
+```
+
+Zero bytes, and **correct**. `remove-console` takes the `console.log`, which was the only user
+of `a`, so `remove-unused-variables` then takes `const a = 1;`. Nothing malfunctioned; the file
+had nothing else in it. Neither rule should be "fixed", and it should not be filed.
+
+The control that settles it in one run — give `a` a second user and the file survives:
+
+```js
+const a = 1;
+console.log(a);
+export const b = a + 1;
+// → const a = 1;  +  export const b = a + 1;
+```
+
+**The mistake is the lesson.** I isolated `remove-console` with its own config, got a clean
+reproduction, read the emptied file as data loss, and wrote it up as the worst defect in the
+report — with a root cause and a proposed fixture. Isolating a rule makes a reproduction
+*cleaner*, not *more complete*: the pipeline still runs everything else. The question to ask is
+not "which rule emptied this" but "what else ran, and did it have a reason too".
+
+The same shape has bitten three times in this repo's history, so it is worth stating as a rule:
+**a check that passes on a cheaper path than the user takes proves nothing about the expensive
+one.** `t.deepEqual` against a re-export of its own source passed while the module was unloadable
+by every real consumer; a single-tree keyboard spec passed while the document-scoped listener would
+have moved two trees at once; and a round-trip test that parsed with `@babel/parser` and printed
+with `putout` "found" two `@putout/printer` bugs that do not exist — **`print()` takes what
+`putout`'s own `parse()` produced**, because that one sets `node.raw` and `@babel/parser` does not.
+
+Both reports were at `~/broken-putout.md` and `~/broken-putout2.md`. **Only `broken-putout2.md`
+survives** — it holds the `as`-cast corruption (§1), the `remove-console` correction (§2) and the
+printer correction (§3) with the measured output. `broken-putout.md`, the rule-by-rule report, is
+gone from disk, so the two prose citations of it below name the surviving report instead.
+
+---
+
+**A package subpath import must not carry a `.ts` extension.**
+
+Moving the four pure modules into `@putout/editor-commands` and having `mcp` delegate to them
+(plan-c §4) means an import across a package boundary for the first time. The obvious form,
+matching every relative import in the repo, fails:
+
+```ts
+import {compactAST} from '@putout/editor-commands/src/compact.ts';
+```
+
+```
+Error: ENOENT: no such file or directory, open
+'/home/coderaiser/putout-editor/packages/mcp/src/@putout/editor-commands/src/compact.ts'
+    at getSourceSync (node:internal/modules/esm/load:41:17)
+    at load (…/@supertape/loader-ts/lib/ts.js:15:26)
+```
+
+**Why.** `@supertape/loader-ts` short-circuits resolution for anything matching `/.tsx?$/`:
+
+```js
+export function resolve(specifier, context, nextResolve) {
+    if (/\.tsx?$/.test(specifier)) {
+        return {
+            url: new URL(specifier, context.parentURL).href,
+            shortCircuit: true,
+        };
+    }
+    
+    return nextResolve(specifier, context);
+}
+```
+
+`new URL('@putout/editor-commands/src/compact.ts', parent)` is not a package resolution at all —
+it is a *relative* path, so the bare specifier becomes a file under the importer's own `src/`.
+Plain `node` and `bun` both resolve it correctly, so the same import passes outside the test
+runner and dies only under `tape`. That is the trap: a green `node` run is not evidence about the
+mode the suite actually uses.
+
+**The fix** is an extensionless subpath plus an `exports` map on the package:
+
+```jsonc
+"exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+}
+```
+
+```ts
+import {compactAST} from '@putout/editor-commands/compact';
+```
+
+Verified under loader-ts, plain `node` and `bun`. The map is the load-bearing half — without it
+the extensionless form has no entry to resolve to.
+
+**Relative imports inside one package keep the `.ts` extension.** They resolve on disk and the
+loader handles them; this only applies to a specifier that crosses into `node_modules`.
+
+## A `.css` file has no default export, and declaring one hides that
+
+`packages/client/src/export-tokens.ts` shipped the shape its own plan specified —
+`export {default as tokensUrl} from './css/tokens.css'` — and **no runtime can load it**:
+
+```
+$ bun -e "import './css/tokens.css'"
+error: Cannot find module './css/tokens.css'
+```
+
+Three things made it look right, and each is worth checking for separately:
+
+- **`tsc` passes.** `packages/client/src/types/supertape.d.ts` is `declare module '*.css'`, so
+  the module is `any` and a `default` off it typechecks. The type system is not evidence here.
+- **The spec passed.** It imported `tokens.css` as a value and compared it to the module's own
+  re-export — both sides through supertape's CSS loader. Comparing a re-export to its own source
+  is the tautology to watch for: it can only fail if resolution fails, and the loader was
+  providing resolution.
+- **The package builds.** rspack has `css-loader`, so the bundler is the one environment where
+  this works.
+
+A `.css` import is bundler-only. `import './x.css'` for the side effect is the shape the other
+ten client files use, and the only one that a test runner or a plain `node` can load. So a
+"public export" of a stylesheet is only meaningful to a bundler, which is worth asking about
+before writing one — see the plan's own §8, where chat carries its own `tokens.css` and the
+client one is "if chat imports it in the future".
+
+## The coverage exclude list, and the one shape that earns an entry
+
+`packages/commands/.nycrc.json` excludes `**/*.types.ts` — not to make the gate pass, but because
+a file of type declarations has no statement to execute. `src/state.types.ts` is 60 lines of
+`interface`/`type` and no runtime code, so no test can ever cover it.
+
+That is the whole test for an exclusion: *is there a statement here that a test could execute?*
+`src/index.ts` in the same package is four re-export statements — real code — so it got a spec
+instead, and is at 100%. The line between the two is not "small" or "boring", it is "has runtime
+code", which is the same distinction `packages/mcp/.nycrc.json` and `packages/client/.nycrc.json`
+already draw.
+
+## A workspace fan-out that aborts on a missing script hides the packages that passed
+
+A root `check` implemented as a fan-out (`madrun`/`madrun-fork` over every workspace
+package) **stops at the first package that does not define a script** and reports
+that, rather than the packages that ran. So `madrun check` printed
+
+```
+1..1029
+# tests 1029
+# pass 1029
+
+🌿 packages/client
+One of scripts not found: test:one
+Command failed: .../node_modules/redrun/bin/redrun.js test:one
+```
+
+— 1029 green tests and a non-zero exit from **one run**, and the exit is the part
+a reader takes away. Same shape as
+[`../memory/tape.md`](./tape.md)'s "read the count, not the exit code", and the
+same failure mode: the number that looks like the verdict is not the one that is.
+
+The scripts `AGENTS.md` tells every agent to run (`check`, `test:one`,
+`coverage:json`) now exist at the root **and** in every workspace package.
+
+**How to re-check it**, rather than reading any claim about it: run the three
+commands and confirm none of them prints `one of scripts not found`.

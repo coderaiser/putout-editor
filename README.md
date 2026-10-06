@@ -2,8 +2,8 @@
 
 [BuildStatusURL]: https://github.com/coderaiser/putout-editor/actions "Build Status"
 [BuildStatusIMGURL]: https://github.com/coderaiser/putout-editor/workflows/Node%20CI/badge.svg
-[CoverageURL]: https://coveralls.io/github/coderaiser/putout?branch=master
-[CoverageIMGURL]: https://coveralls.io/repos/coderaiser/putout/badge.svg?branch=master&service=github
+[CoverageURL]: https://coveralls.io/github/coderaiser/putout-editor?branch=master
+[CoverageIMGURL]: https://coveralls.io/repos/coderaiser/putout-editor/badge.svg?branch=master&service=github
 
 Web editor for the simplest declarative plugins for 🐊[**Putout**](https://github.com/coderaiser/putout), pluggable code transformer of your dreams 🤫.
 
@@ -25,6 +25,20 @@ And of course 🐊[**Putout Runner**](https://github.com/coderaiser/putout/tree/
 - ✅ [@putout/plugin-declare](https://github.com/coderaiser/putout/tree/master/packages/plugin-declare#readme)
 
 enabled. For other then **JavaScript** languages and other transformations please use marvelous [astexplorer](https://astexplorer.net/).
+
+## The packages
+
+| Package | What it is |
+|---|---|
+| [`packages/client`](./packages/client) | the editor itself |
+| [`packages/chat`](./packages/chat) | `/chat` — a thread where a command runs 🐊**Putout** over the source you set, with the AST tree beside it |
+| [`packages/commands`](./packages/commands) | the commands and the AST flattener, shared by the chat and the mcp |
+| [`packages/mcp`](./packages/mcp) | an MCP server exposing 🐊**Putout** to an agent |
+| [`packages/plugin-putout-editor`](./packages/plugin-putout-editor) | the lint rules that are about *this* codebase |
+
+**A command is its first word** — `ast`, `source [source]`, `find [plugin]` — with
+no sigil in front of it, and `help` prints what each one takes. See
+[`packages/chat/README.md`](./packages/chat/README.md).
 
 ## How to setup service
 

@@ -34,12 +34,15 @@ test('server: registers the base tools', (t) => {
         'docs',
         'fetch_snippet',
         'find_places',
+        'flatlint_rule',
         'formats',
         'get_example',
         'name_pattern',
         'parse',
+        'printer_visitor',
         'test_pattern',
         'transform',
+        'type_check',
         'validate',
     ];
     

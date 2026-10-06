@@ -1,6 +1,9 @@
 import {test} from 'supertape';
 import '../../../test/msw/env.ts';
-import {server} from '../../../test/msw/server.ts';
+import {
+    listen,
+    server,
+} from '../../../test/msw/server.ts';
 import {
     parseHandlers,
     parseErrorHandler,
@@ -81,9 +84,7 @@ test('parse: fetchFromURL: resolves null when hash is empty', async (t) => {
 });
 
 test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     server.use(...parseHandlers);
     
     const result = await withHash('#/abc123', async () => await fetchFromURL());
@@ -95,9 +96,7 @@ test('parse: fetchFromURL: resolves Revision when hash is valid', async (t) => {
 });
 
 test('parse: fetchFromURL: requests the hash-derived path with latest revision', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     
     const result = await withHash('#/abc123/latest', async () => {
         return await fetchFromURL();
@@ -110,9 +109,7 @@ test('parse: fetchFromURL: requests the hash-derived path with latest revision',
 });
 
 test('parse: fetchFromURL: requests the hash-derived path with numeric revision', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     
     const result = await withHash('#/abc123/3', async () => {
         return await fetchFromURL();
@@ -125,9 +122,7 @@ test('parse: fetchFromURL: requests the hash-derived path with numeric revision'
 });
 
 test('parse: fetchFromURL: defaults revision to 0 when hash has no revision', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     
     const result = await withHash('#/abc123', async () => {
         return await fetchFromURL();
@@ -140,9 +135,7 @@ test('parse: fetchFromURL: defaults revision to 0 when hash has no revision', as
 });
 
 test('parse: fetchFromURL: echoes the requested snippetID', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     
     const result = await withHash('#/snippet42/latest', async () => {
         return await fetchFromURL();
@@ -155,9 +148,7 @@ test('parse: fetchFromURL: echoes the requested snippetID', async (t) => {
 });
 
 test('parse: fetchFromURL: 404 returns error message', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     server.use(...parseErrorHandler(404));
     
     const result = await withHash('#/nonexistent', async () => {
@@ -171,9 +162,7 @@ test('parse: fetchFromURL: 404 returns error message', async (t) => {
 });
 
 test('parse: fetchFromURL: 404 message names snippet and revision', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     server.use(...parseErrorHandler(404));
     
     const result = await withHash('#/gone/7', async () => {
@@ -187,9 +176,7 @@ test('parse: fetchFromURL: 404 message names snippet and revision', async (t) =>
 });
 
 test('parse: fetchFromURL: unknown error returns unknown error', async (t) => {
-    server.listen({
-        onUnhandledRequest: 'error',
-    });
+    listen();
     server.use(...parseErrorHandler(500));
     
     const result = await withHash('#/error', async () => {

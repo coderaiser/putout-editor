@@ -1,0 +1,344 @@
+/**
+ * The TUI tree. One stylesheet for all six components, because they are one
+ * widget: a change to the row's type colours changes what the search bar and the
+ * status bar sit next to, and three files would make that a three-file diff.
+ *
+ * Every colour is a token with a hex fallback on the same declaration, so the
+ * tree renders standalone — mounted in a spec, or in the console panel before
+ * `chat.css` has loaded. The names are the client's, so the page's palette
+ * restyles this rather than fighting it, and the fallbacks match
+ * `chat.css`'s **light** values so a tree on its own is cream rather than the
+ * old `#1a1a2e`, which no longer appears anywhere.
+ */
+
+.ast {
+    --ast-bg: var(--color-bg-editor, #fff);
+    --ast-fg: var(--color-text, #3d3d3a);
+    --ast-dim: var(--color-text-dim, #9a9890);
+    --ast-accent: var(--color-accent, #c15f3c);
+    --ast-border: var(--color-border, #e5e3dc);
+    --ast-match: var(--color-marked, #f5e6a8);
+    --ast-selected: var(--color-selected, #f0eee6);
+    
+    /*
+     * Type-category colours.
+     *
+     * Derived from the palette already in this file, not from `happy-style`:
+     * plan.md §4 says to check that package first, and it exports four
+     * functions — `convertCssToJs`, `convertJsToCss`, `parseCss`, `printCss` —
+     * and no tokens at all. It is a css-to-JS **parser**, so there is nothing to
+     * read a palette out of. (The plan also names `happy-style@1.0.7`; 1.0.5 is
+     * installed here, and neither version ships a theme.)
+     *
+     * These are the **light** values, chosen to sit on `--ast-bg: #fff` and to be
+     * distinguishable from each other at 13px monospace. The dark set is
+     * `[data-theme='dark'] .ast` below, because these have no `--color-*`
+     * counterpart to inherit — the one deliberate exception to the
+     * `var(--color-*, fallback)` pattern the other six tokens use, and the reason
+     * is that there is nothing on the page to inherit *from*.
+     *
+     * Hues follow VS Code's dark theme, which is what the plan's reference image
+     * shows: gold statements, blue declarations, violet expressions, teal calls,
+     * warm literals, plain-text identifiers, red control flow.
+     */
+    --ast-c-statement: #9a6b00;
+    --ast-c-declaration: #2a6fb0;
+    --ast-c-expression: #6d3fc4;
+    --ast-c-call: #0e7a6e;
+    --ast-c-literal: #b45309;
+    /* the foreground itself: an identifier is what everything else decorates */
+    --ast-c-identifier: var(--ast-fg);
+    --ast-c-control: #b91c1c;
+    /* `other` takes the accent `.ast-row__type` already had, so an unrecognised
+       node reads as "no opinion" rather than as a bug */
+    --ast-c-other: var(--ast-accent);
+    
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--ast-border);
+    border-radius: 6px;
+    background: var(--ast-bg);
+    color: var(--ast-fg);
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+}
+
+/* `ast-output` is the root's testid, and the root is also the keyboard target:
+   two trees on one page must each answer their own keypresses, which is why the
+   listener is bound here rather than to `document`. */
+.ast:focus-visible {
+    outline: 1px solid var(--ast-accent);
+}
+
+/**
+ * The eight category colours, on the dark background.
+ *
+ * Scoped to `[data-theme='dark'] .ast` rather than `@media (prefers-color-scheme)`
+ * because `chat.css` keys its own dark palette off the attribute and a media
+ * query here would disagree with it the moment a user overrode the theme — a
+ * light tree with dark category colours is the failure this avoids.
+ *
+ * These are the hues from the design session, mapped onto the categories rather
+ * than onto node types: the design coloured `Program` cyan and
+ * `VariableDeclaration` violet individually, and eight buckets that cover every
+ * babel type is the more maintainable shape — a ninth type is a `Set` entry and a
+ * selector rather than another rule.
+ *
+ * | category     | design hue | from            |
+ * |--------------|------------|-----------------|
+ * | statement    | cyan       | `Program`       |
+ * | declaration  | violet     | `Variable*`     |
+ * | expression   | amber      | `Binary*`, `Arrow*` |
+ * | call         | blue       | `Call*`, `Member*`   |
+ * | literal      | orange     | `Numeric*`, `String*` |
+ * | identifier   | green      | `Identifier`    |
+ * | control      | pink       | `Return*`, `If*`, `For*` |
+ *
+ * The mapping is a judgement and this measures it: contrast against the dark
+ * background `--color-bg-editor: #1f1e1d`, WCAG 2.1 relative-luminance ratio.
+ * Every one clears AA (4.5:1) comfortably and the **weakest** category is 6.29:1,
+ * against 5.33:1 for the previous set — so "wrong hue" from the plan is right
+ * about the look and this is the number behind it. `AstStatus.spec.tsx`'s sibling
+ * `tokens.spec.ts` recomputes it, so a future palette that reads better and
+ * dimmer does not pass silently.
+ *
+ * `identifier` is overridden here where the light set inherits it from
+ * `--ast-fg`: the design gave `Identifier` its own green, and an identifier row
+ * in plain foreground is the one row whose colour says nothing.
+ */
+[data-theme='dark'] .ast {
+    --ast-c-statement: #7dcfff;
+    --ast-c-declaration: #bb9af7;
+    --ast-c-expression: #e0af68;
+    --ast-c-call: #7aa2f7;
+    --ast-c-literal: #ff9e64;
+    --ast-c-identifier: #9ece6a;
+    --ast-c-control: #f7768e;
+    /*
+     * The accent, which is also `--ast-c-other`. On light it is Claude's
+     * terracotta `#c15f3c`, chosen for cream; on `#1f1e1d` it measures 5.33:1 and
+     * reads as a smudge. `#c0caf5` is 10.31:1 — and since `--ast-c-other` is
+     * declared as `var(--ast-accent)`, this one line also fixes every node type
+     * the `Set` does not recognise, which is the case with no opinion to offer.
+     */
+    --ast-accent: #c0caf5;
+}
+
+/**
+ * The category rules themselves.
+ *
+ * `.ast-row__type { color: var(--ast-accent) }` below is the fallback and stays:
+ * it is what an `other` row gets, and what a row would get if these selectors
+ * were deleted.
+ *
+ * `.ast-row--match` sets `color` on the **row**, and `.ast-row--dimmed` too, but
+ * neither sets anything on `.ast-row__type`, which is the only element these
+ * rules touch — so a filtered row keeps its category colour. That is the answer
+ * to the plan's own worry, and it is structural rather than an `!important`.
+ *
+ * The selector is `.ast-row__type[data-category="x"]` — the attribute and the
+ * element it colours on one node, so there is no ancestor hop and nothing to keep
+ * in step. It is the same specificity the descendant form it replaces had, so the
+ * order these appear in this file still does not matter.
+ */
+.ast-row__type[data-category='statement'] {
+    color: var(--ast-c-statement);
+}
+
+.ast-row__type[data-category='declaration'] {
+    color: var(--ast-c-declaration);
+}
+
+.ast-row__type[data-category='expression'] {
+    color: var(--ast-c-expression);
+}
+
+.ast-row__type[data-category='call'] {
+    color: var(--ast-c-call);
+}
+
+.ast-row__type[data-category='literal'] {
+    color: var(--ast-c-literal);
+}
+
+.ast-row__type[data-category='identifier'] {
+    color: var(--ast-c-identifier);
+}
+
+.ast-row__type[data-category='control'] {
+    color: var(--ast-c-control);
+}
+
+.ast__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+}
+
+/**
+ * One column on touch, and the code preview gone.
+ *
+ * On a 390px screen two `minmax(0, 1fr)` columns are 190px each, which is
+ * enough for `Program` and `VariableDeclarator` and not enough for anything with
+ * a `detail` — so the tree, which is the point of `/ast`, was the half that ran
+ * out of room. `grid-template-columns: 1fr` gives the tree the whole width.
+ *
+ * `display: none` on the preview, not `visibility: hidden`, because the grid
+ * track it sat in is still sized and a hidden-but-present element still occupies
+ * it. The e2e asserts `toBeHidden()`, which matches `display: none` and *not* a
+ * zero-opacity element — so the two are pinned to each other.
+ */
+@media (pointer: coarse) {
+    .ast__body {
+        grid-template-columns: 1fr;
+    }
+
+    .ast-code {
+        display: none;
+    }
+}
+
+.ast__tree {
+    overflow: auto;
+    padding: 4px 0;
+}
+
+.ast__empty {
+    padding: 12px;
+    color: var(--ast-dim);
+}
+
+/* Rows */
+
+.ast-row {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    padding: 1px 8px;
+    white-space: pre;
+    cursor: pointer;
+}
+
+.ast-row:hover {
+    background: var(--ast-selected);
+}
+
+.ast-row--selected {
+    background: var(--ast-selected);
+}
+
+.ast-row--dimmed {
+    opacity: 0.45;
+}
+
+.ast-row__caret,
+.ast-row__connectors {
+    color: var(--ast-dim);
+}
+
+/*
+ * The fallback, and deliberately still here: it is what an `other` row gets,
+ * and it is what every row would get if the seven category selectors above were
+ * deleted. `--ast-c-other` names the same value so the token is declared beside
+ * its seven siblings; nothing selects on it, and that is the point.
+ */
+.ast-row__type {
+    color: var(--ast-accent);
+}
+
+.ast-row__detail {
+    color: var(--ast-fg);
+}
+
+.ast-row__pos {
+    margin-left: auto;
+    color: var(--ast-dim);
+}
+
+/* The row that *matched*, as opposed to `ast-row--dimmed`, which is a row only
+   on the path to one. Both were written together and only half was ever used:
+   `filterNodes` computed `matched`, `AstTree` dropped it, and this rule sat
+   here against a class nothing carried — so a search filtered and dimmed and
+   nothing was marked. */
+.ast-row--match {
+    background: var(--ast-match);
+    color: var(--color-text-strong, #141413);
+    border-radius: 2px;
+}
+
+/* Search bar */
+
+.ast-search {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--ast-border);
+}
+
+.ast-search__icon {
+    color: var(--ast-dim);
+}
+
+.ast-search__input {
+    flex: 1;
+    min-width: 0;
+    padding: 2px 4px;
+    border: 1px solid var(--ast-border);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+}
+
+.ast-search__count {
+    color: var(--ast-dim);
+    white-space: nowrap;
+}
+
+/* Code preview */
+
+.ast-code {
+    overflow: auto;
+    padding: 4px 0;
+    border-left: 1px solid var(--ast-border);
+}
+
+.ast-code__line {
+    display: flex;
+    gap: 8px;
+    padding: 0 8px;
+    white-space: pre;
+}
+
+.ast-code__line--active {
+    background: var(--ast-selected);
+}
+
+.ast-code__number {
+    min-width: 3em;
+    color: var(--ast-dim);
+    text-align: right;
+}
+
+/* Status bar */
+
+.ast-status {
+    display: flex;
+    gap: 12px;
+    padding: 4px 8px;
+    border-top: 1px solid var(--ast-border);
+    color: var(--ast-dim);
+}
+
+.ast-status__type {
+    color: var(--ast-accent);
+}
+
+.ast-status__help {
+    margin-left: auto;
+}

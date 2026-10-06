@@ -1,9 +1,9 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
 import {type ParserOptions, parse} from '@babel/parser';
-import {text, errorText} from './content.ts';
-import {queryAST} from './query.ts';
-import {compactAST} from './compact.ts';
+import {text, errorText} from '@putout/editor-commands/content';
+import {queryAST} from '@putout/editor-commands/query';
+import {compactAST} from '@putout/editor-commands/compact';
 
 export const name = 'parse';
 

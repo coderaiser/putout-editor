@@ -8,21 +8,24 @@ where things live and which seam owns what.
 | Package | What it is |
 |---|---|
 | `packages/client` | The editor. The app, the redux store, the CodeMirror panels, and all unit + e2e tests. |
+| `packages/chat` | The chat page. A message thread over the slash commands, and the AST tree beside it. Builds to `out/chat/index.html`, served at `/chat`. |
+| `packages/commands` | The eleven slash commands, the `parseCommand` parser and the shared `compactAST`/`queryAST`. A Node library — no React, no DOM. |
 | `packages/server` | HTTP API behind `putout.cloudcmd.io` (`/api/v1/*`). |
 | `packages/mcp` | MCP server for agents. See its `README.md`; it is independent of the client. |
 | `packages/plugin-putout-editor` | 🐊**Putout** rules for this repository. Lint, not runtime — nothing imports it. |
 
-## How the four relate
+## How they relate
 
-The interesting part is what is *not* wired. Only two of the four depend on 🐊**Putout** at
-all, and the server does not — it has no `@putout/*` dependency and parses over
-`@babel/parser` directly. `plugin-putout-editor` is a lint plugin, so it runs in CI and is
-invisible at runtime.
+The interesting part is what is *not* wired. `plugin-putout-editor` is a lint
+plugin, so it runs in CI and is invisible at runtime, and the server has no
+`@putout/*` dependency — it parses over `@babel/parser` directly.
 
 ```mermaid
 graph TD
     subgraph editorRepo["coderaiser/putout-editor"]
         client["client<br/>the editor app"]
+        chat["chat<br/>the chat page"]
+        commands["commands<br/>slash commands"]
         server["server<br/>/api/v1/*"]
         mcp["mcp<br/>tools for agents"]
         plugin["plugin-putout-editor<br/>lint rules"]
@@ -36,6 +39,9 @@ graph TD
     redput["redput<br/>compileRule"]
     babel["@babel/parser"]
 
+    chat --> commands
+    mcp --> commands
+    chat -.->|"dynamically, and only where a server could answer"| putout
     client --> putout
     client --> putoutPlugin
     mcp --> putout
@@ -45,10 +51,24 @@ graph TD
     plugin -.->|"lint only, CI"| client
 ```
 
-Three consequences worth knowing before you move code:
+Four consequences worth knowing before you move code:
 
 - **The client and the mcp are independent.** They share no source. An agent using the mcp and a
   human using the editor run two separate copies of the same rules.
+- **`commands` is the one thing both the chat and the mcp use**, which is why it is a
+  Node library and why it exports no component: the mcp has no DOM, so a React component in
+  its graph would be a dependency nobody could satisfy. `index.spec.ts` asserts the barrel
+  stays free of `Ast*` and `use*` exports so it is not "helpfully" added back.
+- **The arrow from chat to 🐊Putout is dotted because it is a `dynamic import`.**
+  `find`, `transform` and `validate` reach 🐊**Putout** through a chunk the page only
+  fetches when one of them is typed, because 🐊**Putout** cannot be bundled for a browser at
+  all — it calls `os.homedir()` at module scope. In a browser those three answer that they
+  need the server; `ast`, `source`, `console` and `help` work with no server. See
+  `packages/chat/rspack.config.js` for what is ignored and why.
+- **A command is its first word — there is no sigil.** `parseCommand` takes the first word
+  of the first line as the command, and the registry's own keys are handed to it so a
+  `source` body can end at the next command. So `/ast` is a first word that names nothing,
+  and nothing in the grammar, the messages or the docs may print a slash in front of one.
 - **The server is not a thin wrapper over the editor.** It has its own `compactAST`/`queryAST`
   and an empty `TransformModule`, so a change to the client's parser has no server counterpart
   to keep in step.

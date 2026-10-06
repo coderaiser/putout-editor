@@ -36,7 +36,7 @@
     "jiti": "^2.7.0",
     "madfork": "^1.0.1",
     "madrun": "^13.0.3",
-    "msw": "^2.15.0",
+    "msw": "^3.0.2",
     "oxlint": "^1.35.0",
     "redlint": "^6.0.0",
     "superc8": "^12.0.0",
@@ -52,6 +52,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "overrides": {
+    "supertape": "13.6.2"
+  },
   "publishConfig": {
     "access": "public"
   }

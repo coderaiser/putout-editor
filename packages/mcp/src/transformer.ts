@@ -1,8 +1,8 @@
 import {z} from 'zod';
 import {tryToCatch} from 'try-to-catch';
 import {putoutAsync} from 'putout';
-import {text, errorText} from './content.ts';
-import {compilePlugin} from './plugin.ts';
+import {text, errorText} from '@putout/editor-commands/content';
+import {compilePlugin} from '@putout/editor-commands/plugin';
 
 export const name = 'transform';
 

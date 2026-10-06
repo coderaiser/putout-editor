@@ -70,3 +70,102 @@ test('local validate: returns ok for a traverse plugin', (t) => {
     t.equal(result.content[0].text, 'ok');
     t.end();
 });
+
+/**
+ * A rule the **runner** rejects, reported as an error rather than `ok`.
+ *
+ * This is the most expensive gap the mcp has: `validate` compiles the plugin and
+ * stops there, so it answers `ok` for a rule that answers `Looks like 'fix' is not
+ * a 'function' but 'undefined'` the moment a user runs it. A tool whose stated job
+ * is "call this before `find_places`" is green on exactly the plugin that breaks
+ * `find_places`, and the round trip costs the user the error.
+ *
+ * The check is deliberately the **shape** the loader requires rather than an
+ * execution: `report` plus one of `find`, `scan`, `traverse`, `replace`,
+ * `include`, `exclude`, `rules`, `declare`. Anything else never reaches a user's
+ * AST, and an invariant with no safe automatic fix stays a message (see
+ * `docs/issues/putout-plugins.md`).
+ */
+test('local validate: a rule with no fix and no find is not ok', (t) => {
+    const result = handler({
+        plugin: 'export const report = () => "x";',
+    });
+    
+    const expected = 'ok';
+    
+    t.notEqual(result.content[0].text, expected);
+    t.end();
+});
+
+test('local validate: names what is missing', (t) => {
+    // One property — that the message lists the shapes — so seven `includes`
+    // checks rather than seven assertions, and `includes` rather than a regexp
+    // because `tape/convert-match-regexp-to-string` rejects one there.
+    const shapes = [
+        'fix',
+        'find',
+        'traverse',
+        'replace',
+        'scan',
+        'include',
+        'declare',
+    ];
+    
+    const {content} = handler({
+        plugin: 'export const report = () => "x";',
+    });
+    const [answer] = content;
+    
+    const missing = shapes.filter((shape) => !answer.text.includes(shape));
+    
+    const expected: string[] = [];
+    
+    t.deepEqual(missing, expected);
+    t.end();
+});
+
+/**
+ * The error names the *tool* to use next, because `validate`'s own description
+ * tells a caller to run `find_places` and that is what a `report`-only rule will
+ * fail in.
+ */
+test('local validate: the error points at find_places', (t) => {
+    const {content} = handler({
+        plugin: 'export const report = () => "x";',
+    });
+    const [answer] = content;
+    
+    // `t.match` with a **string** rather than `t.ok(...includes(...))`: this
+    // repo's `tape/convert-ok-to-match` asks for the former, and
+    // `convert-match-regexp-to-string` asks that it not be a regexp.
+    const expected = 'find_places';
+    
+    t.match(answer.text, expected);
+    t.end();
+});
+
+/**
+ * …and each of the shapes the loader accepts is still `ok`.
+ *
+ * The check is a list, so it can be wrong in the direction of rejecting a working
+ * rule, which would be worse than the gap: the user is told their traverser is
+ * broken when it is fine. One per accepted key.
+ */
+test('local validate: every shape the loader accepts is still ok', (t) => {
+    const shapes = [
+        'export const report = () => "x";\nexport const find = () => [];',
+        'export const report = () => "x";\nexport const replace = () => ({});',
+        'export const report = () => "x";\nexport const fix = () => {};',
+        'export const report = () => "x";\nexport const include = () => {};',
+        'export const report = () => "x";\nexport const exclude = () => {};',
+        'export const report = () => "x";\nexport const traverse = () => {};',
+        'export const declare = () => {};',
+    ];
+    
+    const wrong = shapes.filter((plugin) => handler({plugin}).content[0].text !== 'ok');
+    
+    const expected: string[] = [];
+    
+    t.deepEqual(wrong, expected);
+    t.end();
+});

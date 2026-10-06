@@ -90,6 +90,50 @@ function `estree-to-babel` uses — before the merge, so `enter` works. Alias th
 rule exports its own `traverse`, and the unaliased name is
 `SyntaxError: Identifier 'traverse' has already been declared`.
 
+## A css value with no node of its own is a string, and that hides a missing node
+
+`happy-style` lowers CSS to JS call expressions, so `declaration('grid-template-columns',
+...)` reaches its value through `arguments[1]` — and a value is **either a node or a bare
+string**, depending on whether `happy-style` has a convertor for its css-tree type:
+
+| css-tree | node |
+|---|---|
+| `Identifier` | a bare `StringLiteral` — `color: red` is `'red'` |
+| `Dimension` / `Percentage` / `Hash` / `String` | `dimension`, `percentage`, `color`, `string` |
+| `Function` | `functionValue('<name>', [...])` |
+| `Brackets` / `Parentheses` | `brackets([...])` / `parentheses([...])` |
+| `UnicodeRange` | `unicodeRange('U+0-7F')` |
+| anything else | `createStringLiteral(csstree.generate(node))` — **opaque** |
+
+**The cost of the last row is invisible, and that is the point.** A value with no node of its
+own still parses, still prints, and round-trips byte for byte, so every test is green and
+every fixture looks right. What is lost is that a rule cannot reach inside it. `Brackets`,
+`Parentheses` and `UnicodeRange` were exactly that until `happy-style` 1.0.6, so
+`grid-template-columns: [full-start] …` was one string and renaming a grid line name was not
+expressible. Three node types, zero failing tests, one missing capability.
+
+**The lesson generalises past CSS.** "It round-trips" is not evidence that the AST is
+*usable*. Ask what a rule can now match that it could not before, because the answer is
+sometimes "nothing".
+
+Two related facts, measured rather than assumed: there is **no `Ratio` node** — css-tree
+parses both `16 / 9` and `16/9` as `Number, Operator, Number` — and a comma is an
+`Operator`, not a `Comma`. Neither is missing; neither was ever a node.
+
+`docs/plugins.md` has the same table where a rule author will actually find it.
+
+## A parser spec does not run the printer, so a printer change can ship at 0%
+
+Adding `brackets`, `parentheses` and `unicodeRange` needed **two** fixture sets: one in
+`lib/parser/visitors/value/fixture/` for the convertors and one in `lib/printer/fixture/`
+for the blocks. The parser fixtures alone left the three new printer blocks at **0%**,
+because `t.transform` in a parser spec never invokes the printer.
+
+That is a coverage gate doing its job — the implementation was correct and three files were
+being executed by nothing. It is also invisible until the gate runs, so a rule that parses
+but cannot print is a shape worth remembering: **parser and printer are separate suites, and
+a change to one needs a fixture in the other's directory.**
+
 ## An includer's `fix` gets a path, not an object
 
 **This one costs nothing to get wrong and everything to debug**, because it fails silently.
@@ -600,3 +644,42 @@ in `*.spec.*` / `*.test.*` — a spec asserting `find(({type}) => ...)` is clear
 it would be noise. So the rule is off for spec and test files at the **root** config, because a
 `match` in `packages/plugin-putout-editor/.putout.json` does not reach `packages/client` — the
 scoping has to be where the plugin is wired in, and both directions were checked.
+
+## Use `putout --fix` for the mechanical classes — a regex over source is not a refactoring tool
+
+Learned the hard way while writing the `flatlint_rule` and `printer_visitor`
+tools. Six classes of lint error came up, and **every one of them was a
+`--fix` away**:
+
+| Class | Rule | Fixed by hand first |
+|---|---|---|
+| `t.equal(x, true)` | `tape/convert-equal-to-ok` | yes |
+| `t.ok(s.includes('X'))` | `tape/convert-ok-to-match` | yes |
+| `t.deepEqual(expected, {…})` | `tape/switch-expected-with-result` | yes |
+| blank lines in a block | `putout/align-spaces` | yes |
+| double quotes | `@stylistic/quotes` | yes |
+| `[...].join('\n')` | `montag/apply` | yes |
+| inline arrow in `filter` | `putout-editor/hoist-arrow-callback` | yes |
+| `return/remove-useless`, `new/remove-useless` | putout | yes |
+
+**A python `re.sub` over the spec file took four repair rounds and left it
+syntactically broken** — an unterminated string, then mixed `result`/`answer`
+references, then a `key: expr,: true,` from a backreference collision. Every one
+of those was a **semantic** mistake: a regex cannot tell that the object under
+test is built from the string, so renaming one and not the other silently
+changes what is asserted.
+
+**What was actually needed from outside 🐊**, and it is a short list:
+
+- a *decision* (does this `result` hold the string, or the object built from it?)
+- a *rename* across a scope (`result` <-> `answer`)
+- one edit adding the explanatory comment a rule could not produce
+
+Everything else is 🐊's. The correct sequence is **write it in the shape the
+rules want, run `putout --fix`, then read the diff and run `tsc` + the suite** —
+not a script, and not hand-fixing 20 findings one at a time.
+
+**And the gate earned its keep**: after the rewrite, the suite caught that
+`t.notOk(hasMatch)` asserted the *opposite* of what the test name said —
+`hasMatch` means "carries a `match` export", which is `true` for that fixture.
+No script would have found that; the assertion was inverted and passing-shaped.

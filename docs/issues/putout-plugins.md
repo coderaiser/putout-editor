@@ -6,12 +6,13 @@ has the ❌/✅ pair for each. `docs/plugins.md` is the guide for writing one.
 | Rule                                 | Kind       | What it found                                                         | Finding |
 |--------------------------------------|------------|-----------------------------------------------------------------------|---------|
 | `apply-linked-pattern-value`         | code       | a pattern key with `__a__`, which matches nothing and exits 0          | [a replacement that only reports has not done the thing](#-a-fixer-that-cannot-detect-its-own-lossy-cases-exits-clean) |
+| `apply-box-sizing-to-sized-element`  | filesystem | the chat composer, 40px wider than a phone; and one button in `mobile.css` | [one place per file, every selector fixed](#-matchfiles-reports-one-place-per-file-while-the-fix-reaches-every-match) |
 | `apply-press-modifier-case`          | code       | six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing | [fixers that lose a guard](#-apply-destructuring-drops-the--guard-on-a-return) |
 | `check-documented-scripts`            | filesystem | docs naming `bun run` scripts that `package.json` does not have    | [`matchFiles` cannot answer a question about a second file](../plugins.md#matchfiles-cannot-be-made-to-work-for-check-documented-scripts) |
 | `check-main-imports-in-file`         | filesystem | a rule in `main.css`, which is an entry point and holds only imports   | [a filesystem rule, and when it needs two files](../plugins.md#matchfiles-is-for-one-file-a-rule-that-compares-two-needs-scan) |
 | `check-try-catch-destructure`       | code       | the `tryCatch` rewrite that throws on a real `package.json`             | [a rewrite that keeps the suite green](../memory/putout-rules.md#trycatch-returns-a-shorter-array-when-it-catches) |
 | `hoist-arrow-callback`              | code       | an inline callback buries the predicate in the call                     | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
-| `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes) |
+| `remove-comments`                    | code       | the `scripts/check-comments.js` gate, as a rule                       | [a fixer can simplify a rule into a different rule](#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes), and [one comment reported twice](#-remove-comments-reports-one-comment-twice-when-it-sits-between-two-statements) |
 | `remove-rgb-outside-token-file`      | filesystem | the one hardcoded colour outside `css/tokens.css`                     | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
 | `remove-undefined-token-file`        | filesystem | a `var(--x)` `tokens.css` never defined, so it rendered nothing        | [a `scan` delegates to a matcher](../memory/putout-rules.md#a-scan-can-still-delegate-to-a-matcher) |
 | `remove-z-index-outside-token-file`  | filesystem | seven raw `z-index` numbers, now a `--z-*` scale                      | [report-only is possible](../plugins.md#report-only-is-allowed-and-it-costs-one-no-op-action) |
@@ -119,6 +120,55 @@ The same shape is in this file twice more: the `convert-optional-to-logical` fix
 clean on lossy cases, and the fence that `--fix` "corrected" until the example was gone. All
 three are a fixer acting on something no check was watching. It is a recurrence of *a check that
 passed on a cheaper path than the user takes* in [`../../AGENTS.md`](../../AGENTS.md).
+
+## ❌ `remove-comments` reports one comment twice, when it sits between two statements
+
+The rule's own `filter` asks three questions of a node — `leadingComments`, `trailingComments`,
+`innerComments` — and a parser attaches a comment sitting *between* two statements to **both** of
+them. The `include` list has `Statement` in it, so both statements report the same comment.
+
+Minimum repro, in a directory where the rule is on (`packages/plugin-putout-editor`, whose
+`.putout.json` sets `putout-editor/remove-comments: on` for `*.js`):
+
+```js
+const a = [
+    1,
+];
+
+// between two
+const b = 2;
+```
+
+**Got** — two places, one comment:
+
+```
+lib/__probeB.js
+ 1:0  error   A rule says what the code already says  putout-editor/remove-comments
+ 6:0  error   A rule says what the code already says  putout-editor/remove-comments
+```
+
+**Expected** — one. There is one comment in the file.
+
+The control that settles it is the same comment **above** the first statement rather than between
+two, which reports once — so the count follows the comment's position, not its number:
+
+| Shape                                   | `remove-comments` places |
+|-----------------------------------------|--------------------------|
+| `// c` then `const a = 1;`               | 1                        |
+| `const a = 1;` blank line `// c` blank line `const b = 2;` | 2          |
+
+`lib/hoist-arrow-callback/index.js` reported `10:0` and `29:0` for its single comment on lines
+25–28, and that pair is what put `putout .` on this branch to red: a file with one comment and two
+errors reads as two problems, and `--fix` takes the comment away on the first one.
+
+**The fix is not in the reporter, and that is the part worth keeping.** The count is only wrong; the
+`fix` sets all three arrays to `[]`, so either report removes the comment and the second is a no-op.
+A rule that over-reports is annoying; one that *under*-reports after a fix is dangerous, and this is
+not that. So the duplicate is filed, and the comment in `hoist-arrow-callback/index.js` was deleted
+rather than the rule taught to count — `AGENTS.md` says the plugin carries no comments, and the
+README section for `hoist-arrow-callback` already says all of it ("A **destructured** parameter is
+left alone too … the naming question belongs to the fixer"). The comment was a third copy of a
+paragraph that exists twice already.
 
 ## ❌ `apply-destructuring` drops the `&&` guard on a `return`
 
@@ -264,3 +314,107 @@ The two regression tests are named for the shape rather than the behaviour —
 `an absolute path, as redlint builds it` and `the nearest package.json wins` — and both were checked
 to **fail** against the old code before being believed. A fixture written by hand is a fixture that
 can be wrong in the same way twice; the second one is `buildTree(process.cwd())`.
+
+## `matchFiles` reports one place per file, while the fix reaches every match
+
+Found while writing `apply-box-sizing-to-sized-element`, and it changed what two of its specs are
+allowed to assert.
+
+`matchFiles` reports a **file**, not a node. A stylesheet with two matching selectors produces
+**one** place — while `fix` reaches **both**, and does so even at `fixCount: 1`:
+
+```css
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px 18px;
+}
+
+.chat__thread {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px 20px;
+}
+```
+
+**Expected** — two places, or a way to ask. **Got** — one, with both fixed.
+
+So the rule's two specs are deliberately different, and the reason is written on them:
+`two selectors are both fixed` asserts the **text**, and `one place per file` asserts the
+**count**. Asserting the count at 2 would have been the natural thing to write and it would have
+been wrong about a property of the operator, not of the rule.
+
+**The generalisable half:** a spec that asserts a count is asserting the runner as much as the
+rule, and the two are different subjects. Where a fixer is what a rule is for, the fixed text is
+the assertion — the count is trivia that a future runner change would move.
+
+### The part worth keeping
+
+**Two false positives were found by measuring the whole tree, and both were the author's intent
+written down.** `.shareInfo input` in `ShareDialog.css` is `width: calc(100% - 10px)` with
+`padding: 5px` — the author subtracted the padding by hand, and `box-sizing: border-box` would
+have made the input 10px *narrower* than they wrote. `.input__send` in `chat.css` is
+`width: 46px; padding: 0`, which is a width with no padding at all — and was only caught because
+a bare `0` comes back from this parser as an empty string, so the zero test has to accept the
+empty form too.
+
+Both are now `no report` fixtures. A rule that would have fired on either is a rule people
+disable, and the cost of a false positive in a lint rule is much higher than a miss.
+
+## ❌ `apply-type-check` can assign an identifier to itself
+
+Found because it fired on this repository. CI's `fix:lint` ran `putout . --fix` over
+`/home/coderaiser/happy-css`, and nine files stopped working.
+
+The rewrite, as a diff — the "after" line is the whole finding:
+
+```diff
+-const isDeclaration = (node) => node.type === 'Declaration';
++const isDeclaration = isDeclaration;
+```
+
+That "after" is not a style mistake, it does not parse as working code: every one of those
+is a `const` bound to itself, which throws the moment the module loads.
+
+```
+$ npx tape 'lib/parser/visitors/atrule/atrule.spec.js'
+ReferenceError: Cannot access 'isDeclaration' before initialization
+```
+
+**Expected** — `isDeclaration(node)`, imported from `types`, which is what
+`@putout/plugin-putout`'s rule of the same name does. **Got** — the identifier
+**being declared on that very line**, substituted for the helper.
+
+The rule sees `node.type === 'Declaration'`, knows a type check wants an `is*`
+call, and finds `isDeclaration` in scope — because the file declares it two lines
+up, as the very thing it is about to overwrite. It cannot know the two are the
+same binding. `x = x` is not a worse style choice here; it does not parse as
+working code.
+
+**Nine files, and the Lint job auto-committed it as
+`chore: happy-style: actions: lint ☘️`** — the `continue-on-error` behaviour
+`MEMORY.md` records. So the repository was broken on `master` by a green step, and
+the revert is `9c88918`.
+
+The nine: `color-profile`, `counter-style`, `font-face`, `font-palette-values`,
+`keyframes`, `page`, `property`, `view-transition`, `rule/rule` in the parser, plus
+`css-import`, `get-number` and `keyframe-rule` in the printer. The last three got
+the correct treatment — `isUnaryExpression` and `isStringLiteral` *are* real
+exports, so the rewrite there is valid.
+
+### The generalisable half
+
+**A fixer that cannot tell a binding from its own name will eventually write one.**
+This is the same shape as
+[the `tryCatch` rewrite that throws on a real `package.json`](#-a-rewrite-that-keeps-the-suite-green)
+and the [`apply-destructuring` guard loss](#-apply-destructuring-drops-the--guard-on-a-return):
+a rewrite that is correct in the abstract and catastrophic on the instance it
+meets. Two things make it survivable and neither is the rule being right:
+
+- the suite runs **after** the lint in CI, which is why this was caught at all;
+- `MEMORY.md`'s "when you fix something, move it" — a revert with the reason in the
+  message is what stops the next person from re-running `--fix` and re-breaking it.
+
+**A `js` fence in a markdown file is linted as real JavaScript** (`AGENTS.md`), so
+this is reachable from documentation too — worth knowing before writing an example
+of the shape the rule matches.

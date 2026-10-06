@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "types": ["node"],
+        "allowImportingTsExtensions": true,
+        "rewriteRelativeImportExtensions": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM"],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "allowJs": true,
+        "checkJs": false
+    },
+    "include": [
+        "src/**/*",
+        "test/**/*",
+        "playwright.config.ts",
+        "e2e/**/*.ts"
+    ],
+    "exclude": ["node_modules"]
+}

@@ -27,15 +27,70 @@ temp spec file.
 | Tool | Use it to |
 |---|---|
 | `docs` | Reference overview, or `section: 'style'`/`'template'`/`'api'`/`'errors'` |
-| `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule |
+| `formats` | Wrapper + operator + fixture shape for non-JS formats before writing a rule. For **css** and **markdown** it also carries `ast` — *how a rule reaches a node* — and `source`, the npm package it was read out of |
 | `get_example` | Known-good plugin + fixture. Order: replacer -> includer -> traverser -> scanner |
-| `validate` | Check a plugin compiles -> `ok` or `plugin_syntax (line N, col N): ...` |
-| `parse` | Get an AST. Compact by default, `full: true` for raw with `loc` |
+| `validate` | Check a plugin compiles **and has the shape the runner needs** -> `ok`, `plugin_syntax (line N, col N): ...`, or `plugin_shape: ...` |
+| `parse` | Get an AST. Compact by default, `full: true` for raw with `loc`. **JavaScript only** — a `css` or `markdown` source comes back `Unexpected token (1:0)` |
 | `test_pattern` | Test one 🦎**PutoutScript** key: does it match, how many places, what each `__a` bound to |
 | `name_pattern` | The inverse: given a snippet, which patterns match, and a generalised key for it |
+| `type_check` | Run a **clause table** (`@putout/printer`'s `createTypeChecker`) over a fixture: which arm decided each node, and which arm nothing reaches |
+| `printer_visitor` | Write a **`@putout/printer` visitor** the way happy-mark/style/sql do — `(path, api) => void` keyed by node type. `action: "contract"` for the api; a visitor is checked for invented api keys, a name that is not a node type, and writing nothing |
+| `flatlint_rule` | Write a **flatlint rule** — `{report, match?, replace}` — plus its fixture pair and spec. `match` is optional and keyed by the replace key it guards; a `match` key absent from `replace` is **dead**, and that is what the check reports. `action: "contract"` for the shape, `path`'s 22 methods and the `@putout/test` harness; a pattern scaffolds all four files |
 | `find_places` | Count/inspect matches. No fixture mutation |
 | `transform` | Apply a plugin to a fixture and see the real output |
 | `fetch_snippet` | Source + transform of any `putout.cloudcmd.io/#/gist/<id>/<rev>` URL |
+
+### `type_check` — and the two things that are easy to get wrong
+
+`type_check` is 🐊**Putout**'s own clause machinery, reached through
+`@putout/printer`. `createTypeChecker` takes an **ordered** list of clauses and
+the first match wins, so the table doubles as a list of arms and the tool reports
+which arm each node took.
+
+- **`' -> '` is not a selector.** `parseTypeNames` routes any string containing
+  `' -> '` through `createTuple`, which splits on **spaces** and keeps only the
+  last token as the type name. So `'-: parentPath -> !CallExpression'` is
+  selector `parentPath` against `CallExpression`, negated — not what the string
+  reads like. Run it; do not infer it.
+- **`['+', fn]` is not offered.** `fn` is a live function and cannot arrive over
+  JSON, so the schema is `z.array(z.string())`. A rule needing a function clause
+  is written with `validate` or `transform` instead.
+- The coverage map is keyed `at:uri:line:column` and `report()`'s `setLine` does
+  `Number(line) + index + 1`. The **third field must be numeric** — a filename
+  there prints `NaN`.
+
+### The two non-babel ASTs, and why `parse` cannot help with them
+
+`happy-style` and `happy-mark` — the packages behind the **css** and **markdown**
+processors — lower their document to JS **call expressions**. There is no
+`Declaration` node with a `property` field to visit, and no `Heading` node to
+visit: a rule matches the *call* and reads `arguments`.
+
+```js
+// css — a rule matches 'rule(__a, __b)' and the declarations are __b.elements
+rule(selector([classSelector('input')]), [
+    declaration('box-sizing', 'border-box'),
+    declaration('width', functionValue('calc', [percentage(100), operator('-'), dimension(10, 'px')])),
+]);
+```
+
+Two traps in that line, both of which have produced a fix that parsed and was wrong:
+
+- a `functionValue` argument list carries an **`operator(...)` node for every
+  separator**, so `calc(100% - 10px)` has three arguments and the middle one is
+  not a value;
+- `extra.rawValue` is what the printer reads for a property, so rewriting one
+  means moving `value`, `raw` **and** `extra.rawValue` together, or the output is
+  `width: border-box`.
+
+`brackets([...])`, `parentheses([...])` and `unicodeRange('U+0-7F')` are real
+nodes as of `happy-style` 1.0.6; before that each was one opaque string, so
+`grid-template-columns: [full-start] …` was not reachable by any rule.
+
+`formats` carries the ASTs with the package each was read from, so re-deriving
+them is a matter of running the package rather than of probing. `parse` cannot do
+it — it is a babel parser, so a css or markdown source comes back
+`Unexpected token (1:0)`.
 
 From the repo root — its `args` are relative:
 
@@ -66,15 +121,86 @@ await client.close();
   natively and doesn't need it; add it back only if you spawn the server with `node`.
 - **Tools not listed means not connected** — check your editor's MCP settings for a `putout`
   entry pointing at `packages/mcp/src/index.ts`, then restart.
-- **`validate` checks syntax only; `transform` runs the compiled output.** `compileRule`
+- **`validate` checks syntax and shape; `transform` runs the compiled output.** `compileRule`
   pipes the plugin through `@putout/plugin-putout` before execution — `path.remove()`
   becomes `remove(path)`, missing imports are inserted. When behaviour looks wrong,
   call `transform` and read what actually ran.
+- **`ok` from `validate` used to mean "compiles", which is not "runs."** It also checks
+  that the plugin has `report` plus one of `fix`, `find`, `traverse`, `replace`,
+  `include`, `exclude`, `rules`, `declare`, `scan`, and answers `plugin_shape: …` when
+  it does not — because a `report`-only plugin compiles and then throws
+  `Looks like 'fix' is not a 'function' but 'undefined'` in the very next tool call.
+  The general form is in
+  [`docs/issues/putout-plugins.md`](./docs/issues/putout-plugins.md): a check that
+  passes on a cheaper path than the user takes.
 - **`putout` lint exits 0 on plugin code inside `montag`/template literals** — it parses the
   string, not the code. Only `validate`/`transform` see through that.
 - **`tsc` and `zod`**: for a schema field with `.default()`, use `z.input<typeof schema>` in
   the handler signature, not `z.infer` — `z.infer` yields the *output* type, making the
   field required and breaking callers that omit it.
+
+## The `tape` on `PATH` may not be this repo's `tape`
+
+`node_modules/.bin/tape` is **`@putout/test`'s** bin, not supertape's — and that
+wrapper is the only thing that wires 🐊**Putout**'s **clause coverage**. Running
+`node node_modules/supertape/bin/tracer.js` gives a correct test run with the
+type checker silently doing nothing.
+
+Two consequences, both measured (`docs/memory/printer.md` has the full reading):
+
+- **`1..0 / # pass 0 / # ✅ ok` is a suite that ran nothing**, and it exits 0. Read
+  the **count**, not the exit code. `supertape@13.6.2` added the guard — every
+  pattern matching nothing is a `FAIL` — but `@putout/test` may pin a nested
+  `13.6.1`, which returns `OK` instead.
+- **A coverage report at 100% branches and 0% functions** is the same bug seen
+  from `c8`: branches are counted per source location as the printer walks it, so
+  a module that was loaded but never *called* still reports its `if`s. Read the
+  **function** count before believing the gate.
+
+`which tape` answers the wrong question — a global `~/.local/bin/tape` can sit
+earlier on `PATH` than the repo's, and a `bun i` can add a nested copy under a
+dependency. The 284-test, 36%-coverage run that started all of this is written
+up in `~/broken.md` §1.
+
+## Installing a dependency here: `bun i --no-save`
+
+`bun i <pkg>` writes `bun.lock`, and **this repository does not commit a lock file** — it is
+gitignored on purpose (`MEMORY.md`, `docs/issues/build.md`). A stray `bun i` therefore shows up
+as an unrelated `bun.lock` diff in the middle of a feature commit, and CI installs with
+`bun i -f --no-save` precisely so the tree stays unpinned.
+
+```sh
+bun i --no-save <pkg>       # install into node_modules, leave no lockfile change
+```
+
+Reach for this whenever an install is a **means** — reproducing upstream behaviour, comparing
+the published build against the workspace, or bringing in a peer of something already here.
+It is not the rule for adding a declared dependency: that one goes in the package's
+`package.json` and is installed the ordinary way, because the declaration is the change and
+the lockfile is deliberately not tracked.
+
+Two consequences worth stating, both hit while writing the 🐊**Putout** fixer report:
+
+- **`npm i` does not complete here.** It starts, writes nothing to `node_modules`, and times
+  out — no network to the registry. `bun i --no-save` is what works, so an `npm` attempt is a
+  several-minute dead end rather than a failure you learn from quickly.
+- **A workspace package is a symlink, and that is not the published build.** `node_modules/putout`
+  points at `~/putout/packages/putout`, so a behaviour you measure there is the *workspace's*.
+  Saying so is part of the finding — see the scope caveat in `~/broken-putout2.md`.
+
+## `--fix` emptying a file is the rules working, not a bug
+
+A file can come back from `putout --fix` with **zero bytes**, and it is correct. The two
+halves are `remove-console` (takes `console.log(a)`) and `remove-unused-variables` (then takes
+`const a = 1;`, which the log was the only user of). Both are doing what they are for; the
+file had nothing else in it. Verified with the control: add a second use of `a` and only the
+`console.log` line goes.
+
+So do not file it, and do not "fix" either rule. The guard is `git`, and a `--fix` run is a
+commit you read — which is the rule below, not a substitute for it. The general shape is the
+one worth keeping: **an emptied file is a fact about the whole rule set, not about the rule
+you isolated.** The fixer defects with minimal fixtures are in `~/broken-putout2.md`, with
+`DEBUG=putout:runner:fix` for attributing one.
 
 ## Writing `packages/client` specs
 
@@ -185,6 +311,30 @@ before committing.
   and cancels the mode again. See `e2e/desktop.ts`.
 - **Clipboard tests need `context.grantPermissions(['clipboard-read', 'clipboard-write'])`**,
   which is Chromium-only — keep them in `e2e/desktop.ts`, out of the mobile projects.
+- **`packages/chat`'s e2e does not run in CI.** `e2e.yml` runs `redrun test:e2e` with
+  `working-directory: packages/client`, and `redrun` collects from the cwd and every *parent*
+  — never a sibling package. A green `E2E` badge is evidence about the editor alone. See
+  [`docs/issues/chat.md`](docs/issues/chat.md).
+- **A green e2e badge is not evidence about a screen.** `packages/chat` had a composer
+  40px wider than a phone for its whole life and 15 green desktop specs. Geometry has to be
+  *asserted* — `getBoundingClientRect().right` against `window.innerWidth`, or
+  `document.documentElement.scrollWidth` — because no unit spec measures CSS and a screenshot
+  comparison passes on a layout that is 10% too wide.
+
+## Measuring a page instead of guessing at it
+
+`packages/chat`'s mobile bugs were found by adding a throwaway Playwright project and reading
+geometry, not by reading CSS. The recipe, because it is cheap and it settles the question:
+
+1. add a project to `playwright.config.ts` with `testMatch: ['**/__probe.ts']` and
+   `...devices['iPhone 12']`;
+2. `page.evaluate()` a `getBoundingClientRect()` dump — `offsetWidth` rounds,
+   `scrollWidth` includes overflow, and neither says *where* the overflow is;
+3. `bun run build` first, or the probe measures the old bundle;
+4. delete the probe, or wire it as the regression test.
+
+Apply the candidate fix and **re-measure** before committing. A one-line CSS declaration looks
+like a no-op in a diff, and the before/after numbers belong in the commit body.
 
 ## Reading a deployed snippet
 
@@ -465,6 +615,19 @@ the reporter filters the wrong thing, and `places.map(({position}) => position)`
 shape where a name pays. Spec files are usually most of the count, and a spec asserting
 `find(({type}) => …)` reads better inline; scope the rule off for `*.{spec,test}.*` **in the root
 config**, because a `match` in the package's own `.putout.json` does not reach another package.
+
+**`putout --fix` on TypeScript corrupts an `as` cast, and reports nothing.**
+
+```ts
+const b = v as boolean;
+```
+
+comes back as three statements — `const b = v;` / `as;` / `boolean;` — with `places: 0` and exit 0.
+**This is not a rule**: it reproduces with `plugins: []`, so it is parse-and-print, and a CI step
+that checks only the exit code sees a pass. `isTS: true` selects the TypeScript parser and every
+case is clean; `ts: true` and `parser: {plugins: ['typescript']}` do **not** work. The same trap
+in a fixture: a `fixture/*.js` holding `as boolean` is JavaScript only in name, and `t.transform`
+fails on it. Measured, with the full matrix, in `broken-putout2.md` §1.
 
 **An mcp example is a proxy, not the artifact.** `get_example` shipped hand-written copies of
 plugins that also exist as real rules, and they drifted — the `markdown` one reported a

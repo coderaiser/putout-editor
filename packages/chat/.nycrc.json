@@ -1,0 +1,22 @@
+{
+    "skipFull": false,
+    "checkCoverage": true,
+    "all": true,
+    "exclude": [
+        "**/*.spec.*",
+        "**/*.config.*",
+        "**/.*.*",
+        "src/index.tsx",
+        "src/store/state.ts",
+        "src/store/types.ts",
+        "e2e/**",
+        "coverage",
+        "src/shims/**",
+        "src/types",
+        "test"
+    ],
+    "branches": 100,
+    "lines": 100,
+    "functions": 100,
+    "statements": 100
+}
