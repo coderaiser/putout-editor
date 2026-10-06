@@ -78,7 +78,7 @@ export default function AstCodePreview({source, selected}: AstCodePreviewProps) 
     
     return (
         <div
-            className="ast-code-preview tok-scope"
+            className="ast-code tok-scope"
             data-testid="ast-code-preview"
         >
             {lines.map((line, index) => {
