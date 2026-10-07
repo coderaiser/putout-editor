@@ -580,11 +580,49 @@ body {
     overflow-y: hidden;
 }
 
+.input__box .cm-editor {
+    /* CodeMirror's own box fills the `.input__box` container, which keeps the
+       border, radius, padding lane and height bounds from the rule above.
+       `font-size`/`line-height` match so one line of typed code measures the
+       same as one line of echoed answer text. */
+    background: transparent;
+    color: inherit;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.input__box .cm-scroller {
+    overflow-y: auto;
+    max-height: 154px;
+}
+
+.input__box .cm-content {
+    padding: 0;
+    caret-color: var(--color-accent);
+}
+
+.input__box .cm-editor.cm-focused {
+    outline: none;
+}
+
+/* The placeholder lives on the container (`data-placeholder`), because a
+   `contenteditable` div has no `::placeholder`. `Input` owns `value`, so the
+   empty class is toggled from the render — CSS cannot read text content, and
+   an empty editor is `.cm-line > br`, which no `:empty` selector matches. */
+.input__box--empty[data-placeholder]::before {
+    content: attr(data-placeholder);
+    position: absolute;
+    padding: 12px 52px 12px 16px;
+    color: var(--color-text-dim);
+    pointer-events: none;
+}
+
 .input__box::placeholder {
     color: var(--color-text-dim);
 }
 
-.input__box:focus {
+.input__box:focus-within {
     outline: none;
     border-color: var(--color-accent);
 }
