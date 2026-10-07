@@ -8,17 +8,24 @@ import {
  * Scope to `data-testid="input"`, not `getByRole('textbox')`: once `/ast` runs,
  * `AstSearch` puts a second `<input>` on the page. Playwright strict mode then
  * refuses `getByRole('textbox')` — two elements match and the locator throws.
+ *
+ * `.cm-content` is the focusable `contenteditable` CodeMirror owns; pressing
+ * keys or typing against the container div would land nowhere.
  */
-const box = (page: Page) => page.getByTestId('input');
+const box = (page: Page) => page.getByTestId('input').locator('.cm-content');
 
 /**
- * `fill` then `Ctrl+Enter`, not `type` then `Enter`: `fill` sets the value in one
- * go, and a multi-line `source` body would otherwise be typed key by key, so
- * the `Enter` that ends a line would land in the middle of the source instead of
- * being part of the send chord.
+ * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
+ * targets form controls and has no effect on a `contenteditable` div, and not
+ * `keyboard.type`, which presses a real `Enter` for every embedded `\n` — on a
+ * keyboard `Enter` *sends*, so a multi-line `source` body would go out as two
+ * commands with the first half sent mid-line. `insertText` lands the text
+ * atomically: the editor still fires its update, `onChange` still lands in
+ * React state, and the key handler only sees the send chord.
  */
 const send = async (page: Page, text: string) => {
-    await box(page).fill(text);
+    await box(page).click();
+    await page.keyboard.insertText(text);
     await page.keyboard.press('Control+Enter');
 };
 
@@ -718,27 +725,41 @@ test('ast leaves the console panel closed', async ({page}) => {
 });
 
 test('Ctrl+Enter sends the line', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Control+Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 test('Enter sends the line on a keyboard', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 test('Shift+Enter builds a multi-line /source body', async ({page}) => {
-    await box(page).fill('/source\nconst a = 1;');
+    await box(page).click();
+    await page.keyboard.type('/source');
+    await page.keyboard.press('Shift+Enter');
+    await page.keyboard.insertText('const a = 1;');
     await page.keyboard.press('Shift+Enter');
     await page.keyboard.insertText('const b = 2;');
     
-    await expect(box(page)).toHaveValue('/source\nconst a = 1;\nconst b = 2;');
+    // One assertion per line: `.cm-content` holds a `.cm-line` div per line
+    // with no text between them, so `toHaveText` on the whole box joins the
+    // three lines into one flat string. The line divs are the editor's own
+    // structure, and counting them is the honest shape of "multi-line".
+    const rows = box(page).locator('.cm-line');
+    
+    await expect(rows).toHaveCount(3);
+    await expect(rows.nth(0)).toHaveText('/source');
+    await expect(rows.nth(1)).toHaveText('const a = 1;');
+    await expect(rows.nth(2)).toHaveText('const b = 2;');
     
     await page.keyboard.press('Control+Enter');
     
@@ -760,13 +781,14 @@ test('Shift+Enter builds a multi-line /source body', async ({page}) => {
 test('the send button sends the line', async ({page}) => {
     // The button is the primary way to send now that `Enter` is a newline, so
     // it is the one path that cannot be about the chord at all.
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page
         .getByTestId('send')
         .click();
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 test('console again hides the panel', async ({page}) => {
@@ -781,13 +803,13 @@ test('console again hides the panel', async ({page}) => {
 test('up arrow recalls the last sent line', async ({page}) => {
     await send(page, '/help');
     
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
     
     await box(page).press('ArrowUp');
     
     // The sigil comes back with it: `↑` recalls the line that was sent, and a
     // recalled `help` would be answered "Not a command" when sent again.
-    await expect(box(page)).toHaveValue('/help');
+    await expect(box(page)).toHaveText('/help');
 });
 
 test('the header has no console toggle button', async ({page}) => {
@@ -820,7 +842,8 @@ test('plain text without a sigil is told to start with one', async ({page}) => {
 });
 
 test('autocomplete opens on a command prefix', async ({page}) => {
-    await box(page).fill('a');
+    await box(page).click();
+    await page.keyboard.type('a');
     
     await expect(page.locator('.autocomplete')).toBeVisible();
     await expect(page.locator('.autocomplete')).toContainText('ast');
@@ -836,7 +859,7 @@ test('autocomplete opens on a command prefix', async ({page}) => {
  * in every other spec because they all type first.
  */
 test('an empty box shows no autocomplete', async ({page}) => {
-    await expect(page.getByTestId('input')).toHaveValue('');
+    await expect(box(page)).toHaveText('');
     
     await expect(page.locator('.autocomplete')).toHaveCount(0);
 });
@@ -968,9 +991,10 @@ test('the theme toggle sits at the right of the header', async ({page}) => {
  * to some arbitrary offset would pass a weaker check and still hide the answer.
  */
 test('sending scrolls the answer into view', async ({page}) => {
-    const box = page.getByTestId('input');
+    const content = page.getByTestId('input').locator('.cm-content');
     
-    await box.fill('/ast');
+    await content.click();
+    await page.keyboard.type('/ast');
     await page.keyboard.press('Control+Enter');
     
     const result = await page.evaluate(() => {

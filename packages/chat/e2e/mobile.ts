@@ -8,8 +8,11 @@ import {
  * Scope to `data-testid="input"`, not `getByRole('textbox')`: once `/ast` runs,
  * `AstSearch` puts a second `<input>` on the page. Playwright strict mode then
  * refuses `getByRole('textbox')` — two elements match and the locator throws.
+ *
+ * `.cm-content` is the focusable `contenteditable` CodeMirror owns; pressing
+ * keys or typing against the container div would land nowhere.
  */
-const box = (page: Page) => page.getByTestId('input');
+const box = (page: Page) => page.getByTestId('input').locator('.cm-content');
 
 /**
  * The thread is not empty on load — it opens seeded with a worked `source`
@@ -69,11 +72,17 @@ const within = (inner: Rect, outer: Rect) => ({
 type Rect = Awaited<ReturnType<typeof rectOf>>;
 
 /**
- * `fill` then `Ctrl+Enter`, not `type` then `Enter`, for the reason
- * `desktop.ts` gives: a multi-line body would have its `Enter` land mid-source.
+ * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
+ * targets form controls and has no effect on a `contenteditable` div, and not
+ * `keyboard.type`, which presses a real `Enter` for every embedded `\n` — on a
+ * keyboard `Enter` *sends*, so a multi-line `source` body would go out as two
+ * commands with the first half sent mid-line. `insertText` lands the text
+ * atomically: the editor still fires its update, `onChange` still lands in
+ * React state, and the key handler only sees the send chord.
  */
 const send = async (page: Page, text: string) => {
-    await box(page).fill(text);
+    await box(page).click();
+    await page.keyboard.insertText(text);
     await page.keyboard.press('Control+Enter');
 };
 
@@ -274,7 +283,8 @@ test('the autocomplete dropdown is on screen', async ({page}) => {
     // A **prefix**, not an empty box: there is no sigil to type any more, so the
     // dropdown opens on a command name being started — and an empty box is
     // deliberately quiet, which is the other half of that rule.
-    await box(page).fill('c');
+    await box(page).click();
+    await page.keyboard.type('c');
     
     const {left, right} = await rectOf(page, '.autocomplete');
     const expected = {
@@ -427,7 +437,8 @@ test('the document does not scroll', async ({page}) => {
  * alone cannot tell the two apart.
  */
 test('a sentence is told to start with a sigil on a touchscreen', async ({page}) => {
-    await box(page).fill('hello world');
+    await box(page).click();
+    await page.keyboard.type('hello world');
     await page.getByTestId('send').tap();
     
     const error = page.locator('.error-block');
@@ -462,22 +473,27 @@ test('air between a command and its answer', async ({page}) => {
  * pointer type is not a binding one project can check.
  */
 test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Enter');
     
     // Both halves are the point: a newline that also sent would post a
     
     // half-typed line, and this is the assertion that would have caught it.
-    await expect(box(page)).toHaveValue('/help\n');
+    // `toHaveText` normalizes the trailing break away, so the `\n` reads as
+    // documentation of the newline rather than a byte comparison — the count
+    // below is what pins "sends nothing".
+    await expect(box(page)).toHaveText('/help\n');
     await expect(userMessages(page)).toHaveCount(SEEDED);
 });
 
 test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Control+Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 /**
