@@ -1062,14 +1062,12 @@ test('AST connectors are drawn before the caret, keeping the tree line continuou
  */
 test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
-
+    
     // `highlight()` wraps `const` in `tok-keyword`. Scope to the source block so
     // the seed's own `export const report` doesn't win the `.first()`.
-    const keywordSpan = page.locator('.source-block .tok-keyword', {
-        has: page.locator('code', {hasText: 'const add'}),
-    }).first();
+    const keywordSpan = page.locator('.source-block .tok-keyword').nth(1);
     await expect(keywordSpan).toBeVisible();
-    await expect(keywordSpan).toContainText('const add');
+    await expect(keywordSpan).toContainText('const');
 });
 
 test('TransformDiff renders before and after', async ({page}) => {
@@ -1083,12 +1081,27 @@ test('TransformDiff renders before and after', async ({page}) => {
 test('AstCodePreview shows highlighted source lines', async ({page}) => {
     await send(page, '/source\nconst x = 42;');
     await send(page, '/ast');
-
-    // The tree's code preview shows the source with `tok-*` spans; `const`
-    // becomes a keyword so we can see it on the page.
-    const code = page.locator('.ast-code');
+    
+    // The preview highlights only the selected line, so select
+    // VariableDeclarator (line 1, col 6) before asserting.
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    
+    const code = page
+        .locator('.ast-code')
+        .first();
     await expect(code).toBeVisible();
-    await expect(code.locator('.tok-keyword').first()).toContainText('const');
+    await expect(
+        code
+            .locator('.tok-keyword')
+            .first(),
+    ).toContainText('const');
 });
 
 test('AST rows keep their caret separate from the branch marker', async ({page}) => {

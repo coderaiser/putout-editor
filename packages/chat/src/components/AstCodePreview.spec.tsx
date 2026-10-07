@@ -133,7 +133,10 @@ test('AstCodePreview: puts the column marker on the selected line', (t) => {
         col: 6,
     }));
     
-    const result = read('.ast-code__text');
+    // The selected line renders as HTML (highlight + marker span), so read the
+    // markup rather than the text.
+    const element = document.querySelector('.ast-code__text');
+    const result = element && element.innerHTML;
     const expected = '<span class="tok-keyword">const</span> <span class="ast-col-marker">|</span><span class="tok-variableName tok-definition">add</span> <span class="tok-operator">=</span> <span class="tok-punctuation">(</span><span class="tok-variableName tok-definition">a</span><span class="tok-punctuation">,</span> <span class="tok-variableName tok-definition">b</span><span class="tok-punctuation">)</span> <span class="tok-punctuation">=&gt;</span> <span class="tok-variableName">a</span> <span class="tok-operator">+</span> <span class="tok-variableName">b</span><span class="tok-punctuation">;</span>';
     
     cleanup();

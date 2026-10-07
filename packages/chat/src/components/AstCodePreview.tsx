@@ -1,5 +1,5 @@
 import type {FlatNode} from '@putout/editor-commands';
-import {highlight} from '../highlight.ts';
+import {highlight, escHtml} from '../highlight.ts';
 
 export interface AstCodePreviewProps {
     source: string;
@@ -86,9 +86,13 @@ export default function AstCodePreview({source, selected}: AstCodePreviewProps) 
                 const line_ = selected && selected.line || 0;
                 const onSelectedLine = line_ === number;
                 
-                const text = onSelectedLine && selected
+                // The selected line goes through markedLine (highlight + marker)
+                // and is HTML; every other line is plain text. Both render via
+                // dangerouslySetInnerHTML so the tok spans become real elements
+                // rather than visible `<span>` text on the page.
+                const html = onSelectedLine && selected
                     ? markedLine(line, selected.col)
-                    : line;
+                    : escHtml(line);
                 
                 return (
                     <div
@@ -99,9 +103,12 @@ export default function AstCodePreview({source, selected}: AstCodePreviewProps) 
                         <span className="ast-code__number">
                             {number}
                         </span>
-                        <span className="ast-code__text">
-                            {text}
-                        </span>
+                        <span
+                            className="ast-code__text"
+                            dangerouslySetInnerHTML={{
+                                __html: html,
+                            }}
+                        />
                     </div>
                 );
             })}

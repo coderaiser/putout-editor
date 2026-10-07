@@ -260,7 +260,7 @@ test('AstBlock: keeps the code preview mounted on a coarse pointer', (t) => {
     withPointer(true, () => {
         block(rows());
         
-        const result = document.querySelector('.ast-code-preview') !== null;
+        const result = document.querySelector('.ast-code') !== null;
         const expected = true;
         
         cleanup();
