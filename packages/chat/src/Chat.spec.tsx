@@ -3,11 +3,13 @@ import {test} from 'supertape';
 import {
     render,
     cleanup,
+    act,
     fireEvent,
 } from '@testing-library/react';
 import {Provider} from 'react-redux';
 import type {ReactNode} from 'react';
 import type {Store} from '@reduxjs/toolkit';
+import {getView, setValue} from 'qword/client';
 import {makeStore} from '#test/store';
 import {
     addMessage,
@@ -33,7 +35,7 @@ const mount = () => {
     return store;
 };
 
-const box = () => document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
+const box = () => document.querySelector('[data-testid="input"]') as HTMLElement;
 
 /**
  * `Ctrl+Enter`, because plain `Enter` is a newline now. These tests are about
@@ -41,15 +43,19 @@ const box = () => document.querySelector('[data-testid="input"]') as HTMLTextAre
  * here once.
  */
 const send = (text: string) => {
-    fireEvent.change(box(), {
-        target: {
-            value: text,
-        },
+    const editBox = document.querySelector('[data-testid="input"]') as HTMLElement;
+    
+    act(() => {
+        setValue(getView(editBox)!, text);
     });
     
-    fireEvent.keyDown(box(), {
+    const content = editBox.querySelector('.cm-content') || editBox;
+    
+    fireEvent.keyDown(content, {
         key: 'Enter',
         ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
     });
 };
 

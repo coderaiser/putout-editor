@@ -3,11 +3,10 @@ import {commands} from '@putout/editor-commands';
 import {
     useCallback,
     useEffect,
-    useRef,
     useState,
-    type ChangeEvent,
     type KeyboardEvent,
 } from 'react';
+import CodeMirrorBox from './CodeMirrorBox.tsx';
 import {setHistoryIndex} from '#store';
 import type {RootState} from '#store/types';
 import {prefixOf, SIGIL} from './sigil.ts';
@@ -176,8 +175,8 @@ export default function Input({history, onSend}: InputProps) {
         setPicked(0);
     }, [dispatch, onSend, text]);
     
-    const onChange = ({target}: ChangeEvent<HTMLTextAreaElement>) => {
-        setText(target.value);
+    const onChange = (next: string) => {
+        setText(next);
         setPicked(0);
     };
     
@@ -261,12 +260,16 @@ export default function Input({history, onSend}: InputProps) {
             return;
         }
         
-        // Plain `Enter` deliberately reaches no branch below on a keyboard: a
-        // `textarea` inserts the newline itself and fires the `input` event that
+        // Plain `Enter` deliberately reaches no branch below on a keyboard: the
+        // editor inserts the newline itself and fires the change that
         // `onChange` already turns into state. Re-implementing that here would
         // be a second place that has to know where the caret is, for a result
-        // the browser hands over correctly.
+        // the editor hands over correctly.
         if (key === 'Tab' && open && options.length) {
+            // Suppressed so CodeMirror does not also indent the line: the
+            // completion replaces the whole box content on the next render,
+            // and an indent inserted underneath would win the state race.
+            event.preventDefault();
             complete(options[picked]);
             
             return;
@@ -323,15 +326,9 @@ export default function Input({history, onSend}: InputProps) {
     // handler bumps the number and this turns it into text on the same render.
     const recalled = cursor >= 0 ? history.at(!cursor ? history.length - 1 : history.length - cursor - 1) : undefined;
     const value = text || recalled || '';
-    const box = useRef<HTMLTextAreaElement>(null);
-    
-    // `value` rather than `text`, because a recalled line is a multi-line
-    // command arriving without a keystroke — resizing on `text` would leave the
-    // box one row tall showing five lines of recalled source.
-    useEffect(() => {
-        growTo(box.current);
-    }, [value]);
-    
+    // No `growTo`, no box ref: CodeMirror sizes its own content and the
+    // `.input__box` CSS `min-height`/`max-height` bounds it. The `growTo`
+    // export and its specs stay (a tested helper), only the call site goes.
     return (
         <div className="input">
             {open && options.length > 0 && (
@@ -361,29 +358,12 @@ export default function Input({history, onSend}: InputProps) {
                     ))}
                 </div>
             )}
-            <textarea
-                /*
-                 * iOS Safari rewrites this field without being asked: it
-                 * capitalises the first character and autocorrects the rest, so
-                 * `/ast` arrives as `/Ast` and `parseCommand` answers "Unknown
-                 * command". This box takes command names, not prose, so all three
-                 * opt-outs are on. `spellCheck` also stops the red squiggle under
-                 * every plugin name in a pasted `source` body.
-                 *
-                 * React spells these in camelCase and the DOM stores them
-                 * lowercase, which is why the spec reads them with
-                 * `getAttribute('autocapitalize')` — the camelCase spelling returns
-                 * `null` and the assertion would pass on a bare textarea.
-                 */
-                autoCapitalize="none"
-                autoCorrect="off"
+            <CodeMirrorBox
                 className="input__box"
                 data-testid="input"
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder="/help — list every command"
-                ref={box}
-                spellCheck={false}
                 value={value}
             />
             <button

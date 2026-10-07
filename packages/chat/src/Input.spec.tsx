@@ -17,6 +17,7 @@ import Input, {
     isCoarsePointer,
 } from './Input.tsx';
 import {prefixOf} from './sigil.ts';
+import {getValue, getView, setValue} from 'qword/client';
 
 const sent: string[] = [];
 const push = sent.push.bind(sent);
@@ -45,17 +46,31 @@ const box = (history: string[] = []) => {
     });
 };
 
-const input = () => document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
-const value = () => input().value;
+const editBox = () => document.querySelector('[data-testid="input"]') as HTMLElement;
 
-const type = (text: string) => fireEvent.change(input(), {
-    target: {
-        value: text,
-    },
+const value = () => getValue(getView(editBox())!);
+
+const type = (text: string) => {
+    // Push text through CodeMirror's own transaction system: `fireEvent.change`
+    // has no target here — the rendered box is a `contenteditable` div, not a
+    // form control — and a synthetic `input` event would bypass the document
+    // the editor actually reads. `setValue` dispatches a real change, the
+    // update listener fires, and `onChange` lands in React state.
+    act(() => {
+        setValue(getView(editBox())!, text);
+    });
+};
+
+const key = (target: Element, init: object) => fireEvent.keyDown(target, {
+    bubbles: true,
+    cancelable: true,
+    ...init,
 });
 
-const press = (key: string, shiftKey = false) => fireEvent.keyDown(input(), {
-    key,
+const content = (): Element => editBox().querySelector('.cm-content') || editBox();
+
+const press = (keyName: string, shiftKey = false) => key(content(), {
+    key: keyName,
     shiftKey,
 });
 
@@ -66,13 +81,13 @@ const press = (key: string, shiftKey = false) => fireEvent.keyDown(input(), {
  * positional argument is how a spec ends up pressing `Meta+Enter` while
  * believing it pressed `Ctrl+Enter`.
  */
-const pressCtrl = (key: string) => fireEvent.keyDown(input(), {
-    key,
+const pressCtrl = (keyName: string) => key(content(), {
+    key: keyName,
     ctrlKey: true,
 });
 
-const pressMeta = (key: string) => fireEvent.keyDown(input(), {
-    key,
+const pressMeta = (keyName: string) => key(content(), {
+    key: keyName,
     metaKey: true,
 });
 
@@ -211,17 +226,18 @@ test('Input: the pointer listener is removed on unmount', (t) => {
         attached = registered.listeners.size;
     });
     
-    // `withPointer` calls `cleanup()`, which runs the effect's own teardown. So
-    // this asserts the *detach*: a `removeEventListener` that never ran would
-    // leave the listener attached to a `MediaQueryList` that outlives the
-    // component.
+    // Two listeners: Input's own coarse-pointer query, and the editor's print
+    // query (`@codemirror/view` watches `print` for its print-mode styles).
+    // `withPointer` calls `cleanup()`, which runs both teardowns. So this
+    // asserts the *detach*: listeners that never detached would linger on a
+    // `MediaQueryList` that outlives the component.
     const result = {
         attached,
         detached: pointer.listeners.size,
     };
     
     const expected = {
-        attached: 1,
+        attached: 2,
         detached: 0,
     };
     
@@ -459,14 +475,20 @@ test('Input: Shift+Enter does not complete while the autocomplete is open', (t) 
     type('tra');
     press('Enter', true);
     
+    // `Shift+Enter` is a newline in every state — and now a real one: the
+    // editor inserts it itself, so the box reads a break plus `tra` (the
+    // caret sits at 0 after a programmatic `setValue`). What matters is the
+    // dropdown neither completed nor sent.
     const result = {
         options: options().length,
         value: value(),
+        sent,
     };
     
     const expected = {
-        options: 1,
-        value: 'tra',
+        options: 0,
+        value: '\ntra',
+        sent: [],
     };
     
     cleanup();
@@ -1106,7 +1128,7 @@ test('Input: the send button is not disabled', (t) => {
 test('Input: the textarea opts out of iOS text rewriting', (t) => {
     box();
     
-    const element = document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
+    const element = document.querySelector('[data-testid="input"] .cm-content') as HTMLElement;
     const result = {
         autocapitalize: element.getAttribute('autocapitalize'),
         autocorrect: element.getAttribute('autocorrect'),
