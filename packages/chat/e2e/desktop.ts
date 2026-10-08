@@ -1084,6 +1084,20 @@ test('AST connectors are drawn before the caret, keeping the tree line continuou
  * branch marker **and** a caret, and the caret must not have leaked into the
  * connector string.
  */
+test('the /source user bubble shows a highlighted body, not plain text', async ({page}) => {
+    await send(page, '/source\nconst x = 1;');
+    
+    // The user bubble renders its `/source` body through `SourceBlock`, so the
+    // pill the user typed into is highlighted the same way the answer is.
+    // Scope to the user message so the answer's own source-block does not win.
+    const bubble = page.locator('.message--user').last();
+    await expect(bubble).toBeVisible();
+    
+    const keyword = bubble.locator('.tok-keyword').first();
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+});
+
 test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
     
