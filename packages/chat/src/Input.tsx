@@ -1,16 +1,27 @@
 import {useDispatch, useSelector} from 'react-redux';
 import {commands} from '@putout/editor-commands';
 import {
+    lazy,
+    Suspense,
     useCallback,
     useEffect,
     useState,
     type KeyboardEvent,
 } from 'react';
-import CodeMirrorBox from './CodeMirrorBox.tsx';
 import {setHistoryIndex} from '#store';
 import type {RootState} from '#store/types';
 import {prefixOf, SIGIL} from './sigil.ts';
 import {isCoarsePointer} from './hooks/useIsMobile.ts';
+
+/**
+ * CodeMirror is ~3.4 MiB and the composer is the only thing that needs it,
+ * so it is a separate async chunk rather than part of the initial payload.
+ * `rspack.config.js` routes `qword`/`@codemirror`/`@lezer` into a
+ * `chunks: 'async'` group, and `lazy` is what makes the import dynamic
+ * enough for that to apply. Until it resolves the fallback holds the
+ * composer's resting height, so the box does not collapse and jump.
+ */
+const CodeMirrorBox = lazy(() => import('./CodeMirrorBox.tsx'));
 
 export interface InputProps {
     history: string[];
@@ -358,14 +369,23 @@ export default function Input({history, onSend}: InputProps) {
                     ))}
                 </div>
             )}
-            <CodeMirrorBox
-                className="input__box"
-                data-testid="input"
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                placeholder="/help — list every command"
-                value={value}
-            />
+            <Suspense
+                fallback={
+                    <div
+                        className="input__box input__box--loading"
+                        data-testid="input"
+                    />
+                }
+            >
+                <CodeMirrorBox
+                    className="input__box"
+                    data-testid="input"
+                    onChange={onChange}
+                    onKeyDown={onKeyDown}
+                    placeholder="/help — list every command"
+                    value={value}
+                />
+            </Suspense>
             <button
                 className="input__send"
                 data-testid="send"

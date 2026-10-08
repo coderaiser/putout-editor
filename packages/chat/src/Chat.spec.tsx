@@ -1,14 +1,14 @@
 import {setTimeout} from 'node:timers/promises';
 import {test} from 'supertape';
+import {Provider} from 'react-redux';
+import type {ReactNode} from 'react';
+import type {Store} from '@reduxjs/toolkit';
 import {
     render,
     cleanup,
     act,
     fireEvent,
 } from '@testing-library/react';
-import {Provider} from 'react-redux';
-import type {ReactNode} from 'react';
-import type {Store} from '@reduxjs/toolkit';
 import {getView, setValue} from 'qword/client';
 import {makeStore} from '#test/store';
 import {
@@ -34,8 +34,6 @@ const mount = () => {
     
     return store;
 };
-
-const box = () => document.querySelector('[data-testid="input"]') as HTMLElement;
 
 /**
  * `Ctrl+Enter`, because plain `Enter` is a newline now. These tests are about
@@ -180,8 +178,17 @@ test('Chat: the thread renders the seeded messages', (t) => {
     const rendered = document.querySelectorAll('[data-testid="message"]').length;
     const commands = [];
     
-    for (const {textContent} of document.querySelectorAll('.message--user'))
-        commands.push((textContent || '').split('\n')[0]);
+    for (const pill of document.querySelectorAll('.message--user')) {
+        // The `/source` pill is now header + SourceBlock, so `textContent`
+        // concatenates the header with the highlighted body. The header is
+        // the plain text before the block — read it off the first child.
+        const first = pill.firstChild;
+        const text = first && first.nodeType === Node.TEXT_NODE
+            ? first.textContent || ''
+            : pill.textContent || '';
+        
+        commands.push(text.split('\n')[0]);
+    }
     
     const result = {
         count: rendered === initialState.messages.length,
@@ -315,4 +322,74 @@ test('Chat: transform renders the before and after diff', async (t) => {
     
     t.equal(result, expected);
     t.end();
+    
+    /**
+ * The user bubble highlights its `/source` body.
+ *
+ * The plan's problem 3: `SourceBlock` already highlights the *answer*, but
+ * the echo — what the user typed — was raw text in the pill. A `/source`
+ * echo therefore renders its body through `SourceBlock` while the command
+ * line stays plain, so the two halves read as one highlighted block.
+ */
+    test('Chat: a /source echo renders its body through SourceBlock', async (t) => {
+        mount();
+        
+        send('/source\nconst a = 1;');
+        await wait();
+        
+        const pills = [...document.querySelectorAll('.message--user')];
+        const user = pills.at(-1);
+        const block = user && user.querySelector('[data-testid="source-block"]');
+        const keywords = block && block.querySelectorAll('.tok-keyword').length;
+        
+        const result = {
+            block: Boolean(block),
+            keyword: keywords && keywords > 0,
+            header: block && block.parentElement && block.parentElement.textContent,
+        };
+        
+        const expected = {
+            block: true,
+            keyword: true,
+            header: '/sourceconst a = 1;',
+        };
+        
+        cleanup();
+        
+        t.deepEqual(result, expected);
+        t.end();
+    });
+    
+    /**
+ * …and a bare `/source` — a real way to clear the buffer — renders no body
+ * at all, rather than an empty highlighted box beside a lone command line.
+ * The `else` arm of the bubble's branch: without it, "shows the body" and
+ * "hides the body" would be the same green.
+ */
+    test('Chat: a bare /source echo renders no source block', async (t) => {
+        mount();
+        
+        send('/source');
+        await wait();
+        await wait();
+        
+        const pills = [...document.querySelectorAll('.message--user')];
+        const user = pills.at(-1);
+        const block = user && user.querySelector('[data-testid="source-block"]');
+        
+        const result = {
+            block,
+            header: user && user.textContent,
+        };
+        
+        const expected = {
+            block: null,
+            header: '/source',
+        };
+        
+        cleanup();
+        
+        t.deepEqual(result, expected);
+        t.end();
+    });
 });

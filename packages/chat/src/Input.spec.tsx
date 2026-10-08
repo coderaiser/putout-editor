@@ -27,7 +27,7 @@ const push = sent.push.bind(sent);
  * `Provider` — and it is `makeStore`, the factory the page uses, so a spec
  * cannot pass against a store the app never builds.
  */
-const box = (history: string[] = []) => {
+const box = async (history: string[] = []) => {
     const store = makeStore({
         history,
     });
@@ -38,12 +38,23 @@ const box = (history: string[] = []) => {
         </Provider>
     );
     
-    return render(<Input
+    const result = render(<Input
         history={history}
         onSend={push}
     />, {
         wrapper,
     });
+    
+    // `CodeMirrorBox` is `lazy`, so its async chunk resolves after the
+    // first render. `act` flushes the pending import and the mount that
+    // follows, which is what makes `.cm-content` exist for the helpers
+    // below. Without it the fallback is still on screen and `getView`
+    // returns `null`.
+    await act(async () => {
+        await Promise.resolve();
+    });
+    
+    return result;
 };
 
 const editBox = () => document.querySelector('[data-testid="input"]') as HTMLElement;
@@ -117,7 +128,7 @@ interface Pointer {
 // answers it. `noop` is the file's existing name for that.
 const noop = () => {};
 
-const withPointer = (fn: (pointer: Pointer) => void) => {
+const withPointer = async (fn: (pointer: Pointer) => void | Promise<void>) => {
     const original = globalThis.matchMedia;
     
     const pointer: Pointer = {
@@ -142,7 +153,7 @@ const withPointer = (fn: (pointer: Pointer) => void) => {
         removeListener: noop,
     })) as unknown as typeof globalThis.matchMedia;
     
-    fn(pointer);
+    await fn(pointer);
     
     cleanup();
     globalThis.matchMedia = original;
@@ -158,11 +169,11 @@ const flip = (pointer: Pointer) => {
     });
 };
 
-test('Input: Enter is a newline on a coarse pointer, and sends nothing', (t) => {
+test('Input: Enter is a newline on a coarse pointer, and sends nothing', async (t) => {
     sent.length = 0;
     
-    withPointer(() => {
-        box();
+    await withPointer(async () => {
+        await box();
         type('/help');
         press('Enter');
     });
@@ -174,11 +185,11 @@ test('Input: Enter is a newline on a coarse pointer, and sends nothing', (t) => 
     t.end();
 });
 
-test('Input: a coarse pointer still sends on Ctrl+Enter', (t) => {
+test('Input: a coarse pointer still sends on Ctrl+Enter', async (t) => {
     sent.length = 0;
     
-    withPointer(() => {
-        box();
+    await withPointer(async () => {
+        await box();
         type('/help');
         pressCtrl('Enter');
     });
@@ -196,11 +207,11 @@ test('Input: a coarse pointer still sends on Ctrl+Enter', (t) => {
  * would throw away the composer mid-sentence. So the `change` listener applies
  * it — and this is the only test that reaches that callback.
  */
-test('Input: the binding follows a change of pointer type', (t) => {
+test('Input: the binding follows a change of pointer type', async (t) => {
     sent.length = 0;
     
-    withPointer((pointer) => {
-        box();
+    await withPointer(async (pointer) => {
+        await box();
         type('/help');
         
         pointer.coarse = false;
@@ -216,13 +227,13 @@ test('Input: the binding follows a change of pointer type', (t) => {
     t.end();
 });
 
-test('Input: the pointer listener is removed on unmount', (t) => {
+test('Input: the pointer listener is removed on unmount', async (t) => {
     sent.length = 0;
     
     let attached = 0;
     
-    const pointer = withPointer((registered) => {
-        box();
+    const pointer = await withPointer(async (registered) => {
+        await box();
         attached = registered.listeners.size;
     });
     
@@ -245,14 +256,14 @@ test('Input: the pointer listener is removed on unmount', (t) => {
     t.end();
 });
 
-test('Input: the effect does nothing without matchMedia', (t) => {
+test('Input: the effect does nothing without matchMedia', async (t) => {
     sent.length = 0;
     
     const original = globalThis.matchMedia;
     
     Reflect.deleteProperty(globalThis, 'matchMedia');
     
-    box();
+    await box();
     type('/help');
     press('Enter');
     
@@ -266,7 +277,7 @@ test('Input: the effect does nothing without matchMedia', (t) => {
     t.end();
 });
 
-test('Input: isCoarsePointer is false without matchMedia', (t) => {
+test('Input: isCoarsePointer is false without matchMedia', async (t) => {
     const original = globalThis.matchMedia;
     
     Reflect.deleteProperty(globalThis, 'matchMedia');
@@ -280,7 +291,7 @@ test('Input: isCoarsePointer is false without matchMedia', (t) => {
     t.end();
 });
 
-test('Input: enterSends is true for a fine pointer', (t) => {
+test('Input: enterSends is true for a fine pointer', async (t) => {
     const result = enterSends(false);
     const expected = true;
     
@@ -288,7 +299,7 @@ test('Input: enterSends is true for a fine pointer', (t) => {
     t.end();
 });
 
-test('Input: enterSends is false for a coarse pointer', (t) => {
+test('Input: enterSends is false for a coarse pointer', async (t) => {
     const result = enterSends(true);
     const expected = false;
     
@@ -307,7 +318,7 @@ test('Input: enterSends is false for a coarse pointer', (t) => {
  * other half: once a word has ended, the user is typing an argument and a
  * command name is no longer what they want completed.
  */
-test('Input: matches closes once a space ends the command word', (t) => {
+test('Input: matches closes once a space ends the command word', async (t) => {
     const result = matches('source const a = 1;');
     const expected: string[] = [];
     
@@ -315,8 +326,8 @@ test('Input: matches closes once a space ends the command word', (t) => {
     t.end();
 });
 
-test('Input: typing a command prefix opens the autocomplete', (t) => {
-    box();
+test('Input: typing a command prefix opens the autocomplete', async (t) => {
+    await box();
     
     type('tra');
     
@@ -329,8 +340,8 @@ test('Input: typing a command prefix opens the autocomplete', (t) => {
     t.end();
 });
 
-test('Input: the autocomplete narrows as a name is typed', (t) => {
-    box();
+test('Input: the autocomplete narrows as a name is typed', async (t) => {
+    await box();
     
     type('tra');
     
@@ -353,8 +364,8 @@ test('Input: the autocomplete narrows as a name is typed', (t) => {
  * no separate name element, so the name is the text before the description
  * span, and reading it that way keeps the assertion about one thing.
  */
-test('Input: the autocomplete shows slashed names', (t) => {
-    box();
+test('Input: the autocomplete shows slashed names', async (t) => {
+    await box();
     
     type('tra');
     
@@ -369,8 +380,8 @@ test('Input: the autocomplete shows slashed names', (t) => {
     t.end();
 });
 
-test('Input: a space closes the autocomplete, since the word has ended', (t) => {
-    box();
+test('Input: a space closes the autocomplete, since the word has ended', async (t) => {
+    await box();
     
     type('tra ');
     
@@ -383,8 +394,8 @@ test('Input: a space closes the autocomplete, since the word has ended', (t) => 
     t.end();
 });
 
-test('Input: a word no command starts with never opens the autocomplete', (t) => {
-    box();
+test('Input: a word no command starts with never opens the autocomplete', async (t) => {
+    await box();
     
     type('hello');
     
@@ -397,8 +408,8 @@ test('Input: a word no command starts with never opens the autocomplete', (t) =>
     t.end();
 });
 
-test('Input: Tab completes the picked command into the box', (t) => {
-    box();
+test('Input: Tab completes the picked command into the box', async (t) => {
+    await box();
     
     type('tra');
     press('Tab');
@@ -412,8 +423,8 @@ test('Input: Tab completes the picked command into the box', (t) => {
     t.end();
 });
 
-test('Input: Enter completes while the autocomplete is open', (t) => {
-    box();
+test('Input: Enter completes while the autocomplete is open', async (t) => {
+    await box();
     
     type('tra');
     press('Enter');
@@ -432,9 +443,9 @@ test('Input: Enter completes while the autocomplete is open', (t) => {
  * this file no longer covers: happy-dom answers `false` for `(pointer: coarse)`,
  * so an unmounted `matchMedia` stub *is* the desktop case here.
  */
-test('Input: Enter sends the line on a keyboard', (t) => {
+test('Input: Enter sends the line on a keyboard', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('/help');
     press('Enter');
@@ -453,9 +464,9 @@ test('Input: Enter sends the line on a keyboard', (t) => {
  * `/source` body is more than one line, so `Shift+Enter` is how you get there
  * without pasting.
  */
-test('Input: Shift+Enter is a newline on a keyboard', (t) => {
+test('Input: Shift+Enter is a newline on a keyboard', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('/source');
     press('Enter', true);
@@ -469,8 +480,8 @@ test('Input: Shift+Enter is a newline on a keyboard', (t) => {
     t.end();
 });
 
-test('Input: Shift+Enter does not complete while the autocomplete is open', (t) => {
-    box();
+test('Input: Shift+Enter does not complete while the autocomplete is open', async (t) => {
+    await box();
     
     type('tra');
     press('Enter', true);
@@ -497,9 +508,9 @@ test('Input: Shift+Enter does not complete while the autocomplete is open', (t) 
     t.end();
 });
 
-test('Input: Ctrl+Enter sends a command that is already typed in full', (t) => {
+test('Input: Ctrl+Enter sends a command that is already typed in full', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     // `/ast` is a complete name, so the dropdown still shows one row. The send
     
@@ -518,9 +529,9 @@ test('Input: Ctrl+Enter sends a command that is already typed in full', (t) => {
     t.end();
 });
 
-test('Input: Ctrl+Enter sends while a partial name is still open', (t) => {
+test('Input: Ctrl+Enter sends while a partial name is still open', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('/hel');
     pressCtrl('Enter');
@@ -534,9 +545,9 @@ test('Input: Ctrl+Enter sends while a partial name is still open', (t) => {
     t.end();
 });
 
-test('Input: Cmd+Enter also sends the line', (t) => {
+test('Input: Cmd+Enter also sends the line', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     // `Cmd+Enter` is the same handler as `Ctrl+Enter` — a macOS user has no
     
@@ -555,8 +566,8 @@ test('Input: Cmd+Enter also sends the line', (t) => {
     t.end();
 });
 
-test('Input: down arrow moves the pick down the list', (t) => {
-    box();
+test('Input: down arrow moves the pick down the list', async (t) => {
+    await box();
     
     type('c');
     press('ArrowDown');
@@ -571,8 +582,8 @@ test('Input: down arrow moves the pick down the list', (t) => {
     t.end();
 });
 
-test('Input: up arrow wraps the pick to the end of the list', (t) => {
-    box();
+test('Input: up arrow wraps the pick to the end of the list', async (t) => {
+    await box();
     
     type('c');
     press('ArrowUp');
@@ -588,8 +599,8 @@ test('Input: up arrow wraps the pick to the end of the list', (t) => {
     t.end();
 });
 
-test('Input: Escape closes the autocomplete and empties the box', (t) => {
-    box();
+test('Input: Escape closes the autocomplete and empties the box', async (t) => {
+    await box();
     
     type('c');
     press('Escape');
@@ -610,8 +621,8 @@ test('Input: Escape closes the autocomplete and empties the box', (t) => {
     t.end();
 });
 
-test('Input: Ctrl+Enter empties the box after sending', (t) => {
-    box();
+test('Input: Ctrl+Enter empties the box after sending', async (t) => {
+    await box();
     
     type('/help');
     pressCtrl('Enter');
@@ -625,9 +636,9 @@ test('Input: Ctrl+Enter empties the box after sending', (t) => {
     t.end();
 });
 
-test('Input: Shift+Enter does not send', (t) => {
+test('Input: Shift+Enter does not send', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('/help');
     press('Enter', true);
@@ -641,9 +652,9 @@ test('Input: Shift+Enter does not send', (t) => {
     t.end();
 });
 
-test('Input: an empty line is not sent', (t) => {
+test('Input: an empty line is not sent', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('   ');
     pressCtrl('Enter');
@@ -657,8 +668,8 @@ test('Input: an empty line is not sent', (t) => {
     t.end();
 });
 
-test('Input: up arrow on an empty box recalls the last line', (t) => {
-    box(['/help', '/ast']);
+test('Input: up arrow on an empty box recalls the last line', async (t) => {
+    await box(['/help', '/ast']);
     
     press('ArrowUp');
     
@@ -671,8 +682,8 @@ test('Input: up arrow on an empty box recalls the last line', (t) => {
     t.end();
 });
 
-test('Input: recall walks back down towards the empty box', (t) => {
-    box(['/help', '/ast']);
+test('Input: recall walks back down towards the empty box', async (t) => {
+    await box(['/help', '/ast']);
     
     press('ArrowUp');
     press('ArrowUp');
@@ -687,8 +698,8 @@ test('Input: recall walks back down towards the empty box', (t) => {
     t.end();
 });
 
-test('Input: up arrow twice reaches further back', (t) => {
-    box(['/help', '/ast']);
+test('Input: up arrow twice reaches further back', async (t) => {
+    await box(['/help', '/ast']);
     
     press('ArrowUp');
     press('ArrowUp');
@@ -702,8 +713,8 @@ test('Input: up arrow twice reaches further back', (t) => {
     t.end();
 });
 
-test('Input: up arrow at the oldest entry stays on the oldest', (t) => {
-    box(['/help']);
+test('Input: up arrow at the oldest entry stays on the oldest', async (t) => {
+    await box(['/help']);
     
     press('ArrowUp');
     press('ArrowUp');
@@ -718,8 +729,8 @@ test('Input: up arrow at the oldest entry stays on the oldest', (t) => {
     t.end();
 });
 
-test('Input: down arrow returns towards empty', (t) => {
-    box(['/help']);
+test('Input: down arrow returns towards empty', async (t) => {
+    await box(['/help']);
     
     press('ArrowUp');
     press('ArrowDown');
@@ -733,8 +744,8 @@ test('Input: down arrow returns towards empty', (t) => {
     t.end();
 });
 
-test('Input: down arrow past the newest returns to empty', (t) => {
-    box(['/help', '/ast']);
+test('Input: down arrow past the newest returns to empty', async (t) => {
+    await box(['/help', '/ast']);
     
     press('ArrowUp');
     press('ArrowUp');
@@ -750,8 +761,8 @@ test('Input: down arrow past the newest returns to empty', (t) => {
     t.end();
 });
 
-test('Input: clicking a row completes that command', (t) => {
-    box();
+test('Input: clicking a row completes that command', async (t) => {
+    await box();
     
     type('tra');
     
@@ -769,8 +780,8 @@ test('Input: clicking a row completes that command', (t) => {
     t.end();
 });
 
-test('Input: a completed command leaves the dropdown behind', (t) => {
-    box();
+test('Input: a completed command leaves the dropdown behind', async (t) => {
+    await box();
     
     type('tra');
     
@@ -788,7 +799,7 @@ test('Input: a completed command leaves the dropdown behind', (t) => {
     t.end();
 });
 
-test('Input: matches returns nothing for a line that is not a command', (t) => {
+test('Input: matches returns nothing for a line that is not a command', async (t) => {
     const result = matches('hello');
     const expected: string[] = [];
     
@@ -796,7 +807,7 @@ test('Input: matches returns nothing for a line that is not a command', (t) => {
     t.end();
 });
 
-test('Input: matches finds every command for a prefix nothing is typed yet', (t) => {
+test('Input: matches finds every command for a prefix nothing is typed yet', async (t) => {
     const result = matches('').length;
     const expected = commands.size;
     
@@ -804,7 +815,7 @@ test('Input: matches finds every command for a prefix nothing is typed yet', (t)
     t.end();
 });
 
-test('Input: matches narrows on a prefix', (t) => {
+test('Input: matches narrows on a prefix', async (t) => {
     const result = matches('he');
     const expected = ['/help'];
     
@@ -812,7 +823,7 @@ test('Input: matches narrows on a prefix', (t) => {
     t.end();
 });
 
-test('Input: matches returns nothing when nothing starts with the prefix', (t) => {
+test('Input: matches returns nothing when nothing starts with the prefix', async (t) => {
     const result = matches('zzz');
     const expected: string[] = [];
     
@@ -820,9 +831,9 @@ test('Input: matches returns nothing when nothing starts with the prefix', (t) =
     t.end();
 });
 
-test('Input: the send button sends the line', (t) => {
+test('Input: the send button sends the line', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('/help');
     
@@ -839,8 +850,8 @@ test('Input: the send button sends the line', (t) => {
     t.end();
 });
 
-test('Input: the send button names its shortcut', (t) => {
-    box();
+test('Input: the send button names its shortcut', async (t) => {
+    await box();
     
     // The button is the primary way to send and the label is an arrow, so the
     
@@ -865,7 +876,7 @@ test('Input: the send button names its shortcut', (t) => {
     t.end();
 });
 
-test('Input: describeOf returns the description of a known command', (t) => {
+test('Input: describeOf returns the description of a known command', async (t) => {
     const command = commands.get('ast');
     const result = describeOf('ast');
     const expected = command && command.description;
@@ -879,7 +890,7 @@ test('Input: describeOf returns the description of a known command', (t) => {
  * at the call site — `commands.get('/ast')` is `undefined` and would render
  * the `''` arm for every row. This pins the wrapping, not just the function.
  */
-test('Input: describeOf reads past the slash of a suggested name', (t) => {
+test('Input: describeOf reads past the slash of a suggested name', async (t) => {
     const command = commands.get('ast');
     const result = describeOf(prefixOf('/ast'));
     const expected = command && command.description;
@@ -888,7 +899,7 @@ test('Input: describeOf reads past the slash of a suggested name', (t) => {
     t.end();
 });
 
-test('Input: describeOf returns nothing for a name that is not a command', (t) => {
+test('Input: describeOf returns nothing for a name that is not a command', async (t) => {
     const result = describeOf('notacommand');
     const expected = '';
     
@@ -914,7 +925,7 @@ const withScrollHeight = (height: number, run: (element: HTMLTextAreaElement) =>
     return element.style.height;
 };
 
-test('Input: growTo sizes the box to its content', (t) => {
+test('Input: growTo sizes the box to its content', async (t) => {
     const result = withScrollHeight(96, growTo);
     const expected = '96px';
     
@@ -922,7 +933,7 @@ test('Input: growTo sizes the box to its content', (t) => {
     t.end();
 });
 
-test('Input: growTo clears the height first, so shrinking works', (t) => {
+test('Input: growTo clears the height first, so shrinking works', async (t) => {
     const element = document.createElement('textarea');
     const set: string[] = [];
     
@@ -957,7 +968,7 @@ test('Input: growTo clears the height first, so shrinking works', (t) => {
     t.end();
 });
 
-test('Input: growTo does nothing without a box', (t) => {
+test('Input: growTo does nothing without a box', async (t) => {
     growTo(null);
     
     const result = ['survived'];
@@ -995,7 +1006,7 @@ const withOverflow = (height: number, maxHeight: string, run: (element: HTMLText
     return overflowY;
 };
 
-test('Input: growTo shows no scrollbar while the box is under the cap', (t) => {
+test('Input: growTo shows no scrollbar while the box is under the cap', async (t) => {
     // The regression: `overflow-y: auto` in the stylesheet draws a scrollbar
     // track on a one-row box, and it is there for the whole time the user is
     // typing the first line.
@@ -1006,7 +1017,7 @@ test('Input: growTo shows no scrollbar while the box is under the cap', (t) => {
     t.end();
 });
 
-test('Input: growTo brings the scrollbar back once the box hits the cap', (t) => {
+test('Input: growTo brings the scrollbar back once the box hits the cap', async (t) => {
     // Hiding it and never bringing it back would be the other half of the same
     // bug: a pasted file taller than the cap would be unreachable.
     const result = withOverflow(240, '200px', growTo);
@@ -1031,8 +1042,8 @@ test('Input: growTo brings the scrollbar back once the box hits the cap', (t) =>
  * and **no unit spec fails**. The DOM relationship is the contract the CSS is
  * written against, so it gets a spec.
  */
-test('Input: the send button is a sibling of the textarea inside .input', (t) => {
-    box();
+test('Input: the send button is a sibling of the textarea inside .input', async (t) => {
+    await box();
     
     const parent = (document.querySelector('.input__send') as HTMLElement).parentElement as HTMLElement;
     const children = [...parent.children] as HTMLElement[];
@@ -1065,8 +1076,8 @@ test('Input: the send button is a sibling of the textarea inside .input', (t) =>
  * button. A `<div onClick>` would break both, and the geometry specs would still
  * be green.
  */
-test('Input: the send button is a type=button element a keyboard can activate', (t) => {
-    box();
+test('Input: the send button is a type=button element a keyboard can activate', async (t) => {
+    await box();
     
     const send = document.querySelector('.input__send') as HTMLButtonElement;
     const result = {
@@ -1089,8 +1100,8 @@ test('Input: the send button is a type=button element a keyboard can activate', 
  * every containment and padding assertion above, and the one send affordance a
  * touchscreen has would be silently dead.
  */
-test('Input: the send button is not disabled', (t) => {
-    box();
+test('Input: the send button is not disabled', async (t) => {
+    await box();
     
     const send = document.querySelector('.input__send') as HTMLButtonElement;
     const result = {
@@ -1125,8 +1136,8 @@ test('Input: the send button is not disabled', (t) => {
  * One object rather than three tests, because they are one decision - this is a
  * command box, not prose - and supertape allows one assertion per test anyway.
  */
-test('Input: the textarea opts out of iOS text rewriting', (t) => {
-    box();
+test('Input: the textarea opts out of iOS text rewriting', async (t) => {
+    await box();
     
     const element = document.querySelector('[data-testid="input"] .cm-content') as HTMLElement;
     const result = {
@@ -1165,7 +1176,7 @@ test('Input: the textarea opts out of iOS text rewriting', (t) => {
  * only worked when the caller remembered to trim would be a second grammar
  * spread across two files.
  */
-test('Input: matches reads past the leading slash', (t) => {
+test('Input: matches reads past the leading slash', async (t) => {
     const result = matches('/as');
     const expected = ['/ast'];
     
@@ -1178,7 +1189,7 @@ test('Input: matches reads past the leading slash', (t) => {
  * command both arrive without one, and a dropdown that only opened on a
  * hand-typed sigil would be a worse version of the bug above.
  */
-test('Input: matches still answers a bare prefix', (t) => {
+test('Input: matches still answers a bare prefix', async (t) => {
     const result = matches('as');
     const expected = ['/ast'];
     
@@ -1190,7 +1201,7 @@ test('Input: matches still answers a bare prefix', (t) => {
  * The slash alone is a prefix of every command, so it opens the list rather than
  * closing it — which is what makes the sigil usable as a menu key.
  */
-test('Input: the sigil on its own opens the list of every command', (t) => {
+test('Input: the sigil on its own opens the list of every command', async (t) => {
     const result = matches('/').length;
     const expected = commands.size;
     
@@ -1205,8 +1216,8 @@ test('Input: the sigil on its own opens the list of every command', (t) => {
  * — a line with no sigil, which `useChat` answers "Not a command". The dropdown
  * would hand the user a line it then refused to run.
  */
-test('Input: Tab completes past the sigil and keeps it', (t) => {
-    box();
+test('Input: Tab completes past the sigil and keeps it', async (t) => {
+    await box();
     
     type('/tra');
     press('Tab');
@@ -1236,9 +1247,9 @@ test('Input: Tab completes past the sigil and keeps it', (t) => {
  * bare `Enter` completes to `/ast ` (a line the page runs) and sends nothing.
  * Without this spec the bare→slash Enter path is unpinned.
  */
-test('Input: Enter on a bare finished name completes it with a slash', (t) => {
+test('Input: Enter on a bare finished name completes it with a slash', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('ast');
     press('Enter');
@@ -1259,9 +1270,9 @@ test('Input: Enter on a bare finished name completes it with a slash', (t) => {
     t.end();
 });
 
-test('Input: Enter on a finished sigil-prefixed command sends it', (t) => {
+test('Input: Enter on a finished sigil-prefixed command sends it', async (t) => {
     sent.length = 0;
-    box();
+    await box();
     
     type('/ast');
     press('Enter');

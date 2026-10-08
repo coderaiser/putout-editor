@@ -166,8 +166,9 @@ export default {
                 codemirror: {
                     priority: 25,
                     name: 'codemirror',
-                    test: /\/node_modules\/(@codemirror|@lezer|@replit\/codemirror|@uiw\/codemirror)\//,
-                    chunks: 'all',
+                    test: /\/node_modules\/(@codemirror|@lezer|@replit\/codemirror|@uiw\/codemirror|qword)\//,
+                    chunks: 'async',
+                    enforce: true,
                     minChunks: 1,
                     minSize: 1,
                 },
