@@ -1,5 +1,8 @@
-import {useEffect, useRef} from 'react';
-import type {KeyboardEvent} from 'react';
+import {
+    useEffect,
+    useRef,
+    type KeyboardEvent,
+} from 'react';
 import {
     createEditor,
     getValue,
@@ -8,12 +11,12 @@ import {
 } from 'qword/client';
 
 export interface CodeMirrorBoxProps {
-    className?: string;
+    'className'?: string;
     'data-testid'?: string;
-    onChange(value: string): void;
-    onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void;
-    placeholder?: string;
-    value: string;
+    'onChange'(value: string): void;
+    'onKeyDown'(event: KeyboardEvent<HTMLTextAreaElement>): void;
+    'placeholder'?: string;
+    'value': string;
 }
 
 /**
@@ -41,14 +44,7 @@ export interface CodeMirrorBoxProps {
  * calls `preventDefault` the real event is prevented *and* its
  * propagation stopped, so CodeMirror never acts on the key.
  */
-export default function CodeMirrorBox({
-    className,
-    'data-testid': testId,
-    onChange,
-    onKeyDown,
-    placeholder,
-    value,
-}: CodeMirrorBoxProps) {
+export default function CodeMirrorBox({className, 'data-testid': testId, onChange, onKeyDown, placeholder, value}: CodeMirrorBoxProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const editorRef = useRef<QwordEditorView | null>(null);
     const lastValueRef = useRef(value);
@@ -59,6 +55,8 @@ export default function CodeMirrorBox({
     const onKeyDownRef = useRef(onKeyDown);
     onKeyDownRef.current = onKeyDown;
     
+    /* c8 ignore start - mount-only: refs are populated by definition on mount,
+     * and no rerender path reaches this effect before the first run. */
     useEffect(() => {
         const container = containerRef.current!;
         const editor = createEditor(container, {
@@ -115,11 +113,10 @@ export default function CodeMirrorBox({
             editor.destroy();
             editorRef.current = null;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+    /* c8 ignore end */
     
     useEffect(() => {
-        /* c8 ignore next 2 */
         if (!editorRef.current)
             return;
         
