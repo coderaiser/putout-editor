@@ -267,6 +267,17 @@ test('the textarea reserves room for the send button on a touchscreen', async ({
  * inferred from the thread's own padding, so the two cannot drift apart.
  */
 test('the textarea placeholder is not pushed right by the button lane', async ({page}) => {
+    // Wait for the **real** composer, not the Suspense fallback. `.input__box`
+    // exists from the first frame as `input__box input__box--loading`, so a bare
+    // `.evaluate()` resolves before the extracted stylesheet has been fetched and
+    // applied — `getComputedStyle(el).paddingLeft` is then `''` and `parseInt('')`
+    // is `NaN`, which fails as a number rather than as a layout. `.cm-content`
+    // only exists once `CodeMirrorBox` has mounted, which is strictly later than
+    // the CSS arriving. The neighbours above get away without this because
+    // `rectOf(page, '.input__send')` runs first and spends the time; this spec
+    // measured the box as its very first action.
+    await expect(page.locator('.input__box .cm-content')).toBeVisible();
+    
     const padding = await page
         .locator('.input__box')
         .first()

@@ -546,6 +546,11 @@ body {
 
 .input__box {
     flex: 1;
+    /* Makes `.input__box` the containing block for the placeholder's `::before`,
+       which is `position: absolute`. Without it the containing block walks up to
+       `.input` (the composer row), and `inset` is measured from *its* padding
+       box — which shifts the placeholder up and left of the text cursor. */
+    position: relative;
     resize: none;
     /* Four values, because only one number was ever wanted here.
        `52px` on the **right** is the button's lane: a 32px button plus 8px of air
@@ -613,9 +618,23 @@ body {
 .input__box--empty[data-placeholder]::before {
     content: attr(data-placeholder);
     position: absolute;
-    inset: 12px 16px 12px 52px;
+    /* top right bottom left — 16px from the text edge, 52px clear of the button.
+       The values were transposed (`12px 16px 12px 52px`), which put 52px on the
+       left: on a 390px phone that pushed the placeholder so far from the edge it
+       read as centred. Four values written out, because a two-value `inset`
+       gives both sides the same number — the original mistake. */
+    inset: 12px 52px 12px 16px;
     color: var(--color-text-dim);
     pointer-events: none;
+    /* Vertically centre the single-line placeholder within the 46px min-height.
+       `display: flex` + `align-items: center` on the pseudo-element itself works:
+       it is a flex container, and the `content` string is its only item. The
+       `inset` stretches it to the containing block's height minus the insets
+       (46 - 24 = 22px for a 22.5px line). */
+    display: flex;
+    align-items: center;
+    line-height: 1.5;
+    font-size: 15px;
 }
 
 .input__box::placeholder {

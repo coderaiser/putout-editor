@@ -210,6 +210,60 @@ test('the textarea left padding matches the thread gutter, not the button lane',
     });
 });
 
+/**
+ * The placeholder's own geometry, read off the `::before` pseudo-element.
+ *
+ * The pseudo-element cannot be *located* — a locator matches real elements — but
+ * its computed style is readable, and that is the only way to assert the values
+ * the transposition bug lived in. `padding-left` on `.input__box` passing 16
+ * proves nothing about `inset`: the two are independent declarations, and the
+ * broken build had the box's padding right and the `::before`'s `left` at 52.
+ *
+ * `display: flex` + `align-items: center` is the vertical centring, and it is
+ * asserted here rather than trusted because it is the other half of the fix.
+ */
+test('the placeholder inset keeps the button lane on the right', async ({page}) => {
+    await expect(page.locator('.input__box--empty')).toBeVisible();
+    
+    const style = await page
+        .locator('.input__box--empty')
+        .first()
+        .evaluate((element) => {
+            const {
+                top,
+                right,
+                bottom,
+                left,
+                display,
+                alignItems,
+                position,
+            } = getComputedStyle(element, '::before');
+            
+            return {
+                top,
+                right,
+                bottom,
+                left,
+                display,
+                alignItems,
+                position,
+            };
+        });
+    
+    // top right bottom left — 16px from the text edge, 52px clear of the button
+    const expected = {
+        top: '12px',
+        right: '52px',
+        bottom: '12px',
+        left: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        position: 'absolute',
+    };
+    
+    expect(style).toEqual(expected);
+});
+
 test('shows ast tree for pasted source', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
     await send(page, '/ast');
