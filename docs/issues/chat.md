@@ -2,6 +2,51 @@
 
 **Open only.** What was fixed is in [`../memory/`](../memory/index.md).
 
+## ❌ `enforce: true` on the chat's `codemirror` group passes the plan's gate without deferring `@lezer`
+
+Found while implementing the plan's §3, whose verify is
+`ls out/chat/codemirror-*.js` and `grep -c lezer out/chat/chat-*.js`. Both pass
+after the change. The stated goal — "@lezer is not in the initial bundle" — does
+not hold, and nothing in either command can see that.
+
+**The minimum.** Build `packages/chat` into an empty `out/chat`, once with and
+once without the group, and sum the `<script>`s the built `index.html` loads:
+
+```sh
+rm -rf out/chat && bun run build
+ls -la out/chat/{runtime,react,257,chat}-*.js | awk '{s+=$5} END {print s}'
+```
+
+**Got** — 3,436,261 bytes before, 3,436,344 after, and the 3.1 MB `257-*.js`
+chunk has an identical content hash in both. `@lezer` is still in the initial
+payload.
+
+**Expected** — the initial set to shrink, because that is what "deferred" means.
+
+**Why.** Two separate things, and only one of them is chat's:
+
+- chat's own `@lezer` copy is *not* in the chat chunk, and never was —
+  `chat-*.js` carries `escHtml` and the configured parser with no grammar in it.
+  `enforce: true` cannot defer it either, because `SourceBlock` renders the seeded
+  `/source` message on first paint, so `highlight.ts` is synchronously reachable.
+- the `@lezer` that *is* initial arrives inside the `257` chunk, which carries
+  🐊**Putout**'s parser tree — pulled in statically by
+  `@putout/editor-commands`. A cacheGroup in `packages/chat` cannot move a module
+  that belongs to another package's static graph.
+
+What the group *did* achieve is real but narrower: qword/`@codemirror` is reached
+only through `React.lazy(() => import('./CodeMirrorBox.tsx'))`, so nothing on the
+first render needs it and it now lives in an async `codemirror-*.js` — it was
+already async before, in a differently-named chunk.
+
+**The check that would catch it** is a before/after on the initial chunk set
+rather than a `grep` over the chunk you were aiming at. A green `grep` over
+`chat-*.js` says nothing about `257-*.js`, which is the whole payload.
+`docs/memory/browser-bundle.md` has the measurement and the rule.
+
+**Not started:** deferring the `@putout/editor-commands` pull would break the
+initial render's commands, so it needs a decision rather than a config edit.
+
 ## ❌ a Playwright measurement taken right after `page.goto` reads an unmounted page
 
 Found while writing the mobile e2e for the composer overflow below, and it is the reason one of
