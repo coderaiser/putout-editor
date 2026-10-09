@@ -157,3 +157,38 @@ lines" produces the opposite of what the rule wants, and the error is reported a
 `1:1` with no line, so it is worth looking up rather than guessing at. The rule
 text is in `node_modules/align-spaces/lib/align-spaces.js` and it is nineteen
 lines.
+
+## The placeholder's `inset` was transposed, and `.input__box` had no `position: relative`
+
+`inset` is `top right bottom left`. The value was `12px 16px 12px 52px` — left
+52px, right 16px. The intended values are left 16px (the text edge) and right 52px
+(the send button's lane), so the two were swapped, and on a 390px phone a 52px
+left inset pushed "/help — list every command" far enough from the edge to read as
+centred.
+
+The containing block for `position: absolute` walks up to the nearest positioned
+ancestor. `.input__box` declared no `position`, so the containing block was
+`.input` (the composer row, which is `position: relative`) and the `inset`
+coordinates were measured from *its* padding box — shifting the placeholder up and
+left of where the text cursor sits.
+
+**Fix:** `position: relative` on `.input__box`, and `inset: 12px 52px 12px 16px`
+with `display: flex; align-items: center` for the vertical centring. Four values
+written out, because a two-value `inset` gives both sides the same number — the
+shape of the original mistake.
+
+**A pseudo-element's computed style is readable, so it can be asserted.** A
+`::before` cannot be *located* — a locator matches real elements — but
+`getComputedStyle(element, '::before')` returns its resolved values, and that is
+the only way to pin the numbers the transposition lived in. The regression spec
+in `e2e/desktop.ts` reads `top`/`right`/`bottom`/`left`/`display`/`alignItems` and
+compares them, and against the old stylesheet it fails with exactly the swap:
+`left: 52px, right: 16px, display: block, alignItems: normal`.
+
+**Asserting the box's padding proves nothing about the pseudo-element's `inset`.**
+`.input__box { padding: 12px 52px 12px 16px }` was *correct* throughout, and
+`the textarea left padding matches the thread gutter` was green on the broken
+build — the two are independent declarations. That is the same shape as a
+`t.match(result, 'tok-keyword')` that only reads a class name: a check that reads
+the right *kind* of thing from the wrong place passes either way.
+
