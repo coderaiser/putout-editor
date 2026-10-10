@@ -127,7 +127,15 @@ const darkBackground = async (): Promise<string> => {
 test('AstTree: every dark category colour is readable on the dark tree', async (t) => {
     const ast = await readCss('./AstTree.css');
     const background = await darkBackground();
-    const tokens = tokensOf(ast, `[data-theme='dark'] .ast`);
+    
+    // The seven category tokens sit on the bare `[data-theme='dark']` so a
+    // `.tok-scope` outside `.ast` reaches them; `ast-accent` stays on
+    // `[data-theme='dark'] .ast`. The effective dark value of a category is the
+    // merge of the two — which is the whole point of the split, read back.
+    const tokens = {
+        ...tokensOf(ast, `[data-theme='dark']`),
+        ...tokensOf(ast, `[data-theme='dark'] .ast`),
+    };
     
     const dark: Record<string, number> = {};
     
@@ -169,15 +177,15 @@ test('AstTree: every dark category colour is readable on the dark tree', async (
 test('AstTree: the dark other-category inherits the dark accent', async (t) => {
     const ast = await readCss('./AstTree.css');
     const tokens = tokensOf(ast, `[data-theme='dark'] .ast`);
-    const light = tokensOf(ast, '.ast');
+    const root = tokensOf(ast, ':root');
     
     const result = {
-        declared: light['ast-c-other'],
+        declared: root['ast-c-other'],
         darkAccent: tokens['ast-accent'],
     };
     
     const expected = {
-        declared: 'var(--ast-accent)',
+        declared: 'var(--ast-accent, currentColor)',
         darkAccent: '#c0caf5',
     };
     
@@ -196,7 +204,13 @@ test('AstTree: the dark other-category inherits the dark accent', async (t) => {
  */
 test('AstTree: the light palette still declares all seven categories', async (t) => {
     const ast = await readCss('./AstTree.css');
-    const light = tokensOf(ast, '.ast');
+    
+    // The seven categories are on `:root`; `ast-accent` (the eighth, the
+    // `other` fallback) stays on `.ast`. Merged, that is the light palette.
+    const light = {
+        ...tokensOf(ast, ':root'),
+        ...tokensOf(ast, '.ast'),
+    };
     
     const missing = CATEGORIES.filter((category) => !light[category]);
     const expected: string[] = [];

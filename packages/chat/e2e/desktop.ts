@@ -1160,6 +1160,19 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     const keywordSpan = page.locator('.source-block .tok-keyword').nth(1);
     await expect(keywordSpan).toBeVisible();
     await expect(keywordSpan).toContainText('const');
+    
+    // …and the span is actually **coloured**, which is the other half and the
+    // reason this test exists. A `.tok-keyword` that renders in the inherited
+    // text colour passes the two checks above on a build where the highlighting
+    // is invisible — that was the bug: `highlight.css` maps `tok-keyword` to
+    // `var(--ast-c-control)`, which resolved to the empty string outside `.ast`.
+    // Measured against `body`, not a literal, so a palette change keeps the
+    // assertion meaning "the keyword is not the surrounding text".
+    const color = await keywordSpan.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    
+    expect(color).not.toBe('');
+    expect(color).not.toBe(bodyColor);
 });
 
 test('TransformDiff renders before and after', async ({page}) => {

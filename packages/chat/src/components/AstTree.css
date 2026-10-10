@@ -11,6 +11,52 @@
  * old `#1a1a2e`, which no longer appears anywhere.
  */
 
+/*
+ * The eight category colours live on `:root`, not inside `.ast`.
+ *
+ * `highlight.css` maps the `@lezer` `tok-*` classes to these tokens inside
+ * `.tok-scope`, which `SourceBlock` and `TransformDiff` carry — and neither is a
+ * descendant of `.ast`. CSS custom properties inherit downward through the DOM
+ * and are not global, so a token declared only on `.ast` resolves to the empty
+ * string in a `SourceBlock` and its `color` declaration does nothing: every token
+ * rendered in the inherited text colour, which is the invisible-highlighting bug.
+ * On `:root` the tree still inherits them (its category rules are `.ast`
+ * descendants) *and* `.tok-scope` reaches them.
+ *
+ * The values are unchanged. `--ast-c-identifier` and `--ast-c-other` referenced
+ * the `.ast`-scoped `--ast-fg` and `--ast-accent`, which are not defined at the
+ * root — so each carries a `currentColor` fallback. Inside `.ast` the scoped
+ * values still win (custom-property resolution is per-element), so the tree is
+ * byte-for-byte the same; outside it an identifier falls back to the text colour,
+ * which is correct — `highlight.css` maps a bare variable name to
+ * `--color-text-strong` anyway and never reads `--ast-c-identifier`.
+ *
+ * Derived from the palette already in this file, not from `happy-style`: it
+ * exports four functions — `convertCssToJs`, `convertJsToCss`, `parseCss`,
+ * `printCss` — and no tokens at all, so there is nothing to read a palette out
+ * of. These are the **light** values, chosen to sit on `--ast-bg: #fff` and to be
+ * distinguishable at 13px monospace. The dark set is `[data-theme='dark']` below,
+ * keyed off the attribute rather than `@media (prefers-color-scheme)` so it
+ * agrees with `chat.css` the moment a user overrides the theme.
+ *
+ * Hues follow VS Code's dark theme: gold statements, blue declarations, violet
+ * expressions, teal calls, warm literals, plain-text identifiers, red control
+ * flow.
+ */
+:root {
+    --ast-c-statement: #9a6b00;
+    --ast-c-declaration: #2a6fb0;
+    --ast-c-expression: #6d3fc4;
+    --ast-c-call: #0e7a6e;
+    --ast-c-literal: #b45309;
+    /* the foreground itself: an identifier is what everything else decorates */
+    --ast-c-identifier: var(--ast-fg, currentColor);
+    --ast-c-control: #b91c1c;
+    /* `other` takes the accent `.ast-row__type` already had, so an unrecognised
+       node reads as "no opinion" rather than as a bug */
+    --ast-c-other: var(--ast-accent, currentColor);
+}
+
 .ast {
     --ast-bg: var(--color-bg-editor, #fff);
     --ast-fg: var(--color-text, #3d3d3a);
@@ -19,39 +65,6 @@
     --ast-border: var(--color-border, #e5e3dc);
     --ast-match: var(--color-marked, #f5e6a8);
     --ast-selected: var(--color-selected, #f0eee6);
-    
-    /*
-     * Type-category colours.
-     *
-     * Derived from the palette already in this file, not from `happy-style`:
-     * plan.md §4 says to check that package first, and it exports four
-     * functions — `convertCssToJs`, `convertJsToCss`, `parseCss`, `printCss` —
-     * and no tokens at all. It is a css-to-JS **parser**, so there is nothing to
-     * read a palette out of. (The plan also names `happy-style@1.0.7`; 1.0.5 is
-     * installed here, and neither version ships a theme.)
-     *
-     * These are the **light** values, chosen to sit on `--ast-bg: #fff` and to be
-     * distinguishable from each other at 13px monospace. The dark set is
-     * `[data-theme='dark'] .ast` below, because these have no `--color-*`
-     * counterpart to inherit — the one deliberate exception to the
-     * `var(--color-*, fallback)` pattern the other six tokens use, and the reason
-     * is that there is nothing on the page to inherit *from*.
-     *
-     * Hues follow VS Code's dark theme, which is what the plan's reference image
-     * shows: gold statements, blue declarations, violet expressions, teal calls,
-     * warm literals, plain-text identifiers, red control flow.
-     */
-    --ast-c-statement: #9a6b00;
-    --ast-c-declaration: #2a6fb0;
-    --ast-c-expression: #6d3fc4;
-    --ast-c-call: #0e7a6e;
-    --ast-c-literal: #b45309;
-    /* the foreground itself: an identifier is what everything else decorates */
-    --ast-c-identifier: var(--ast-fg);
-    --ast-c-control: #b91c1c;
-    /* `other` takes the accent `.ast-row__type` already had, so an unrecognised
-       node reads as "no opinion" rather than as a bug */
-    --ast-c-other: var(--ast-accent);
     
     display: flex;
     flex-direction: column;
@@ -74,12 +87,15 @@
 }
 
 /**
- * The eight category colours, on the dark background.
+ * The seven category colours, on the dark background.
  *
- * Scoped to `[data-theme='dark'] .ast` rather than `@media (prefers-color-scheme)`
+ * Scoped to `[data-theme='dark']` rather than `@media (prefers-color-scheme)`
  * because `chat.css` keys its own dark palette off the attribute and a media
  * query here would disagree with it the moment a user overrode the theme — a
- * light tree with dark category colours is the failure this avoids.
+ * light tree with dark category colours is the failure this avoids. Dropping the
+ * `.ast` from the selector is the same move the light set made: these have to be
+ * reachable from a `.tok-scope` outside `.ast`, and a descendant selector would
+ * strand them there exactly as before.
  *
  * These are the hues from the design session, mapped onto the categories rather
  * than onto node types: the design coloured `Program` cyan and
@@ -109,7 +125,7 @@
  * `--ast-fg`: the design gave `Identifier` its own green, and an identifier row
  * in plain foreground is the one row whose colour says nothing.
  */
-[data-theme='dark'] .ast {
+[data-theme='dark'] {
     --ast-c-statement: #7dcfff;
     --ast-c-declaration: #bb9af7;
     --ast-c-expression: #e0af68;
@@ -117,12 +133,20 @@
     --ast-c-literal: #ff9e64;
     --ast-c-identifier: #9ece6a;
     --ast-c-control: #f7768e;
+}
+
+[data-theme='dark'] .ast {
     /*
      * The accent, which is also `--ast-c-other`. On light it is Claude's
      * terracotta `#c15f3c`, chosen for cream; on `#1f1e1d` it measures 5.33:1 and
      * reads as a smudge. `#c0caf5` is 10.31:1 — and since `--ast-c-other` is
      * declared as `var(--ast-accent)`, this one line also fixes every node type
      * the `Set` does not recognise, which is the case with no opinion to offer.
+     *
+     * It stays on `[data-theme='dark'] .ast`, not the bare attribute: `--ast-accent`
+     * is read only by `.ast` rules (`.ast:focus-visible`, `.ast-row__type`,
+     * `.ast-status__type`), so it has no `.tok-scope` to reach and no reason to
+     * widen — and `--ast-c-other` resolves it through the fallback either way.
      */
     --ast-accent: #c0caf5;
 }
