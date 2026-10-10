@@ -442,14 +442,35 @@ body {
     color: var(--color-accent);
 }
 
-.help-block table {
-    width: 100%;
-    border-collapse: collapse;
+.help-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.help-block__row td {
-    padding: 4px 8px 4px 0;
-    vertical-align: top;
+/*
+ * A grid, not a table row.
+ *
+ * A `<table>` cell takes the full width of its row and its columns size to
+ * content, so on a 390px phone the name (`/transform [plugin]`) and the
+ * description collapsed onto one another and `help` read as prose. The grid
+ * pins the name column and lets the description take what is left:
+ * `minmax(140px, max-content)` is wide enough for the longest command plus its
+ * usage, and `1fr` is the remainder. Under 480px the two stack to one column
+ * rather than squeeze both into a row that cannot hold them.
+ */
+.help-block__row {
+    display: grid;
+    grid-template-columns: minmax(140px, max-content) 1fr;
+    gap: 8px;
+    align-items: baseline;
+}
+
+@media (width <= 480px) {
+    .help-block__row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
 }
 
 .help-block__name {
@@ -464,7 +485,7 @@ body {
     /* The name column is `nowrap` because `source [source]` reads as one unit
        and breaking it would make it a different string. The description is the
        other half of the trade: it wraps, so a long row costs height rather than
-       width, and the table can fit a phone. */
+       width, and the row can fit a phone. */
     overflow-wrap: anywhere;
 }
 

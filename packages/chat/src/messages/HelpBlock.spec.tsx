@@ -132,3 +132,41 @@ test('HelpBlock: every row starts with a slash', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+/**
+ * A grid of divs, not a `<table>`.
+ *
+ * The row was a `<tr>` with two `<td>`, and on a phone a table cell takes the
+ * full width of its row, so the name and the description ran together and
+ * `help` read as prose. This pins the element the CSS is written against: the
+ * block is a `div.help-block`, each row is a `div.help-block__row`, and there
+ * is no `<table>` anywhere — the six tests above read the classes, which a
+ * `<table>` also carries, so they would not catch a regression back to a table.
+ */
+test('HelpBlock: renders as a grid of divs, not a table', (t) => {
+    render(
+        <HelpBlock/>,
+    );
+    
+    const block = document.querySelector('.help-block');
+    const row = document.querySelector('.help-block__row');
+    
+    const result = {
+        blockTag: block && block.tagName,
+        rowTag: row && row.tagName,
+        hasTable: document.querySelector('.help-block table') !== null,
+        hasTr: document.querySelector('.help-block tr') !== null,
+    };
+    
+    const expected = {
+        blockTag: 'DIV',
+        rowTag: 'DIV',
+        hasTable: false,
+        hasTr: false,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});

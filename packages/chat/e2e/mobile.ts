@@ -728,3 +728,23 @@ test('the input is at the bottom of the viewport on load', async ({page}) => {
     // Within a pixel of the fold: the composer is the last thing on the page.
     expect(measured.viewport - measured.bottom).toBeLessThanOrEqual(1);
 });
+
+/**
+ * `/help` shows command names without wrapping mid-name on a phone.
+ *
+ * The `@media (max-width: 480px)` rule stacks each `.help-block__row` to one
+ * column, so on a 390px screen the name gets the full width and `white-space:
+ * nowrap` holds it on one line. `scrollWidth > clientWidth` is the signature of
+ * text wider than its box — the name being clipped or pushing the row wide —
+ * so the assertion is that it does **not** overflow: the longest command
+ * (`/transform [plugin]`) fits without breaking.
+ */
+test('/help shows command names without wrapping mid-name', async ({page}) => {
+    await send(page, '/help');
+    
+    const firstName = page.locator('.help-block__name').first();
+    await expect(firstName).toBeVisible();
+    
+    const overflows = await firstName.evaluate((el) => el.scrollWidth > el.clientWidth + 2);
+    expect(overflows).toBe(false);
+});

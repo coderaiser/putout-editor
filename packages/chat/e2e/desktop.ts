@@ -1175,6 +1175,38 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     expect(color).not.toBe(bodyColor);
 });
 
+/**
+ * `/help` renders as a styled grid, not a wrapped table.
+ *
+ * The row was a `<table>` `<tr>` with two `<td>`, and a table cell takes the
+ * full width of its row — so the command name and its description collapsed
+ * onto each other and `help` read as prose. `chat.css` now lays each row out as
+ * `grid-template-columns: minmax(140px, max-content) 1fr`, which is only a grid
+ * if the element is a `div`. This asserts the structure and that the name is
+ * actually coloured with the accent rather than the body text.
+ */
+test('/help renders a styled grid, not plain text', async ({page}) => {
+    await send(page, '/help');
+    
+    // The seed thread already answers one `/help`, so the page carries two
+    // blocks and a bare locator is a strict-mode violation. The sent command's
+    // answer is the last one, the same scoping the mobile "air between" spec
+    // uses for the reply.
+    const block = page.locator('[data-testid="help-block"]').last();
+    await expect(block).toBeVisible();
+    
+    // Each row must be a grid div, not a table row
+    const rows = block.locator('.help-block__row');
+    await expect(rows.first()).toBeVisible();
+    
+    // Name must have the accent colour — not the default text colour
+    const name = rows.first().locator('.help-block__name');
+    const color = await name.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    
+    expect(color).not.toBe(bodyColor);
+});
+
 test('TransformDiff renders before and after', async ({page}) => {
     // `/transform` answers "needs the putout server and does not run in the
     // browser", so no diff block appears here. Assert the empty state so the
