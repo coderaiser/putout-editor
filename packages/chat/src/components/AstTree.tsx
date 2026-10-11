@@ -29,6 +29,16 @@ export interface AstTreeProps {
 const siblingOf = (pid: string) => (node: FlatNode) => node.pid === pid;
 
 /**
+ * What a query matches on an AST row: its type and its detail.
+ *
+ * Passed in rather than read inside the hook, because the hook is shared with
+ * `LearnTree` — which matches on a label and a summary and has no `type` at all.
+ * A hard-coded `${type} ${detail}` here would either be dead for one of them or
+ * would need a branch on which tree is asking.
+ */
+const textOfAst = (node: FlatNode) => `${node.type} ${node.detail}`;
+
+/**
  * The last row of a parent, computed over **all** nodes rather than the drawn
  * ones. A folded subtree's last child is not on screen, so asking only the
  * visible rows would call the second-to-last visible child "last" as soon as
@@ -93,7 +103,9 @@ const ancestorLastFlags = (nodes: FlatNode[], node: FlatNode): boolean[] => chai
     .map(lastOf(nodes));
 
 export default function AstTree({nodes, source, mobile}: AstTreeProps) {
-    const state = useTreeState(nodes);
+    const state = useTreeState(nodes, {
+        textOf: textOfAst,
+    });
     const {
         rows,
         dimmed,

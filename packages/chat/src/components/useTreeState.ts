@@ -1,10 +1,43 @@
-import type {FlatNode} from '@putout/editor-commands';
 import {
     useCallback,
     useEffect,
     useRef,
     useState,
 } from 'react';
+
+/**
+ * The three fields every tree row has, whatever else it carries.
+ *
+ * `FlatNode` and `FlatLearnNode` both satisfy it, which is what lets one tree
+ * widget serve the AST and the concept curriculum: collapse, filter and keyboard
+ * navigation read `id`, `pid` and `depth` and nothing else. What a row *shows*
+ * and what a query *matches* are the two things that differ, and both arrive as
+ * an option rather than as a second hook.
+ */
+export interface TreeNode {
+    id: string;
+    pid: string | null;
+    depth: number;
+}
+
+export interface TreeOptions<T extends TreeNode> {
+    /** What a query is matched against — an AST row's type and detail, a learn row's label and summary. */
+    textOf: (node: T) => string;
+    
+    /**
+     * Depth from which rows start collapsed. `1` is the AST tree's: the root is
+     * open and everything under a first-level node is folded, so `/ast` draws two
+     * rows. `/learn` passes `0` — the root is open and its sections are not,
+     * because a concept tree's first level *is* the table of contents.
+     */
+    collapsedDepth?: number;
+    
+    /**
+     * Enter/space on a row with no children. Omitted, every row toggles, which
+     * is the AST tree: there is nothing to open, so the caret is the answer.
+     */
+    onOpen?: (node: T) => void;
+}
 
 export type Focus = 'search' | 'tree';
 
@@ -15,9 +48,9 @@ export interface TreeState {
     focus: Focus;
 }
 
-export interface Visible {
+export interface Visible<T> {
     /** The rows to draw, in order. */
-    rows: FlatNode[];
+    rows: T[];
     
     /** Ids whose own text matches the query, for the amber highlight. */
     matched: Set<string>;
@@ -27,7 +60,7 @@ export interface Visible {
 }
 
 /** Ids a query touches, plus every ancestor of each, so a match is reachable. */
-export function withAncestors(matched: Set<string>, nodes: FlatNode[]): Set<string> {
+export function withAncestors<T extends TreeNode>(matched: Set<string>, nodes: T[]): Set<string> {
     const parents = new Map(nodes.map(({id, pid}) => [id, pid]));
     
     const result = new Set(matched);
@@ -44,7 +77,7 @@ export function withAncestors(matched: Set<string>, nodes: FlatNode[]): Set<stri
     return result;
 }
 
-export const filterNodes = (nodes: FlatNode[], query: string): Visible => {
+export const filterNodes = <T extends TreeNode>(nodes: T[], query: string, textOf: (node: T) => string): Visible<T> => {
     const needle = query
         .trim()
         .toLowerCase();
@@ -57,7 +90,7 @@ export const filterNodes = (nodes: FlatNode[], query: string): Visible => {
         };
     
     const matched = new Set<string>(nodes
-        .filter(({type, detail}) => `${type} ${detail}`
+        .filter((node) => textOf(node)
             .toLowerCase()
             .includes(needle))
         .map(({id}) => id));
@@ -76,15 +109,20 @@ export const filterNodes = (nodes: FlatNode[], query: string): Visible => {
     };
 };
 
-/** Ids that are collapsed by default: every node deeper than the second level. */
-export function defaultCollapsed(nodes: FlatNode[]): Set<string> {
+/**
+ * Ids that are collapsed by default: every node deeper than `belowDepth`.
+ *
+ * `belowDepth` rather than a folded-in `1` because the two trees want different
+ * things and the difference is one number — see `TreeOptions.collapsedDepth`.
+ */
+export function defaultCollapsed<T extends TreeNode>(nodes: T[], belowDepth = 1): Set<string> {
     return new Set(nodes
-        .filter(({depth}) => depth > 1)
+        .filter(({depth}) => depth > belowDepth)
         .map(({id}) => id));
 }
 
 /** The rows a collapsed set leaves visible, keeping a collapsed node's children hidden. */
-export const visibleRows = (nodes: FlatNode[], collapsed: Set<string>): FlatNode[] => {
+export const visibleRows = <T extends TreeNode>(nodes: T[], collapsed: Set<string>): T[] => {
     const parents = new Map(nodes.map(({id, pid}) => [id, pid]));
     
     return nodes.filter(({pid}) => {
@@ -104,9 +142,9 @@ export const visibleRows = (nodes: FlatNode[], collapsed: Set<string>): FlatNode
  * view when there is not. Shared by the render and by keyboard navigation, so
  * `j` cannot walk to a row that is not drawn.
  */
-export const rowsOf = (nodes: FlatNode[], collapsed: Set<string>, query: string): FlatNode[] => {
+export const rowsOf = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, query: string, textOf: (node: T) => string): T[] => {
     if (query.trim())
-        return filterNodes(nodes, query).rows;
+        return filterNodes(nodes, query, textOf).rows;
     
     return visibleRows(nodes, collapsed);
 };
@@ -140,7 +178,7 @@ export type TreeMove = {
  * first child. `shown` is passed rather than recomputed because the caller
  * already has it, and `rowsOf` over a live query is not free.
  */
-export const expandMove = (nodes: FlatNode[], collapsed: Set<string>, selected: string | null, shown: FlatNode[]): TreeMove => {
+export const expandMove = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, selected: string | null, shown: T[]): TreeMove => {
     if (selected === null) {
         const [first] = shown;
         
@@ -158,7 +196,7 @@ export const expandMove = (nodes: FlatNode[], collapsed: Set<string>, selected: 
             id: selected,
         };
     
-    const {id} = nodes.find(({id: nodeId}) => nodeId === selected) as FlatNode;
+    const {id} = nodes.find(({id: nodeId}) => nodeId === selected) as T;
     const child = nodes.find(({pid}) => pid === id);
     
     if (!child)
@@ -180,7 +218,7 @@ export const expandMove = (nodes: FlatNode[], collapsed: Set<string>, selected: 
  * Top level rather than an arrow inside `foldMove` — the rule is a fixed point
  * here, and a named helper is what makes it one.
  */
-export const hasChildren = (nodes: FlatNode[], id: string): boolean => nodes.some(({pid}) => pid === id);
+export const hasChildren = <T extends TreeNode>(nodes: T[], id: string): boolean => nodes.some(({pid}) => pid === id);
 
 /**
  * `ArrowLeft`: collapse, or walk out.
@@ -189,7 +227,7 @@ export const hasChildren = (nodes: FlatNode[], id: string): boolean => nodes.som
  * parent — there is nothing further down to hide, so the next thing `ArrowRight`
  * would reveal is up here. A leaf stays put.
  */
-export const foldMove = (nodes: FlatNode[], collapsed: Set<string>, selected: string | null): TreeMove => {
+export const foldMove = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, selected: string | null): TreeMove => {
     if (selected === null)
         return {
             kind: 'noop',
@@ -228,9 +266,15 @@ export const foldMove = (nodes: FlatNode[], collapsed: Set<string>, selected: st
     };
 };
 
-export const useTreeState = (nodes: FlatNode[]) => {
+export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOptions<T>) => {
+    const {
+        textOf,
+        collapsedDepth = 1,
+        onOpen,
+    } = options;
+    
     const [state, setState] = useState<TreeState>({
-        collapsed: defaultCollapsed(nodes),
+        collapsed: defaultCollapsed(nodes, collapsedDepth),
         selected: null,
         query: '',
         focus: 'tree',
@@ -260,7 +304,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
      * search looks broken. Folding and searching are two different intentions,
      * so the query wins — and clearing it restores the folds.
      */
-    const rows = useCallback(() => filterNodes(rowsOf(nodes, state.collapsed, state.query), state.query), [nodes, state.collapsed, state.query]);
+    const rows = useCallback(() => filterNodes(rowsOf(nodes, state.collapsed, state.query, textOf), state.query, textOf), [nodes, state.collapsed, state.query, textOf]);
     
     const toggle = useCallback((id: string) => setState((previous) => {
         const collapsed = new Set(previous.collapsed);
@@ -292,7 +336,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
     })), []);
     
     const move = useCallback((step: number) => setState((previous) => {
-        const shown = rowsOf(nodes, previous.collapsed, previous.query);
+        const shown = rowsOf(nodes, previous.collapsed, previous.query, textOf);
         
         if (!shown.length)
             return previous;
@@ -427,7 +471,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
                 // specs that walked the tree with `ArrowDown` caught it. `k` is
                 // also the honest direction: the filter bar renders *above* the
                 // tree, so up from the top row is where it is.
-                const shown = rowsOf(nodes, state.collapsed, state.query);
+                const shown = rowsOf(nodes, state.collapsed, state.query, textOf);
                 const atTop = shown.length > 0 && state.selected === shown[0].id;
                 
                 if (atTop) {
@@ -442,7 +486,7 @@ export const useTreeState = (nodes: FlatNode[]) => {
             }
             
             if (key === 'ArrowRight' || key === 'l') {
-                const shown = rowsOf(nodes, state.collapsed, state.query);
+                const shown = rowsOf(nodes, state.collapsed, state.query, textOf);
                 
                 applyMove(expandMove(nodes, state.collapsed, state.selected, shown));
                 
@@ -455,9 +499,33 @@ export const useTreeState = (nodes: FlatNode[]) => {
                 return;
             }
             
+            /**
+             * Enter/space is the one key whose meaning depends on the row.
+             *
+             * A container has nothing to *open* — a caret is its whole answer —
+             * so it toggles. A leaf has nothing to toggle, so it opens, if the
+             * caller said what opening means. `AstTree` passes no `onOpen`, which
+             * is why its leaves toggle too: a fold on a leaf is a no-op, and that
+             * is the same behaviour it had before the option existed.
+             *
+             * The `hasChildren` call is over all nodes rather than the drawn rows,
+             * for the reason `hasChildren` itself gives: a folded subtree's last
+             * child is not on screen, and asking only what is visible would call a
+             * container a leaf the moment its sibling folded away.
+             */
             if (key === 'Enter' || key === ' ') {
-                if (state.selected)
-                    toggle(state.selected);
+                if (!state.selected)
+                    return;
+                
+                if (onOpen && !hasChildren(nodes, state.selected)) {
+                    const node = nodes.find(({id}) => id === state.selected) as T;
+                    
+                    onOpen(node);
+                    
+                    return;
+                }
+                
+                toggle(state.selected);
                 
                 return;
             }
@@ -470,12 +538,14 @@ export const useTreeState = (nodes: FlatNode[]) => {
         goToTree,
         move,
         nodes,
+        onOpen,
         setFocus,
         setQuery,
         state.collapsed,
         state.focus,
         state.query,
         state.selected,
+        textOf,
         toggle,
     ]);
     
