@@ -7,6 +7,8 @@ import HelpBlock from './messages/HelpBlock.tsx';
 import PlacesList from './messages/PlacesList.tsx';
 import TransformDiff from './messages/TransformDiff.tsx';
 import AstBlock from './messages/AstBlock.tsx';
+import LearnBlock from './messages/LearnBlock.tsx';
+import TryItBlock from './messages/TryItBlock.tsx';
 
 export interface MessageProps {
     message: MessageModel;
@@ -50,6 +52,19 @@ const Result = ({message}: MessageProps) => {
                 nodes={result.nodes}
                 source={result.source}
             />
+        );
+    
+    // `learn` and `tryit` come after `ast` and before the arms below, because
+    // they are new results with their own shapes — falling through to `text` or
+    // `source` would render a tree as a paragraph.
+    if (result.type === 'learn')
+        return (
+            <LearnBlock tree={result.tree}/>
+        );
+    
+    if (result.type === 'tryit')
+        return (
+            <TryItBlock source={result.source}/>
         );
     
     if (result.type === 'source')
