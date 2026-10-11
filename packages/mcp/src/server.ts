@@ -12,6 +12,7 @@ import * as namer from './namer.ts';
 import * as typecheck from './typecheck.ts';
 import * as visitor from './visitor.ts';
 import * as flatlint from './flatlint.ts';
+import * as learn from './learn.ts';
 
 type AnyRegister = (name: string, config: {
     description: string;
@@ -39,6 +40,9 @@ export function createServer(): McpServer {
     register(typecheck.name, {description: typecheck.description, inputSchema: typecheck.schema}, typecheck.handler);
     register(visitor.name, {description: visitor.description, inputSchema: visitor.schema}, visitor.handler);
     register(flatlint.name, {description: flatlint.description, inputSchema: flatlint.schema}, flatlint.handler);
+    register(learn.learnTree.name, {description: learn.learnTree.description, inputSchema: learn.learnTree.schema}, learn.learnTree.handler);
+    register(learn.learnNode.name, {description: learn.learnNode.description, inputSchema: learn.learnNode.schema}, learn.learnNode.handler);
+    register(learn.learnExample.name, {description: learn.learnExample.description, inputSchema: learn.learnExample.schema}, learn.learnExample.handler);
     
     return server;
 }
