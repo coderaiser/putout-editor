@@ -1124,9 +1124,10 @@ test('useTreeState: onOpen fires for a selected leaf', (t) => {
 
     // `4` is a NumericLiteral: a leaf, with nothing to fold.
     act(() => {
-        document.querySelector('[data-testid="select-leaf"]')?.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-        }));
+        const leaf = document.querySelector('[data-testid="select-leaf"]');
+        
+        if (leaf)
+            leaf.dispatchEvent(new MouseEvent('click', {bubbles: true}));
     });
 
     press('Enter');
@@ -1159,9 +1160,10 @@ test('useTreeState: onOpen does not fire for a container', (t) => {
     
     // `1` is a VariableDeclaration, which has children.
     act(() => {
-        document.querySelector('[data-testid="select-one"]')?.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-        }));
+        const one = document.querySelector('[data-testid="select-one"]');
+        
+        if (one)
+            one.dispatchEvent(new MouseEvent('click', {bubbles: true}));
     });
     
     const before = read('rows');

@@ -89,11 +89,15 @@ export const filterNodes = <T extends TreeNode>(nodes: T[], query: string, textO
             dimmed: new Set<string>(),
         };
     
+    const matchesNeedle = (node: T) => textOf(node)
+        .toLowerCase()
+        .includes(needle);
+    
+    const toId = ({id}: T) => id;
+    
     const matched = new Set<string>(nodes
-        .filter((node) => textOf(node)
-            .toLowerCase()
-            .includes(needle))
-        .map(({id}) => id));
+        .filter(matchesNeedle)
+        .map(toId));
     
     const reachable = withAncestors(matched, nodes);
     const dimmed = new Set<string>();

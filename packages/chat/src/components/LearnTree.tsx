@@ -74,8 +74,10 @@ const chainOf = (nodes: FlatLearnNode[], node: FlatLearnNode): FlatLearnNode[] =
     ];
 };
 
+const lastFlagOf = (nodes: FlatLearnNode[]) => (ancestor: FlatLearnNode) => isLast(nodes, ancestor);
+
 const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean[] => chainOf(nodes, node)
-    .map((ancestor) => isLast(nodes, ancestor));
+    .map(lastFlagOf(nodes));
 
 /**
  * One row in the learn tree.

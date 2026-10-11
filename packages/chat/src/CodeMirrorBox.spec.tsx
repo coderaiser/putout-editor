@@ -163,10 +163,12 @@ test('CodeMirrorBox: unmount destroys the editor without throwing', (t) => {
 test('CodeMirrorBox: typing calls onChange with the new text', (t) => {
     const calls: string[] = [];
     
+    const onChange = (next: string) => calls.push(next);
+    
     render(
         <CodeMirrorBox
             data-testid="box"
-            onChange={(next) => calls.push(next)}
+            onChange={onChange}
             onKeyDown={noop}
             value=""
         />,
