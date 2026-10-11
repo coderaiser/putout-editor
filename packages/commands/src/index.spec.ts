@@ -5,8 +5,12 @@ test('index: exports the commands, the ast tools and the tree components', (t) =
     const expected: string[] = [
         'commands',
         'compactAST',
+        'curriculum',
         'errorText',
+        'findLearnNode',
         'flattenAst',
+        'flattenLearn',
+        'learnNodes',
         'needsPutout',
         'notInBrowser',
         'parseCommand',
@@ -15,6 +19,7 @@ test('index: exports the commands, the ast tools and the tree components', (t) =
         'runClear',
         'runConsole',
         'runHelp',
+        'runLearn',
         'runNamePattern',
         'runReset',
         'runSource',
@@ -63,5 +68,62 @@ test('index: exports no React component', (t) => {
     const expected: string[] = [];
     
     t.deepEqual(components, expected);
+    t.end();
+});
+
+/**
+ * `curriculum` is exported for the browser, so its module has to stay pure.
+ *
+ * `packages/chat` imports this barrel, and the note at the top of the file is
+ * about one specific failure: a value whose module calls `createRequire` or
+ * `os.homedir()` at scope throws before React mounts, and the page renders
+ * nothing. `compilePlugin` is out for that reason. `curriculum` is in for the
+ * opposite one — it is a data literal.
+ *
+ * This asserts the property rather than trusting the file to stay that way: an
+ * import added to `curriculum.ts` tomorrow would otherwise be discovered by a
+ * blank page.
+ */
+test('index: curriculum is a plain tree, with nothing to import', (t) => {
+    const [root] = api.curriculum;
+    
+    const result = {
+        isArray: Array.isArray(api.curriculum),
+        hasId: typeof root.id === 'string',
+        hasChildren: Array.isArray(root.children),
+    };
+    const expected = {
+        isArray: true,
+        hasId: true,
+        hasChildren: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The three learn helpers are re-exported rather than reached by deep path.
+ *
+ * `packages/chat` renders the tree and `packages/mcp` answers `learn_node`; both
+ * import `@putout/editor-commands`. A deep subpath would work and would make
+ * each consumer name a file inside this package, which is the coupling the
+ * barrel exists to prevent.
+ */
+test('index: exports the learn helpers the chat and the mcp both use', (t) => {
+    const result = [
+        typeof api.flattenLearn,
+        typeof api.findLearnNode,
+        typeof api.learnNodes,
+        typeof api.runLearn,
+    ];
+    const expected = [
+        'function',
+        'function',
+        'function',
+        'function',
+    ];
+    
+    t.deepEqual(result, expected);
     t.end();
 });
