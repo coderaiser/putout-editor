@@ -2,7 +2,9 @@
 // the tree carries its own colours wherever it is mounted — a chat message, the
 // console panel, or a spec.
 import './AstTree.css';
+import type {ReactNode} from 'react';
 import type {FlatLearnNode} from '@putout/editor-commands';
+import {Fragment} from 'react';
 import {useTreeState} from './useTreeState.ts';
 import {caretOf, connectorsOf} from './AstRow.tsx';
 import AstSearch from './AstSearch.tsx';
@@ -76,6 +78,55 @@ const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean
     .map((ancestor) => isLast(nodes, ancestor));
 
 /**
+ * One row in the learn tree.
+ *
+ * Extracted from `LearnTree`'s `.map()` callback so `hoist-arrow-callback`
+ * does not flag it — the same reason `AstRow` is its own component rather
+ * than an inline block in `AstTree`.
+ */
+interface LearnRowProps {
+    node: FlatLearnNode;
+    nodes: FlatLearnNode[];
+    selected: boolean;
+    dimmed: boolean;
+    matched: boolean;
+    collapsed: boolean;
+    onSelect: (id: string) => void;
+}
+
+const LearnRow = ({node, nodes, selected, dimmed, matched, collapsed, onSelect}: LearnRowProps): ReactNode => (
+    <div
+        className={[
+            'ast-row',
+            selected && 'ast-row--selected',
+            dimmed && 'ast-row--dimmed',
+            matched && 'ast-row--match',
+        ]
+            .filter(Boolean)
+            .join(' ')}
+        data-testid="learn-row"
+        key={node.id}
+        onClick={() => onSelect(node.id)}
+        role="treeitem"
+    >
+        <span className="ast-row__connectors">
+            {connectorsOf(node.depth, isLast(nodes, node), ancestorLastFlags(nodes, node))}
+        </span>
+        <span className="ast-row__caret">
+            {caretOf(node.hasChildren, collapsed)}
+        </span>
+        <span className="ast-row__type">
+            {node.label}
+        </span>
+        {node.summary && (
+            <span className="ast-row__detail">
+                {node.summary}
+            </span>
+        )}
+    </div>
+);
+
+/**
  * The `/learn` tree.
  *
  * Structurally `AstTree`, and deliberately so: same stylesheet, same rows, same
@@ -130,35 +181,16 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
             />
             <div className="ast__tree">
                 {rows.map((node) => (
-                    <div
-                        className={[
-                            'ast-row',
-                            state.selected === node.id && 'ast-row--selected',
-                            dimmed.has(node.id) && 'ast-row--dimmed',
-                            matched.has(node.id) && 'ast-row--match',
-                        ]
-                            .filter(Boolean)
-                            .join(' ')}
-                        data-testid="learn-row"
+                    <LearnRow
+                        collapsed={state.collapsed.has(node.id)}
+                        dimmed={dimmed.has(node.id)}
                         key={node.id}
-                        onClick={() => state.select(node.id)}
-                        role="treeitem"
-                    >
-                        <span className="ast-row__connectors">
-                            {connectorsOf(node.depth, isLast(nodes, node), ancestorLastFlags(nodes, node))}
-                        </span>
-                        <span className="ast-row__caret">
-                            {caretOf(node.hasChildren, state.collapsed.has(node.id))}
-                        </span>
-                        <span className="ast-row__type">
-                            {node.label}
-                        </span>
-                        {node.summary && (
-                            <span className="ast-row__detail">
-                                {node.summary}
-                            </span>
-                        )}
-                    </div>
+                        matched={matched.has(node.id)}
+                        node={node}
+                        nodes={nodes}
+                        onSelect={state.select}
+                        selected={state.selected === node.id}
+                    />
                 ))}
             </div>
             <div
