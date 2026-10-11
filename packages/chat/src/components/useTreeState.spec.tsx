@@ -1181,3 +1181,25 @@ test('useTreeState: onOpen does not fire for a container', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+/**
+ * `Enter` with nothing selected is a no-op, not a throw.
+ *
+ * The guard the Enter handler opens with. Both halves have to be taken or the
+ * branch is uncovered: everything above selects before pressing, which is the
+ * path a user almost always takes — but a freshly rendered tree, or a filter
+ * that hid every row, has `selected: null`, and the handler has to survive it.
+ */
+test('useTreeState: enter with no selection does nothing', (t) => {
+    render(<Harness nodes={tree}/>);
+    
+    press('Enter');
+    
+    const result = read('selected');
+    const expected = '-';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});

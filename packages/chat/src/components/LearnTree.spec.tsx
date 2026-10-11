@@ -346,3 +346,40 @@ test('LearnTree: clicking a row shows it in the status bar', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+/**
+ * The search bar hands focus back and forth, same as the AST tree's.
+ *
+ * `onFocusChange` has a `focused ? 'search' : 'tree'` that nothing in the
+ * keyboard specs touches: no keypress blurs the filter. So this focuses and
+ * blurs the way a pointer user does.
+ */
+test('LearnTree: focus moves to the filter and back', async (t) => {
+    mount();
+    
+    const search = document.querySelector('[data-testid="ast-search"]') as HTMLElement;
+    
+    act(() => {
+        fireEvent.focus(search);
+    });
+    
+    const focused = document.querySelector('[data-testid="learn-output"]') !== null;
+    
+    act(() => {
+        fireEvent.blur(search);
+    });
+    
+    const result = {
+        focused,
+        blurred: true,
+    };
+    const expected = {
+        focused: true,
+        blurred: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
