@@ -28,7 +28,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
     ...over,
 });
 
-const row = (over: Partial<FlatNode> = {}) => render(
+const row = (over: Partial<FlatNode> = {}, mobile?: boolean) => render(
     <AstRow
         ancestorLastFlags={[]}
         hasChildren={false}
@@ -36,6 +36,7 @@ const row = (over: Partial<FlatNode> = {}) => render(
         dimmed={false}
         matched={false}
         last={false}
+        mobile={mobile}
         node={node(over)}
         onSelect={noop}
         onToggle={noop}
@@ -389,6 +390,114 @@ test('AstRow: clicking a node with children also folds it', (t) => {
     cleanup();
     
     const expected = ['2'];
+    const result = toggled;
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The coarse-pointer case, and the whole of bug 1.
+ *
+ * A coarse pointer fires `click` on `pointerup`, so a row that both selects and
+ * toggles on one handler does both on the first tap — and toggles *closed*
+ * again on the second. The user taps twice and sees nothing happen, because the
+ * two effects cancel. A mouse has a separate `mousedown`/`click` pair and a
+ * double-click, so the same handler is right there and wrong here.
+ *
+ * So the row is told which it is, and the fold is only bound to the fine case:
+ * a touchscreen tap selects, and folding is the keyboard's job (`h`/`l`, and
+ * space/enter) plus the caret, which is where a phone user expects it.
+ *
+ * The plan named this as "split into two handlers"; the split is by *effect*
+ * rather than by DOM event, because there is only one event to split — a
+ * `pointerdown` with `event.pointerType` would work, and would need a second
+ * listener to carry the same answer `useIsMobile` already holds.
+ */
+test('AstRow: a coarse pointer selects without toggling', (t) => {
+    const toggled: string[] = [];
+    const picked: string[] = [];
+    
+    const onToggle = (id: string) => {
+        toggled.push(id);
+    };
+    
+    const onSelect = (id: string) => {
+        picked.push(id);
+    };
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            hasChildren={true}
+            collapsed={false}
+            dimmed={false}
+            matched={false}
+            last={false}
+            mobile={true}
+            node={node({
+                id: '4',
+            })}
+            onSelect={onSelect}
+            onToggle={onToggle}
+            selected={false}
+        />,
+    );
+    
+    fireEvent.click(document.querySelector('[data-testid="ast-row"]') as Element);
+    
+    cleanup();
+    
+    const result = {
+        picked,
+        toggled,
+    };
+    
+    const expected = {
+        picked: ['4'],
+        toggled: [],
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * And the fine pointer keeps the fold, which is the half that stops this being
+ * a "tap never folds" change. A regression that dropped the toggle altogether
+ * would pass the spec above and break every desktop user, so both arms are
+ * pinned.
+ */
+test('AstRow: a fine pointer still folds on click', (t) => {
+    const toggled: string[] = [];
+    
+    const onToggle = (id: string) => {
+        toggled.push(id);
+    };
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            hasChildren={true}
+            collapsed={false}
+            dimmed={false}
+            matched={false}
+            last={false}
+            mobile={false}
+            node={node({
+                id: '9',
+            })}
+            onSelect={noop}
+            onToggle={onToggle}
+            selected={false}
+        />,
+    );
+    
+    fireEvent.click(document.querySelector('[data-testid="ast-row"]') as Element);
+    
+    cleanup();
+    
+    const expected = ['9'];
     const result = toggled;
     
     t.deepEqual(result, expected);

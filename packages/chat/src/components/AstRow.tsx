@@ -44,8 +44,24 @@ export interface AstRowProps {
     selected: boolean;
     onSelect: (id: string) => void;
     
-    /** Clicking a node with children also folds it — the tree's only pointer affordance. */
+    /**
+     * Clicking a node with children also folds it — the tree's only pointer
+     * affordance, and only on a **fine** pointer.
+     *
+     * A coarse pointer fires `click` on `pointerup`, so binding both effects to
+     * one handler folds on the first tap and unfolds on the second: the user
+     * taps a row twice and watches nothing happen, because the two toggles
+     * cancel and the selection they also caused is not what they were aiming
+     * at. A touchscreen therefore selects on tap and folds only through the
+     * keyboard and the caret, which is where a phone user looks for it.
+     *
+     * Defaults to `false` — the fine case — so every existing mount keeps the
+     * fold, which is the half a careless change would take away.
+     */
     onToggle: (id: string) => void;
+    
+    /** Coarse pointer, from `useIsMobile`. Defaults to `false`, like `AstTree`. */
+    mobile?: boolean;
 }
 
 const OPEN = '▾';
@@ -107,7 +123,7 @@ export const connectorsOf = (depth: number, last: boolean, ancestorLastFlags: bo
     return `${prefix}${last ? ELBOW : TEE}`;
 };
 
-export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: AstRowProps) {
+export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, mobile, onSelect, onToggle}: AstRowProps) {
     return (
         <div
             className={[
@@ -123,7 +139,7 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
             onClick={() => {
                 onSelect(node.id);
                 
-                if (hasChildren)
+                if (hasChildren && !mobile)
                     onToggle(node.id);
             }}
             role="treeitem"

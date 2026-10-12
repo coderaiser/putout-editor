@@ -22,6 +22,9 @@ export interface AstTreeProps {
      * hidden by `@media (pointer: coarse)` in `AstTree.css`, because a column
      * that is not rendered cannot be un-rendered by CSS and one that is
      * rendered-then-hidden still costs a `minmax(0, 1fr)` to size.
+     *
+     * Threaded on to `AstRow` as well, where it decides whether a tap folds.
+     * One answer, read once in `AstBlock`, rather than a `matchMedia` per row.
      */
     mobile?: boolean;
 }
@@ -151,6 +154,7 @@ export default function AstTree({nodes, source, mobile}: AstTreeProps) {
                             key={node.id}
                             last={isLast(nodes, node)}
                             matched={matched.has(node.id)}
+                            mobile={mobile}
                             node={node}
                             onSelect={state.select}
                             onToggle={state.toggle}
