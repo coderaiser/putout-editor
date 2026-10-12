@@ -77,7 +77,10 @@ test('local type_check: schema has fixture and typeNames fields', (t) => {
 test('local type_check: counts the nodes each clause claimed', (t) => {
     const hits = runChecker(SOURCE, TABLE);
     
-    const result = [...hits.entries()].sort((a, b) => a[0] - b[0]);
+    const result: [number, number][] = [];
+    
+    for (const entry of hits)
+        result.push(entry);
     const expected = [
         [0, 3],
         [1, 3],

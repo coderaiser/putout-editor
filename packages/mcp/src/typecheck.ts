@@ -138,9 +138,10 @@ export async function handler({fixture, typeNames}: Schema) {
         ],
     ]) as never);
     
-    const claims = [...hits.entries()]
-        .sort((a, b) => a[0] - b[0])
-        .map(([index, count]) => `  clause ${index + 1}: ${count} node(s) — ${typeNames[index]}`);
+    const claims = [];
+    
+    for (const [index, count] of hits)
+        claims.push(`  clause ${index + 1}: ${count} node(s) — ${typeNames[index]}`);
     
     const lines = [
         message,
