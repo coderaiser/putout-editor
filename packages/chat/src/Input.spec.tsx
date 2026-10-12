@@ -15,6 +15,7 @@ import Input, {
     enterSends,
     growTo,
     isCoarsePointer,
+    wantsLineNumbers,
 } from './Input.tsx';
 import {prefixOf} from './sigil.ts';
 import {getValue, getView, setValue} from 'qword/client';
@@ -286,6 +287,153 @@ test('Input: isCoarsePointer is false without matchMedia', async (t) => {
     const expected = false;
     
     globalThis.matchMedia = original;
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * The gutter, from what has been typed.
+ *
+ * Each of the four is a command that takes a **body** — a multi-line plugin, or
+ * a multi-line source — and the numbers are the only feedback on how many lines
+ * it is. `mode: 'javascript'` was already on, so the highlighting half of the
+ * plan's bug 2 was never missing; this is the other half.
+ *
+ * One spec per command rather than a loop, because a loop that iterated the
+ * `Set` would test the set against itself and pass for any set at all.
+ */
+test('Input: a body command asks for line numbers', (t) => {
+    const result = [
+        wantsLineNumbers('/source'),
+        wantsLineNumbers('/find'),
+        wantsLineNumbers('/transform'),
+        wantsLineNumbers('/validate'),
+    ];
+    
+    const expected = [
+        true,
+        true,
+        true,
+        true,
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * And the ones that do not, which is the other half of the same gate: a gutter
+ * on a one-line command name costs a column and says nothing. `ast`, `help`,
+ * `clear` and `reset` are all single-line by construction.
+ */
+test('Input: a one-line command does not', (t) => {
+    const result = [
+        wantsLineNumbers('/ast'),
+        wantsLineNumbers('/help'),
+        wantsLineNumbers('/clear'),
+        wantsLineNumbers('/reset'),
+    ];
+    
+    const expected = [
+        false,
+        false,
+        false,
+        false,
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A partial name is not a command yet, so it gets no gutter — and this is the
+ * case that would otherwise thrash: `/sourc` → `false` then `s` → `true` is one
+ * rebuild, which is fine, but a rule that answered on a *prefix match* would
+ * rebuild on every keystroke of a name that happens to start with one of the
+ * four. `setTimeout` and `console` both start with `co`, and nothing starts a
+ * body command's name except the whole of it.
+ */
+test('Input: a partial command name does not', (t) => {
+    const result = [
+        wantsLineNumbers('/sourc'),
+        wantsLineNumbers('/trans'),
+        wantsLineNumbers('/fin'),
+    ];
+    
+    const expected = [
+        false,
+        false,
+        false,
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * No sigil, and prose: the two lines that are not commands at all.
+ *
+ * The sigil case is not academic — `↑` recalls the line as it was sent, with
+ * one, but a *pasted* body arrives without one and must answer the same as a
+ * typed one. A sentence is `false` because its first word is not a command, and
+ * that is what keeps a chat message from getting a gutter.
+ */
+test('Input: a recalled line and a sentence both answer by their first word', (t) => {
+    const result = [
+        wantsLineNumbers('source\nconst a = 1;'),
+        wantsLineNumbers('hello world'),
+        wantsLineNumbers(''),
+    ];
+    
+    const expected = [
+        true,
+        false,
+        false,
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The gutter appears on screen once a body command is typed.
+ *
+ * The helper above is the rule; this is the rule *reaching the editor*, which
+ * is the half a helper spec cannot see — a prop passed to the wrong component,
+ * or read from `text` instead of `value`, would leave every helper spec green
+ * and the composer without numbers. Measured on `.cm-lineNumbers`, which is
+ * what `lineNumbers()` renders.
+ */
+test('Input: typing a body command brings up the gutter', async (t) => {
+    await box();
+    
+    type('/source');
+    
+    const result = document.querySelector('.input__box .cm-lineNumbers') !== null;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * …and a one-line command leaves it off, which is the same assertion from the
+ * other side. `/help` is the natural subject: it is the command most often
+ * typed, so a rule that gave *every* command a gutter would be caught here
+ * rather than in review.
+ */
+test('Input: a one-line command keeps the gutter off', async (t) => {
+    await box();
+    
+    type('/help');
+    
+    const result = document.querySelector('.input__box .cm-lineNumbers');
+    const expected = null;
+    
+    cleanup();
     
     t.equal(result, expected);
     t.end();
