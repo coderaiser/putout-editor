@@ -30,6 +30,11 @@ const tree: LearnNode[] = [{
         summary: 'a leaf',
         body: 'leaf body',
         example: 'const a = 1;\n',
+    }, {
+        id: 'root/prose',
+        label: 'prose',
+        summary: 'a prose-only leaf',
+        body: 'prose body',
     }],
 }];
 
@@ -182,5 +187,37 @@ test('LearnBlock: the root has no example and opens with no tryit', async (t) =>
     cleanup();
     
     t.equal(result, expected);
+    t.end();
+});
+
+/**
+ * A leaf with no `example` appends exactly one message — the body — and no
+ * `tryit` block.
+ *
+ * This is the `!payload.example` arm of `extraReducers` in `slice.ts:246`.
+ * The root is a container (Enter expands, not opens), so the only way to reach
+ * the uncovered branch is a leaf without an `example` field.
+ */
+test('LearnBlock: opening a prose-only leaf appends only the body', async (t) => {
+    const store = setup();
+    const before = store.getState().chat.messages.length;
+    
+    // `rows()[2]` is `root/prose` — the second child, no example.
+    fireEvent.click(rows()[2]);
+    
+    await act(async () => {
+        fireEvent.keyDown(document.querySelector('[data-testid="learn-output"]') as HTMLElement, {
+            key: 'Enter',
+        });
+    });
+    
+    await setTimeout(20);
+    
+    const result = results(store).slice(before);
+    const expected = ['text'];
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
     t.end();
 });
