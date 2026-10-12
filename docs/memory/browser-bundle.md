@@ -167,6 +167,47 @@ showed one row), and the `↑` recall walking the wrong direction (`cursor`
 clamped with `Math.max(at - 1, 0)` started at 0 and never moved). Both were
 green in every unit test.
 
+## Static imports bypass `chunks: 'async'` — and `enforce: true` is the override
+
+`highlight.ts` imports `@lezer/javascript` and `@lezer/highlight` at the top level.
+`SourceBlock` imports `highlight.ts`. `Message.tsx` imports `SourceBlock`.
+`Chat.tsx` imports `Message.tsx`. `index.tsx` imports `Chat.tsx`. Every link is a
+static `import`.
+
+`chunks: 'async'` on a cacheGroup is a statement about *dynamically-imported*
+modules: it splits what is reached through `import()`. A module that is statically
+reachable from the entry is in the initial graph, and `chunks: 'async'` does not
+move it. `enforce: true` is what overrides that — it makes the group
+unconditional, ignoring `minSize`, `minChunks` and the import style, and the
+runtime loads the chunk on first use instead of at page load.
+
+**But `enforce: true` only defers what nothing needs synchronously.** Measured on
+this package with a clean `out/chat` before and after adding the group:
+
+- qword/`@codemirror` — deferred. It is reached only through
+  `React.lazy(() => import('./CodeMirrorBox.tsx'))`, so nothing on the initial
+  render needs it, and the group moved it into an async `codemirror-*.js`.
+- chat's own `@lezer` — **not** deferred, and it was never in the chat chunk
+  either. `SourceBlock` renders the seeded `/source` message on first paint, so
+  `highlight.ts` — and the grammar it needs — is synchronously reachable.
+
+So the plan's verify (`ls out/chat/codemirror-*.js` exists, and
+`grep -c lezer out/chat/chat-*.js` prints 0) **passes while the stated goal does
+not hold**: `@lezer` is still in the initial payload. Not through chat's code —
+the initial 3.1 MB chunk carries a second copy of the grammar that arrives with
+`@putout/editor-commands`' static pull on 🐊**Putout**'s parser tree, and no
+cacheGroup in `packages/chat` can move that. The initial payload measured
+3,436,261 bytes before the change and 3,436,344 after — the difference is the
+chat chunk itself, and the 3.1 MB chunk's hash is unchanged.
+
+**The rule: `chunks: 'async'` is for dynamically-imported modules, `enforce: true`
+is for modules you want deferred regardless of import style — and neither can
+defer a module the first render needs. Check the initial chunk set, not the chunk
+you were aiming at.** The check that would have caught it is the one in
+[`e2e.md`](./e2e.md)'s spirit: sum the `<script>`s in the built `index.html`
+before and after, because a green `grep` over `chat-*.js` says nothing about
+`257-*.js`.
+
 ## A lint message that names a line is a claim about that line
 
 The same habit applies one level up. `flatlint`'s `add-missing-assign` reported

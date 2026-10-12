@@ -19,6 +19,20 @@ export {queryAST} from './query.ts';
  */
 export type {Rule} from './plugin.ts';
 export {flattenAst} from './flat.ts';
+
+/**
+ * `curriculum` and `flattenLearn` are here for the same reason `flattenAst` is:
+ * both are pure and the chat imports them. `curriculum` is a data literal with
+ * no `createRequire` and no `fs`, so it is safe in a browser bundle — the
+ * `compilePlugin` note above is what keeps the modules that are *not* safe out.
+ */
+export {
+    curriculum,
+    findLearnNode,
+    learnNodes,
+} from './learn/curriculum.ts';
+export {flattenLearn} from './learn/flat.ts';
+export {runLearn} from './learn/index.ts';
 export {
     parseCommand,
     type ParsedCommand,
@@ -34,7 +48,9 @@ export type {
     ChatState,
     Command,
     CommandResult,
+    FlatLearnNode,
     FlatNode,
+    LearnNode,
     Place,
 } from './state.types.ts';
 export {

@@ -3,8 +3,10 @@ import {test} from 'supertape';
 import {
     render,
     cleanup,
+    act,
     fireEvent,
 } from '@testing-library/react';
+import {getView, setValue} from 'qword/client';
 import {Provider} from 'react-redux';
 import type {ReactNode} from 'react';
 import type {Store} from '@reduxjs/toolkit';
@@ -28,7 +30,7 @@ const mount = () => {
     return store;
 };
 
-const box = () => document.querySelector('[data-testid="input"]') as HTMLTextAreaElement;
+const box = () => document.querySelector('[data-testid="input"]') as HTMLElement;
 
 const wait = () => setTimeout(20);
 
@@ -38,15 +40,19 @@ const wait = () => setTimeout(20);
  * here rather than repeated in each.
  */
 const send = (text: string) => {
-    fireEvent.change(box(), {
-        target: {
-            value: text,
-        },
+    const boxElement = box();
+    
+    act(() => {
+        setValue(getView(boxElement)!, text);
     });
     
-    fireEvent.keyDown(box(), {
+    const content = boxElement.querySelector('.cm-content') || boxElement;
+    
+    fireEvent.keyDown(content, {
         key: 'Enter',
         ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
     });
 };
 

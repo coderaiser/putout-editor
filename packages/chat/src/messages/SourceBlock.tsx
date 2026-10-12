@@ -1,3 +1,6 @@
+import '../css/highlight.css';
+import {highlight} from '../highlight.ts';
+
 export interface SourceBlockProps {
     data: string;
 }
@@ -19,24 +22,26 @@ export default function SourceBlock({data}: SourceBlockProps) {
             </div>
         );
     
-    const lines = data.split('\n');
+    // highlight() returns a string with \n preserved. Split AFTER highlighting
+    // so the span boundaries are not broken across the split.
+    const lines = highlight(data).split('\n');
     
     return (
         <div
-            className="source-block"
+            className="source-block tok-scope"
             data-testid="source-block"
         >
-            {lines.map((line, index) => (
-                <div
-                    className="source-block__line"
-                    key={index}
-                >
+            {lines.map((html, index) => (
+                <div className="source-block__line" key={index}>
                     <span className="source-block__gutter">
                         {index + 1}
                     </span>
-                    <code className="source-block__text">
-                        {line}
-                    </code>
+                    <code
+                        className="source-block__text"
+                        dangerouslySetInnerHTML={{
+                            __html: html,
+                        }}
+                    />
                 </div>
             ))}
         </div>

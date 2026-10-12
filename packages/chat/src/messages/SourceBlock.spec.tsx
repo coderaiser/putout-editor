@@ -58,3 +58,29 @@ test('SourceBlock: an empty source draws no lines', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('SourceBlock: highlighted output contains tok- spans', (t) => {
+    source('const x = 1;');
+    
+    const code = document.querySelector('.source-block__text');
+    const result = code && code.innerHTML.includes('tok-') || false;
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('SourceBlock: source-block has tok-scope class', (t) => {
+    source('const x = 1;');
+    
+    const element = document.querySelector('.source-block');
+    const result = Boolean(element && element.classList.contains('tok-scope'));
+    const expected = true;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});

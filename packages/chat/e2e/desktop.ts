@@ -8,17 +8,24 @@ import {
  * Scope to `data-testid="input"`, not `getByRole('textbox')`: once `/ast` runs,
  * `AstSearch` puts a second `<input>` on the page. Playwright strict mode then
  * refuses `getByRole('textbox')` — two elements match and the locator throws.
+ *
+ * `.cm-content` is the focusable `contenteditable` CodeMirror owns; pressing
+ * keys or typing against the container div would land nowhere.
  */
-const box = (page: Page) => page.getByTestId('input');
+const box = (page: Page) => page.getByTestId('input').locator('.cm-content');
 
 /**
- * `fill` then `Ctrl+Enter`, not `type` then `Enter`: `fill` sets the value in one
- * go, and a multi-line `source` body would otherwise be typed key by key, so
- * the `Enter` that ends a line would land in the middle of the source instead of
- * being part of the send chord.
+ * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
+ * targets form controls and has no effect on a `contenteditable` div, and not
+ * `keyboard.type`, which presses a real `Enter` for every embedded `\n` — on a
+ * keyboard `Enter` *sends*, so a multi-line `source` body would go out as two
+ * commands with the first half sent mid-line. `insertText` lands the text
+ * atomically: the editor still fires its update, `onChange` still lands in
+ * React state, and the key handler only sees the send chord.
  */
 const send = async (page: Page, text: string) => {
-    await box(page).fill(text);
+    await box(page).click();
+    await page.keyboard.insertText(text);
     await page.keyboard.press('Control+Enter');
 };
 
@@ -201,6 +208,60 @@ test('the textarea left padding matches the thread gutter, not the button lane',
         left: 16,
         right: 52,
     });
+});
+
+/**
+ * The placeholder's own geometry, read off the `::before` pseudo-element.
+ *
+ * The pseudo-element cannot be *located* — a locator matches real elements — but
+ * its computed style is readable, and that is the only way to assert the values
+ * the transposition bug lived in. `padding-left` on `.input__box` passing 16
+ * proves nothing about `inset`: the two are independent declarations, and the
+ * broken build had the box's padding right and the `::before`'s `left` at 52.
+ *
+ * `display: flex` + `align-items: center` is the vertical centring, and it is
+ * asserted here rather than trusted because it is the other half of the fix.
+ */
+test('the placeholder inset keeps the button lane on the right', async ({page}) => {
+    await expect(page.locator('.input__box--empty')).toBeVisible();
+    
+    const style = await page
+        .locator('.input__box--empty')
+        .first()
+        .evaluate((element) => {
+            const {
+                top,
+                right,
+                bottom,
+                left,
+                display,
+                alignItems,
+                position,
+            } = getComputedStyle(element, '::before');
+            
+            return {
+                top,
+                right,
+                bottom,
+                left,
+                display,
+                alignItems,
+                position,
+            };
+        });
+    
+    // top right bottom left — 16px from the text edge, 52px clear of the button
+    const expected = {
+        top: '12px',
+        right: '52px',
+        bottom: '12px',
+        left: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        position: 'absolute',
+    };
+    
+    expect(style).toEqual(expected);
 });
 
 test('shows ast tree for pasted source', async ({page}) => {
@@ -718,27 +779,41 @@ test('ast leaves the console panel closed', async ({page}) => {
 });
 
 test('Ctrl+Enter sends the line', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Control+Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 test('Enter sends the line on a keyboard', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 test('Shift+Enter builds a multi-line /source body', async ({page}) => {
-    await box(page).fill('/source\nconst a = 1;');
+    await box(page).click();
+    await page.keyboard.type('/source');
+    await page.keyboard.press('Shift+Enter');
+    await page.keyboard.insertText('const a = 1;');
     await page.keyboard.press('Shift+Enter');
     await page.keyboard.insertText('const b = 2;');
     
-    await expect(box(page)).toHaveValue('/source\nconst a = 1;\nconst b = 2;');
+    // One assertion per line: `.cm-content` holds a `.cm-line` div per line
+    // with no text between them, so `toHaveText` on the whole box joins the
+    // three lines into one flat string. The line divs are the editor's own
+    // structure, and counting them is the honest shape of "multi-line".
+    const rows = box(page).locator('.cm-line');
+    
+    await expect(rows).toHaveCount(3);
+    await expect(rows.nth(0)).toHaveText('/source');
+    await expect(rows.nth(1)).toHaveText('const a = 1;');
+    await expect(rows.nth(2)).toHaveText('const b = 2;');
     
     await page.keyboard.press('Control+Enter');
     
@@ -760,13 +835,14 @@ test('Shift+Enter builds a multi-line /source body', async ({page}) => {
 test('the send button sends the line', async ({page}) => {
     // The button is the primary way to send now that `Enter` is a newline, so
     // it is the one path that cannot be about the chord at all.
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page
         .getByTestId('send')
         .click();
     
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 test('console again hides the panel', async ({page}) => {
@@ -781,13 +857,13 @@ test('console again hides the panel', async ({page}) => {
 test('up arrow recalls the last sent line', async ({page}) => {
     await send(page, '/help');
     
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
     
     await box(page).press('ArrowUp');
     
     // The sigil comes back with it: `↑` recalls the line that was sent, and a
     // recalled `help` would be answered "Not a command" when sent again.
-    await expect(box(page)).toHaveValue('/help');
+    await expect(box(page)).toHaveText('/help');
 });
 
 test('the header has no console toggle button', async ({page}) => {
@@ -820,7 +896,8 @@ test('plain text without a sigil is told to start with one', async ({page}) => {
 });
 
 test('autocomplete opens on a command prefix', async ({page}) => {
-    await box(page).fill('a');
+    await box(page).click();
+    await page.keyboard.type('a');
     
     await expect(page.locator('.autocomplete')).toBeVisible();
     await expect(page.locator('.autocomplete')).toContainText('ast');
@@ -836,7 +913,7 @@ test('autocomplete opens on a command prefix', async ({page}) => {
  * in every other spec because they all type first.
  */
 test('an empty box shows no autocomplete', async ({page}) => {
-    await expect(page.getByTestId('input')).toHaveValue('');
+    await expect(box(page)).toHaveText('');
     
     await expect(page.locator('.autocomplete')).toHaveCount(0);
 });
@@ -968,9 +1045,10 @@ test('the theme toggle sits at the right of the header', async ({page}) => {
  * to some arbitrary offset would pass a weaker check and still hide the answer.
  */
 test('sending scrolls the answer into view', async ({page}) => {
-    const box = page.getByTestId('input');
+    const content = page.getByTestId('input').locator('.cm-content');
     
-    await box.fill('/ast');
+    await content.click();
+    await page.keyboard.type('/ast');
     await page.keyboard.press('Control+Enter');
     
     const result = await page.evaluate(() => {
@@ -1060,6 +1138,109 @@ test('AST connectors are drawn before the caret, keeping the tree line continuou
  * branch marker **and** a caret, and the caret must not have leaked into the
  * connector string.
  */
+test('the /source user bubble shows a highlighted body, not plain text', async ({page}) => {
+    await send(page, '/source\nconst x = 1;');
+    
+    // The user bubble renders its `/source` body through `SourceBlock`, so the
+    // pill the user typed into is highlighted the same way the answer is.
+    // Scope to the user message so the answer's own source-block does not win.
+    const bubble = page.locator('.message--user').last();
+    await expect(bubble).toBeVisible();
+    
+    const keyword = bubble.locator('.tok-keyword').first();
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+});
+
+test('SourceBlock shows syntax-highlighted output', async ({page}) => {
+    await send(page, '/source\nconst add = (a, b) => a + b;');
+    
+    // `highlight()` wraps `const` in `tok-keyword`. Scope to the source block so
+    // the seed's own `export const report` doesn't win the `.first()`.
+    const keywordSpan = page.locator('.source-block .tok-keyword').nth(1);
+    await expect(keywordSpan).toBeVisible();
+    await expect(keywordSpan).toContainText('const');
+    
+    // …and the span is actually **coloured**, which is the other half and the
+    // reason this test exists. A `.tok-keyword` that renders in the inherited
+    // text colour passes the two checks above on a build where the highlighting
+    // is invisible — that was the bug: `highlight.css` maps `tok-keyword` to
+    // `var(--ast-c-control)`, which resolved to the empty string outside `.ast`.
+    // Measured against `body`, not a literal, so a palette change keeps the
+    // assertion meaning "the keyword is not the surrounding text".
+    const color = await keywordSpan.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    
+    expect(color).not.toBe('');
+    expect(color).not.toBe(bodyColor);
+});
+
+/**
+ * `/help` renders as a styled grid, not a wrapped table.
+ *
+ * The row was a `<table>` `<tr>` with two `<td>`, and a table cell takes the
+ * full width of its row — so the command name and its description collapsed
+ * onto each other and `help` read as prose. `chat.css` now lays each row out as
+ * `grid-template-columns: minmax(140px, max-content) 1fr`, which is only a grid
+ * if the element is a `div`. This asserts the structure and that the name is
+ * actually coloured with the accent rather than the body text.
+ */
+test('/help renders a styled grid, not plain text', async ({page}) => {
+    await send(page, '/help');
+    
+    // The seed thread already answers one `/help`, so the page carries two
+    // blocks and a bare locator is a strict-mode violation. The sent command's
+    // answer is the last one, the same scoping the mobile "air between" spec
+    // uses for the reply.
+    const block = page.locator('[data-testid="help-block"]').last();
+    await expect(block).toBeVisible();
+    
+    // Each row must be a grid div, not a table row
+    const rows = block.locator('.help-block__row');
+    await expect(rows.first()).toBeVisible();
+    
+    // Name must have the accent colour — not the default text colour
+    const name = rows.first().locator('.help-block__name');
+    const color = await name.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    
+    expect(color).not.toBe(bodyColor);
+});
+
+test('TransformDiff renders before and after', async ({page}) => {
+    // `/transform` answers "needs the putout server and does not run in the
+    // browser", so no diff block appears here. Assert the empty state so the
+    // e2e documents that the rule is server-only, not a client syntax bug.
+    const before = page.locator('.transform-diff__code--before');
+    await expect(before.first()).toBeHidden();
+});
+
+test('AstCodePreview shows highlighted source lines', async ({page}) => {
+    await send(page, '/source\nconst x = 42;');
+    await send(page, '/ast');
+    
+    // The preview highlights only the selected line, so select
+    // VariableDeclarator (line 1, col 6) before asserting.
+    await page
+        .locator('[data-testid="ast-output"]')
+        .first()
+        .focus();
+    
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    
+    const code = page
+        .locator('.ast-code')
+        .first();
+    await expect(code).toBeVisible();
+    await expect(
+        code
+            .locator('.tok-keyword')
+            .first(),
+    ).toContainText('const');
+});
+
 test('AST rows keep their caret separate from the branch marker', async ({page}) => {
     // Two statements, so Program has two children and the first draws a **tee**.
     //

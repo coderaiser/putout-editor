@@ -10,6 +10,7 @@ export {
     openConsole,
     clearThread,
     reset,
+    learnOpen,
     initialState,
     INITIAL_SOURCE,
     nextId,

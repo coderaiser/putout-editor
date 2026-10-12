@@ -8,8 +8,11 @@ import {
  * Scope to `data-testid="input"`, not `getByRole('textbox')`: once `/ast` runs,
  * `AstSearch` puts a second `<input>` on the page. Playwright strict mode then
  * refuses `getByRole('textbox')` — two elements match and the locator throws.
+ *
+ * `.cm-content` is the focusable `contenteditable` CodeMirror owns; pressing
+ * keys or typing against the container div would land nowhere.
  */
-const box = (page: Page) => page.getByTestId('input');
+const box = (page: Page) => page.getByTestId('input').locator('.cm-content');
 
 /**
  * The thread is not empty on load — it opens seeded with a worked `source`
@@ -69,11 +72,17 @@ const within = (inner: Rect, outer: Rect) => ({
 type Rect = Awaited<ReturnType<typeof rectOf>>;
 
 /**
- * `fill` then `Ctrl+Enter`, not `type` then `Enter`, for the reason
- * `desktop.ts` gives: a multi-line body would have its `Enter` land mid-source.
+ * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
+ * targets form controls and has no effect on a `contenteditable` div, and not
+ * `keyboard.type`, which presses a real `Enter` for every embedded `\n` — on a
+ * keyboard `Enter` *sends*, so a multi-line `source` body would go out as two
+ * commands with the first half sent mid-line. `insertText` lands the text
+ * atomically: the editor still fires its update, `onChange` still lands in
+ * React state, and the key handler only sees the send chord.
  */
 const send = async (page: Page, text: string) => {
-    await box(page).fill(text);
+    await box(page).click();
+    await page.keyboard.insertText(text);
     await page.keyboard.press('Control+Enter');
 };
 
@@ -258,6 +267,17 @@ test('the textarea reserves room for the send button on a touchscreen', async ({
  * inferred from the thread's own padding, so the two cannot drift apart.
  */
 test('the textarea placeholder is not pushed right by the button lane', async ({page}) => {
+    // Wait for the **real** composer, not the Suspense fallback. `.input__box`
+    // exists from the first frame as `input__box input__box--loading`, so a bare
+    // `.evaluate()` resolves before the extracted stylesheet has been fetched and
+    // applied — `getComputedStyle(el).paddingLeft` is then `''` and `parseInt('')`
+    // is `NaN`, which fails as a number rather than as a layout. `.cm-content`
+    // only exists once `CodeMirrorBox` has mounted, which is strictly later than
+    // the CSS arriving. The neighbours above get away without this because
+    // `rectOf(page, '.input__send')` runs first and spends the time; this spec
+    // measured the box as its very first action.
+    await expect(page.locator('.input__box .cm-content')).toBeVisible();
+    
     const padding = await page
         .locator('.input__box')
         .first()
@@ -274,7 +294,8 @@ test('the autocomplete dropdown is on screen', async ({page}) => {
     // A **prefix**, not an empty box: there is no sigil to type any more, so the
     // dropdown opens on a command name being started — and an empty box is
     // deliberately quiet, which is the other half of that rule.
-    await box(page).fill('c');
+    await box(page).click();
+    await page.keyboard.type('c');
     
     const {left, right} = await rectOf(page, '.autocomplete');
     const expected = {
@@ -427,7 +448,8 @@ test('the document does not scroll', async ({page}) => {
  * alone cannot tell the two apart.
  */
 test('a sentence is told to start with a sigil on a touchscreen', async ({page}) => {
-    await box(page).fill('hello world');
+    await box(page).click();
+    await page.keyboard.type('hello world');
     await page.getByTestId('send').tap();
     
     const error = page.locator('.error-block');
@@ -462,22 +484,27 @@ test('air between a command and its answer', async ({page}) => {
  * pointer type is not a binding one project can check.
  */
 test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Enter');
     
     // Both halves are the point: a newline that also sent would post a
     
     // half-typed line, and this is the assertion that would have caught it.
-    await expect(box(page)).toHaveValue('/help\n');
+    // `toHaveText` normalizes the trailing break away, so the `\n` reads as
+    // documentation of the newline rather than a byte comparison — the count
+    // below is what pins "sends nothing".
+    await expect(box(page)).toHaveText('/help\n');
     await expect(userMessages(page)).toHaveCount(SEEDED);
 });
 
 test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
-    await box(page).fill('/help');
+    await box(page).click();
+    await page.keyboard.type('/help');
     await page.keyboard.press('Control+Enter');
     
     await expect(userMessages(page)).toHaveCount(SEEDED + 1);
-    await expect(box(page)).toHaveValue('');
+    await expect(box(page)).toHaveText('');
 });
 
 /**
@@ -700,4 +727,24 @@ test('the input is at the bottom of the viewport on load', async ({page}) => {
     
     // Within a pixel of the fold: the composer is the last thing on the page.
     expect(measured.viewport - measured.bottom).toBeLessThanOrEqual(1);
+});
+
+/**
+ * `/help` shows command names without wrapping mid-name on a phone.
+ *
+ * The `@media (max-width: 480px)` rule stacks each `.help-block__row` to one
+ * column, so on a 390px screen the name gets the full width and `white-space:
+ * nowrap` holds it on one line. `scrollWidth > clientWidth` is the signature of
+ * text wider than its box — the name being clipped or pushing the row wide —
+ * so the assertion is that it does **not** overflow: the longest command
+ * (`/transform [plugin]`) fits without breaking.
+ */
+test('/help shows command names without wrapping mid-name', async ({page}) => {
+    await send(page, '/help');
+    
+    const firstName = page.locator('.help-block__name').first();
+    await expect(firstName).toBeVisible();
+    
+    const overflows = await firstName.evaluate((el) => el.scrollWidth > el.clientWidth + 2);
+    expect(overflows).toBe(false);
 });

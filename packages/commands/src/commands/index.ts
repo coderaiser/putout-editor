@@ -7,6 +7,7 @@ import {runHelp} from './help.ts';
 import {runClear} from './clear.ts';
 import {runReset} from './reset.ts';
 import {runConsole} from './console.ts';
+import {learnCommand} from '../learn/index.ts';
 import type {Flags} from '../parse.ts';
 import type {
     ChatState,
@@ -122,6 +123,14 @@ const listed: Command[] = [{
     description: 'clear the thread and empty the source',
     flags: [],
     run: runReset,
+}, {
+    /**
+     * `learn` is a static import where `find`, `transform` and `validate` are
+     * dynamic ones. It reads a constant, so it costs a data module and nothing
+     * that calls `os.homedir()` — which is the whole reason the other three are
+     * behind a chunk.
+     */
+    ...learnCommand,
 }, {
     name: 'help',
     usage: '[]',

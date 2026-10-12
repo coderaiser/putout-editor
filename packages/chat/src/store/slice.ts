@@ -1,5 +1,36 @@
 import {montag} from 'montag';
-import {createSlice, type PayloadAction} from '@reduxjs/toolkit';
+import {
+    createAsyncThunk,
+    createSlice,
+    type PayloadAction,
+} from '@reduxjs/toolkit';
+import type {FlatLearnNode} from '@putout/editor-commands';
+
+/**
+ * Opening a concept is one dispatch, not two click handlers chained with
+ * `.then`.
+ *
+ * Pressing enter on a leaf has to append the body as one message and the
+ * `[try it →]` as the next, in that order. Doing it in `LearnBlock` with two
+ * `dispatch` calls would work, but the *order* would then live in a component
+ * that also has to know `nextId` runs — so it moves here, where `addMessage`
+ * is imported anyway and the two appends read as a pair.
+ *
+ * It is a `createAsyncThunk` rather than a plain thunk so `fulfilled` carries
+ * the two messages the slice can drop in. `meta.arg` is the `FlatLearnNode`
+ * itself: the row *has* `body` and `example`, so there is no second lookup —
+ * a lookup would need a miss branch nothing can reach, because the rows were
+ * built from the tree the user just opened.
+ *
+ * The `tryit` arm is conditional on `node.example`, and that is the whole of
+ * what makes a container openable-but-not-open: `/learn` renders containers
+ * with no example, and `Enter` on one expands rather than dispatching, so this
+ * thunk only ever sees a leaf.
+ */
+const learnOpen = createAsyncThunk(
+    'chat/learnOpen',
+    async (node: FlatLearnNode) => node,
+);
 import {
     commands,
     runHelp,
@@ -183,6 +214,40 @@ export const {reducer, actions} = createSlice({
         
         reset: () => initialState,
     },
+    
+    /**
+     * The one `extraReducer` in the slice, and what makes `learnOpen` a thunk
+     * rather than two dispatches in a component.
+     *
+     * Two messages go in, in order: the body as `text`, then — only when the
+     * leaf has an example — the `[try it →]`. The `!payload.example` arm is
+     * the whole difference between a leaf that offers to try its code and one
+     * that is prose only, and a container never reaches here (`Enter` on one
+     * expands).
+     */
+    extraReducers: (builder) => {
+        builder.addCase(learnOpen.fulfilled, (state, {payload}) => ({
+            ...state,
+            messages: [
+                ...without(state.messages, {
+                    id: nextId(),
+                    text: `/learn ${payload.id}`,
+                    result: {
+                        type: 'text' as const,
+                        data: payload.body,
+                    },
+                }),
+                ...(payload.example ? [{
+                    id: nextId(),
+                    text: `/learn ${payload.id}`,
+                    result: {
+                        type: 'tryit' as const,
+                        source: payload.example,
+                    },
+                }] : []),
+            ],
+        }));
+    },
 });
 
 export const {
@@ -197,3 +262,12 @@ export const {
     clearThread,
     reset,
 } = actions;
+
+/**
+ * The thunk itself, for `LearnBlock` to dispatch.
+ *
+ * Declared `const` above the slice and exported here, so it reads beside the
+ * reducer that consumes it: the slice owns what two messages to append, the
+ * component only says which leaf was opened.
+ */
+export {learnOpen};

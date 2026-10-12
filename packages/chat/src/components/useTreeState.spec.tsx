@@ -63,6 +63,14 @@ const identifier = () => node('3', '2', 3, 'Identifier', '"a"');
 const numeric = () => node('4', '1', 2, 'NumericLiteral', '1');
 
 /**
+ * What a query matches on an AST row, the same accessor `AstTree` passes.
+ *
+ * Every `rowsOf` / `filterNodes` call below takes it, because the hook no longer
+ * knows which tree it is serving — `LearnTree` matches on a label and a summary.
+ */
+const textOf = (node: FlatNode) => `${node.type} ${node.detail}`;
+
+/**
  * The tree these tests navigate, as parent/child:
  *
  *     Program
@@ -92,7 +100,7 @@ const tree: FlatNode[] = [
 test('useTreeState: expandMove expands a collapsed node', (t) => {
     const collapsed = new Set(['1']);
     
-    const result = expandMove(tree, collapsed, '1', rowsOf(tree, collapsed, ''));
+    const result = expandMove(tree, collapsed, '1', rowsOf(tree, collapsed, '', textOf));
     const expected: TreeMove = {
         kind: 'fold',
         id: '1',
@@ -105,7 +113,7 @@ test('useTreeState: expandMove expands a collapsed node', (t) => {
 test('useTreeState: expandMove on an expanded node moves to its first child', (t) => {
     const collapsed = new Set(['3']);
     
-    const result = expandMove(tree, collapsed, '1', rowsOf(tree, collapsed, ''));
+    const result = expandMove(tree, collapsed, '1', rowsOf(tree, collapsed, '', textOf));
     const expected: TreeMove = {
         kind: 'walk',
         id: '2',
@@ -118,7 +126,7 @@ test('useTreeState: expandMove on an expanded node moves to its first child', (t
 test('useTreeState: expandMove on a leaf is a no-op', (t) => {
     const collapsed = new Set<string>();
     
-    const result = expandMove(tree, collapsed, '4', rowsOf(tree, collapsed, ''));
+    const result = expandMove(tree, collapsed, '4', rowsOf(tree, collapsed, '', textOf));
     const expected: TreeMove = {
         kind: 'noop',
     };
@@ -130,7 +138,7 @@ test('useTreeState: expandMove on a leaf is a no-op', (t) => {
 test('useTreeState: expandMove with nothing selected takes the first row', (t) => {
     const collapsed = new Set<string>();
     
-    const result = expandMove(tree, collapsed, null, rowsOf(tree, collapsed, ''));
+    const result = expandMove(tree, collapsed, null, rowsOf(tree, collapsed, '', textOf));
     const expected: TreeMove = {
         kind: 'walk',
         id: '0',
@@ -226,7 +234,7 @@ test('useTreeState: foldMove on an id that is not in the tree is a no-op', (t) =
  * node type returned nothing. A query has to see the whole tree.
  */
 test('useTreeState: a query finds a row the default fold hides', (t) => {
-    const result = rowsOf(tree, defaultCollapsed(tree), 'Identifier');
+    const result = rowsOf(tree, defaultCollapsed(tree), 'Identifier', textOf);
     const expected = [
         '0',
         '1',
@@ -239,7 +247,7 @@ test('useTreeState: a query finds a row the default fold hides', (t) => {
 });
 
 test('useTreeState: rowsOf with no query returns the folded view', (t) => {
-    const result = rowsOf(tree, defaultCollapsed(tree), '');
+    const result = rowsOf(tree, defaultCollapsed(tree), '', textOf);
     const expected = [
         '0',
         '1',
@@ -281,7 +289,7 @@ test('useTreeState: withAncestors stops at the root', (t) => {
 });
 
 test('useTreeState: filterNodes with no query returns every row', (t) => {
-    const result = filterNodes(tree, '  ').rows.length;
+    const result = filterNodes(tree, '  ', textOf).rows.length;
     const expected = 5;
     
     t.equal(result, expected);
@@ -289,7 +297,7 @@ test('useTreeState: filterNodes with no query returns every row', (t) => {
 });
 
 test('useTreeState: filterNodes matches on type', (t) => {
-    const result = idsOf(filterNodes(tree, 'identifier').rows);
+    const result = idsOf(filterNodes(tree, 'identifier', textOf).rows);
     const expected = [
         '0',
         '1',
@@ -302,7 +310,7 @@ test('useTreeState: filterNodes matches on type', (t) => {
 });
 
 test('useTreeState: filterNodes matches on detail', (t) => {
-    const result = filterNodes(tree, '"a"').matched.has('3');
+    const result = filterNodes(tree, '"a"', textOf).matched.has('3');
     const expected = true;
     
     t.equal(result, expected);
@@ -310,7 +318,7 @@ test('useTreeState: filterNodes matches on detail', (t) => {
 });
 
 test('useTreeState: filterNodes dims the ancestors of a match', (t) => {
-    const result = sorted(filterNodes(tree, 'identifier').dimmed);
+    const result = sorted(filterNodes(tree, 'identifier', textOf).dimmed);
     const expected = ['0', '1', '2'];
     
     t.deepEqual(result, expected);
@@ -318,7 +326,7 @@ test('useTreeState: filterNodes dims the ancestors of a match', (t) => {
 });
 
 test('useTreeState: filterNodes hides a subtree with no match', (t) => {
-    const result = idsOf(filterNodes(tree, 'NumericLiteral').rows);
+    const result = idsOf(filterNodes(tree, 'NumericLiteral', textOf).rows);
     const expected = ['0', '1', '4'];
     
     t.deepEqual(result, expected);
@@ -370,10 +378,14 @@ test('useTreeState: visibleRows shows everything when nothing is collapsed', (t)
  */
 interface HarnessProps {
     nodes: FlatNode[];
+    onOpen?: (node: FlatNode) => void;
 }
 
-const Harness = ({nodes}: HarnessProps) => {
-    const state = useTreeState(nodes);
+const Harness = ({nodes, onOpen}: HarnessProps) => {
+    const state = useTreeState(nodes, {
+        onOpen,
+        textOf,
+    });
     
     return (
         <div
@@ -399,6 +411,20 @@ const Harness = ({nodes}: HarnessProps) => {
                 type="button"
             >
                 select
+            </button>
+            <button
+                data-testid="select-leaf"
+                onClick={() => state.select('4')}
+                type="button"
+            >
+                select leaf
+            </button>
+            <button
+                data-testid="select-one"
+                onClick={() => state.select('1')}
+                type="button"
+            >
+                select one
             </button>
             <button
                 data-testid="filter"
@@ -1036,5 +1062,146 @@ test('useTreeState: two trees keep separate selections', (t) => {
     cleanup();
     
     t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The hook is shared with `LearnTree`, which is a different row type with a
+ * different query target and a different opening action. These cover the three
+ * seams that make it shared — everything above them is AST-specific only because
+ * the fixture is.
+ */
+
+/**
+ * `collapsedDepth` is what `/learn` uses, and it is a pure function of the same
+ * shape the hook starts from — so it is asserted on `defaultCollapsed` directly
+ * rather than through a mount. The hook's own keyboard specs above already pin
+ * that it passes the option through.
+ *
+ * The AST tree folds below depth 1, so `/ast` draws two rows. A concept tree's
+ * first level *is* its table of contents, so `0` leaves the root open and its
+ * sections closed.
+ */
+test('useTreeState: collapsedDepth 0 folds the first level too', (t) => {
+    const result = sorted(defaultCollapsed(tree, 0));
+    const expected = ['1', '2', '3', '4'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The default is the AST tree's `1`, so omitting the argument is not a
+ * regression — and it is what the `defaultCollapsed` spec above already pins as
+ * `['2', '3', '4']`. Restated here because `0` and `1` are one number apart and
+ * the whole of `/ast`'s opening screen depends on which one the default is.
+ */
+test('useTreeState: collapsedDepth defaults to 1', (t) => {
+    const result = sorted(defaultCollapsed(tree));
+    const expected = ['2', '3', '4'];
+
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * `onOpen` fires for a leaf and not for a container, which is the branch
+ * `LearnTree` depends on and `AstTree` never takes.
+ *
+ * Driven through the real `Harness` rather than by calling the handler: the
+ * listener is bound to the root div, so this is the same path a keypress in the
+ * page takes.
+ */
+test('useTreeState: onOpen fires for a selected leaf', (t) => {
+    const opened: string[] = [];
+
+    render(
+        <Harness
+            nodes={tree}
+            onOpen={(node) => opened.push(node.id)}
+        />,
+    );
+
+    // `4` is a NumericLiteral: a leaf, with nothing to fold.
+    act(() => {
+        const leaf = document.querySelector('[data-testid="select-leaf"]');
+        
+        if (leaf)
+            leaf.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    });
+
+    press('Enter');
+
+    const result = opened;
+    const expected = ['4'];
+
+    cleanup();
+
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A container toggles instead of opening, even when `onOpen` is supplied.
+ *
+ * The other half of the branch, and the half that would be easy to get wrong: a
+ * `LearnTree` that opened containers would never expand a section, because the
+ * caret and the open action would be fighting over the same key.
+ */
+test('useTreeState: onOpen does not fire for a container', (t) => {
+    const opened: string[] = [];
+    
+    render(
+        <Harness
+            nodes={tree}
+            onOpen={(node) => opened.push(node.id)}
+        />,
+    );
+    
+    // `1` is a VariableDeclaration, which has children.
+    act(() => {
+        const one = document.querySelector('[data-testid="select-one"]');
+        
+        if (one)
+            one.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    });
+    
+    const before = read('rows');
+    press('Enter');
+    
+    const result = {
+        opened,
+        collapsed: before !== read('rows'),
+    };
+    const expected = {
+        opened: [],
+        collapsed: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * `Enter` with nothing selected is a no-op, not a throw.
+ *
+ * The guard the Enter handler opens with. Both halves have to be taken or the
+ * branch is uncovered: everything above selects before pressing, which is the
+ * path a user almost always takes — but a freshly rendered tree, or a filter
+ * that hid every row, has `selected: null`, and the handler has to survive it.
+ */
+test('useTreeState: enter with no selection does nothing', (t) => {
+    render(<Harness nodes={tree}/>);
+    
+    press('Enter');
+    
+    const result = read('selected');
+    const expected = '-';
+    
+    cleanup();
+    
+    t.equal(result, expected);
     t.end();
 });

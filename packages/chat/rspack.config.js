@@ -210,6 +210,36 @@ export default {
                     minChunks: 1,
                     minSize: 1,
                 },
+                // `@lezer` out of the chat chunk, which is what the plan asked for
+                
+                // and what `highlight.ts` needs: it imports `@lezer/javascript` and
+                
+                // `@lezer/highlight` at the top level, and `SourceBlock`,
+                
+                // `TransformDiff` and `AstCodePreview` import `highlight.ts`
+                
+                // statically — so `@lezer` is reachable from the entry through a
+                
+                // chain of static imports, which `chunks: 'async'` alone would not
+                
+                // split. `enforce: true` is what overrides that: it makes the group
+                
+                // unconditional, ignoring `minSize`/`minChunks` and the import style.
+                
+                // `qword` is here because `CodeMirrorBox` is `React.lazy` and
+                
+                // imports `qword/client`, which pulls `@codemirror` in behind it —
+                
+                // the two families belong in one deferred chunk, not two.
+                codemirror: {
+                    priority: 25,
+                    name: 'codemirror',
+                    test: /\/node_modules\/(@codemirror|@lezer|@replit\/codemirror|@uiw\/codemirror|qword)\//,
+                    chunks: 'async',
+                    enforce: true,
+                    minChunks: 1,
+                    minSize: 1,
+                },
                 react: {
                     priority: 15,
                     name: 'react',

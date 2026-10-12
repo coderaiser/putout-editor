@@ -133,6 +133,10 @@ declare- (20). Then source-then-target: 'convert-index-of-to-includes', not
 - optional chaining -> this repo forbids ?. and wants x && x.y. Note ?. narrows a
   type and && does not, so bind the receiver to a local when types matter.
 - a 'js' fence in a README is linted as real JavaScript.
+- spreading a Map or iterator with [...x] then calling .sort() or .map() on it works
+  locally but breaks on Node versions where iterator helpers are not available. Use
+  for...of to build the array imperatively instead — no conversion step needed, insertion
+  order is preserved, and it works on every Node version.
 
 ### 7. If you expand \`?.\` with convert-optional-to-logical, check the fallout
 
