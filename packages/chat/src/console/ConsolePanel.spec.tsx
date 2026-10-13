@@ -102,7 +102,6 @@ const panelHelp = (): string | null => {
     return element && element.textContent;
 };
 
-
 /**
  * The `✕` dispatches `toggleConsole`, so the panel needs a store like any other
  * consumer of one — and it is `makeStore` again, preloaded open, because a spec
