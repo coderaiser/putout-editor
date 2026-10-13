@@ -529,6 +529,81 @@ test('ast hides the code preview on a touchscreen', async ({page}) => {
 });
 
 /**
+ * The console panel's rows, on a touchscreen — the whole of bug 1.
+ *
+ * `ConsolePanel` mounted `AstTree` without `mobile`, so the panel's rows folded
+ * on tap: a coarse pointer fires `click` on `pointerup`, so the first tap both
+ * selected and folded and the second tap did both again, cancelling itself. The
+ * user tapped a row twice and watched nothing happen. The thread's copy of the
+ * same tree went through `AstBlock`, which reads `useIsMobile`, so it was right
+ * — which is why this is a spec about the panel and not a duplicate of the
+ * thread's.
+ *
+ * Two behaviours in one spec, because they are one bug and the second half is
+ * what makes the first meaningful: the tap **selects** (the row carries
+ * `ast-row--selected`) and does **not** fold (the row count is unchanged), and
+ * `space` — the key the short hint teaches — is what folds.
+ *
+ * Scoped to `.console-panel`, not to `getByTestId('chat')`: `ast` puts a second
+ * copy of the tree in the thread, so a bare `ast-row` locator is a strict-mode
+ * violation rather than a passing test. The panel is a sibling of the thread,
+ * not a descendant, so the class is the only scope that separates them.
+ *
+ * `/ast` alone, with no `/source` first: the thread opens **seeded** with a
+ * worked `source` example, so the buffer is already set and a bare `/ast` is
+ * the state a real visitor arrives in. That is also why the count is six and
+ * not three — the seed is a putout rule, so the tree is deeper than a
+ * `const add = …` would be.
+ */
+test('a tap in the console panel selects a row without folding it', async ({page}) => {
+    await send(page, '/ast');
+    await send(page, '/console');
+    
+    const panel = page.locator('.console-panel');
+    const rows = panel.getByTestId('ast-row');
+    
+    // `useTreeState` folds everything below depth 1, and a collapsed row is
+    // still **drawn** — so the seed's rule gives six visible rows rather than
+    // the two a `Program` and its first child alone would.
+    await expect(rows).toHaveCount(6);
+    
+    // `ExportNamedDeclaration` is depth 1 with children, so its fold is visible
+    await rows.nth(1).tap();
+    
+    // selected, and still six rows — the fold did not happen
+    await expect(rows.nth(1)).toHaveClass(/ast-row--selected/);
+    await expect(rows).toHaveCount(6);
+    
+    // `space` is the fold a touchscreen has: the short hint teaches it, and it
+    // is the keyboard path `useTreeState` binds for Enter and space alike.
+    await panel.getByTestId('ast-output').press(' ');
+    
+    // fewer rows now — the fold happened, and it was the keyboard's to do
+    await expect(rows).not.toHaveCount(6);
+});
+
+/**
+ * The panel's status bar, which is the other thing `mobile` decides.
+ *
+ * The full hint is 62 characters, wraps to four lines on a 390px screen and
+ * teaches `jk` and `tab switch` — keys a touchscreen does not have. The thread's
+ * copy showed the short one; the panel's did not, because it never received the
+ * prop.
+ */
+test('the console panel shows the short hint on a touchscreen', async ({page}) => {
+    await send(page, '/ast');
+    await send(page, '/console');
+    
+    const status = page
+        .locator('.console-panel')
+        .getByTestId('ast-status');
+    
+    await expect(status).toContainText('↑↓ · space · /');
+    await expect(status).not.toContainText('jk');
+    await expect(status).not.toContainText('tab switch');
+});
+
+/**
  * …and the tree gets the whole width, which is the actual reason.
  *
  * A `minmax(0, 1fr)` two-column grid on 390px gives each column 190px, so the
@@ -748,3 +823,53 @@ test('/help shows command names without wrapping mid-name', async ({page}) => {
     const overflows = await firstName.evaluate((el) => el.scrollWidth > el.clientWidth + 2);
     expect(overflows).toBe(false);
 });
+
+/**
+ * `/learn` on a touchscreen, where the bug was not invisible — it was the whole
+ * of bug 2.
+ *
+ * `LearnTree`'s inline row called `onSelect` and nothing else, so a learn tree
+ * had no pointer fold on **any** device. On a phone that is worse than on a
+ * desktop: the virtual keyboard is the only keyboard there is, and a section
+ * folded away had no visible way back except `space`, which nothing on screen
+ * mentioned.
+ *
+ * So the tap selects and does **not** fold — the coarse-pointer contract
+ * `AstRow` established and `LearnRow` now shares — and `space`, which the short
+ * hint teaches, is what folds. Both halves are asserted, because a tap that
+ * never folds and a tap that always folds are the same broken gesture from two
+ * directions.
+ */
+test('a tap on a learn section selects it, and space folds it', async ({page}) => {
+    await send(page, '/learn');
+    
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('learn-row');
+    
+    await expect(rows).toHaveCount(5);
+    
+    await rows.nth(1).tap();
+    
+    // selected, and still five rows — the tap did not fold
+    const picked = await rows.count();
+    
+    expect(picked).toBe(5);
+    
+    // `space` is the fold a touchscreen has, and the short hint says so
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('learn-output');
+    
+    await output.press(' ');
+    
+    const opened = await rows.count();
+    
+    expect(opened).toBeGreaterThan(5);
+    
+    // and space again folds it back
+    await output.press(' ');
+    
+    await expect(rows).toHaveCount(5);
+});
+

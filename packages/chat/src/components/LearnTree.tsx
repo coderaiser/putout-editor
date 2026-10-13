@@ -2,11 +2,9 @@
 // the tree carries its own colours wherever it is mounted — a chat message, the
 // console panel, or a spec.
 import './AstTree.css';
-import type {ReactNode} from 'react';
 import type {FlatLearnNode} from '@putout/editor-commands';
-import {Fragment} from 'react';
 import {useTreeState} from './useTreeState.ts';
-import {caretOf, connectorsOf} from './AstRow.tsx';
+import LearnRow from './LearnRow.tsx';
 import AstSearch from './AstSearch.tsx';
 
 export interface LearnTreeProps {
@@ -22,7 +20,16 @@ export interface LearnTreeProps {
      */
     onOpen: (node: FlatLearnNode) => void;
     
-    /** Coarse pointer, threaded to the status bar's hint. Same role as `AstTree`'s. */
+    /**
+     * Coarse pointer, threaded to the status bar's hint and to every row's
+     * handler. Same role as `AstTree`'s.
+     *
+     * The row half is what bug 2 was: the prop reached the hint and stopped
+     * there, because the row was inline markup that called `onSelect` and
+     * nothing else — so a learn tree could not be folded by pointer on **any**
+     * device, and on a touchscreen one that had been folded could not be
+     * unfolded except by keyboard. `LearnRow` now carries it the rest of the way.
+     */
     mobile?: boolean;
 }
 
@@ -80,55 +87,6 @@ const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean
     .map(lastFlagOf(nodes));
 
 /**
- * One row in the learn tree.
- *
- * Extracted from `LearnTree`'s `.map()` callback so `hoist-arrow-callback`
- * does not flag it — the same reason `AstRow` is its own component rather
- * than an inline block in `AstTree`.
- */
-interface LearnRowProps {
-    node: FlatLearnNode;
-    nodes: FlatLearnNode[];
-    selected: boolean;
-    dimmed: boolean;
-    matched: boolean;
-    collapsed: boolean;
-    onSelect: (id: string) => void;
-}
-
-const LearnRow = ({node, nodes, selected, dimmed, matched, collapsed, onSelect}: LearnRowProps): ReactNode => (
-    <div
-        className={[
-            'ast-row',
-            selected && 'ast-row--selected',
-            dimmed && 'ast-row--dimmed',
-            matched && 'ast-row--match',
-        ]
-            .filter(Boolean)
-            .join(' ')}
-        data-testid="learn-row"
-        key={node.id}
-        onClick={() => onSelect(node.id)}
-        role="treeitem"
-    >
-        <span className="ast-row__connectors">
-            {connectorsOf(node.depth, isLast(nodes, node), ancestorLastFlags(nodes, node))}
-        </span>
-        <span className="ast-row__caret">
-            {caretOf(node.hasChildren, collapsed)}
-        </span>
-        <span className="ast-row__type">
-            {node.label}
-        </span>
-        {node.summary && (
-            <span className="ast-row__detail">
-                {node.summary}
-            </span>
-        )}
-    </div>
-);
-
-/**
  * The `/learn` tree.
  *
  * Structurally `AstTree`, and deliberately so: same stylesheet, same rows, same
@@ -184,13 +142,17 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
             <div className="ast__tree">
                 {rows.map((node) => (
                     <LearnRow
+                        ancestorLastFlags={ancestorLastFlags(nodes, node)}
                         collapsed={state.collapsed.has(node.id)}
                         dimmed={dimmed.has(node.id)}
+                        hasChildren={node.hasChildren}
                         key={node.id}
+                        last={isLast(nodes, node)}
                         matched={matched.has(node.id)}
+                        mobile={mobile}
                         node={node}
-                        nodes={nodes}
                         onSelect={state.select}
+                        onToggle={state.toggle}
                         selected={state.selected === node.id}
                     />
                 ))}

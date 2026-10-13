@@ -49,6 +49,23 @@ const search = (page: Page) => page
 const userMessages = (page: Page) => page.locator('.message--user');
 
 /**
+
+/**
+ * The `/learn` tree in the thread, as opposed to the AST tree.
+ *
+ * Same reason `tree(page)` exists: `/ast` puts a second `ast-row` set on the
+ * page once the console panel is open, and `learn`'s rows are a different
+ * testid — so the scope is the thread and the rows are `learn-row`.
+ */
+const learn = (page: Page) => page
+    .getByTestId('chat')
+    .getByTestId('learn-output');
+
+const learnRows = (page: Page) => page
+    .getByTestId('chat')
+    .getByTestId('learn-row');
+
+/**
  * How many `.message--user` the seed puts on the page before anything is typed.
  *
  * **Two**: the worked `source` example and the `help` that follows it. Each is a
@@ -1270,4 +1287,79 @@ test('AST rows keep their caret separate from the branch marker', async ({page})
     };
     
     expect(result).toEqual(expected);
+});
+
+
+/**
+ * The line-number gutter appears once a **body** command is typed.
+ *
+ * `wantsLineNumbers` has its own unit specs, and they stub CodeMirror — so the
+ * wiring could be broken and every one of them would still pass. What this
+ * asserts is the gutter actually rendering in a browser, on `.cm-lineNumbers`,
+ * which is what `lineNumbers()` produces.
+ *
+ * Typed rather than sent: the gutter is a property of the *composer*, and
+ * sending would clear the box and take the evidence with it.
+ */
+test('typing a body command shows the line-number gutter', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/source');
+    
+    await expect(
+        page.getByTestId('input').locator('.cm-lineNumbers'),
+    ).toBeVisible();
+});
+
+/**
+ * …and a one-line command keeps it off, which is the same assertion from the
+ * other side.
+ *
+ * `/help` is the natural subject: it is the command most often typed, so a rule
+ * that gave *every* command a gutter would be caught here rather than in review.
+ * A gutter on one line costs a column and says nothing.
+ */
+test('a one-line command keeps the gutter off', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/help');
+    
+    await expect(
+        page.getByTestId('input').locator('.cm-lineNumbers'),
+    ).toHaveCount(0);
+});
+
+/**
+ * `/learn` answers with a tree, and a click on a section opens it — the whole
+ * of bug 2 on the device where the bug was invisible.
+ *
+ * `LearnTree`'s row was inline markup calling `onSelect` and nothing else, so a
+ * click could *select* a concept and never *open* one: the only route to a
+ * child was the keyboard, and the caret — the one thing on screen that says a
+ * row has children — did nothing at all. `LearnRow` now carries `AstRow`'s
+ * handler, so a click folds and unfolds.
+ *
+ * Desktop only, and deliberately: a coarse pointer must *not* fold on a click,
+ * which is the mobile spec. One project cannot check a binding chosen by pointer
+ * type, which is the same reason `Enter` has a spec in each.
+ */
+test('a click on a learn section opens it', async ({page}) => {
+    await send(page, '/learn');
+    
+    const rows = learnRows(page);
+    
+    // `collapsedDepth: 0` — the root is open and its sections are drawn closed,
+    // so the curriculum's top level is on screen and nothing under it.
+    await expect(rows).toHaveCount(5);
+    
+    // `nodes` is the first section, and it has children
+    await rows.nth(1).click();
+    
+    // more rows now — the section opened, and the caret meant what it said
+    const opened = await rows.count();
+    
+    expect(opened).toBeGreaterThan(5);
+    
+    // and clicking it again folds it back
+    await rows.nth(1).click();
+    
+    await expect(rows).toHaveCount(5);
 });

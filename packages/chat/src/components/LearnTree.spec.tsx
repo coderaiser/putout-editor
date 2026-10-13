@@ -201,14 +201,22 @@ test('LearnTree: enter on a leaf calls onOpen with it', (t) => {
  * keyboard use working when `LearnBlock`'s `learnOpen` is the only thing being
  * tested: a section that opened rather than expanding would trap the user above
  * it.
+ *
+ * Selected with `ArrowDown` rather than with a click, and that is not
+ * incidental: `LearnRow` now folds on a fine click as well as selecting, so a
+ * click here would fold the root and the `Enter` would unfold it again — two
+ * toggles, three rows, and a spec that no longer says anything about `Enter`.
+ * Driving the selection from the keyboard keeps the subject the keyboard.
  */
 test('LearnTree: enter on a section toggles it instead of opening', (t) => {
     const opened: string[] = [];
     
     mount((node) => opened.push(node.id));
     
+    // `ArrowDown` on an empty selection takes the first row, which is the root.
+    press('ArrowDown');
+    
     // The root is open, so toggling it folds everything below it away.
-    fireEvent.click(rows()[0]);
     press('Enter');
     
     const result = {
@@ -383,3 +391,72 @@ test('LearnTree: focus moves to the filter and back', async (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+/**
+ * A click folds a section — the whole of bug 2, at the tree's own level.
+ *
+ * The row was inline markup calling `onSelect` and nothing else, so no learn
+ * tree could be folded by pointer on **any** device: the caret was decoration
+ * and the only route to a child was the keyboard. `branch` starts closed
+ * (`collapsedDepth: 0` draws the sections but folds their children), so
+ * clicking it is what reveals `leaf`.
+ *
+ * Asserted as a row count because that is what the user sees, and paired with
+ * the coarse case below so the fold is not simply "always on".
+ */
+test('LearnTree: a click folds and unfolds a section', (t) => {
+    mount();
+    
+    const before = rows().length;
+    
+    fireEvent.click(rows()[1]);
+    
+    const opened = rows().length;
+    
+    fireEvent.click(rows()[1]);
+    
+    const result = {
+        before,
+        opened,
+        closed: rows().length,
+    };
+    const expected = {
+        before: 3,
+        opened: 4,
+        closed: 3,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * …and on a coarse pointer the same tap selects without folding, which is the
+ * half that keeps a phone from folding and unfolding on one gesture.
+ *
+ * `mount` takes `mobile` for exactly this, and it reaches `LearnRow` through the
+ * tree's own prop — which is the hop bug 2 was missing. Without it a phone and a
+ * desktop would disagree about what a tap means.
+ */
+test('LearnTree: a coarse tap selects a section without folding it', (t) => {
+    mount(noop, true);
+    
+    fireEvent.click(rows()[1]);
+    
+    const result = {
+        rows: rows().length,
+        selected: read('.ast-status__type'),
+    };
+    const expected = {
+        rows: 3,
+        selected: 'branch',
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
