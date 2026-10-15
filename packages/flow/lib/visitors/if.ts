@@ -53,7 +53,7 @@ export const visitIf = (node: Node, api: FlowApi): void => {
     const thenDone = api.terminated(thenId);
 
     if (!alternate) {
-        const mergeId = thenDone ? api.mergeUnreachable(thenId) : api.merge(thenId);
+        const mergeId = thenDone ? api.mergeUnreachable() : api.merge(thenId);
 
         api.edgeFrom(condition, mergeId, 'false');
 

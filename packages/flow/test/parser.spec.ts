@@ -59,6 +59,50 @@ test('parser: single block no stmts no edges', (t) => {
     t.end();
 });
 
+/**
+ * A header that is not `block N` is not a block.
+ *
+ * The `continue` in the header check, and it is not hypothetical: `parse`'s
+ * caller may hand it any text a user pasted, and a paragraph with no header
+ * must come back as no blocks rather than as one with `NaN` for an id. The
+ * blank line below also exercises the split's whitespace tolerance —
+ * `\n\s*\n` — which the ordinary two-block fixtures reach but this one
+ * reaches without a second header to hide the trim behind.
+ */
+test('parser: a chunk without a block header is skipped', (t) => {
+    const result = parse('just a paragraph\n\n  and its indented line');
+    const expected: Block[] = [];
+
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A label the printer never writes — an edge kept rather than dropped when
+ * the format's `[word]` does not read.
+ *
+ * The `|| []` fallback of the match, which no `-> 1 [true]` fixture can
+ * reach: those always match. Foreign text is not hypothetical here, since
+ * `buildCFG` parses whatever text `print` produced and `parse` is exported
+ * for the same reason `parser.ts` is its own file — it must answer about
+ * text it did not write rather than throw on it.
+ */
+test('parser: an edge label that does not parse keeps the edge', (t) => {
+    const result = parse([
+        'block 0',
+        '  -> 1 [not a word]',
+    ].join('\n'));
+
+    const expected = [
+        block({
+            succs: [{id: 1}],
+        }),
+    ];
+
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 test('parser: block with stmts', (t) => {
     const result = parse([
         'block 0',

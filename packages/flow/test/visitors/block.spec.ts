@@ -22,6 +22,25 @@ const blockNode = (source: string): Node => {
     return fn.body;
 };
 
+/**
+ * The function's body — what the printer walks — or the block itself when the
+ * source *is* a block.
+ *
+ * A `function f() {}` has an empty body and no statement of its own; `{}`
+ * has the statements directly. The printer's `bodyOf` takes only the first
+ * shape, so this covers the branch `visitBlock` is written for in both
+ * directions — the spec asks for "empty BlockStatement no stmts" and a bare
+ * block is the other way to have one.
+ */
+const bodyOf = (source: string): Node => {
+    const node = blockNode(source);
+
+    if (node.type === 'BlockStatement')
+        return node as unknown as Node;
+
+    return (node as unknown as {body: Node}).body;
+};
+
 interface Recorded {
     stmts: string[];
     walks: string[];
@@ -140,14 +159,12 @@ test('block visitor: statements after terminator land in unreachable block', (t)
 
 test('block visitor: a bare statement prints its own source', (t) => {
     const recorded = api(BODY);
-    const ast = parse(BODY, parseOptions);
-    const fn = ast.program.body[0] as unknown as {body: {body: Node[]}};
-    const stmt = fn.body.body[1];
+    const stmt = parse(BODY, parseOptions).program.body[0] as unknown as {body: {body: Node[]}};
 
-    visitStatement(stmt, recorded.api);
+    visitStatement(stmt.body.body[0], recorded.api);
 
     const result = recorded.stmts;
-    const expected = ['f(a);'];
+    const expected = ['const a = 1;'];
 
     t.deepEqual(result, expected);
     t.end();

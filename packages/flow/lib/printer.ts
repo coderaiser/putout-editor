@@ -44,7 +44,8 @@ interface Draft {
  * `merge()` edges every unterminated arm into the fresh join and selects it;
  * terminated arms already edge to `exit`, so wiring them again would draw an
  * edge the program cannot take. `mergeUnreachable()` selects the same join
- * with no edges at all — both arms terminated, so nothing falls through.
+ * with no edges at all — by its contract, every arm terminated, so nothing
+ * falls through.
  */
 const run = (source: string, body: Node[]): Draft[] => {
     const drafts: Draft[] = [{
@@ -126,7 +127,12 @@ const run = (source: string, body: Node[]): Draft[] => {
         dispatch(child, api);
     }
 
-    if (!draft().done && draft().succs.length === 0)
+    // A reachable block that never left its statements falls out the bottom —
+    // the `exit` every path ends in. An unreachable draft gets no edge: the
+    // format draws `[unreachable]` with its statements and nothing else, and
+    // `-> exit` on a block nothing reaches is an edge no path can take. Both
+    // halves are the printer spec's `return mid-block` case.
+    if (!draft().unreachable && !draft().done && draft().succs.length === 0)
         edgeFrom(at, 'exit');
 
     return drafts;

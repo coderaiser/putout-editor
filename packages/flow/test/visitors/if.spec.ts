@@ -73,10 +73,10 @@ const api = (source: string, done: number[] = []): Recorded => {
 
             return id;
         },
-        mergeUnreachable: (...from) => {
+        mergeUnreachable: () => {
             const id = next++;
 
-            merges.push(`mergeUnreachable(${from.join(',')}) -> ${String(id)}`);
+            merges.push(`mergeUnreachable() -> ${String(id)}`);
 
             return id;
         },
@@ -146,7 +146,7 @@ test('if visitor: both branches terminate — merge block unreachable', (t) => {
     visitIf(ifNode(BOTH_DONE), recorded.api);
 
     const result = recorded.merges;
-    const expected = ['mergeUnreachable(1,2) -> 3'];
+    const expected = ['mergeUnreachable() -> 3'];
 
     t.deepEqual(result, expected);
     t.end();

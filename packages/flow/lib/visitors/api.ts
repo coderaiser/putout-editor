@@ -16,11 +16,14 @@ import type {Node} from '@babel/parser';
  * never one shared — is what keeps duplicate `else` branches as two identical
  * blocks rather than one merged one.
  *
- * `mergeUnreachable(...from)` opens the same join for the case nothing reaches
+ * `mergeUnreachable()` opens the same join for the case nothing reaches
  * — both arms ended in `return` — and wires nothing, which the printer marks
  * `[unreachable]`. A separate name rather than `merge(..., false)`, because a
  * stub records a call either way and a boolean would read as the merge failing
- * rather than the join being dead.
+ * rather than the join being dead. It takes no arm ids: an arm that
+ * terminated already edged to `exit`, and an arm that did not must be wired
+ * through `merge()` — the caller only reaches this arm when *every* arm
+ * terminated.
  *
  * `walk` is the printer's own dispatch, handed down so a visitor recurses
  * through it rather than around it: a nested `if` inside a `then` arm reaches
@@ -44,7 +47,7 @@ export interface FlowApi {
     walk(node: Node): void;
     branch(): number;
     merge(...from: number[]): number;
-    mergeUnreachable(...from: number[]): number;
+    mergeUnreachable(): number;
     closed(): boolean;
     unreachable(): number;
 }
