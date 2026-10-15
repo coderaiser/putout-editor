@@ -95,7 +95,7 @@ test('parser: an edge label that does not parse keeps the edge', (t) => {
 
     const expected = [
         block({
-            succs: [{id: 1}],
+            succs: [{id: 1, label: 'not a word'}],
         }),
     ];
 

@@ -47,7 +47,7 @@ const isEdge = (line: string): boolean => line.startsWith(INDENT) && trim(line).
  * a union rather than a `number` with a sentinel.
  */
 const toSucc = (line: string): Succ => {
-    const [, target, label] = trim(line).match(/^-> (\S+)(?: \[(\w+)\])?$/) || [];
+    const [, target, label] = trim(line).match(/^-> (\S+)(?: \[([^\]]+)\])?$/) || [];
     const succ: Succ = {
         id: target === 'exit' ? 'exit' : Number(target),
     };
