@@ -1,12 +1,8 @@
 import {test} from 'supertape';
 import {type ParserOptions, parse} from '@babel/parser';
 import type {Node} from '@babel/parser';
-import {
-    visitBlock,
-    visitIf,
-    visitReturn,
-} from '../../lib/visitors/index.ts';
-import type {FlowState} from '../../lib/visitors/return.ts';
+import {visitBlock, visitStatement} from '../../lib/visitors/block.ts';
+import type {FlowApi} from '../../lib/visitors/api.ts';
 
 const parseOptions: ParserOptions = {
     sourceType: 'module',
@@ -14,135 +10,145 @@ const parseOptions: ParserOptions = {
     plugins: ['jsx', 'typescript'],
 };
 
-const parseBody = (source: string): unknown[] => {
-    const ast = parse(source, parseOptions);
-
-    return (ast.program.body as unknown[][])[0].body;
-};
-
 /**
- * A `BlockStatement` taken from real source.
- *
- * A hand-written node agrees with the visitor only because the same author
- * wrote both; parsing means a change to what the visitor reads — `type`
- * renamed, `body` dropped — breaks this spec instead of passing it.
+ * A `BlockStatement` taken from real source — same reason as
+ * `return.spec.ts`: parsing means a change to what the visitor reads breaks
+ * this spec instead of passing it.
  */
 const blockNode = (source: string): Node => {
     const ast = parse(source, parseOptions);
+    const fn = ast.program.body[0] as unknown as {body: Node};
 
-    const fn = (ast.program.body as unknown[][])[0];
-
-    return fn.body[0];
+    return fn.body;
 };
 
+interface Recorded {
+    stmts: string[];
+    walks: string[];
+    unreachable: () => number;
+    api: FlowApi;
+}
+
 /**
- * The state a visitor mutates, built fresh per spec.
+ * The printer half of the `FlowApi` contract, recorded instead of executed.
  *
- * `stmts` records what was emitted and `edges` where to, so a spec asserts
- * both halves of "the block's statements went out and its edges too".
- * `closed` is the flag the block visitor reads to route what follows into an
- * unreachable block.
+ * `closed` answers from a script the spec fills — one boolean per child — so
+ * "the block closed after the first statement" is stated, not derived. `walk`
+ * records the node type dispatched, and `unreachable` counts its own calls:
+ * the third plan case opens exactly one unreachable block however many
+ * statements follow the terminator.
  */
-const state = (source: string): FlowState & {stmts: string[]; edges: string[]} => {
+const api = (source: string): Recorded => {
     const stmts: string[] = [];
-    const edges: string[] = [];
+    const walks: string[] = [];
+    let unreachable = 0;
+    let shut = false;
 
-    return {
+    const self: FlowApi = {
         source,
-        stmts,
-        edges,
-        print: (line) => stmts.push(line),
-        edge: (to) => edges.push(to),
-        closed: false,
+        print: (line) => {
+            stmts.push(line);
+        },
+        currentBlock: () => 0,
+        edge: () => {},
+        edgeFrom: () => {},
+        terminated: () => false,
+        walk: (node) => {
+            walks.push(node.type || '');
+
+            if (node.type === 'ReturnStatement')
+                shut = true;
+        },
+        branch: () => 0,
+        merge: () => 0,
+        mergeUnreachable: () => 0,
+        closed: () => shut,
+        unreachable: () => {
+            unreachable++;
+
+            return 0;
+        },
     };
+
+    return {stmts, walks, unreachable: () => unreachable, api: self};
 };
 
-const BODY = 'function f() { const a = 1; }';
+const BODY = 'function f() { const a = 1; f(a); }';
 
-test('block visitor: a BlockStatement emits no stmts', (t) => {
-    const flow = state(BODY);
+test('block visitor: empty BlockStatement no stmts', (t) => {
+    const source = 'function f() {}';
+    const recorded = api(source);
 
-    visitBlock(blockNode(BODY), flow);
+    visitBlock(blockNode(source), recorded.api);
 
-    const expected: string[] = [];
-    const result = flow.stmts;
-
-    t.deepEqual(result, expected);
-    t.end();
-});
-
-test('block visitor: statements append to the current block', (t) => {
-    const flow = state(BODY);
-
-    visitBlock(blockNode(BODY), flow);
-
-    const expected = [
-        'const a = 1;',
-    ];
-    const result = flow.stmts;
+    const result = {
+        stmts: recorded.stmts,
+        walks: recorded.walks,
+    };
+    const expected = {
+        stmts: [],
+        walks: [],
+    };
 
     t.deepEqual(result, expected);
     t.end();
 });
 
-test('block visitor: closes the block when it sees a terminator', (t) => {
-    const flow = state(BODY);
+test('block visitor: statements append to current block', (t) => {
+    const recorded = api(BODY);
 
-    visitBlock(blockNode(BODY), flow);
+    visitBlock(blockNode(BODY), recorded.api);
 
-    const expected = true;
-    const result = flow.closed;
-
-    t.equal(result, expected);
-    t.end();
-});
-
-test('block visitor: statements after a terminator are unreachable', (t) => {
-    const flow = state('function f() { return; console.log(a); }');
-
-    visitBlock(blockNode('function f() { return; console.log(a); }'), flow);
-
-    const expected = [
-        'return;',
-        'console.log(a);',
-    ];
-    const result = flow.stmts;
+    const result = {
+        walks: recorded.walks,
+        unreachable: recorded.unreachable(),
+    };
+    const expected = {
+        walks: [
+            'VariableDeclaration',
+            'ExpressionStatement',
+        ],
+        unreachable: 0,
+    };
 
     t.deepEqual(result, expected);
     t.end();
 });
 
-/**
- * The `if` visitor reads the same state and mutates the same `closed` flag:
- * a `return` inside an `if` body closes the block, so the merge block is
- * unreachable. That is what `findUnreachable` is for.
- */
-test('if visitor: a return in the condition block closes it', (t) => {
-    const flow = state('function f() { if (a) return b; c(); }');
+test('block visitor: statements after terminator land in unreachable block', (t) => {
+    const source = 'function f() { return a; b(); c(); }';
+    const recorded = api(source);
 
-    visitIf(parseBody('function f() { if (a) return b; c(); }')[0] as Node, flow);
+    visitBlock(blockNode(source), recorded.api);
 
-    const expected = true;
-    const result = flow.closed;
+    const result = {
+        walks: recorded.walks,
+        unreachable: recorded.unreachable(),
+    };
+    const expected = {
+        walks: [
+            'ReturnStatement',
+            'ExpressionStatement',
+            'ExpressionStatement',
+        ],
+        unreachable: 2,
+    };
 
-    t.equal(result, expected);
+    t.deepEqual(result, expected);
     t.end();
 });
 
-/**
- * A `return` only closes the block it is written in. The merge block after a
- * condition is a different block, so the condition's `return` cannot reach it
- * — that is exactly why `findUnreachable` exists, and this spec pins that
- * separation.
- */
-test('if visitor: the condition block stays open', (t) => {
-    const flow = state('function f() { if (a) return b; }');
+test('block visitor: a bare statement prints its own source', (t) => {
+    const recorded = api(BODY);
+    const ast = parse(BODY, parseOptions);
+    const fn = ast.program.body[0] as unknown as {body: {body: Node[]}};
+    const stmt = fn.body.body[1];
 
-    visitIf(parseBody('function f() { if (a) return b; }')[0] as Node, flow);
+    visitStatement(stmt, recorded.api);
 
-    const expected = true;
-    const result = flow.closed;
+    const result = recorded.stmts;
+    const expected = ['f(a);'];
 
-    t.equal(result, expected);
+    t.deepEqual(result, expected);
     t.end();
 });

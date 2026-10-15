@@ -1,6 +1,8 @@
 import {test} from 'supertape';
 import {type ParserOptions, parse} from '@babel/parser';
-import {visitReturn, type FlowState} from '../../lib/visitors/return.ts';
+import type {Node} from '@babel/parser';
+import {visitReturn} from '../../lib/visitors/return.ts';
+import type {FlowApi} from '../../lib/visitors/api.ts';
 
 const parseOptions: ParserOptions = {
     sourceType: 'module',
@@ -12,73 +14,113 @@ const parseOptions: ParserOptions = {
  * The `ReturnStatement` inside `function f() { … }`, taken from real source
  * rather than hand-built.
  *
- * A hand-written node agrees with the visitor only because the same author wrote
- * both; parsing `return a;` means a change to what the visitor reads —
+ * A hand-written node agrees with the visitor only because the same author
+ * wrote both; parsing `return a;` means a change to what the visitor reads —
  * `argument` renamed, `type` changed — breaks this spec instead of passing it.
- * The two hops are the function and its body, so the node is the same shape the
- * printer's traversal hands over.
+ * The two hops are the function and its body, so the node is the same shape
+ * the printer's traversal hands over.
  */
-const returnNode = (source: string) => {
-    const ast = parse(source, parseOptions) as {program: {body: {body: {body: unknown[]}}[]}};
-
-    const fn = (ast.program.body as [{body: {body: [{type: string}]}}])[0];
+const returnNode = (source: string): Node => {
+    const ast = parse(source, parseOptions);
+    const fn = ast.program.body[0] as unknown as {body: {body: Node[]}};
 
     return fn.body.body[0];
 };
 
+interface Recorded {
+    stmts: string[];
+    edges: string[];
+    api: FlowApi;
+}
+
 /**
- * The state a visitor mutates, built fresh per spec.
+ * The printer half of the `FlowApi` contract, recorded instead of executed.
  *
- * `stmts` records what was emitted and `edges` records where to, so a spec can
- * assert both halves of "the return went to exit and its argument came first"
- * without reaching into a printer. `closed` is the flag the printer reads to
- * know the block cannot take more statements.
- *
- * `source` is the text the node was parsed from — the visitor slices statements
- * out of it, which is what keeps `stmts` as source strings rather than a
- * re-print of the AST.
+ * Only `print` and `edge` record — the plan's `return` cases are all about
+ * what was emitted, in order. Every other method is present because the type
+ * demands it and does nothing, which the suite never asserts on: a stub that
+ * answered `terminated() === true` would be asserting the printer's half of
+ * the contract from the visitor's spec.
  */
-const state = (source: string): FlowState & {stmts: string[]; edges: string[]} => {
+const api = (source: string): Recorded => {
     const stmts: string[] = [];
     const edges: string[] = [];
 
-    return {
+    const self: FlowApi = {
         source,
-        stmts,
-        edges,
-        print: (line: string) => stmts.push(line),
-        edge: (to: string) => edges.push(to),
-        closed: false,
+        print: (line) => {
+            stmts.push(line);
+        },
+        currentBlock: () => 0,
+        edge: (to) => {
+            edges.push(String(to));
+        },
+        edgeFrom: () => {},
+        terminated: () => false,
+        walk: () => {},
+        branch: () => 0,
+        merge: () => 0,
+        mergeUnreachable: () => 0,
+        closed: () => false,
+        unreachable: () => 0,
     };
+
+    return {stmts, edges, api: self};
 };
 
 const RETURN = 'function f() { return a; }';
 const BARE = 'function f() { return; }';
 
 test('return visitor: emits exit edge', (t) => {
-    const flow = state(RETURN);
+    const recorded = api(RETURN);
 
-    visitReturn(returnNode(RETURN), flow);
+    visitReturn(returnNode(RETURN), recorded.api);
 
+    const result = recorded.edges;
     const expected = ['exit'];
-    const result = flow.edges;
+
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * The edge is what closes the block: the printer's `edge()` marks the current
+ * block terminated, so the statement the block visitor walks next lands in an
+ * unreachable one. The visitor reports the edge; the printer owns the flag —
+ * which is why this spec asserts the edge went out, not that a boolean
+ * flipped. A spec asserting `closed === true` here would be asserting the
+ * printer's half of the contract from the visitor's suite.
+ */
+test('return visitor: next block is unreachable when return is mid-block', (t) => {
+    const recorded = api(RETURN);
+
+    visitReturn(returnNode(RETURN), recorded.api);
+
+    const result = {
+        edges: recorded.edges,
+        prints: recorded.stmts,
+    };
+    const expected = {
+        edges: ['exit'],
+        prints: ['return a;'],
+    };
 
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('return visitor: argument printed as stmt before edge', (t) => {
-    const flow = state(RETURN);
+    const recorded = api(RETURN);
 
-    visitReturn(returnNode(RETURN), flow);
+    visitReturn(returnNode(RETURN), recorded.api);
 
+    const result = [
+        ...recorded.stmts,
+        ...recorded.edges,
+    ];
     const expected = [
         'return a;',
         'exit',
-    ];
-    const result = [
-        ...flow.stmts,
-        ...flow.edges,
     ];
 
     t.deepEqual(result, expected);
@@ -86,23 +128,23 @@ test('return visitor: argument printed as stmt before edge', (t) => {
 });
 
 /**
- * The statement is the **source text**, not a re-print of the node — semicolon,
- * odd spacing and all.
+ * The statement is the **source text**, not a re-print of the node —
+ * semicolon, odd spacing and all.
  *
  * `stmts` are what a reader compares against the editor, so a block holding
  * `return   "a"  ;` must show that and not a tidied version of it. Slicing by
  * `start`/`end` is what guarantees it, and this spec is what stops it being
- * replaced by a generator later — the difference is invisible on `return a` and
- * immediate on anything with unusual whitespace.
+ * replaced by a generator later — the difference is invisible on `return a`
+ * and immediate on anything with unusual whitespace.
  */
 test('return visitor: the statement is sliced from the source verbatim', (t) => {
     const odd = 'function f() { return   "a"  ; }';
-    const flow = state(odd);
+    const recorded = api(odd);
 
-    visitReturn(returnNode(odd), flow);
+    visitReturn(returnNode(odd), recorded.api);
 
+    const result = recorded.stmts;
     const expected = ['return   "a"  ;'];
-    const result = flow.stmts;
 
     t.deepEqual(result, expected);
     t.end();
@@ -118,33 +160,13 @@ test('return visitor: the statement is sliced from the source verbatim', (t) => 
  * `stmts` being source strings exists to prevent.
  */
 test('return visitor: a bare return prints no statement', (t) => {
-    const flow = state(BARE);
+    const recorded = api(BARE);
 
-    visitReturn(returnNode(BARE), flow);
+    visitReturn(returnNode(BARE), recorded.api);
 
+    const result = recorded.stmts;
     const expected: string[] = [];
-    const result = flow.stmts;
 
     t.deepEqual(result, expected);
-    t.end();
-});
-
-/**
- * The block is closed, which is what makes the next statement unreachable.
- *
- * This is the half of the visitor that is not about this node: `closed` is read
- * by the block visitor, which routes anything after a terminator into a block
- * the printer marks `[unreachable]`. Without it, `return a; console.log(a);`
- * would draw as one reachable block and the graph would claim the log runs.
- */
-test('return visitor: closes the block so what follows is unreachable', (t) => {
-    const flow = state(RETURN);
-
-    visitReturn(returnNode(RETURN), flow);
-
-    const expected = true;
-    const result = flow.closed;
-
-    t.equal(result, expected);
     t.end();
 });

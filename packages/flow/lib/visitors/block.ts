@@ -1,96 +1,44 @@
 import type {Node} from '@babel/parser';
+import type {FlowApi} from './api.ts';
 
 /**
- * What a visitor is handed, and what it mutates.
+ * The exact source text of a node.
  *
- * The shape `@putout/printer`'s visitor contract implies — a node and an api
- * with no return value — so every visitor in this package reads the same way
- * and the printer dispatches to them uniformly. A visitor that returned a block
- * would have to know the block's id, which is the printer's to assign.
+ * Sliced by `start`/`end` rather than rebuilt from the node's parts — same
+ * reason as `return.ts`: `stmts` are what a reader compares against the
+ * editor, so a block body must read as written, not as re-printed.
  */
+const textOf = (node: Node, source: string): string => {
+    const {start, end} = node as unknown as {start: number; end: number};
 
-export interface FlowState {
-    /** The source the AST was parsed from, for slicing statements back out. */
-    source: string;
-    
-    /** The blocks as they are built, in order. */
-    blocks: {id: number; stmts: string[]; succs: {id: number | 'exit'; label?: string}[]; terminal?: true; unreachable?: true}[];
-    
-    /** The id of the block the next statement will enter. */
-    nextId: number;
-    
-    /** The id of the block currently being filled. */
-    current: number;
-    
-    /** The current block cannot take more statements. */
-    closed: boolean;
-}
-
-const EDGE = '-> ';
-
-/**
- * `return` ends the block.
- *
- * The argument is printed **as source**, before the edge, and a bare `return;`
- * prints nothing at all: the node has no `argument`, so the block genuinely has
- * no statement to show. Writing `return undefined` for it would put source in
- * the block that the file does not contain.
- *
- * `closed` is what makes the *next* statement unreachable, so this visitor's
- * effect reaches past its own node.
- */
-export const visitReturn = (node: Node, state: FlowState): void => {
-    const argument = (node as {argument?: Node}).argument;
-
-    if (argument)
-        state.print(state.source.slice(argument.start, argument.end));
-
-    if (state.blocks[state.current].succs.length === 0)
-        state.blocks[state.current].succs.push({id: 'exit'});
-
-    state.closed = true;
+    return source.slice(start, end);
 };
 
 /**
- * A `BlockStatement` appends its statements to the current block.
+ * A `BlockStatement` walks its body in order and nothing else.
  *
- * A `return` already closed the block, so anything that follows lands in a new
- * one the printer marks `[unreachable]`. That is the block visitor's only
- * side effect, and it is what makes `findUnreachable` correct.
+ * No statements of its own: the braces are structure, not code, so they never
+ * reach `print`. When the incoming block is already closed — a `return` ended
+ * it — the statements after the terminator walk in an unreachable block the
+ * api opens for them, which is exactly the plan's third `block` case.
  */
-export const visitBlock = (node: Node, state: FlowState): void => {
-    const body = (node as {body?: Node[]}).body;
+export const visitBlock = (node: Node, api: FlowApi): void => {
+    const {body} = node as unknown as {body: Node[]};
 
-    if (!body)
-        return;
+    for (const child of body) {
+        if (api.closed())
+            api.unreachable();
 
-    for (const child of body)
-        state.print(state.source.slice(child.start, child.end));
-
-    state.closed = true;
+        api.walk(child);
+    }
 };
 
 /**
- * An `IfStatement` prints the condition and arms each branch with an edge.
+ * Any other statement is one source line in the current block.
  *
- * `newBlock(prefix)` opens the block the printer assigns the id to, so the
- * second branch prints into its own block rather than the first one.
+ * `textOf`, not a re-print: `stmts` are what a reader compares against the
+ * editor, so `const a = 1;` keeps its semicolon, its spacing, its quotes.
  */
-export const visitIf = (node: Node, state: FlowState): void => {
-    const {test, consequent, alternate} = node as {
-        test: Node;
-        consequent: Node;
-        alternate?: Node;
-    };
-
-    state.print(state.source.slice(test.start, test.end));
-
-    state.blocks[state.current].succs.push({id: state.current + 1});
-    state.closed = true;
-
-    if (alternate)
-        state.blocks[state.current + 1].succs.push({id: 'exit'});
-
-    // The condition's own block stays open, and the alternate goes into a
-    // new block by itself.
+export const visitStatement = (node: Node, api: FlowApi): void => {
+    api.print(textOf(node, api.source));
 };
