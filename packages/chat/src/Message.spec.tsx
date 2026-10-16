@@ -147,3 +147,32 @@ test('Message: a tryit result renders the try it button', (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+/** A `flow` result renders FlowBlock with source and graph panels. */
+test('Message: flow result renders FlowBlock', (t) => {
+    const message: MessageModel = {
+        id: 5,
+        text: '/flow',
+        result: {
+            type: 'flow',
+            text: 'block 0\n  return a;\n  -> exit',
+            blocks: [{
+                id: 0,
+                stmts: ['return a;'],
+                succs: [{id: 'exit'}],
+                terminal: true,
+            }],
+            source: 'function f() { return a; }',
+        },
+    };
+
+    renderWithStore(message);
+
+    const result = document.querySelector('[data-testid="flow-output"]') !== null;
+
+    cleanup();
+
+    t.equal(result, true);
+    t.end();
+});
+

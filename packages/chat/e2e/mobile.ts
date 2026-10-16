@@ -873,3 +873,34 @@ test('a tap on a learn section selects it, and space folds it', async ({page}) =
     await expect(rows).toHaveCount(5);
 });
 
+
+
+/**
+ * `/flow` renders FlowBlock on a touchscreen too — source panel and graph panel
+ * both inside the viewport, asserted with `scrollWidth`, never `innerWidth`.
+ */
+test('/flow fits both panels inside the viewport on a touchscreen', async ({page}) => {
+    await send(page, '/flow\nfunction f() { return a; b(); c(); }');
+
+    const output = page.getByTestId('chat').getByTestId('flow-output');
+    await expect(output).toBeVisible();
+
+    await expect(page.getByTestId('chat').getByTestId('flow-output__source')).toBeVisible();
+    await expect(page.getByTestId('chat').getByTestId('flow-output__graph')).toBeVisible();
+
+    const overflows = await page.evaluate(() => {
+        const source = document.querySelector('.flow-output__source');
+        const graph = document.querySelector('.flow-output__graph');
+        const w = document.documentElement.scrollWidth;
+        return {
+            source: source ? source.scrollWidth > w : false,
+            graph: graph ? graph.scrollWidth > w : false,
+            body: document.documentElement.scrollWidth > window.innerWidth,
+        };
+    });
+
+    expect(overflows.source).toBe(false);
+    expect(overflows.graph).toBe(false);
+    expect(overflows.body).toBe(false);
+});
+

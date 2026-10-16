@@ -32,7 +32,8 @@
     "qword": "^1.1.21",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "@putout/flow": "^1.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

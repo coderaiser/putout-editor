@@ -9,6 +9,7 @@ import TransformDiff from './messages/TransformDiff.tsx';
 import AstBlock from './messages/AstBlock.tsx';
 import LearnBlock from './messages/LearnBlock.tsx';
 import TryItBlock from './messages/TryItBlock.tsx';
+import FlowBlock from './messages/FlowBlock.tsx';
 
 export interface MessageProps {
     message: MessageModel;
@@ -87,7 +88,18 @@ const Result = ({message}: MessageProps) => {
             />
         );
     }
-    
+
+    if (result.type === 'flow') {
+        const {blocks, source} = result;
+
+        return (
+            <FlowBlock
+                blocks={blocks}
+                source={source}
+            />
+        );
+    }
+
     return (
         <TextBlock data={result.data}/>
     );

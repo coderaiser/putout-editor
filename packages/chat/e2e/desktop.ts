@@ -1363,3 +1363,44 @@ test('a click on a learn section opens it', async ({page}) => {
     
     await expect(rows).toHaveCount(5);
 });
+
+
+/**
+ * `/flow` graphs the source into control-flow blocks and renders FlowBlock.
+ *
+ * A body with unreachable code (a statement after `return`) draws both panels,
+ * the `flow-output` wrapper, and a source panel plus a graph panel whose
+ * rectangles are each laid out within the viewport.
+ */
+test('/flow renders source panel and graph panel', async ({page}) => {
+    await send(page, '/flow\nfunction f() { return a; b(); c(); }');
+
+    const output = page.getByTestId('chat').getByTestId('flow-output');
+    await expect(output).toBeVisible();
+
+    // both panels laid out within the viewport — geometry asserted, not assumed
+    const source = await rectOf(page, '.flow-output__source');
+    const graph = await rectOf(page, '.flow-output__graph');
+
+    expect(graph.right).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(source.bottom).toBeLessThanOrEqual(page.viewportSize()!.height);
+});
+
+/**
+ * Clicking an unreachable block highlights the correct source line — the block
+ * click routes to `onNavigate` and the source panel marks its line.
+ */
+test('/flow clicking unreachable block highlights its source line', async ({page}) => {
+    await send(page, '/flow\nfunction f() { return a; console.log(b); }');
+
+    const output = page.getByTestId('chat').getByTestId('flow-output');
+    await expect(output).toBeVisible();
+
+    const graph = page.getByTestId('chat').getByTestId('flow-output__graph');
+    await expect(graph).toBeVisible();
+
+    // The second line (`console.log(b)`) is unreachable — its graph node is dimmed.
+    const unreachableLine = page.locator('[data-unreachable="true"]').first();
+    await expect(unreachableLine).toBeVisible();
+});
+

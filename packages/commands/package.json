@@ -25,7 +25,8 @@
     "putout": "^42.8.0",
     "redput": "^4.8.1",
     "try-catch": "^4.0.0",
-    "try-to-catch": "^4.1.0"
+    "try-to-catch": "^4.1.0",
+    "@putout/flow": "^1.0.0"
   },
   "devDependencies": {
     "@putout/eslint-flat": "^4.0.1",

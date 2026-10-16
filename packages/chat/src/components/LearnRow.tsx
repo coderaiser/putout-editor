@@ -86,7 +86,13 @@ export default function LearnRow({node, ancestorLastFlags, hasChildren, collapse
             <span className="ast-row__connectors">
                 {connectorsOf(node.depth, last, ancestorLastFlags)}
             </span>
-            <span className="ast-row__caret">
+            <span
+                className="ast-row__caret"
+                onClick={hasChildren ? (e) => {
+                    e.stopPropagation();
+                    onToggle(node.id);
+                } : undefined}
+            >
                 {caretOf(hasChildren, collapsed)}
             </span>
             <span className="ast-row__type">

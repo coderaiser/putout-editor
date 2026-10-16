@@ -1,3 +1,4 @@
+import type {Block} from '@putout/flow';
 export interface ChatState {
     source: string;
     plugin: string;
@@ -135,6 +136,19 @@ export type CommandResult =
      */
     | {
         type: 'tryit';
+        source: string;
+    }
+
+    /**
+     * The `/flow` answer: control-flow blocks plus a printer-friendly text
+     * rendering, so a snapshot test or an MCP tool can read the graph without
+     * re-parsing. `source` travels with the blocks so the left panel can
+     * highlight the source lines a block occupies.
+     */
+    | {
+        type: 'flow';
+        text: string;
+        blocks: Block[];
         source: string;
     };
 

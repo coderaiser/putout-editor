@@ -126,6 +126,7 @@ const BODY_COMMANDS = new Set([
     'find',
     'transform',
     'validate',
+    'flow',
 ]);
 
 export const wantsLineNumbers = (typed: string): boolean => {

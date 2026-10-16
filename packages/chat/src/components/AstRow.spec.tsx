@@ -729,5 +729,3 @@ test('AstRow: tapping the caret does not also select', (t) => {
     t.deepEqual(selected, []);
     t.end();
 });
-
-});

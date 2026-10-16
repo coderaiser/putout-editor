@@ -389,4 +389,56 @@ test('LearnRow: a container shows the open caret and a leaf none', (t) => {
     t.end();
 });
 
+test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
+    const toggled: string[] = [];
+
+    render(
+        <LearnRow
+            ancestorLastFlags={[]}
+            collapsed
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({id: 'root/branch'})}
+            onSelect={noop}
+            onToggle={(id) => toggled.push(id)}
+            selected={false}
+        />,
+    );
+
+    fireEvent.click(document.querySelector('[data-testid="learn-row"]') as Element);
+
+    cleanup();
+
+    t.deepEqual(toggled, ['root/branch']);
+    t.end();
+});
+
+test('LearnRow: tapping the caret does not also select', (t) => {
+    const selected: string[] = [];
+
+    render(
+        <LearnRow
+            ancestorLastFlags={[]}
+            collapsed
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({id: 'root/branch'})}
+            onSelect={(id) => selected.push(id)}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+
+    const caret = document.querySelector('[data-testid="learn-row"] .ast-row__caret');
+
+    fireEvent.click(caret as Element);
+
+    cleanup();
+
+    t.deepEqual(selected, []);
+    t.end();
 });

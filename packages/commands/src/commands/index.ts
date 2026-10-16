@@ -1,6 +1,7 @@
 import {tryToCatch} from 'try-to-catch';
 import {runAst} from './ast.ts';
 import {runSource} from './source.ts';
+import {runFlow} from './flow.ts';
 import {runTestPattern} from './test-pattern.ts';
 import {runNamePattern} from './name-pattern.ts';
 import {runHelp} from './help.ts';
@@ -131,6 +132,12 @@ const listed: Command[] = [{
      * behind a chunk.
      */
     ...learnCommand,
+}, {
+    name: 'flow',
+    usage: '[function]',
+    description: 'graph the source into control-flow blocks',
+    flags: [],
+    run: runFlow,
 }, {
     name: 'help',
     usage: '[]',

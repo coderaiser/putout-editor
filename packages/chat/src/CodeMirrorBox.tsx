@@ -60,6 +60,7 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     const containerRef = useRef<HTMLDivElement | null>(null);
     const editorRef = useRef<QwordEditorView | null>(null);
     const lastValueRef = useRef(value);
+    const rebuildRef = useRef(false);
     
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
@@ -125,6 +126,13 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         container.addEventListener('keydown', onKey, true);
         
         editorRef.current = editor;
+
+        if (rebuildRef.current && editorRef.current) {
+            editorRef.current.focus();
+        }
+
+        rebuildRef.current = true;
+
         
         return () => {
             container.removeEventListener('keydown', onKey, true);
