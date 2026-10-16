@@ -674,4 +674,60 @@ test('AstRow: the type span carries data-category', (t) => {
     
     t.deepEqual(result, expected);
     t.end();
+
+
+test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
+    const toggled: string[] = [];
+
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({id: '0'})}
+            onSelect={noop}
+            onToggle={(id) => toggled.push(id)}
+            selected={false}
+        />,
+    );
+
+    fireEvent.click(document.querySelector('[data-testid="ast-row"]') as Element);
+
+    cleanup();
+
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping the caret does not also select', (t) => {
+    const selected: string[] = [];
+
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({id: '0'})}
+            onSelect={(id) => selected.push(id)}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+
+    const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
+
+    fireEvent.click(caret as Element);
+
+    cleanup();
+
+    t.deepEqual(selected, []);
+    t.end();
+});
+
 });
