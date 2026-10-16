@@ -127,6 +127,11 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         
         editorRef.current = editor;
 
+        // Sync the echo so the `value` effect sees the editor already holds
+        // the right content and does not `setValue` the cursor to position 0
+        // on the next tick.
+        lastValueRef.current = value;
+
         if (rebuildRef.current && editorRef.current) {
             editorRef.current.focus();
         }
