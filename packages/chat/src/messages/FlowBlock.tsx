@@ -54,7 +54,10 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
         >
             <div className="flow-output__side">
                 <h4 className="flow-output__title">Source</h4>
-                <div className="flow-output__source">
+                <div
+                    className="flow-output__source"
+                    data-testid="flow-output__source"
+                >
                     {lines.map((text, index) => {
                         const lineNumber = index + 1;
                         const stmtBlock = blocks.find(({stmts}) => stmts.includes(text));
@@ -87,6 +90,7 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
                 <h4 className="flow-output__title">Graph</h4>
                 <svg
                     className="flow-output__graph"
+                    data-testid="flow-output__graph"
                     width={mobile ? 300 : 480}
                     height={mobile ? 200 : 300}
                 >

@@ -72,6 +72,30 @@ test('FlowBlock: data-testid flow-output on wrapper', (t) => {
     t.end();
 });
 
+/** The source panel carries its own data-testid. */
+test('FlowBlock: source panel has data-testid flow-output__source', (t) => {
+    block();
+
+    const result = document.querySelector('[data-testid="flow-output__source"]') !== null;
+
+    cleanup();
+
+    t.equal(result, true);
+    t.end();
+});
+
+/** The graph panel carries its own data-testid. */
+test('FlowBlock: graph panel has data-testid flow-output__graph', (t) => {
+    block();
+
+    const result = document.querySelector('[data-testid="flow-output__graph"]') !== null;
+
+    cleanup();
+
+    t.equal(result, true);
+    t.end();
+});
+
 /** Unreachable lines carry data-unreachable. */
 test('FlowBlock: unreachable lines get highlight class', (t) => {
     const fakeBlocks = [
