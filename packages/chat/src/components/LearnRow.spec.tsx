@@ -267,6 +267,7 @@ test('LearnRow: clicking reports the id', (t) => {
     
     t.deepEqual(result, expected);
     t.end();
+});
 
 /**
  * A concept row shows no position, but it does carry every visual state an AST
@@ -360,17 +361,39 @@ test('LearnRow: carries the match class for a row that matched', (t) => {
  * missing toggle in bug 2 look like a broken caret rather than a decoration.
  */
 test('LearnRow: a container shows the open caret and a leaf none', (t) => {
-    row({
-        hasChildren: true,
-    });
+    render(
+        <LearnRow
+            ancestorLastFlags={[]}
+            collapsed={false}
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            node={node()}
+            onSelect={noop}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
     
     const open = read('.ast-row__caret');
     
     cleanup();
     
-    row({
-        hasChildren: false,
-    });
+    render(
+        <LearnRow
+            ancestorLastFlags={[]}
+            collapsed={false}
+            dimmed={false}
+            hasChildren={false}
+            last={false}
+            matched={false}
+            node={node()}
+            onSelect={noop}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
     
     const leaf = read('.ast-row__caret');
     
@@ -407,7 +430,9 @@ test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
         />,
     );
 
-    fireEvent.click(document.querySelector('[data-testid="learn-row"]') as Element);
+    const caret = document.querySelector('[data-testid="learn-row"] .ast-row__caret');
+
+    fireEvent.click(caret as Element);
 
     cleanup();
 

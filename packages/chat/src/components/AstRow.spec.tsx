@@ -674,7 +674,7 @@ test('AstRow: the type span carries data-category', (t) => {
     
     t.deepEqual(result, expected);
     t.end();
-
+});
 
 test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
     const toggled: string[] = [];
@@ -694,7 +694,9 @@ test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
         />,
     );
 
-    fireEvent.click(document.querySelector('[data-testid="ast-row"]') as Element);
+    const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
+
+    fireEvent.click(caret as Element);
 
     cleanup();
 
