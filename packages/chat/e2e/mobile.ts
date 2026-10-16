@@ -904,3 +904,24 @@ test('/flow fits both panels inside the viewport on a touchscreen', async ({page
     expect(overflows.body).toBe(false);
 });
 
+/** Tapping the caret on a collapsed `/ast` row expands it on a touchscreen. */
+test('/ast: tap the caret on a collapsed row expands it', async ({page}) => {
+    await send(page, '/source\\nconst add = (a, b) => a + b;');
+    await send(page, '/ast');
+
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('ast-row');
+
+    // A collapsed row shows `▸` as its caret.
+    const caret = rows.locator('.ast-row__caret').first();
+    await expect(caret).toHaveText('▸');
+
+    const folded = await rows.count();
+
+    await caret.tap();
+
+    const expanded = await rows.count();
+    expect(expanded).toBeGreaterThan(folded);
+});
+
