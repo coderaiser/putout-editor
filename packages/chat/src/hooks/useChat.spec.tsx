@@ -55,8 +55,7 @@ const texts = (store: ChatStore): string[] => store
     .messages
     .map(({text}) => text);
 
-const sent = (store: ChatStore): string[] => texts(store)
-    .slice(initialState.messages.length);
+const sent = (store: ChatStore): string[] => texts(store).slice(initialState.messages.length);
 
 test('useChat: source sets the buffer and answers', async (t) => {
     const {store, send} = setup();
@@ -76,6 +75,7 @@ test('useChat: source records the line in the thread', async (t) => {
     await send('/source\nconst a = 1;');
     
     // With the sigil: the bubble has to read back the line that was typed, and
+    
     // `source\n…` without one is not a line this page can run.
     const result = sent(store);
     const expected = ['/source\nconst a = 1;'];
@@ -90,6 +90,7 @@ test('useChat: a sent line goes into the history', async (t) => {
     await send('/help');
     
     // The sigil is kept, so `↑` recalls `/help` rather than a line that now
+    
     // answers "Not a command".
     const result = store.getState().chat.history;
     const expected = ['/help'];
@@ -266,7 +267,12 @@ test('useChat: an unknown command answers with an error', async (t) => {
     
     await send('/notacommand');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.type;
     const expected = 'error';
     
@@ -279,7 +285,12 @@ test('useChat: an unknown command names itself in the error', async (t) => {
     
     await send('/notacommand');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.type === 'error' && last.result.message;
     const expected = 'Unknown command: notacommand. Try /help.';
     
@@ -302,7 +313,12 @@ test('useChat: plain text answers with an error rather than vanishing', async (t
     
     await send('hello');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.type;
     const expected = 'error';
     
@@ -315,7 +331,12 @@ test('useChat: plain text is echoed as what the user typed', async (t) => {
     
     await send('what does this do?');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.text;
     const expected = 'what does this do?';
     
@@ -328,7 +349,12 @@ test('useChat: an empty line answers with the parse error', async (t) => {
     
     await send('   ');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.type === 'error' && last.result.message;
     const expected = 'Empty command';
     
@@ -343,7 +369,12 @@ test('useChat: ast with no source answers with an error', async (t) => {
     
     await send('/ast');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.type;
     const expected = 'error';
     
@@ -428,7 +459,12 @@ test('useChat: a line with no sigil is not a command', async (t) => {
     
     await send('hello world');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.message;
     const expected = 'Not a command. Start with / — try /help.';
     
@@ -446,7 +482,12 @@ test('useChat: the no-sigil answer is an error', async (t) => {
     
     await send('hello world');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.type;
     const expected = 'error';
     
@@ -467,7 +508,12 @@ test('useChat: a sigil-prefixed misspelling is an unknown command, not plain tex
     
     await send('/hello');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.result && last.result.message;
     const expected = 'Unknown command: hello. Try /help.';
     
@@ -487,7 +533,12 @@ test('useChat: the sigil is echoed in the thread', async (t) => {
     
     await send('/ast');
     
-    const last = store.getState().chat.messages.at(-1);
+    const last = store
+        .getState()
+        .chat
+        .messages
+        .at(-1);
+    
     const result = last.text;
     const expected = '/ast';
     

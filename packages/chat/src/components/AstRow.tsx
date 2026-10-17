@@ -157,10 +157,12 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
             </span>
             <span
                 className="ast-row__caret"
-                onClick={hasChildren ? (e) => {
-                    e.stopPropagation();
-                    onToggle(node.id);
-                } : undefined}
+                onClick={hasChildren
+                    ? (e) => {
+                        e.stopPropagation();
+                        onToggle(node.id);
+                    }
+                    : undefined}
             >
                 {caretOf(hasChildren, collapsed)}
             </span>

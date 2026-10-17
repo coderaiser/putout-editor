@@ -5,11 +5,11 @@ import {
     act,
     fireEvent,
 } from '@testing-library/react';
-import type {
-    FlatLearnNode,
-    LearnNode,
+import {
+    type FlatLearnNode,
+    type LearnNode,
+    flattenLearn,
 } from '@putout/editor-commands';
-import {flattenLearn} from '@putout/editor-commands';
 import LearnTree from './LearnTree.tsx';
 
 /**
@@ -160,8 +160,12 @@ test('LearnTree: a section has a caret and a leaf has none', (t) => {
     
     press('ArrowRight');
     
-    const result = rows().map((row) => row.querySelector('.ast-row__caret')?.textContent);
-    const expected = ['▾', '▸', '  '];
+    const result = rows().map((row) => row.querySelector('.ast-row__caret') && row.querySelector('.ast-row__caret').textContent);
+    const expected = [
+        '▾',
+        '▸',
+        '  ',
+    ];
     
     cleanup();
     
@@ -223,6 +227,7 @@ test('LearnTree: enter on a section toggles it instead of opening', (t) => {
         opened,
         rows: rows().length,
     };
+    
     const expected = {
         opened: [],
         rows: 1,
@@ -263,6 +268,7 @@ test('LearnTree: filters by summary as well as by label', (t) => {
     });
     
     const result = rows().map((row) => row.textContent);
+    
     const expected = [
         '▾rootthe top',
         '└─   aloneon its own',
@@ -362,7 +368,7 @@ test('LearnTree: clicking a row shows it in the status bar', (t) => {
  * keyboard specs touches: no keypress blurs the filter. So this focuses and
  * blurs the way a pointer user does.
  */
-test('LearnTree: focus moves to the filter and back', async (t) => {
+test('LearnTree: focus moves to the filter and back', (t) => {
     mount();
     
     const search = document.querySelector('[data-testid="ast-search"]') as HTMLElement;
@@ -381,6 +387,7 @@ test('LearnTree: focus moves to the filter and back', async (t) => {
         focused,
         blurred: true,
     };
+    
     const expected = {
         focused: true,
         blurred: true,
@@ -420,6 +427,7 @@ test('LearnTree: a click folds and unfolds a section', (t) => {
         opened,
         closed: rows().length,
     };
+    
     const expected = {
         before: 3,
         opened: 4,
@@ -449,6 +457,7 @@ test('LearnTree: a coarse tap selects a section without folding it', (t) => {
         rows: rows().length,
         selected: read('.ast-status__type'),
     };
+    
     const expected = {
         rows: 3,
         selected: 'branch',
@@ -459,4 +468,3 @@ test('LearnTree: a coarse tap selects a section without folding it', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
-

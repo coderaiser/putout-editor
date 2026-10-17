@@ -138,7 +138,7 @@ body {
        the browser chrome hidden, so the bottom ~80px of this — and the composer
        with it — sits under the address bar. `dvh` is the visible viewport, so the
        shell ends where the screen does.
-
+       
        The usual objection to `dvh` is that it resizes as the user scrolls, which
        makes a full-height layout jump. It cannot here, and the reason is measured
        rather than assumed: `document.documentElement.scrollHeight` equals
@@ -146,7 +146,7 @@ body {
        and nothing scrolls the document. `the document does not scroll` in
        `e2e/mobile.ts` is the guard, and it is the thing to revisit first if that
        ever stops being true.
-
+       
        What is **not** verified: the iOS address bar itself. The e2e runs headless
        Chromium, which reports `innerHeight === visualViewport.height`, so the
        defect this fixes cannot be reproduced here — the change rests on the
@@ -258,7 +258,7 @@ body {
        thread open is `min-height: 0` plus the grid row stretching, both of
        which are already here. Left off deliberately, with the measurement above
        rather than the plan's reasoning.
-
+       
        `min-width: 0` **is** load-bearing, and it is here rather than on
        `.chat__thread` because this box is the grid item. A grid item defaults to
        `min-width: auto`, which refuses to shrink below its content, and this
@@ -277,7 +277,7 @@ body {
     overflow-y: auto;
     padding: 24px 20px;
     /* `min-width: 0`, and the reason is a seeded answer rather than a width.
-
+       
        `flex`/`grid` items default to `min-width: auto`, which refuses to shrink
        below their content. The thread's content is a `white-space: pre` source
        listing and a `nowrap` help table, so on a 390px phone the thread sized

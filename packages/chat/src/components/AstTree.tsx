@@ -102,13 +102,13 @@ const chainOf = (nodes: FlatNode[], node: FlatNode): FlatNode[] => {
     ];
 };
 
-const ancestorLastFlags = (nodes: FlatNode[], node: FlatNode): boolean[] => chainOf(nodes, node)
-    .map(lastOf(nodes));
+const ancestorLastFlags = (nodes: FlatNode[], node: FlatNode): boolean[] => chainOf(nodes, node).map(lastOf(nodes));
 
 export default function AstTree({nodes, source, mobile}: AstTreeProps) {
     const state = useTreeState(nodes, {
         textOf: textOfAst,
     });
+    
     const {
         rows,
         dimmed,

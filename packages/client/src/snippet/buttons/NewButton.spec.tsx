@@ -212,7 +212,7 @@ test('NewButton: all items enabled when not saving or forking', (t) => {
     t.end();
 });
 
-test('NewButton: Replacer passes template and fixture', (t) => {
+test('NewButton: Replacer passes template', (t) => {
     let template: string | undefined;
     let fixture: string | undefined;
     
@@ -228,7 +228,27 @@ test('NewButton: Replacer passes template and fixture', (t) => {
     }));
     cleanup();
     
-    t.ok(template && template.includes('convert-ternary-to-if') && fixture && fixture.includes('?'));
+    t.match(template, `Use 'if' instead of ternary`);
+    t.end();
+});
+
+test('NewButton: Replacer passes fixture', (t) => {
+    let template: string | undefined;
+    let fixture: string | undefined;
+    
+    renderNew({
+        onNew: (nextTemplate, nextFixture) => {
+            template = nextTemplate;
+            fixture = nextFixture;
+        },
+    });
+    openNew();
+    fireEvent.click(screen.getByRole('menuitem', {
+        name: 'Replacer',
+    }));
+    cleanup();
+    
+    t.match(fixture, 'Transform your code with 🐊Putout');
     t.end();
 });
 

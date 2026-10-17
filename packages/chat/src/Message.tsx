@@ -88,10 +88,10 @@ const Result = ({message}: MessageProps) => {
             />
         );
     }
-
+    
     if (result.type === 'flow') {
         const {blocks, source} = result;
-
+        
         return (
             <FlowBlock
                 blocks={blocks}
@@ -99,7 +99,7 @@ const Result = ({message}: MessageProps) => {
             />
         );
     }
-
+    
     return (
         <TextBlock data={result.data}/>
     );

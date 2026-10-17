@@ -1,9 +1,6 @@
 import {test} from 'supertape';
 import {makeStore} from '#test/store';
-import {
-    initialState,
-    INITIAL_SOURCE,
-} from '#store';
+import {initialState, INITIAL_SOURCE} from '#store';
 
 /**
  * `makeStore()` with no overrides is the state the **page** starts in.

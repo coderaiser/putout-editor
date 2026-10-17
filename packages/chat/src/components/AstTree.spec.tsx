@@ -512,6 +512,7 @@ test('AstTree: a branch under a non-last parent draws pipes', (t) => {
     );
     
     // both sit under `declaration`, which is not the last child of `Program`,
+    
     // so the branch continues past both of them
     const result = {
         declarator: connectorsOf('VariableDeclarator'),
@@ -549,6 +550,7 @@ test('AstTree: a last branch draws blanks where the pipe stops', (t) => {
     );
     
     // `ExpressionStatement` is the last child of `Program`, so nothing continues
+    
     // below it and its child indents with blanks
     const result = connectorsOf('CallExpression');
     const expected = '   └─ ';
@@ -588,6 +590,7 @@ test('AstTree: folding does not redraw the pipes above it', (t) => {
     cleanup();
     
     // a pair, with both expecteds written out: `expected = result` is the shape
+    
     // where a rename quietly makes the two always equal
     t.deepEqual([result, folded], ['├─ ', '├─ ']);
     t.end();

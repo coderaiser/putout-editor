@@ -178,7 +178,9 @@ export const useChat = () => {
         // `rest` runs *after* this message is dispatched, so a thread reading
         
         // `source\n…\nast` in one input keeps both answers in the order they were
+        
         //
+        
         // sent. Recursing earlier would append `ast` above `source`.
         if (rest)
             await run(rest, rest, result.type === 'source' ? result.data : source);

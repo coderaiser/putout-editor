@@ -220,7 +220,7 @@
     .ast__body {
         grid-template-columns: 1fr;
     }
-
+    
     .ast-code {
         display: none;
     }

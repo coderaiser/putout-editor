@@ -371,6 +371,7 @@ export default function Input({history, onSend}: InputProps) {
     // handler bumps the number and this turns it into text on the same render.
     const recalled = cursor >= 0 ? history.at(!cursor ? history.length - 1 : history.length - cursor - 1) : undefined;
     const value = text || recalled || '';
+    
     // No `growTo`, no box ref: CodeMirror sizes its own content and the
     // `.input__box` CSS `min-height`/`max-height` bounds it. The `growTo`
     // export and its specs stay (a tested helper), only the call site goes.
@@ -404,12 +405,10 @@ export default function Input({history, onSend}: InputProps) {
                 </div>
             )}
             <Suspense
-                fallback={
-                    <div
-                        className="input__box input__box--loading"
-                        data-testid="input"
-                    />
-                }
+                fallback={<div
+                    className="input__box input__box--loading"
+                    data-testid="input"
+                />}
             >
                 <CodeMirrorBox
                     className="input__box"

@@ -63,9 +63,11 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     const rebuildRef = useRef(false);
     
     const onChangeRef = useRef(onChange);
+    
     onChangeRef.current = onChange;
     
     const onKeyDownRef = useRef(onKeyDown);
+    
     onKeyDownRef.current = onKeyDown;
     
     /* c8 ignore start - the editor is built once per `lineNumbers`, and that is
@@ -126,18 +128,18 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         container.addEventListener('keydown', onKey, true);
         
         editorRef.current = editor;
-
+        
         // Sync the echo so the `value` effect sees the editor already holds
+        
         // the right content and does not `setValue` the cursor to position 0
+        
         // on the next tick.
         lastValueRef.current = value;
-
-        if (rebuildRef.current && editorRef.current) {
+        
+        if (rebuildRef.current && editorRef.current)
             editorRef.current.focus();
-        }
-
+        
         rebuildRef.current = true;
-
         
         return () => {
             container.removeEventListener('keydown', onKey, true);
@@ -145,8 +147,8 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
             editorRef.current = null;
         };
     }, [lineNumbers]);
-    /* c8 ignore end */
     
+    /* c8 ignore end */
     useEffect(() => {
         if (!editorRef.current)
             return;
@@ -160,7 +162,9 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     
     return (
         <div
-            className={[!value && 'input__box--empty', className].filter(Boolean).join(' ') || undefined}
+            className={[!value && 'input__box--empty', className]
+                .filter(Boolean)
+                .join(' ') || undefined}
             data-placeholder={placeholder}
             data-testid={testId}
             ref={containerRef}

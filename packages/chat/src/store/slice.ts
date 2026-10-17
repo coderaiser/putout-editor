@@ -4,7 +4,12 @@ import {
     createSlice,
     type PayloadAction,
 } from '@reduxjs/toolkit';
-import type {FlatLearnNode} from '@putout/editor-commands';
+import {
+    type FlatLearnNode,
+    commands,
+    runHelp,
+    type FlatNode,
+} from '@putout/editor-commands';
 
 /**
  * Opening a concept is one dispatch, not two click handlers chained with
@@ -27,16 +32,9 @@ import type {FlatLearnNode} from '@putout/editor-commands';
  * with no example, and `Enter` on one expands rather than dispatching, so this
  * thunk only ever sees a leaf.
  */
-const learnOpen = createAsyncThunk(
-    'chat/learnOpen',
-    async (node: FlatLearnNode) => node,
-);
-import {
-    commands,
-    runHelp,
-    type FlatNode,
-} from '@putout/editor-commands';
 import type {Message} from './state.ts';
+
+export const learnOpen = createAsyncThunk('chat/learnOpen', async (node: FlatLearnNode) => node);
 
 export interface ChatAppState {
     messages: Message[];
@@ -78,8 +76,6 @@ export interface ChatAppState {
  * `export const`, so the seed reads as the shape the docs show.
  */
 export const INITIAL_SOURCE = montag`
-    // convert-ternary-to-if
-    
     export const report = () => \`Use 'if' instead of ternary 🧹\`;
     
     export const replace = () => ({
@@ -214,7 +210,6 @@ export const {reducer, actions} = createSlice({
         
         reset: () => initialState,
     },
-    
     /**
      * The one `extraReducer` in the slice, and what makes `learnOpen` a thunk
      * rather than two dispatches in a component.
@@ -237,14 +232,16 @@ export const {reducer, actions} = createSlice({
                         data: payload.body,
                     },
                 }),
-                ...(payload.example ? [{
-                    id: nextId(),
-                    text: `/learn ${payload.id}`,
-                    result: {
-                        type: 'tryit' as const,
-                        source: payload.example,
-                    },
-                }] : []),
+                ...payload.example
+                    ? [{
+                        id: nextId(),
+                        text: `/learn ${payload.id}`,
+                        result: {
+                            type: 'tryit' as const,
+                            source: payload.example,
+                        },
+                    }]
+                    : [],
             ],
         }));
     },
@@ -261,13 +258,11 @@ export const {
     openConsole,
     clearThread,
     reset,
-} = actions;
-
-/**
+} = actions;/**
  * The thunk itself, for `LearnBlock` to dispatch.
  *
  * Declared `const` above the slice and exported here, so it reads beside the
  * reducer that consumes it: the slice owns what two messages to append, the
  * component only says which leaf was opened.
  */
-export {learnOpen};
+

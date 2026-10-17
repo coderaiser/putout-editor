@@ -50,7 +50,7 @@ const siblingOf = (pid: string) => (node: FlatLearnNode) => node.pid === pid;
 
 /**
  * The last row of a parent, over **all** rows.
-
+ 
  * A folded subtree's last child is not on screen, so asking only the drawn rows
  * would call the second-to-last visible child "last" the moment the real last
  * one folded away — and the `└─` would move. Same rule `AstTree` states, and
@@ -83,8 +83,7 @@ const chainOf = (nodes: FlatLearnNode[], node: FlatLearnNode): FlatLearnNode[] =
 
 const lastFlagOf = (nodes: FlatLearnNode[]) => (ancestor: FlatLearnNode) => isLast(nodes, ancestor);
 
-const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean[] => chainOf(nodes, node)
-    .map(lastFlagOf(nodes));
+const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean[] => chainOf(nodes, node).map(lastFlagOf(nodes));
 
 /**
  * The `/learn` tree.

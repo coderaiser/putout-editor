@@ -12,7 +12,9 @@ import {
  * `.cm-content` is the focusable `contenteditable` CodeMirror owns; pressing
  * keys or typing against the container div would land nowhere.
  */
-const box = (page: Page) => page.getByTestId('input').locator('.cm-content');
+const box = (page: Page) => page
+    .getByTestId('input')
+    .locator('.cm-content');
 
 /**
  * The thread is not empty on load — it opens seeded with a worked `source`
@@ -437,6 +439,7 @@ test('the document does not scroll', async ({page}) => {
  * is 0 today. Geometry rather than a screenshot, for the reason the specs above
  * give: a 40px overflow renders a page that looks almost right.
  */
+
 /**
  * A sentence is not a command — and on a touchscreen this is the path most likely
  * to produce one, since the send button is a tap away and there is no `Ctrl+Enter`
@@ -450,7 +453,9 @@ test('the document does not scroll', async ({page}) => {
 test('a sentence is told to start with a sigil on a touchscreen', async ({page}) => {
     await box(page).click();
     await page.keyboard.type('hello world');
-    await page.getByTestId('send').tap();
+    await page
+        .getByTestId('send')
+        .tap();
     
     const error = page.locator('.error-block');
     await expect(error).toBeVisible();
@@ -491,8 +496,11 @@ test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) =>
     // Both halves are the point: a newline that also sent would post a
     
     // half-typed line, and this is the assertion that would have caught it.
+    
     // `toHaveText` normalizes the trailing break away, so the `\n` reads as
+    
     // documentation of the newline rather than a byte comparison — the count
+    
     // below is what pins "sends nothing".
     await expect(box(page)).toHaveText('/help\n');
     await expect(userMessages(page)).toHaveCount(SEEDED);
@@ -568,15 +576,20 @@ test('a tap in the console panel selects a row without folding it', async ({page
     await expect(rows).toHaveCount(6);
     
     // `ExportNamedDeclaration` is depth 1 with children, so its fold is visible
-    await rows.nth(1).tap();
+    await rows
+        .nth(1)
+        .tap();
     
     // selected, and still six rows — the fold did not happen
     await expect(rows.nth(1)).toHaveClass(/ast-row--selected/);
     await expect(rows).toHaveCount(6);
     
     // `space` is the fold a touchscreen has: the short hint teaches it, and it
+    
     // is the keyboard path `useTreeState` binds for Enter and space alike.
-    await panel.getByTestId('ast-output').press(' ');
+    await panel
+        .getByTestId('ast-output')
+        .press(' ');
     
     // fewer rows now — the fold happened, and it was the keyboard's to do
     await expect(rows).not.toHaveCount(6);
@@ -741,6 +754,7 @@ test('nothing hangs off the right edge out of reach of a scroll', async ({page})
             'scroll',
             'hidden',
         ];
+        
         const result: string[] = [];
         
         for (const element of document.querySelectorAll('*')) {
@@ -787,9 +801,13 @@ test('the input is at the bottom of the viewport on load', async ({page}) => {
     await expect(page.getByTestId('input')).toBeVisible();
     
     // **Both** numbers measured inside the page. `page.viewportSize()` is what
+    
     // Playwright was configured with and `getBoundingClientRect()` is what the
+    
     // browser laid out, and on `devices['iPhone 12']` those disagree by 18px —
+    
     // enough for this to fail at `viewport - bottom === 0` and to pass for the
+    
     // wrong reason if the slack were widened. One source, one coordinate system.
     const measured = await page.evaluate(() => {
         const input = document.querySelector('.input') as HTMLElement;
@@ -817,7 +835,10 @@ test('the input is at the bottom of the viewport on load', async ({page}) => {
 test('/help shows command names without wrapping mid-name', async ({page}) => {
     await send(page, '/help');
     
-    const firstName = page.locator('.help-block__name').first();
+    const firstName = page
+        .locator('.help-block__name')
+        .first();
+    
     await expect(firstName).toBeVisible();
     
     const overflows = await firstName.evaluate((el) => el.scrollWidth > el.clientWidth + 2);
@@ -849,7 +870,9 @@ test('a tap on a learn section selects it, and space folds it', async ({page}) =
     
     await expect(rows).toHaveCount(5);
     
-    await rows.nth(1).tap();
+    await rows
+        .nth(1)
+        .tap();
     
     // selected, and still five rows — the tap did not fold
     const picked = await rows.count();
@@ -873,32 +896,42 @@ test('a tap on a learn section selects it, and space folds it', async ({page}) =
     await expect(rows).toHaveCount(5);
 });
 
-
-
 /**
  * `/flow` renders FlowBlock on a touchscreen too — source panel and graph panel
  * both inside the viewport, asserted with `scrollWidth`, never `innerWidth`.
  */
 test('/flow fits both panels inside the viewport on a touchscreen', async ({page}) => {
     await send(page, '/flow\nfunction f() { return a; b(); c(); }');
-
-    const output = page.getByTestId('chat').getByTestId('flow-output');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
     await expect(output).toBeVisible();
-
-    await expect(page.getByTestId('chat').getByTestId('flow-output__source')).toBeVisible();
-    await expect(page.getByTestId('chat').getByTestId('flow-output__graph')).toBeVisible();
-
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__source'),
+    ).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__graph'),
+    ).toBeVisible();
+    
     const overflows = await page.evaluate(() => {
         const source = document.querySelector('.flow-output__source');
         const graph = document.querySelector('.flow-output__graph');
         const w = document.documentElement.scrollWidth;
+        
         return {
-            source: source ? source.scrollWidth > w : false,
-            graph: graph ? graph.scrollWidth > w : false,
-            body: document.documentElement.scrollWidth > window.innerWidth,
+            source: source && source.scrollWidth > w,
+            graph: graph && graph.scrollWidth > w,
+            body: document.documentElement.scrollWidth > globalThis.innerWidth,
         };
     });
-
+    
     expect(overflows.source).toBe(false);
     expect(overflows.graph).toBe(false);
     expect(overflows.body).toBe(false);
@@ -908,20 +941,22 @@ test('/flow fits both panels inside the viewport on a touchscreen', async ({page
 test('/ast: tap the caret on a collapsed row expands it', async ({page}) => {
     await send(page, '/source\\nconst add = (a, b) => a + b;');
     await send(page, '/ast');
-
+    
     const rows = page
         .getByTestId('chat')
         .getByTestId('ast-row');
-
+    
     // A collapsed row shows `▸` as its caret.
-    const caret = rows.locator('.ast-row__caret').first();
+    const caret = rows
+        .locator('.ast-row__caret')
+        .first();
+    
     await expect(caret).toHaveText('▸');
-
+    
     const folded = await rows.count();
-
+    
     await caret.tap();
-
+    
     const expanded = await rows.count();
     expect(expanded).toBeGreaterThan(folded);
 });
-

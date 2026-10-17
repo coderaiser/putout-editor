@@ -1,6 +1,9 @@
 import '../css/highlight.css';
 import './FlowBlock.css';
-import {findUnreachable, type Block} from '@putout/flow';
+import {
+    findUnreachable,
+    type Block,
+} from '@putout/flow';
 import {highlight} from '../highlight.ts';
 import {useIsMobile} from '../hooks/useIsMobile.ts';
 
@@ -32,21 +35,21 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
     const mobile = useIsMobile();
     const lines = source.split('\n');
     const unreachableBlocks = findUnreachable(blocks);
-
+    
     const unreachableIds = new Set(unreachableBlocks.map(({id}) => id));
     const duplicate = new Set<string>();
     const seen = new Map<string, number>();
-
+    
     for (const block of blocks) {
         for (const stmt of block.stmts) {
-            const count = (seen.get(stmt) ?? 0) + 1;
+            const count = seen.get(stmt) || 0 + 1;
             seen.set(stmt, count);
-
+            
             if (count > 1)
                 duplicate.add(stmt);
         }
     }
-
+    
     return (
         <div
             className="flow-output"
@@ -61,9 +64,9 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
                     {lines.map((text, index) => {
                         const lineNumber = index + 1;
                         const stmtBlock = blocks.find(({stmts}) => stmts.includes(text));
-                        const unreachable = stmtBlock ? unreachableIds.has(stmtBlock.id) : false;
+                        const unreachable = stmtBlock && unreachableIds.has(stmtBlock.id);
                         const dup = duplicate.has(text);
-
+                        
                         return (
                             <div
                                 className="flow-output__line"
@@ -135,7 +138,7 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
                             refY={3}
                             orient="auto"
                         >
-                            <polygon points="0,0 6,3 0,6" fill="var(--color-text-muted)" />
+                            <polygon points="0,0 6,3 0,6" fill="var(--color-text-muted)"/>
                         </marker>
                     </defs>
                 </svg>

@@ -65,10 +65,10 @@
     cursor: pointer;
 }
 
-.flow-output__line[data-unreachable="true"] .flow-output__text {
+.flow-output__line[data-unreachable='true'] .flow-output__text {
     opacity: 0.5;
 }
 
-.flow-output__line[data-duplicate="true"] .flow-output__text {
+.flow-output__line[data-duplicate='true'] .flow-output__text {
     background-color: var(--color-accent-soft);
 }

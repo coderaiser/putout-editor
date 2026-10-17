@@ -91,10 +91,8 @@ test('AstRow: a last child gets the elbow', (t) => {
  * not — and the prefix is `[0, 1)`, so one pipe and then this row's elbow.
  */
 test('AstRow: a non-last ancestor draws a pipe', (t) => {
-    const result = connectorsOf(2, true, [
-        true,
-        false,
-    ]);
+    const result = connectorsOf(2, true, [true, false]);
+    
     const expected = '│  └─ ';
     
     t.equal(result, expected);
@@ -110,10 +108,8 @@ test('AstRow: a non-last ancestor draws a pipe', (t) => {
  * where a branch ended.
  */
 test('AstRow: a last ancestor draws blanks', (t) => {
-    const result = connectorsOf(2, false, [
-        true,
-        true,
-    ]);
+    const result = connectorsOf(2, false, [true, true]);
+    
     const expected = '   ├─ ';
     
     t.equal(result, expected);
@@ -129,11 +125,8 @@ test('AstRow: a last ancestor draws blanks', (t) => {
  * that pins the slice.
  */
 test('AstRow: mixed ancestors alternate pipe and blank', (t) => {
-    const result = connectorsOf(3, false, [
-        true,
-        false,
-        true,
-    ]);
+    const result = connectorsOf(3, false, [true, false, true]);
+    
     const expected = '│     ├─ ';
     
     t.equal(result, expected);
@@ -629,6 +622,7 @@ test('AstRow: connectors are rendered before the caret', (t) => {
     const row = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
     const children = [...row.children];
     const at = (name: string) => children.findIndex(({classList}) => classList.contains(name));
+    
     const result = {
         connectorsBeforeCaret: at('ast-row__connectors') < at('ast-row__caret'),
         caretAfterConnectors: at('ast-row__caret') > 0,
@@ -660,6 +654,7 @@ test('AstRow: the type span carries data-category', (t) => {
     
     const type = document.querySelector('.ast-row__type') as HTMLElement;
     const rowElement = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
+    
     const result = {
         onType: type.getAttribute('data-category'),
         onRow: rowElement.getAttribute('data-category'),
@@ -678,7 +673,8 @@ test('AstRow: the type span carries data-category', (t) => {
 
 test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
     const toggled: string[] = [];
-
+    const push = toggled.push.bind(toggled);
+    
     render(
         <AstRow
             ancestorLastFlags={[]}
@@ -688,26 +684,29 @@ test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
             last={false}
             matched={false}
             mobile
-            node={node({id: '0'})}
+            node={node({
+                id: '0',
+            })}
             onSelect={noop}
-            onToggle={(id) => toggled.push(id)}
+            onToggle={push}
             selected={false}
         />,
     );
-
+    
     const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
-
+    
     fireEvent.click(caret as Element);
-
+    
     cleanup();
-
+    
     t.deepEqual(toggled, ['0']);
     t.end();
 });
 
 test('AstRow: tapping the caret does not also select', (t) => {
     const selected: string[] = [];
-
+    const push = selected.push.bind(selected);
+    
     render(
         <AstRow
             ancestorLastFlags={[]}
@@ -717,19 +716,21 @@ test('AstRow: tapping the caret does not also select', (t) => {
             last={false}
             matched={false}
             mobile
-            node={node({id: '0'})}
-            onSelect={(id) => selected.push(id)}
+            node={node({
+                id: '0',
+            })}
+            onSelect={push}
             onToggle={noop}
             selected={false}
         />,
     );
-
+    
     const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
-
+    
     fireEvent.click(caret as Element);
-
+    
     cleanup();
-
+    
     t.deepEqual(selected, []);
     t.end();
 });

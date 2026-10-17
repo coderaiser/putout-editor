@@ -9,7 +9,6 @@ import {
  * The whole module is three one-liners, and each of them exists because a
  * specific thing broke without it.
  */
-
 test('sigil: the sigil is a slash', (t) => {
     const result = SIGIL;
     const expected = '/';

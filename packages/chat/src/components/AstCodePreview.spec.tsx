@@ -134,6 +134,7 @@ test('AstCodePreview: puts the column marker on the selected line', (t) => {
     }));
     
     // The selected line renders as HTML (highlight + marker span), so read the
+    
     // markup rather than the text.
     const element = document.querySelector('.ast-code__text');
     const result = element && element.innerHTML;

@@ -1,6 +1,7 @@
 import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
 import {z} from 'zod';
+import {montag} from 'montag';
 
 export const name = 'get_example';
 
@@ -39,72 +40,78 @@ type Example = {
     fixture: string;
 };
 
-const replacerPlugin = `// convert-ternary-to-if
-
-export const report = () => \`Use 'if' instead of ternary 🧹\`;
-
-export const replace = () => ({
-    '__a ? __b : __c': 'if (__a) __b; else __c;',
-});`;
-
-const replacerFixture = `// convert-ternary-to-if
-
-'Transform your code with 🐊Putout' ?
-    console.log('Codemods never been as simple 🎈') :
-    console.log('🥵');`;
-
-const traverserPlugin = `// merge-duplicate-imports
-
-import {operator, types} from 'putout';
-
-const {remove} = operator;
-const {isImportDeclaration} = types;
-
-export const report = ({path}) =>
-    \`Merge duplicate import from '\${path.node.source.value}' 🧹\`;
-
-export const fix = ({path, original}) => {
-    original.node.specifiers.push(...path.node.specifiers);
-    remove(path);
-};
-
-export const traverse = ({push}) => ({
-    Program(path) {
-        const imports = path.get('body').filter(isImportDeclaration);
-        const seen = new Map();
-        
-        for (const imp of imports) {
-            const src = imp.node.source.value;
-            
-            if (!seen.has(src)) {
-                seen.set(src, imp);
-                continue;
-            }
-            
-            push({path: imp, original: seen.get(src)});
-        }
-    },
-});`;
-
-const traverserFixture = `// merge-duplicate-imports
-
-import {a} from 'x';
-import {b} from 'x';`;
-
-const includerPlugin = `// remove-empty-method
-
-export const report = () => 'Remove empty method 🧹';
-
-export const filter = (path) => {
-    if (path.isClassMethod() || path.isObjectMethod())
-        return path.node.params.length === 0 && path.node.body.body.length === 0;
+const replacerPlugin = montag`
+    export const report = () => \`Use 'if' instead of ternary 🧹\`;
     
-    return false;
-};
+    export const replace = () => ({
+        '__a ? __b : __c': 'if (__a) __b; else __c;',
+    });
+`;
 
-export const include = () => ['ClassMethod', 'ObjectMethod'];
+const replacerFixture = montag`
+    'Transform your code with 🐊Putout' ?
+        console.log('Codemods never been as simple 🎈') :
+        console.log('🥵');
+`;
 
-export const fix = (path) => path.remove();`;
+const traverserPlugin = montag`
+    // merge-duplicate-imports
+    
+    import {operator, types} from 'putout';
+    
+    const {remove} = operator;
+    const {isImportDeclaration} = types;
+    
+    export const report = ({path}) =>
+        \`Merge duplicate import from '\${path.node.source.value}' 🧹\`;
+    
+    export const fix = ({path, original}) => {
+        original.node.specifiers.push(...path.node.specifiers);
+        remove(path);
+    };
+    
+    export const traverse = ({push}) => ({
+        Program(path) {
+            const imports = path.get('body').filter(isImportDeclaration);
+            const seen = new Map();
+            
+            for (const imp of imports) {
+                const src = imp.node.source.value;
+                
+                if (!seen.has(src)) {
+                    seen.set(src, imp);
+                    continue;
+                }
+                
+                push({path: imp, original: seen.get(src)});
+            }
+        },
+    });
+`;
+
+const traverserFixture = montag`
+    // merge-duplicate-imports
+    
+    import {a} from 'x';
+    import {b} from 'x';
+`;
+
+const includerPlugin = montag`
+    // remove-empty-method
+    
+    export const report = () => 'Remove empty method 🧹';
+    
+    export const filter = (path) => {
+        if (path.isClassMethod() || path.isObjectMethod())
+            return path.node.params.length === 0 && path.node.body.body.length === 0;
+        
+        return false;
+    };
+    
+    export const include = () => ['ClassMethod', 'ObjectMethod'];
+    
+    export const fix = (path) => path.remove();
+`;
 
 const includerFixture = `// remove-empty-method
 
@@ -260,3 +267,4 @@ export function handler({pattern}: z.infer<typeof schema>) {
         }],
     };
 }
+

@@ -1,17 +1,17 @@
-import {test} from 'supertape';
 import {setTimeout} from 'node:timers/promises';
+import {test} from 'supertape';
+import {Provider} from 'react-redux';
+import type {ReactNode} from 'react';
+import type {Store} from '@reduxjs/toolkit';
 import {
     render,
     cleanup,
     act,
     fireEvent,
 } from '@testing-library/react';
-import {Provider} from 'react-redux';
-import type {ReactNode} from 'react';
-import type {Store} from '@reduxjs/toolkit';
+import {flattenLearn, type LearnNode} from '@putout/editor-commands';
 import {makeStore} from '#test/store';
 import type {RootState} from '#store/types';
-import {flattenLearn, type LearnNode} from '@putout/editor-commands';
 import LearnBlock from './LearnBlock.tsx';
 
 /**
@@ -58,7 +58,7 @@ const results = (store: Store<RootState>): (string | null)[] => store
     .getState()
     .chat
     .messages
-    .map(({result}) => (result && result.type) || null);
+    .map(({result}) => result && result.type || null);
 
 const rows = () => [
     ...document.querySelectorAll('[data-testid="learn-row"]'),
@@ -109,7 +109,7 @@ test('LearnBlock: opening a leaf appends the body then the tryit', async (t) => 
     // `root/leaf` is the only leaf, so there is one row below the root.
     fireEvent.click(rows()[1]);
     
-    await act(async () => {
+    await act(() => {
         fireEvent.keyDown(document.querySelector('[data-testid="learn-output"]') as HTMLElement, {
             key: 'Enter',
         });
@@ -118,7 +118,10 @@ test('LearnBlock: opening a leaf appends the body then the tryit', async (t) => 
     await setTimeout(20);
     
     const result = results(store).slice(before);
-    const expected = ['text', 'tryit'];
+    const expected = [
+        'text',
+        'tryit',
+    ];
     
     cleanup();
     
@@ -139,7 +142,7 @@ test('LearnBlock: the body message carries the leaf body', async (t) => {
     
     fireEvent.click(rows()[1]);
     
-    await act(async () => {
+    await act(() => {
         fireEvent.keyDown(document.querySelector('[data-testid="learn-output"]') as HTMLElement, {
             key: 'Enter',
         });
@@ -148,7 +151,11 @@ test('LearnBlock: the body message carries the leaf body', async (t) => {
     await setTimeout(20);
     
     const message = store.getState().chat.messages[before];
-    const result = (message.result && message.result.type === 'text' && message.result.data) || null;
+    const result = message.result
+        && message.result.type === 'text'
+        && message.result.data
+        || null;
+    
     const expected = 'leaf body';
     
     cleanup();
@@ -173,7 +180,7 @@ test('LearnBlock: the root has no example and opens with no tryit', async (t) =>
     // which is the container rule, asserted through the count.
     fireEvent.click(rows()[0]);
     
-    await act(async () => {
+    await act(() => {
         fireEvent.keyDown(document.querySelector('[data-testid="learn-output"]') as HTMLElement, {
             key: 'Enter',
         });
@@ -205,7 +212,7 @@ test('LearnBlock: opening a prose-only leaf appends only the body', async (t) =>
     // `rows()[2]` is `root/prose` — the second child, no example.
     fireEvent.click(rows()[2]);
     
-    await act(async () => {
+    await act(() => {
         fireEvent.keyDown(document.querySelector('[data-testid="learn-output"]') as HTMLElement, {
             key: 'Enter',
         });

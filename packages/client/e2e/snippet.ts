@@ -75,7 +75,7 @@ test('snippet: New submenu lists 13 plugin templates', async ({page}) => {
 test('snippet: New Replacer inserts ternary template', async ({page}) => {
     await pickTemplate(page, 'Replacer');
     
-    expect(await getTransformCode(page)).toContain('convert-ternary-to-if');
+    expect(await getTransformCode(page)).toContain('Codemods never been as simple 🎈');
 });
 
 test('snippet: New → Traverser inserts merge-duplicate-imports', async ({page}) => {

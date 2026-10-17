@@ -61,7 +61,7 @@ const withPointer = (initial: boolean, fn: (pointer: Pointer) => void) => {
 };
 
 /** Renders the hook and reports what it returned. */
-const Hook = ({on}: {on: (mobile: boolean) => void}) => {
+const Hook = ({on}: {on: (mobile: boolean) => void;}) => {
     on(useIsMobile());
     
     return null;
@@ -200,10 +200,8 @@ test('useIsMobile: updates when the query fires a change event', (t) => {
     });
     
     const result = values;
-    const expected = [
-        false,
-        true,
-    ];
+    
+    const expected = [false, true];
     
     cleanup();
     

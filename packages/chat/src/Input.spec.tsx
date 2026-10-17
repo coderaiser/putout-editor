@@ -8,7 +8,13 @@ import {
     act,
     fireEvent,
 } from '@testing-library/react';
+import {
+    getValue,
+    getView,
+    setValue,
+} from 'qword/client';
 import {makeStore} from '#test/store';
+import {prefixOf} from './sigil.ts';
 import Input, {
     matches,
     describeOf,
@@ -17,8 +23,6 @@ import Input, {
     isCoarsePointer,
     wantsLineNumbers,
 } from './Input.tsx';
-import {prefixOf} from './sigil.ts';
-import {getValue, getView, setValue} from 'qword/client';
 
 const sent: string[] = [];
 const push = sent.push.bind(sent);
@@ -51,9 +55,7 @@ const box = async (history: string[] = []) => {
     // follows, which is what makes `.cm-content` exist for the helpers
     // below. Without it the fallback is still on screen and `getView`
     // returns `null`.
-    await act(async () => {
-        await Promise.resolve();
-    });
+    await act(async () => {});
     
     return result;
 };
@@ -278,7 +280,7 @@ test('Input: the effect does nothing without matchMedia', async (t) => {
     t.end();
 });
 
-test('Input: isCoarsePointer is false without matchMedia', async (t) => {
+test('Input: isCoarsePointer is false without matchMedia', (t) => {
     const original = globalThis.matchMedia;
     
     Reflect.deleteProperty(globalThis, 'matchMedia');
@@ -361,11 +363,7 @@ test('Input: a partial command name does not', (t) => {
         wantsLineNumbers('/fin'),
     ];
     
-    const expected = [
-        false,
-        false,
-        false,
-    ];
+    const expected = [false, false, false];
     
     t.deepEqual(result, expected);
     t.end();
@@ -386,11 +384,7 @@ test('Input: a recalled line and a sentence both answer by their first word', (t
         wantsLineNumbers(''),
     ];
     
-    const expected = [
-        true,
-        false,
-        false,
-    ];
+    const expected = [true, false, false];
     
     t.deepEqual(result, expected);
     t.end();
@@ -439,7 +433,7 @@ test('Input: a one-line command keeps the gutter off', async (t) => {
     t.end();
 });
 
-test('Input: enterSends is true for a fine pointer', async (t) => {
+test('Input: enterSends is true for a fine pointer', (t) => {
     const result = enterSends(false);
     const expected = true;
     
@@ -447,7 +441,7 @@ test('Input: enterSends is true for a fine pointer', async (t) => {
     t.end();
 });
 
-test('Input: enterSends is false for a coarse pointer', async (t) => {
+test('Input: enterSends is false for a coarse pointer', (t) => {
     const result = enterSends(true);
     const expected = false;
     
@@ -466,7 +460,7 @@ test('Input: enterSends is false for a coarse pointer', async (t) => {
  * other half: once a word has ended, the user is typing an argument and a
  * command name is no longer what they want completed.
  */
-test('Input: matches closes once a space ends the command word', async (t) => {
+test('Input: matches closes once a space ends the command word', (t) => {
     const result = matches('source const a = 1;');
     const expected: string[] = [];
     
@@ -635,8 +629,11 @@ test('Input: Shift+Enter does not complete while the autocomplete is open', asyn
     press('Enter', true);
     
     // `Shift+Enter` is a newline in every state — and now a real one: the
+    
     // editor inserts it itself, so the box reads a break plus `tra` (the
+    
     // caret sits at 0 after a programmatic `setValue`). What matters is the
+    
     // dropdown neither completed nor sent.
     const result = {
         options: options().length,
@@ -947,7 +944,7 @@ test('Input: a completed command leaves the dropdown behind', async (t) => {
     t.end();
 });
 
-test('Input: matches returns nothing for a line that is not a command', async (t) => {
+test('Input: matches returns nothing for a line that is not a command', (t) => {
     const result = matches('hello');
     const expected: string[] = [];
     
@@ -955,7 +952,7 @@ test('Input: matches returns nothing for a line that is not a command', async (t
     t.end();
 });
 
-test('Input: matches finds every command for a prefix nothing is typed yet', async (t) => {
+test('Input: matches finds every command for a prefix nothing is typed yet', (t) => {
     const result = matches('').length;
     const expected = commands.size;
     
@@ -963,7 +960,7 @@ test('Input: matches finds every command for a prefix nothing is typed yet', asy
     t.end();
 });
 
-test('Input: matches narrows on a prefix', async (t) => {
+test('Input: matches narrows on a prefix', (t) => {
     const result = matches('he');
     const expected = ['/help'];
     
@@ -971,7 +968,7 @@ test('Input: matches narrows on a prefix', async (t) => {
     t.end();
 });
 
-test('Input: matches returns nothing when nothing starts with the prefix', async (t) => {
+test('Input: matches returns nothing when nothing starts with the prefix', (t) => {
     const result = matches('zzz');
     const expected: string[] = [];
     
@@ -1024,7 +1021,7 @@ test('Input: the send button names its shortcut', async (t) => {
     t.end();
 });
 
-test('Input: describeOf returns the description of a known command', async (t) => {
+test('Input: describeOf returns the description of a known command', (t) => {
     const command = commands.get('ast');
     const result = describeOf('ast');
     const expected = command && command.description;
@@ -1038,7 +1035,7 @@ test('Input: describeOf returns the description of a known command', async (t) =
  * at the call site — `commands.get('/ast')` is `undefined` and would render
  * the `''` arm for every row. This pins the wrapping, not just the function.
  */
-test('Input: describeOf reads past the slash of a suggested name', async (t) => {
+test('Input: describeOf reads past the slash of a suggested name', (t) => {
     const command = commands.get('ast');
     const result = describeOf(prefixOf('/ast'));
     const expected = command && command.description;
@@ -1047,7 +1044,7 @@ test('Input: describeOf reads past the slash of a suggested name', async (t) => 
     t.end();
 });
 
-test('Input: describeOf returns nothing for a name that is not a command', async (t) => {
+test('Input: describeOf returns nothing for a name that is not a command', (t) => {
     const result = describeOf('notacommand');
     const expected = '';
     
@@ -1073,7 +1070,7 @@ const withScrollHeight = (height: number, run: (element: HTMLTextAreaElement) =>
     return element.style.height;
 };
 
-test('Input: growTo sizes the box to its content', async (t) => {
+test('Input: growTo sizes the box to its content', (t) => {
     const result = withScrollHeight(96, growTo);
     const expected = '96px';
     
@@ -1081,7 +1078,7 @@ test('Input: growTo sizes the box to its content', async (t) => {
     t.end();
 });
 
-test('Input: growTo clears the height first, so shrinking works', async (t) => {
+test('Input: growTo clears the height first, so shrinking works', (t) => {
     const element = document.createElement('textarea');
     const set: string[] = [];
     
@@ -1116,7 +1113,7 @@ test('Input: growTo clears the height first, so shrinking works', async (t) => {
     t.end();
 });
 
-test('Input: growTo does nothing without a box', async (t) => {
+test('Input: growTo does nothing without a box', (t) => {
     growTo(null);
     
     const result = ['survived'];
@@ -1154,7 +1151,7 @@ const withOverflow = (height: number, maxHeight: string, run: (element: HTMLText
     return overflowY;
 };
 
-test('Input: growTo shows no scrollbar while the box is under the cap', async (t) => {
+test('Input: growTo shows no scrollbar while the box is under the cap', (t) => {
     // The regression: `overflow-y: auto` in the stylesheet draws a scrollbar
     // track on a one-row box, and it is there for the whole time the user is
     // typing the first line.
@@ -1165,7 +1162,7 @@ test('Input: growTo shows no scrollbar while the box is under the cap', async (t
     t.end();
 });
 
-test('Input: growTo brings the scrollbar back once the box hits the cap', async (t) => {
+test('Input: growTo brings the scrollbar back once the box hits the cap', (t) => {
     // Hiding it and never bringing it back would be the other half of the same
     // bug: a pasted file taller than the cap would be unreachable.
     const result = withOverflow(240, '200px', growTo);
@@ -1195,14 +1192,13 @@ test('Input: the send button is a sibling of the textarea inside .input', async 
     
     const parent = (document.querySelector('.input__send') as HTMLElement).parentElement as HTMLElement;
     const children = [...parent.children] as HTMLElement[];
+    
     const result = {
         // `position: absolute` resolves against `.input`, so the button has to
         // be its child and not a child of something else.
         insideInput: parent.classList.contains('input'),
-        
         // after the textarea in source order, so it paints over it
-        afterBox: children.findIndex(({classList}) => classList.contains('input__send')) >
-            children.findIndex(({classList}) => classList.contains('input__box')),
+        afterBox: children.findIndex(({classList}) => classList.contains('input__send')) > children.findIndex(({classList}) => classList.contains('input__box')),
     };
     
     const expected = {
@@ -1324,7 +1320,7 @@ test('Input: the textarea opts out of iOS text rewriting', async (t) => {
  * only worked when the caller remembered to trim would be a second grammar
  * spread across two files.
  */
-test('Input: matches reads past the leading slash', async (t) => {
+test('Input: matches reads past the leading slash', (t) => {
     const result = matches('/as');
     const expected = ['/ast'];
     
@@ -1337,7 +1333,7 @@ test('Input: matches reads past the leading slash', async (t) => {
  * command both arrive without one, and a dropdown that only opened on a
  * hand-typed sigil would be a worse version of the bug above.
  */
-test('Input: matches still answers a bare prefix', async (t) => {
+test('Input: matches still answers a bare prefix', (t) => {
     const result = matches('as');
     const expected = ['/ast'];
     
@@ -1349,7 +1345,7 @@ test('Input: matches still answers a bare prefix', async (t) => {
  * The slash alone is a prefix of every command, so it opens the list rather than
  * closing it — which is what makes the sigil usable as a menu key.
  */
-test('Input: the sigil on its own opens the list of every command', async (t) => {
+test('Input: the sigil on its own opens the list of every command', (t) => {
     const result = matches('/').length;
     const expected = commands.size;
     
@@ -1387,6 +1383,7 @@ test('Input: Tab completes past the sigil and keeps it', async (t) => {
  * to `/ast ` instead of sending. `Ctrl+Enter` still worked, which is why only a
  * keyboard user's first `Enter` would have looked broken.
  */
+
 /**
  * …and a bare finished name completes with a slash instead of sending.
  *

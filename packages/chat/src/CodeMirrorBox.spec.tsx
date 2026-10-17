@@ -13,7 +13,12 @@ const noop = (): void => {};
 
 const CONTENT = '.cm-content';
 
-const mount = (overrides: {value?: string; onChange?: (next: string) => void; onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void; lineNumbers?: boolean} = {}) => render(
+const mount = (overrides: {
+    value?: string;
+    onChange?: (next: string) => void;
+    onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
+    lineNumbers?: boolean;
+} = {}) => render(
     <CodeMirrorBox
         lineNumbers={overrides.lineNumbers}
         onChange={overrides.onChange || noop}
@@ -26,7 +31,7 @@ const content = (): HTMLElement => document.querySelector(CONTENT) as HTMLElemen
 
 const docOf = (): string => {
     const boxes = [...document.querySelectorAll('[data-testid="box"]')];
-    const element = boxes[boxes.length - 1] as HTMLElement;
+    const element = boxes.at(-1) as HTMLElement;
     const view = getView(element);
     
     return view ? view.state.doc.toString() : '';
@@ -306,7 +311,6 @@ test('CodeMirrorBox: typing calls onChange with the new text', (t) => {
     t.end();
 });
 
-
 test('CodeMirrorBox: an outside value change is pushed into the editor', (t) => {
     const {rerender} = render(
         <CodeMirrorBox
@@ -438,7 +442,12 @@ test('CodeMirrorBox: preventDefault in onKeyDown stops the editor handling the k
 });
 
 test('CodeMirrorBox: modifiers reach onKeyDown intact', (t) => {
-    const calls: Array<{key: string; ctrlKey: boolean; shiftKey: boolean; metaKey: boolean}> = [];
+    const calls: {
+        key: string;
+        ctrlKey: boolean;
+        shiftKey: boolean;
+        metaKey: boolean;
+    }[] = [];
     
     const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
         calls.push({

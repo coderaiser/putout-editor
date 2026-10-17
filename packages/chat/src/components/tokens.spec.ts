@@ -53,6 +53,7 @@ const tokensOf = (css: string, selector: string): Record<string, string> => {
     const OPEN = String.fromCharCode(123);
     const WS = '\\s*';
     const escaped = selector.replace(/[\][.]/g, (char) => `\\${char}`);
+    
     // `^` plus `m` puts every character on its own line, so a rule *inside* the
     // leading block comment — and this file's comment names its own dark block,
     // quotes `Program`, and lists token names — cannot match. The selector has to
@@ -79,7 +80,11 @@ const channel = (value: number): number => value <= 0.03928 ? value / 12.92 : ((
 
 const luminance = (hex: string): number => {
     const value = hex.replace('#', '');
-    const full = value.length === 3 ? [...value].map((c) => c + c).join('') : value;
+    const full = value.length === 3
+        ? [...value]
+            .map((c) => c + c)
+            .join('')
+        : value;
     
     const [r, g, b] = [0, 2, 4].map((at) => Number.parseInt(full.slice(at, at + 2), 16) / 255);
     
@@ -87,7 +92,10 @@ const luminance = (hex: string): number => {
 };
 
 const contrast = (a: string, b: string): number => {
-    const [first, second] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    const [first, second] = [
+        luminance(a),
+        luminance(b),
+    ].sort((x, y) => y - x);
     
     return (first + 0.05) / (second + 0.05);
 };
@@ -156,7 +164,8 @@ test('AstTree: every dark category colour is readable on the dark tree', async (
     // WCAG AA for non-body text is 4.5:1. Every category clears it by a wide
     // margin today (the weakest is 6.29), so this is a floor against a silent
     // dimming rather than a description of the current palette.
-    const unreadable = Object.keys(dark)
+    const unreadable = Object
+        .keys(dark)
         .filter((category) => dark[category] < 4.5);
     
     const expected: string[] = [];

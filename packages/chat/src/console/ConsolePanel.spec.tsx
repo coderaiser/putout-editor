@@ -92,9 +92,7 @@ const twoLevel = (): FlatNode[] => [
 /** The row a tap targets: depth 1, with a child, so its fold changes the count. */
 const FOLDABLE = 1;
 
-const panelRows = () => document
-    .querySelectorAll('.console-panel [data-testid="ast-row"]')
-    .length;
+const panelRows = () => document.querySelectorAll('.console-panel [data-testid="ast-row"]').length;
 
 const panelHelp = (): string | null => {
     const element = document.querySelector('.console-panel .ast-status__help');
@@ -282,6 +280,7 @@ test('ConsolePanel: a coarse tap selects the row and leaves it unfolded', (t) =>
             before,
             after: panelRows(),
         };
+        
         const expected = {
             before: 3,
             after: 3,

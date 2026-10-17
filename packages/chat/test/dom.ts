@@ -11,7 +11,7 @@ export const textsOf = (selector: string): string[] => {
     const result: string[] = [];
     
     for (const element of document.querySelectorAll(selector))
-        result.push(element.textContent ?? '');
+        result.push(element.textContent || '');
     
     return result;
 };
