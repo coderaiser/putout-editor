@@ -419,6 +419,7 @@ test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
         <LearnRow
             ancestorLastFlags={[]}
             collapsed
+            dimmed={false}
             hasChildren
             last={false}
             matched={false}
@@ -447,6 +448,7 @@ test('LearnRow: tapping the caret does not also select', (t) => {
         <LearnRow
             ancestorLastFlags={[]}
             collapsed
+            dimmed={false}
             hasChildren
             last={false}
             matched={false}

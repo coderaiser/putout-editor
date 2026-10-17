@@ -683,6 +683,7 @@ test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
         <AstRow
             ancestorLastFlags={[]}
             collapsed
+            dimmed={false}
             hasChildren
             last={false}
             matched={false}
@@ -711,6 +712,7 @@ test('AstRow: tapping the caret does not also select', (t) => {
         <AstRow
             ancestorLastFlags={[]}
             collapsed
+            dimmed={false}
             hasChildren
             last={false}
             matched={false}
