@@ -407,7 +407,7 @@ test('AstRow: clicking a node with children also folds it', (t) => {
  * `pointerdown` with `event.pointerType` would work, and would need a second
  * listener to carry the same answer `useIsMobile` already holds.
  */
-test('AstRow: a coarse pointer selects without toggling', (t) => {
+test('AstRow: a coarse pointer selects AND toggles', (t) => {
     const toggled: string[] = [];
     const picked: string[] = [];
     
@@ -448,7 +448,7 @@ test('AstRow: a coarse pointer selects without toggling', (t) => {
     
     const expected = {
         picked: ['4'],
-        toggled: [],
+        toggled: ['4'],
     };
     
     t.deepEqual(result, expected);
@@ -703,7 +703,131 @@ test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
     t.end();
 });
 
-test('AstRow: tapping the caret does not also select', (t) => {
+test('AstRow: tapping anywhere on the row selects on mobile', (t) => {
+    const picked: string[] = [];
+    const push = picked.push.bind(picked);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={push}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(picked, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row toggles on mobile', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row selects on desktop too', (t) => {
+    const picked: string[] = [];
+    const push = picked.push.bind(picked);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile={false}
+            node={node({
+                id: '0',
+            })}
+            onSelect={push}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(picked, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row toggles on desktop too', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile={false}
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping the caret selects — it bubbles to the row', (t) => {
     const selected: string[] = [];
     const push = selected.push.bind(selected);
     
@@ -731,6 +855,38 @@ test('AstRow: tapping the caret does not also select', (t) => {
     
     cleanup();
     
-    t.deepEqual(selected, []);
+    t.deepEqual(selected, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping the caret toggles — it bubbles to the row', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
+    
+    fireEvent.click(caret as Element);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
     t.end();
 });

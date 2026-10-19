@@ -46,22 +46,13 @@ export interface AstRowProps {
     
     /**
      * Clicking a node with children also folds it — the tree's only pointer
-     * affordance, and only on a **fine** pointer.
+     * affordance, on any device.
      *
-     * A coarse pointer fires `click` on `pointerup`, so binding both effects to
-     * one handler folds on the first tap and unfolds on the second: the user
-     * taps a row twice and watches nothing happen, because the two toggles
-     * cancel and the selection they also caused is not what they were aiming
-     * at. A touchscreen therefore selects on tap and folds only through the
-     * keyboard and the caret, which is where a phone user looks for it.
-     *
-     * Defaults to `false` — the fine case — so every existing mount keeps the
-     * fold, which is the half a careless change would take away.
+     * The whole row toggles, not just the caret: on a phone the caret is
+     * ~14px and too small to tap reliably, so the tap target is the entire
+     * row. The caret span keeps its glyph only; its own handler is gone.
      */
     onToggle: (id: string) => void;
-    
-    /** Coarse pointer, from `useIsMobile`. Defaults to `false`, like `AstTree`. */
-    mobile?: boolean;
 }
 
 const OPEN = '▾';
@@ -123,7 +114,7 @@ export const connectorsOf = (depth: number, last: boolean, ancestorLastFlags: bo
     return `${prefix}${last ? ELBOW : TEE}`;
 };
 
-export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, mobile, onSelect, onToggle}: AstRowProps) {
+export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: AstRowProps) {
     return (
         <div
             className={[
@@ -139,7 +130,7 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
             onClick={() => {
                 onSelect(node.id);
                 
-                if (hasChildren && !mobile)
+                if (hasChildren)
                     onToggle(node.id);
             }}
             role="treeitem"
@@ -155,15 +146,7 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
             <span className="ast-row__connectors">
                 {connectorsOf(node.depth, last, ancestorLastFlags)}
             </span>
-            <span
-                className="ast-row__caret"
-                onClick={hasChildren
-                    ? (e) => {
-                        e.stopPropagation();
-                        onToggle(node.id);
-                    }
-                    : undefined}
-            >
+            <span className="ast-row__caret">
                 {caretOf(hasChildren, collapsed)}
             </span>
             {/*

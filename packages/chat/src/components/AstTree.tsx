@@ -154,7 +154,6 @@ export default function AstTree({nodes, source, mobile}: AstTreeProps) {
                             key={node.id}
                             last={isLast(nodes, node)}
                             matched={matched.has(node.id)}
-                            mobile={mobile}
                             node={node}
                             onSelect={state.select}
                             onToggle={state.toggle}

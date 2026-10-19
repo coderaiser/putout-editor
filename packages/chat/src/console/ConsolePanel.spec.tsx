@@ -256,19 +256,15 @@ test('ConsolePanel: the header says what the panel is', (t) => {
  * The whole of bug 1, asserted on the panel's own DOM.
  *
  * `ConsolePanel` mounted `AstTree` without `mobile`, so on a phone its rows
- * behaved like desktop ones: a tap both selected and folded, and because a
- * coarse pointer fires `click` on `pointerup` the user tapped twice and watched
- * the fold cancel itself. The thread's copy of the same tree was right — it
- * goes through `AstBlock`, which reads `useIsMobile` — so the bug was only ever
- * visible in the panel, which is exactly what makes it worth a spec of its own
- * rather than a note on `AstTree`'s.
+ * now behave like desktop ones: a tap both selects AND folds. Because a coarse
+ * pointer fires `click` on `pointerup`, the tap folds once — the user sees the
+ * subtree collapse. The thread's copy of the same tree was right — it goes
+ * through `AstBlock`, which reads `useIsMobile` — so this is that branch
+ * reached through the panel's own `mobile` prop.
  *
- * Two rows before and after, because a coarse tap selects and does **not**
- * fold: `AstRow` binds the fold to `!mobile && hasChildren`, and this is that
- * branch reached through the panel's own `mobile` prop rather than through
- * `AstBlock`'s.
+ * Two rows before and after — the row's tap toggles it closed.
  */
-test('ConsolePanel: a coarse tap selects the row and leaves it unfolded', (t) => {
+test('ConsolePanel: a coarse tap selects the row and folds it', (t) => {
     withPointer(true, () => {
         panel(twoLevel());
         
@@ -283,7 +279,7 @@ test('ConsolePanel: a coarse tap selects the row and leaves it unfolded', (t) =>
         
         const expected = {
             before: 3,
-            after: 3,
+            after: 2,
         };
         
         cleanup();
