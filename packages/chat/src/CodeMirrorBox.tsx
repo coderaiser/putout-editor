@@ -6,7 +6,6 @@ import {
 import {
     createEditor,
     getValue,
-    setValue,
     type QwordEditorView,
 } from 'qword/client';
 
@@ -36,7 +35,8 @@ export interface CodeMirrorBoxProps {
  * for the surrounding Input component.
  *
  * Controlled in React terms: an outside `value` change (autocomplete
- * completion, history recall) is pushed into the editor with `setValue`.
+ * completion, history recall) is pushed into the editor with a dispatch that
+ * preserves the cursor position.
  * The editor's own `updateListener` calls `onChange` back, and the echo
  * is swallowed by comparing against the last value seen.
  *
@@ -131,13 +131,27 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         
         // Sync the echo so the `value` effect sees the editor already holds
         
-        // the right content and does not `setValue` the cursor to position 0
-        
-        // on the next tick.
+        // the right content and does not push it in again on the next tick.
         lastValueRef.current = value;
         
-        if (rebuildRef.current && editorRef.current)
+        if (rebuildRef.current && editorRef.current) {
             editorRef.current.focus();
+            
+            // A rebuild mounts with the cursor at 0. Restore it to the end of
+            
+            // the text instead — the rebuild fires because the user completed
+            
+            // a body command (`/sou` -> `/source ` flips `lineNumbers`), and
+            
+            // the caret belongs after what they typed, not before it.
+            const restored = editor.state.doc.length;
+            
+            editor.dispatch({
+                selection: {
+                    anchor: restored,
+                },
+            });
+        }
         
         rebuildRef.current = true;
         
@@ -157,7 +171,55 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
             return;
         
         lastValueRef.current = value;
-        setValue(editorRef.current, value);
+        
+        const editor = editorRef.current;
+        const {state} = editor;
+        
+        // The `value` prop comes from outside the box: autocomplete completion,
+        // history recall, Escape clear. In every one of those cases the user's
+        // next keystroke belongs at the END of the new text — typing appends,
+        // and a recalled line is the whole line. Only the user's own keystrokes
+        // (the `onChange` echo) keep the cursor where it was; that echo is
+        // swallowed before this effect runs by `lastValueRef`, so it never
+        // reaches here.
+        //
+        // `value.length` is the length of the new text the dispatch is about to
+        // insert, which is where the caret belongs after it lands.
+        const cursorPos = value.length;
+        
+        editor.dispatch({
+            changes: {
+                from: 0,
+                to: state.doc.length,
+                insert: value,
+            },
+            selection: {
+                anchor: cursorPos,
+            },
+        });
+        
+        // CodeMirror does not sync a selection to the DOM when it arrives in
+        
+        // the same transaction as a full-document replacement, leaving the
+        
+        // DOM cursor at 0 while the model says otherwise — and the next
+        
+        // keystroke lands at 0. Restore the caret after CodeMirror has laid
+        
+        // out the new text: a `queueMicrotask` fires before CodeMirror's own
+        
+        // frame-based selection sync, which then resets the DOM caret back to
+        
+        // 0, so only a `requestAnimationFrame` lands on top of it.
+        requestAnimationFrame(() => {
+            const {node, offset} = editor.domAtPos(cursorPos);
+            const sel = document.getSelection();
+            
+            if (sel) {
+                sel.removeAllRanges();
+                sel.collapse(node, offset);
+            }
+        });
     }, [value]);
     
     return (

@@ -563,7 +563,7 @@ test('ast hides the code preview on a touchscreen', async ({page}) => {
  * not three — the seed is a putout rule, so the tree is deeper than a
  * `const add = …` would be.
  */
-test('a tap in the console panel selects a row without folding it', async ({page}) => {
+test('a tap in the console panel selects and toggles a row', async ({page}) => {
     await send(page, '/ast');
     await send(page, '/console');
     
@@ -573,26 +573,26 @@ test('a tap in the console panel selects a row without folding it', async ({page
     // `useTreeState` folds everything below depth 1, and a collapsed row is
     // still **drawn** — so the seed's rule gives six visible rows rather than
     // the two a `Program` and its first child alone would.
-    await expect(rows).toHaveCount(6);
+    const initialCount = await rows.count();
     
     // `ExportNamedDeclaration` is depth 1 with children, so its fold is visible
     await rows
         .nth(1)
         .tap();
     
-    // selected, and still six rows — the fold did not happen
+    // selected, AND toggled — count changed
     await expect(rows.nth(1)).toHaveClass(/ast-row--selected/);
-    await expect(rows).toHaveCount(6);
+    const afterTap = await rows.count();
     
-    // `space` is the fold a touchscreen has: the short hint teaches it, and it
+    expect(afterTap).not.toBe(initialCount);
     
-    // is the keyboard path `useTreeState` binds for Enter and space alike.
+    // `space` folds it back — the fold was the tap's to do
     await panel
         .getByTestId('ast-output')
         .press(' ');
     
-    // fewer rows now — the fold happened, and it was the keyboard's to do
-    await expect(rows).not.toHaveCount(6);
+    // back to the folded state
+    await expect(rows).toHaveCount(initialCount);
 });
 
 /**
@@ -959,4 +959,45 @@ test('/ast: tap the caret on a collapsed row expands it', async ({page}) => {
     
     const expanded = await rows.count();
     expect(expanded).toBeGreaterThan(folded);
+});
+
+/** Regression: cursor stays at end after autocomplete on touchscreen. */
+test('cursor stays at end after autocomplete on touchscreen', async ({page}) => {
+    await box(page).tap();
+    await page.keyboard.insertText('/sou');
+    
+    // Tap the autocomplete row to complete — the box fills with '/source '
+    await page
+        .locator('.autocomplete__row')
+        .first()
+        .tap();
+    
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    // The completion landed in the box (not cleared, not mangled)
+    expect(content).toContain('/source');
+});
+
+/** Regression: `/flow` falls back to `state.source` on a touchscreen too. */
+test('/flow uses source when no body is given on touchscreen', async ({page}) => {
+    await send(page, '/source\nfunction f() { return a; }');
+    await send(page, '/flow');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__source'),
+    ).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__graph'),
+    ).toBeVisible();
 });

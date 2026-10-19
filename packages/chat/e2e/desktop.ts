@@ -1464,3 +1464,135 @@ test('/flow clicking unreachable block highlights its source line', async ({page
     
     await expect(unreachableLine).toBeVisible();
 });
+
+/**
+ * Regression: `setValue` replaced the whole document and CodeMirror reset the
+ * cursor to position 0. The user could not type normally — every Backspace or
+ * autocomplete completion moved the caret to the start of the line.
+ */
+test('cursor stays at end after autocomplete completion', async ({page}) => {
+    // Type enough to open autocomplete
+    await box(page).type('/sou');
+    
+    // Autocomplete completes to '/source '
+    await page.keyboard.press('Tab');
+    
+    // The cursor must now be at the END of '/source ', not position 0.
+    
+    // Typing more text appends to the right place.
+    await box(page).type('extra');
+    
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    expect(content).toContain('/source extra');
+    
+    // If the cursor had jumped to 0, this would be 'extra/source ' instead.
+    expect(content).not.toMatch(/^extra/);
+});
+
+test('cursor stays in place after Backspace', async ({page}) => {
+    await box(page).type('/source');
+    
+    // Backspace removes the last character
+    await page.keyboard.press('Backspace');
+    
+    // Type something — it should append, not land at position 0
+    await box(page).type('x');
+    
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    // '/source' - 'e' + 'x' = '/sourcx'
+    expect(content).toBe('/sourcx');
+    
+    // If cursor had jumped to 0: 'x/sourc'
+    expect(content).not.toMatch(/^x/);
+});
+
+test('cursor clamps to end after Escape clears the box', async ({page}) => {
+    await box(page).type('/help');
+    await page.keyboard.press('Escape');
+    
+    // Box is empty, cursor is at 0 — that is correct after a clear.
+    
+    // Type something and it should appear at position 0.
+    await box(page).type('/ast');
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    expect(content).toBe('/ast');
+});
+
+test('cursor stays at end after history recall', async ({page}) => {
+    await send(page, '/hel');
+    
+    // Recall with ArrowUp — box fills with '/hel'. The box is a lazy
+    
+    // suspense boundary and remounts between the send and the recall, so the
+    
+    // editor may not be present yet; wait for it before typing.
+    await page.keyboard.press('ArrowUp');
+    await expect(page.locator('.cm-content')).toContainText('/hel');
+    
+    // Type more — should append at the END of the recalled line, not at 0.
+    await box(page).type('px');
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    expect(content).toContain('/helpx');
+    expect(content).not.toMatch(/^x/);
+});
+
+/**
+ * Regression: `/flow` returned an error when no body was given, even though
+ * `/source` had already set `state.source`. The user workflow is `/source`
+ * first, then `/flow` on the whole source — and the fallback to `source`
+ * means it now works.
+ */
+test('/flow uses current source when no body is given', async ({page}) => {
+    await send(page, '/source\nfunction f() { return a; }');
+    await send(page, '/flow');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__source'),
+    ).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__graph'),
+    ).toBeVisible();
+});
+
+/**
+ * …and it still errors when there is no source at all — the fallback only
+ * kicks in after `/source` has set something.
+ */
+test('/flow with no source errors', async ({page}) => {
+    await send(page, '/flow');
+    
+    // No source is set, so /flow errors — the error block is visible and
+    
+    // no graph panels render.
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('error-block'),
+    ).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output'),
+    ).not.toBeVisible();
+});

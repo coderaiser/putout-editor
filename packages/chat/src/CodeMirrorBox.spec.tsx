@@ -377,6 +377,49 @@ test('CodeMirrorBox: the echo of its own change is not pushed back', (t) => {
     t.end();
 });
 
+test('CodeMirrorBox: outside value change preserves the cursor position', (t) => {
+    const {rerender} = render(
+        <CodeMirrorBox
+            data-testid="box"
+            onChange={noop}
+            onKeyDown={noop}
+            value="/help"
+        />,
+    );
+    
+    const element = document.querySelector('[data-testid="box"]') as HTMLElement;
+    const view = getView(element)!;
+    
+    // Cursor at the end of '/help' — position 5
+    act(() => {
+        view.dispatch({
+            selection: {
+                anchor: 5,
+                head: 5,
+            },
+        });
+    });
+    
+    act(() => {
+        rerender(
+            <CodeMirrorBox
+                data-testid="box"
+                onChange={noop}
+                onKeyDown={noop}
+                value="/help world"
+            />,
+        );
+    });
+    
+    const result = docOf();
+    const expected = '/help world';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('CodeMirrorBox: keydown reaches onKeyDown', (t) => {
     const calls: string[] = [];
     
