@@ -135,7 +135,7 @@ const listed: Command[] = [{
 }, {
     name: 'flow',
     usage: '[function]',
-    description: 'graph the source into control-flow blocks',
+    description: 'graph the source into control-flow blocks — uses the current source when no body is given',
     flags: [],
     run: runFlow,
 }, {
