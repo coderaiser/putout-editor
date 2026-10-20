@@ -33,7 +33,7 @@ const pickMobileTemplate = async (page: Page, label: string) => {
 };
 
 const mobileTemplateMarkers = {
-    Replacer: 'Codemods never been as simple 🎈',
+    Replacer: 'ternary 🧹',
     Includer: 'remove-empty-method',
     Traverser: 'merge-duplicate-imports',
     Declarator: 'declare',
@@ -477,7 +477,7 @@ test('mobile: picking Replacer loads template into transform editor', async ({pa
         page
             .getByTestId('editor-transform')
             .locator('.cm-content'),
-    ).toContainText('Codemods never been as simple 🎈');
+    ).toContainText('ternary 🧹');
 });
 
 for (const [label, marker] of Object.entries(mobileTemplateMarkers)) {
