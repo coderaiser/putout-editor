@@ -1443,7 +1443,10 @@ test('/flow renders source panel and graph panel', async ({page}) => {
  * click routes to `onNavigate` and the source panel marks its line.
  */
 test('/flow clicking unreachable block highlights its source line', async ({page}) => {
-    await send(page, '/flow\nfunction f() { return a; console.log(b); }');
+    // Multi-line body: source.split('\\n') matches stmts line-by-line;
+    // a single-line body never produces a match and no DOM node gets
+    // data-unreachable.
+    await send(page, '/flow\nfunction f() {\n  return a;\n  console.log(b);\n}');
     
     const output = page
         .getByTestId('chat')
@@ -1519,7 +1522,7 @@ test('cursor clamps to end after Escape clears the box', async ({page}) => {
     // Box is empty, cursor is at 0 — that is correct after a clear.
     
     // Type something and it should appear at position 0.
-    await box(page).type('/ast');
+    await page.keyboard.insertText('/ast');
     const content = await page
         .locator('.cm-content')
         .textContent();
