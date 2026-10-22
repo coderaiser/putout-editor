@@ -148,7 +148,6 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
                         key={node.id}
                         last={isLast(nodes, node)}
                         matched={matched.has(node.id)}
-                        mobile={mobile}
                         node={node}
                         onSelect={state.select}
                         onToggle={state.toggle}

@@ -49,9 +49,6 @@ export interface LearnRowProps {
      * coarse-pointer reasoning was worked out once, there.
      */
     onToggle: (id: string) => void;
-    
-    /** Coarse pointer, from `useIsMobile`. Defaults to `false`, like `AstRow`. */
-    mobile?: boolean;
 }
 
 /**
@@ -63,7 +60,7 @@ export interface LearnRowProps {
  * and a detail, and carries no `line:col` because a concept has no position in a
  * file; the row itself is otherwise the same drawing.
  */
-export default function LearnRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, mobile, onSelect, onToggle}: LearnRowProps) {
+export default function LearnRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: LearnRowProps) {
     return (
         <div
             className={[
@@ -78,7 +75,7 @@ export default function LearnRow({node, ancestorLastFlags, hasChildren, collapse
             onClick={() => {
                 onSelect(node.id);
                 
-                if (hasChildren && !mobile)
+                if (hasChildren)
                     onToggle(node.id);
             }}
             role="treeitem"

@@ -962,6 +962,32 @@ test('/ast: tap the caret on a collapsed row expands it', async ({page}) => {
     expect(expanded).toBeGreaterThan(folded);
 });
 
+/** A tap on a learn row with children toggles it, on a touchscreen too. */
+test('a tap on a learn row with children toggles it', async ({page}) => {
+    await send(page, '/learn');
+    
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('learn-row');
+    
+    await expect(rows).toHaveCount(5);
+    
+    // `nodes` is the first section, and it has children — tap folds it open
+    await rows
+        .nth(1)
+        .tap();
+    
+    const opened = await rows.count();
+    expect(opened).toBeGreaterThan(5);
+    
+    // tap again folds it back
+    await rows
+        .nth(1)
+        .tap();
+    
+    await expect(rows).toHaveCount(5);
+});
+
 /** Regression: cursor stays at end after autocomplete on touchscreen. */
 test('cursor stays at end after autocomplete on touchscreen', async ({page}) => {
     await box(page).tap();

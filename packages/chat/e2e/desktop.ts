@@ -1218,6 +1218,27 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     expect(color).not.toBe(bodyColor);
 });
 
+/** Regression: the composer highlights a `/source` body — `mode` was passed
+ * to `createEditor` but `CodeMirrorBox` never called `setOption`, so the
+ * language extension was never applied and `const a = 1` rendered uncoloured.
+ */
+test('the composer applies syntax highlighting for a body command', async ({page}) => {
+    await send(page, '/source\nconst a = 1;');
+    
+    const keyword = page
+        .locator('.cm-content .tok-keyword')
+        .first();
+    
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+    
+    const color = await keyword.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    
+    expect(color).not.toBe('');
+    expect(color).not.toBe(bodyColor);
+});
+
 /**
  * `/help` renders as a styled grid, not a wrapped table.
  *
@@ -1576,6 +1597,43 @@ test('/flow uses current source when no body is given', async ({page}) => {
             .getByTestId('chat')
             .getByTestId('flow-output__graph'),
     ).toBeVisible();
+});
+
+/**
+ * Regression: `/flow` on a source that is not a function body — e.g.
+ * `const a = 1` — crashed in `printer.ts`'s `bodyOf()`, which unwrapped
+ * `program.body[0].body.body` on a `VariableDeclaration` that has no `.body`.
+ *
+ * `bodyOf` now falls back to the whole `program.body` for any source that is
+ * not a `FunctionDeclaration`, so `/source` first, then `/flow`, graphs it.
+ */
+test('/flow on a non-function source renders a flow block', async ({page}) => {
+    await send(page, '/source\nconst a = 1;');
+    await send(page, '/flow');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__source'),
+    ).toBeVisible();
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__graph'),
+    ).toBeVisible();
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('error-block'),
+    ).not.toBeVisible();
 });
 
 /**

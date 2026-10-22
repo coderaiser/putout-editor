@@ -6,6 +6,7 @@ import {
 import {
     createEditor,
     getValue,
+    setOption,
     type QwordEditorView,
 } from 'qword/client';
 
@@ -97,7 +98,14 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
                 onChangeRef.current(next);
             },
         });
-        
+
+        // `mode` is an option CodeMirror applies lazily — `createEditor`
+        // passes it at construction, but the language extension is only
+        // installed once `setOption` runs it. Without this, `/source` bodies
+        // show line numbers but no colour. Same call `client/Editor.tsx`
+        // makes after mount.
+        setOption(editor, 'mode', 'javascript');
+
         // The box takes command names, not prose: the same three opt-outs
         // the `<textarea>` carried, set where CodeMirror owns the DOM.
         editor.contentDOM.setAttribute('autocapitalize', 'none');

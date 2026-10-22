@@ -200,9 +200,12 @@ const format = (drafts: Draft[]): string => {
  */
 const bodyOf = (source: string): Node[] => {
     const ast = parse(source, parseOptions);
-    const fn = ast.program.body[0] as unknown as {body: {body: Node[]}};
+    const [first] = ast.program.body;
 
-    return fn.body.body;
+    if (first && first.type === 'FunctionDeclaration')
+        return (first as unknown as {body: {body: Node[]}}).body.body;
+
+    return ast.program.body;
 };
 
 /**

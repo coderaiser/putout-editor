@@ -441,14 +441,12 @@ test('LearnTree: a click folds and unfolds a section', (t) => {
 });
 
 /**
- * …and on a coarse pointer the same tap selects without folding, which is the
- * half that keeps a phone from folding and unfolding on one gesture.
- *
- * `mount` takes `mobile` for exactly this, and it reaches `LearnRow` through the
- * tree's own prop — which is the hop bug 2 was missing. Without it a phone and a
- * desktop would disagree about what a tap means.
+ * …and on a coarse pointer the same tap folds a section too — `mobile` no
+ * longer guards `onToggle`, so a tap folds and unfolds exactly like a fine
+ * pointer. The tree's own `mobile` prop still sets the status bar hint, but
+ * the row handler matches `AstRow`'s: always toggle when `hasChildren`.
  */
-test('LearnTree: a coarse tap selects a section without folding it', (t) => {
+test('LearnTree: a coarse tap folds a section too', (t) => {
     mount(noop, true);
     
     fireEvent.click(rows()[1]);
@@ -459,7 +457,7 @@ test('LearnTree: a coarse tap selects a section without folding it', (t) => {
     };
     
     const expected = {
-        rows: 3,
+        rows: 4,
         selected: 'branch',
     };
     

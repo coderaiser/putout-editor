@@ -30,7 +30,7 @@ const node = (over: Partial<FlatLearnNode> = {}): FlatLearnNode => ({
     ...over,
 });
 
-const row = (over: Partial<FlatLearnNode> = {}, mobile?: boolean) => render(
+const row = (over: Partial<FlatLearnNode> = {}) => render(
     <LearnRow
         ancestorLastFlags={[]}
         collapsed={false}
@@ -38,7 +38,6 @@ const row = (over: Partial<FlatLearnNode> = {}, mobile?: boolean) => render(
         hasChildren={false}
         last={false}
         matched={false}
-        mobile={mobile}
         node={node(over)}
         onSelect={noop}
         onToggle={noop}
@@ -105,6 +104,7 @@ test('LearnRow: carries no position, because a concept has none', (t) => {
  */
 test('LearnRow: clicking a node with children also folds it', (t) => {
     const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
     
     render(
         <LearnRow
@@ -114,12 +114,11 @@ test('LearnRow: clicking a node with children also folds it', (t) => {
             hasChildren
             last={false}
             matched={false}
-            mobile={false}
             node={node({
                 id: 'root',
             })}
             onSelect={noop}
-            onToggle={(id) => toggled.push(id)}
+            onToggle={push}
             selected={false}
         />,
     );
@@ -148,9 +147,11 @@ test('LearnRow: clicking a node with children also folds it', (t) => {
  * reason the component copies the handler: two trees drawing the same rows with
  * the same caret should answer a pointer the same way.
  */
-test('LearnRow: a coarse pointer selects without toggling', (t) => {
+test('LearnRow: a coarse pointer toggles with a fine one', (t) => {
     const toggled: string[] = [];
     const picked: string[] = [];
+    const pushToggled = toggled.push.bind(toggled);
+    const pushPicked = picked.push.bind(picked);
     
     render(
         <LearnRow
@@ -160,12 +161,11 @@ test('LearnRow: a coarse pointer selects without toggling', (t) => {
             hasChildren
             last={false}
             matched={false}
-            mobile
             node={node({
                 id: 'root',
             })}
-            onSelect={(id) => picked.push(id)}
-            onToggle={(id) => toggled.push(id)}
+            onSelect={pushPicked}
+            onToggle={pushToggled}
             selected={false}
         />,
     );
@@ -178,9 +178,10 @@ test('LearnRow: a coarse pointer selects without toggling', (t) => {
         picked,
         toggled,
     };
+    
     const expected = {
         picked: ['root'],
-        toggled: [],
+        toggled: ['root'],
     };
     
     t.deepEqual(result, expected);
@@ -196,6 +197,7 @@ test('LearnRow: a coarse pointer selects without toggling', (t) => {
  */
 test('LearnRow: a leaf does not toggle on a fine click', (t) => {
     const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
     
     render(
         <LearnRow
@@ -205,12 +207,11 @@ test('LearnRow: a leaf does not toggle on a fine click', (t) => {
             hasChildren={false}
             last={false}
             matched={false}
-            mobile={false}
             node={node({
                 id: 'root/alone',
             })}
             onSelect={noop}
-            onToggle={(id) => toggled.push(id)}
+            onToggle={push}
             selected={false}
         />,
     );
@@ -240,6 +241,7 @@ test('LearnRow: carries the learn-row testid', (t) => {
 
 test('LearnRow: clicking reports the id', (t) => {
     const picked: string[] = [];
+    const push = picked.push.bind(picked);
     
     render(
         <LearnRow
@@ -252,7 +254,7 @@ test('LearnRow: clicking reports the id', (t) => {
             node={node({
                 id: 'root/branch',
             })}
-            onSelect={(id) => picked.push(id)}
+            onSelect={push}
             onToggle={noop}
             selected={false}
         />,
@@ -403,6 +405,7 @@ test('LearnRow: a container shows the open caret and a leaf none', (t) => {
         open,
         leaf,
     };
+    
     const expected = {
         open: '▾',
         leaf: '  ',
@@ -414,6 +417,7 @@ test('LearnRow: a container shows the open caret and a leaf none', (t) => {
 
 test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
     const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
     
     render(
         <LearnRow
@@ -423,10 +427,11 @@ test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
             hasChildren
             last={false}
             matched={false}
-            mobile
-            node={node({id: 'root/branch'})}
+            node={node({
+                id: 'root/branch',
+            })}
             onSelect={noop}
-            onToggle={(id) => toggled.push(id)}
+            onToggle={push}
             selected={false}
         />,
     );
@@ -443,6 +448,7 @@ test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
 
 test('LearnRow: tapping the caret does not also select', (t) => {
     const selected: string[] = [];
+    const push = selected.push.bind(selected);
     
     render(
         <LearnRow
@@ -452,9 +458,10 @@ test('LearnRow: tapping the caret does not also select', (t) => {
             hasChildren
             last={false}
             matched={false}
-            mobile
-            node={node({id: 'root/branch'})}
-            onSelect={(id) => selected.push(id)}
+            node={node({
+                id: 'root/branch',
+            })}
+            onSelect={push}
             onToggle={noop}
             selected={false}
         />,
