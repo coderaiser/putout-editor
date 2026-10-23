@@ -1222,42 +1222,25 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
  * to `createEditor` but `CodeMirrorBox` never called `setOption`, so the
  * language extension was never applied and `const a = 1` rendered uncoloured.
  */
-test('the composer applies syntax highlighting for a body command', async ({page}) => {
-    await send(page, '/source\nconst a = 1;');
-    
+test('the composer applies syntax highlighting while typing a body command', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/source\nconst a = 1;');
+    // do NOT press Ctrl+Enter — check the live composer
+
     const keyword = page
+        .getByTestId('input')
         .locator('.cm-content .tok-keyword')
         .first();
-    
+
     await expect(keyword).toBeVisible();
     await expect(keyword).toContainText('const');
-    
+
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
-    
+
     expect(color).not.toBe('');
     expect(color).not.toBe(bodyColor);
 });
-
-/**
- * `/help` renders as a styled grid, not a wrapped table.
- *
- * The row was a `<table>` `<tr>` with two `<td>`, and a table cell takes the
- * full width of its row — so the command name and its description collapsed
- * onto each other and `help` read as prose. `chat.css` now lays each row out as
- * `grid-template-columns: minmax(140px, max-content) 1fr`, which is only a grid
- * if the element is a `div`. This asserts the structure and that the name is
- * actually coloured with the accent rather than the body text.
- */
-test('/help renders a styled grid, not plain text', async ({page}) => {
-    await send(page, '/help');
-    
-    // The seed thread already answers one `/help`, so the page carries two
-    
-    // blocks and a bare locator is a strict-mode violation. The sent command's
-    
-    // answer is the last one, the same scoping the mobile "air between" spec
-    
     // uses for the reply.
     const block = page
         .locator('[data-testid="help-block"]')

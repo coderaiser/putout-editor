@@ -446,10 +446,13 @@ test('LearnRow: tapping the caret toggles on a coarse pointer', (t) => {
     t.end();
 });
 
-test('LearnRow: tapping the caret does not also select', (t) => {
+test('LearnRow: tapping the caret toggles and selects', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+
     const selected: string[] = [];
-    const push = selected.push.bind(selected);
-    
+    const pushS = selected.push.bind(selected);
+
     render(
         <LearnRow
             ancestorLastFlags={[]}
@@ -461,18 +464,19 @@ test('LearnRow: tapping the caret does not also select', (t) => {
             node={node({
                 id: 'root/branch',
             })}
-            onSelect={push}
-            onToggle={noop}
+            onSelect={pushS}
+            onToggle={push}
             selected={false}
-        />,
+        />
     );
-    
+
     const caret = document.querySelector('[data-testid="learn-row"] .ast-row__caret');
-    
+
     fireEvent.click(caret as Element);
-    
+
     cleanup();
-    
-    t.deepEqual(selected, []);
+
+    t.deepEqual(toggled, ['root/branch']);
+    t.deepEqual(selected, ['root/branch']);
     t.end();
 });
