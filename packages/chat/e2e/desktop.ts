@@ -1241,6 +1241,10 @@ test('the composer applies syntax highlighting while typing a body command', asy
     expect(color).not.toBe('');
     expect(color).not.toBe(bodyColor);
 });
+
+test('/help renders a styled grid, not plain text', async ({page}) => {
+    await send(page, '/help');
+
     // uses for the reply.
     const block = page
         .locator('[data-testid="help-block"]')
