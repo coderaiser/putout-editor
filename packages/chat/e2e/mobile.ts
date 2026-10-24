@@ -1028,3 +1028,25 @@ test('/flow uses source when no body is given on touchscreen', async ({page}) =>
             .getByTestId('flow-output__graph'),
     ).toBeVisible();
 });
+
+/** Regression: the composer applies syntax highlighting on a touchscreen too.
+ * `setOption` runs in a `useEffect` after mount — the same path as desktop.
+ */
+test('the composer applies syntax highlighting on a touchscreen', async ({page}) => {
+    await box(page).tap();
+    await page.keyboard.insertText('/source\nconst a = 1;');
+
+    const keyword = page
+        .getByTestId('input')
+        .locator('.cm-content .tok-keyword')
+        .first();
+
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+
+    const color = await keyword.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+
+    expect(color).not.toBe('');
+    expect(color).not.toBe(bodyColor);
+});

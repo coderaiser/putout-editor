@@ -1242,6 +1242,34 @@ test('the composer applies syntax highlighting while typing a body command', asy
     expect(color).not.toBe(bodyColor);
 });
 
+/** Regression: highlighting survives the editor rebuild that happens when
+ * `wantsLineNumbers` flips. Typing `/sourc` then `e` destroys the old editor
+ * and mounts a new one — the `useEffect([], [])` that calls `setOption` must
+ * run again on the new instance or the language extension is lost.
+ */
+test('the composer keeps syntax highlighting after the lineNumbers rebuild', async ({page}) => {
+    await box(page).click();
+    // Type character by character so `wantsLineNumbers` flips mid-word,
+    // triggering the destroy-and-recreate path in CodeMirrorBox.
+    await page.keyboard.type('/source');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('const a = 1;');
+
+    const keyword = page
+        .getByTestId('input')
+        .locator('.cm-content .tok-keyword')
+        .first();
+
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+
+    const color = await keyword.evaluate((el) => getComputedStyle(el).color);
+    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+
+    expect(color).not.toBe('');
+    expect(color).not.toBe(bodyColor);
+});
+
 test('/help renders a styled grid, not plain text', async ({page}) => {
     await send(page, '/help');
 
