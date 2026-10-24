@@ -99,13 +99,6 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
             },
         });
 
-        // `mode` is an option CodeMirror applies lazily — `createEditor`
-        // passes it at construction, but the language extension is only
-        // installed once `setOption` runs it. Without this, `/source` bodies
-        // show line numbers but no colour. Same call `client/Editor.tsx`
-        // makes after mount.
-        setOption(editor, 'mode', 'javascript');
-
         // The box takes command names, not prose: the same three opt-outs
         // the `<textarea>` carried, set where CodeMirror owns the DOM.
         editor.contentDOM.setAttribute('autocapitalize', 'none');
@@ -171,6 +164,16 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     }, [lineNumbers]);
     
     /* c8 ignore end */
+
+    // Apply the language extension after mount — same pattern as
+    // client/Editor.tsx which calls setOption in a separate effect.
+    // Calling it synchronously inside createEditor does not work because
+    // qword's _langCompartment is not ready until after the first render.
+    useEffect(() => {
+        if (editorRef.current)
+            setOption(editorRef.current, 'mode', 'javascript');
+    }, []);
+
     useEffect(() => {
         if (!editorRef.current)
             return;
