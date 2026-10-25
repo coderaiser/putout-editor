@@ -1,5 +1,4 @@
 /* ── Mobile layout ───────────────────────────────────────── */
-
 #MobileMenu {
     display: none;
     flex-shrink: 0;
@@ -10,8 +9,7 @@
     z-index: var(--z-menu);
 }
 
-#MobileMenu > *,
-#MobileMenu .mobile-dropdown {
+#MobileMenu > *, #MobileMenu .mobile-dropdown {
     flex: 1;
     display: flex;
     align-items: center;
@@ -19,12 +17,12 @@
     height: 44px;
     border-right: 1px solid var(--color-border);
     box-sizing: border-box;
-    position: relative;    /* anchor for child dropdown menu */
+    position: relative;
 }
 
 /* ── MobileDropdown ──────────────────────────────────────── */
-
 .mobile-dropdown__trigger {
+    /* anchor for child dropdown menu */
     width: 100%;
     height: 100%;
     background: transparent;
@@ -71,6 +69,7 @@
 }
 
 .mobile-dropdown__menu button {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -108,9 +107,7 @@
 }
 
 /* ── Help link + Theme button ────────────────────────────── */
-
-.mobile-menu__help,
-.mobile-menu__theme {
+.mobile-menu__help, .mobile-menu__theme {
     color: var(--color-text);
     text-decoration: none;
     background: transparent;
@@ -121,32 +118,26 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Layout ──────────────────────────────────────────────── */
-
-@media (width <= 767px) {
+@media (width<=767px) {
+    /* ── Layout ──────────────────────────────────────────────── */
     #root {
         height: 100dvh;
     }
-    
     #contribution {
         display: none;
     }
-    
     .dropTarget {
         inset: 0;
     }
-    
     /* Editor: prevent scroll bleeding out of CM6 */
     .mobile-panel .cm-scroller {
         overflow: auto;
         touch-action: pan-y;
         overscroll-behavior: contain;
     }
-    
     .mobile-panel .cm-content {
         touch-action: pan-y;
     }
-    
     /* Tab bar: iPhone home indicator */
     .mobile-tabs {
         height: calc(48px + env(safe-area-inset-bottom));
@@ -155,20 +146,17 @@
     }
 }
 
-/* ── Show correct menu per viewport ─────────────────────── */
-
-@media (width <= 767px) {
+@media (width<=767px) {
     /* Hide all toolbar content — keep only logo (h1) */
     #Toolbar > *:not(h1) {
+        /* ── Show correct menu per viewport ─────────────────────── */
         display: none !important;
     }
-    
     /* Make toolbar compact — just the info row */
     #Toolbar {
         flex-wrap: nowrap;
         min-height: 0;
     }
-    
     #MobileMenu {
         display: flex;
     }

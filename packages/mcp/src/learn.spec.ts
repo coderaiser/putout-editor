@@ -10,13 +10,20 @@ import {
  * every one of them takes or returns an `id`, and a mismatch between the three
  * is the failure an agent meets as a 404 on a valid-looking id.
  */
+const isString = (a: unknown): a is string => typeof a === 'string';
 
+/**
+ * Three tools over the same tree, so the specs overlap where the contract does:
+ * every one of them takes or returns an `id`, and a mismatch between the three
+ * is the failure an agent meets as a 404 on a valid-looking id.
+ */
 test('learn: the three tools are named learn_tree, learn_node and learn_example', (t) => {
     const result = [
         learnTree.name,
         learnNode.name,
         learnExample.name,
     ];
+    
     const expected = [
         'learn_tree',
         'learn_node',
@@ -32,10 +39,9 @@ test('learn: every description says what its answer is for', (t) => {
         learnTree.description,
         learnNode.description,
         learnExample.description,
-    ].every((description) => typeof description === 'string' && description.length > 40);
-    const expected = true;
+    ].every((description) => isString(description) && description.length > 40);
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
@@ -50,9 +56,8 @@ test('learn: every description says what its answer is for', (t) => {
  */
 test('learn_tree: description points at learn_node for a single concept', (t) => {
     const result = learnTree.description.includes('learn_node');
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
@@ -102,6 +107,7 @@ test('learn_tree: the answer parses back into the tree', (t) => {
         isArray: Array.isArray(parsed),
         rootId: parsed[0].id,
     };
+    
     const expected = {
         isArray: true,
         rootId: 'putout',
@@ -118,9 +124,10 @@ test('learn_node: returns the body and the example for a known id', (t) => {
     
     const result = {
         label: parsed.label,
-        hasBody: typeof parsed.body === 'string' && parsed.body.length > 0,
-        hasExample: typeof parsed.example === 'string' && parsed.example.length > 0,
+        hasBody: isString(parsed.body) && parsed.body.length > 0,
+        hasExample: isString(parsed.example) && parsed.example.length > 0,
     };
+    
     const expected = {
         label: 'VariableDeclaration',
         hasBody: true,
@@ -144,9 +151,8 @@ test('learn_node: returns the related ids for a node that has them', (t) => {
     }).content[0].text);
     
     const result = Array.isArray(parsed.related) && parsed.related.length > 0;
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
@@ -156,6 +162,7 @@ test('learn_node: lists the immediate child ids of a container', (t) => {
     }).content[0].text);
     
     const result = parsed.child_ids;
+    
     const expected = [
         'ast/nodes',
         'ast/traversal',
@@ -169,6 +176,7 @@ test('learn_node: returns an error for an unknown id', (t) => {
     const result = learnNode.handler({
         id: 'ast/nodes/Nope',
     }).content[0].text;
+    
     const expected = 'Error: unknown node: ast/nodes/Nope';
     
     t.equal(result, expected);
@@ -179,6 +187,7 @@ test('learn_example: returns the source string for a leaf id', (t) => {
     const result = learnExample.handler({
         id: 'patterns/__args',
     }).content[0].text;
+    
     const expected = 'list.push("a", "b");\n';
     
     t.equal(result, expected);
@@ -197,9 +206,8 @@ test('learn_example: the answer is not JSON-wrapped', (t) => {
     const result = learnExample.handler({
         id: 'patterns/__args',
     }).content[0].text;
-    const expected = false;
     
-    t.equal(result.startsWith('"'), expected);
+    t.notOk(result.startsWith('"'));
     t.end();
 });
 
@@ -207,6 +215,7 @@ test('learn_example: returns an error for a container node id', (t) => {
     const result = learnExample.handler({
         id: 'ast',
     }).content[0].text;
+    
     const expected = 'Error: ast is a container node with no example';
     
     t.equal(result, expected);
@@ -217,6 +226,7 @@ test('learn_example: returns an error for an unknown id', (t) => {
     const result = learnExample.handler({
         id: 'nope',
     }).content[0].text;
+    
     const expected = 'Error: unknown node: nope';
     
     t.equal(result, expected);
@@ -237,13 +247,13 @@ test('learn: a child id from learn_node resolves in learn_example', (t) => {
     }).content[0].text);
     
     const [leafId] = nodes.child_ids;
+    
     const answer = learnExample.handler({
         id: leafId,
     }).content[0].text;
     
     const result = answer.length > 0 && !answer.startsWith('Error:');
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });

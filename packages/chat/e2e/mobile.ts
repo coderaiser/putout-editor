@@ -956,9 +956,11 @@ test('/ast: tap the caret on a collapsed row expands it', async ({page}) => {
     
     const folded = await rows.count();
     
-    await caret.tap(); // expand Program
+    await caret.tap();
     
+    // expand Program
     const expanded = await rows.count();
+    
     expect(expanded).toBeGreaterThan(folded);
 });
 
@@ -1035,18 +1037,18 @@ test('/flow uses source when no body is given on touchscreen', async ({page}) =>
 test('the composer applies syntax highlighting on a touchscreen', async ({page}) => {
     await box(page).tap();
     await page.keyboard.insertText('/source\nconst a = 1;');
-
+    
     const keyword = page
         .getByTestId('input')
         .locator('.cm-content .tok-keyword')
         .first();
-
+    
     await expect(keyword).toBeVisible();
     await expect(keyword).toContainText('const');
-
+    
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
-
+    
     expect(color).not.toBe('');
     expect(color).not.toBe(bodyColor);
 });

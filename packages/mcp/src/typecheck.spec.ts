@@ -77,10 +77,14 @@ test('local type_check: schema has fixture and typeNames fields', (t) => {
 test('local type_check: counts the nodes each clause claimed', (t) => {
     const hits = runChecker(SOURCE, TABLE);
     
-    const result: [number, number][] = [];
+    const result: [
+        number,
+        number,
+    ][] = [];
     
     for (const entry of hits)
         result.push(entry);
+    
     const expected = [
         [0, 3],
         [1, 3],
@@ -278,4 +282,3 @@ test('local type_check: the report location is the clause number as a line', asy
     t.match(result, 'mcp:type_check:3:0');
     t.end();
 });
-

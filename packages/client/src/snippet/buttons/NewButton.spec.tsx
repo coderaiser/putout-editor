@@ -214,12 +214,10 @@ test('NewButton: all items enabled when not saving or forking', (t) => {
 
 test('NewButton: Replacer passes template', (t) => {
     let template: string | undefined;
-    let fixture: string | undefined;
     
     renderNew({
-        onNew: (nextTemplate, nextFixture) => {
+        onNew: (nextTemplate) => {
             template = nextTemplate;
-            fixture = nextFixture;
         },
     });
     openNew();
@@ -233,12 +231,10 @@ test('NewButton: Replacer passes template', (t) => {
 });
 
 test('NewButton: Replacer passes fixture', (t) => {
-    let template: string | undefined;
     let fixture: string | undefined;
     
     renderNew({
         onNew: (nextTemplate, nextFixture) => {
-            template = nextTemplate;
             fixture = nextFixture;
         },
     });

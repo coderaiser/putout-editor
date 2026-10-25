@@ -1,4 +1,5 @@
 import {test} from 'supertape';
+import {montag} from 'montag';
 import {parse, type Block} from '../lib/parser.ts';
 
 const block = (over: Partial<Block> = {}): Block => ({
@@ -21,22 +22,22 @@ const block = (over: Partial<Block> = {}): Block => ({
  * `index.spec.ts` asserts that round-trip, which is why both files exist
  * separately and are never merged.
  */
-const source = [
-    'block 0',
-    '  let a = 1',
-    '  x > 0 ?',
-    '  -> 1 [true]',
-    '  -> 2 [false]',
-    '',
-    'block 1',
-    '  return a',
-    '  -> exit',
-].join('\n');
+const source = montag`
+    block 0
+      let a = 1
+      x > 0 ?
+      -> 1 [true]
+      -> 2 [false]
+    
+    block 1
+      return a
+      -> exit
+`;
 
 test('parser: empty string returns empty array', (t) => {
     const result = parse('');
     const expected: Block[] = [];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -44,7 +45,7 @@ test('parser: empty string returns empty array', (t) => {
 test('parser: whitespace only is an empty array', (t) => {
     const result = parse('\n\n   \n');
     const expected: Block[] = [];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -54,7 +55,7 @@ test('parser: single block no stmts no edges', (t) => {
     const expected = [
         block(),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -72,7 +73,7 @@ test('parser: single block no stmts no edges', (t) => {
 test('parser: a chunk without a block header is skipped', (t) => {
     const result = parse('just a paragraph\n\n  and its indented line');
     const expected: Block[] = [];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -88,28 +89,31 @@ test('parser: a chunk without a block header is skipped', (t) => {
  * text it did not write rather than throw on it.
  */
 test('parser: an edge label that does not parse keeps the edge', (t) => {
-    const result = parse([
-        'block 0',
-        '  -> 1 [not a word]',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          -> 1 [not a word]
+    `);
+    
     const expected = [
         block({
-            succs: [{id: 1, label: 'not a word'}],
+            succs: [{
+                id: 1,
+                label: 'not a word',
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: block with stmts', (t) => {
-    const result = parse([
-        'block 0',
-        '  let a = 1',
-        '  doWork()',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          let a = 1
+          doWork()
+    `);
+    
     const expected = [
         block({
             stmts: [
@@ -118,47 +122,52 @@ test('parser: block with stmts', (t) => {
             ],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: block with plain edge', (t) => {
-    const result = parse([
-        'block 0',
-        '  doWork()',
-        '  -> 1',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          doWork()
+          -> 1
+    `);
+    
     const expected = [
         block({
             stmts: ['doWork()'],
-            succs: [{id: 1}],
+            succs: [{
+                id: 1,
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: block with labeled edges true false', (t) => {
-    const result = parse([
-        'block 0',
-        '  x > 0 ?',
-        '  -> 1 [true]',
-        '  -> 2 [false]',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          x > 0 ?
+          -> 1 [true]
+          -> 2 [false]
+    `);
+    
     const expected = [
         block({
             stmts: ['x > 0 ?'],
-            succs: [
-                {id: 1, label: 'true'},
-                {id: 2, label: 'false'},
-            ],
+            succs: [{
+                id: 1,
+                label: 'true',
+            }, {
+                id: 2,
+                label: 'false',
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -175,77 +184,88 @@ test('parser: block with labeled edges true false', (t) => {
  */
 test('parser: terminal true when block ends with exit and has return stmt', (t) => {
     const result = parse('block 0\n  return a\n  -> exit');
-
+    
     const expected = [
         block({
             stmts: ['return a'],
-            succs: [{id: 'exit'}],
+            succs: [{
+                id: 'exit',
+            }],
             terminal: true,
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: an exit edge without a return is not terminal', (t) => {
-    const result = parse([
-        'block 0',
-        '  throw err',
-        '  -> exit',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          throw err
+          -> exit
+    `);
+    
     const expected = [
         block({
             stmts: ['throw err'],
-            succs: [{id: 'exit'}],
+            succs: [{
+                id: 'exit',
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: a return with no exit edge is not terminal', (t) => {
-    const result = parse([
-        'block 0',
-        '  return a',
-        '  -> 1',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          return a
+          -> 1
+    `);
+    
     const expected = [
         block({
             stmts: ['return a'],
-            succs: [{id: 1}],
+            succs: [{
+                id: 1,
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: multiple blocks separated by blank lines', (t) => {
     const result = parse(source);
-
+    
     const expected = [
         block({
             stmts: [
                 'let a = 1',
                 'x > 0 ?',
             ],
-            succs: [
-                {id: 1, label: 'true'},
-                {id: 2, label: 'false'},
-            ],
+            succs: [{
+                id: 1,
+                label: 'true',
+            }, {
+                id: 2,
+                label: 'false',
+            }],
         }),
         block({
             id: 1,
             stmts: ['return a'],
-            succs: [{id: 'exit'}],
+            succs: [{
+                id: 'exit',
+            }],
             terminal: true,
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -259,18 +279,20 @@ test('parser: multiple blocks separated by blank lines', (t) => {
  * meaningful rather than incidentally correct.
  */
 test('parser: the id comes from the header, not from position', (t) => {
-    const result = parse([
-        'block 7',
-        '  -> 9',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 7
+          -> 9
+    `);
+    
     const expected = [
         block({
             id: 7,
-            succs: [{id: 9}],
+            succs: [{
+                id: 9,
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -281,53 +303,59 @@ test('parser: the id comes from the header, not from position', (t) => {
  * line, so a statement can hold an arrow and still be a statement.
  */
 test('parser: a statement is any indented line that is not an edge', (t) => {
-    const result = parse([
-        'block 0',
-        '  const f = () => 1',
-        '  -> 1',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          const f = () => 1
+          -> 1
+    `);
+    
     const expected = [
         block({
             stmts: ['const f = () => 1'],
-            succs: [{id: 1}],
+            succs: [{
+                id: 1,
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: edge to exit', (t) => {
-    const result = parse([
-        'block 0',
-        '  -> exit',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          -> exit
+    `);
+    
     const expected = [
         block({
-            succs: [{id: 'exit'}],
+            succs: [{
+                id: 'exit',
+            }],
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('parser: unreachable flag on header', (t) => {
-    const result = parse([
-        'block 0',
-        '  return a',
-        '  -> exit',
-        '',
-        'block 1 [unreachable]',
-        '  console.log(a)',
-    ].join('\n'));
-
+    const result = parse(montag`
+        block 0
+          return a
+          -> exit
+        
+        block 1 [unreachable]
+          console.log(a)
+    `);
+    
     const expected = [
         block({
             stmts: ['return a'],
-            succs: [{id: 'exit'}],
+            succs: [{
+                id: 'exit',
+            }],
             terminal: true,
         }),
         block({
@@ -336,7 +364,7 @@ test('parser: unreachable flag on header', (t) => {
             unreachable: true,
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });

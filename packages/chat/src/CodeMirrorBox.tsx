@@ -98,7 +98,7 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
                 onChangeRef.current(next);
             },
         });
-
+        
         // The box takes command names, not prose: the same three opt-outs
         // the `<textarea>` carried, set where CodeMirror owns the DOM.
         editor.contentDOM.setAttribute('autocapitalize', 'none');
@@ -164,16 +164,19 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     }, [lineNumbers]);
     
     /* c8 ignore end */
-
+    
     // Apply the language extension after mount — same pattern as
+    
     // client/Editor.tsx which calls setOption in a separate effect.
+    
     // Calling it synchronously inside createEditor does not work because
+    
     // qword's _langCompartment is not ready until after the first render.
     useEffect(() => {
         if (editorRef.current)
             setOption(editorRef.current, 'mode', 'javascript');
     }, []);
-
+    
     useEffect(() => {
         if (!editorRef.current)
             return;

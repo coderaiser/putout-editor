@@ -12,8 +12,11 @@ import type {FlowApi} from './api.ts';
  * no generator and no second formatting decision anywhere in this package.
  */
 const textOf = (node: Node, source: string): string => {
-    const {start, end} = node as unknown as {start: number; end: number};
-
+    const {start, end} = node as unknown as {
+        start: number;
+        end: number;
+    };
+    
     return source.slice(start, end);
 };
 
@@ -31,10 +34,12 @@ const textOf = (node: Node, source: string): string => {
  * reports the edge that set it.
  */
 export const visitReturn = (node: Node, api: FlowApi): void => {
-    const {argument} = node as unknown as {argument?: Node};
-
+    const {argument} = node as unknown as {
+        argument?: Node;
+    };
+    
     if (argument)
         api.print(textOf(node, api.source));
-
+    
     api.edge('exit');
 };

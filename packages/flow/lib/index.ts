@@ -1,6 +1,5 @@
-import {parse} from './parser.ts';
+import {parse, type Block} from './parser.ts';
 import {print} from './printer.ts';
-import type {Block} from './parser.ts';
 
 /**
  * Source in, blocks out — the package's two halves joined.
@@ -25,9 +24,12 @@ export const buildCFG = (source: string): Block[] => parse(print(source));
  * `preds` are never stored, always derived, so a walk here would redo the
  * work in O(n) each call.
  */
-export const findUnreachable = (blocks: Block[]): Block[] => blocks
-    .filter(({unreachable}) => Boolean(unreachable));
+export const findUnreachable = (blocks: Block[]): Block[] => blocks.filter(({unreachable}) => Boolean(unreachable));
 
-export type {Block, Succ} from './parser.ts';
-export {parse} from './parser.ts';
+export type {
+    Block,
+    Succ,
+    parse,
+} from './parser.ts';
+
 export {print} from './printer.ts';

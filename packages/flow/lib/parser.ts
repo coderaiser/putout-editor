@@ -51,18 +51,20 @@ const toSucc = (line: string): Succ => {
     const succ: Succ = {
         id: target === 'exit' ? 'exit' : Number(target),
     };
-
+    
     if (label)
         succ.label = label;
-
+    
     return succ;
 };
 
 /** Whether this block holds a `return` and its only way out is `exit`. */
 const isTerminal = (stmts: string[], succs: Succ[]): boolean => {
     const onlyExit = succs.length === 1 && succs[0].id === 'exit';
-
-    return onlyExit && stmts.some((stmt) => stmt.startsWith('return'));
+    
+    const hasReturn = (stmt: string) => stmt.startsWith('return');
+    
+    return onlyExit && stmts.some(hasReturn);
 };
 
 /**
@@ -83,46 +85,46 @@ export const parse = (text: string): Block[] => {
         .split(/\n\s*\n/)
         .map(trim)
         .filter(Boolean);
-
+    
     const blocks: Block[] = [];
-
+    
     for (const chunk of chunks) {
         const [header, ...rest] = chunk.split('\n');
-
+        
         const matched = HEADER.exec(header);
-
+        
         if (!matched)
             continue;
-
+        
         const [, id, unreachable] = matched;
         const stmts: string[] = [];
         const succs: Succ[] = [];
-
+        
         for (const line of rest) {
             if (isEdge(line)) {
                 succs.push(toSucc(line));
-
+                
                 continue;
             }
-
+            
             if (line.startsWith(INDENT))
                 stmts.push(trim(line));
         }
-
+        
         const block: Block = {
             id: Number(id),
             stmts,
             succs,
         };
-
+        
         if (unreachable)
             block.unreachable = true;
-
+        
         if (isTerminal(stmts, succs))
             block.terminal = true;
-
+        
         blocks.push(block);
     }
-
+    
     return blocks;
 };

@@ -9,8 +9,11 @@ import type {FlowApi} from './api.ts';
  * editor, so the condition must read as written, not as re-printed.
  */
 const textOf = (node: Node, source: string): string => {
-    const {start, end} = node as unknown as {start: number; end: number};
-
+    const {start, end} = node as unknown as {
+        start: number;
+        end: number;
+    };
+    
     return source.slice(start, end);
 };
 
@@ -35,43 +38,47 @@ const textOf = (node: Node, source: string): string => {
  * to wire is the one the `then` arm may have left open.
  */
 export const visitIf = (node: Node, api: FlowApi): void => {
-    const {test, consequent, alternate} = node as unknown as {
+    const {
+        test,
+        consequent,
+        alternate,
+    } = node as unknown as {
         test: Node;
         consequent: Node;
         alternate?: Node;
     };
-
+    
     const condition = api.currentBlock();
-
+    
     api.print(`${textOf(test, api.source)} ?`);
-
+    
     const thenId = api.branch();
-
+    
     api.edgeFrom(condition, thenId, 'true');
     api.walk(consequent);
-
+    
     const thenDone = api.terminated(thenId);
-
+    
     if (!alternate) {
         const mergeId = thenDone ? api.mergeUnreachable() : api.merge(thenId);
-
+        
         api.edgeFrom(condition, mergeId, 'false');
-
+        
         return;
     }
-
+    
     const elseId = api.branch();
-
+    
     api.edgeFrom(condition, elseId, 'false');
     api.walk(alternate);
-
+    
     const elseDone = api.terminated(elseId);
-
+    
     if (thenDone && elseDone) {
         api.mergeUnreachable(thenId, elseId);
-
+        
         return;
     }
-
+    
     api.merge(thenId, elseId);
 };

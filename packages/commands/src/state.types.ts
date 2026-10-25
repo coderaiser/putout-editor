@@ -1,4 +1,5 @@
 import type {Block} from '@putout/flow';
+
 export interface ChatState {
     source: string;
     plugin: string;
@@ -111,9 +112,7 @@ export type CommandResult =
     | {
         type: 'error';
         message: string;
-    }
-    
-    /**
+    } /**
      * The `/learn` answer: the whole curriculum, top-level nodes only.
      *
      * Not flattened, unlike `ast`. The tree is navigated client-side and the
@@ -121,12 +120,11 @@ export type CommandResult =
      * same tree twice — once as rows and once as the `children` the flattening
      * was derived from. `flattenLearn` runs where the rows are drawn.
      */
+    
     | {
         type: 'learn';
         tree: LearnNode[];
-    }
-    
-    /**
+    } /**
      * The `[try it →]` half of an opened leaf.
      *
      * A separate arm rather than part of `learn`, because the two are answered
@@ -134,17 +132,17 @@ export type CommandResult =
      * as the next, so `Message` renders them as two blocks rather than as one
      * block that has to know about buttons.
      */
+    
     | {
         type: 'tryit';
         source: string;
-    }
-
-    /**
+    } /**
      * The `/flow` answer: control-flow blocks plus a printer-friendly text
      * rendering, so a snapshot test or an MCP tool can read the graph without
      * re-parsing. `source` travels with the blocks so the left panel can
      * highlight the source lines a block occupies.
      */
+    
     | {
         type: 'flow';
         text: string;

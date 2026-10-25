@@ -9,8 +9,11 @@ import type {FlowApi} from './api.ts';
  * editor, so a block body must read as written, not as re-printed.
  */
 const textOf = (node: Node, source: string): string => {
-    const {start, end} = node as unknown as {start: number; end: number};
-
+    const {start, end} = node as unknown as {
+        start: number;
+        end: number;
+    };
+    
     return source.slice(start, end);
 };
 
@@ -23,12 +26,14 @@ const textOf = (node: Node, source: string): string => {
  * api opens for them, which is exactly the plan's third `block` case.
  */
 export const visitBlock = (node: Node, api: FlowApi): void => {
-    const {body} = node as unknown as {body: Node[]};
-
+    const {body} = node as unknown as {
+        body: Node[];
+    };
+    
     for (const child of body) {
         if (api.closed())
             api.unreachable();
-
+        
         api.walk(child);
     }
 };

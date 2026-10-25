@@ -133,7 +133,7 @@ test('snippetMiddleware: load fetch rejects sets error', async (t) => {
     });
     await setImmediate();
     await setImmediate();
-    await Promise.resolve();
+    
     const {error} = store.getState();
     
     t.ok(error);
@@ -152,7 +152,7 @@ test('snippetMiddleware: load fetch rejects finishes loading', async (t) => {
     });
     await setImmediate();
     await setImmediate();
-    await Promise.resolve();
+    
     const {loadingSnippet} = store.getState() as {
         loadingSnippet: boolean;
     };
@@ -211,7 +211,6 @@ test('snippetMiddleware: clearError after fetch failure clears hash', async (t) 
     });
     await setImmediate();
     await setImmediate();
-    await Promise.resolve();
     
     store.dispatch(clearError());
     await setImmediate();

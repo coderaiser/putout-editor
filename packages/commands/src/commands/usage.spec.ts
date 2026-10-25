@@ -30,9 +30,11 @@ const isString = (a: unknown): a is string => typeof a === 'string';
 const rows = (): string[] => {
     const result = runHelp([...commands.values()]);
     
-    return result.type === 'text' ? result.data
-        .split('\n')
-        .filter(Boolean) : [];
+    return result.type === 'text'
+        ? result.data
+            .split('\n')
+            .filter(Boolean)
+        : [];
 };
 
 const helpText = (): string => rows().join('\n');

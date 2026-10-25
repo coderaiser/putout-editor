@@ -130,8 +130,7 @@ const listed: Command[] = [{
      * dynamic ones. It reads a constant, so it costs a data module and nothing
      * that calls `os.homedir()` — which is the whole reason the other three are
      * behind a chunk.
-     */
-    ...learnCommand,
+     */...learnCommand,
 }, {
     name: 'flow',
     usage: '[function]',

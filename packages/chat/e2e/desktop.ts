@@ -1225,19 +1225,19 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
 test('the composer applies syntax highlighting while typing a body command', async ({page}) => {
     await box(page).click();
     await page.keyboard.insertText('/source\nconst a = 1;');
+    
     // do NOT press Ctrl+Enter — check the live composer
-
     const keyword = page
         .getByTestId('input')
         .locator('.cm-content .tok-keyword')
         .first();
-
+    
     await expect(keyword).toBeVisible();
     await expect(keyword).toContainText('const');
-
+    
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
-
+    
     expect(color).not.toBe('');
     expect(color).not.toBe(bodyColor);
 });
@@ -1249,30 +1249,32 @@ test('the composer applies syntax highlighting while typing a body command', asy
  */
 test('the composer keeps syntax highlighting after the lineNumbers rebuild', async ({page}) => {
     await box(page).click();
+    
     // Type character by character so `wantsLineNumbers` flips mid-word,
+    
     // triggering the destroy-and-recreate path in CodeMirrorBox.
     await page.keyboard.type('/source');
     await page.keyboard.press('Enter');
     await page.keyboard.type('const a = 1;');
-
+    
     const keyword = page
         .getByTestId('input')
         .locator('.cm-content .tok-keyword')
         .first();
-
+    
     await expect(keyword).toBeVisible();
     await expect(keyword).toContainText('const');
-
+    
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
-
+    
     expect(color).not.toBe('');
     expect(color).not.toBe(bodyColor);
 });
 
 test('/help renders a styled grid, not plain text', async ({page}) => {
     await send(page, '/help');
-
+    
     // uses for the reply.
     const block = page
         .locator('[data-testid="help-block"]')

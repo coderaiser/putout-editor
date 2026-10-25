@@ -1,6 +1,9 @@
 import {test} from 'supertape';
-import {type ParserOptions, parse} from '@babel/parser';
-import type {Node} from '@babel/parser';
+import {
+    type ParserOptions,
+    parse,
+    type Node,
+} from '@babel/parser';
 import {visitIf} from '../../lib/visitors/if.ts';
 import type {FlowApi} from '../../lib/visitors/api.ts';
 
@@ -17,8 +20,12 @@ const parseOptions: ParserOptions = {
  */
 const ifNode = (source: string): Node => {
     const ast = parse(source, parseOptions);
-    const fn = ast.program.body[0] as unknown as {body: {body: Node[]}};
-
+    const fn = ast.program.body[0] as unknown as {
+        body: {
+            body: Node[];
+        };
+    };
+    
     return fn.body.body[0];
 };
 
@@ -48,7 +55,7 @@ const api = (source: string, done: number[] = []): Recorded => {
     const merges: string[] = [];
     const terminated = [...done];
     let next = 1;
-
+    
     const self: FlowApi = {
         source,
         print: (line) => {
@@ -68,23 +75,30 @@ const api = (source: string, done: number[] = []): Recorded => {
         branch: () => next++,
         merge: (...from) => {
             const id = next++;
-
+            
             merges.push(`merge(${from.join(',')}) -> ${String(id)}`);
-
+            
             return id;
         },
         mergeUnreachable: () => {
             const id = next++;
-
+            
             merges.push(`mergeUnreachable() -> ${String(id)}`);
-
+            
             return id;
         },
         closed: () => false,
         unreachable: () => next++,
     };
-
-    return {stmts, edges, walks, merges, terminated, api: self};
+    
+    return {
+        stmts,
+        edges,
+        walks,
+        merges,
+        terminated,
+        api: self,
+    };
 };
 
 const NO_ELSE = 'function f() { if (a) b(); }';
@@ -94,28 +108,29 @@ const BOTH_DONE = 'function f() { if (a) return b; else return c; }';
 
 test('if visitor: no else — false edge goes to merge block', (t) => {
     const recorded = api(NO_ELSE);
-
+    
     visitIf(ifNode(NO_ELSE), recorded.api);
-
+    
     const result = recorded.edges;
     const expected = [
         '0 -> 1 [true]',
         '0 -> 2 [false]',
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('if visitor: with else — two branches then merge', (t) => {
     const recorded = api(WITH_ELSE);
-
+    
     visitIf(ifNode(WITH_ELSE), recorded.api);
-
+    
     const result = {
         walks: recorded.walks,
         merges: recorded.merges,
     };
+    
     const expected = {
         walks: [
             'ExpressionStatement',
@@ -123,43 +138,43 @@ test('if visitor: with else — two branches then merge', (t) => {
         ],
         merges: ['merge(1,2) -> 3'],
     };
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('if visitor: nested if inside then branch', (t) => {
     const recorded = api(NESTED);
-
+    
     visitIf(ifNode(NESTED), recorded.api);
-
+    
     const result = recorded.walks;
     const expected = ['BlockStatement'];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('if visitor: both branches terminate — merge block unreachable', (t) => {
     const recorded = api(BOTH_DONE, [1, 2]);
-
+    
     visitIf(ifNode(BOTH_DONE), recorded.api);
-
+    
     const result = recorded.merges;
     const expected = ['mergeUnreachable() -> 3'];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('if visitor: condition is last stmt of condition block', (t) => {
     const recorded = api(NO_ELSE);
-
+    
     visitIf(ifNode(NO_ELSE), recorded.api);
-
+    
     const result = recorded.stmts.at(-1);
     const expected = 'a ?';
-
+    
     t.equal(result, expected);
     t.end();
 });

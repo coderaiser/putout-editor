@@ -1,6 +1,8 @@
 import {test} from 'supertape';
 import * as api from './index.ts';
 
+const isString = (a: unknown): a is string => typeof a === 'string';
+
 test('index: exports the commands, the ast tools and the tree components', (t) => {
     const expected: string[] = [
         'commands',
@@ -89,9 +91,10 @@ test('index: curriculum is a plain tree, with nothing to import', (t) => {
     
     const result = {
         isArray: Array.isArray(api.curriculum),
-        hasId: typeof root.id === 'string',
+        hasId: isString(root.id),
         hasChildren: Array.isArray(root.children),
     };
+    
     const expected = {
         isArray: true,
         hasId: true,
@@ -117,6 +120,7 @@ test('index: exports the learn helpers the chat and the mcp both use', (t) => {
         typeof api.learnNodes,
         typeof api.runLearn,
     ];
+    
     const expected = [
         'function',
         'function',

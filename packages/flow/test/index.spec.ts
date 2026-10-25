@@ -1,5 +1,8 @@
 import {test} from 'supertape';
-import {buildCFG, findUnreachable} from '../lib/index.ts';
+import {
+    buildCFG,
+    findUnreachable,
+} from '../lib/index.ts';
 import type {Block} from '../lib/parser.ts';
 
 const block = (over: Partial<Block> = {}): Block => ({
@@ -14,11 +17,13 @@ test('buildCFG: returns Block array from source string', (t) => {
     const expected = [
         block({
             stmts: ['return a;'],
-            succs: [{id: 'exit'}],
+            succs: [{
+                id: 'exit',
+            }],
             terminal: true,
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -33,7 +38,7 @@ test('buildCFG: round-trip parse(print(x)) deepEquals buildCFG(x)', (t) => {
     const source = 'function f() { if (a) b(); else return c; d(); }';
     const result = buildCFG(source);
     const expected = buildCFG(source);
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -41,6 +46,7 @@ test('buildCFG: round-trip parse(print(x)) deepEquals buildCFG(x)', (t) => {
 test('findUnreachable: returns blocks with unreachable true', (t) => {
     const blocks = buildCFG('function f() { return a; b(); }');
     const result = findUnreachable(blocks);
+    
     const expected = [
         block({
             id: 1,
@@ -49,7 +55,7 @@ test('findUnreachable: returns blocks with unreachable true', (t) => {
             unreachable: true,
         }),
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -58,7 +64,7 @@ test('findUnreachable: returns empty array when none', (t) => {
     const blocks = buildCFG('function f() { return a; }');
     const result = findUnreachable(blocks);
     const expected: Block[] = [];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });

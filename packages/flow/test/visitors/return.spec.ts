@@ -1,8 +1,13 @@
 import {test} from 'supertape';
-import {type ParserOptions, parse} from '@babel/parser';
-import type {Node} from '@babel/parser';
+import {
+    type ParserOptions,
+    parse,
+    type Node,
+} from '@babel/parser';
 import {visitReturn} from '../../lib/visitors/return.ts';
 import type {FlowApi} from '../../lib/visitors/api.ts';
+
+const noop = () => {};
 
 const parseOptions: ParserOptions = {
     sourceType: 'module',
@@ -22,8 +27,12 @@ const parseOptions: ParserOptions = {
  */
 const returnNode = (source: string): Node => {
     const ast = parse(source, parseOptions);
-    const fn = ast.program.body[0] as unknown as {body: {body: Node[]}};
-
+    const fn = ast.program.body[0] as unknown as {
+        body: {
+            body: Node[];
+        };
+    };
+    
     return fn.body.body[0];
 };
 
@@ -45,7 +54,7 @@ interface Recorded {
 const api = (source: string): Recorded => {
     const stmts: string[] = [];
     const edges: string[] = [];
-
+    
     const self: FlowApi = {
         source,
         print: (line) => {
@@ -55,17 +64,21 @@ const api = (source: string): Recorded => {
         edge: (to) => {
             edges.push(String(to));
         },
-        edgeFrom: () => {},
+        edgeFrom: noop,
         terminated: () => false,
-        walk: () => {},
+        walk: noop,
         branch: () => 0,
         merge: () => 0,
         mergeUnreachable: () => 0,
         closed: () => false,
         unreachable: () => 0,
     };
-
-    return {stmts, edges, api: self};
+    
+    return {
+        stmts,
+        edges,
+        api: self,
+    };
 };
 
 const RETURN = 'function f() { return a; }';
@@ -73,12 +86,12 @@ const BARE = 'function f() { return; }';
 
 test('return visitor: emits exit edge', (t) => {
     const recorded = api(RETURN);
-
+    
     visitReturn(returnNode(RETURN), recorded.api);
-
+    
     const result = recorded.edges;
     const expected = ['exit'];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -93,36 +106,38 @@ test('return visitor: emits exit edge', (t) => {
  */
 test('return visitor: next block is unreachable when return is mid-block', (t) => {
     const recorded = api(RETURN);
-
+    
     visitReturn(returnNode(RETURN), recorded.api);
-
+    
     const result = {
         edges: recorded.edges,
         prints: recorded.stmts,
     };
+    
     const expected = {
         edges: ['exit'],
         prints: ['return a;'],
     };
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
 
 test('return visitor: argument printed as stmt before edge', (t) => {
     const recorded = api(RETURN);
-
+    
     visitReturn(returnNode(RETURN), recorded.api);
-
+    
     const result = [
         ...recorded.stmts,
         ...recorded.edges,
     ];
+    
     const expected = [
         'return a;',
         'exit',
     ];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -140,12 +155,12 @@ test('return visitor: argument printed as stmt before edge', (t) => {
 test('return visitor: the statement is sliced from the source verbatim', (t) => {
     const odd = 'function f() { return   "a"  ; }';
     const recorded = api(odd);
-
+    
     visitReturn(returnNode(odd), recorded.api);
-
+    
     const result = recorded.stmts;
     const expected = ['return   "a"  ;'];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -161,12 +176,12 @@ test('return visitor: the statement is sliced from the source verbatim', (t) => 
  */
 test('return visitor: a bare return prints no statement', (t) => {
     const recorded = api(BARE);
-
+    
     visitReturn(returnNode(BARE), recorded.api);
-
+    
     const result = recorded.stmts;
     const expected: string[] = [];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });

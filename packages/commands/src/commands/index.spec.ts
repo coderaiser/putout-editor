@@ -115,7 +115,11 @@ test('index: a loader that throws answers with notInBrowser', async (t) => {
         plugin: '',
     };
     
-    const run = needsPutout('find', 'runFind', stub().rejects(Error('chunk 404')));
+    const run = needsPutout(
+        'find',
+        'runFind',
+        stub().rejects(Error('chunk 404')),
+    );
     
     const result = await run('', state);
     
@@ -129,7 +133,11 @@ test('index: a loader that resolves without the export answers with notInBrowser
         plugin: '',
     };
     
-    const run = needsPutout('find', 'runFind', stub().resolves({}));
+    const run = needsPutout(
+        'find',
+        'runFind',
+        stub().resolves({}),
+    );
     const result = await run('', state);
     
     t.equal(result.type, 'error');
@@ -142,12 +150,16 @@ test('index: a loader that resolves with the export runs it', async (t) => {
         plugin: '',
     };
     
-    const run = needsPutout('find', 'runFind', stub().resolves({
-        runFind: () => ({
-            type: 'text' as const,
-            data: 'ran',
+    const run = needsPutout(
+        'find',
+        'runFind',
+        stub().resolves({
+            runFind: () => ({
+                type: 'text' as const,
+                data: 'ran',
+            }),
         }),
-    }));
+    );
     
     const result = await run('', state);
     

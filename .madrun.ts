@@ -57,10 +57,7 @@ export default {
     'coverage': async () => 'madfork coverage',
     'coverage:json': () => 'madfork coverage:json',
     'prelint': () => 'putout bin .github deploy',
-    'lint': () => [
-        'node scripts/gen-diagrams.mjs --check',
-        'madfork lint',
-    ],
+    'lint': () => 'node scripts/gen-diagrams.mjs --check && madfork lint',
     'test:dts': () => 'madfork test:dts',
     'prefix:lint': () => run('prelint', '--fix'),
     'fix:lint': () => 'madfork fix:lint',
