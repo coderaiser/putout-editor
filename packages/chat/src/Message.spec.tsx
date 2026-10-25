@@ -142,7 +142,8 @@ test('Message: a tryit result renders the try it button', (t) => {
     
     renderWithStore(message);
     
-    const result = document.querySelector('[data-testid="try-it"]') && document.querySelector('[data-testid="try-it"]').textContent;
+    const element = document.querySelector('[data-testid="try-it"]');
+    const result = element && element.textContent;
     const expected = 'try it →';
     
     cleanup();

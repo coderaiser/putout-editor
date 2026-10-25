@@ -34,12 +34,9 @@ export interface AstRowProps {
     dimmed: boolean;
     
     /**
-     * The row's *own* text is the query — shown, and marked.
-     *
-     * The other half of `dimmed`, and the half that was missing: the filter
-     * computed this set from the first version and the component never read it,
-     * so a match and the ancestors on the way to it looked alike.
+     * Whether this row is on a mobile device.
      */
+    mobile?: boolean;
     matched: boolean;
     selected: boolean;
     onSelect: (id: string) => void;

@@ -160,7 +160,10 @@ test('LearnTree: a section has a caret and a leaf has none', (t) => {
     
     press('ArrowRight');
     
-    const result = rows().map((row) => row.querySelector('.ast-row__caret') && row.querySelector('.ast-row__caret').textContent);
+    const result = rows().map((row) => {
+        const caret = row.querySelector('.ast-row__caret');
+        return caret && caret.textContent;
+    });
     const expected = [
         '▾',
         '▸',

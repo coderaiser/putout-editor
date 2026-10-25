@@ -49,10 +49,8 @@ const results = (store: Store<RootState>): (string | null)[] => store
 test('TryItBlock: renders the source code', (t) => {
     setup();
     
-    const result = document.querySelector('[data-testid="tryit-block"]') && document.querySelector('[data-testid="tryit-block"]').textContent && document
-        .querySelector('[data-testid="tryit-block"]')
-        .textContent
-        .includes(EXAMPLE);
+    const element = document.querySelector('[data-testid="tryit-block"]');
+    const result = element && element.textContent && element.textContent.includes(EXAMPLE);
     
     const expected = true;
     
@@ -65,7 +63,8 @@ test('TryItBlock: renders the source code', (t) => {
 test('TryItBlock: renders a try it button', (t) => {
     setup();
     
-    const result = document.querySelector('[data-testid="try-it"]') && document.querySelector('[data-testid="try-it"]').textContent;
+    const element = document.querySelector('[data-testid="try-it"]');
+    const result = element && element.textContent;
     const expected = 'try it →';
     
     cleanup();

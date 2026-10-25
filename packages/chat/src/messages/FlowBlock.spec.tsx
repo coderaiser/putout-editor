@@ -91,11 +91,11 @@ test('FlowBlock: graph panel has data-testid flow-output__graph', (t) => {
 
 /** Unreachable lines carry data-unreachable. */
 test('FlowBlock: unreachable lines get highlight class', (t) => {
-    const fakeBlocks = [{
+    const fakeBlocks: import('@putout/flow').Block[] = [{
         id: 0,
         stmts: ['return a;'],
         succs: [{
-            id: 'exit',
+            id: 0,
         }],
         terminal: true,
     }, {
@@ -105,6 +105,7 @@ test('FlowBlock: unreachable lines get highlight class', (t) => {
         ],
         succs: [],
         unreachable: true,
+        terminal: true,
     }];
     
     render(
@@ -124,7 +125,7 @@ test('FlowBlock: unreachable lines get highlight class', (t) => {
 
 /** Duplicate statement text appears on more than one line. */
 test('FlowBlock: duplicate lines get highlight class', (t) => {
-    const duplicateBlocks = [{
+    const duplicateBlocks: import('@putout/flow').Block[] = [{
         id: 0,
         stmts: ['x > 0 ?'],
         succs: [{
@@ -150,7 +151,7 @@ test('FlowBlock: duplicate lines get highlight class', (t) => {
         id: 3,
         stmts: [],
         succs: [{
-            id: 'exit',
+            id: 0,
         }],
     }];
     
