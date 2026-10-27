@@ -63,14 +63,14 @@ test('flow: text round-trips — parse(result.text) deepEquals result.blocks', (
     t.end();
 });
 
-test('flow: source travels with result', (t) => {
-    const source = 'const a = 1;';
-    const result = runFlow('function f() { return a; }', withSource(source));
+test('flow: the graphed body travels with result', (t) => {
+    const body = 'function f() { return a; }';
+    const result = runFlow(body, withSource('const a = 1;'));
     
     if (result.type !== 'flow') {
         t.fail('result is not a flow result');
     } else {
-        const expected = source;
+        const expected = body;
         
         t.equal(result.source, expected);
     }

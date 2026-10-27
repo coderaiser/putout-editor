@@ -29,7 +29,7 @@ export const findUnreachable = (blocks: Block[]): Block[] => blocks.filter(({unr
 export type {
     Block,
     Succ,
-    parse,
 } from './parser.ts';
 
+export {parse} from './parser.ts';
 export {print} from './printer.ts';

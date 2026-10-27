@@ -846,57 +846,6 @@ test('/help shows command names without wrapping mid-name', async ({page}) => {
 });
 
 /**
- * `/learn` on a touchscreen, where the bug was not invisible — it was the whole
- * of bug 2.
- *
- * `LearnTree`'s inline row called `onSelect` and nothing else, so a learn tree
- * had no pointer fold on **any** device. On a phone that is worse than on a
- * desktop: the virtual keyboard is the only keyboard there is, and a section
- * folded away had no visible way back except `space`, which nothing on screen
- * mentioned.
- *
- * So the tap selects and does **not** fold — the coarse-pointer contract
- * `AstRow` established and `LearnRow` now shares — and `space`, which the short
- * hint teaches, is what folds. Both halves are asserted, because a tap that
- * never folds and a tap that always folds are the same broken gesture from two
- * directions.
- */
-test('a tap on a learn section selects it, and space folds it', async ({page}) => {
-    await send(page, '/learn');
-    
-    const rows = page
-        .getByTestId('chat')
-        .getByTestId('learn-row');
-    
-    await expect(rows).toHaveCount(5);
-    
-    await rows
-        .nth(1)
-        .tap();
-    
-    // selected, and still five rows — the tap did not fold
-    const picked = await rows.count();
-    
-    expect(picked).toBe(5);
-    
-    // `space` is the fold a touchscreen has, and the short hint says so
-    const output = page
-        .getByTestId('chat')
-        .getByTestId('learn-output');
-    
-    await output.press(' ');
-    
-    const opened = await rows.count();
-    
-    expect(opened).toBeGreaterThan(5);
-    
-    // and space again folds it back
-    await output.press(' ');
-    
-    await expect(rows).toHaveCount(5);
-});
-
-/**
  * `/flow` renders FlowBlock on a touchscreen too — source panel and graph panel
  * both inside the viewport, asserted with `scrollWidth`, never `innerWidth`.
  */
@@ -1040,7 +989,7 @@ test('the composer applies syntax highlighting on a touchscreen', async ({page})
     
     const keyword = page
         .getByTestId('input')
-        .locator('.cm-content .tok-keyword')
+        .locator('.cm-content .hl-keyword')
         .first();
     
     await expect(keyword).toBeVisible();

@@ -35,7 +35,7 @@ export const runFlow = (args: string, state: ChatState): CommandResult => {
         type: 'flow',
         text,
         blocks,
-        source,
+        source: body,
     };
 };
 

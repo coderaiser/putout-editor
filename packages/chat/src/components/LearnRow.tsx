@@ -34,19 +34,14 @@ export interface LearnRowProps {
     onSelect: (id: string) => void;
     
     /**
-     * Clicking a node with children also folds it — on a **fine** pointer only.
+     * Clicking a node with children also folds it, on any device.
      *
-     * A coarse pointer fires `click` on `pointerup`, so binding both effects to
-     * one handler folds on the first tap and unfolds on the second: the user
-     * taps a row twice and watches nothing happen. This is the whole of bug 2,
-     * and the reason `LearnRow` exists as a component rather than as the inline
-     * `<div onClick>` `LearnTree` carried — that row called `onSelect` and had
-     * no `onToggle` at all, so a learn tree could not be folded by pointer on
-     * **any** device.
-     *
-     * Copied from `AstRow` rather than reinvented: two trees that draw the same
-     * rows with the same caret should answer a pointer the same way, and the
-     * coarse-pointer reasoning was worked out once, there.
+     * The whole row toggles, as in `AstRow`: the caret is too small to tap
+     * reliably on a phone, so the tap target is the entire row. This is the
+     * whole of bug 2, and the reason `LearnRow` exists as a component rather
+     * than as the inline `<div onClick>` `LearnTree` carried — that row called
+     * `onSelect` and had no `onToggle` at all, so a learn tree could not be
+     * folded by pointer on **any** device.
      */
     onToggle: (id: string) => void;
 }

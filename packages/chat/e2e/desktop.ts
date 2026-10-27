@@ -1229,7 +1229,7 @@ test('the composer applies syntax highlighting while typing a body command', asy
     // do NOT press Ctrl+Enter — check the live composer
     const keyword = page
         .getByTestId('input')
-        .locator('.cm-content .tok-keyword')
+        .locator('.cm-content .hl-keyword')
         .first();
     
     await expect(keyword).toBeVisible();
@@ -1259,7 +1259,7 @@ test('the composer keeps syntax highlighting after the lineNumbers rebuild', asy
     
     const keyword = page
         .getByTestId('input')
-        .locator('.cm-content .tok-keyword')
+        .locator('.cm-content .hl-keyword')
         .first();
     
     await expect(keyword).toBeVisible();
@@ -1658,6 +1658,9 @@ test('/flow on a non-function source renders a flow block', async ({page}) => {
  * kicks in after `/source` has set something.
  */
 test('/flow with no source errors', async ({page}) => {
+    // the seed already ran `/source`, and `/reset` restores that seed, so a
+    // bare `/source` is what empties it
+    await send(page, '/source');
     await send(page, '/flow');
     
     // No source is set, so /flow errors — the error block is visible and
