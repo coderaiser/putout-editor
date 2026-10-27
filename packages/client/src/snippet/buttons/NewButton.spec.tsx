@@ -226,7 +226,7 @@ test('NewButton: Replacer passes template', (t) => {
     }));
     cleanup();
     
-    t.match(template, `Use 'if' instead of ternary`);
+    t.match(template || '', `Use 'if' instead of ternary`);
     t.end();
 });
 
@@ -244,7 +244,7 @@ test('NewButton: Replacer passes fixture', (t) => {
     }));
     cleanup();
     
-    t.match(fixture, 'Transform your code with 🐊Putout');
+    t.match(fixture || '', 'Transform your code with 🐊Putout');
     t.end();
 });
 
