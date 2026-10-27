@@ -119,7 +119,7 @@ export const describeOf = (option: string): string => {
  * use — so a recalled line with no sigil answers the same as a typed one. Only
  * the **first word** is consulted, so `/source const a = 1` still answers `true`:
  * that is a one-line body, and a gutter on one line is harmless where a missing
- * one on five is not. `/sourc` answers `false`, because no such command exists.
+ * one on five is not. `/source` answers `false`, because no such command exists.
  */
 const BODY_COMMANDS = new Set([
     'source',

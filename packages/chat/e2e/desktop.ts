@@ -1243,7 +1243,7 @@ test('the composer applies syntax highlighting while typing a body command', asy
 });
 
 /** Regression: highlighting survives the editor rebuild that happens when
- * `wantsLineNumbers` flips. Typing `/sourc` then `e` destroys the old editor
+ * `wantsLineNumbers` flips. Typing `/source` then `e` destroys the old editor
  * and mounts a new one — the `useEffect([], [])` that calls `setOption` must
  * run again on the new instance or the language extension is lost.
  */

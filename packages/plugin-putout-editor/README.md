@@ -1,6 +1,6 @@
 # @putout/plugin-putout-editor [![NPM version][NPMIMGURL]][NPMURL]
 
-[NPMIMGURL]: https://img.shields.io/npm/v/@putout/plugin-putout-editor.svg?style=flat&cacheBust=1
+[NPMIMGURL]: https://img.shields.io/npm/v/@putout/plugin-putout-editor.svg?style=flat\&cacheBust=1
 [NPMURL]: https://npmjs.org/package/@putout/plugin-putout-editor "@putout/plugin-putout-editor"
 
 Rules that only make sense here: the Editor's own source, its specs and its CSS. A rule that

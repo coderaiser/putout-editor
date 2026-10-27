@@ -63,6 +63,7 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
                 >
                     {lines.map((text, index) => {
                         const lineNumber = index + 1;
+                        
                         // `stmts` are trimmed by the parser, a source line is not
                         const stmtBlock = blocks.find(({stmts}) => stmts.includes(text.trim()));
                         const unreachable = stmtBlock && unreachableIds.has(stmtBlock.id);

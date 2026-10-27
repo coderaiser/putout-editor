@@ -138,6 +138,7 @@ test('index: a loader that resolves without the export answers with notInBrowser
         'runFind',
         stub().resolves({}),
     );
+    
     const result = await run('', state);
     
     t.equal(result.type, 'error');

@@ -244,6 +244,7 @@ test('flattenLearn: every row of the curriculum resolves its pid', (t) => {
     const result = flat
         .filter(({pid}) => pid !== null && !ids.has(pid))
         .map(({id}) => id);
+    
     const expected: string[] = [];
     
     t.deepEqual(result, expected);

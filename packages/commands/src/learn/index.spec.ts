@@ -30,6 +30,7 @@ test('runLearn: each top-level node has an id and a label', (t) => {
     const answer = result.tree
         .filter(({id, label}) => !id || !label)
         .map(({id}) => id);
+    
     const expected: string[] = [];
     
     t.deepEqual(answer, expected);

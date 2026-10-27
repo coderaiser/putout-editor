@@ -267,4 +267,3 @@ export function handler({pattern}: z.infer<typeof schema>) {
         }],
     };
 }
-

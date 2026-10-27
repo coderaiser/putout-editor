@@ -169,6 +169,7 @@ test('learnNodes: walks parents before their children', (t) => {
     const result = learnNodes(curriculum)
         .map(({id}) => id)
         .slice(0, 3);
+    
     const expected = [
         'putout',
         'ast',

@@ -552,7 +552,7 @@ test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
     unmount();
     cleanup();
     
-    const payload = (action?.payload || {}) as {
+    const payload = (action && action.payload || {}) as {
         template?: string;
     };
     

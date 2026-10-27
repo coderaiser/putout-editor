@@ -136,9 +136,13 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         lastValueRef.current = value;
         
         // A fresh editor always starts with the caret at 0. That is wrong on
+        
         // the **first** mount too: the box is `lazy`, so it can mount after a
+        
         // history recall has already set `value`, and the user's next
+        
         // keystroke then lands in front of the recalled line. Put the caret at
+        
         // the end of whatever the editor was built with, every time.
         editor.dispatch({
             selection: {
@@ -147,7 +151,9 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         });
         
         // Only a rebuild takes focus back: it fires because the user completed
+        
         // a body command (`/sou` -> `/source ` flips `lineNumbers`) mid-typing,
+        
         // while a first mount must not steal focus from wherever it is.
         if (rebuildRef.current)
             editor.focus();

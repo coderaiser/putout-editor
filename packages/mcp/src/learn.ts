@@ -1,12 +1,6 @@
 import {z} from 'zod';
-import {
-    curriculum,
-    findLearnNode,
-} from '@putout/editor-commands/learn/curriculum';
-import {
-    errorText,
-    text,
-} from '@putout/editor-commands/content';
+import {curriculum, findLearnNode} from '@putout/editor-commands/learn/curriculum';
+import {errorText, text} from '@putout/editor-commands/content';
 
 /**
  * Three tools over one tree, in one file.
@@ -26,11 +20,15 @@ import {
  * the contract comes first.
  */
 const nodeSchema = z.object({
-    id: z.string().describe('Node id from learn_tree, e.g. "ast/nodes/VariableDeclaration"'),
+    id: z
+        .string()
+        .describe('Node id from learn_tree, e.g. "ast/nodes/VariableDeclaration"'),
 });
 
 const exampleSchema = z.object({
-    id: z.string().describe('Node id from learn_tree'),
+    id: z
+        .string()
+        .describe('Node id from learn_tree'),
 });
 
 export const learnTree = {
@@ -43,7 +41,6 @@ export const learnTree = {
         'Use the id with learn_node or learn_example for details.',
     
     schema: z.object({}),
-    
     /**
      * The whole curriculum, indented, in one answer.
      *
@@ -71,7 +68,6 @@ export const learnNode = {
         'if you already have the id.',
     
     schema: nodeSchema,
-    
     /**
      * One concept in full.
      *
@@ -114,7 +110,6 @@ export const learnExample = {
         'Returns an error if the node has no example (container nodes do not).',
     
     schema: exampleSchema,
-    
     /**
      * The example alone, as raw source.
      *

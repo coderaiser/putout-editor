@@ -58,6 +58,7 @@ test('local printer_visitor: schema has action, visitor and type', (t) => {
     const result = Object
         .keys(schema.shape)
         .sort();
+    
     const expected = [
         'action',
         'type',
