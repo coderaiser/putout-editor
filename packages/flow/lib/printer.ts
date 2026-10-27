@@ -1,4 +1,4 @@
-import {parse} from '@babel/parser';
+import {parse, type ParserOptions} from '@babel/parser';
 import type {Node} from '@babel/types';
 import type {Succ} from './parser.ts';
 import {visitBlock, visitStatement} from './visitors/block.ts';
@@ -13,7 +13,7 @@ const parseOptions = {
     sourceType: 'module',
     strictMode: false,
     plugins: ['jsx', 'typescript'],
-} satisfies import('@babel/parser').Options;
+} satisfies ParserOptions;
 
 /**
  * One block under construction: statements and edges so far, plus whether it

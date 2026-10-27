@@ -135,24 +135,22 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         // the right content and does not push it in again on the next tick.
         lastValueRef.current = value;
         
-        if (rebuildRef.current && editorRef.current) {
-            editorRef.current.focus();
-            
-            // A rebuild mounts with the cursor at 0. Restore it to the end of
-            
-            // the text instead — the rebuild fires because the user completed
-            
-            // a body command (`/sou` -> `/source ` flips `lineNumbers`), and
-            
-            // the caret belongs after what they typed, not before it.
-            const restored = editor.state.doc.length;
-            
-            editor.dispatch({
-                selection: {
-                    anchor: restored,
-                },
-            });
-        }
+        // A fresh editor always starts with the caret at 0. That is wrong on
+        // the **first** mount too: the box is `lazy`, so it can mount after a
+        // history recall has already set `value`, and the user's next
+        // keystroke then lands in front of the recalled line. Put the caret at
+        // the end of whatever the editor was built with, every time.
+        editor.dispatch({
+            selection: {
+                anchor: editor.state.doc.length,
+            },
+        });
+        
+        // Only a rebuild takes focus back: it fires because the user completed
+        // a body command (`/sou` -> `/source ` flips `lineNumbers`) mid-typing,
+        // while a first mount must not steal focus from wherever it is.
+        if (rebuildRef.current)
+            editor.focus();
         
         rebuildRef.current = true;
         

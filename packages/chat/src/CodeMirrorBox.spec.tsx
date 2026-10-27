@@ -420,6 +420,28 @@ test('CodeMirrorBox: outside value change preserves the cursor position', (t) =>
     t.end();
 });
 
+test('CodeMirrorBox: first mount with a value puts the cursor at the end', (t) => {
+    render(
+        <CodeMirrorBox
+            data-testid="box"
+            onChange={noop}
+            onKeyDown={noop}
+            value="/hel"
+        />,
+    );
+    
+    const element = document.querySelector('[data-testid="box"]') as HTMLElement;
+    const view = getView(element)!;
+    
+    const result = view.state.selection.main.head;
+    const expected = 4;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
 test('CodeMirrorBox: keydown reaches onKeyDown', (t) => {
     const calls: string[] = [];
     

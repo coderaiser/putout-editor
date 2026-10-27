@@ -2,8 +2,8 @@ import {test} from 'supertape';
 import {
     type ParserOptions,
     parse,
-    type Node,
 } from '@babel/parser';
+import type {Node} from '@babel/types';
 import {visitIf} from '../../lib/visitors/if.ts';
 import type {FlowApi} from '../../lib/visitors/api.ts';
 
