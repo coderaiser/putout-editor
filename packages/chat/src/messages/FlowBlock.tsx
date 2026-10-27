@@ -121,7 +121,7 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
                                     key={String(succ.id)}
                                     x1={block.id * 120 + 80}
                                     y1={mobile ? 52 : 92}
-                                    x2={String(succ.id) === 'exit' ? block.id * 120 + 120 : String(succ.id) * 120}
+                                    x2={String(succ.id) === 'exit' ? block.id * 120 + 120 : (succ.id as number) * 120}
                                     y2={mobile ? 52 : 92}
                                     stroke="var(--color-border)"
                                     markerEnd="url(#flow-arrow)"

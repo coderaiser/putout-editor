@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import FlowBlock from './FlowBlock.tsx';
 
-const blocks = [{
+const blocks: import('@putout/flow').Block[] = [{
     id: 0,
     stmts: ['x > 0 ?'],
     succs: [{

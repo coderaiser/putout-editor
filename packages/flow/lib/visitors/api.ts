@@ -1,4 +1,4 @@
-import type {Node} from '@babel/parser';
+import type {Node} from '@babel/types';
 
 /**
  * What the printer hands every visitor, and what a visitor may do with it.
@@ -47,7 +47,7 @@ export interface FlowApi {
     walk(node: Node): void;
     branch(): number;
     merge(...from: number[]): number;
-    mergeUnreachable(): number;
+    mergeUnreachable(...from: number[]): number;
     closed(): boolean;
     unreachable(): number;
 }

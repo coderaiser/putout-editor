@@ -21,7 +21,8 @@
     "test:dts": "madrun test:dts"
   },
   "dependencies": {
-    "@babel/parser": "^8.0.1"
+    "@babel/parser": "^8.0.1",
+    "@babel/types": "^8.0.6"
   },
   "devDependencies": {
     "@putout/eslint-flat": "^4.0.1",

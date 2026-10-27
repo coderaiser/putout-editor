@@ -1,4 +1,4 @@
-import type {Node} from '@babel/parser';
+import type {Node} from '@babel/types';
 import type {FlowApi} from './api.ts';
 
 /**
