@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import FlowBlock from './FlowBlock.tsx';
 
-const blocks: import('@putout/flow').Block[] = [{
+const blocks: import('@putout/flow')[] = [{
     id: 0,
     stmts: ['x > 0 ?'],
     succs: [{
@@ -91,7 +91,7 @@ test('FlowBlock: graph panel has data-testid flow-output__graph', (t) => {
 
 /** Unreachable lines carry data-unreachable. */
 test('FlowBlock: unreachable lines get highlight class', (t) => {
-    const fakeBlocks: import('@putout/flow').Block[] = [{
+    const fakeBlocks: import('@putout/flow')[] = [{
         id: 0,
         stmts: ['return a;'],
         succs: [{
@@ -125,7 +125,7 @@ test('FlowBlock: unreachable lines get highlight class', (t) => {
 
 /** Duplicate statement text appears on more than one line. */
 test('FlowBlock: duplicate lines get highlight class', (t) => {
-    const duplicateBlocks: import('@putout/flow').Block[] = [{
+    const duplicateBlocks: import('@putout/flow')[] = [{
         id: 0,
         stmts: ['x > 0 ?'],
         succs: [{
