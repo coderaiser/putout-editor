@@ -42,16 +42,18 @@ packages/plugin-putout-editor/
 
 Steps for a new rule:
 
-1. Name it verb first: `apply-`, `remove-`, `add-`, `check-`, `convert-`. The name is a claim
+1. Load the MCP tools with `ToolSearch`. Run `transform` and `find_places` on your edge cases.
+   See [`tooling.md`](./tooling.md#mcp-server).
+2. Name it verb first: `apply-`, `remove-`, `add-`, `check-`, `convert-`. The name is a claim
    about what the rule checks. Make it true.
-2. Write `lib/<rule>/index.js`. Export `report` first, then the action.
-3. Add one fixture pair per shape. Generate the `-fix` file with `UPDATE=1`. A fixture with no
+3. Write `lib/<rule>/index.js`. Export `report` first, then the action.
+4. Add one fixture pair per shape. Generate the `-fix` file with `UPDATE=1`. A fixture with no
    `-fix` file is a no-transform case.
-4. Write `index.spec.js`: `t.transform(name)` per fixed shape, `t.noTransform(name)` per shape
+5. Write `index.spec.js`: `t.transform(name)` per fixed shape, `t.noTransform(name)` per shape
    to leave alone, `t.report(name, 'message')`, and a `t.noReport` on a fixture with nothing to
    find.
-5. Add the rule to `lib/index.js`, `test/putout-editor.js` and the README.
-6. `bun run coverage` at 100%, then `putout .` at the root.
+6. Add the rule to `lib/index.js`, `test/putout-editor.js` and the README.
+7. `bun run coverage` at 100%, then `putout .` at the root.
 
 No comments in the plugin. The name and the README section are the documentation. The one
 exception is the `remove-comments` fixture and README example.

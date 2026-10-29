@@ -75,6 +75,9 @@ bun run lint                               # putout . (fix:lint is putout . --fi
 
 - Ask the MCP server (`packages/mcp`) before you write a probe script. See
   [`docs/tooling.md`](docs/tooling.md).
+- Use `transform` and `find_places` before you write a spec for a new rule. Send the edge cases
+  to the tool: a `var` used outside its block, a declaration in a `for` header, a `switch` case.
+  A spec only checks the cases that you wrote.
 - e2e uses the prebuilt bundle in `out/`. Run `bun run build` before e2e.
 - Check that the thing you measure is in the state you think. A probe that writes a file must
   check the file changed. A probe that checks a rule is silent must check the rule has

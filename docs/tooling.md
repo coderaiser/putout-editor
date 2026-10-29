@@ -64,6 +64,8 @@ await client.close();
   on the `PATH` of a GUI editor.
 - Do not run `packages/mcp/dist/index.js`. `dist` is not in git and can be stale.
 - With `node` instead of `bun`, add `NODE_OPTIONS: '--import @supertape/loader-ts'`.
+- Claude Code can list an MCP tool by name only. Load its schema with `ToolSearch`
+  (`select:mcp__putout__transform`) before you call it. A call without the schema fails.
 - If the tools are not listed, run `/mcp` in Claude Code, or check the editor MCP settings for a
   `putout` entry that points at `packages/mcp/src/index.ts`, then restart.
 - A failed call has `isError: true`. `docs {section: 'errors'}` lists the answers.
