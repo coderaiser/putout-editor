@@ -7,13 +7,8 @@ export const name = 'printer_visitor';
 export const description = 'Write or check a @putout/printer visitor: (path, api) => void, named by node type. action "contract": the API and the traps. Pass visitor to check it: unknown api keys, a name that is not a node type, no write.';
 
 /**
- * The API as the printer actually builds it.
- *
- * `printer.js` does `const printer = {...mainPrinter, traverse, print}` over
- * `mainPrinter = {indent, write, debug, maybe, quote, store, traverse}`, so this
- * list is transcribed from that spread rather than from a README. `maybe` is the
- * only nested one and `indent` is an *object* with methods of its own — both are
- * things a visitor that treats them as plain functions gets quietly wrong.
+ * The printer API: `{...mainPrinter, traverse, print}` in `printer.js`.
+ * `maybe` is nested. `indent` is an object with its own methods.
  */
 const API = [
     'debug',

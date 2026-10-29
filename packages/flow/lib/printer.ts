@@ -16,14 +16,9 @@ const parseOptions = {
 } satisfies ParserOptions;
 
 /**
- * One block under construction: statements and edges so far, plus whether it
- * ended in a terminator.
- *
- * `done` is the printer's half of the `terminated()` / `closed()` contract —
- * the visitors report edges, the printer remembers which block they closed.
- * It is separate from `terminal` (the parser's inference, step 8's
- * round-trip) because the printer *knows* a block ended in `return` while the
- * text only *shows* it.
+ * A block in progress: statements, edges, and `done` when it ended in a
+ * terminator. `done` is what the printer knows. `terminal` is what the
+ * parser infers from the text.
  */
 interface Draft {
     id: number;
@@ -34,19 +29,11 @@ interface Draft {
 }
 
 /**
- * The `FlowApi` contract, backed by real blocks.
- *
- * `at` is the block `print` appends to and `edge` leaves from — reselected by
- * every call that opens a block, which is why `branch()` returns the id it
- * selected rather than just opening one. `walk` is the same dispatch the top
- * level runs, so a nested `if` reaches `visitIf` through the arm that
- * contains it.
- *
- * `merge()` edges every unterminated arm into the fresh join and selects it;
- * terminated arms already edge to `exit`, so wiring them again would draw an
- * edge the program cannot take. `mergeUnreachable()` selects the same join
- * with no edges at all — by its contract, every arm terminated, so nothing
- * falls through.
+ * The `FlowApi` contract on real blocks. `at` is the current block.
+ * `branch()` opens a block, selects it and returns its id.
+ * `merge()` adds an edge from each open arm to a new join and selects it.
+ * A terminated arm already has an edge to `exit`.
+ * `mergeUnreachable()` selects a new join with no edges.
  */
 const run = (source: string, body: Node[]): Draft[] => {
     const drafts: Draft[] = [{
@@ -160,14 +147,8 @@ const dispatch = (node: Node, api: FlowApi): void => {
 };
 
 /**
- * A draft into the plan's text format — the only `Block` construction in the
- * package that is not the parser's.
- *
- * Blocks are separated by one blank line, and only unreachable blocks keep a
- * trailing one: the parser splits on `\n\s*\n`, so the blank is the separator
- * everywhere and the `[unreachable]` header needs no extra help reaching the
- * next block. Edges carry their `[true]` / `[false]` labels; the fall-through
- * `merge()` wrote has none, because a join edge has nothing to say.
+ * Drafts to text. One blank line separates blocks: the parser splits on
+ * `\n\s*\n`. An edge has a `[true]` or `[false]` label; a join edge has none.
  */
 const format = (drafts: Draft[]): string => {
     const lines: string[] = [];
@@ -194,13 +175,9 @@ const format = (drafts: Draft[]): string => {
 };
 
 /**
- * The one `FunctionDeclaration` the package handles, unwrapped to its body.
- *
- * `/flow` graphs one function — the source panel highlights its lines, the
- * SVG draws its blocks — so a second top-level statement has nowhere to go on
- * either side. The printer takes the first function and ignores the rest
- * rather than erroring, because the command layer reports "no source" for the
- * empty case and this keeps one error path instead of two.
+ * The body of the first `FunctionDeclaration`. `/flow` shows one function,
+ * so the printer ignores the other statements. The command layer reports
+ * "no source" when there is no function.
  */
 const bodyOf = (source: string): Node[] => {
     const ast = parse(source, parseOptions);

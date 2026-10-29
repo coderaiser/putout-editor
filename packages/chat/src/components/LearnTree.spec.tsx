@@ -13,12 +13,7 @@ import {
 import LearnTree from './LearnTree.tsx';
 
 /**
- * The rows are built by `flattenLearn` from a real `LearnNode` tree rather than
- * hand-written, for the reason `AstBlock.spec.tsx` gives: a hand-written
- * `FlatLearnNode[]` agrees with the component only because the same author wrote
- * both. This way a change to `flattenLearn` breaks this spec instead of passing
- * it.
- *
+ * Rows from `flattenLearn` over a real tree: a change there breaks this.
  *     root
  *     - branch
  *       - leaf
@@ -105,13 +100,8 @@ test('LearnTree: shows the root label in a row', (t) => {
 });
 
 /**
- * `collapsedDepth: 0`, the one difference from `AstTree` that is a number.
- *
- * The AST tree draws two rows because its depth-1 rows are folded. A concept
- * tree's first level *is* the table of contents — `ast`, `plugins`, `patterns`,
- * `plugin-types` — so folding it would hide the whole point of the command. The
- * root is open and its sections are drawn but closed: a collapsed row still
- * shows, only its children are hidden.
+ * `collapsedDepth: 0`: the root is open, its sections are drawn and folded.
+ * The first level is the table of contents.
  */
 test('LearnTree: opens the root and draws its sections closed', (t) => {
     mount();
@@ -203,18 +193,8 @@ test('LearnTree: enter on a leaf calls onOpen with it', (t) => {
 });
 
 /**
- * `Enter` on a container expands it instead.
- *
- * The other half of the branch in `useTreeState`, and the half that keeps plain
- * keyboard use working when `LearnBlock`'s `learnOpen` is the only thing being
- * tested: a section that opened rather than expanding would trap the user above
- * it.
- *
- * Selected with `ArrowDown` rather than with a click, and that is not
- * incidental: `LearnRow` now folds on a fine click as well as selecting, so a
- * click here would fold the root and the `Enter` would unfold it again — two
- * toggles, three rows, and a spec that no longer says anything about `Enter`.
- * Driving the selection from the keyboard keeps the subject the keyboard.
+ * `Enter` on a section toggles it. Select with `ArrowDown`, not a click: a
+ * click also folds the row.
  */
 test('LearnTree: enter on a section toggles it instead of opening', (t) => {
     const opened: string[] = [];
@@ -404,16 +384,8 @@ test('LearnTree: focus moves to the filter and back', (t) => {
 });
 
 /**
- * A click folds a section — the whole of bug 2, at the tree's own level.
- *
- * The row was inline markup calling `onSelect` and nothing else, so no learn
- * tree could be folded by pointer on **any** device: the caret was decoration
- * and the only route to a child was the keyboard. `branch` starts closed
- * (`collapsedDepth: 0` draws the sections but folds their children), so
- * clicking it is what reveals `leaf`.
- *
- * Asserted as a row count because that is what the user sees, and paired with
- * the coarse case below so the fold is not simply "always on".
+ * A click folds and unfolds a section. `branch` starts folded, so a click
+ * shows `leaf`. The coarse case is below.
  */
 test('LearnTree: a click folds and unfolds a section', (t) => {
     mount();

@@ -24,16 +24,9 @@ export interface FlatNode {
 }
 
 /**
- * One concept in the `/learn` curriculum.
- *
- * Pure data with no behaviour, so the same tree serves three consumers: the
- * chat's tree view, the mcp's three `learn_*` tools, and the structural spec
- * that keeps the curriculum well-formed as it grows. That is why it lives in
- * this package rather than in either of them.
- *
- * `id` is the slash-separated path from the root — `ast/nodes/VariableDeclaration`
- * — and it is the **only** thing that names a node. `label` is what a row shows
- * and may repeat; `id` may not, which `curriculum.spec.ts` asserts.
+ * One concept in the `/learn` curriculum. Pure data for the chat tree, the
+ * mcp `learn_*` tools and the structural spec. `id` is the path from the root
+ * (`ast/nodes/VariableDeclaration`) and is unique. `label` can repeat.
  */
 export interface LearnNode {
     id: string;
@@ -57,19 +50,9 @@ export interface LearnNode {
 }
 
 /**
- * A `LearnNode` flattened into a row, the shape `LearnTree` draws.
- *
- * Mirrors `FlatNode` — same `id`/`pid`/`depth` spine, because the tree widget's
- * collapse, filter and keyboard navigation are written against exactly those
- * three fields and are shared unchanged. What replaces `type`/`detail` is
- * `label`/`summary`, and `line`/`col`/`endLine`/`endCol` go away entirely: a
- * concept has no position in a file, so a row that carried one would be
- * asserting a fact that does not exist.
- *
- * `body` and `example` are carried even though no row draws them, and that is
- * the point: pressing enter on a leaf hands the row straight to `learnOpen`,
- * which needs both. Resolving them from the tree again would mean a lookup
- * whose miss branch nothing can reach — the tree is built *from* these rows.
+ * A `LearnNode` as a row for `LearnTree`. Same `id`/`pid`/`depth` as
+ * `FlatNode`, so the tree widget works unchanged. No position fields: a
+ * concept has no position. `body` and `example` go to `learnOpen` on enter.
  */
 export interface FlatLearnNode {
     id: string;
@@ -160,14 +143,9 @@ export interface Command {
     name: string;
     
     /**
-     * What follows the name, in the shell's brackets — `source [source]`,
-     * `ast [--full] [--query type]`, `clear []`.
-     *
-     * Declared on the command rather than derived from `flags`, because the
-     * flags are only the `--` options: what a command takes as its *argument*
-     * is not in that list, and `help` is the only place a user is told. A
-     * command that takes nothing writes `[]` rather than leaving it out, so a
-     * row is never ambiguous about whether the brackets were forgotten.
+     * The argument shape in shell brackets: `source [source]`,
+     * `ast [--full] [--query type]`, `clear []`. A command with no argument
+     * writes `[]`.
      */
     usage: string;
     description: string;

@@ -9,15 +9,9 @@ import * as parse from '../snippet/storage/parse.ts';
 import StorageHandler from '../snippet/storage/index.ts';
 
 /**
- * The store the app boots with.
- *
- * The middleware order is the whole point of this existing on its own: the
- * snippet listener is prepended last so it sees an action before format and
- * parse rewrite the state it is about to persist. Every listener is a module
- * singleton from `createListenerMiddleware`, and each has its own spec, so what
- * is untested here is only that the chain is wired at all - which is what the
- * INIT test below pins: dispatching INIT is enough for the parser listener to
- * parse and dispatch a parse result, and nothing but this chain does that.
+ * The app store. The snippet listener comes last in the prepend order, so
+ * it sees an action before format and parse change the state. The INIT test
+ * checks that the chain is wired: INIT makes the parser listener parse.
  */
 export const createAppStore = (preloadedState?: State) => {
     const storageAdapter = new StorageHandler([gist, parse]);

@@ -2,27 +2,15 @@ import {parse, type Block} from './parser.ts';
 import {print} from './printer.ts';
 
 /**
- * Source in, blocks out — the package's two halves joined.
- *
- * `buildCFG` parses the printed text rather than the AST directly, so both
- * sides of the round-trip always agree: the printer owns the format and the
- * parser owns the reading of it, and this function is the only place the two
- * meet. `index.spec.ts` asserts `parse(print(x))` deepEquals `buildCFG(x)`
- * for exactly this reason — it is a tautology today and must stay one, since
- * a printer that changed shape would have to change both or fail the spec.
+ * Source in, blocks out. `buildCFG` parses the printed text, so the printer
+ * and the parser always agree. `index.spec.ts` checks that
+ * `parse(print(x))` equals `buildCFG(x)`.
  */
 export const buildCFG = (source: string): Block[] => parse(print(source));
 
 /**
- * The blocks no path reaches — the `remove-unreachable-code` consumer's
- * query, and the reason `unreachable` exists on `Block` at all.
- *
- * A `filter`, not a mutation: the caller keeps its blocks, and the `[unreachable]`
- * header is the printer's annotation, so this answers *which* of them carry
- * it rather than recomputing reachability. Reachability by walking `succs`
- * would be a second opinion about a mark the printer already made — and
- * `preds` are never stored, always derived, so a walk here would redo the
- * work in O(n) each call.
+ * The blocks that no path reaches. Reads the `unreachable` mark of the
+ * printer. Does not walk `succs` again and does not change the blocks.
  */
 export const findUnreachable = (blocks: Block[]): Block[] => blocks.filter(({unreachable}) => Boolean(unreachable));
 

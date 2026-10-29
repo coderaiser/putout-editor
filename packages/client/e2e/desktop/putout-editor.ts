@@ -29,21 +29,7 @@ export function createPutoutEditor(page: Page) {
                 await locator.click();
                 await locator.focus();
                 
-                // `selectText()`, not `ControlOrMeta+a`: the default keymap is
-                
-                // `vim`, where `Ctrl-a` is bound to `incrementNumber` and
-                
-                // selects nothing. So `ControlOrMeta+a` left the previous
-                
-                // buffer in place and the next `insertText` appended to it —
-                
-                // which surfaced as a `toContainText` timeout, because the
-                
-                // expected substring was never the only thing in the panel.
-                
-                // `selectText()` goes through the DOM selection, which no
-                
-                // keymap can intercept.
+                // `selectText()`, not `ControlOrMeta+a`: vim binds `Ctrl-a` to `incrementNumber`.
                 await locator.selectText();
                 await page.keyboard.insertText(text);
             },

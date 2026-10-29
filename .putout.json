@@ -24,6 +24,7 @@
             "logical-expressions/apply-destructuring": "off",
             "regexp/apply-literal-notation": "off",
             "putout-editor/apply-press-modifier-case": "off",
+            "putout-editor/check-comment-length": "off",
             "putout-editor/check-try-catch-destructure": "off",
             "putout-editor/hoist-arrow-callback": "off",
             "putout-editor/remove-comments": "off",

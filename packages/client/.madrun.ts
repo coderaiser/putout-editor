@@ -55,7 +55,6 @@ export default {
     'fix:lint': () => 'redlint fix && putout . --fix',
     'fontcustom': () => 'fontcustom compile ./fontcustom/input-svg/ --config=./fontcustom/config.yml',
     'eslint:hotfix': () => 'rm -rf node_modules/eslint/node_modules/acorn',
-    'halting-problem:hotfix': () => 'rm -rf node_modules/halting-problem/node_modules/acorn',
     
     'init': async () => {
         const rmPutout = 'rm -rf node_modules/putout';

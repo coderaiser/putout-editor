@@ -104,6 +104,11 @@ turns such a gist into a rule.
 
 ## Lint
 
+- `bun run lint:deps` runs `knip --include unlisted`: each import must be a declared dependency
+  of its package. `check` and `fix:lint` run it first.
+- `putout-editor/check-comment-length` limits a comment block to 8 lines. Put the reason in the
+  comment and the history in the commit message.
+
 - `putout .` reports. `putout . --fix` fixes. Read the diff after `--fix`.
 - `putout --fix` acts on markdown fences too. Do not run it on `docs/`.
 - `redlint scan` runs filesystem rules. `redlint` lints `process.cwd()` and takes no path:
@@ -131,6 +136,16 @@ turns such a gist into a rule.
 - CI runs `coderaiser/typos.ai` with `.typos.toml` and commits its fixes.
 - A partial word in a spec (`/hel`, `/sourc`) is one identifier to the checker. Allow it in
   `[default.extend-identifiers]`. `extend-words` does nothing for it.
+
+## Docker
+
+- The Dockerfile copies each `packages/*/package.json` before `bun install`. Add a line for a new
+  package, or its dependencies are missing in the image.
+- The image runs `packages/server/dist` with `bun`. The server imports
+  `@putout/editor-commands/compact`, so the image has `packages/commands` and `packages/flow`.
+- There is no Docker daemon in a cloud session. To check the stages, run them by hand: install
+  from the copied `package.json` files, `bun run build`, `bun install --production`, then start
+  `bun packages/server/dist/main.js`.
 
 ## CI
 

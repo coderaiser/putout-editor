@@ -13,14 +13,8 @@ const parseOptions: ParserOptions = {
 };
 
 /**
- * The `ReturnStatement` inside `function f() { … }`, taken from real source
- * rather than hand-built.
- *
- * A hand-written node agrees with the visitor only because the same author
- * wrote both; parsing `return a;` means a change to what the visitor reads —
- * `argument` renamed, `type` changed — breaks this spec instead of passing it.
- * The two hops are the function and its body, so the node is the same shape
- * the printer's traversal hands over.
+ * The `ReturnStatement` from real source, not a hand-built node. A change in
+ * the node shape breaks this spec.
  */
 const returnNode = (source: string): Node => {
     const ast = parse(source, parseOptions);
@@ -40,13 +34,8 @@ interface Recorded {
 }
 
 /**
- * The printer half of the `FlowApi` contract, recorded instead of executed.
- *
- * Only `print` and `edge` record — the plan's `return` cases are all about
- * what was emitted, in order. Every other method is present because the type
- * demands it and does nothing, which the suite never asserts on: a stub that
- * answered `terminated() === true` would be asserting the printer's half of
- * the contract from the visitor's spec.
+ * A recorded `FlowApi`. Only `print` and `edge` record. The other methods
+ * do nothing: the printer owns them.
  */
 const api = (source: string): Recorded => {
     const stmts: string[] = [];
@@ -140,14 +129,8 @@ test('return visitor: argument printed as stmt before edge', (t) => {
 });
 
 /**
- * The statement is the **source text**, not a re-print of the node —
- * semicolon, odd spacing and all.
- *
- * `stmts` are what a reader compares against the editor, so a block holding
- * `return   "a"  ;` must show that and not a tidied version of it. Slicing by
- * `start`/`end` is what guarantees it, and this spec is what stops it being
- * replaced by a generator later — the difference is invisible on `return a`
- * and immediate on anything with unusual whitespace.
+ * The statement is the source text, with its spacing and semicolon.
+ * Stops a printer from replacing the slice.
  */
 test('return visitor: the statement is sliced from the source verbatim', (t) => {
     const odd = 'function f() { return   "a"  ; }';
@@ -163,13 +146,7 @@ test('return visitor: the statement is sliced from the source verbatim', (t) => 
 });
 
 /**
- * A bare `return;` prints no statement, and that is not the same as an empty
- * one.
- *
- * `return;` and `return undefined;` are different nodes — the first has no
- * `argument` at all — and printing `return undefined` for it would put a
- * statement in the block the source does not have, which is exactly the drift
- * `stmts` being source strings exists to prevent.
+ * A bare `return;` has no `argument`. Do not print `return undefined`.
  */
 test('return visitor: a bare return prints no statement', (t) => {
     const recorded = api(BARE);

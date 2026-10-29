@@ -2,19 +2,9 @@ import {test} from 'supertape';
 import {categoryOf, type TypeCategory} from './typeColor.ts';
 
 /**
- * One case per arm of `categoryOf`, including `other`.
- *
- * `other` is the arm that gets forgotten: it is the only one a spec written by
- * listing the *known* types never reaches, and it is the arm every node type
- * babel adds in future will land in. Without a case here it is a line the 100%
- * gate reports as uncovered.
- *
- * The `TypeCategory` annotation lives on `known`, not on each `expected`. That
- * is where it earns its keep — it makes a **rename** of a category a compile
- * error on 24 rows at once — and it is a non-primitive, so the repo's
- * `remove-useless-types-from-constants` leaves it alone. Annotating the three
- * `expected = 'other'` lines would say the same thing about one row each, and a
- * rename would still fail these three at runtime rather than at compile time.
+ * One case per arm of `categoryOf`, with `other`: each new Babel type lands
+ * there. The `TypeCategory` type is on `known`, so a category rename is a
+ * compile error.
  */
 const known: [string, TypeCategory][] = [
     ['Program', 'statement'],
@@ -92,13 +82,8 @@ test('categoryOf: the empty string is other', (t) => {
 });
 
 /**
- * The overlap, stated as a test because it is a decision.
- *
- * `BlockStatement` appears in `STATEMENT` and a `FunctionDeclaration`'s body is
- * one, so the sets do genuinely overlap in the wild — it is `STATEMENT` being
- * asked **first** that decides. Asserting both orders is what makes the ordering
- * load-bearing rather than incidental; reversing the two functions would make
- * `BlockStatement` unreachable and every other case still pass.
+ * `BlockStatement` is in `STATEMENT`, and `STATEMENT` is asked first.
+ * Reverse the order and this spec fails.
  */
 test('categoryOf: the order of the sets decides BlockStatement', (t) => {
     const result = {

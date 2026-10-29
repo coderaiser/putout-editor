@@ -13,13 +13,20 @@ when it loads. After a bundle change:
 
 ## 🐊**Putout** in a browser
 
-| Symptom on the page | Cause | Fix in `rspack.config.js` |
+| Symptom on the page | Cause | Fix in the rspack config |
 |---|---|---|
 | `homedir is not a function` | `env-paths` calls `os.homedir()` at module scope (via `cosmiconfig`) | `IgnorePlugin` |
 | `fileURLToPath … not found in 'node:url'` | `globby`, `unicorn-magic` | `IgnorePlugin` |
 | `Cannot resolve 'v8'`, `'inspector'` | `import-meta-resolve`, `typescript` | `fallback: false` |
 | `Cannot find module '@putout/operator-match-files'` | a dynamic `require` resolves at run time | `NormalModuleReplacementPlugin` to an empty module |
 
+- The root `rspack.shared.js` holds the parts that both configs share: `NODE_ONLY`, the
+  fallbacks, the minimizer and the swc loader. It imports nothing: each config gives its own
+  `rspack` and `resolve`.
+- `hermes-parser` is in `NODE_ONLY`. In the chat bundle it adds about 750 KB to the first load.
+  `test/rspack.spec.ts` in each package checks the list.
+- Each `resolve.fallback` package is a declared dependency of the package. Hoisting differs in a
+  fresh install (Docker). `test/rspack.spec.ts` checks it.
 - `IgnorePlugin` does not help a dynamic `require`. The build passes and the page fails.
 - 🐊**Putout** resolves processors by name at run time. Do not ignore a processor that a rule can
   ask for.
@@ -43,8 +50,8 @@ when it loads. After a bundle change:
 
 ## Chat page
 
-- Root `bun run build` builds the client, then the chat. The order matters: the client build
-  replaces `out/` and the chat writes `out/chat/`.
+- Root `bun run build` builds the client, the chat, the server and the mcp, in this order. The
+  client build replaces `out/` and the chat writes `out/chat/`.
 - The page is `out/chat/index.html`, URL `/chat`.
 - The server answers an unknown path with the editor `index.html` and status 200. To check that
   an asset exists, request a path that cannot exist and read the content type.

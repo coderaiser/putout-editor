@@ -27,17 +27,8 @@ const node = (id: string, over: Partial<FlatNode> = {}): FlatNode => ({
 const noop = () => {};
 
 /**
- * A `(pointer: coarse)` stub, wrapping the render.
- *
- * `matches` is a **getter**, not a snapshot: `useIsMobile` calls `matchMedia`
- * once and re-reads `query.matches` inside its `change` listener, so a plain
- * property would freeze at the value it had when the panel mounted. Restored
- * after `fn` rather than for the file, because the component reads the query at
- * mount — a stub left behind would quietly change every spec after it.
- *
- * The same helper `AstBlock.spec.tsx` and `useIsMobile.spec.tsx` each carry, and
- * the reason it is repeated rather than shared: a stub that installs a global
- * for the length of a `fn` is the one thing a spec file should own outright.
+ * A `(pointer: coarse)` stub around `fn`. `matches` is a getter: `useIsMobile`
+ * reads it again on `change`. The stub is removed after `fn`.
  */
 const withPointer = (coarse: boolean, fn: () => void) => {
     const original = globalThis.matchMedia;
@@ -61,20 +52,9 @@ const withPointer = (coarse: boolean, fn: () => void) => {
 };
 
 /**
- * A three-level tree: a `Program` with one child that has a child of its own.
- *
- * The `useTreeState` default folds everything below depth 1, which hides
- * `VariableDeclarator` — but a collapsed row is still **drawn**, so this shows
- * three rows and the depth-1 row is the one whose fold is visible: toggling it
- * hides its child and the count drops to two. The root would drop it to one
- * (`AstBlock.spec.tsx` clicks the root for exactly that), and a depth-1 row is
- * the better subject here because it leaves the panel with a tree rather than
- * with a stump.
- *
- * Built by hand rather than through `runAst`, because the spec is about the
- * panel's pointer handling and a parse would couple it to `flattenAst`'s output
- * — the same reasoning `AstBlock.spec.tsx` makes in the other direction for the
- * rows it *does* take from the command.
+ * Three levels: `Program`, a child, a grandchild. The default fold hides the
+ * grandchild, so a toggle of the depth-1 row changes the count. Built by
+ * hand: this spec is about pointer handling, not `flattenAst`.
  */
 const twoLevel = (): FlatNode[] => [
     node('0'),
@@ -254,16 +234,8 @@ test('ConsolePanel: the header says what the panel is', (t) => {
 });
 
 /**
- * The whole of bug 1, asserted on the panel's own DOM.
- *
- * `ConsolePanel` mounted `AstTree` without `mobile`, so on a phone its rows
- * now behave like desktop ones: a tap both selects AND folds. Because a coarse
- * pointer fires `click` on `pointerup`, the tap folds once — the user sees the
- * subtree collapse. The thread's copy of the same tree was right — it goes
- * through `AstBlock`, which reads `useIsMobile` — so this is that branch
- * reached through the panel's own `mobile` prop.
- *
- * Two rows before and after — the row's tap toggles it closed.
+ * In the panel, a coarse tap selects the row and folds it. The panel passes
+ * its `mobile` prop.
  */
 test('ConsolePanel: a coarse tap selects the row and folds it', (t) => {
     withPointer(true, () => {

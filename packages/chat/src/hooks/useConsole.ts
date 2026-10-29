@@ -9,14 +9,8 @@ export interface ConsoleAst {
 }
 
 /**
- * Whether a message is an `ast` answer.
- *
- * A `switch` on `result.type`, not `result?.type === 'ast'`: the root config
- * turns `?.` into a logical expression, and `convert-optional-to-logical` then
- * rewrites the whole thing into `result && result && result.type === 'ast'` —
- * correct, redundant, and it no longer narrows, so `: boolean` fails to compile.
- * Switching on the discriminant is the form both gates accept: the fixer has
- * nothing to rewrite and `tsc` keeps the narrowing from the `case`.
+ * Is the message an `ast` answer? A `switch` on `result.type`, not `?.`:
+ * `convert-optional-to-logical` rewrites `?.` and the narrowing is lost.
  */
 const isAst = (message: Message): boolean => {
     const {result} = message;

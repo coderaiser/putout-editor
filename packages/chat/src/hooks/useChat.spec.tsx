@@ -160,14 +160,8 @@ test('useChat: ast with no source does not open the panel', async (t) => {
 });
 
 /**
- * The seed, asserted by what it does rather than by what it is.
- *
- * `source !== ''` would pass on any non-empty string, including one that does
- * not parse — and the failure this guards against is exactly that: `/ast`
- * answering "no source" on a fresh page. So both halves are here: the text is
- * the one `initialState` declares, and the test after it is the one that
- * matters, because it is the only one that would notice a seed which does not
- * parse.
+ * The source starts as the seed of `initialState`. The next spec checks
+ * that the seed parses.
  */
 test('useChat: the source starts as the seed the slice declares', (t) => {
     const {store} = setup();
@@ -299,14 +293,8 @@ test('useChat: an unknown command names itself in the error', async (t) => {
 });
 
 /**
- * Reverses the "a line that is not a command is ignored" test.
- *
- * That one asserted `messages.length === 0` for `hello`, so typing a sentence
- * and pressing Send produced **nothing at all** — no echo, no error, and a box
- * that looked broken. With no slash in the grammar a bare word is not "not a
- * command", it is a first word that names no command, so it takes the same
- * path as `notacommand` above. One answer for both rather than a bare-word
- * branch and an unknown-command branch that disagree.
+ * Plain text gets an error answer, not silence: the user sees an echo and
+ * a reason.
  */
 test('useChat: plain text answers with an error rather than vanishing', async (t) => {
     const {store, send} = setup();
@@ -445,14 +433,8 @@ test('useChat: a source result with a rest hands the new source to the next comm
 });
 
 /**
- * A line with no sigil is not a command, and says so.
- *
- * With `/` required, "plain text" and "a misspelled command" stop being the same
- * thing: `hello` never names a command because it is not addressed to one, while
- * `/hello` is addressed to one and gets it wrong. The old code folded both into
- * `Unknown command: hello. Try help.` — which is the wrong half for a sentence.
- *
- * So there are now two answers, and the one for a sentence names the fix.
+ * A line with no sigil is not a command, and the answer names the fix.
+ * `/hello` is a misspelled command and gets the unknown-command answer.
  */
 test('useChat: a line with no sigil is not a command', async (t) => {
     const {store, send} = setup();

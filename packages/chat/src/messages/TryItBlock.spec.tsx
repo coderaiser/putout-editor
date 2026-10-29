@@ -38,13 +38,8 @@ const results = (store: Store<RootState>): (string | null)[] => store
     .map(({result}) => result && result.type || null);
 
 /**
- * A real store behind a real `send`, not a mock `dispatch`.
- *
- * The button runs two commands — `source` then `ast` — and a stub that recorded
- * "called twice with the right args" would assert nothing about the part that
- * can break: whether the store's source becomes the example and whether the
- * thread answers with a tree. This asserts both, through the same path a click
- * in the page takes.
+ * A real store and a real `send`: check that the source becomes the
+ * example and that the thread shows a tree.
  */
 test('TryItBlock: renders the source code', (t) => {
     setup();

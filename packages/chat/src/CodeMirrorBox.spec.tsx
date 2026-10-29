@@ -50,14 +50,8 @@ test('CodeMirrorBox: mounts a CodeMirror editor', (t) => {
 });
 
 /**
- * The gutter, and both arms of it.
- *
- * `createEditor` is mount-only, so `lineNumbers` is read once when the editor
- * is built and a change to the prop cannot reach a live editor — which is why
- * the component remounts (below) rather than setting an option. That is the
- * plan's "driven by a React state change that destroys and remounts the
- * editor", and it is measured here on the DOM: `lineNumbers()` renders
- * `.cm-gutters` / `.cm-lineNumbers`, and its absence renders nothing.
+ * `lineNumbers` draws `.cm-gutters` / `.cm-lineNumbers`; without it, nothing.
+ * `createEditor` reads it once, so a change remounts the editor (below).
  */
 test('CodeMirrorBox: lineNumbers draws the gutter', (t) => {
     mount({
@@ -88,13 +82,7 @@ test('CodeMirrorBox: no lineNumbers draws no gutter', (t) => {
 });
 
 /**
- * A `lineNumbers` change remounts the editor rather than being ignored.
- *
- * The regression this is for: without the remount, typing `/source` and then a
- * newline leaves the composer with no gutter and no line count — which is the
- * whole of bug 2, since a multi-line body with no numbers gives no feedback on
- * where you are. Asserted on the DOM rather than on an option, because the
- * option was never the thing that changed.
+ * A `lineNumbers` change rebuilds the editor. Check the DOM.
  */
 test('CodeMirrorBox: a lineNumbers change rebuilds the editor', (t) => {
     const {rerender} = render(

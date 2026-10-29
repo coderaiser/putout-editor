@@ -219,18 +219,8 @@ test('local printer_visitor: reports a clean visitor as ok', async (t) => {
 });
 
 /**
- * The reporting branches, reached **through the handler**.
- *
- * The `runCheck` specs above pin the analysis; these pin the words, because the
- * tool's whole output is the report and a line that never runs is a message a
- * reader never gets. Each case is the one input that flips one condition.
- */
-
-/**
- * A visitor with no exports and no destructured api.
- *
- * `|| '(none)'` on both template lines — the arm a reader hits when they paste
- * a snippet with no `export` in it, which is the most likely way to use this.
+ * The report text, through the handler. Each case changes one condition.
+ * No exports and no api: both lines say `(none)`.
  */
 test('local printer_visitor: says "(none)" for a snippet with no exports', async (t) => {
     const answer = await text({

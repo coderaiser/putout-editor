@@ -27,14 +27,8 @@ const blockNode = (source: string): Node => {
 };
 
 /**
- * The function's body — what the printer walks — or the block itself when the
- * source *is* a block.
- *
- * A `function f() {}` has an empty body and no statement of its own; `{}`
- * has the statements directly. The printer's `bodyOf` takes only the first
- * shape, so this covers the branch `visitBlock` is written for in both
- * directions — the spec asks for "empty BlockStatement no stmts" and a bare
- * block is the other way to have one.
+ * The function body, or the block itself when the source is a block.
+ * Covers both ways to have an empty `BlockStatement`.
  */
 interface Recorded {
     stmts: string[];
@@ -44,13 +38,8 @@ interface Recorded {
 }
 
 /**
- * The printer half of the `FlowApi` contract, recorded instead of executed.
- *
- * `closed` answers from a script the spec fills — one boolean per child — so
- * "the block closed after the first statement" is stated, not derived. `walk`
- * records the node type dispatched, and `unreachable` counts its own calls:
- * the third plan case opens exactly one unreachable block however many
- * statements follow the terminator.
+ * A recorded `FlowApi`. `closed` answers from a script: one boolean per
+ * child. `walk` records the node type. `unreachable` counts its calls.
  */
 const api = (source: string): Recorded => {
     const stmts: string[] = [];

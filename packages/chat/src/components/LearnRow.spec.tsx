@@ -10,13 +10,8 @@ import LearnRow from './LearnRow.tsx';
 const noop = () => {};
 
 /**
- * A row built by hand rather than through `flattenLearn`.
- *
- * `LearnTree.spec.tsx` takes its rows from the command, and that is right there
- * — the tree's whole job is to draw what `flattenLearn` produced. Here the
- * subject is the row's own handler, so a hand-built node is the honest fixture:
- * the spec would otherwise break on a `flattenLearn` change that has nothing to
- * do with whether a tap folds.
+ * A hand-built row: this spec is about the handler of the row, not
+ * `flattenLearn`.
  */
 const node = (over: Partial<FlatLearnNode> = {}): FlatLearnNode => ({
     id: '0',
@@ -135,17 +130,8 @@ test('LearnRow: clicking a node with children also folds it', (t) => {
 });
 
 /**
- * The coarse-pointer case, and the whole of bug 2 on a touchscreen.
- *
- * A coarse pointer fires `click` on `pointerup`, so a row that both selects and
- * folds on one handler folds on the first tap and unfolds on the second — the
- * two effects cancel and the user taps twice and sees nothing happen. The
- * `mobile` prop already existed on `LearnTree`; it never reached the row,
- * because the row was inline markup with one handler.
- *
- * The reasoning is `AstRow`'s, and the case is copied from its spec for the same
- * reason the component copies the handler: two trees drawing the same rows with
- * the same caret should answer a pointer the same way.
+ * A coarse pointer fires `click` on `pointerup`. Same behaviour as `AstRow`:
+ * both trees answer a pointer the same way.
  */
 test('LearnRow: a coarse pointer toggles with a fine one', (t) => {
     const toggled: string[] = [];

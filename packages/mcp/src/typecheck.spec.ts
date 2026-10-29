@@ -8,19 +8,11 @@ import {
 } from './typecheck.ts';
 
 /**
- * Two arms, in the dialect the tool actually accepts: **strings**.
- *
- * The shapes are the printer's own, measured rather than read off the source,
- * because `parseTypeNames` is not obvious: a string containing `' -> '` goes
- * through `createTuple`, which splits on spaces and keeps only the **last** token
- * as the type name — so `'-: parentPath -> !CallExpression'` becomes selector
- * `parentPath` against `CallExpression`, negated. The bare `'Identifier'` is what
- * gives the table its successful route; a table of only `-:` clauses is rejected
- * at construction.
- *
- * A `['+', fn]` clause is deliberately absent: `fn` is a live function and
- * cannot arrive over MCP. Asserting the string dialect only means the tool's
- * contract and its tests are about the same thing.
+ * Clauses as strings, the form the tool accepts. A string with `' -> '` goes
+ * through `createTuple`, which keeps the last token as the type:
+ * `'-: parentPath -> !CallExpression'` is `parentPath` against a negated
+ * `CallExpression`. `'Identifier'` is the successful route. A `['+', fn]`
+ * clause cannot come over MCP.
  */
 const TABLE = [
     '-: parentPath -> !CallExpression',
@@ -259,16 +251,9 @@ test('local type_check: a table of plain type names works too', async (t) => {
 });
 
 /**
- * The report's own location line, which is a **four-field** `at:uri:line:column`.
- *
- * `report()`'s `setLine` splits the coverage key on `:` and does
- * `Number(line) + index + 1`. A key with a filename in it — `type_check.ts` —
- * puts that string where the number goes, and the report prints
- * `mcp:type_check:NaN:0` instead of a line. Both variants shipped in this file's
- * history and neither failed a test, because nothing asserted on the location.
- *
- * The number itself is the point of the assertion: index 2 (the third clause)
- * with line `0` must come back as line **3**.
+ * The location line is `at:uri:line:column`. `report()` adds the clause
+ * index to the line. Clause index 2 with line `0` gives line 3. A filename
+ * in the key gives `NaN`.
  */
 test('local type_check: the report location is the clause number as a line', async (t) => {
     const result = await text({

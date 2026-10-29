@@ -3,30 +3,12 @@ import {commands} from './index.ts';
 import {runHelp} from '../index.ts';
 
 /**
- * The `help` rows, as text.
- *
- * Both arms need narrowing and neither is a cast. `runHelp` is declared to
- * return the whole `CommandResult` union — the command modules are typed by
- * what they answer *with*, not by one shape — and the union has an `ast` arm
- * with no `data` at all, so `tsc` cannot let `.data` through until `type` has
- * been checked. Same for `Command.run`, which is a promise *or* a result
- * because three commands reach 🐊Putout; `help` is not one of them, so this
- * refuses the promise rather than awaiting it.
+ * The `help` rows as text. Narrow, do not cast: `CommandResult` has an `ast`
+ * arm with no `data`, and `Command.run` can return a promise.
  */
 const isUndefined = (a: unknown): a is undefined => typeof a === 'undefined';
 const isString = (a: unknown): a is string => typeof a === 'string';
 
-/**
- * The `help` rows, as text.
- *
- * Both arms need narrowing and neither is a cast. `runHelp` is declared to
- * return the whole `CommandResult` union — the command modules are typed by
- * what they answer *with*, not by one shape — and the union has an `ast` arm
- * with no `data` at all, so `tsc` cannot let `.data` through until `type` has
- * been checked. Same for `Command.run`, which is a promise *or* a result
- * because three commands reach 🐊Putout; `help` is not one of them, so this
- * refuses the promise rather than awaiting it.
- */
 const rows = (): string[] => {
     const result = runHelp([...commands.values()]);
     

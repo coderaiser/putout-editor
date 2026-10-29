@@ -18,19 +18,10 @@ export interface FlowBlockProps {
 }
 
 /**
- * The `/flow` answer: the source, and its control-flow graph below it.
- *
- * Source panel: line-numbered like `SourceBlock`. A line gets `data-unreachable`
- * when no path reaches its block, and `data-duplicate` when two blocks share its
- * text. A click calls `onNavigate` with the line number.
- *
- * Graph panel: an inline SVG drawn from `layoutOf` (`flowLayout.ts`), one block
- * per row, top to bottom. The SVG has a fixed-width `viewBox` and scales to the
- * pane, so it never scrolls sideways. Colours come from `FlowBlock.css`, never
- * from attributes: an unknown token in an SVG `fill` draws black.
- *
- * `data-testid="flow-output"` is on this wrapper only, so the page never has
- * two elements with that testid.
+ * The `/flow` answer: the source, and the control-flow graph below it.
+ * Lines get `data-unreachable` and `data-duplicate`; a click calls
+ * `onNavigate`. The SVG comes from `layoutOf` with a fixed-width `viewBox`.
+ * Colours come from `FlowBlock.css`: an unknown token in `fill` draws black.
  */
 export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) {
     const lines = source.split('\n');

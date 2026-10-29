@@ -10,21 +10,9 @@ export interface LearnBlockProps {
 }
 
 /**
- * The `/learn` reply: the concept tree in the thread.
- *
- * `AstBlock` is the model — props in, one dispatch out, no knowledge of the
- * thread. The one difference is that `AstTree` is handed `FlatNode[]` already
- * flattened by `runAst`, while `runLearn` answers with the *nested* tree (the
- * rows are derived from it wherever they are drawn), so the flattening happens
- * here, once, on the way in.
- *
- * `learnOpen` rather than two dispatches: the body and the `[try it →]` have to
- * land in that order, and the slice is where `addMessage` and `nextId` already
- * live. The row it dispatches carries `body` and `example`, so there is no
- * second lookup to get wrong.
- *
- * `useIsMobile` here rather than in `LearnTree`, for the reason `AstBlock`
- * gives: the answer is a property of the page, not of the tree.
+ * The `/learn` answer. Like `AstBlock`, but `runLearn` returns a nested
+ * tree, so it is flattened here. `learnOpen` adds the body and `[try it →]`
+ * in order. `useIsMobile` is here: it is a page property.
  */
 export default function LearnBlock({tree}: LearnBlockProps) {
     // `useDispatch<AppDispatch>()` rather than a bare `useDispatch()`: the bare

@@ -6,13 +6,9 @@ import {
 } from 'react';
 
 /**
- * The three fields every tree row has, whatever else it carries.
- *
- * `FlatNode` and `FlatLearnNode` both satisfy it, which is what lets one tree
- * widget serve the AST and the concept curriculum: collapse, filter and keyboard
- * navigation read `id`, `pid` and `depth` and nothing else. What a row *shows*
- * and what a query *matches* are the two things that differ, and both arrive as
- * an option rather than as a second hook.
+ * The fields of each tree row. `FlatNode` and `FlatLearnNode` have them, so
+ * one widget serves both trees. The row text and the query target are
+ * options.
  */
 export interface TreeNode {
     id: string;
@@ -154,16 +150,8 @@ export const rowsOf = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, q
 };
 
 /**
- * What `ArrowLeft` / `ArrowRight` do, as an action rather than an id.
- *
- * `fold` is "collapse this node in place" and `walk` is "select that other
- * node". Returning an id alone cannot express the difference, because
- * `ArrowRight` on a collapsed node and `ArrowLeft` on an expanded one both
- * answer "this same node" — and in one case the node has to expand and in the
- * other it has to collapse. So both moves say which, and the handler applies.
- *
- * `noop` is the end of the tree: a leaf asked to fold, a root asked to collapse.
- * Neither is an error, and both are what every tree viewer does.
+ * What `ArrowLeft` / `ArrowRight` do. `fold`: collapse or expand this node.
+ * `walk`: select another node. `noop`: the end of the tree.
  */
 export type TreeMove = {
     kind: 'fold';
@@ -398,20 +386,9 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
     const element = useRef<HTMLDivElement | null>(null);
     
     /**
-     * Leave the filter and take real focus back to the tree.
-     *
-     * `setFocus('tree')` alone is a lie the user can see: the state says the
-     * tree is focused while the caret is still in the input, so the next
-     * keypress goes into the filter. `AstSearch` has the mirror-image fix on its
-     * side (`useEffect` on `focused` calls `input.focus()`), and this is its
-     * partner.
-     *
-     * Called **from the handler** rather than from an effect keyed on
-     * `state.focus`, because the input's `onBlur` also sets focus back to the
-     * tree — an effect would then yank focus out of whatever the user clicked
-     * next. Only a keypress means "go there on purpose".
-     *
-     * Declared above the key handler because that handler closes over it.
+     * Leave the filter and move real focus to the tree. Call it from the key
+     * handler, not from an effect on `state.focus`: `onBlur` also sets the
+     * focus, and an effect would take focus from the next click.
      */
     const goToTree = useCallback(() => {
         setQuery('');
@@ -435,17 +412,10 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
             const {key} = event;
             
             if (state.focus === 'search') {
-                // `Escape` and `k`/`ArrowUp` are the same verb: leave the filter
-                // and take the text with it. Clearing matters as much as the
-                // focus move — a filter that keeps its query but loses focus
-                // leaves a filtered tree with no filter box and no way back.
-                //
-                // `preventDefault` is **not** optional here. The listener is on
-                // `.ast` and the event's target is the input, so the browser
-                // still inserts the character unless the default is cancelled:
-                // `k` would both leave the filter *and* leave a `k` behind in it.
-                // The unit specs cannot see this — they assert the state, and the
-                // state was right — which is why the e2e presses a real key.
+                /*
+                 * `Escape`, `k` and `ArrowUp` leave the filter and clear it.
+                 * `preventDefault`: the target is the input, so `k` would stay in it.
+                 */
                 if (key === 'Escape' || key === 'k' || key === 'ArrowUp') {
                     event.preventDefault();
                     goToTree();
@@ -480,18 +450,7 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
             }
             
             if (key === 'ArrowUp' || key === 'k') {
-                // `k` on the **first** row hands over to the filter, which is
-                // what plan.md's cycle diagram says — "k / ArrowUp (from Program
-                // = first row) → moves focus to filter input".
-                //
-                // The prose under the diagram says `j`/`ArrowDown` here
-                // instead, and that cannot be what was meant: `defaultCollapsed`
-                // folds everything below depth 1, so the tree draws **two** rows
-                // by default, and `j` on the first of two rows can never reach
-                // the second. That reading breaks navigation outright, and three
-                // specs that walked the tree with `ArrowDown` caught it. `k` is
-                // also the honest direction: the filter bar renders *above* the
-                // tree, so up from the top row is where it is.
+                // `k` on the first row moves focus to the filter, which is above the tree.
                 const shown = rowsOf(nodes, state.collapsed, state.query, textOf);
                 const atTop = shown.length > 0 && state.selected === shown[0].id;
                 
@@ -521,18 +480,9 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
             }
             
             /**
-             * Enter/space is the one key whose meaning depends on the row.
-             *
-             * A container has nothing to *open* — a caret is its whole answer —
-             * so it toggles. A leaf has nothing to toggle, so it opens, if the
-             * caller said what opening means. `AstTree` passes no `onOpen`, which
-             * is why its leaves toggle too: a fold on a leaf is a no-op, and that
-             * is the same behaviour it had before the option existed.
-             *
-             * The `hasChildren` call is over all nodes rather than the drawn rows,
-             * for the reason `hasChildren` itself gives: a folded subtree's last
-             * child is not on screen, and asking only what is visible would call a
-             * container a leaf the moment its sibling folded away.
+             * Enter/space: a container toggles; a leaf opens when the caller
+             * gives `onOpen`, else toggles (a no-op). `hasChildren` asks over
+             * all nodes: a folded subtree hides its children.
              */
             if (key === 'Enter' || key === ' ') {
                 if (!state.selected)
@@ -571,15 +521,9 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
     ]);
     
     /**
-     * A callback ref rather than `useRef` + `useEffect`: the listener has to be
-     * bound to this tree's own root div, and a callback ref is the only place
-     * that knows the element. It is also the only version whose `null` case is
-     * real — React calls it on unmount, so the detach path is exercised rather
-     * than being a branch nothing can reach.
-     *
-     * The element is kept on the way through, because `goToTree` above has to
-     * put **real** focus back on this div and a callback ref is the only handle
-     * that has it.
+     * A callback ref: it gets the root element of this tree, so the listener
+     * binds there. React calls it with `null` on unmount. `goToTree` uses the
+     * element to move focus.
      */
     const root = useCallback((node: HTMLDivElement | null) => {
         const previous = element.current;

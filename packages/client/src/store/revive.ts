@@ -12,14 +12,10 @@ export const persist = (state: State) => ({
 });
 
 /**
- * When read from persistent storage, set the last stored code as initial version.
- * This is necessary because we use CodeMirror as an uncontrolled component.
- *
- * Note this *derives* `workbench.initialCode`, `workbench.parserSettings` and
- * `workbench.transform.initialCode` from other state. Anything that passes a
- * preloaded state through here will have those three overwritten, so set the
- * fields they come from — `workbench.code`, the top-level
- * `parserSettings[parser]` map, and `workbench.transform.code` — instead.
+ * Set the stored code as the initial version: CodeMirror is uncontrolled.
+ * This overwrites `workbench.initialCode`, `workbench.parserSettings` and
+ * `workbench.transform.initialCode`. To preload them, set `workbench.code`,
+ * `parserSettings[parser]` and `workbench.transform.code`.
  */
 export const revive = (state: State = initialState) => ({
     ...state,

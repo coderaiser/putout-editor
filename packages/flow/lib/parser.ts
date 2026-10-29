@@ -12,16 +12,10 @@ export interface Succ {
 
 /**
  * One basic block.
- *
- * `stmts` are **source strings**, never IR: the text is what a reader compares
- * against the editor and what an LLM reads in an answer, and re-deriving source
- * from an IR would mean shipping a printer's worth of decisions in this type.
- *
- * `terminal` means the block cannot fall through — it holds a `return` and its
- * only successor is `exit`. It is **inferred here** rather than parsed, so the
- * text stays the printer's and the property stays one line to change.
- *
- * `unreachable` is the printer's annotation of code no path reaches.
+ * - `stmts`: source strings, not IR. A reader compares them with the editor.
+ * - `terminal`: the block holds a `return` and goes to `exit`. The parser
+ *   infers it from the text.
+ * - `unreachable`: the printer marks a block that no path reaches.
  */
 export interface Block {
     id: number;
@@ -68,17 +62,11 @@ const isTerminal = (stmts: string[], succs: Succ[]): boolean => {
 };
 
 /**
- * Flow text back into blocks — the inverse of `printer.ts`.
- *
- * Kept as its own file and never merged with the printer, for the same reason
- * the two halves of any format are separate: a round-trip that shares code
- * between writer and reader is a round-trip that cannot fail, and
- * `index.spec.ts` depends on this one being able to disagree.
- *
- * The grammar is line-based and needs no state beyond the block being filled:
- * a `block N` header starts one, an indented `->` line appends an edge, and any
- * other indented line is a statement. Blank lines separate blocks and are
- * otherwise ignored, so trailing newlines are not a special case.
+ * Flow text to blocks: the inverse of `printer.ts`. Keep the two files
+ * separate, so that the round-trip in `index.spec.ts` can fail.
+ * Grammar, one line at a time: `block N` starts a block, an indented `->`
+ * line adds an edge, other indented lines are statements. Blank lines
+ * separate blocks.
  */
 export const parse = (text: string): Block[] => {
     const chunks = text

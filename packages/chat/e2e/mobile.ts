@@ -74,13 +74,9 @@ const within = (inner: Rect, outer: Rect) => ({
 type Rect = Awaited<ReturnType<typeof rectOf>>;
 
 /**
- * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
- * targets form controls and has no effect on a `contenteditable` div, and not
- * `keyboard.type`, which presses a real `Enter` for every embedded `\n` — on a
- * keyboard `Enter` *sends*, so a multi-line `source` body would go out as two
- * commands with the first half sent mid-line. `insertText` lands the text
- * atomically: the editor still fires its update, `onChange` still lands in
- * React state, and the key handler only sees the send chord.
+ * Click, insert the text, then `Ctrl+Enter`. `fill` does not work on a
+ * `contenteditable` div. `keyboard.type` presses `Enter` for each `\n`, and
+ * `Enter` sends. `insertText` puts the whole text in one step.
  */
 const send = async (page: Page, text: string) => {
     await box(page).click();
@@ -92,21 +88,9 @@ const send = async (page: Page, text: string) => {
 const VIEWPORT = 390;
 
 /**
- * `scrollWidth`, not `innerWidth`.
- *
- * `innerWidth` is 390 on the broken build and on the fixed one — the viewport
- * does not change, the content inside it does. `scrollWidth` is what a user can
- * actually scroll to, so it is the only one of the two that fails on a layout
- * 40px too wide. Comparing `.input`'s own width to `innerWidth` would pass on
- * the broken build too: it is exactly `100%` wide either way, and the overflow is
- * its padding.
- *
- * The wait is not optional, and it is the reason this test is worth reading.
- * `page.goto` resolves on `load`, and React mounts after it, so a measurement
- * taken straight after the navigation reads a document with no `.input` in it —
- * where `scrollWidth` is the viewport width and the assertion passes on a build
- * that is 40px too wide. Measured: `scrollWidth` 390 with `hasInput: false`, then
- * 430 on the very next `evaluate`, with no navigation in between. See
+ * Compare `scrollWidth`, not `innerWidth`: the viewport width does not
+ * change. Wait for `.input` first: before React mounts, `scrollWidth` is the
+ * viewport width and the check passes on a wide layout. See
  * `docs/testing.md`.
  */
 test('the composer fits the viewport width', async ({page}) => {
@@ -130,17 +114,8 @@ test('the send button is on screen', async ({page}) => {
 });
 
 /**
- * The send button inside the textarea — **on touch as well as on a keyboard**.
- *
- * The plan split this by pointer type and kept the button *outside* on a
- * touchscreen, reasoning that it must stay "large and outside the text area".
- * The decision for this run is the opposite one, and it is the same UI Claude
- * ships on a phone: **the button is inside the textarea on every pointer type.**
- *
- * What survives of the plan's concern is the *size*, so it is asserted here
- * separately rather than folded into this spec — a composer whose button is 32px
- * tall needs a hit area of 44 to be usable with a thumb, and containment says
- * nothing about either.
+ * On a touchscreen too, the send button is inside the textarea. The size of
+ * the hit area has its own spec.
  */
 test('the send button sits inside the textarea boundary on a touchscreen', async ({page}) => {
     const send = await rectOf(page, '.input__send');
@@ -162,21 +137,9 @@ test('the send button sits inside the textarea boundary on a touchscreen', async
 });
 
 /**
- * The thumb-sized part: a 32px button painted inside the box, with a **44px
- * tappable region** around it.
- *
- * Measured by **scanning**, not by probing four corners at a hardcoded offset.
- * The first version of this spec probed at `right + 6` and came back `TEXTAREA`
- * on the two outward corners — the `::before` is `inset: -6px`, so the hit area
- * is exactly 44px and `right + 6` is its *exclusive* edge. A corner probe is
- * therefore one pixel from being a coin flip, and it says nothing about how big
- * the region really is. Walking a row and a column and counting how many pixels
- * belong to the button answers the real question — "how big is the target a
- * thumb gets" — and reports 44 for the same layout a 32px-wide probe would have
- * described as failing.
- *
- * `document.elementFromPoint` rather than a Playwright action, because it asks
- * what is really there instead of what ought to be clickable.
+ * A 32px button with a 44px hit area. Scan a row and a column with
+ * `document.elementFromPoint` and count the button pixels. A corner probe at
+ * `right + 6` is on the exclusive edge.
  */
 test('the send button has a thumb-sized hit area on a touchscreen', async ({page}) => {
     const send = await rectOf(page, '.input__send');
@@ -260,24 +223,11 @@ test('the textarea reserves room for the send button on a touchscreen', async ({
 });
 
 /**
- * The **left** padding is the thread's gutter, and on a 390px phone the 52px it
- * used to inherit from the button's lane was a seventh of the whole composer.
- *
- * That is why this is asserted on the mobile project rather than only on the
- * desktop one: the same number is a cosmetic annoyance at 1280px and the reason
- * the placeholder reads as centred on a phone. The value is measured rather than
- * inferred from the thread's own padding, so the two cannot drift apart.
+ * The left padding is the thread gutter, not the 52px button lane: on a
+ * 390px phone that is a seventh of the composer.
  */
 test('the textarea placeholder is not pushed right by the button lane', async ({page}) => {
-    // Wait for the **real** composer, not the Suspense fallback. `.input__box`
-    // exists from the first frame as `input__box input__box--loading`, so a bare
-    // `.evaluate()` resolves before the extracted stylesheet has been fetched and
-    // applied — `getComputedStyle(el).paddingLeft` is then `''` and `parseInt('')`
-    // is `NaN`, which fails as a number rather than as a layout. `.cm-content`
-    // only exists once `CodeMirrorBox` has mounted, which is strictly later than
-    // the CSS arriving. The neighbours above get away without this because
-    // `rectOf(page, '.input__send')` runs first and spends the time; this spec
-    // measured the box as its very first action.
+    // Wait for `.cm-content`: before the stylesheet applies, `paddingLeft` is `''`.
     await expect(page.locator('.input__box .cm-content')).toBeVisible();
     
     const padding = await page
@@ -310,18 +260,9 @@ test('the autocomplete dropdown is on screen', async ({page}) => {
 });
 
 /**
- * Vertical geometry, which the three specs above do not touch at all: they are
- * all horizontal assertions, so a layout that put the composer at the top of the
- * page — behind the header, or floating in the middle — would pass every one of
- * them.
- *
- * `plan-v3.md` §1 calls this a blank-page bug. It is not: `.chat` measures 611px
- * and the composer's bottom edge is the viewport's bottom edge. These specs are
- * here because *that was never asserted*, not because it is currently broken —
- * see `docs/testing.md`.
- *
- * The numbers are `getBoundingClientRect()` values in CSS pixels, which is the
- * same unit `page.viewportSize()` reports, so the two are directly comparable.
+ * Vertical geometry: the composer is at the bottom and the thread fills the
+ * space under the header. `getBoundingClientRect()` and
+ * `page.viewportSize()` use the same unit.
  */
 test('the thread fills the space under the header', async ({page}) => {
     await expect(page.getByTestId('input')).toBeVisible();
@@ -411,13 +352,8 @@ test('the send button is below the header and above the fold', async ({page}) =>
 });
 
 /**
- * The document must not scroll on its own.
- *
- * This is the load-bearing fact behind `100dvh` on `.chat-app`: `dvh` tracks the
- * *visible* viewport, so a page that scrolls would resize the app shell as the
- * user scrolled. The thread has its own `overflow-y: auto`, so nothing scrolls
- * the document, and `dvh` therefore cannot thrash here. If this ever fails, the
- * `dvh` choice needs revisiting rather than this number.
+ * The document does not scroll: `.chat-app` uses `100dvh`, which changes when
+ * the page scrolls. The thread scrolls itself.
  */
 test('the document does not scroll', async ({page}) => {
     const measured = await page.evaluate(() => document.documentElement.scrollHeight <= globalThis.innerHeight + 1);
@@ -427,28 +363,8 @@ test('the document does not scroll', async ({page}) => {
 });
 
 /**
- * The gap *inside* one message, not between messages.
- *
- * `.chat__message` already has `gap: 12px` between messages, and a command and
- * its answer are one message: `.message--user` then `<MessageRow>` as two
- * children of a single `.chat__message`. So the flex `gap` counts one child and
- * contributes nothing, and with no margin of their own the echo and the answer
- * sit flush — one block of text.
- *
- * Measured from the bottom of `.message--user` to the top of the answer, which
- * is 0 today. Geometry rather than a screenshot, for the reason the specs above
- * give: a 40px overflow renders a page that looks almost right.
- */
-
-/**
- * A sentence is not a command — and on a touchscreen this is the path most likely
- * to produce one, since the send button is a tap away and there is no `Ctrl+Enter`
- * chord to signal "this is a command".
- *
- * Sent by tapping the button rather than with the chord, so it is the route a
- * phone user actually takes. The **message** is asserted, not just that an error
- * appeared: `.error-block` is what an unknown command shows too, and visibility
- * alone cannot tell the two apart.
+ * A sentence is not a command. Send with a tap, the way a phone user sends.
+ * Check the message: an unknown command also shows `.error-block`.
  */
 test('a sentence is told to start with a sigil on a touchscreen', async ({page}) => {
     await box(page).click();
@@ -493,15 +409,7 @@ test('Enter is a newline on a touchscreen, and sends nothing', async ({page}) =>
     await page.keyboard.type('/help');
     await page.keyboard.press('Enter');
     
-    // Both halves are the point: a newline that also sent would post a
-    
-    // half-typed line, and this is the assertion that would have caught it.
-    
-    // `toHaveText` normalizes the trailing break away, so the `\n` reads as
-    
-    // documentation of the newline rather than a byte comparison — the count
-    
-    // below is what pins "sends nothing".
+    // A newline does not send. `toHaveText` drops the trailing break; the count checks the send.
     await expect(box(page)).toHaveText('/help\n');
     await expect(userMessages(page)).toHaveCount(SEEDED);
 });
@@ -516,14 +424,8 @@ test('Ctrl+Enter sends on a touchscreen too', async ({page}) => {
 });
 
 /**
- * The code preview is gone on a touchscreen.
- *
- * `toBeHidden()`, **not** `toHaveCount(0)`. The element is still mounted —
- * `AstTree` renders it unconditionally and `@media (pointer: coarse)` in
- * `AstTree.css` gives it `display: none` — so a count assertion would fail on
- * the correct implementation and pass on a broken one. `toBeHidden()` matches
- * `display: none` and also matches `visibility: hidden`, which is why the CSS
- * comment pins the two together.
+ * The code preview is hidden on a touchscreen. Use `toBeHidden()`, not
+ * `toHaveCount(0)`: the element is mounted with `display: none`.
  */
 test('ast hides the code preview on a touchscreen', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -537,31 +439,9 @@ test('ast hides the code preview on a touchscreen', async ({page}) => {
 });
 
 /**
- * The console panel's rows, on a touchscreen — the whole of bug 1.
- *
- * `ConsolePanel` mounted `AstTree` without `mobile`, so the panel's rows folded
- * on tap: a coarse pointer fires `click` on `pointerup`, so the first tap both
- * selected and folded and the second tap did both again, cancelling itself. The
- * user tapped a row twice and watched nothing happen. The thread's copy of the
- * same tree went through `AstBlock`, which reads `useIsMobile`, so it was right
- * — which is why this is a spec about the panel and not a duplicate of the
- * thread's.
- *
- * Two behaviours in one spec, because they are one bug and the second half is
- * what makes the first meaningful: the tap **selects** (the row carries
- * `ast-row--selected`) and does **not** fold (the row count is unchanged), and
- * `space` — the key the short hint teaches — is what folds.
- *
- * Scoped to `.console-panel`, not to `getByTestId('chat')`: `ast` puts a second
- * copy of the tree in the thread, so a bare `ast-row` locator is a strict-mode
- * violation rather than a passing test. The panel is a sibling of the thread,
- * not a descendant, so the class is the only scope that separates them.
- *
- * `/ast` alone, with no `/source` first: the thread opens **seeded** with a
- * worked `source` example, so the buffer is already set and a bare `/ast` is
- * the state a real visitor arrives in. That is also why the count is six and
- * not three — the seed is a putout rule, so the tree is deeper than a
- * `const add = …` would be.
+ * In the console panel on a touchscreen, a tap selects a row and does not
+ * fold it. `space` folds. Scope to `.console-panel`: `ast` also puts a tree
+ * in the thread. The seed sets the buffer, so `/ast` alone works.
  */
 test('a tap in the console panel selects and toggles a row', async ({page}) => {
     await send(page, '/ast');
@@ -617,13 +497,7 @@ test('the console panel shows the short hint on a touchscreen', async ({page}) =
 });
 
 /**
- * …and the tree gets the whole width, which is the actual reason.
- *
- * A `minmax(0, 1fr)` two-column grid on 390px gives each column 190px, so the
- * tree — the point of `ast` — was the half that ran out of room. Measured
- * against the viewport rather than against the old value, so the assertion is
- * about "the tree has the screen" and not about a number the grid happens to
- * produce today.
+ * On a touchscreen the tree gets the full width. Compare with the viewport.
  */
 test('ast gives the tree the full width on a touchscreen', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -702,19 +576,8 @@ test('ast hint is one line tall on a touchscreen', async ({page}) => {
 });
 
 /**
- * The opening thread has to fit, because it is what every first visit shows.
- *
- * Found by measuring rather than by reading the plan: the plan's six items do
- * not mention this, and it appeared the moment the thread was seeded. Both
- * seeded answers are wider than 390px — the `source` example is a rule with a
- * `replace` object, and the help table has a `name usage` column that is
- * `white-space: nowrap` — and neither could shrink, so `.chat__thread` grew
- * past the viewport and the whole **document** scrolled sideways.
- *
- * `scrollWidth`, not `innerWidth`, for the reason the composer spec above gives:
- * the viewport does not change, the content inside it does. And the seed is
- * what makes this a load-time assertion rather than a `send()` one — it is on
- * screen before anything is typed.
+ * The opening thread fits the viewport: the seed is on screen before any
+ * input. Compare `scrollWidth`, not `innerWidth`.
  */
 test('the opening thread fits the viewport width', async ({page}) => {
     await expect(page.getByTestId('input')).toBeVisible();
@@ -726,24 +589,9 @@ test('the opening thread fits the viewport width', async ({page}) => {
 });
 
 /**
- * Nothing hangs off the right edge **where the user cannot reach it**.
- *
- * The composer spec above established the technique — probe every element whose
- * `right` is past the viewport — and it is repeated here because the two
- * overflows have nothing to do with each other, so a fix for one that silently
- * fixed the other would mean the measurement stopped measuring.
- *
- * The ancestor walk is the whole point, and it took a failing run to learn. The
- * first version flagged every element past the edge and failed on thirteen of
- * them — all inside `.source-block`, which is `overflow-x: auto` **on purpose**.
- * A long line of code is supposed to be wider than a phone and scroll inside its
- * own box; that is what the box is for. Flagging it measures the styling rather
- * than the defect.
- *
- * What is left after the walk is a real bug: an element the page cannot scroll
- * to reach. That is the `.chat` overflow this work fixed, and it is invisible to
- * a count of `scrollWidth` alone, which says *that* a document overflows and not
- * *what*.
+ * No element is past the right edge out of reach of a scroll. Skip elements
+ * inside an `overflow-x: auto` ancestor (`.source-block`): they scroll in
+ * their own box. `scrollWidth` alone does not say which element overflows.
  */
 test('nothing hangs off the right edge out of reach of a scroll', async ({page}) => {
     await expect(page.getByTestId('input')).toBeVisible();
@@ -789,26 +637,13 @@ test('nothing hangs off the right edge out of reach of a scroll', async ({page})
 });
 
 /**
- * The input still reaches the bottom of the screen.
- *
- * The seed made the thread tall enough to scroll, which is the first time this
- * page has had content taller than its box on load — so "the composer is
- * reachable" stops being implied by the layout and has to be asserted. This is
- * the regression guard for `flex: 1` on `.chat`: without a definite height the
- * thread would push the input off the bottom rather than scroll.
+ * The input is at the bottom of the screen on load. Guards `flex: 1` on
+ * `.chat`: the seed makes the thread scroll.
  */
 test('the input is at the bottom of the viewport on load', async ({page}) => {
     await expect(page.getByTestId('input')).toBeVisible();
     
-    // **Both** numbers measured inside the page. `page.viewportSize()` is what
-    
-    // Playwright was configured with and `getBoundingClientRect()` is what the
-    
-    // browser laid out, and on `devices['iPhone 12']` those disagree by 18px —
-    
-    // enough for this to fail at `viewport - bottom === 0` and to pass for the
-    
-    // wrong reason if the slack were widened. One source, one coordinate system.
+    // Measure both numbers in the page: on `iPhone 12` `page.viewportSize()` differs by 18px.
     const measured = await page.evaluate(() => {
         const input = document.querySelector('.input') as HTMLElement;
         
@@ -823,14 +658,8 @@ test('the input is at the bottom of the viewport on load', async ({page}) => {
 });
 
 /**
- * `/help` shows command names without wrapping mid-name on a phone.
- *
- * The `@media (max-width: 480px)` rule stacks each `.help-block__row` to one
- * column, so on a 390px screen the name gets the full width and `white-space:
- * nowrap` holds it on one line. `scrollWidth > clientWidth` is the signature of
- * text wider than its box — the name being clipped or pushing the row wide —
- * so the assertion is that it does **not** overflow: the longest command
- * (`/transform [plugin]`) fits without breaking.
+ * On a phone, `/help` command names do not wrap. At `max-width: 480px` each
+ * row has one column. `scrollWidth > clientWidth` means overflow.
  */
 test('/help shows command names without wrapping mid-name', async ({page}) => {
     await send(page, '/help');

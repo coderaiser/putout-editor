@@ -29,13 +29,7 @@ test('index: the app mounts inside a Provider without throwing', (t) => {
 });
 
 /**
- * The app opens on a **thread**, not on nothing.
- *
- * Reverses "the mounted app starts with an empty thread", which asserted
- * `messages.length === 0` and pinned the blank start screen plan.md calls out:
- * a user opening this in a browser saw an empty box and no indication of what
- * to type. The count is relative to `initialState` so it tests that the app
- * runs the real seed rather than transcribing what the seed happens to be.
+ * The app starts on the seeded thread. The count comes from `initialState`.
  */
 test('index: the mounted app starts on the seeded thread', (t) => {
     const store = createAppStore();

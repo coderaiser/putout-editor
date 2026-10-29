@@ -97,18 +97,9 @@ test('local formats: covers every processor the client templates use', (t) => {
 });
 
 /**
- * The two formats whose AST is not babel's, and the two that cost the most to
- * reverse-engineer.
- *
- * A `fixture` says what a *file* looks like. It does not say how a **rule** reaches
- * a node inside it, and that is the half that is hard: `happy-style` and `happy-mark`
- * both lower their tree to JS *call expressions*, so there is no `Declaration` with a
- * `property` field to visit — you match the call and read `arguments`.
- *
- * These specs pin the answer so the next rule for either format is written against it
- * rather than against a probe. The ASTs themselves were read out of the packages, not
- * out of a README, and `every ast names the package it came from` is what stops this
- * list drifting away from them silently.
+ * css and markdown: `happy-style` and `happy-mark` convert a document to JS
+ * call expressions. A rule matches the call and reads `arguments`. Each
+ * `ast` names its source package.
  */
 test('local formats: css says how to reach a declaration', (t) => {
     const [css] = parse().filter(({id}: {id: string;}) => id === 'css');

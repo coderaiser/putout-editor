@@ -26,14 +26,9 @@ type Walked = types.Node & {
 };
 
 /**
- * Replaces every leaf with the next `__a`-style name and prints the result,
- * which *is* the generalised key — `const add = (a, b) => a + b;` becomes
- * `const __a = __b => __c + __d`. Deriving the key from the snippet rather than
- * matching a fixed list is the point: a list only answers for shapes somebody
- * thought of in advance.
- *
- * Only the leaf types are blanked. A structure that is not in `LEAVES` keeps
- * its shape, so an import stays an import rather than turning into `__a`.
+ * Replace each leaf with the next `__a`-style name and print the result:
+ * `const add = (a, b) => a + b;` gives `const __a = __b => __c + __d`.
+ * Only types in `LEAVES` change, so an import stays an import.
  */
 const blankLeaves = (node: Walked | Walked[], state: {
     at: number;

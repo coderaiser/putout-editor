@@ -13,13 +13,8 @@ type Format = {
     fixture: string;
     
     /**
-     * How a **rule** reaches a node, for the formats whose AST is not babel's.
-     *
-     * `fixture` shows what a file looks like, which is the wrong question when
-     * writing a rule: the hard half is the path *into* the tree. Both `happy-style`
-     * and `happy-mark` lower their document to JS call expressions, so there is no
-     * `Declaration` node with a `property` field to visit — you match the call and
-     * read `arguments`.
+     * How a rule reaches a node when the AST is not Babel. `happy-style` and
+     * `happy-mark` make JS call expressions: match the call, read `arguments`.
      */
     ast?: string;
     
@@ -28,15 +23,9 @@ type Format = {
 };
 
 /**
- * Read out of `happy-style` by running `convertCssToJs`, not copied from its README:
- * the `functionValue` arguments come back with an `operator` node for every
- * separator, which is the part a rule has to skip over and the part a hand-written
- * example gets wrong.
- *
- * A template literal rather than `[...].join('\n')`, which `montag/apply` rejects
- * — and `montag` is not a dependency of this package, so the dependency is not
- * worth a string constant. The backticks that would have to be escaped are the only
- * thing lost, and they are decoration.
+ * From `convertCssToJs` in `happy-style`. `functionValue` arguments have an
+ * `operator` node for each separator: a rule must skip them.
+ * A template literal: this package does not use `montag` here.
  */
 const CSS_AST = `rule(selector([...]), [declaration(...)]) — match 'rule(__a, __b)' and the
 declarations are '__b.elements', NOT a node to visit.

@@ -64,13 +64,7 @@ test('HelpBlock: shows the description of each command', (t) => {
 });
 
 /**
- * The usage, which is the whole reason the table exists.
- *
- * Before this the row was `name` and `description`, and `source` said "set the
- * source every other command reads" without ever saying that it *takes* a
- * source. `help` in the text form does; the table did not, so the two answers
- * to `help` would have disagreed. `plan.md` asks for `source [source]` to be
- * visible, and this is that row.
+ * Each row shows the usage beside the name: `source [source]`.
  */
 test('HelpBlock: shows the usage beside each name', (t) => {
     render(
@@ -134,14 +128,8 @@ test('HelpBlock: every row starts with a slash', (t) => {
 });
 
 /**
- * A grid of divs, not a `<table>`.
- *
- * The row was a `<tr>` with two `<td>`, and on a phone a table cell takes the
- * full width of its row, so the name and the description ran together and
- * `help` read as prose. This pins the element the CSS is written against: the
- * block is a `div.help-block`, each row is a `div.help-block__row`, and there
- * is no `<table>` anywhere — the six tests above read the classes, which a
- * `<table>` also carries, so they would not catch a regression back to a table.
+ * A grid of divs, not a `<table>`: in a table the name and description run
+ * together on a phone. The class checks above pass on a table too.
  */
 test('HelpBlock: renders as a grid of divs, not a table', (t) => {
     render(

@@ -7,14 +7,8 @@ import {
 } from './curriculum.ts';
 
 /**
- * The curriculum is prose, so these are **structural** assertions rather than
- * one test per string. They are what makes the file safe to grow: a new node
- * that forgets its `example`, duplicates an `id`, or points `related` at
- * something that does not exist fails here rather than rendering as a dead row
- * or as a 404 in an agent's `learn_node` call.
- *
- * Nothing here asserts *what* a body says. That is a review judgement, and a
- * spec that pinned the wording would be a spec nobody dares update.
+ * Structural checks: each leaf has a body and an example, ids are unique,
+ * each `related` id exists. The wording is for review, not for a spec.
  */
 const isLeaf = (node: LearnNode) => !node.children || !node.children.length;
 
@@ -147,15 +141,8 @@ test('curriculum: no node relates to itself', (t) => {
 });
 
 /**
- * Depth-bounded: no node sits deeper than the tree's own structure allows.
- *
- * Written as a bound on the ids rather than as a cycle detector, because the
- * curriculum is a **literal** — a cycle in it would have to be built by mutating
- * the array at runtime, and a detector for that would be code nothing can
- * exercise. The bound is the honest form of the same claim: the deepest id is
- * three segments (`ast/nodes/VariableDeclaration`), and a node nested under its
- * own descendant would make `learnNodes` recurse until the stack ran out long
- * before any assertion could see it.
+ * No id has more than three segments (`ast/nodes/VariableDeclaration`).
+ * The curriculum is a literal, so a depth bound replaces a cycle check.
  */
 test('curriculum: no id is deeper than three segments', (t) => {
     const result = Math.max(...all.map(({id}) => id.split('/').length));

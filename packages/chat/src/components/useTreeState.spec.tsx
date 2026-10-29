@@ -72,8 +72,6 @@ const numeric = () => node('4', '1', 2, 'NumericLiteral', '1');
 const textOf = (node: FlatNode) => `${node.type} ${node.detail}`;
 
 /**
- * The tree these tests navigate, as parent/child:
- *
  *     Program
  *     - VariableDeclaration
  *       - VariableDeclarator
@@ -89,14 +87,8 @@ const tree: FlatNode[] = [
 ];
 
 /**
- * `ArrowRight` / `ArrowLeft`, as the two pure moves every tree viewer has.
- *
- * Both answer with a `TreeMove` rather than an id, because "select this same
- * node" is ambiguous on its own: `ArrowRight` on a collapsed node and
- * `ArrowLeft` on an expanded one both name the node that is already selected,
- * and in the first it has to expand and in the second it has to collapse. So
- * the move says which, and the handler applies it — which is also what keeps
- * these testable without a component.
+ * `ArrowRight` / `ArrowLeft` return a `TreeMove`, not an id: on the selected
+ * node, one expands and the other collapses.
  */
 test('useTreeState: expandMove expands a collapsed node', (t) => {
     const collapsed = new Set(['1']);
@@ -676,13 +668,8 @@ test('useTreeState: escape in search clears the query and returns focus', (t) =>
 });
 
 /**
- * `h` and `l`, the vim spellings of the two arrows.
- *
- * Bound to the *same* handler arms as `ArrowLeft`/`ArrowRight` rather than to
- * copies of them, which is why the assertions are about the tree's own state:
- * a separate implementation would drift from the arrow the first time one of
- * them changed. Tree-only, because `state.focus === 'search'` returns before
- * the `h`/`l` arms — asserted separately below.
+ * `h` and `l` use the same handler arms as `ArrowLeft` and `ArrowRight`.
+ * Tree mode only: search mode returns first (spec below).
  */
 test('useTreeState: h folds what ArrowLeft folds', (t) => {
     render(
@@ -770,14 +757,9 @@ test('useTreeState: h and l do nothing while the filter has focus', (t) => {
 });
 
 /**
- * Tab out of the tree and into the filter — the cycle the plan draws:
- *
- *     editor -> Tab -> tree -> Tab -> filter -> Tab -> editor
- *
- * `preventDefault` is what keeps it: without it the browser moves focus as well
- * and the handler's `setFocus('search')` races the browser's own tab order to
- * the next focusable element. `e2e/desktop.ts` is what proves the race is
- * settled in the filter's favour; the observable here is the state.
+ * `Tab` in the tree moves focus to the filter:
+ * editor -> Tab -> tree -> Tab -> filter -> Tab -> editor.
+ * `preventDefault` stops the browser tab order. The e2e checks real focus.
  */
 test('useTreeState: Tab in tree mode sets focus to the search', (t) => {
     render(
@@ -813,19 +795,8 @@ test('useTreeState: Tab in search mode returns focus to the tree', (t) => {
 });
 
 /**
- * `k` on the **first** row hands over to the filter, and does so **without
- * moving the selection**.
- *
- * "First" means the first *drawn* row, not the first node — a query that leaves
- * three of fifty rows on screen still has a top, and a filter that made `k` walk
- * to a hidden row would be worse than not having it. The fixture folds below
- * depth 1, so `ArrowDown` lands on `Program` and the second `k` is under test.
- *
- * `k` rather than `j`: plan.md's cycle diagram says "k / ArrowUp (from Program =
- * first row) → moves focus to filter input", and the filter bar renders above
- * the tree. The prose under the diagram names `j`/`ArrowDown`, which cannot
- * work — two rows are drawn by default, so `j` from the first can never reach
- * the second. The plan prose was wrong; this spec is the reference.
+ * `k` on the first drawn row moves focus to the filter and keeps the
+ * selection. The filter is above the tree, so up from the top goes there.
  */
 test('useTreeState: k from the first row moves focus to the search', (t) => {
     render(
@@ -1075,21 +1046,8 @@ test('useTreeState: two trees keep separate selections', (t) => {
 });
 
 /**
- * The hook is shared with `LearnTree`, which is a different row type with a
- * different query target and a different opening action. These cover the three
- * seams that make it shared — everything above them is AST-specific only because
- * the fixture is.
- */
-
-/**
- * `collapsedDepth` is what `/learn` uses, and it is a pure function of the same
- * shape the hook starts from — so it is asserted on `defaultCollapsed` directly
- * rather than through a mount. The hook's own keyboard specs above already pin
- * that it passes the option through.
- *
- * The AST tree folds below depth 1, so `/ast` draws two rows. A concept tree's
- * first level *is* its table of contents, so `0` leaves the root open and its
- * sections closed.
+ * `collapsedDepth: 0` (for `/learn`) folds the first level too: the root is
+ * open, its sections are folded. Checked on `defaultCollapsed`.
  */
 test('useTreeState: collapsedDepth 0 folds the first level too', (t) => {
     const result = sorted(defaultCollapsed(tree, 0));

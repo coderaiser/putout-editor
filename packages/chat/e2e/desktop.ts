@@ -17,13 +17,9 @@ const box = (page: Page) => page
     .locator('.cm-content');
 
 /**
- * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
- * targets form controls and has no effect on a `contenteditable` div, and not
- * `keyboard.type`, which presses a real `Enter` for every embedded `\n` — on a
- * keyboard `Enter` *sends*, so a multi-line `source` body would go out as two
- * commands with the first half sent mid-line. `insertText` lands the text
- * atomically: the editor still fires its update, `onChange` still lands in
- * React state, and the key handler only sees the send chord.
+ * Click, insert the text, then `Ctrl+Enter`. `fill` does not work on a
+ * `contenteditable` div. `keyboard.type` presses `Enter` for each `\n`, and
+ * `Enter` sends. `insertText` puts the whole text in one step.
  */
 const send = async (page: Page, text: string) => {
     await box(page).click();
@@ -32,13 +28,9 @@ const send = async (page: Page, text: string) => {
 };
 
 /**
- * The tree in the *thread*, as opposed to the one in the console panel.
- *
- * `ast` answers twice — once as a message and once in the panel — so every
- * `ast-*` testid on the page is duplicated the moment `ast` has run, and a bare
- * `getByTestId('ast-search')` is a strict-mode violation rather than a passing
- * test. The panel is a sibling of `[data-testid="chat"]`, not a descendant, so
- * scoping to the thread picks the message copy.
+ * The tree in the thread, not in the console panel. After `ast`, each
+ * `ast-*` testid is on the page twice. The panel is not inside
+ * `[data-testid="chat"]`.
  */
 const tree = (page: Page) => page
     .getByTestId('chat')
@@ -51,41 +43,23 @@ const search = (page: Page) => page
 const userMessages = (page: Page) => page.locator('.message--user');
 
 /**
-
-/**
- * The `/learn` tree in the thread, as opposed to the AST tree.
- *
- * Same reason `tree(page)` exists: `/ast` puts a second `ast-row` set on the
- * page once the console panel is open, and `learn`'s rows are a different
- * testid — so the scope is the thread and the rows are `learn-row`.
+ * The `/learn` rows in the thread. The console panel can show a second tree,
+ * so scope to the thread. The rows are `learn-row`.
  */
 const learnRows = (page: Page) => page
     .getByTestId('chat')
     .getByTestId('learn-row');
 
 /**
- * How many `.message--user` the seed puts on the page before anything is typed.
- *
- * **Two**: the worked `source` example and the `help` that follows it. Each is a
- * pair of an echo and an answer, and the echo is a user pill — so the seed is
- * two pills, not one, which is the sort of thing to count once here rather than
- * to discover as a failing spec. Every count below is this **plus** what the
- * spec sent, rather than a bare number: a literal `1` would assert the old blank
- * start screen, and a literal `3` would assert today's seed and break the day
- * the seed changes.
+ * The user messages of the seed: the `source` example and `help`. Each count
+ * below is this plus what the spec sends, so a change of the seed changes
+ * one number.
  */
 const SEEDED_USER_MESSAGES = 2;
 
 /**
- * The full geometry of one element, in CSS pixels.
- *
- * `left`/`right` alone cannot say "inside the box" — that needs `top` and
- * `bottom` as well, and the composer's assertion is two-dimensional: the send
- * button has to be within the textarea on *both* axes, or it is beside it on
- * one and inside on the other.
- *
- * `getBoundingClientRect()` rather than `offsetWidth`/`scrollWidth`, which
- * round and include overflow respectively without saying where anything is.
+ * The box of one element in CSS pixels, from `getBoundingClientRect()`.
+ * A containment check needs all four sides.
  */
 const rectOf = async (page: Page, selector: string) => page
     .locator(selector)
@@ -127,15 +101,9 @@ test('renders the chat application', async ({page}) => {
 });
 
 /**
- * The send button inside the textarea, which is Claude's shape and the reason
- * the flex row went away.
- *
- * A **containment** assertion, not a position one: the plan asked for
- * `send.right <= box.right + 2`, which is true for the old 46px button too as
- * long as the textarea is wide — a 720px-wide desktop textarea swallowed a
- * button sitting *outside* it without complaint. Containment is what actually
- * distinguishes "in the corner" from "next to it", and it fails the old layout
- * on the vertical axis, where the old button's bottom was 18px below the box's.
+ * The send button is inside the textarea on both axes. Check containment,
+ * not only `send.right`: a wide textarea also passes a button that is next
+ * to it.
  */
 test('the send button sits inside the textarea boundary', async ({page}) => {
     const send = await rectOf(page, '.input__send');
@@ -157,13 +125,8 @@ test('the send button sits inside the textarea boundary', async ({page}) => {
 });
 
 /**
- * The button must not sit *on* the text.
- *
- * Containment alone would pass for a button laid over the middle of the box.
- * What makes it a composer is that the text keeps a right margin the button
- * fits in, so the padding is at least the button's width — and this is the
- * assertion that catches `.input__box { padding-right: 52px }` being dropped
- * while the button stays absolutely positioned.
+ * The text keeps a right margin for the button: `padding-right` is at least
+ * the button width.
  */
 test('the textarea reserves room for the send button', async ({page}) => {
     const send = await rectOf(page, '.input__send');
@@ -190,17 +153,8 @@ test('the textarea reserves room for the send button', async ({page}) => {
 });
 
 /**
- * …and the **left** padding is the thread's own gutter, not the button's lane.
- *
- * `padding: 12px 52px` gave both sides 52px, because 52 is the send button's
- * lane and that number belongs on the right only. On the left it pushed the
- * placeholder "/help — list every command" so far from the edge that the composer
- * read as centred — a screenshot is how this was found, and no assertion caught
- * it, because the test above only reads `paddingRight`.
- *
- * Asserted as an exact number rather than "smaller than the right": the two are
- * equal today, which is the defect, so a bound that only compared them would pass
- * on the build this fixes.
+ * The left padding is the thread gutter, not the 52px button lane. Check the
+ * exact number: with equal sides the composer looks centred.
  */
 test('the textarea left padding matches the thread gutter, not the button lane', async ({page}) => {
     const padding = await page
@@ -223,16 +177,9 @@ test('the textarea left padding matches the thread gutter, not the button lane',
 });
 
 /**
- * The placeholder's own geometry, read off the `::before` pseudo-element.
- *
- * The pseudo-element cannot be *located* — a locator matches real elements — but
- * its computed style is readable, and that is the only way to assert the values
- * the transposition bug lived in. `padding-left` on `.input__box` passing 16
- * proves nothing about `inset`: the two are independent declarations, and the
- * broken build had the box's padding right and the `::before`'s `left` at 52.
- *
- * `display: flex` + `align-items: center` is the vertical centring, and it is
- * asserted here rather than trusted because it is the other half of the fix.
+ * The placeholder is a `::before`: a locator cannot find it, but its computed
+ * style is readable. Check its `left` (not only the box padding) and the
+ * vertical centring (`display: flex`, `align-items: center`).
  */
 test('the placeholder inset keeps the button lane on the right', async ({page}) => {
     await expect(page.locator('.input__box--empty')).toBeVisible();
@@ -303,15 +250,10 @@ test('search filters tree', async ({page}) => {
     
     await search(page).fill('VariableDeclaration');
     
-    // The ancestor stays on screen and is *dimmed* — that is the filter's
-    
-    // design, not a leftover row: a match is only reachable through its parents.
-    
-    // So the first row is `Program` and the match is the next one. Asserting on
-    
-    // `.first()` would have passed for a filter that kept everything and failed
-    
-    // for a filter that worked.
+    /*
+     * The ancestor stays, dimmed: a match is reached through its parents.
+     * So the first row is `Program` and the match is the next one.
+     */
     const rows = page
         .getByTestId('chat')
         .getByTestId('ast-row');
@@ -326,13 +268,8 @@ test('search filters tree', async ({page}) => {
 });
 
 /**
- * The assertion the old `search filters tree` never made.
- *
- * That spec was green throughout and asserted rows and dimming — so a filter
- * that kept everything, and a highlight that was wired to nothing, both passed
- * it. This asks for the *class*: the rows that matched must be marked, and the
- * ancestors on the way to them must not be. A filter working and highlighting
- * nothing is exactly what shipped.
+ * The rows that match have the match class. Their ancestors do not.
+ * A filter that keeps all rows fails this.
  */
 test('search marks the rows that matched', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -356,24 +293,9 @@ test('search marks the rows that matched', async ({page}) => {
 });
 
 /**
- * `ArrowRight` and `ArrowLeft`, over the real key handler rather than the pure
- * moves the unit specs cover — this is the only place the binding itself is
- * exercised, and a binding that was never wired passes every pure test.
- *
- * The count is the assertion: expanding a folded node adds rows, folding it
- * takes them away, and the selection is what decides which.
- */
-
-/**
- * `ArrowRight` and `ArrowLeft`, over the real key handler rather than the pure
- * moves the unit specs cover — this is the only place the binding itself is
- * exercised, and a binding that was never wired passes every pure test.
- *
- * `defaultCollapsed` folds everything below depth 1, so `Program` and
- * `VariableDeclaration` are open and `VariableDeclarator` is shut. Three
- * `ArrowDown`s land on it, and it is the first row with children of its own
- * still hidden — which is why the assertion starts from its caret rather than
- * from a row count that would be right by accident one row earlier.
+ * `ArrowRight` and `ArrowLeft` through the real key handler. The default fold
+ * opens `Program` and `VariableDeclaration`. Three `ArrowDown`s reach
+ * `VariableDeclarator`, which is still folded.
  */
 test('ArrowRight expands and ArrowLeft folds the tree', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -464,16 +386,8 @@ test('h and l fold and expand the tree', async ({page}) => {
 });
 
 /**
- * The tab cycle, over real focus rather than over the component's state.
- *
- * `toBeFocused()` is the whole point: `useTreeState` only owns a `focus`
- * *string*, and a handler that set it while real focus stayed on the tree would
- * pass every unit spec here. This is the check that the string and the caret
- * agree.
- *
- * `Tab` in the tree is `preventDefault`ed, so the browser does not also walk its
- * own tab order — the assertion is that the *filter* has focus, not merely that
- * focus moved.
+ * `Tab` moves real focus (`toBeFocused()`), not only the `focus` state.
+ * The tree prevents the default, so focus goes to the filter.
  */
 test('Tab moves focus from the tree to the filter, and back', async ({page}) => {
     await send(page, '/ast');
@@ -491,14 +405,8 @@ test('Tab moves focus from the tree to the filter, and back', async ({page}) => 
 });
 
 /**
- * `k` from the first row hands over to the filter — the same handover as `Tab`,
- * reached with the key a vim user presses, and the other half of the cycle.
- *
- * `ArrowDown` first to put a row under the caret; the default fold leaves two
- * rows drawn, so the first `ArrowDown` lands on `Program` and the second is the
- * one that would have walked to `VariableDeclaration`. This presses it and
- * asserts the filter took focus instead, which is the behaviour the plan's
- * diagram specifies and its prose gets wrong.
+ * `k` on the first row moves focus to the filter, like `Tab`. The first
+ * `ArrowDown` selects `Program`.
  */
 test('k from the first row moves focus to the filter', async ({page}) => {
     await send(page, '/ast');
@@ -540,13 +448,8 @@ test('k in the filter clears it and returns focus to the tree', async ({page}) =
 });
 
 /**
- * The desktop keeps **both** halves of the hint: the full text, and the code
- * preview beside the tree.
- *
- * The counterpart to the four mobile specs. A `@media (pointer: coarse)` block
- * that leaked — an unclosed brace, or a selector that matched more than it
- * meant to — would leave the desktop with one column and a hidden preview, and
- * every mobile spec would stay green because they only ever run on a phone.
+ * The desktop shows the full hint and the code preview. A
+ * `@media (pointer: coarse)` block that leaks fails this spec only.
  */
 test('ast shows the full hint and the code preview on desktop', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -598,17 +501,9 @@ test('ast shows two columns on desktop', async ({page}) => {
 });
 
 /**
- * Two categories render two colours.
- *
- * The assertion the plan asks for, and the only one that can be made about a
- * colour: `getComputedStyle` needs a real cascade, so jsdom is out and this is
- * an e2e. "Different" rather than a hex value, because the same token resolves
- * differently in light and dark and a literal would pin the theme as well as
- * the hue.
- *
- * `declaration` and `statement` are the pair because `VariableDeclaration` and
- * `Program` are both on screen in every `ast` reply, so the spec needs no
- * fixture beyond `send(page, '/ast')`.
+ * Two categories have two colours. Needs a real cascade, so it is an e2e.
+ * Compare, do not use a hex value: themes differ. `declaration` and
+ * `statement` are on screen in each `ast` answer.
  */
 test('ast row type colour differs by category', async ({page}) => {
     await send(page, '/ast');
@@ -626,20 +521,9 @@ test('ast row type colour differs by category', async ({page}) => {
 });
 
 /**
- * Every drawn category renders its own colour.
- *
- * One pair would pass on a stylesheet that colours statements and declarations
- * and leaves everything else on the accent, so this is a **count of distinct
- * colours across distinct categories** — and the categories are read off the
- * drawn rows rather than named, so a category nothing matched cannot be counted
- * as if it had.
- *
- * That is the first version's bug: it probed four named categories and got 3
- * distinct colours out of 4, because two probes returned `null` for rows the
- * default fold had hidden — and `null` was accepted as a colour. So this walks
- * what is actually on screen, which cannot produce a `null`, and asserts that at
- * least four categories are there — the tree is expanded first, or a two-row
- * default view has nothing to compare.
+ * Each drawn category has its own colour. Read the categories from the drawn
+ * rows: a hidden row gives `null`, which is not a colour. Expand the tree
+ * first, and expect at least four categories.
  */
 test('each drawn category renders a distinct colour', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -709,14 +593,8 @@ test('each drawn category renders a distinct colour', async ({page}) => {
 });
 
 /**
- * A matched row keeps its category colour.
- *
- * The plan's own trap: `.ast-row--match` sets `color` on the **row**, and if it
- * reached `.ast-row__type` the amber highlight would flatten every filtered type
- * to one colour and the whole scheme would stop working the moment you searched.
- * This asserts the cascade resolves in the right direction rather than trusting
- * the reasoning, because "it should be fine by specificity" is exactly the kind
- * of claim that is fine until someone adds `!important`.
+ * A matched row keeps its category colour: `.ast-row--match` sets `color` on
+ * the row, and it must not reach `.ast-row__type`.
  */
 test('a matched row keeps its category colour', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
@@ -922,13 +800,8 @@ test('autocomplete opens on a command prefix', async ({page}) => {
 });
 
 /**
- * An **empty** box shows no dropdown, which is the other half of the rule.
- *
- * `matches('')` answers every command, so the list is reachable through the
- * function; the component gates on a non-empty box so an idle composer is
- * quiet. A dropdown hanging over an empty input on page load would be the
- * behaviour to prevent — it is the reason the gate exists, and it is invisible
- * in every other spec because they all type first.
+ * An empty box shows no autocomplete. `matches('')` returns all commands, so
+ * the component checks for text first.
  */
 test('an empty box shows no autocomplete', async ({page}) => {
     await expect(box(page)).toHaveText('');
@@ -937,14 +810,8 @@ test('an empty box shows no autocomplete', async ({page}) => {
 });
 
 /**
- * The user's own line is on the **right**, which is what the bubble shape says.
- *
- * Measured, not asserted from the stylesheet. `.message--user` carried
- * `display: inline-block; margin-left: auto`, and an `auto` margin only does
- * anything inside a flex or grid box — its parent `.chat__message` was a plain
- * block, so the pill sat at the left edge and the rounded end was meaningless.
- * A test on `align-self` would have passed without the browser agreeing, so this
- * reads the two boxes and compares where they end.
+ * The user message is on the right. Measure the boxes: an `auto` margin
+ * works only in a flex or grid parent.
  */
 test('the user message is right-aligned', async ({page}) => {
     await send(page, '/help');
@@ -971,13 +838,8 @@ test('the user message is right-aligned', async ({page}) => {
 });
 
 /**
- * A **long** line is right-aligned too, not just a short one.
- *
- * The obvious half-measure fix is `text-align: right` on the parent, which
- * right-aligns the system answers as well — every one of them reads as
- * something the tool said rather than something the user typed. This sends a
- * line long enough to hit the `max-width: 85%` cap and checks the answer below
- * it is still on the left, so the two roles cannot be confused by a fix.
+ * A long user message stays on the right and its answer stays on the left.
+ * `text-align: right` on the parent would fail this.
  */
 test('a long user message stays right and its answer stays left', async ({page}) => {
     await send(page, `help ${'x'.repeat(200)}`);
@@ -1046,21 +908,8 @@ test('the theme toggle sits at the right of the header', async ({page}) => {
 });
 
 /**
- * Sending scrolls the answer into view.
- *
- * Found by screenshotting the page after the work above, and it is the worst
- * defect in this file: a user types `ast`, presses send, and **nothing appears to
- * happen** — the tree renders below the fold of a thread that was already full.
- * Measured: `scrollTop` stays `0` after a send, with `scrollHeight` 849 against a
- * 568px box.
- *
- * It is not new, and the seed is why nobody had to notice: an empty thread fits
- * its box, so early on every answer was on screen for free. The seeded `source`
- * example and the help together are 849px of content in a 568px box, which makes
- * the shortfall permanent rather than occasional.
- *
- * `within` 2px of the bottom rather than "scrolled at all": a thread that scrolls
- * to some arbitrary offset would pass a weaker check and still hide the answer.
+ * A send scrolls the answer into view: the seed fills the thread. Expect the
+ * bottom within 2px, not only some scroll.
  */
 test('sending scrolls the answer into view', async ({page}) => {
     const content = page
@@ -1105,17 +954,8 @@ test('the thread opens scrolled to its last message', async ({page}) => {
 });
 
 /**
- * The connectors are drawn **before** the caret, so the vertical line is
- * continuous down the tree.
- *
- * The caret is two characters wide and used to come first, which put a depth-1
- * row's `├` under its parent's *caret* rather than under the parent's own `├`. The
- * jsdom spec pins the DOM order; this pins the pixels, because the two can
- * disagree — a CSS `order` reorders the box and leaves the DOM saying otherwise,
- * and that is exactly the kind of change that leaves a green unit suite.
- *
- * Measured as each span's `left` relative to the row, so "connectors start at the
- * left edge" is asserted rather than assumed.
+ * The connectors come before the caret, so the vertical line is continuous.
+ * Measure the `left` of each span: CSS `order` can differ from the DOM order.
  */
 test('AST connectors are drawn before the caret, keeping the tree line continuous', async ({page}) => {
     await send(page, '/source\nconst a = 1;');
@@ -1198,19 +1038,10 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     await expect(keywordSpan).toBeVisible();
     await expect(keywordSpan).toContainText('const');
     
-    // …and the span is actually **coloured**, which is the other half and the
-    
-    // reason this test exists. A `.tok-keyword` that renders in the inherited
-    
-    // text colour passes the two checks above on a build where the highlighting
-    
-    // is invisible — that was the bug: `highlight.css` maps `tok-keyword` to
-    
-    // `var(--ast-c-control)`, which resolved to the empty string outside `.ast`.
-    
-    // Measured against `body`, not a literal, so a palette change keeps the
-    
-    // assertion meaning "the keyword is not the surrounding text".
+    /*
+     * The keyword has a colour that is not the body colour. Without it, the
+     * highlighting is invisible.
+     */
     const color = await keywordSpan.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
     
@@ -1461,15 +1292,8 @@ test('AST rows keep their caret separate from the branch marker', async ({page})
 });
 
 /**
- * The line-number gutter appears once a **body** command is typed.
- *
- * `wantsLineNumbers` has its own unit specs, and they stub CodeMirror — so the
- * wiring could be broken and every one of them would still pass. What this
- * asserts is the gutter actually rendering in a browser, on `.cm-lineNumbers`,
- * which is what `lineNumbers()` produces.
- *
- * Typed rather than sent: the gutter is a property of the *composer*, and
- * sending would clear the box and take the evidence with it.
+ * A body command shows the line-number gutter (`.cm-lineNumbers`). The unit
+ * specs stub CodeMirror. Type, do not send: a send clears the box.
  */
 test('typing a body command shows the line-number gutter', async ({page}) => {
     await box(page).click();
@@ -1502,18 +1326,8 @@ test('a one-line command keeps the gutter off', async ({page}) => {
 });
 
 /**
- * `/learn` answers with a tree, and a click on a section opens it — the whole
- * of bug 2 on the device where the bug was invisible.
- *
- * `LearnTree`'s row was inline markup calling `onSelect` and nothing else, so a
- * click could *select* a concept and never *open* one: the only route to a
- * child was the keyboard, and the caret — the one thing on screen that says a
- * row has children — did nothing at all. `LearnRow` now carries `AstRow`'s
- * handler, so a click folds and unfolds.
- *
- * Desktop only, and deliberately: a coarse pointer must *not* fold on a click,
- * which is the mobile spec. One project cannot check a binding chosen by pointer
- * type, which is the same reason `Enter` has a spec in each.
+ * A click on a `/learn` section opens it. Desktop only: on a touchscreen a
+ * tap selects and does not fold (see the mobile spec).
  */
 test('a click on a learn section opens it', async ({page}) => {
     await send(page, '/learn');

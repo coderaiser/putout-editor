@@ -9,32 +9,15 @@ export const name = 'type_check';
 export const description = 'Run a createTypeChecker clause table on a fixture: which clause decides each node, and which clause never matches (exit 1). Clauses: "Type", "-: selector -> Type", "-: selector -> !Type". Function clauses are not available.';
 
 /**
- * Where the synthetic coverage map is keyed: `at:uri:line:column`.
- *
- * `instrument()` keys by a **stack line** it parses out of `Error()`, and skips
- * anything containing `type-checker.spec.js`. This tool does not go through
- * `instrument` — it replaces it, below — so it builds the map `report()` wants
- * under a name of its own.
- *
- * The `at:uri:line:column` shape is load-bearing, not decoration. `report()`'s
- * `setLine` does `name.split(':')` into exactly those four and then
- * `Number(line) + index + 1`, to turn a 0-based clause index into the 1-based
- * line number it prints. So the third field has to be **numeric** — a key like
- * `mcp:type_check:type_check.ts:0:0` has five fields, puts `type_check.ts` where
- * the line goes, and prints `mcp:type_check:NaN:0`. Line `0` is honest: this tool
- * has no fixture on disk, and `report()` then reports clause N at line N.
+ * The coverage key: `at:uri:line:column`, four fields. `report()` splits it on
+ * `:` and prints `line + index + 1`, so the third field must be a number.
+ * A fifth field (a filename) prints `NaN`. Line `0`: no fixture on disk.
  */
 const SOURCE = 'mcp:type_check:0:0';
 
 /**
- * The clause table, as `createTypeChecker` takes it — **strings only**.
- *
- * `createTypeChecker` accepts a bare `'Identifier'`, a `'selector -> TypeName'`
- * pair, and a `['+', fn]` tuple whose second element is a live function. A
- * function cannot arrive over MCP — JSON has no way to carry one — so the
- * schema stops at `z.string()` rather than accepting an array and failing later
- * on `maybeCall`'s `isFn` check. The description says so, because "the tool took
- * my array and matched nothing" is the worse outcome.
+ * The clause table, strings only. JSON cannot carry the function of a
+ * `['+', fn]` clause, so the schema accepts `z.string()` and nothing else.
  */
 export const schema = z.object({
     fixture: z
@@ -56,19 +39,9 @@ const SKIP = '[Infinity, false]';
 type Passthrough = (path: unknown, options?: unknown) => [number, boolean];
 
 /**
- * The instrumentation replaced, and why.
- *
- * `createTypeChecker` always routes its result through `instrument()`, and
- * `instrument` returns `result` — the **boolean** — discarding the
- * `[index, result]` tuple the clause loop produced. That is right for its own
- * job: it only wants the index, to add it to a `Set`.
- *
- * `instrumentCoverage` is the documented seam for exactly this, so the tool keeps
- * all of the printer's real work — `parseTypeNames`, the `jessy` selector,
- * first-match-wins ordering, and the construction-time validation that rejects a
- * table with no successful route — and swaps only the part that throws the index
- * away. `fn` here is `typeChecker`, so the tuple is the one the clause loop
- * returned.
+ * `instrument()` returns only the boolean. This tool needs the clause index,
+ * so it replaces `instrumentCoverage`, the documented seam. All other work
+ * of `createTypeChecker` stays. `fn` is `typeChecker`.
  */
 const passthrough = (typeNames: unknown[], fn: Passthrough) => (path: unknown, options?: unknown) => fn(path, options);
 

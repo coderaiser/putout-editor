@@ -117,16 +117,8 @@ test('theme: currentTheme ignores a stored value that is not a theme', (t) => {
 });
 
 /**
- * The button shows what **clicking it does**, not what is in force.
- *
- * It used to render `${theme} ${icon}`, which read "light ☾" on a light page:
- * a word naming the current state beside a glyph naming the other one, so the
- * label and the icon contradicted each other and neither said what a click did.
- * A user could not tell whether the button reported or offered.
- *
- * So the word is gone and the glyph is the action — ☀ on a dark page (click for
- * light), ☾ on a light one (click for dark) — and `aria-label` says the same
- * thing in words for anyone who cannot see a glyph at all.
+ * The glyph is the action: ☀ on a dark page, ☾ on a light page.
+ * `aria-label` says the same in words.
  */
 test('theme: the glyph names the theme a click would switch to', (t) => {
     localStorage.removeItem('theme');

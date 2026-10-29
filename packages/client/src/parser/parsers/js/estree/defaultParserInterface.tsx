@@ -8,33 +8,9 @@ import type {AstNode} from '../../../../types.ts';
  */
 export default {
     /**
-   * The unique ID of the parser. This is stored in snippets and used to load
-   * the parser, so it should never change.
-   */
-    // id (string)
-    
-    /**
-   * The name of the parser as displayed in the UI.
-   */
-    // displayName (string)
-    
-    /**
-   * The version of the parser, usually taken from the package.json file of the
-   * npm package.
-   */
-    // version (string)
-    
-    /**
-   * A URL to the parser's homepage, github page, npm package page, etc. (to
-   * link to it in the UI). Usually taken from the package.json file in the
-   * npm package.
-   */
-    // homepage (?string)
-    // loadParser
-    // parse
-    
-    /**
-   * Whether or not to surface this parser in the UI.
+   * A parser provides `id` (stored in snippets: never change it),
+   * `displayName`, `version`, `homepage`, `loadParser` and `parse`.
+   * `showInMenu`: show this parser in the UI.
    */
     showInMenu: true,
     /**
@@ -88,45 +64,9 @@ export default {
     },
     
     /**
-   * Many parsers accept settings, usually as plain JavaScript
-   * objects, with simple values (boolean, string, number) assigned to
-   * properties. We provided a way to describe these options to automatically
-   * render a UI for them.
-   *
-   * The settings configuration object can describe
-   *   - boolean options, rendered as checkboxes
-   *   - list options, rendered as selectors
-   *   - nested option objects.
-   *
-   * A settings configuration object has the following properties:
-   *
-   *   - title: A heading that should be rendered above the options, useful
-   *            for nested settings objects.
-   *   - fields: An array of settings definitions, see blow.
-   *   - required: A set of option names whose value cannot change, but should
-   *               be shown in the UI to inform the user.
-   *   - update: An optional function that gets passed the current settings
-   *             object the name of a setting and the new value of the setting.
-   *             It should return an updated settings object.
-   *             This is mostly useful for nested options where the settings
-   *             value should not just be assigned to the name.
-   *   - key: Property name in the parent object to which a nested settings
-   *          object should be assigned.
-   *
-   * Field definitions: The `fields` array can contain the following values
-   *
-   *   - string: A simple boolean option, will be rendered as checkbox
-   *   - array: An array of the form
-   *            `[<setting name>, <setting values>, <optional value mapper>]`
-   *            Will be rendered as selector.
-   *      - <setting name>: The name of the setting on the settings object.
-   *      - <setting values>: An array of available options
-   *      - <value mapper>: An optional function that converts the value
-   *                        received from the selector to the correct value
-   *                        set on the settings object (useful for e.g. numbers)
-   *   - a settings configuration object: Same structured as described above,
-   *                                      used to describe nested options.
-   *
+   * The settings UI for the default options: `{title?, fields, required?,
+   * update?, key?}`. A field is a name (checkbox), `[name, values, mapper?]`
+   * (select), or a nested settings object.
    */_getSettingsConfiguration(defaultOptions: Record<string, unknown>): SettingsConfig | null {
         const keys = Object.keys(defaultOptions);
         

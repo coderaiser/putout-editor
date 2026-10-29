@@ -9,24 +9,10 @@ export interface ConsolePanelProps {
 }
 
 /**
- * The tree beside the thread, rendering the same `AstTree` an `ast` message
- * does. Two instances can be on the page at once, and they do not fight: each
- * `useTreeState` binds its keydown listener to its own root div rather than to
- * `document`, so a keypress reaches one tree and not both.
- *
- * The `✕` is here rather than in the header because this is the one thing the
- * header control could not do. Toggling a panel *open* has two ways already —
- * `console`, and `ast` opening it to show what it just parsed — but closing
- * it meant typing a command to dismiss something you opened by clicking, and a
- * panel covering half the thread with no way out of it is a trap rather than a
- * control. It dispatches `toggleConsole`, the same action `console` does, so
- * the two cannot leave the panel in different states.
- *
- * `useIsMobile()` here rather than in `AstTree`, for the reason `AstBlock`
- * gives: the answer is a property of the page, not of a tree. Omitting it is
- * what bug 1 was — the panel mounted `AstTree` with no `mobile`, so its rows
- * folded on tap and its status bar taught the desktop keys on a phone, while
- * the thread's copy of the same tree did neither.
+ * The tree beside the thread, the same `AstTree` as an `ast` message. Each
+ * `useTreeState` listens on its own root, so two trees do not conflict.
+ * `✕` dispatches `toggleConsole`, like `console`. `useIsMobile()` is here:
+ * it is a page property, not a tree property.
  */
 export default function ConsolePanel({ast}: ConsolePanelProps) {
     const dispatch = useDispatch();

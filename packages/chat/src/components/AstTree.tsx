@@ -14,17 +14,8 @@ export interface AstTreeProps {
     source: string;
     
     /**
-     * Coarse pointer, threaded to `AstStatus` for the hint.
-     *
-     * Optional and defaulting to `false` so the tree can be mounted anywhere —
-     * a spec, the console panel — without the caller having to know about
-     * pointers at all. Only the **hint** is decided in JS; the code preview is
-     * hidden by `@media (pointer: coarse)` in `AstTree.css`, because a column
-     * that is not rendered cannot be un-rendered by CSS and one that is
-     * rendered-then-hidden still costs a `minmax(0, 1fr)` to size.
-     *
-     * Threaded on to `AstRow` as well, where it decides whether a tap folds.
-     * One answer, read once in `AstBlock`, rather than a `matchMedia` per row.
+     * A coarse pointer, for the hint of `AstStatus` and the tap of `AstRow`.
+     * Default `false`. CSS (`@media (pointer: coarse)`) hides the code preview.
      */
     mobile?: boolean;
 }
@@ -42,14 +33,8 @@ const siblingOf = (pid: string) => (node: FlatNode) => node.pid === pid;
 const textOfAst = (node: FlatNode) => `${node.key} ${node.type} ${node.detail}`;
 
 /**
- * The last row of a parent, computed over **all** nodes rather than the drawn
- * ones. A folded subtree's last child is not on screen, so asking only the
- * visible rows would call the second-to-last visible child "last" as soon as
- * the real last one is folded away.
- *
- * Takes the node rather than an id, because every call is already holding one
- * and a lookup would add a `pid === null` fallback that nothing can reach —
- * `rows` is drawn from `nodes`, so an id is always in it.
+ * Is the node the last child of its parent? Ask over all nodes, not the
+ * drawn ones: a folded subtree hides its last child.
  */
 const isLast = (nodes: FlatNode[], node: FlatNode) => {
     const {pid} = node;
@@ -69,17 +54,8 @@ const isLast = (nodes: FlatNode[], node: FlatNode) => {
 };
 
 /**
- * Whether each ancestor of `node` was the last child of *its* parent, root
- * first.
- *
- * The answer `AstRow` needs and cannot get itself: it is handed one node, and
- * what decides whether a level draws `│  ` or three blanks is whether something
- * continues below that level — which is a fact about every node above this one.
- * So it is computed here over the whole list and passed down as one boolean per
- * level.
- *
- * `isLast`-by-id rather than by position, so it does not depend on the order
- * `flattenAst` happened to emit siblings in.
+ * For each ancestor of `node`, root first: was it the last child of its
+ * parent? `AstRow` gets one node only, so the tree computes this.
  */
 /** `isLast` with its list bound, so the map below is a bare function call. */
 const lastOf = (nodes: FlatNode[]) => (ancestor: FlatNode): boolean => isLast(nodes, ancestor);

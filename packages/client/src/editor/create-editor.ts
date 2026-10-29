@@ -8,26 +8,10 @@ import {
 } from 'qword/client';
 
 /**
- * Blockwise visual (`Ctrl-v`) is the only vim mode that needs more than one
- * selection range: for a block, `makeCmSelection` returns one range per line.
- *
- * CodeMirror 6 discards every range but the main one unless the state carries
- * `allowMultipleSelections` - see `resolveTransaction` in @codemirror/state:
- * `tr.startState.facet(allowMultipleSelections) ? tr.newSelection : tr.newSelection.asSingle()`.
- *
- * `qword` builds its own extension list instead of using `EditorView.basicSetup`,
- * which is where that facet normally comes from. So on a bare `qword` editor the
- * block never grows past a single line: `j`/`k` slide it down the buffer instead
- * of extending it, and `x` deletes one character instead of the whole column.
- * Verified against qword@1.1.22 + @replit/codemirror-vim@6.4.0.
- *
- * See `docs/frontend.md` (Editor).
- *
- * The facet is `static`, so it has to be in the state rather than toggled per
- * keystroke. The history compartment is the cheapest correct place to put it:
- * `qword` exposes it on the view type, its contents are stable, and nothing here
- * reconfigures it - unlike `_keymapCompartment`, which `setOption` swaps out
- * whenever the user changes key map.
+ * Blockwise visual (`Ctrl-v`) needs one selection range per line. CodeMirror
+ * keeps only the main range unless the state has `allowMultipleSelections`,
+ * and `qword` does not add it. The facet is static, so put it in the history
+ * compartment: nothing reconfigures it. See `docs/frontend.md` (Editor).
  */
 const allowMultipleSelections = (view: QwordEditorView) => {
     view.dispatch({

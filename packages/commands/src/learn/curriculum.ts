@@ -1,23 +1,9 @@
 import type {LearnNode} from '../state.types.ts';
 
 /**
- * The `/learn` curriculum: every putout concept the editor knows about, as a
- * tree.
- *
- * **Pure data.** No `createRequire`, no `os`, no `fs` — which is what makes it
- * safe to import from `packages/chat`, where `packages/commands`' barrel guards
- * against exactly those. Adding an import here puts it in the browser bundle.
- *
- * The shape is deliberately literal rather than generated: a curriculum is
- * prose someone has to read, and a spec that walks the structure is what keeps
- * it honest as it grows. `curriculum.spec.ts` asserts every leaf has a body and
- * an example, every container has neither, every id is unique, and every
- * `related` id resolves — so adding a node cannot leave a dangling link.
- *
- * `related` is populated from the start rather than deferred: the mcp's
- * `learn_node` documents it, and a field the docs promise and the data never
- * fills is a documentation bug an agent discovers. The structural spec is what
- * makes filling it in safe to do later, which is why it exists.
+ * The `/learn` curriculum: putout concepts as a tree. Pure data: no import,
+ * because the chat bundles it for the browser. `curriculum.spec.ts` checks
+ * the structure. `related` is filled: the mcp `learn_node` returns it.
  */
 export const curriculum: LearnNode[] = [{
     id: 'putout',

@@ -4,21 +4,9 @@ import {errorText, text} from '@putout/editor-commands/content';
 import type {LearnNode} from '@putout/editor-commands';
 
 /**
- * Three tools over one tree, in one file.
- *
- * They share `findLearnNode`, and their descriptions have to say the same thing
- * about ids three times — so splitting them would split a contract that is one
- * contract. `createServer()` registers each by its own `name`.
- */
-
-/**
- * The two schemas are declared before the objects that use them.
- *
- * A handler written as `({id}: z.input<typeof learnNode.schema>)` names the
- * object it is a property of, which TypeScript rejects: `'learnNode' implicitly
- * has type 'any' because it is referenced directly or indirectly in its own
- * initializer`. The schema is the contract and the tool object is packaging, so
- * the contract comes first.
+ * Three tools over one tree, with one id contract. The schemas come first:
+ * a handler that names its own tool object in `z.input<...>` is a TypeScript
+ * error (implicit `any` in its own initializer).
  */
 const nodeSchema = z.object({
     id: z
@@ -71,16 +59,9 @@ export const learnNode = {
     
     schema: nodeSchema,
     /**
-     * One concept in full.
-     *
-     * The node's own fields, plus `child_ids` — the ids of its immediate children,
-     * so a caller walking *down* the tree gets the names without paying for the
-     * prose below them. Children are also present as `id`/`label`/`summary`, which
-     * is what a single level of browsing needs and is a fraction of the subtree.
-     *
-     * The two shapes are the same information twice on purpose: `child_ids` for an
-     * agent deciding where to go next, the objects for one about to render the
-     * level it is standing on.
+     * One concept: its fields, `child_ids`, and each child as
+     * `id`/`label`/`summary`. `child_ids` is for an agent that walks down;
+     * the child objects are for a view of one level.
      */
     handler: ({id}: z.input<typeof nodeSchema>) => {
         const node = findLearnNode(id);

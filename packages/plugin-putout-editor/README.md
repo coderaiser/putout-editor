@@ -24,6 +24,7 @@ Writing one is in [`docs/rules.md`](../../docs/rules.md).
 - ✅ [apply-box-sizing-to-sized-element](#apply-box-sizing-to-sized-element);
 - ✅ [apply-linked-pattern-value](#apply-linked-pattern-value);
 - ✅ [apply-press-modifier-case](#apply-press-modifier-case);
+- ✅ [check-comment-length](#check-comment-length);
 - ✅ [check-documented-scripts](#check-documented-scripts);
 - ✅ [check-main-imports-in-file](#check-main-imports-in-file);
 - ✅ [check-try-catch-destructure](#check-try-catch-destructure);
@@ -163,6 +164,41 @@ await page.keyboard.press('ControlOrMeta+V');
 await page.keyboard.press('Control+v');
 await page.keyboard.press('ControlOrMeta+v');
 ```
+
+## check-comment-length
+
+A comment block has at most 8 lines. A block is the comments above a node, inside an empty
+node, or after the last node of a block. Blank lines between comments count. A long block costs
+tokens on each read. Put the reason in at most 8 lines. Put the history in the commit message.
+
+Report-only: a short comment needs a person or an agent to write it.
+
+### ❌ Example of incorrect code
+
+```js
+/**
+ * One.
+ * Two.
+ * Three.
+ * Four.
+ * Five.
+ * Six.
+ * Seven.
+ */
+function f() {}
+```
+
+### ✅ Example of correct code
+
+```js
+/**
+ * One.
+ * Two.
+ */
+function f() {}
+```
+
+***
 
 ## check-documented-scripts
 

@@ -1,15 +1,11 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 
-// The entry point is the one module in src that nothing else imports, which is
-// how it stayed out of coverage. Importing it here is the test: the container
-// has to exist first, because the module calls createRoot on it at load.
-//
-// tape runs every spec in one process, so this test gets the real App tree and
-// the real global handlers. Without the teardown below it leaks both into the
-// specs that follow - a mounted app means "multiple elements with the role
-// button" for every later DOM spec, and a live onhashchange means a later spec
-// that touches location.hash triggers a real snippet load.
+/*
+ * Import the entry point: nothing else imports it. The module calls `createRoot`
+ * on load, so make the container first. All specs share one process: the
+ * teardown removes the app and `onhashchange` for the specs after this one.
+ */
 test('app: mounts into the container', async (t) => {
     const previousHashChange = globalThis.onhashchange;
     const previousBeforeUnload = globalThis.onbeforeunload;

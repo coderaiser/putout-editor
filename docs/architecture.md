@@ -46,8 +46,9 @@ graph TD
     client --> putoutPlugin
     mcp --> putout
     mcp --> putoutPlugin
-    mcp --> redput
+    commands --> redput
     server --> babel
+    server --> commands
     plugin -.->|"lint only, CI"| client
 ```
 
@@ -57,11 +58,12 @@ graph TD
 - **`find`, `transform` and `validate` load 🐊**Putout** with a dynamic `import()`.**
   🐊**Putout** cannot run in a browser: it calls `os.homedir()` at module scope. In a browser
   these three commands answer that they need the server. The other commands work with no
-  server. `packages/chat/rspack.config.js` lists what the bundle ignores.
+  server. `rspack.shared.js` and `packages/chat/rspack.config.js` list what the bundle ignores.
 - **A command line starts with the sigil `/`.** `packages/chat/src/sigil.ts` holds the sigil
   and `prefixOf`. The autocomplete, the `Enter` check and `Message` all use `prefixOf`.
-- **The server does not use 🐊**Putout**.** It parses with `@babel/parser` and has its own
-  `compactAST`/`queryAST`. A change to the client parser needs no server change.
+- **The server does not use 🐊**Putout**.** It parses with `@babel/parser`, takes `compactAST`
+  from `@putout/editor-commands/compact`, and has its own `queryAST`. A change to the client
+  parser needs no server change.
 - **The lint plugin is not a dependency.** The root `.putout.json` loads it by the bare name
   `putout-editor`.
 

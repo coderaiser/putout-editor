@@ -7,13 +7,8 @@ export interface AstStatusProps {
     hidden: number;
     
     /**
-     * Coarse pointer, which shortens the hint.
-     *
-     * A prop rather than a `matchMedia` read inside the component: the answer
-     * comes from `useIsMobile` so it can be *updated*, and a component that
-     * read the query itself would need its own listener and its own copy of the
-     * subscription. What it is for is narrow — the full hint is 62 characters
-     * and wraps to four lines on a 390px screen.
+     * A coarse pointer: show the short hint. From `useIsMobile`, so it
+     * updates. The full hint wraps to four lines on a 390px screen.
      */
     mobile?: boolean;
 }

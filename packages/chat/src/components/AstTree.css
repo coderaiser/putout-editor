@@ -1,47 +1,16 @@
 /**
- * The TUI tree. One stylesheet for all six components, because they are one
- * widget: a change to the row's type colours changes what the search bar and the
- * status bar sit next to, and three files would make that a three-file diff.
- *
- * Every colour is a token with a hex fallback on the same declaration, so the
- * tree renders standalone — mounted in a spec, or in the console panel before
- * `chat.css` has loaded. The names are the client's, so the page's palette
- * restyles this rather than fighting it, and the fallbacks match
- * `chat.css`'s **light** values so a tree on its own is cream rather than the
- * old `#1a1a2e`, which no longer appears anywhere.
+ * The TUI tree: one stylesheet for its six components. Each colour is a
+ * token with a hex fallback (the light value of `chat.css`), so the tree
+ * renders before `chat.css` loads. The token names are the client's.
  */
 
 /*
- * The eight category colours live on `:root`, not inside `.ast`.
- *
- * `highlight.css` maps the `@lezer` `tok-*` classes to these tokens inside
- * `.tok-scope`, which `SourceBlock` and `TransformDiff` carry — and neither is a
- * descendant of `.ast`. CSS custom properties inherit downward through the DOM
- * and are not global, so a token declared only on `.ast` resolves to the empty
- * string in a `SourceBlock` and its `color` declaration does nothing: every token
- * rendered in the inherited text colour, which is the invisible-highlighting bug.
- * On `:root` the tree still inherits them (its category rules are `.ast`
- * descendants) *and* `.tok-scope` reaches them.
- *
- * The values are unchanged. `--ast-c-identifier` and `--ast-c-other` referenced
- * the `.ast`-scoped `--ast-fg` and `--ast-accent`, which are not defined at the
- * root — so each carries a `currentColor` fallback. Inside `.ast` the scoped
- * values still win (custom-property resolution is per-element), so the tree is
- * byte-for-byte the same; outside it an identifier falls back to the text colour,
- * which is correct — `highlight.css` maps a bare variable name to
- * `--color-text-strong` anyway and never reads `--ast-c-identifier`.
- *
- * Derived from the palette already in this file, not from `happy-style`: it
- * exports four functions — `convertCssToJs`, `convertJsToCss`, `parseCss`,
- * `printCss` — and no tokens at all, so there is nothing to read a palette out
- * of. These are the **light** values, chosen to sit on `--ast-bg: #fff` and to be
- * distinguishable at 13px monospace. The dark set is `[data-theme='dark']` below,
- * keyed off the attribute rather than `@media (prefers-color-scheme)` so it
- * agrees with `chat.css` the moment a user overrides the theme.
- *
- * Hues follow VS Code's dark theme: gold statements, blue declarations, violet
- * expressions, teal calls, warm literals, plain-text identifiers, red control
- * flow.
+ * The category colours are on `:root`, not `.ast`: `highlight.css` uses them
+ * in `.tok-scope` (`SourceBlock`, `TransformDiff`), outside `.ast`. Outside
+ * `.ast`, `--ast-c-identifier` and `--ast-c-other` fall back to
+ * `currentColor`. Light values, for `--ast-bg: #fff`. Hues follow VS Code
+ * dark: gold statements, blue declarations, violet expressions, teal calls,
+ * warm literals, plain identifiers, red control flow.
  */
 :root {
     --ast-c-statement: #9a6b00;
@@ -87,43 +56,11 @@
 }
 
 /**
- * The seven category colours, on the dark background.
- *
- * Scoped to `[data-theme='dark']` rather than `@media (prefers-color-scheme)`
- * because `chat.css` keys its own dark palette off the attribute and a media
- * query here would disagree with it the moment a user overrode the theme — a
- * light tree with dark category colours is the failure this avoids. Dropping the
- * `.ast` from the selector is the same move the light set made: these have to be
- * reachable from a `.tok-scope` outside `.ast`, and a descendant selector would
- * strand them there exactly as before.
- *
- * These are the hues from the design session, mapped onto the categories rather
- * than onto node types: the design coloured `Program` cyan and
- * `VariableDeclaration` violet individually, and eight buckets that cover every
- * babel type is the more maintainable shape — a ninth type is a `Set` entry and a
- * selector rather than another rule.
- *
- * | category     | design hue | from            |
- * |--------------|------------|-----------------|
- * | statement    | cyan       | `Program`       |
- * | declaration  | violet     | `Variable*`     |
- * | expression   | amber      | `Binary*`, `Arrow*` |
- * | call         | blue       | `Call*`, `Member*`   |
- * | literal      | orange     | `Numeric*`, `String*` |
- * | identifier   | green      | `Identifier`    |
- * | control      | pink       | `Return*`, `If*`, `For*` |
- *
- * The mapping is a judgement and this measures it: contrast against the dark
- * background `--color-bg-editor: #1f1e1d`, WCAG 2.1 relative-luminance ratio.
- * Every one clears AA (4.5:1) comfortably and the **weakest** category is 6.29:1,
- * against 5.33:1 for the previous set — so "wrong hue" from the plan is right
- * about the look and this is the number behind it. `AstStatus.spec.tsx`'s sibling
- * `tokens.spec.ts` recomputes it, so a future palette that reads better and
- * dimmer does not pass silently.
- *
- * `identifier` is overridden here where the light set inherits it from
- * `--ast-fg`: the design gave `Identifier` its own green, and an identifier row
- * in plain foreground is the one row whose colour says nothing.
+ * Dark category colours on `[data-theme='dark']`, like `chat.css`, not a
+ * media query. Not under `.ast`: `.tok-scope` must reach them.
+ * statement cyan, declaration violet, expression amber, call blue,
+ * literal orange, identifier green, control pink. Each clears WCAG AA on
+ * `#1f1e1d` (weakest 6.29:1); `tokens.spec.ts` checks it.
  */
 [data-theme='dark'] {
     --ast-c-statement: #7dcfff;
@@ -137,36 +74,18 @@
 
 [data-theme='dark'] .ast {
     /*
-     * The accent, which is also `--ast-c-other`. On light it is Claude's
-     * terracotta `#c15f3c`, chosen for cream; on `#1f1e1d` it measures 5.33:1 and
-     * reads as a smudge. `#c0caf5` is 10.31:1 — and since `--ast-c-other` is
-     * declared as `var(--ast-accent)`, this one line also fixes every node type
-     * the `Set` does not recognise, which is the case with no opinion to offer.
-     *
-     * It stays on `[data-theme='dark'] .ast`, not the bare attribute: `--ast-accent`
-     * is read only by `.ast` rules (`.ast:focus-visible`, `.ast-row__type`,
-     * `.ast-status__type`), so it has no `.tok-scope` to reach and no reason to
-     * widen — and `--ast-c-other` resolves it through the fallback either way.
+     * The accent, also `--ast-c-other`: `#c0caf5` is 10.31:1 on `#1f1e1d`.
+     * Only `.ast` rules read `--ast-accent`, so it stays on
+     * `[data-theme='dark'] .ast`.
      */
     --ast-accent: #c0caf5;
 }
 
 /**
- * The category rules themselves.
- *
- * `.ast-row__type { color: var(--ast-accent) }` below is the fallback and stays:
- * it is what an `other` row gets, and what a row would get if these selectors
- * were deleted.
- *
- * `.ast-row--match` sets `color` on the **row**, and `.ast-row--dimmed` too, but
- * neither sets anything on `.ast-row__type`, which is the only element these
- * rules touch — so a filtered row keeps its category colour. That is the answer
- * to the plan's own worry, and it is structural rather than an `!important`.
- *
- * The selector is `.ast-row__type[data-category="x"]` — the attribute and the
- * element it colours on one node, so there is no ancestor hop and nothing to keep
- * in step. It is the same specificity the descendant form it replaces had, so the
- * order these appear in this file still does not matter.
+ * Category colours on `.ast-row__type[data-category="x"]`. The default
+ * `.ast-row__type { color: var(--ast-accent) }` is the `other` colour.
+ * `--match` and `--dimmed` set `color` on the row only, so a filtered row
+ * keeps its category colour.
  */
 .ast-row__type[data-category='statement'] {
     color: var(--ast-c-statement);
@@ -204,17 +123,9 @@
 }
 
 /**
- * One column on touch, and the code preview gone.
- *
- * On a 390px screen two `minmax(0, 1fr)` columns are 190px each, which is
- * enough for `Program` and `VariableDeclarator` and not enough for anything with
- * a `detail` — so the tree, which is the point of `/ast`, was the half that ran
- * out of room. `grid-template-columns: 1fr` gives the tree the whole width.
- *
- * `display: none` on the preview, not `visibility: hidden`, because the grid
- * track it sat in is still sized and a hidden-but-present element still occupies
- * it. The e2e asserts `toBeHidden()`, which matches `display: none` and *not* a
- * zero-opacity element — so the two are pinned to each other.
+ * Touch: one column for the tree, no code preview. `display: none`, not
+ * `visibility: hidden`: a hidden element keeps its grid track. The e2e
+ * checks `toBeHidden()`.
  */
 @media (pointer: coarse) {
     .ast__body {

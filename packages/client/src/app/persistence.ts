@@ -9,15 +9,9 @@ type StoreLike = {
 };
 
 /**
- * Persist the state on every change, except while an existing revision is open.
- *
- * A revision is read-only: its code is the snippet's, and persisting over it
- * would make the next visit show edited code that was never saved. The write is
- * debounced because parse and format both dispatch on the same tick as the
- * action that triggered them.
- *
- * `write` is a parameter so a spec can observe it, and so the app can pass
- * `LocalStorage.writeState` without this module importing storage.
+ * Persist the state on each change, but not while a revision is open: a
+ * revision is read-only. Debounced: parse and format dispatch on the same
+ * tick. `write` is a parameter, so a spec can watch it.
  */
 export const installPersistence = (store: StoreLike, write: (state: unknown) => void) => {
     return store.subscribe(debounce(() => {

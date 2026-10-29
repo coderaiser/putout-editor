@@ -66,13 +66,8 @@ test('runLearn: top-level nodes carry their children', (t) => {
 });
 
 /**
- * The registry entry tolerates the arguments it is handed.
- *
- * `Command.run` is `(args, state)`, so the registry calls every entry with both
- * whether or not it declares them — and `/learn foo` is a thing a user types.
- * Tested through `learnCommand.run` rather than `runLearn` directly: the latter
- * takes no parameters, and `tsc` rightly refuses to invent two, which is the
- * point. What a user reaches is the registry entry.
+ * The registry calls each entry with `(args, state)`. Test through
+ * `learnCommand.run`: a user can type `/learn foo`.
  */
 test('learnCommand: run ignores the args and state it is handed', (t) => {
     const withArgs = learnCommand.run('anything', {

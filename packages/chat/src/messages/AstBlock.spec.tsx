@@ -21,15 +21,8 @@ interface Pointer {
 const noop = () => {};
 
 /**
- * A `(pointer: coarse)` stub, wrapping the render.
- *
- * `matches` is a **getter**, not a snapshot: `useIsMobile` calls `matchMedia`
- * once and re-reads `query.matches` inside its `change` listener, so a plain
- * property would freeze at the value it had when the tree mounted.
- *
- * Restored after `fn` rather than for the file, because the component reads the
- * query at mount — a stub left behind would quietly change every spec that runs
- * after it.
+ * A `(pointer: coarse)` stub around `fn`. `matches` is a getter: `useIsMobile`
+ * reads it again on `change`. The stub is removed after `fn`.
  */
 const withPointer = (coarse: boolean, fn: () => void) => {
     const original = globalThis.matchMedia;
@@ -248,13 +241,8 @@ test('AstBlock: shows the full hint on a fine pointer', (t) => {
 });
 
 /**
- * The code preview is hidden by **CSS**, not by an `if`.
- *
- * That is the design (`AstTree.css`'s `@media (pointer: coarse)`), and this
- * asserts the consequence so the choice is recorded: the element is still in the
- * DOM on a coarse pointer, because hiding it in JS would mean `AstTree` has to
- * know about pointers to render a tree. The e2e is what checks it is not
- * *visible*; jsdom has no layout, so it can only check that it is still there.
+ * On a coarse pointer the code preview stays in the DOM: CSS hides it.
+ * The e2e checks that it is not visible.
  */
 test('AstBlock: keeps the code preview mounted on a coarse pointer', (t) => {
     withPointer(true, () => {

@@ -18,24 +18,11 @@ const textOf = (node: Node, source: string): string => {
 };
 
 /**
- * `if` runs the true arm, the false arm, and the merge they rejoin in.
- *
- * The condition is the **last** statement of the condition block: everything
- * the printer already emitted into the current block stays where it is, and
- * the test is appended after it, so `let a = 1` / `x > 0 ?` read in program
- * order. Each arm walks in its **own** block (`branch()` per arm, never one
- * shared), which is what keeps `else c()` from sharing a block with `then
- * b()` when the two are textually identical.
- *
- * Termination is asked per arm id through `terminated()`, not read off the
- * walked node: an arm is a `BlockStatement`, which never has type
- * `ReturnStatement` however it ends, so asking the node would merge through a
- * join the program cannot reach. Both arms ending in `return` leaves the join
- * unreachable and it goes through `mergeUnreachable()`.
- *
- * With no `else`, the false edge leaves the condition block for the merge
- * directly — there is no second arm to walk, so the only block `merge()` has
- * to wire is the one the `then` arm may have left open.
+ * `if`: the condition goes last in the current block. Each arm walks in its
+ * own block, so two equal arms stay two blocks. Ask `terminated()` per arm
+ * id: an arm is a `BlockStatement`, never a `ReturnStatement`. Both arms
+ * terminated: `mergeUnreachable()`. No `else`: the false edge goes to the
+ * join.
  */
 export const visitIf = (node: Node, api: FlowApi): void => {
     const {

@@ -36,14 +36,8 @@ interface Recorded {
 }
 
 /**
- * The printer half of the `FlowApi` contract, recorded instead of executed.
- *
- * Blocks are numbered `branch()` calls in order from 1, like the printer's own
- * ids, so a spec asserts the edge targets the printer would assign rather
- * than an opaque counter. `walk` records the node type it was asked to walk —
- * the assertion is *which* arm the visitor dispatched, not what a real walk
- * would have printed — and `terminated` answers from a set the spec fills, so
- * "both arms ended in return" is stated, not derived.
+ * A recorded `FlowApi`. `branch()` ids count from 1, like the printer.
+ * `walk` records the node type. `terminated` answers from the `done` set.
  */
 const api = (source: string, done: number[] = []): Recorded => {
     const stmts: string[] = [];

@@ -4,10 +4,6 @@ import {flattenLearn} from './flat.ts';
 import {curriculum} from './curriculum.ts';
 
 /**
- * A fixture small enough to assert the whole of, rather than the curriculum —
- * the structural claims are about the flattening, and the curriculum is what
- * `curriculum.spec.ts` covers.
- *
  *     root              (container)
  *     - branch          (container)
  *       - leaf          (example, no children)

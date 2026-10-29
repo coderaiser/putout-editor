@@ -38,16 +38,9 @@ test('index: exports the commands, the ast tools and the tree components', (t) =
 });
 
 /**
- * The barrel must not re-export `compilePlugin`. It is a value whose module calls
- * `createRequire(import.meta.url)` at the top level, which pulls `redput` and
- * 🐊**Putout** into any consumer that imports this file — and 🐊**Putout** calls
- * `os.homedir()` at module scope, so a browser bundle of it throws before
- * React mounts. `packages/chat` imports this file for the parser and the tree
- * alone and rendered nothing until the export came out.
- *
- * The subpath `@putout/editor-commands/plugin` still has it, which is what the
- * mcp uses. Asserting the absence here is what stops it being "helpfully" added
- * back, and the comment is what stops it being added without reading this.
+ * The barrel must not export `compilePlugin`: its module loads 🐊Putout,
+ * which calls `os.homedir()` on load and stops the chat page. The mcp uses
+ * the subpath `@putout/editor-commands/plugin`.
  */
 test('index: does not re-export compilePlugin, which drags in putout', (t) => {
     const result = 'compilePlugin' in api;
@@ -74,17 +67,8 @@ test('index: exports no React component', (t) => {
 });
 
 /**
- * `curriculum` is exported for the browser, so its module has to stay pure.
- *
- * `packages/chat` imports this barrel, and the note at the top of the file is
- * about one specific failure: a value whose module calls `createRequire` or
- * `os.homedir()` at scope throws before React mounts, and the page renders
- * nothing. `compilePlugin` is out for that reason. `curriculum` is in for the
- * opposite one — it is a data literal.
- *
- * This asserts the property rather than trusting the file to stay that way: an
- * import added to `curriculum.ts` tomorrow would otherwise be discovered by a
- * blank page.
+ * `curriculum` is in the browser bundle, so its module must import nothing.
+ * An import there gives a blank page.
  */
 test('index: curriculum is a plain tree, with nothing to import', (t) => {
     const [root] = api.curriculum;

@@ -5,14 +5,8 @@ export interface LearnRowProps {
     node: FlatLearnNode;
     
     /**
-     * One boolean per ancestor level, root first, saying whether **that**
-     * ancestor was the last child of its own parent.
-     *
-     * `false` means something continues below it and the level draws `│  `;
-     * `true` means nothing does and it draws blanks. A row cannot work this out
-     * itself — it is handed one node, and the answer is about every node above
-     * it — so it is computed over the whole list and passed down, exactly as
-     * `AstRow` takes it.
+     * One boolean per ancestor, root first: was that ancestor the last child?
+     * `false` draws `│  `, `true` draws blanks. Same as `AstRow`.
      */
     ancestorLastFlags: boolean[];
     
@@ -34,26 +28,15 @@ export interface LearnRowProps {
     onSelect: (id: string) => void;
     
     /**
-     * Clicking a node with children also folds it, on any device.
-     *
-     * The whole row toggles, as in `AstRow`: the caret is too small to tap
-     * reliably on a phone, so the tap target is the entire row. This is the
-     * whole of bug 2, and the reason `LearnRow` exists as a component rather
-     * than as the inline `<div onClick>` `LearnTree` carried — that row called
-     * `onSelect` and had no `onToggle` at all, so a learn tree could not be
-     * folded by pointer on **any** device.
+     * A click on a node with children also folds it, on each device. The whole
+     * row is the target: the caret is too small for a finger.
      */
     onToggle: (id: string) => void;
 }
 
 /**
- * One row in the learn tree.
- *
- * Extracted from `LearnTree`'s `.map()` callback for `hoist-arrow-callback`, and
- * then given `AstRow`'s handler shape — which is what makes the two trees behave
- * alike. A concept row shows a label and a summary where an AST row shows a type
- * and a detail, and carries no `line:col` because a concept has no position in a
- * file; the row itself is otherwise the same drawing.
+ * One row of the learn tree, with the handlers of `AstRow`. It shows a label
+ * and a summary, and no `line:col`: a concept has no position.
  */
 export default function LearnRow({node, ancestorLastFlags, hasChildren, collapsed, last, dimmed, matched, selected, onSelect, onToggle}: LearnRowProps) {
     return (

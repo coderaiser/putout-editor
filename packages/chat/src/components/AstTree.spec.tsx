@@ -465,13 +465,8 @@ test('AstTree: blurring the search hands the keys back to the tree', (t) => {
 });
 
 /**
- * A row's connectors, found by **type** rather than by index.
- *
- * Indexing was the first attempt and it produced a confident wrong answer: nodes
- * deeper than the second level are collapsed by default (`useTreeState`'s
- * `collapsedByDefault`), so a six-node fixture draws five rows and every index
- * below the fold is off by one. Looking a row up by the type it is supposed to be
- * says what the spec means, and cannot be shifted by a default elsewhere.
+ * The connectors of a row, found by type, not by index: the default fold
+ * hides rows below the second level.
  */
 const connectorsOf = (type: string): string => {
     const row = document.querySelector(`[data-testid="ast-row"][data-type="${type}"]`);
@@ -494,15 +489,8 @@ const branched = [
 ];
 
 /**
- * The connectors, read off a **real** tree rather than a hand-passed array.
- *
- * The `connectorsOf` specs prove the function maps flags to glyphs. This proves
- * `AstTree` computes those flags correctly — and that is the half a unit test of
- * the function cannot reach, because a caller can always pass the wrong array and
- * the function will faithfully draw the wrong thing.
- *
- * With the old `BLANK.repeat(depth - 1)` these two rows rendered identically and
- * the branch structure was invisible.
+ * Connectors from a real tree: this checks that `AstTree` computes the flags.
+ * The `connectorsOf` specs check only the flags-to-glyphs map.
  */
 test('AstTree: a branch under a non-last parent draws pipes', (t) => {
     render(
@@ -563,16 +551,9 @@ test('AstTree: a last branch draws blanks where the pipe stops', (t) => {
 });
 
 /**
- * Folding a subtree does not change the pipes of the rows still on screen.
- *
- * The flags are computed over **all** nodes rather than the drawn ones, because a
- * folded child's last sibling is not on screen: asking only the visible rows
- * would call the second-to-last visible child "last" and erase a pipe that is
- * still really there.
- *
- * Folding `declaration` hides `numeric` — the last child — and this checks
- * `declaration`'s own connector is unchanged, which is what would move if the
- * flags were computed over `rows`.
+ * A fold does not change the pipes of the rows on screen. Folding
+ * `declaration` hides `numeric`, its last child; the connector of
+ * `declaration` stays. The flags come from all nodes, not from `rows`.
  */
 test('AstTree: folding does not redraw the pipes above it', (t) => {
     render(

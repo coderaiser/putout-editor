@@ -27,7 +27,7 @@ Read a `docs/` file only when the task needs it.
 ## Gates
 
 ```sh
-bun run check                              # putout . && tsc --noEmit && coverage
+bun run check                              # knip && putout . && tsc --noEmit && coverage
 SPEC='src/menu/*.spec.tsx' bun run test:one
 bun run lint                               # putout . (fix:lint is putout . --fix)
 ```
@@ -54,6 +54,7 @@ bun run lint                               # putout . (fix:lint is putout . --fi
 - Do not write a run of consecutive `//` lines. CI adds a blank line between them.
   Use one long line or a `/** */` block.
 - No comments in `packages/plugin-putout-editor` and in `.madrun.ts` files.
+- A comment block has at most 8 lines (`putout-editor/check-comment-length`).
 - `.madrun.ts` is the source of truth for scripts. After a change, run `madrun --init`.
   `--init` deletes scripts it does not own, so check `package.json` after it.
 

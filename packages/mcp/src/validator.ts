@@ -5,19 +5,9 @@ import {compilePlugin} from '@putout/editor-commands/plugin';
 export const name = 'validate';
 
 /**
- * The keys the **loader** accepts on a plugin, beyond `report`.
- *
- * A plugin with `report` and none of these compiles cleanly and then throws the
- * moment a user runs it — `Looks like 'fix' is not a 'function' but 'undefined'` —
- * so a validator that stops at "it compiled" is green on exactly the plugin that
- * is about to fail. `validate`'s own description says to call it *before*
- * `find_places`, which makes the gap expensive: it costs the round trip and
- * teaches the caller that `ok` means more than it does.
- *
- * Read off the compiled module rather than the source string, so the list is
- * checked against what the loader will actually find and a plugin whose `report`
- * is a default export or a re-export is judged on its shape rather than on how it
- * was typed.
+ * The keys the loader accepts beside `report`. Without one, the plugin
+ * compiles and then throws on run. Read from the compiled module, so a
+ * default export or a re-export also counts.
  */
 const SHAPES = [
     'fix',
@@ -34,13 +24,9 @@ const SHAPES = [
 const isFunction = (value: unknown): boolean => typeof value === 'function';
 
 /**
- * The first shape the plugin actually provides, or `undefined`.
- *
- * A `for..of` rather than `SHAPES.some(...)` with a callback: this repo's own
- * `hoist-arrow-callback` hoists a non-block arrow out of a method call, and the
- * hoisted copy would not see `plugin` — so the callback is not a style here, it
- * is a lint fight with a correctness consequence. The rule is happy with a
- * `for..of`, and so is this file's `for-of/map` rule.
+ * The first shape the plugin has, or `undefined`. A `for..of`, not
+ * `SHAPES.some(cb)`: `hoist-arrow-callback` would move the callback out of
+ * the scope of `plugin`.
  */
 const foundShape = (plugin: Record<string, unknown>): string | undefined => {
     for (const shape of SHAPES) {
@@ -50,13 +36,8 @@ const foundShape = (plugin: Record<string, unknown>): string | undefined => {
 };
 
 /**
- * `undefined` when the plugin has some shape the loader will accept, and a
- * sentence when it has none.
- *
- * A sentence rather than a bare `false` because the caller is a person or a model
- * writing a rule, and the useful half is *which* key to add. `find_places` is
- * named because that is the tool whose description tells a caller to validate
- * first, and `report` alone is what it is about.
+ * An empty string when the plugin has a shape the loader accepts, else a
+ * sentence that names the key to add.
  */
 export const missingShape = (plugin: Record<string, unknown>): string => {
     if (foundShape(plugin))

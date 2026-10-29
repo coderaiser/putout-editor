@@ -21,6 +21,7 @@
     "coverage": "madrun coverage",
     "coverage:json": "madrun coverage:json",
     "lint": "madrun lint",
+    "lint:deps": "madrun lint:deps",
     "test:dts": "madrun test:dts",
     "fix:lint": "madrun fix:lint",
     "report": "madrun report",
@@ -34,6 +35,7 @@
     "eslint-plugin-putout": "^31.0.0",
     "husky": "^9.1.7",
     "jiti": "^2.7.0",
+    "knip": "^6.41.0",
     "madfork": "^1.0.1",
     "madrun": "^13.0.3",
     "msw": "^3.0.2",
@@ -53,6 +55,7 @@
     "packages/*"
   ],
   "overrides": {
+    "@happy-dom/global-registrator": "^21.0.4",
     "supertape": "13.6.2"
   },
   "publishConfig": {

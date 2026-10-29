@@ -10,17 +10,9 @@ const block = (over: Partial<Block> = {}): Block => ({
 });
 
 /**
- * The shape under test, spelled out once.
- *
- * `block N` on a line, `  stmt` indented under it, `  -> N [label]` for an edge.
- * Blank lines separate blocks. `[unreachable]` on the header is the printer's
- * own annotation, and `terminal` says the block ends in `-> exit` with a
- * `return` in it — the printer writes the first, and this infers the second.
- *
- * This is the **inverse** of `printer.ts`, and the pair is the contract: a
- * `Block[]` prints to text and the text parses back to the same `Block[]`.
- * `index.spec.ts` asserts that round-trip, which is why both files exist
- * separately and are never merged.
+ * The format: `block N` header, `  stmt` lines, `  -> N [label]` edges,
+ * blank lines between blocks. `[unreachable]` comes from the printer.
+ * `terminal` is inferred. `index.spec.ts` checks the round-trip.
  */
 const source = montag`
     block 0
@@ -61,14 +53,8 @@ test('parser: single block no stmts no edges', (t) => {
 });
 
 /**
- * A header that is not `block N` is not a block.
- *
- * The `continue` in the header check, and it is not hypothetical: `parse`'s
- * caller may hand it any text a user pasted, and a paragraph with no header
- * must come back as no blocks rather than as one with `NaN` for an id. The
- * blank line below also exercises the split's whitespace tolerance —
- * `\n\s*\n` — which the ordinary two-block fixtures reach but this one
- * reaches without a second header to hide the trim behind.
+ * Text with no `block N` header gives no blocks, not a block with id `NaN`.
+ * A user can paste any text. The blank line also tests the `\n\s*\n` split.
  */
 test('parser: a chunk without a block header is skipped', (t) => {
     const result = parse('just a paragraph\n\n  and its indented line');
@@ -79,14 +65,8 @@ test('parser: a chunk without a block header is skipped', (t) => {
 });
 
 /**
- * A label the printer never writes — an edge kept rather than dropped when
- * the format's `[word]` does not read.
- *
- * The `|| []` fallback of the match, which no `-> 1 [true]` fixture can
- * reach: those always match. Foreign text is not hypothetical here, since
- * `buildCFG` parses whatever text `print` produced and `parse` is exported
- * for the same reason `parser.ts` is its own file — it must answer about
- * text it did not write rather than throw on it.
+ * An edge label that does not parse keeps the edge. This reaches the
+ * `|| []` fallback: `parse` must accept text that `print` did not write.
  */
 test('parser: an edge label that does not parse keeps the edge', (t) => {
     const result = parse(montag`
@@ -173,14 +153,9 @@ test('parser: block with labeled edges true false', (t) => {
 });
 
 /**
- * `terminal` is inferred, never parsed: a block that reaches `exit` **and**
- * holds a `return` cannot fall through, so the merge point after it is dead.
- *
- * The `&&` is the whole rule and both halves are load-bearing. An `exit` edge
- * with no `return` is a block that ends in a `throw`, which does not terminate
- * a merge the same way; and a `return` whose edge is somewhere else is a
- * `return` the printer has not split out. Marking either `terminal` would make
- * `findUnreachable` claim a live block.
+ * `terminal` needs both: an edge to `exit` and a `return`. A `throw` also
+ * goes to `exit`. With only one of the two, `findUnreachable` would report a
+ * live block.
  */
 test('parser: terminal true when block ends with exit and has return stmt', (t) => {
     const result = parse('block 0\n  return a\n  -> exit');

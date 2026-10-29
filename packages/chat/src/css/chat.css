@@ -1,23 +1,10 @@
 @import './highlight.css';
 
 /**
- * Claude's palette, in the client's shape.
- *
- * The token *names* are the client's, so `AstTree.css` and anything else that
- * reads `--color-bg-editor` or `--color-accent` restyles with the page rather
- * than fighting it — and the editor and the chat agree on what "accent" means.
- *
- * The *values* are Claude's, and the reason is a warm one: cream in light, warm
- * charcoal in dark, and one terracotta accent used sparingly. Claude reads calm
- * because nothing is pure white, pure black or fully saturated, and a tool that
- * is mostly code is better off that way than on `#1a1a2e`.
- *
- * Dark is the **default**, matching the client's `ThemeButton`, which reads
- * `localStorage.theme` with a `light` fallback but leaves the attribute off
- * until it is pressed. Rather than depend on that, the two cases are written out
- * and `prefers-color-scheme` decides when the user has expressed no preference —
- * which is what the client's own `tokens.css` does, and matching it means the
- * two pages agree instead of each having an opinion.
+ * Claude palette with the token names of the client, so `AstTree.css`
+ * follows the page. Cream in light, warm charcoal in dark, one terracotta
+ * accent. With no `data-theme`, `prefers-color-scheme` decides, as in the
+ * `tokens.css` of the client.
  */
 :root {
     --color-bg-page: #faf9f5;
@@ -134,26 +121,9 @@ body {
 .chat-app {
     display: flex;
     flex-direction: column;
-    /* `dvh`, not `vh`. On iOS Safari `100vh` is the height of the viewport *with*
-       the browser chrome hidden, so the bottom ~80px of this — and the composer
-       with it — sits under the address bar. `dvh` is the visible viewport, so the
-       shell ends where the screen does.
-       
-       The usual objection to `dvh` is that it resizes as the user scrolls, which
-       makes a full-height layout jump. It cannot here, and the reason is measured
-       rather than assumed: `document.documentElement.scrollHeight` equals
-       `window.innerHeight`, because the thread carries its own `overflow-y: auto`
-       and nothing scrolls the document. `the document does not scroll` in
-       `e2e/mobile.ts` is the guard, and it is the thing to revisit first if that
-       ever stops being true.
-       
-       What is **not** verified: the iOS address bar itself. The e2e runs headless
-       Chromium, which reports `innerHeight === visualViewport.height`, so the
-       defect this fixes cannot be reproduced here — the change rests on the
-       platform behaviour plus the no-scroll measurement, and the e2e only proves
-       it does not regress the layout. `plan-v1.md` §5.5 said to leave `100vh`
-       alone precisely because nothing had been measured; that part is now
-       answered, and this is the part that is not. */
+    /* `dvh`, not `vh`: on iOS `100vh` puts the composer under the address bar.
+       The document does not scroll (`e2e/mobile.ts` checks it), so `dvh` does
+       not jump. Headless Chromium cannot show the iOS bar. */
     height: 100dvh;
 }
 
@@ -193,17 +163,8 @@ body {
 }
 
 /*
- * The icon-only variant.
- *
- * The text version's `padding: 5px 12px` and its default font size exist to fit
- * a word like "light", and left in place they put a 68px box around a 16px
- * glyph — measured on the built bundle before this rule, which is the
- * "unnecessary header space" plan.md §4 asks to reclaim. A fixed square also
- * means the button does not change width when the glyph changes, so the header
- * does not reflow on the click.
- *
- * No `min-width` to release: this box is a flex item, not a sized element, and
- * `apply-box-sizing-to-sized-element` has nothing to say about it.
+ * The icon-only button: a fixed square around the glyph, so the header does
+ * not reflow when the glyph changes.
  */
 .chat-header__btn--icon {
     display: inline-flex;
@@ -249,24 +210,9 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    /* plan.md v8 §1.1 wanted `flex: 1` here, diagnosed as "the thread collapses
-       to zero height on first load". Measured on `devices['iPhone 12']` against
-       the built bundle: `.chat` is already 611px of a 611px body and the input
-       is at the fold — so it does not collapse, and the rule would be inert.
-       The diagnosis was right about the *grid*: `.chat-app__body` is a grid, and
-       `flex: 1` on a grid item does nothing either. What actually keeps the
-       thread open is `min-height: 0` plus the grid row stretching, both of
-       which are already here. Left off deliberately, with the measurement above
-       rather than the plan's reasoning.
-       
-       `min-width: 0` **is** load-bearing, and it is here rather than on
-       `.chat__thread` because this box is the grid item. A grid item defaults to
-       `min-width: auto`, which refuses to shrink below its content, and this
-       box's content is a `white-space: pre` source listing and a help table
-       with a `nowrap` column. Measured with `min-width: 0` on the thread
-       instead: `.chat` still came out 514px wide in a 390px viewport and
-       `document.scrollWidth` was 514 — the rule was one level too deep to be
-       reached. */
+    /* No `flex: 1`: this is a grid item. `min-width: 0` is needed here, on the
+       grid item: `min-width: auto` does not shrink below the `pre` source and
+       the `nowrap` help, and `.chat` grows to 514px on a 390px screen. */
     min-width: 0;
 }
 
@@ -276,15 +222,8 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 24px 20px;
-    /* `min-width: 0`, and the reason is a seeded answer rather than a width.
-       
-       `flex`/`grid` items default to `min-width: auto`, which refuses to shrink
-       below their content. The thread's content is a `white-space: pre` source
-       listing and a `nowrap` help table, so on a 390px phone the thread sized
-       itself to 514px, `.chat` followed, and `document.scrollWidth` became 514 —
-       the whole document scrolled sideways on every first visit. The long lines
-       are correct (`pre` is what makes code readable); what has to give is the
-       *thread* giving them its width. */
+    /* `min-width: 0`: a flex item does not shrink below its `pre` and `nowrap`
+       content, and the document scrolls sideways on a phone. */
     min-width: 0;
     /* `border-box` for the reason `.input` has it, and this is the third element
        with the shape. Fixing the two named in the plan turned out to leave the
@@ -449,15 +388,8 @@ body {
 }
 
 /*
- * A grid, not a table row.
- *
- * A `<table>` cell takes the full width of its row and its columns size to
- * content, so on a 390px phone the name (`/transform [plugin]`) and the
- * description collapsed onto one another and `help` read as prose. The grid
- * pins the name column and lets the description take what is left:
- * `minmax(140px, max-content)` is wide enough for the longest command plus its
- * usage, and `1fr` is the remainder. Under 480px the two stack to one column
- * rather than squeeze both into a row that cannot hold them.
+ * A grid, not a table: the name column is `minmax(140px, max-content)`, the
+ * description gets `1fr`. Under 480px, one column.
  */
 .help-block__row {
     display: grid;
@@ -490,13 +422,8 @@ body {
 }
 
 /*
- * The `[try it →]` block: a code block with one button beside it.
- *
- * The button sits in the thread flow as the block's own footer rather than
- * floating over the code, because an absolute position would cover the last
- * line of a long example on a phone — and the plan's drawing shows it to the
- * right of the block, which is what `flex` gives for free on a desktop with
- * room to spare.
+ * `[try it →]`: a code block with the button beside it in the flow. An
+ * absolute button would cover the last line on a phone.
  */
 .tryit-block {
     display: flex;
@@ -610,15 +537,8 @@ body {
        box — which shifts the placeholder up and left of the text cursor. */
     position: relative;
     resize: none;
-    /* Four values, because only one number was ever wanted here.
-       `52px` on the **right** is the button's lane: a 32px button plus 8px of air
-       each side, and it is what keeps a line of text from running underneath the
-       button — the assertion in `e2e/desktop.ts` and `e2e/mobile.ts` compares
-       that number against the button's measured width, so the two cannot drift
-       apart silently. The **left** was 52px too, because `12px 52px` is two
-       values and both sides got the same one, and on a 390px phone that pushed
-       the placeholder "/help — list every command" far enough from the edge to
-       read as centred. It is 16px now, matching the thread's own gutter. */
+    /* Right 52px: the lane of the 32px button (the e2e compares it with the
+       button width). Left 16px: the thread gutter. */
     padding: 12px 52px 12px 16px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -705,16 +625,9 @@ body {
 }
 
 /**
- * The send button, inside the textarea's bottom-right corner.
- *
- * `right` and `bottom` are measured from `.input`'s padding box, which is the
- * border box of `.input` less its 20px/18px padding — so `right: 28px` lands the
- * button's right edge 8px inside the textarea's right edge, and `bottom: 26px`
- * puts it 8px above the textarea's bottom. The textarea is the flex row's only
- * in-flow child and `align-items: flex-end` puts its bottom on `.input`'s
- * content-box bottom, so those two numbers are stable while the box grows: the
- * button rides the bottom edge as the user types, which is the behaviour a
- * `top`-anchored or `.input`-height-anchored version would lose.
+ * The send button in the bottom-right corner of the textarea: 8px from its
+ * right and bottom edges. `align-items: flex-end` keeps the textarea bottom
+ * fixed, so the button stays on the bottom edge as the box grows.
  */
 .input__send {
     position: absolute;
@@ -739,16 +652,8 @@ body {
 }
 
 /**
- * A 44px hit target around the 32px button, on touch only.
- *
- * The plan for this step kept the button outside the textarea on a touchscreen
- * precisely because of thumb-reach, and that concern is real: 32px is under the
- * 44px target the WCAG 2.5.5 guidance asks for. Moving it inside does not make
- * the number go away, so it is met without making the button 44px — an
- * invisible `::before` with negative insets grows the tappable area to 44x44 and
- * paints nothing. `elementFromPoint` in `e2e/mobile.ts` probes 6px beyond each
- * edge, which is inside this and outside the painted button, so a regression that
- * dropped this rule fails that spec rather than being invisible.
+ * Touch: a 44px hit area (WCAG 2.5.5) around the 32px button, from a
+ * `::before` with negative insets. `e2e/mobile.ts` checks it.
  */
 @media (pointer: coarse) {
     .input__send::before {

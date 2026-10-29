@@ -1,13 +1,5 @@
 /**
- * The module a node-only package resolves to instead of itself.
- *
- * It exports nothing, so a call site that does `const {x} = require('@putout/…')`
- * gets `undefined` rather than a module-resolution error — which is the point:
- * 🐊**Putout** requires these lazily, and the page only ever reaches them through
- * code paths a browser cannot run anyway.
- *
- * `packages/chat/src/shims/empty.js` is the same file for the same reason; the
- * two are separate because a bundler config can only resolve a path inside its
- * own package.
+ * The module for a node-only package. It exports nothing, so a lazy
+ * `require` gets `undefined` and not a resolution error.
  */
 export default {};

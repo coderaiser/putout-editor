@@ -27,6 +27,11 @@ test('putout: plugin: putout-editor: transform: apply-press-modifier-case', (t) 
     t.end();
 });
 
+test('putout: plugin: putout-editor: no transform: check-comment-length', (t) => {
+    t.noTransform('check-comment-length');
+    t.end();
+});
+
 test('putout: plugin: putout-editor: no transform: check-documented-scripts', (t) => {
     t.noTransform('check-documented-scripts');
     t.end();

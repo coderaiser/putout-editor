@@ -2,6 +2,7 @@ import * as applyBooleanCastToTypeof from './apply-boolean-cast-to-typeof/index.
 import * as applyBoxSizingToSizedElement from './apply-box-sizing-to-sized-element/index.js';
 import * as applyLinkedPatternValue from './apply-linked-pattern-value/index.js';
 import * as applyPressModifierCase from './apply-press-modifier-case/index.js';
+import * as checkCommentLength from './check-comment-length/index.js';
 import * as checkDocumentedScripts from './check-documented-scripts/index.js';
 import * as checkMainImportsInFile from './check-main-imports-in-file/index.js';
 import * as checkTryCatchDestructure from './check-try-catch-destructure/index.js';
@@ -18,6 +19,7 @@ export const rules = {
     'apply-press-modifier-case': applyPressModifierCase,
     'hoist-arrow-callback': hoistArrowCallback,
     'check-try-catch-destructure': checkTryCatchDestructure,
+    'check-comment-length': checkCommentLength,
     'remove-comments': ['off', removeComments],
     'check-documented-scripts': ['off', checkDocumentedScripts],
     'check-main-imports-in-file': ['off', checkMainImportsInFile],

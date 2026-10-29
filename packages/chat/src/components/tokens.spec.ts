@@ -2,52 +2,17 @@ import {readFile} from 'node:fs/promises';
 import {test} from 'supertape';
 
 /**
- * The dark palette is checked by **contrast**, not by hex.
- *
- * plan.md says the previous dark tokens were "wrong hue" and gives no measurable
- * criterion — and a spec asserting the exact hex would only pin a palette: change
- * it on purpose and the spec is in the way, change it by accident and the spec
- * passes. What is actually wrong about a token colour is that it is *unreadable*,
- * and that is a number.
- *
- * So this reads `AstTree.css`, takes the dark block, and recomputes the WCAG 2.1
- * relative-luminance contrast of every category against the background the tree
- * is painted on. A future palette that reads better and dimmer cannot pass.
- *
- * The background is `--color-bg-editor` from `chat.css`'s dark block, read from
- * that file rather than written here — the two have to agree and the tree has to
- * be measured on what it is actually painted on.
+ * Check the dark palette by WCAG 2.1 contrast, not by hex. The background is
+ * `--color-bg-editor` from the dark block of `chat.css`, read from the file.
  */
 const readCss = (name: string) => readFile(new URL(name, import.meta.url), 'utf8');
 
 /**
- * The custom properties one rule declares.
- *
- * Three details, each of which was wrong before this spec existed:
- *
- * - **The rule is anchored on its opening brace**, with nothing between the
- *   selector and it. Both stylesheets *mention* their dark selector in a comment
- *   above the rule — this file says "`[data-theme='dark'] .ast` below",
- *   `chat.css` says the same — so a plain `indexOf` lands in the comment and reads
- *   the prose as the block. And `.ast` must not match `.ast:focus-visible`,
- *   which a prefix match finds first and which declares no tokens at all.
- * - **Any value, not only hex**, because `--ast-c-other: var(--ast-accent)` is a
- *   reference and the check that the `other` category inherits the accent is
- *   exactly about that line.
- * - **A value ends at a newline**, not only at `;`. Both stylesheets put prose
- *   *inside* their rules and this one names its own tokens while doing it, so
- *   `[^;]+` leaves the declaration, crosses the comment and eats the next token
- *   on the way to whichever `;` it meets. Measured: the comment's example
- *   `--ast-bg:` swallowed `--ast-c-statement`, and the "the light theme still
- *   declares it" spec failed on a file that plainly does.
- * - **Names without the leading `--`**, matching what the regex captures, so a
- *   lookup spelled the CSS way finds nothing and reports a background that is
- *   plainly right there as "not set".
- *
- * The pattern is assembled from parts rather than written inline: `\s` inside a
- * template literal is an escaped backslash rather than a regex class, and `\{` is
- * not an escape at all in JavaScript source. `WS` is the regex written as a
- * *string*, which is the one place doubling a backslash is correct.
+ * The custom properties of one rule. Anchor on the opening brace: comments
+ * name the selector too, and `.ast` must not match `.ast:focus-visible`.
+ * Accept any value (`var(--ast-accent)`). A value ends at `;` or a newline:
+ * rules contain comments. Names have no leading `--`. The pattern is built
+ * from parts: `\s` in a template literal is not a regex class.
  */
 const tokensOf = (css: string, selector: string): Record<string, string> => {
     const OPEN = String.fromCharCode(123);
@@ -175,13 +140,8 @@ test('AstTree: every dark category colour is readable on the dark tree', async (
 });
 
 /**
- * The `other` category resolves to the dark accent.
- *
- * `--ast-c-other` is declared once as `var(--ast-accent)` in the light block,
- * which is what makes an unrecognised node type readable in both themes without a
- * second declaration. Asserted through the *resolved* value, because the failure
- * this guards is a dark palette that overrides `--ast-accent` and leaves `other`
- * pointing at the light terracotta.
+ * The dark `other` category resolves to the dark accent: `--ast-c-other` is
+ * `var(--ast-accent)`. Check the resolved value.
  */
 test('AstTree: the dark other-category inherits the dark accent', async (t) => {
     const ast = await readCss('./AstTree.css');
@@ -203,13 +163,8 @@ test('AstTree: the dark other-category inherits the dark accent', async (t) => {
 });
 
 /**
- * The light palette is untouched, and says so.
- *
- * The plan's trap list is explicit that only the dark block moves — the light
- * values were chosen against the cream background and the reference screenshot.
- * A spec that measures only dark would not notice a `--fix` or an edit quietly
- * darkening the light theme, and the light theme is what a user in a bright room
- * actually sees.
+ * The light palette still declares all seven categories. Only the dark
+ * block changes.
  */
 test('AstTree: the light palette still declares all seven categories', async (t) => {
     const ast = await readCss('./AstTree.css');

@@ -1,12 +1,22 @@
 type LogFunction = (...args: unknown[]) => void;
 
-export const log: {
+type LogTarget = Pick<Console, 'log' | 'error'>;
+
+type Log = {
     event: LogFunction;
     error: LogFunction;
-} = {
-    event: console.log.bind(console),
-    error: console.log.bind(console),
 };
+
+export const createLog = (target: LogTarget = console): Log => ({
+    event(...args) {
+        target.log(...args);
+    },
+    error(...args) {
+        target.error(...args);
+    },
+});
+
+export const log = createLog();
 
 export function logEvent(category: string, action: string, label = ''): void {
     log.event(category, action, label);

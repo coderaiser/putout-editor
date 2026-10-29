@@ -46,13 +46,8 @@ test('learn: every description says what its answer is for', (t) => {
 });
 
 /**
- * `learn_tree`'s description is the only thing steering an agent away from
- * fetching several kilobytes on every turn.
- *
- * Asserted because it is a *cost* contract rather than documentation: the tool
- * has no rate limit and no size cap, so the sentence naming `learn_node` as the
- * cheap path is what keeps a long session from re-sending the whole curriculum
- * each time it needs one concept.
+ * The `learn_tree` description must name `learn_node`. It is the cheap path
+ * for one concept: the tool has no size cap.
  */
 test('learn_tree: description points at learn_node for a single concept', (t) => {
     const result = learnTree.description.includes('learn_node');

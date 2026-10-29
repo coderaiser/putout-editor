@@ -99,16 +99,9 @@ test('highlight: handles empty string without throwing', (t) => {
 });
 
 /**
- * The TypeScript dialect, which is the whole reason `highlight` configures one.
- *
- * Every assertion here names the **span** it wants rather than a bare token
- * class, and that is not fussiness: under the plain JavaScript grammar
- * `interface`, `type`, `enum`, `declare`, `satisfies` and `implements` all parse
- * as *variable names*, so a `t.match(result, 'tok-keyword')` on a line that
- * already contains `const` or `let` passes either way and pins nothing. Confirmed
- * by stashing `highlight.ts` and re-running this file: with the JS grammar only
- * the span-level assertions below fail. Measured against
- * `@lezer/javascript@1.5.5`.
+ * The TypeScript dialect. Check the span of each word: with the JS grammar,
+ * `interface`, `type`, `enum`, `declare`, `satisfies` and `implements` are
+ * variable names, and a bare `tok-keyword` match passes on `const`.
  */
 test('highlight: interface is a keyword and its members are TS tokens', (t) => {
     const result = highlight('interface Foo { bar: string; }');

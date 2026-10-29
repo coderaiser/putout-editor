@@ -12,25 +12,10 @@ import {
 } from '@putout/editor-commands';
 
 /**
- * Opening a concept is one dispatch, not two click handlers chained with
- * `.then`.
- *
- * Pressing enter on a leaf has to append the body as one message and the
- * `[try it →]` as the next, in that order. Doing it in `LearnBlock` with two
- * `dispatch` calls would work, but the *order* would then live in a component
- * that also has to know `nextId` runs — so it moves here, where `addMessage`
- * is imported anyway and the two appends read as a pair.
- *
- * It is a `createAsyncThunk` rather than a plain thunk so `fulfilled` carries
- * the two messages the slice can drop in. `meta.arg` is the `FlatLearnNode`
- * itself: the row *has* `body` and `example`, so there is no second lookup —
- * a lookup would need a miss branch nothing can reach, because the rows were
- * built from the tree the user just opened.
- *
- * The `tryit` arm is conditional on `node.example`, and that is the whole of
- * what makes a container openable-but-not-open: `/learn` renders containers
- * with no example, and `Enter` on one expands rather than dispatching, so this
- * thunk only ever sees a leaf.
+ * Open a concept in one dispatch: the body, then `[try it →]` when the leaf
+ * has an example. A `createAsyncThunk`, so `fulfilled` carries both
+ * messages. `meta.arg` is the row, which has `body` and `example`. Only a
+ * leaf comes here: `Enter` on a container expands it.
  */
 import type {Message} from './state.ts';
 
@@ -43,13 +28,8 @@ export interface ChatAppState {
     history: string[];
     
     /**
-     * How far back the `↑` recall has walked: `-1` is the empty box, `0` the
-     * most recent line, `1` the one before it.
-     *
-     * In the store rather than in `Input`'s own state, because the cursor has to
-     * survive a re-render that is not caused by typing — a command's answer
-     * landing in the thread re-renders the input, and a `useState` cursor set in a
-     * keydown handler would be fine only by accident.
+     * The `↑` recall position: `-1` is the empty box, `0` the last line.
+     * In the store, so it survives a re-render from a new answer.
      */
     historyIndex: number;
     consoleAst: {
@@ -60,20 +40,9 @@ export interface ChatAppState {
 }
 
 /**
- * The rule the chat opens on, so `ast` answers with a tree on a fresh page
- * rather than "no source".
- *
- * The `replacer` template from `packages/client`'s New menu, copied rather
- * than imported: `config/boundaries-config.ts` makes `editor` reachable only
- * from `parser`/`store`/`snippet`/`ui`/panels/`app`, and `docs/architecture.md`
- * records the arrow policy as enforced by `boundaries/dependencies`. The idea
- * travels; the import does not — which is also why the copy can drift from the
- * template, and why `slice.spec` pins what the seed actually contains.
- *
- * A working 🐊**Putout** rule rather than a bare `const`, because the first
- * thing anyone types here is `ast` and an expression parses into a tree with
- * nothing in it to look at. `export {report}` at the end rather than
- * `export const`, so the seed reads as the shape the docs show.
+ * The rule the chat opens on, so `ast` has a tree. The `replacer` template
+ * of the client, copied: boundaries forbid the import. `slice.spec` checks
+ * the content.
  */
 export const INITIAL_SOURCE = montag`
     export const report = () => \`Use 'if' instead of ternary 🧹\`;
@@ -84,22 +53,8 @@ export const INITIAL_SOURCE = montag`
 `;
 
 /**
- * The two messages the page opens with: `source`, already used, and `help`.
- *
- * This is the answer to "a user opened this in a browser and has no idea what
- * to type". A command list on its own is a reference — it says what exists,
- * not what a line of this looks like or that the tool answers at all. So the
- * thread opens with a **worked example**: the echo of the `source` command and
- * its own output, immediately followed by the help.
- *
- * The ids are 0 and 1 rather than `nextId()`, because these are the first two
- * messages by construction and the counter is shared with everything the user
- * sends afterwards. Handing out 0 and 1 keeps `slice.spec`'s "starts empty"
- * arithmetic honest and costs nothing.
- *
- * `runHelp` and not a written-out list, so the seeded help and the answer to
- * typing `help` are the same string — they are built from the same registry, so
- * adding a command cannot leave the opening screen behind.
+ * The opening thread: `source` with its output, then `help`. Ids 0 and 1.
+ * `runHelp` builds the help from the registry, like a typed `help`.
  */
 const seeded = (): Message[] => [{
     id: 0,
@@ -130,14 +85,8 @@ const without = (messages: Message[], message: Message): Message[] => [
 ];
 
 /**
- * A message id is a counter rather than `Date.now()` or a random string: a spec
- * that asserts on the transcript needs a value it can predict, and a clock or a
- * counter source is one more thing to stub.
- *
- * It starts at the highest id the page opens with, not at 0: the seeded messages
- * already hold 0 and 1, so a counter that began at 0 would hand the first thing
- * the user sends the id of the seeded `help` and put two children with the same
- * `key` in the thread.
+ * Message ids are a counter: specs can predict it. It starts at the highest
+ * seeded id, so a new message does not repeat a seeded `key`.
  */
 export const highestId = (messages: Message[]): number => Math.max(...messages.map(({id}) => id));
 
@@ -218,14 +167,8 @@ export const {reducer, actions} = createSlice({
         reset: () => initialState,
     },
     /**
-     * The one `extraReducer` in the slice, and what makes `learnOpen` a thunk
-     * rather than two dispatches in a component.
-     *
-     * Two messages go in, in order: the body as `text`, then — only when the
-     * leaf has an example — the `[try it →]`. The `!payload.example` arm is
-     * the whole difference between a leaf that offers to try its code and one
-     * that is prose only, and a container never reaches here (`Enter` on one
-     * expands).
+     * `learnOpen` adds the body as `text`, then `[try it →]` when the leaf has
+     * an example.
      */
     extraReducers: (builder) => {
         builder.addCase(learnOpen.fulfilled, (state, {payload}) => ({

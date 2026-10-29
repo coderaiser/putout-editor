@@ -18,17 +18,9 @@ export default function AstSearch({query, shown, focused, onQueryChange, onFocus
     const box = useRef<HTMLInputElement>(null);
     
     /**
-     * `focused` becoming true has to move **real** focus, not just state.
-     *
-     * `autoFocus` on the input covers only the mount case, and the mount case is
-     * the rarer one: the console panel opens with the filter already focused,
-     * but in the chat thread the tree mounts unfocused and `focused` only
-     * arrives later, from `Tab` or `/`. Without this the state says "search" and
-     * the caret is still in the tree, so the user types a filter into nothing.
-     *
-     * Keyed on `[focused]` and not on nothing at all: an effect with no deps
-     * runs after every keystroke, and re-focusing then throws the caret to the
-     * end of the query the user is halfway through typing.
+     * `focused` changing to true moves real focus. `autoFocus` covers only the
+     * mount. Deps are `[focused]`: with no deps, each keystroke moves the caret
+     * to the end.
      */
     useEffect(() => {
         if (!focused)

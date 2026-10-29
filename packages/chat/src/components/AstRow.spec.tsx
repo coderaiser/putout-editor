@@ -46,19 +46,8 @@ const row = (over: Partial<FlatNode> = {}, mobile?: boolean) => render(
 );
 
 /**
- * The connectors, which are a **tree drawing** and not an indent.
- *
- * They used to be `BLANK.repeat(depth - 1)` then `TEE`/`ELBOW` — three blanks per
- * ancestor level, always, whether or not that ancestor had a sibling after it.
- * The result could not distinguish "the parent is the last of its siblings, so
- * nothing continues on the left" from "it is not, so a `│` belongs here", which
- * is the one thing a tree drawing exists to show.
- *
- * So each row is handed `ancestorLastFlags`: one boolean per ancestor level, from
- * the root down, saying whether *that* ancestor was the last child of its own
- * parent. `false` draws `│  `, `true` draws three blanks. The slice is
- * `[0, depth - 1)` because the immediate parent is the row's own `TEE`/`ELBOW`
- * and has no pipe of its own.
+ * Connectors are a tree drawing. `ancestorLastFlags` has one boolean per
+ * ancestor, root first: `false` draws `│  `, `true` draws blanks.
  */
 test('AstRow: depth 0 carries no connectors', (t) => {
     const result = connectorsOf(0, false, []);
@@ -264,13 +253,7 @@ test('AstRow: carries the dimmed class for an ancestor of a match', (t) => {
 });
 
 /**
- * The other half of the search, and the one that was never wired.
- *
- * `filterNodes` has computed `matched` - the ids whose own text matches - since
- * the tree was written, and `AstTree.tsx` destructured `{rows, dimmed}` and
- * dropped it. `.ast-match` and `--ast-match` sat in `AstTree.css` unused. So the
- * search filtered and dimmed, and nothing was ever *marked*: the rows that
- * matched looked exactly like the ancestors that were only on the path to one.
+ * A row in `matched` gets the match class. An ancestor on the path does not.
  */
 test('AstRow: carries the match class for a row that matched', (t) => {
     render(
@@ -391,22 +374,8 @@ test('AstRow: clicking a node with children also folds it', (t) => {
 });
 
 /**
- * The coarse-pointer case, and the whole of bug 1.
- *
- * A coarse pointer fires `click` on `pointerup`, so a row that both selects and
- * toggles on one handler does both on the first tap — and toggles *closed*
- * again on the second. The user taps twice and sees nothing happen, because the
- * two effects cancel. A mouse has a separate `mousedown`/`click` pair and a
- * double-click, so the same handler is right there and wrong here.
- *
- * So the row is told which it is, and the fold is only bound to the fine case:
- * a touchscreen tap selects, and folding is the keyboard's job (`h`/`l`, and
- * space/enter) plus the caret, which is where a phone user expects it.
- *
- * The plan named this as "split into two handlers"; the split is by *effect*
- * rather than by DOM event, because there is only one event to split — a
- * `pointerdown` with `event.pointerType` would work, and would need a second
- * listener to carry the same answer `useIsMobile` already holds.
+ * A coarse pointer fires `click` on `pointerup`. On a touchscreen a tap
+ * selects only; the keys (`h`/`l`, space, enter) and the caret fold.
  */
 test('AstRow: a coarse pointer selects AND toggles', (t) => {
     const toggled: string[] = [];
@@ -499,16 +468,7 @@ test('AstRow: a fine pointer still folds on click', (t) => {
 });
 
 /**
- * The row carries **no** `paddingLeft`, and that is the point.
- *
- * It used to be `depth * 12` on top of the connector characters, which double
- * counted the indent: a depth-3 row was 36px further right *and* six characters
- * in. The connectors are the indent now, and they are proportional to the actual
- * tree rather than to a guess about character width.
- *
- * Asserted as its own spec because it is a removal, and a removal has no
- * failure mode anyone notices until the tree is deeply nested and pushed off
- * screen — which no jsdom measurement would catch.
+ * The row has no `paddingLeft`: the connectors are the indent.
  */
 test('AstRow: the indent is the connectors, not padding', (t) => {
     row({
@@ -526,21 +486,9 @@ test('AstRow: the indent is the connectors, not padding', (t) => {
 });
 
 /**
- * `data-category`, which is how the row gets its colour.
- *
- * An **attribute**, not an inline `style` and not a class per category. The
- * reason is that `AstTree.css` selects on it —
- * `.ast-row__type[data-category='call'] { color: var(--ast-c-call) }` — so the
- * eight colours are one stylesheet concern and adding a ninth type is a `Set`
- * entry plus a selector, with no JSX edit and no `style` prop that could drift
- * from the stylesheet.
- *
- * Read off the DOM because a category that is computed but not applied is the
- * failure this is here to catch.
- *
- * The attribute is read through a helper rather than with `?.` on the spot:
- * optional chaining is off in this repo, and one helper keeps the two cases
- * below saying only what they are about.
+ * `data-category` on the type span gives the colour: `AstTree.css` selects
+ * `.ast-row__type[data-category='call']`. A helper reads it: no optional
+ * chaining here.
  */
 const category = () => {
     // On the type span, not the row: the attribute moved there so the CSS selector
@@ -566,13 +514,8 @@ test('AstRow: carries its type category as data-category', (t) => {
 });
 
 /**
- * The unknown-type arm, on the row rather than only on the function.
- *
- * `categoryOf` returns `other` for anything it does not know, and this is what
- * that looks like in the DOM: an attribute whose value no selector in
- * `AstTree.css` matches, so the row keeps `.ast-row__type`'s accent. jsdom has
- * no cascade, so the *colour* is the e2e's job — what is checked here is that
- * the attribute is present and says `other` rather than `null`.
+ * An unknown type gets `data-category="other"`, not `null`. jsdom has no
+ * cascade, so the e2e checks the colour.
  */
 test('AstRow: an unknown type falls back to the other category', (t) => {
     row({
@@ -589,17 +532,8 @@ test('AstRow: an unknown type falls back to the other category', (t) => {
 });
 
 /**
- * Connectors come **before** the caret, and the order is the drawing.
- *
- * Rendered the other way round, a depth-1 row is `▾ ├─ VariableDeclaration` - the
- * caret sits to the left of its own branch marker, so the `├` of this row lands
- * under the caret of its parent rather than under the parent's own `├`. The
- * vertical line stops reading as continuous, which is the one thing a tree
- * drawing is for.
- *
- * `children` order rather than the rendered string, because the two can disagree:
- * a CSS `order` would reorder the box and leave the DOM saying otherwise, and
- * this is a claim about the tree, not about a picture of it.
+ * Connectors come before the caret, so the `├` of a row is under the `├` of
+ * its parent. Check the `children` order.
  */
 test('AstRow: connectors are rendered before the caret', (t) => {
     render(

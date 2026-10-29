@@ -20,14 +20,8 @@ import {
 import {addressed} from '../sigil.ts';
 
 /**
- * The two ways a line can name nothing, and they are no longer the same thing.
- *
- * A line that does not start with `/` is not addressed to the registry at all — it
- * is a sentence — so it gets an answer that says what to do about it. A line that
- * *does* start with `/` and names something unregistered is a misspelling, and gets
- * the unknown-command answer. Folding them together, as this used to, meant a
- * whole sentence was answered "Unknown command: hello world", which is the wrong
- * half of the question every time the user was not aiming at the tool.
+ * A line with no `/` is a sentence: tell the user to start with the sigil.
+ * A line with `/` and an unknown name gets the unknown-command answer.
  */
 const notACommand = (): CommandResult => ({
     type: 'error',
@@ -45,39 +39,20 @@ const parseError = (error: string): CommandResult => ({
 });
 
 /**
- * The whole of what a sent line does, in one place. Everything a command can
- * change — the source, the console tree, the panel toggle, the thread — happens
- * here, so `Input` and `Chat` are both thin and a command's effect on the store
- * is a single function to read.
- *
- * `console` is the one command with no state of its own: the registry's `run`
- * returns text, and the panel toggle is dispatched from here. A command module
- * that had to know about the store would break the one-way arrow
- * `chat → commands`.
+ * What a sent line does, in one place: source, console tree, panel, thread.
+ * `console` returns text; the panel toggle is dispatched here, so command
+ * modules do not know the store (`chat → commands` only).
  */
 export const useChat = () => {
     const dispatch = useDispatch();
     const state = useSelector((root: RootState) => root.chat);
     
     /**
-     * `source` is passed in rather than read from the selector, because the
-     * recursion into `rest` happens in the same tick as the state effect above:
-     * a closure over `state.source` would still hold the value from *before* this
-     * command ran, so `source` followed by `ast` in one input would parse the
-     * old source.
-     *
-     * What a line does, once it is known to be addressed to the registry.
-     *
-     * Split from `send` because the sigil is a property of the line the **user**
-     * sent, not of every line this runs. `parseCommand` ends a `source` body at the
-     * next command name, so `/source\n…\nast` recurses into `ast` — and that `ast` is
-     * part of an input the user already addressed with a sigil on the first line.
-     * Re-gating it would demand a slash mid-input and break the one form of
-     * multi-command input the parser goes out of its way to support.
-     *
-     * `line` is what the parser sees (no sigil) and `echo` is what the thread shows
-     * (with it), because the two genuinely differ: the bubble has to read back
-     * `/ast` while the registry is handed `ast`.
+     * Run a line that is addressed to the registry. `source` is a parameter:
+     * `source` then `ast` in one input runs in one tick, and the selector
+     * still holds the old source. The sigil is checked once, on the user line:
+     * `/source\n…\nast` recurses into `ast`. `line` has no sigil (for the
+     * parser); `echo` has it (for the thread).
      */
     const run = useCallback(async (line: string, echo: string, source: string): Promise<void> => {
         // The registry's own keys, so "a body ends at the next command" is
@@ -187,17 +162,9 @@ export const useChat = () => {
     }, [dispatch, state.plugin]);
     
     /**
-     * The sigil gate, and the one arm that is deliberately not a gate.
-     *
-     * `trimmed &&` rather than the `startsWith` test alone, because an empty line
-     * is not "missing its sigil" — there is nothing there to prefix — and
-     * `parseCommand` already answers it, with `Empty command`. Gating on it would
-     * replace a true statement about the input with a false one, and would retire
-     * the parser's own error branch.
-     *
-     * `slice(1)` is why a `/`-prefixed misspelling reports `hello` and not
-     * `/hello`: the registry is handed the name, so the name it cannot find is the
-     * one to name.
+     * The sigil gate. `trimmed &&`: an empty line goes to `parseCommand`, which
+     * answers `Empty command`. `slice(1)` gives the registry the name, so a
+     * misspelling reports `hello`, not `/hello`.
      */
     const send = useCallback(async (input: string, source = state.source) => {
         const trimmed = input.trimStart();

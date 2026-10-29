@@ -199,16 +199,8 @@ test('flat: a node with no type has no detail', (t) => {
 });
 
 /**
- * The cap, and the boundary either side of it.
- *
- * `detail` is a node's own text — a long string literal, a long identifier, a
- * long arrow body. plan.md §5a: "the detail string is currently the full
- * stringified node value — it should be truncated to fit". On a 390px row that
- * pushed the type label and the `line:col` off the edge.
- *
- * Three cases because the two sides of a cap are where this goes wrong: exactly
- * at the cap (untouched), one over (cut, with the ellipsis), and well over (still
- * cut, and *not* growing — a cap that only fires once is not a cap).
+ * The detail cap at its boundaries: at the cap (no change), one over (cut,
+ * with `…`), and far over (cut to the same width).
  */
 test('flat: a detail at the cap is left alone', (t) => {
     const [node] = toFile(`const a = "${'x'.repeat(30)}";`).filter(({type}) => type === 'StringLiteral');
@@ -238,16 +230,8 @@ test('flat: a detail over the cap is cut and marked', (t) => {
 });
 
 /**
- * The cap applies to what is **drawn**, and the ellipsis is inside the budget.
- *
- * Two decisions, both visible in the expected string. It is applied to the
- * finished detail rather than inside `quote` — otherwise the rendered length is
- * `cap + 2` and varies with whether the value happened to be a string, and the
- * number in this spec stops being the number of columns the row occupies. And it
- * is `MAX_DETAIL - 1` characters plus the ellipsis rather than `MAX_DETAIL` plus
- * it, so a capped detail is exactly as wide as an uncapped one at the cap.
- *
- * So a 200-character literal is 30 x's, two quotes and an ellipsis: 32.
+ * The cap counts the quotes and the `…`. A 200-character literal gives
+ * 30 x's, two quotes and `…`: 32 columns.
  */
 test('flat: the cap counts the quotes and the ellipsis', (t) => {
     const [node] = toFile(`const a = "${'x'.repeat(200)}";`).filter(({type}) => type === 'StringLiteral');

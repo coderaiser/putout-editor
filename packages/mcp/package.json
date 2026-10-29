@@ -25,13 +25,14 @@
   "dependencies": {
     "@babel/parser": "^8.0.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@putout/editor-commands": "^1.0.0",
     "@putout/plugin-markdown": "^1.5.1",
     "@putout/printer": "^18.46.0",
+    "montag": "^2.0.3",
     "putout": "^42.8.0",
-    "redput": "^4.8.1",
     "try-catch": "^4.0.0",
     "try-to-catch": "^4.1.0",
-    "zod": "^3.25.0"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@putout/eslint-flat": "^4.0.1",

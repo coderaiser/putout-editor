@@ -1,5 +1,6 @@
 import {test, stub} from 'supertape';
 import {
+    createLog,
     log,
     logEvent,
     logError,
@@ -29,5 +30,29 @@ test('logger: logError: calls log.error with description and fatal flag', (t) =>
         'Something went wrong',
         true,
     ]);
+    t.end();
+});
+
+test('logger: createLog: event writes to log', (t) => {
+    const target = {
+        log: stub(),
+        error: stub(),
+    };
+    
+    createLog(target).event('analytics', 'click');
+    
+    t.calledWith(target.log, ['analytics', 'click']);
+    t.end();
+});
+
+test('logger: createLog: error writes to error', (t) => {
+    const target = {
+        log: stub(),
+        error: stub(),
+    };
+    
+    createLog(target).error('Something went wrong', true);
+    
+    t.calledWith(target.error, ['Something went wrong', true]);
     t.end();
 });

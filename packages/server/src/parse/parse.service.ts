@@ -1,12 +1,12 @@
 import {parse, type ParserPlugin} from '@babel/parser';
 import {tryToCatch} from 'try-to-catch';
+import {compactAST} from '@putout/editor-commands/compact';
 import {
     Inject,
     Injectable,
     NotFoundException,
     UnprocessableEntityException,
 } from '@nestjs/common';
-import {compactAST} from './compact.ts';
 import {queryAST} from './query.ts';
 import type {
     Snippet,

@@ -21,14 +21,8 @@ export interface LearnTreeProps {
     onOpen: (node: FlatLearnNode) => void;
     
     /**
-     * Coarse pointer, threaded to the status bar's hint and to every row's
-     * handler. Same role as `AstTree`'s.
-     *
-     * The row half is what bug 2 was: the prop reached the hint and stopped
-     * there, because the row was inline markup that called `onSelect` and
-     * nothing else — so a learn tree could not be folded by pointer on **any**
-     * device, and on a touchscreen one that had been folded could not be
-     * unfolded except by keyboard. `LearnRow` now carries it the rest of the way.
+     * A coarse pointer, for the status hint and the handler of each row.
+     * Same role as in `AstTree`.
      */
     mobile?: boolean;
 }
@@ -86,27 +80,10 @@ const lastFlagOf = (nodes: FlatLearnNode[]) => (ancestor: FlatLearnNode) => isLa
 const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean[] => chainOf(nodes, node).map(lastFlagOf(nodes));
 
 /**
- * The `/learn` tree.
- *
- * Structurally `AstTree`, and deliberately so: same stylesheet, same rows, same
- * `useTreeState` keyboard logic, same `AstSearch` bar. What differs is the data
- * and two consequences of it.
- *
- * - **No code preview column.** `AstTree` shows the source beside the tree so a
- *   selected node's text is visible. A concept has no source, so that column
- *   would be permanently blank — and `grid-template-columns: 1fr 1fr` would give
- *   half the thread to it.
- * - **Enter opens.** On a leaf, `Enter` calls `onOpen` instead of toggling. On a
- *   container it still toggles, which is what a caret means.
- *
- * `collapsedDepth: 0` rather than the AST tree's `1`: the root is open and its
- * sections are not, because a concept tree's first level *is* the table of
- * contents. See `TreeOptions.collapsedDepth`.
- *
- * The status bar is written here rather than reusing `AstStatus`, whose
- * `selected` prop is a `FlatNode` — it reads `type`, `line` and `col`, none of
- * which a concept has. Generalising it to a union would put a branch in a
- * component whose whole job is to print three fields.
+ * The `/learn` tree: `AstTree` with the same CSS, rows, `useTreeState` and
+ * `AstSearch`. No code preview column: a concept has no source. `Enter` on
+ * a leaf calls `onOpen`. `collapsedDepth: 0`. Its own status bar:
+ * `AstStatus` reads `type`, `line` and `col`, which a concept does not have.
  */
 export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
     const state = useTreeState(nodes, {

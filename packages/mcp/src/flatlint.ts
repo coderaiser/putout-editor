@@ -8,13 +8,8 @@ export const name = 'flatlint_rule';
 export const description = 'Write or check a flatlint (token-level) rule: report, replace, and an optional match with the same keys. action "contract": the shape and the test harness. pattern (and to): generate the rule, fixture and spec. rule: check it (no report, or a match key that is not a replace key).';
 
 /**
- * What a flatlint plugin is, in one object.
- *
- * `{report, match?, replace}` — the pair `packages/plugin-putout-editor` exports
- * plus an **optional** `match`. `replace` decides *what* matches; `match` only
- * decides *whether to act* on an occurrence that already matched. Same contract
- * putout uses, one unit lighter: a guard is looked up in the `match` map by the
- * very `replace` key it guards.
+ * A flatlint plugin is `{report, match?, replace}`. `replace` decides what
+ * matches. `match` decides whether to act on a match, by the same key.
  */
 const CONTRACT = montag`
 A flatlint plugin, in full:
@@ -132,13 +127,8 @@ const UNBOUND = [
 ];
 
 /**
- * What a scaffold needs to know about a key, and nothing more.
- *
- * An earlier version parsed the key as an expression to "check" it, which was
- * theatre: wrapping a PutoutScript key in `const __a = …;` proves the *wrapper*
- * parses, never that the key matches anything. The real question — "does this
- * key match my source?" — is what `test_pattern` is for, and the tool says so
- * rather than pretending to answer it.
+ * A scaffold needs only the placeholders of a key. To check that a key
+ * matches source, use `test_pattern`.
  */
 export const runBuild = (pattern: string, to?: string, name?: string) => {
     const placeholders = placeholdersOf(pattern);
@@ -171,13 +161,9 @@ const hasExport = (source: string, what: 'report' | 'replace'): boolean => {
 };
 
 /**
- * The keys of an `export const <name> = () => ({...})` map.
- *
- * Read off the AST rather than with a regex because a key is a *pattern* and a
- * pattern is full of braces, quotes and `__x` — `'(__args) {'` closes a brace
- * range that a brace-counter gets wrong, which is how a first attempt at this
- * reported `add-missing-round-brace` as having **zero** replace keys when it has
- * fourteen. The walk also skips a computed key instead of guessing at it.
+ * The keys of `export const <name> = () => ({...})`, read from the AST.
+ * A key is a pattern with braces and quotes: a regex reads it wrong.
+ * A computed key is skipped.
  */
 const keysOf = (program: types.Program, name: string): string[] => {
     const keys: string[] = [];

@@ -109,18 +109,9 @@ const pressMeta = (keyName: string) => key(content(), {
 const options = () => [...document.querySelectorAll('.autocomplete__row')].map(({textContent}) => textContent || '');
 
 /**
- * happy-dom *does* implement `matchMedia`, and answers `false` for
- * `(pointer: coarse)` — so every other spec in this file is the **desktop**
- * case without saying so. This is the other one: a stub that reports a
- * touchscreen, where `Enter` is a newline.
- *
- * `state.coarse` is mutable and the stub reads it on every call, so a spec can
- * flip the device mid-test — the case `useEffect`'s `change` listener exists
- * for, and the one a mount-time-only read could never answer.
- *
- * Installed and removed around the call rather than for the file, because the
- * component reads it at mount — a spec that leaves it behind would quietly
- * change every spec that runs after it.
+ * A `matchMedia` stub for a touchscreen. happy-dom answers `false` for
+ * `(pointer: coarse)`, so the other specs are the desktop case. A spec can
+ * change `state.coarse`. Remove the stub after the spec.
  */
 interface Pointer {
     coarse: boolean;
@@ -296,15 +287,8 @@ test('Input: isCoarsePointer is false without matchMedia', (t) => {
 });
 
 /**
- * The gutter, from what has been typed.
- *
- * Each of the four is a command that takes a **body** — a multi-line plugin, or
- * a multi-line source — and the numbers are the only feedback on how many lines
- * it is. `mode: 'javascript'` was already on, so the highlighting half of the
- * plan's bug 2 was never missing; this is the other half.
- *
- * One spec per command rather than a loop, because a loop that iterated the
- * `Set` would test the set against itself and pass for any set at all.
+ * A command with a body asks for line numbers. One spec per command: a loop
+ * over the `Set` tests the set against itself.
  */
 test('Input: a body command asks for line numbers', (t) => {
     const result = [
@@ -392,13 +376,8 @@ test('Input: a recalled line and a sentence both answer by their first word', (t
 });
 
 /**
- * The gutter appears on screen once a body command is typed.
- *
- * The helper above is the rule; this is the rule *reaching the editor*, which
- * is the half a helper spec cannot see — a prop passed to the wrong component,
- * or read from `text` instead of `value`, would leave every helper spec green
- * and the composer without numbers. Measured on `.cm-lineNumbers`, which is
- * what `lineNumbers()` renders.
+ * A body command shows `.cm-lineNumbers` in the editor, not only in the
+ * helper.
  */
 test('Input: typing a body command brings up the gutter', async (t) => {
     await box();
@@ -451,15 +430,8 @@ test('Input: enterSends is false for a coarse pointer', (t) => {
 });
 
 /**
- * The autocomplete used to open on `/`, because `/` was how a command started.
- * Now the first word *is* the command, so there is no sigil left to key on and
- * the honest question is "is what I have typed a command name so far".
- *
- * `matches` keeps the empty-prefix case — it answers every name — while the
- * component gates on a non-empty box, so an idle composer is quiet and the
- * list is still reachable by the function. `matches` closing on a space is the
- * other half: once a word has ended, the user is typing an argument and a
- * command name is no longer what they want completed.
+ * The first word is the command. `matches` closes on a space: the rest is an
+ * argument. An empty prefix matches all names; the component needs text.
  */
 test('Input: matches closes once a space ends the command word', (t) => {
     const result = matches('source const a = 1;');
@@ -498,14 +470,7 @@ test('Input: the autocomplete narrows as a name is typed', async (t) => {
 });
 
 /**
- * The row's own name, read off the element rather than sliced out of the row's
- * whole text.
- *
- * `.autocomplete__row` holds the name **and** the description, so
- * `textContent` is both concatenated and asserting on it would pin the
- * description too — this test is about the name carrying its slash. There is
- * no separate name element, so the name is the text before the description
- * span, and reading it that way keeps the assertion about one thing.
+ * Read the name only: the text before the description span.
  */
 test('Input: the autocomplete shows slashed names', async (t) => {
     await box();
@@ -1174,19 +1139,8 @@ test('Input: growTo brings the scrollbar back once the box hits the cap', (t) =>
 });
 
 /**
- * The composer is a Claude-style box: the button is **inside** the textarea.
- *
- * The layout itself is `chat.css` and only geometry can check it — that is
- * `e2e/desktop.ts` and `e2e/mobile.ts`, which assert containment against
- * `getBoundingClientRect()`. jsdom returns zeros for layout, so a spec here can
- * only assert the *structure* the stylesheet depends on, and that structure is
- * load-bearing rather than incidental:
- *
- * `.input` is `position: relative`, and `.input__send` is `position: absolute`
- * inside it. Move the button out of `.input` — one wrapper div — and every rule
- * in the stylesheet silently stops applying, the button falls back to `static`,
- * and **no unit spec fails**. The DOM relationship is the contract the CSS is
- * written against, so it gets a spec.
+ * The button is inside `.input` (`position: relative`), next to the
+ * textarea. The CSS needs this structure. The e2e specs check the geometry.
  */
 test('Input: the send button is a sibling of the textarea inside .input', async (t) => {
     await box();
@@ -1264,22 +1218,9 @@ test('Input: the send button is not disabled', async (t) => {
 });
 
 /**
- * iOS rewrites what is typed into the command box, and both rewrites break it.
- *
- * The composer takes command *names* — `ast`, `source`, `find` — and iOS Safari
- * capitalises the first character of any field and runs autocorrect over the rest,
- * so `/ast` arrives as `/Ast`, which `parseCommand` does not know and answers with
- * "Unknown command". Nothing in a unit spec can reproduce that: it is the
- * platform's own text handling, and the only honest assertion is that the opt-outs
- * are actually on the element.
- *
- * Read with `getAttribute` in **lowercase**. React's prop is `autoCapitalize`, but
- * the DOM stores the HTML attribute lowercased, so `getAttribute('autoCapitalize')`
- * returns `null` and the test would pass on a textarea with no attribute at all.
- * That is the trap: an assertion that cannot fail.
- *
- * One object rather than three tests, because they are one decision - this is a
- * command box, not prose - and supertape allows one assertion per test anyway.
+ * iOS capitalises and autocorrects a field: `/ast` becomes `/Ast`. Check the
+ * opt-outs on the element. Use lowercase names with `getAttribute`:
+ * `getAttribute('autoCapitalize')` returns `null`.
  */
 test('Input: the textarea opts out of iOS text rewriting', async (t) => {
     await box();
@@ -1304,22 +1245,8 @@ test('Input: the textarea opts out of iOS text rewriting', async (t) => {
 });
 
 /**
- * The autocomplete has to read **past** the sigil, or requiring one kills it.
- *
- * §3 of the plan asserts the dropdown "already works" with a leading slash,
- * because it filters on the characters after `/`. It does not: `matches` tests
- * `name.startsWith(typed)` on the whole box, and no command name starts with
- * `/`, so `matches('/as')` is `[]` — the dropdown silently stops appearing the
- * moment a slash is required. Measured, not inferred:
- *
- * ```
- * matches('as')   -> ['/ast']
- * matches('/as')  -> ['/ast']
- * ```
- *
- * So the sigil is stripped *here* rather than in each caller. A dropdown that
- * only worked when the caller remembered to trim would be a second grammar
- * spread across two files.
+ * `matches` skips the sigil: `matches('/as')` gives `['/ast']`, like
+ * `matches('as')`.
  */
 test('Input: matches reads past the leading slash', (t) => {
     const result = matches('/as');
@@ -1377,21 +1304,8 @@ test('Input: Tab completes past the sigil and keeps it', async (t) => {
 });
 
 /**
- * …and the `exact` half, which is the one that would have bitten silently.
- *
- * `options` holds bare names, so `options.includes('/ast')` is false: a finished
- * slash-prefixed command read as a *partial* one, and plain `Enter` completed it
- * to `/ast ` instead of sending. `Ctrl+Enter` still worked, which is why only a
- * keyboard user's first `Enter` would have looked broken.
- */
-
-/**
- * …and a bare finished name completes with a slash instead of sending.
- *
- * Forgiving matching means `ast` still opens the row, but the row is `/ast`
- * and the box holds `ast` — sending it would answer "Not a command". So a
- * bare `Enter` completes to `/ast ` (a line the page runs) and sends nothing.
- * Without this spec the bare→slash Enter path is unpinned.
+ * A bare finished name: `Enter` completes `ast` to `/ast ` and sends nothing.
+ * `ast` alone is not a command.
  */
 test('Input: Enter on a bare finished name completes it with a slash', async (t) => {
     sent.length = 0;

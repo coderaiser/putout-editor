@@ -9,20 +9,9 @@ export type TypeCategory =
     | 'other';
 
 /**
- * The eight buckets, as `Set`s built once at module scope.
- *
- * `Set` rather than a switch because the lists are data and a switch would be
- * seven arms of `||` that a typo turns into a silent fall-through. Every name
- * here is a **babel** node type — the plan's own warning: putout's AST is
- * babel's, so a string is a `StringLiteral` and not a `Literal`.
- *
- * Order matters and is the interesting part: `STATEMENT` is checked first, and
- * `BlockStatement` is in it. A `BlockStatement` is also the body of a function
- * and nobody thinks of it as a *statement* when reading a tree, but
- * `FunctionDeclaration` is in `DECLARATION` and the reader's expectation of "this
- * is a declaration" is better served by the colour the surrounding rows already
- * establish. `File` is `STATEMENT` for the same reason: it is the root, and it
- * should look like the row that contains everything.
+ * The eight buckets as `Set`s of Babel node types (`StringLiteral`, not
+ * `Literal`). The order matters: `STATEMENT` is asked first, and it holds
+ * `BlockStatement` and `File`.
  */
 const STATEMENT = new Set([
     'Program',
@@ -112,18 +101,9 @@ const CONTROL = new Set([
 ]);
 
 /**
- * Which of the eight buckets a node type belongs to.
- *
- * `other` is the fallback and the reason the function exists at all: babel has
- * far more node types than any list can hold, and a row that matched nothing
- * still has to be coloured. An unknown type renders as `other`, which takes
- * `var(--ast-accent)` — the colour the tree already used for every type, so an
- * unrecognised node looks like "no opinion" rather than like a bug.
- *
- * Not `Map<string, TypeCategory>` over the union of all four lists, because the
- * sets must be **ordered**: `BlockStatement` is only a statement because
- * `STATEMENT` is asked first, and a map built by merging the sets would have one
- * answer per type with no room for that.
+ * The bucket of a node type. Unknown types get `other`, which uses
+ * `var(--ast-accent)`. The sets are asked in order, so a merged `Map` cannot
+ * replace them.
  */
 export const categoryOf = (type: string): TypeCategory => {
     if (STATEMENT.has(type))

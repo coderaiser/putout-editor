@@ -29,16 +29,9 @@ export interface InputProps {
 }
 
 /**
- * Size the box to its content, up to whatever `max-height` allows.
- *
- * Written as a standalone export with its own spec because it is the only part
- * of this component that cannot be checked by rendering: it reads `scrollHeight`
- * and writes `style.height`, and jsdom reports both as 0.
- *
- * The scrollbar is set here rather than in `chat.css` because CSS cannot
- * express it: `overflow-y` has no "only once you hit the cap" mode, and the
- * cap is the thing being measured here. So the stylesheet starts at `hidden`
- * and this turns it on exactly when the content is taller than the cap.
+ * Size the box to its content, up to `max-height`. Show the scrollbar only
+ * at the cap: CSS cannot do that. jsdom reports 0 for both values, so this
+ * has its own spec.
  */
 export const growTo = (box: HTMLTextAreaElement | null): void => {
     if (!box)
@@ -56,17 +49,9 @@ export const growTo = (box: HTMLTextAreaElement | null): void => {
 };
 
 /**
- * Commands whose name starts with what has been typed, in registry order.
- *
- * The sigil is skipped for matching, so `/as` offers what `as` offers: `/`
- * alone is a prefix of every command and opens the whole list, which is what
- * makes it usable as a menu key. The returned names carry the sigil, so the
- * dropdown teaches lines the page runs — matching is forgiving, display is not.
- *
- * An **empty** prefix matches every command, which is what makes the list
- * reachable at all; the component gates on a non-empty box so an idle composer
- * stays quiet. A space closes it, because a space ends the command word and
- * whatever follows is an argument.
+ * Commands whose name starts with the typed text, in registry order. The
+ * sigil is skipped: `/` alone matches all. The names keep the sigil.
+ * An empty prefix matches all. A space closes the list.
  */
 export const matches = (typed: string): string[] => {
     const prefix = prefixOf(typed);
@@ -84,17 +69,8 @@ export const matches = (typed: string): string[] => {
 };
 
 /**
- * The description shown beside a name in the dropdown, or nothing.
- *
- * Exported for one reason: the `''` arm is unreachable from the component,
- * because every row in the dropdown comes from `commands` and so always has an
- * entry. Without a spec of its own that arm is a branch nothing reaches, which
- * is what the 100% gate is for — and the honest test is the function, not a
- * dropdown that cannot show the case.
- *
- * The option is the slashed suggestion, so the sigil is stripped at the call
- * site (`describeOf(prefixOf(option))`) — a direct `commands.get(option)` on
- * `/ast` is `undefined`, and every row would render the `''` arm instead.
+ * The description of a command, or `''`. Exported so a spec reaches the
+ * `''` arm. The caller strips the sigil: `describeOf(prefixOf(option))`.
  */
 export const describeOf = (option: string): string => {
     const command = commands.get(option);
@@ -103,23 +79,8 @@ export const describeOf = (option: string): string => {
 };
 
 /**
- * Whether the box should show a gutter, given what has been typed.
- *
- * A command **name** is one line, and a gutter costs it a column for nothing.
- * The four commands that take a **body** are the ones it is for: `/source` with
- * a pasted plugin is several lines, and without numbers there is no feedback on
- * how many — which is the whole of bug 2. `mode: 'javascript'` was already on,
- * so the highlighting half was never missing; only the line count was.
- *
- * A `Set` of names rather than a check on the argument, because the question is
- * *which command*, and the registry is where a command's own shape is declared.
- * A name that stops taking a body leaves the set and the gutter goes with it.
- *
- * The prefix is read with `prefixOf` — the same helper `matches` and `complete`
- * use — so a recalled line with no sigil answers the same as a typed one. Only
- * the **first word** is consulted, so `/source const a = 1` still answers `true`:
- * that is a one-line body, and a gutter on one line is harmless where a missing
- * one on five is not. `/source` answers `false`, because no such command exists.
+ * Commands with a body get a gutter. Only the first word counts, read with
+ * `prefixOf`: `/source const a = 1` is `true`.
  */
 const BODY_COMMANDS = new Set([
     'source',
@@ -137,45 +98,15 @@ export const wantsLineNumbers = (typed: string): boolean => {
 };
 
 /**
- * Whether a plain `Enter` sends, given the pointer type.
- *
- * `(pointer: coarse)` is the *intent* test, not a width one: a narrow desktop
- * window still has a keyboard, and a tablet in a dock has a pointer. So:
- *
- * | Key | Touch | Desktop |
- * |---|---|---|
- * | `Enter` | newline | **send** |
- * | `Shift+Enter` | newline | newline |
- * | `Ctrl`/`Cmd+Enter` | send | send |
- *
- * This reverses `69f5634`, which made `Enter` a newline everywhere because
- * `source` takes a body and one keystroke cannot finish a line. That reason
- * holds on a keyboard — it is why `Shift+Enter` survives here — and inverts on a
- * touchscreen, where the virtual keyboard's own return key is the only newline
- * available and a chat where return cannot send is a chat with no send key but
- * the button.
- *
- * A function rather than a module-level constant so a spec can state which case
- * it is exercising. happy-dom *does* implement `matchMedia` and answers `false`
- * for `(pointer: coarse)`, so the default in a spec is the desktop case without
- * saying so — which is why the touch case below installs its own stub.
+ * Does a plain `Enter` send? Touch (`pointer: coarse`): newline. Desktop:
+ * send. `Shift+Enter` is a newline and `Ctrl`/`Cmd+Enter` sends on both.
+ * A touch keyboard has only one return key, so there it makes a newline.
  */
 export const enterSends = (coarse: boolean): boolean => !coarse;
 
 /**
- * Reads the pointer type once, at mount, rather than per keystroke: a
- * `matchMedia` call inside the key handler would run on every keypress, and the
- * answer does not change while the page is up unless the device is re-plugged.
- *
- * `false` where `matchMedia` is missing, which is the keyboard binding and the
- * safe default: a browser without the query still has a keyboard.
- *
- * **Re-exported**, not re-declared. The question is now asked in two places —
- * here for the key binding, and in `useIsMobile` for the layout — and two
- * copies of `(pointer: coarse)` is one more thing to keep in step. `Input` keeps
- * exporting it because `Input.spec.tsx` imports it from here, and moving an
- * import in a package whose only consumer is its own spec is churn, not
- * clarity.
+ * The pointer type, read once on mount. `false` when `matchMedia` is
+ * missing. `Input.spec.tsx` imports it from here.
  */
 export {isCoarsePointer} from './hooks/useIsMobile.ts';
 
@@ -197,16 +128,8 @@ export default function Input({history, onSend}: InputProps) {
     const open = text !== '' && options.length > 0;
     
     /**
-     * Whether the box already holds a command in full. A dropdown showing one
-     * row the user has already typed in full is not a choice left to make, so
-     * `Enter` is not a *completion* here — which is what lets the send
-     * shortcut below stay a plain "Enter means newline" rule.
-     *
-     * Compared directly against `options`, which holds `/ast`: only a slashed
-     * full name is exact and sends. A bare `ast` is deliberately *not* exact —
-     * normalizing it here would send `ast`, a line the page answers "Not a
-     * command"; instead it falls into the completion branch above and becomes
-     * `/ast `, a line the page runs.
+     * Only a full name with the slash (`/ast`) is exact and sends. A bare
+     * `ast` goes to the completion branch and becomes `/ast `.
      */
     const exact = options.includes(text);
     
@@ -288,16 +211,10 @@ export default function Input({history, onSend}: InputProps) {
             return;
         }
         
-        // Send is `Enter` on a keyboard, `Ctrl`/`Cmd+Enter` everywhere, and never
-        // `Shift+Enter` — which is the newline on both, and on a touchscreen is
-        // the *only* way to get one, since a virtual keyboard has no chord.
-        //
-        // `!shiftKey` is the whole of that last claim, so it is here rather than
-        // in `enterSends`: `enterSends` answers which device this is, and the
-        // modifier is a fact about the keypress.
-        //
-        // The `preventDefault` matters: without it the browser also puts a
-        // newline in the box on its way past.
+        /*
+         * `Enter` sends on a keyboard, `Ctrl`/`Cmd+Enter` sends everywhere.
+         * `Shift+Enter` is the newline. `preventDefault` stops a second newline.
+         */
         if (key === 'Enter' && !shiftKey && (ctrlKey || metaKey || enterSends(coarse))) {
             event.preventDefault();
             send();

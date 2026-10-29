@@ -169,13 +169,8 @@ test('Chat: the sent line is echoed as the user message', async (t) => {
 });
 
 /**
- * Reverses "an empty thread renders no messages".
- *
- * That one asserted zero `[data-testid="message"]` elements on mount and so
- * pinned the blank opening screen. What the page must actually do is render the
- * seed: a worked `source` example and the help. The count is relative to the
- * seed, and the two command words below are what makes it about *those*
- * messages rather than about a number.
+ * The thread renders the seed: a `source` example and `help`. The count is
+ * relative to the seed.
  */
 test('Chat: the thread renders the seeded messages', (t) => {
     mount();
@@ -226,14 +221,7 @@ test('Chat: the chat carries the chat testid', (t) => {
 });
 
 /**
- * The `help` answer is the **table**, not a paragraph.
- *
- * `HelpBlock` shipped with three specs and no call site — `help` answered with
- * `text` and `Message` rendered every `text` as a `TextBlock`, so the table was
- * fully covered and completely invisible. A component at 100% that no user can
- * reach is the exact failure this repo's own guidance warns about, so this is
- * the spec that would have caught it: it renders the real `App` path rather
- * than the component in isolation.
+ * The `help` answer is the table, through the real `App` path.
  */
 test('Chat: help renders the table, not plain text', async (t) => {
     mount();
@@ -275,14 +263,8 @@ test('Chat: the help table shows each command with its usage', async (t) => {
 });
 
 /**
- * `find`'s answer renders the places list.
- *
- * The `Message` branch for a `places` result is reached **only** through a
- * render — `useChat`'s own specs assert on the store and never mount a
- * component, so nothing else covers it. It was covered before the thread was
- * seeded only by accident of ordering: `find`'s answer used to be the first
- * message in an otherwise empty thread. With the seed there is no ordering that
- * reaches it by luck, so this says which result maps to which block on purpose.
+ * The `find` answer renders the places list. Only a render reaches this
+ * `Message` branch: the `useChat` specs check the store.
  */
 test('Chat: find renders the places list', async (t) => {
     mount();

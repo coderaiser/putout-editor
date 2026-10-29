@@ -3,13 +3,8 @@ import {montag} from 'montag';
 import {print} from '../lib/printer.ts';
 
 /**
- * The five cases step 7 of the plan pins, as text — not as `Block[]`.
- *
- * Asserting the text is the point: `buildCFG` returns blocks for the React
- * component and the plugin, but the printer's own contract is the format —
- * headers, indentation, `[true]`/`[false]`, `[unreachable]` — and a spec that
- * parsed the output back would be asserting the parser's half of the
- * round-trip from the printer's suite.
+ * The printer contract is the text format, so these specs compare text, not
+ * `Block[]`. Parsing the output back would test the parser.
  */
 test('printer: empty function body single block no stmts', (t) => {
     const result = print('function f() {}');

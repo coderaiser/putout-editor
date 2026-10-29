@@ -6,15 +6,8 @@ export interface TransformDiffProps {
 }
 
 /**
- * Before and after, side by side rather than as a computed diff. A `putout`
- * transform is one rule's edit, so the two blocks are short and the value is in
- * seeing the whole file twice — anything cleverer here would be a diff algorithm
- * shipped in a chat message.
- *
- * `before === after` says so in one line instead of drawing the same text twice.
- * A `transform` that matched nothing is a *result* — it is how a user learns
- * their rule does not fire — and two identical blocks would look like a broken
- * render rather than an answer.
+ * Before and after, side by side, not a computed diff. When they are equal,
+ * say so in one line: a rule that does not fire is an answer.
  */
 export default function TransformDiff({before, after}: TransformDiffProps) {
     if (before === after)

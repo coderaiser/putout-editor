@@ -16,16 +16,8 @@ export interface MessageProps {
 }
 
 /**
- * `help` answers with `text` — its data is the formatted list — so it is
- * recognised by **the command that produced it**, not by its result type, which
- * is the same reason `useChat` keys `clear` and `reset` on their names. Only
- * `help` gets the table; every other `text` answer stays a `TextBlock`.
- *
- * This is what makes `HelpBlock` reachable at all. It had three specs and no
- * call site: `help` rendered as plain text, so the table was built, tested and
- * never shown — a component with full coverage that no user could see. The
- * seeded opening thread needs `help` to *be* the help, so this is the branch
- * that shows it.
+ * `help` answers with `text`, so find it by the command name, like `useChat`
+ * finds `clear` and `reset`. Only `help` gets the table.
  */
 const Result = ({message}: MessageProps) => {
     const {result, text} = message;

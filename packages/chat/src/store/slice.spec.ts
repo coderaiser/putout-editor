@@ -57,13 +57,7 @@ test('slice: starts on the seeded thread', (t) => {
 });
 
 /**
- * `expected` is *relative* to the seed, not a literal.
- *
- * These two used to assert `1` and `['a', 'b']` against an empty thread. The
- * thread is no longer empty — it opens with a worked `source` example and the
- * help — so a hard-coded count would be asserting the old start screen rather
- * than the appending. Building it from `initialState.messages` keeps the test
- * about the one thing it is named for and lets the seed change without it.
+ * `expected` is relative to the seed, not a literal.
  */
 test('slice: addMessage appends to the thread', (t) => {
     const one = message('a');
@@ -307,14 +301,8 @@ test('slice: pushHistory keeps the line it was given', (t) => {
 });
 
 /**
- * The opening thread, which is the whole of "the user understands the tool
- * without reading anything".
- *
- * plan.md: "start screen shows that `source` command already used with
- * 'Replacer' example from putout-editor, it must show user input and command
- * output in chat, and help". Two messages, both of them *echoed* — a user has
- * to see that what they type comes back, or the first line of the thread is
- * indistinguishable from static text.
+ * The thread opens with two echoed messages: a worked `source` example and
+ * `help`.
  */
 test('slice: opens with a worked source example and the help', (t) => {
     const result = [];
@@ -344,13 +332,8 @@ test('slice: the seeded source is the buffer, not a copy that can drift', (t) =>
 });
 
 /**
- * The example is a **working** 🐊Putout rule, not a `const`.
- *
- * It is the `replacer` template from `packages/client`, copied rather than
- * imported: `config/boundaries-config.ts` does not let `chat` reach `client`'s
- * snippet tree. A user who opens this page and types `ast` gets a tree with a
- * `report` and a `replace` in it — the two halves of a rule — which is what
- * makes the first `ast` worth typing.
+ * The seed is a working 🐊Putout rule with `report` and `replace`: the
+ * `replacer` template of the client, copied (boundaries forbid the import).
  */
 test('slice: the seeded source is a rule with a report and a replace', (t) => {
     const result = {

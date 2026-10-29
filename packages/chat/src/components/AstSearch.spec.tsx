@@ -135,17 +135,8 @@ test('AstSearch: renders the search icon', (t) => {
 });
 
 /**
- * `focused` becoming true **moves real focus**, not just the component's state.
- *
- * `autoFocus` only fires at mount, and the plan's own trap: a tree that mounts
- * with `focused=false` and later receives `focused=true` from `Tab` or `/` gets
- * nothing. So the component calls `focus()` in a `useEffect` keyed on `focused`,
- * and this is the spec for the mid-session case — the first render is `false`,
- * the re-render is `true`, which is exactly what no `autoFocus` covers.
- *
- * A **spy on the element's own `focus`**, because asserting `document.activeElement`
- * would pass in a DOM that implements focus and fail in one that does not, and
- * would say nothing about *who* focused it.
+ * `focused` changing to true calls `focus()` on the input. `autoFocus` covers
+ * only the mount. Spy on the `focus` of the element.
  */
 test('AstSearch: ref.focus() is called when focused flips to true', (t) => {
     const calls: number[] = [];

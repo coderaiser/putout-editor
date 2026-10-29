@@ -25,14 +25,8 @@ const renderWithStore = (message: MessageModel) => render(<Message message={mess
 });
 
 /**
- * A line still running: no `result` yet, so `Message` renders nothing.
- *
- * `Result`'s first branch is `if (!result) return null`. Nothing in the app
- * produces a null-result message today — `useChat` always dispatches the
- * command's answer with the message — so this branch is only reachable by
- * handing `Message` a message directly. That is still worth having: the
- * branch is in the render path, and a spec is cheaper than discovering it
- * uncovered.
+ * A message with no `result` renders nothing. The app does not make one
+ * today, so only a direct render reaches this branch.
  */
 test('Message: a message with no result yet renders nothing', (t) => {
     const message: MessageModel = {
@@ -56,13 +50,8 @@ test('Message: a message with no result yet renders nothing', (t) => {
 });
 
 /**
- * A `text` result that is **not** `help` is a `TextBlock`, not the table.
- *
- * The other half of the `text === 'help' && result.type === 'text'` guard: the
- * first operand short-circuits for every ordinary `text` answer, and without
- * this a help-specific branch could quietly swallow all of them. `source` is
- * the natural subject — it answers with `type: 'source'`, so this pins that the
- * table does not swallow a non-`text` result either.
+ * A `text` result that is not `help` is a `TextBlock`. A non-`text`
+ * result (`source`) is not the table either.
  */
 test('Message: a text result that is not help is not the table', (t) => {
     const message: MessageModel = {
@@ -89,13 +78,8 @@ test('Message: a text result that is not help is not the table', (t) => {
 });
 
 /**
- * The two new arms.
- *
- * `learn` and `tryit` sit before the fall-through to `TextBlock` and
- * `SourceBlock` — the order is the whole contract. A `learn` result that
- * reached `TextBlock` would render a whole curriculum as a paragraph, and a
- * `tryit` that reached `SourceBlock` would lose the button that is its only
- * reason to exist.
+ * `learn` and `tryit` come before the `TextBlock` and `SourceBlock`
+ * fallbacks. The order is the contract.
  */
 test('Message: a learn result renders the tree', (t) => {
     const message: MessageModel = {

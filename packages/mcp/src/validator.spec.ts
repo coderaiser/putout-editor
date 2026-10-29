@@ -72,19 +72,9 @@ test('local validate: returns ok for a traverse plugin', (t) => {
 });
 
 /**
- * A rule the **runner** rejects, reported as an error rather than `ok`.
- *
- * This is the most expensive gap the mcp has: `validate` compiles the plugin and
- * stops there, so it answers `ok` for a rule that answers `Looks like 'fix' is not
- * a 'function' but 'undefined'` the moment a user runs it. A tool whose stated job
- * is "call this before `find_places`" is green on exactly the plugin that breaks
- * `find_places`, and the round trip costs the user the error.
- *
- * The check is deliberately the **shape** the loader requires rather than an
- * execution: `report` plus one of `find`, `scan`, `traverse`, `replace`,
- * `include`, `exclude`, `rules`, `declare`. Anything else never reaches a user's
- * AST, and an invariant with no safe automatic fix stays a message (see
- * `docs/rules.md`).
+ * A rule the runner rejects is not `ok`. The loader needs `report` and one
+ * of `find`, `scan`, `traverse`, `replace`, `include`, `exclude`, `rules`,
+ * `declare`. Else `find_places` throws `Looks like 'fix' is not a 'function'`.
  */
 test('local validate: a rule with no fix and no find is not ok', (t) => {
     const result = handler({

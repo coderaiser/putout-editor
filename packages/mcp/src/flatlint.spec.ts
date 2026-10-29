@@ -65,15 +65,8 @@ test('local flatlint_rule: schema has the fields the tool reads', (t) => {
 });
 
 /**
- * The real plugin passes, unchanged.
- *
- * The regression that matters: a checker that rejects flatlint's own shipped
- * rule is worse than no checker. `remove-useless-assign` is the two-export case
- * — `report` and a `replace` map — and it has to stay accepted.
- *
- * It is not the case the false claim got wrong, because it is the one shape that
- * looks the same either way. The 14 plugins that also export a `match` are the
- * ones the claim would have rejected, and they have their own spec below.
+ * The shipped `remove-useless-assign` (`report` and a `replace` map) passes
+ * unchanged. A checker that rejects a shipped rule is worse than none.
  */
 test('local flatlint_rule: accepts the shipped rule unchanged', (t) => {
     const {
@@ -105,17 +98,9 @@ test('local flatlint_rule: accepts the shipped rule unchanged', (t) => {
 });
 
 /**
- * A real plugin that HAS a `match`, and it has to pass.
- *
- * `add-missing-arrow`, from `lib/plugins/add-missing-arrow/index.js` — copied
- * rather than invented because an invented fixture would agree with an invented
- * check. Its key, `'(__args) {'`, is the whole reason this spec exists: it
- * **ends in a brace**, so the regex-and-brace-count reader this check replaced
- * read it as zero replace keys and would have called the plugin broken.
- *
- * This is the regression for the false claim it replaced: the tool used to
- * answer `✗ has a match export … is ignored here`, which would have had an
- * author delete a guard that flatlint does honour.
+ * A real plugin with a `match`: `add-missing-arrow`, copied from flatlint.
+ * Its key `'(__args) {'` ends in a brace. A brace-counting reader finds zero
+ * keys in it. The plugin must pass.
  */
 const WITH_MATCH = `export const report = () => \`Add missing '=>'\`;
 
@@ -157,17 +142,9 @@ test('local flatlint_rule: accepts a real plugin that has a match', (t) => {
 });
 
 /**
- * A `match` key that is not a `replace` key is DEAD, and that is the finding.
- *
- * `lib/runner/replacer.js` looks the guard up BY the replace key it is
- * iterating, so a guard under a key nothing replaces is never called and the rule
- * fires on every occurrence the author believed they had excluded. Verified by
- * running flatlint: with the guard returning false, `const a = 1;` still became
- * `const a = 1 = 0;`.
- *
- * The negative is what makes it a test. `hasMatch` is true here for the same
- * reason it is true above, so a check that only counted exports would pass both
- * cases and catch neither.
+ * A `match` key that is not a `replace` key is dead: flatlint finds the
+ * guard by the replace key. The rule then fires on each occurrence.
+ * Checked with flatlint: `const a = 1;` became `const a = 1 = 0;`.
  */
 test('local flatlint_rule: flags a match key that guards no replace key', (t) => {
     const {
@@ -197,16 +174,8 @@ export const replace = () => ({'const __a;': 'const __a = 0;'});`);
 });
 
 /**
- * A `match` written with a **block body** is read, not skipped.
- *
- * Every shipped plugin uses the concise form `() => ({...})`, so this arm is
- * unreachable from real input — which is exactly why it needs a spec: 14 of 33
- * plugins exercise the concise path and nothing would have told us the block
- * path was dead. `export function report()` exists in flatlint
- * (`wrap-assignment-in-parens`), so the block form is legal and reachable.
- *
- * Asserting `ok` alone would pass for a reader that returned nothing at all, so
- * the assertion is on the *keys* — the only proof the body was parsed.
+ * A `match` with a block body is read. Shipped plugins use `() => ({...})`,
+ * so only this spec reaches the block path. Check the keys, not only `ok`.
  */
 test('local flatlint_rule: reads a match written with a block body', (t) => {
     const {
@@ -243,16 +212,9 @@ export const replace = () => ({
 });
 
 /**
- * A `match` this cannot read is **skipped, not guessed at**.
- *
- * The other three ways an arrow body fails to yield an object — an empty block,
- * a block that returns a non-object, and an `init` that is not a function at
- * all. Each reads as *no keys*, which is the property that matters: a key the
- * reader cannot see must not be invented as a dead guard, because that would
- * report a defect in a perfectly good rule.
- *
- * All three in one source, because one assertion covers the property and three
- * assertions would each cover a line.
+ * A `match` the reader cannot read gives no keys: an empty block, a block
+ * that returns a non-object, an `init` that is not a function. Do not report
+ * a dead guard that the reader cannot see.
  */
 test('local flatlint_rule: an unreadable match shape yields no keys', (t) => {
     const {deadMatchKeys, ok} = runCheck(`export const report = () => 'the message';
@@ -327,13 +289,8 @@ export const replace = () => ({
 });
 
 /**
- * The four ways a key or an export cannot be read, and what each must do.
- *
- * All of them read as **no keys**, never as invented ones. That is the property
- * under test: a guard the reader cannot see is not evidence of a defect, so
- * reporting one would put a false finding on a correct rule. Each is its own
- * source because each hits a different arm of the walk, and one assertion per
- * test because supertape allows exactly one.
+ * Each unreadable key or export gives no keys, never an invented key.
+ * One source per arm of the walk, one assertion per test.
  */
 const readable = (matchSource: string) => `export const report = () => 'the message';
 
@@ -617,15 +574,9 @@ test('local flatlint_rule: derives a directory name from the key', (t) => {
 });
 
 /**
- * A key with nothing nameable in it.
- *
- * `kebab` strips every non-alphanumeric, so a key made only of them derives the
- * **empty string** — and `lib/plugins//` is not a directory. The `my-rule`
- * fallback is the arm that stops a scaffold emitting a path that cannot exist.
- *
- * `'__a'` is the near-miss and it is why this is a spec: `kebab('__a')` is
- * `'a'`, a perfectly good directory name, so the obvious input does **not**
- * reach the fallback at all.
+ * A key with no letters or digits gives the empty string after `kebab`, so
+ * the scaffold uses `my-rule`. `'__a'` gives `'a'` and does not reach this
+ * fallback.
  */
 test('local flatlint_rule: falls back to a usable name when the key has none', (t) => {
     const {hasPlaceholder, ruleName} = runBuild('__');
@@ -696,13 +647,9 @@ test('local flatlint_rule: accepts a rule through the handler', async (t) => {
 });
 
 /**
- * Every complaint at once — the input that should produce the longest report.
- *
- * `replace` first (so the ordering note fires), no `report` at all, and a
- * `match` whose key is not in `replace` (so the dead-guard finding fires, and the
- * unguarded note with it). A rule with all of that is what putout muscle memory
- * plus a typo produces, and all of it is said in one pass. The missing `replace`
- * is a separate input, in the `runCheck` spec above.
+ * All problems in one report: `replace` before `report`, no `report`, and a
+ * `match` key that is not in `replace`. A missing `replace` is in the
+ * `runCheck` spec.
  */
 test('local flatlint_rule: reports every problem at once', async (t) => {
     const text = await answer({
