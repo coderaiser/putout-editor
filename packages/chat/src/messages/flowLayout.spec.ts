@@ -193,7 +193,10 @@ test('flowLayout: a node keeps terminal and unreachable', (t) => {
         unreachable: true,
     }];
     
-    const result: [boolean, boolean][] = [];
+    const result: [
+        boolean,
+        boolean,
+    ][] = [];
     
     for (const {terminal, unreachable} of layoutOf(blocks).nodes) {
         result.push([terminal, unreachable]);
