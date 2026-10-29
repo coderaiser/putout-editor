@@ -6,15 +6,11 @@ import {
     type types,
 } from 'putout';
 import {parse, type ParserOptions} from '@babel/parser';
+import {isTypeScript} from './language.ts';
 
 export const name = 'name_pattern';
 
-export const description =
-    'Name the PutoutScript patterns that match a snippet - the inverse of test_pattern. ' +
-    'Given "[1, 2, 3];" it reports __array, given "f(1, 2)" it reports __args and __a, and it ' +
-    'proposes a generalised key for the snippet itself, like "const __a = __b". ' +
-    'Every answer is checked against the engine and only reported when it actually matched, so ' +
-    'nothing here is a guess. Use it when you have the code and not the pattern.';
+export const description = 'Pattern keys that match a snippet (the inverse of test_pattern), and a general key for it. Every answer is checked against the engine.';
 
 type Found = {
     key: string;
@@ -45,7 +41,7 @@ const parseOptions: ParserOptions = {
 export const schema = z.object({
     fixture: z
         .string()
-        .describe('The code snippet to name patterns for, e.g. "[1, 2, 3];"'),
+        .describe('Snippet, e.g. "[1, 2, 3];"'),
 });
 
 const NAMED = [
@@ -84,6 +80,7 @@ type State = {
 
 const counted = async (fixture: string, key: string) => {
     const [error, result] = await tryToCatch(putoutAsync, fixture, {
+        isTS: isTypeScript(fixture),
         fix: false,
         plugins: [
             ['rule', {

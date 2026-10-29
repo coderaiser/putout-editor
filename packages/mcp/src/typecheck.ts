@@ -6,17 +6,7 @@ import {report} from '@putout/printer/type-checker/report';
 
 export const name = 'type_check';
 
-export const description =
-    'Run an @putout/printer clause table over a fixture and report which arms fire. ' +
-    'A type checker is an ordered list of matchers where the first match wins, so ' +
-    '"which arm does this code hit, and which of my arms is dead" is the question every ' +
-    'rule with a `match` or a guard table must answer before its tests can be written. ' +
-    'Takes the same string clauses createTypeChecker takes: a bare type name ("Identifier"), ' +
-    'or "-: selector -> TypeName" / "-: selector -> !TypeName" for a guarded arm. ' +
-    'Reports the per-node arm, and exits non-zero when an arm no node reaches. ' +
-    'Function clauses ("+", fn) are not offered: a function cannot cross this wire, and a ' +
-    'rule that needs one is written with validate or transform instead. ' +
-    'Typical loop: type_check -> write the rule -> find_places -> transform.';
+export const description = 'Run a createTypeChecker clause table on a fixture: which clause decides each node, and which clause never matches (exit 1). Clauses: "Type", "-: selector -> Type", "-: selector -> !Type". Function clauses are not available.';
 
 /**
  * Where the synthetic coverage map is keyed: `at:uri:line:column`.
@@ -49,10 +39,10 @@ const SOURCE = 'mcp:type_check:0:0';
 export const schema = z.object({
     fixture: z
         .string()
-        .describe('Source code to run the clause table over'),
+        .describe('Source code'),
     typeNames: z
         .array(z.string())
-        .describe('The clause table, in priority order. At least one bare type name, or createTypeChecker rejects it for having no successful route'),
+        .describe('Clauses in priority order, at least one bare type name'),
 });
 
 export type Schema = z.input<typeof schema>;

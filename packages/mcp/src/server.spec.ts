@@ -1,9 +1,11 @@
 import {test} from 'supertape';
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {createServer} from './server.ts';
+import {handler as docs} from './docs.ts';
 
 type ToolHolder = {
     _registeredTools: Record<string, unknown>;
+    _registeredPrompts: Record<string, unknown>;
 };
 
 const getTools = (server: McpServer) => (server as unknown as ToolHolder)._registeredTools;
@@ -48,6 +50,36 @@ test('server: registers the base tools', (t) => {
         'type_check',
         'validate',
     ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('server: the docs overview names every tool', (t) => {
+    const overview = docs().content[0].text;
+    const isMissing = (name: string) => !overview.includes(name);
+    const result = toolNames().filter(isMissing);
+    const expected: string[] = [];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('server: registers the new_rule prompt', (t) => {
+    const server = createServer() as unknown as ToolHolder;
+    const result = Object.keys(server._registeredPrompts);
+    const expected = ['new_rule'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('server: the docs overview names every prompt', (t) => {
+    const server = createServer() as unknown as ToolHolder;
+    const overview = docs().content[0].text;
+    const isMissing = (name: string) => !overview.includes(name);
+    const result = Object.keys(server._registeredPrompts).filter(isMissing);
+    const expected: string[] = [];
     
     t.deepEqual(result, expected);
     t.end();

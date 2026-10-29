@@ -158,3 +158,14 @@ test('local name-pattern: nothing matched carries a hint', async (t) => {
     t.equal(result, expected);
     t.end();
 });
+
+test('local name-pattern: a TypeScript fixture is matched as TypeScript', async (t) => {
+    const {key} = await call('f(v as T);');
+    const expected = {
+        key: '__a(__b as __c)',
+        matched: 1,
+    };
+    
+    t.deepEqual(key, expected);
+    t.end();
+});

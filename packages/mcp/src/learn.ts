@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {curriculum, findLearnNode} from '@putout/editor-commands/learn/curriculum';
 import {errorText, text} from '@putout/editor-commands/content';
+import type {LearnNode} from '@putout/editor-commands';
 
 /**
  * Three tools over one tree, in one file.
@@ -31,41 +32,42 @@ const exampleSchema = z.object({
         .describe('Node id from learn_tree'),
 });
 
+type Outline = {
+    id: string;
+    label: string;
+    summary: string;
+    children?: Outline[];
+};
+
+/** A node with its id, label and summary only. The text stays in `learn_node`. */
+const outlineOf = ({id, label, summary, children}: LearnNode): Outline => {
+    const outline: Outline = {
+        id,
+        label,
+        summary,
+    };
+    
+    if (children)
+        outline.children = children.map(outlineOf);
+    
+    return outline;
+};
+
 export const learnTree = {
     name: 'learn_tree',
     
     description:
-        'Return the full putout curriculum as a nested tree. ' +
-        'Call this first to see what concepts exist before asking for details. ' +
-        'Each node has an id, label, summary, and optional children. ' +
-        'Use the id with learn_node or learn_example for details.',
+        'Return the outline of the putout curriculum: id, label, summary and children of each node. ' +
+        'Use it to find an id. Then use learn_node for the text and learn_example for the code.',
     
     schema: z.object({}),
-    /**
-     * The whole curriculum, indented, in one answer.
-     *
-     * `JSON.stringify` rather than the tree rendered as text: an agent consuming
-     * this wants to *traverse* it, and a pretty-printed ASCII tree would have to
-     * be re-parsed by the thing reading it. The indentation is what makes it
-     * readable when a human inspects the call, and it is free.
-     *
-     * `body` is **not** stripped, which is why the description warns against
-     * calling this per turn: the full tree with every explanation is several
-     * kilobytes. An agent that needs one concept should use `learn_node`, and
-     * that sentence is the only thing steering it away from the expensive call.
-     */
-    handler: () => text(JSON.stringify(curriculum, null, 2)),
+    handler: () => text(JSON.stringify(curriculum.map(outlineOf))),
 };
 
 export const learnNode = {
     name: 'learn_node',
     
-    description:
-        'Return the full details of one curriculum node by id. ' +
-        'Returns body (explanation), example (source code if any), ' +
-        'related (ids of related concepts), and children (immediate child ids). ' +
-        'Use this when you know which concept you need — do not call learn_tree first ' +
-        'if you already have the id.',
+    description: 'One curriculum node by id: body, example, related ids and child ids.',
     
     schema: nodeSchema,
     /**
@@ -103,11 +105,7 @@ export const learnNode = {
 export const learnExample = {
     name: 'learn_example',
     
-    description:
-        'Return just the example source code for a curriculum node. ' +
-        'Use this to get a ready-made fixture before writing a plugin — ' +
-        'the example is known to produce the node or pattern the concept describes. ' +
-        'Returns an error if the node has no example (container nodes do not).',
+    description: 'The example source of one curriculum node, to use as a fixture. Error when the node has no example.',
     
     schema: exampleSchema,
     /**

@@ -13,6 +13,7 @@ import * as typecheck from './typecheck.ts';
 import * as visitor from './visitor.ts';
 import * as flatlint from './flatlint.ts';
 import * as learn from './learn.ts';
+import * as prompt from './prompt.ts';
 
 type AnyRegister = (name: string, config: {
     description: string;
@@ -43,6 +44,11 @@ export function createServer(): McpServer {
     register(learn.learnTree.name, {description: learn.learnTree.description, inputSchema: learn.learnTree.schema}, learn.learnTree.handler);
     register(learn.learnNode.name, {description: learn.learnNode.description, inputSchema: learn.learnNode.schema}, learn.learnNode.handler);
     register(learn.learnExample.name, {description: learn.learnExample.description, inputSchema: learn.learnExample.schema}, learn.learnExample.handler);
+    
+    server.registerPrompt(prompt.name, {
+        description: prompt.description,
+        argsSchema: prompt.argsSchema,
+    }, prompt.handler);
     
     return server;
 }

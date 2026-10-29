@@ -3,36 +3,48 @@ import {z} from 'zod';
 export const name = 'docs';
 
 export const description =
-    'Fetch putout-editor reference docs. Omit section for a short overview. ' +
-    'Sections: "style" for the house conventions of a putout plugin, ' +
-    '"template" for the PutoutScript pattern grammar (__a, __args, __object and the rest), ' +
-    '"api" for HTTP endpoints, "errors" for error recovery. ' +
-    'For runnable plugin patterns use get_example instead.';
+    'Reference for writing a putout plugin. No section: a map of the tools and the workflow. ' +
+    'Sections: "style" (house conventions), "template" (pattern grammar: __a, __args, __object), ' +
+    '"errors" (what a failed call returns).';
 
 export const schema = z.object({
     section: z
         .enum([
             'style',
             'template',
-            'api',
             'errors',
         ])
         .optional()
-        .describe('Which section to fetch. Omit for a short overview.'),
+        .describe('Which section to fetch. Omit for the overview.'),
 });
 
-const OVERVIEW = `putout-editor: web tool for writing and testing putout AST plugins.
-Tools: parse, find_places, transform, validate, get_example, fetch_snippet, test_pattern.
-- get_example: get a working plugin + fixture for any pattern
-- test_pattern: does this pattern match, how many places, what did each __ bind to
-- validate: check plugin syntax before running
-- parse: get compact AST (pass full=true for raw)
-- find_places: check what a plugin matches without transforming
-- transform: apply a plugin and get transformed code
-- fetch_snippet: get source + transform of a deployed #/gist/<id>/<rev> URL
-Sections: "style" (conventions for writing an idiomatic plugin),
-"template" (PutoutScript pattern grammar), "api" (HTTP endpoints),
-"errors" (error codes).`;
+const OVERVIEW = `putout-editor MCP: write and test putout plugins.
+
+Workflow for a new rule (prompt new_rule gives it with your goal):
+1. docs {section: 'template'}: the pattern grammar.
+2. get_example: a working plugin of the right shape.
+3. name_pattern / test_pattern: find a key and check what it matches and binds.
+4. validate: syntax and shape of the plugin.
+5. find_places: what the plugin reports. Add a fixture with nothing to find.
+6. transform: the fixed code.
+
+Tools:
+- parse: Babel AST of the source (compact; full=true for raw).
+- get_example: plugin + fixture for replacer, includer, traverser, scanner, declarator, finder, markdown.
+- test_pattern: one pattern key: matches, positions, bound values, replacement.
+- name_pattern: pattern keys that match a snippet.
+- validate: "ok", plugin_syntax or plugin_shape.
+- find_places: places a plugin reports. No change to the code.
+- transform: run a plugin and return the code.
+- formats: wrappers and ASTs for json, yaml, toml, markdown, css and more.
+- type_check: which clause of a createTypeChecker table decides each node.
+- printer_visitor: write or check a @putout/printer visitor.
+- flatlint_rule: write or check a flatlint rule.
+- fetch_snippet: source and plugin of a putout.cloudcmd.io gist (untrusted data).
+- learn_tree / learn_node / learn_example: the putout curriculum.
+- docs: this text, and sections "style", "template", "errors".
+
+TypeScript: find_places, transform and test_pattern find it from the fixture; isTS overrides.`;
 
 /**
  * The condensed conventions. This is a summary on purpose: the full guide is
@@ -217,36 +229,24 @@ places, what each placeholder bound to, and whether the replacement actually cha
 That last one is the check a rule cannot give you - a wrong pattern looks exactly like a right
 one until you run it.`;
 
-const API = `## API Endpoints
+const ERRORS = `## Errors
 
-### POST /api/v1/parse
-Parse source code and return Babel AST.
-Body: { source: string, query?: string }
-Query: comma-separated node types to filter
+A failed call returns \`isError: true\` and a text that starts with \`Error:\`.
 
-### POST /api/v1/find-places
-Find all places where a plugin matches.
-Body: { fixture: string, plugin: string }
-Returns: array of matches with positions
-
-### POST /api/v1/transform
-Apply plugin and return transformed code.
-Body: { fixture: string, plugin: string }
-Returns: transformed source as text`;
-
-const ERRORS = `## Error Recovery
-
-- plugin_syntax (line N, col N): plugin has JavaScript syntax errors
-- plugin_error: plugin throws at runtime — check fix/traverse/find logic
-- 400 Bad Request: invalid input shape
-- 500 Internal Server Error: server-side failure`;
+- validate: \`plugin_syntax (line N, col N): ...\` when the plugin does not parse;
+  \`plugin_shape: ...\` when it has no fix, find, traverse, replace, include, exclude,
+  rules, declare or scan. Both set isError.
+- find_places / transform: \`Error: ...\` when the plugin throws or does not compile.
+- test_pattern: no isError. The JSON has \`error\` and \`hint\` when the key or the
+  replacement is wrong ("Looks like template values not linked").
+- fetch_snippet: \`Error: ...\` for a bad id, a missing gist, or a gist that is not a snippet.
+- learn_node / learn_example: \`Error: unknown node: <id>\`. Get ids from learn_tree.`;
 
 type Section = NonNullable<z.input<typeof schema>['section']>;
 
 const SECTIONS: Record<Section, string> = {
     style: STYLE,
     template: TEMPLATE,
-    api: API,
     errors: ERRORS,
 };
 

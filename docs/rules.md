@@ -206,6 +206,8 @@ These are upstream rules. They exit 0 on a lossy fix. `tsc` or the tests find th
   the output does not parse. In statement position, `f && f();` fails `no-unused-expressions`.
 - `logical-expressions/apply-destructuring`: on a `return`, it drops the `&&` guard.
   `return el().text && el().text.trim()` becomes `const {text} = el(); return text.trim();`.
+- A fixer turns `isUndefined(x) ? f() : x` into `x || f()`. For a boolean `x`, `false` then
+  calls `f()`. Write `if (isBoolean(x)) return x;` instead. Found in `packages/mcp/src/language.ts`.
 - `apply-type-check`: when the file declares `const isX = (node) => node.type === 'X'`, the fix
   writes `const isX = isX;`. The module throws on load.
 - `objects-braces-inside-array`: adds a blank line between consecutive comment lines inside an

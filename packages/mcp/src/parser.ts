@@ -7,28 +7,21 @@ import {compactAST} from '@putout/editor-commands/compact';
 
 export const name = 'parse';
 
-export const description =
-    'Parse JavaScript/TypeScript source and return its Babel AST in compact form ' +
-    '(loc, tokens, comments stripped). Pass query with comma-separated node types ' +
-    '(e.g. "VariableDeclaration") to return only matching node positions. ' +
-    'Pass full=true to get the raw uncompacted AST.';
+export const description = 'Babel AST of JavaScript or TypeScript, compact. query: node types, returns their positions. full: the raw AST.';
 
 export const schema = z.object({
     source: z
         .string()
-        .describe('JavaScript or TypeScript source code to parse'),
+        .describe('Source code'),
     query: z
         .string()
         .optional()
-        .describe(
-            'Comma-separated Babel node types, e.g. "VariableDeclaration,Identifier". ' +
-        'When set, returns node positions instead of the full AST.',
-        ),
+        .describe('Comma-separated node types, e.g. "Identifier"'),
     full: z
         .boolean()
         .optional()
         .default(false)
-        .describe('Return raw uncompacted AST including loc, tokens, comments. Defaults to false.'),
+        .describe('Raw AST with loc and tokens'),
 });
 
 const parseOptions: ParserOptions = {
