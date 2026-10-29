@@ -53,6 +53,9 @@ test('logger: createLog: error writes to error', (t) => {
     
     createLog(target).error('Something went wrong', true);
     
-    t.calledWith(target.error, ['Something went wrong', true]);
+    t.calledWith(target.error, [
+        'Something went wrong',
+        true,
+    ]);
     t.end();
 });

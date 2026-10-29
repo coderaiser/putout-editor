@@ -1,7 +1,5 @@
 type LogFunction = (...args: unknown[]) => void;
-
 type LogTarget = Pick<Console, 'log' | 'error'>;
-
 type Log = {
     event: LogFunction;
     error: LogFunction;

@@ -50,7 +50,6 @@ test('chat: rspack: node-only packages are not in the bundle', (t) => {
 type Resolve = {
     fallback: Record<string, string | false>;
 };
-
 type Manifest = {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
@@ -59,8 +58,7 @@ type Manifest = {
 const getPackageName = (path: string) => {
     const [first, second] = path
         .split('node_modules/')
-        .at(-1)!
-        .split('/');
+        .at(-1)!.split('/');
     
     if (first.startsWith('@'))
         return `${first}/${second}`;

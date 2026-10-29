@@ -20,6 +20,7 @@ const plugins = config.plugins as Plugin[];
 const ignored = plugins
     .filter(isPlugin('IgnorePlugin'))
     .map(getIgnored);
+
 const replaced = plugins
     .filter(isPlugin('NormalModuleReplacementPlugin'))
     .map(getReplaced);
@@ -51,7 +52,6 @@ test('client: rspack: @putout/processor-css is an empty module', (t) => {
 type Resolve = {
     fallback: Record<string, string | false>;
 };
-
 type Manifest = {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
@@ -60,8 +60,7 @@ type Manifest = {
 const getPackageName = (path: string) => {
     const [first, second] = path
         .split('node_modules/')
-        .at(-1)!
-        .split('/');
+        .at(-1)!.split('/');
     
     if (first.startsWith('@'))
         return `${first}/${second}`;

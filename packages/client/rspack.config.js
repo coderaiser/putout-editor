@@ -61,6 +61,7 @@ const plugins = [
     // `@putout/engine-loader` imports a variable. Cut the context module, keep the package.
     new rspack.ContextReplacementPlugin(/@putout\/engine-loader/, /NEVER_MATCH^/),
     ...NODE_ONLY.map(ignore),
+    
     // Keep `@putout/operator-match-files`: the filesystem rules of `plugin-putout-editor` run here.
     ...REPLACED_WITH_NOTHING.map(replaceWithNothing),
     new rspack.CssExtractRspackPlugin({
@@ -174,7 +175,8 @@ export default {
             use: [{
                 loader: reactCompilerLoader,
                 options: defineReactCompilerLoaderOption({}),
-            }, createSwcLoader(DEV)],
+            },
+            createSwcLoader(DEV)],
         }, {
             test: /\.css$/,
             use: [
