@@ -78,7 +78,9 @@ test('server: the docs overview names every prompt', (t) => {
     const server = createServer() as unknown as ToolHolder;
     const overview = docs().content[0].text;
     const isMissing = (name: string) => !overview.includes(name);
-    const result = Object.keys(server._registeredPrompts).filter(isMissing);
+    const result = Object
+        .keys(server._registeredPrompts)
+        .filter(isMissing);
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
