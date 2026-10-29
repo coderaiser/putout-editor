@@ -26,9 +26,9 @@ export const buildCFG = (source: string): Block[] => parse(print(source));
  */
 export const findUnreachable = (blocks: Block[]): Block[] => blocks.filter(({unreachable}) => Boolean(unreachable));
 
-export type {
-    Block,
-    Succ,
+export {
+    type Block,
+    type Succ,
     parse,
 } from './parser.ts';
 

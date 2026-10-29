@@ -2,7 +2,7 @@ import {test} from 'supertape';
 import {type ParserOptions, parse} from '@babel/parser';
 import type {Node} from '@babel/types';
 import {visitIf} from '../../lib/visitors/if.ts';
-import type {FlowApi} from '../../lib/visitors/api.ts';
+import type {FlowApi} from '../../lib/visitors/api.types.ts';
 
 const parseOptions: ParserOptions = {
     sourceType: 'module',
@@ -159,6 +159,37 @@ test('if visitor: both branches terminate — merge block unreachable', (t) => {
     
     const result = recorded.merges;
     const expected = ['mergeUnreachable() -> 3'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+const NO_ELSE_RETURN = 'function f() { if (a) return b; }';
+
+/**
+ * The guard clause, `if (a) return b;` with nothing to run on the other side.
+ * The false edge reaches the merge, so it is an ordinary `merge()` — through
+ * `mergeUnreachable()` the code after every early return would be reported as
+ * dead. `merge(1)` still names the `then` arm; the printer skips it because it
+ * already ended in `exit`.
+ */
+test('if visitor: no else, then returns — merge is reachable by the false edge', (t) => {
+    const recorded = api(NO_ELSE_RETURN, [1]);
+    
+    visitIf(ifNode(NO_ELSE_RETURN), recorded.api);
+    
+    const result = {
+        merges: recorded.merges,
+        edges: recorded.edges,
+    };
+    
+    const expected = {
+        merges: ['merge(1) -> 2'],
+        edges: [
+            '0 -> 1 [true]',
+            '0 -> 2 [false]',
+        ],
+    };
     
     t.deepEqual(result, expected);
     t.end();

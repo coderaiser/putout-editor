@@ -2,7 +2,7 @@ import {test} from 'supertape';
 import {type ParserOptions, parse} from '@babel/parser';
 import type {Node} from '@babel/types';
 import {visitBlock, visitStatement} from '../../lib/visitors/block.ts';
-import type {FlowApi} from '../../lib/visitors/api.ts';
+import type {FlowApi} from '../../lib/visitors/api.types.ts';
 
 const noop = () => {};
 

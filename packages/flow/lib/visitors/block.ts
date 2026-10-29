@@ -1,5 +1,5 @@
 import type {Node} from '@babel/types';
-import type {FlowApi} from './api.ts';
+import type {FlowApi} from './api.types.ts';
 
 /**
  * The exact source text of a node.

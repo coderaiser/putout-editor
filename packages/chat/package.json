@@ -69,6 +69,7 @@
   "imports": {
     "#store": "./src/store/index.ts",
     "#store/types": "./src/store/types.ts",
-    "#test/store": "./test/store.ts"
+    "#test/store": "./test/store.ts",
+    "#test/warm": "./test/warm.tsx"
   }
 }

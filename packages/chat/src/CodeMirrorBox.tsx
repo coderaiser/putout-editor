@@ -229,7 +229,32 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         // frame-based selection sync, which then resets the DOM caret back to
         
         // 0, so only a `requestAnimationFrame` lands on top of it.
+        
+        //
+        
+        // The frame fires after this effect has returned, so two things can have
+        
+        // happened by then: the editor was destroyed or rebuilt (unmount, or
+        
+        // `lineNumbers` flipping), or the user typed again so the text is no
+        
+        // longer the text `cursorPos` was measured against. `domAtPos` on
+        
+        // either throws — "No tile at position N" — from a callback nothing can
+        
+        // catch, and the caret it would restore is stale in both cases anyway.
+        
+        // Not cancelled in a cleanup instead, because a cleanup that cancels
+        
+        // would also cancel it under StrictMode's mount/unmount/mount, where the
+        
+        // second run returns early on `lastValueRef` and never schedules again.
         requestAnimationFrame(() => {
+            const stale = editorRef.current !== editor || editor.state.doc.length !== cursorPos;
+            
+            if (stale)
+                return;
+            
             const {node, offset} = editor.domAtPos(cursorPos);
             const sel = document.getSelection();
             

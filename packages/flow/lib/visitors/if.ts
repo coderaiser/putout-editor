@@ -1,5 +1,5 @@
 import type {Node} from '@babel/types';
-import type {FlowApi} from './api.ts';
+import type {FlowApi} from './api.types.ts';
 
 /**
  * The exact source text of a node.
@@ -60,7 +60,11 @@ export const visitIf = (node: Node, api: FlowApi): void => {
     const thenDone = api.terminated(thenId);
     
     if (!alternate) {
-        const mergeId = thenDone ? api.mergeUnreachable() : api.merge(thenId);
+        // `merge()` and never `mergeUnreachable()`, even when `then` returned:
+        // the false edge below reaches this join, so `if (a) return b; c();`
+        // leaves `c()` reachable. `merge()` already skips an arm that ended in
+        // `return`, so `thenId` is safe to pass either way.
+        const mergeId = api.merge(thenId);
         
         api.edgeFrom(condition, mergeId, 'false');
         

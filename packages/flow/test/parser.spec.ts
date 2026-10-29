@@ -368,3 +368,19 @@ test('parser: unreachable flag on header', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+/**
+ * An indented `-> ...` line the edge grammar cannot read (`two words` is not a
+ * block id). The printer never writes one, so this is the reader's behavior on
+ * foreign text: it keeps the block and the edge rather than throwing, and the
+ * id is `NaN` because nothing in the line is a number.
+ */
+test('parse: an unreadable edge line does not throw', (t) => {
+    const [first] = parse('block 0\n  -> two words');
+    
+    const result = first.succs.length;
+    const expected = 1;
+    
+    t.equal(result, expected);
+    t.end();
+});

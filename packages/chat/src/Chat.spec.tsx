@@ -11,6 +11,7 @@ import {
 } from '@testing-library/react';
 import {getView, setValue} from 'qword/client';
 import {makeStore} from '#test/store';
+import {warm} from '#test/warm';
 import {
     addMessage,
     initialState,
@@ -23,6 +24,10 @@ const wrap = (store: Store<RootState>) => ({children}: {children: ReactNode;}) =
     <Provider store={store}>
         {children}
     </Provider>
+);
+
+await warm(
+    <Provider store={makeStore()}><Chat/></Provider>,
 );
 
 const mount = () => {

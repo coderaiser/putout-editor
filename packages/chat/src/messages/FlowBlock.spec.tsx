@@ -1,4 +1,5 @@
 import {test} from 'supertape';
+import type {Block} from '@putout/flow';
 import {
     render,
     cleanup,
@@ -6,7 +7,9 @@ import {
 } from '@testing-library/react';
 import FlowBlock from './FlowBlock.tsx';
 
-const blocks: import('@putout/flow')[] = [{
+const noop = () => {};
+
+const blocks: Block[] = [{
     id: 0,
     stmts: ['x > 0 ?'],
     succs: [{
@@ -91,7 +94,7 @@ test('FlowBlock: graph panel has data-testid flow-output__graph', (t) => {
 
 /** Unreachable lines carry data-unreachable. */
 test('FlowBlock: unreachable lines get highlight class', (t) => {
-    const fakeBlocks: import('@putout/flow')[] = [{
+    const fakeBlocks: Block[] = [{
         id: 0,
         stmts: ['return a;'],
         succs: [{
@@ -125,7 +128,7 @@ test('FlowBlock: unreachable lines get highlight class', (t) => {
 
 /** Duplicate statement text appears on more than one line. */
 test('FlowBlock: duplicate lines get highlight class', (t) => {
-    const duplicateBlocks: import('@putout/flow')[] = [{
+    const duplicateBlocks: Block[] = [{
         id: 0,
         stmts: ['x > 0 ?'],
         succs: [{
@@ -166,7 +169,82 @@ test('FlowBlock: duplicate lines get highlight class', (t) => {
     
     cleanup();
     
+    t.equal(duplicates.length, 2);
+    t.end();
+});
+
+/** A statement that appears once is not a duplicate. */
+test('FlowBlock: unique lines are not marked duplicate', (t) => {
+    render(
+        <FlowBlock
+            blocks={blocks}
+            source={`x > 0 ?\nreturn a;\nreturn b;\n`}
+        />,
+    );
+    
+    const duplicates = document.querySelectorAll('[data-duplicate="true"]');
+    
+    cleanup();
+    
     t.equal(duplicates.length, 0);
+    t.end();
+});
+
+/**
+ * On a touchscreen the graph is smaller and its row sits higher.
+ *
+ * `(pointer: coarse)` is stubbed around the render and put back after, because
+ * `useIsMobile` reads it at mount and a stub left behind would change every
+ * spec that runs after this one.
+ */
+test('FlowBlock: coarse pointer gives the graph the mobile geometry', (t) => {
+    const original = globalThis.matchMedia;
+    
+    globalThis.matchMedia = ((query: string) => ({
+        matches: query === '(pointer: coarse)',
+        media: query,
+        addEventListener: noop,
+        removeEventListener: noop,
+        addListener: noop,
+        removeListener: noop,
+        dispatchEvent: () => true,
+        onchange: null,
+    })) as unknown as typeof globalThis.matchMedia;
+    
+    render(
+        <FlowBlock
+            blocks={blocks}
+            source={`x > 0 ?\nreturn a;\nreturn b;\n`}
+        />,
+    );
+    
+    const svg = document.querySelector('[data-testid="flow-output__graph"]');
+    const rect = document.querySelector('.flow-output__node');
+    const text = document.querySelector('svg text');
+    const line = document.querySelector('svg line');
+    
+    const result = {
+        width: svg && svg.getAttribute('width'),
+        height: svg && svg.getAttribute('height'),
+        rectY: rect && rect.getAttribute('y'),
+        textY: text && text.getAttribute('y'),
+        lineY1: line && line.getAttribute('y1'),
+        lineY2: line && line.getAttribute('y2'),
+    };
+    
+    cleanup();
+    globalThis.matchMedia = original;
+    
+    const expected = {
+        width: '300',
+        height: '200',
+        rectY: '40',
+        textY: '57',
+        lineY1: '52',
+        lineY2: '52',
+    };
+    
+    t.deepEqual(result, expected);
     t.end();
 });
 

@@ -14,6 +14,7 @@ import {
     clearThread,
     reset,
     nextId,
+    highestId,
 } from './slice.ts';
 
 const node = (id: string): FlatNode => ({
@@ -232,6 +233,44 @@ test('slice: nextId never repeats, so a key on id is stable', (t) => {
     const result = first === second;
     
     t.notOk(result);
+    t.end();
+});
+
+/**
+ * The counter starts at the highest id the page opens with, so the first id it
+ * hands out is one the thread does not hold. Asserted on `highestId` rather
+ * than on the first `nextId()`: `seq` is module state that every earlier spec
+ * has already moved, so the first call is unobservable from here, and a second
+ * copy of the module to get around that would count as uncovered code.
+ */
+test('slice: the id after the seeded ones is not one of them', (t) => {
+    const ids = [];
+    
+    for (const {id} of initialState.messages) {
+        ids.push(id);
+    }
+    
+    const result = ids.includes(highestId(initialState.messages) + 1);
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('slice: highestId is the largest id, not the last or the count', (t) => {
+    const messages = [{
+        id: 7,
+        text: 'a',
+        result: null,
+    }, {
+        id: 3,
+        text: 'b',
+        result: null,
+    }];
+    
+    const result = highestId(messages);
+    const expected = 7;
+    
+    t.equal(result, expected);
     t.end();
 });
 

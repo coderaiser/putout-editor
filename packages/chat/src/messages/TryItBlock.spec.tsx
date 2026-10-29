@@ -76,11 +76,10 @@ test('TryItBlock: renders a try it button', (t) => {
 test('TryItBlock: clicking the button puts the example in the source', async (t) => {
     const store = setup();
     
-    await act(() => {
+    await act(async () => {
         fireEvent.click(document.querySelector('[data-testid="try-it"]') as HTMLElement);
+        await setTimeout(20);
     });
-    
-    await setTimeout(20);
     
     const result = store.getState().chat.source;
     const expected = EXAMPLE;
@@ -95,13 +94,13 @@ test('TryItBlock: clicking the button answers with source then ast', async (t) =
     const store = setup();
     const before = store.getState().chat.messages.length;
     
-    await act(() => {
+    await act(async () => {
         fireEvent.click(document.querySelector('[data-testid="try-it"]') as HTMLElement);
+        await setTimeout(20);
     });
     
-    await setTimeout(20);
-    
     const result = results(store).slice(before);
+    
     const expected = [
         'source',
         'ast',

@@ -14,6 +14,7 @@ import {
     setValue,
 } from 'qword/client';
 import {makeStore} from '#test/store';
+import {withAsyncSelectionChange} from '../test/dom.ts';
 import {prefixOf} from './sigil.ts';
 import Input, {
     matches,
@@ -350,7 +351,7 @@ test('Input: a one-line command does not', (t) => {
 
 /**
  * A partial name is not a command yet, so it gets no gutter — and this is the
- * case that would otherwise thrash: `/source` → `false` then `e` → `true` is one
+ * case that would otherwise thrash: `/sourc` → `false` then `e` → `true` is one
  * rebuild, which is fine, but a rule that answered on a *prefix match* would
  * rebuild on every keystroke of a name that happens to start with one of the
  * four. `setTimeout` and `console` both start with `co`, and nothing starts a
@@ -358,7 +359,7 @@ test('Input: a one-line command does not', (t) => {
  */
 test('Input: a partial command name does not', (t) => {
     const result = [
-        wantsLineNumbers('/source'),
+        wantsLineNumbers('/sourc'),
         wantsLineNumbers('/trans'),
         wantsLineNumbers('/fin'),
     ];
@@ -611,7 +612,7 @@ test('Input: Shift+Enter is a newline on a keyboard', async (t) => {
     await box();
     
     type('/source');
-    press('Enter', true);
+    withAsyncSelectionChange(() => press('Enter', true));
     
     const result = sent;
     const expected: string[] = [];

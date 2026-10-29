@@ -77,3 +77,20 @@ test('flow: the graphed body travels with result', (t) => {
     
     t.end();
 });
+
+test('flow: a body that does not parse is an error, not an empty graph', (t) => {
+    const result = runFlow('function (', withSource('function f() {}'));
+    
+    t.equal(result.type, 'error');
+    t.end();
+});
+
+test('flow: text marks unreachable blocks and labels conditional edges', (t) => {
+    const source = 'function f(x) { return 1; if (x) return 2; }';
+    const result = runFlow('', withSource(source));
+    
+    const text = result.type === 'flow' ? result.text : '';
+    
+    t.ok(text.includes('[unreachable]') && text.includes('[true]'));
+    t.end();
+});

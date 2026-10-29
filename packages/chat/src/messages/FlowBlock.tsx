@@ -42,7 +42,7 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
     
     for (const block of blocks) {
         for (const stmt of block.stmts) {
-            const count = seen.get(stmt) || 0 + 1;
+            const count = (seen.get(stmt) || 0) + 1;
             seen.set(stmt, count);
             
             if (count > 1)

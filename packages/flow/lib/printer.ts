@@ -4,7 +4,7 @@ import type {Succ} from './parser.ts';
 import {visitBlock, visitStatement} from './visitors/block.ts';
 import {visitIf} from './visitors/if.ts';
 import {visitReturn} from './visitors/return.ts';
-import type {FlowApi} from './visitors/api.ts';
+import type {FlowApi} from './visitors/api.types.ts';
 
 const INDENT = '  ';
 const EDGE = '-> ';

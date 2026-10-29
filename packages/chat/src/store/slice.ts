@@ -133,8 +133,15 @@ const without = (messages: Message[], message: Message): Message[] => [
  * A message id is a counter rather than `Date.now()` or a random string: a spec
  * that asserts on the transcript needs a value it can predict, and a clock or a
  * counter source is one more thing to stub.
+ *
+ * It starts at the highest id the page opens with, not at 0: the seeded messages
+ * already hold 0 and 1, so a counter that began at 0 would hand the first thing
+ * the user sends the id of the seeded `help` and put two children with the same
+ * `key` in the thread.
  */
-let seq = 0;
+export const highestId = (messages: Message[]): number => Math.max(...messages.map(({id}) => id));
+
+let seq = highestId(initialState.messages);
 
 export const nextId = (): number => ++seq;
 
