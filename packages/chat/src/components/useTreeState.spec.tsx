@@ -824,7 +824,7 @@ test('useTreeState: Tab in search mode returns focus to the tree', (t) => {
  * first row) → moves focus to filter input", and the filter bar renders above
  * the tree. The prose under the diagram names `j`/`ArrowDown`, which cannot
  * work — two rows are drawn by default, so `j` from the first can never reach
- * the second. See `docs/issues/chat.md`.
+ * the second. The plan prose was wrong; this spec is the reference.
  */
 test('useTreeState: k from the first row moves focus to the search', (t) => {
     render(

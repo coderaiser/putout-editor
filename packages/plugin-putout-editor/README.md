@@ -6,7 +6,7 @@
 Rules that only make sense here: the Editor's own source, its specs and its CSS. A rule that
 would help any 🐊**Putout** user belongs in the [🐊**Putout**](https://github.com/coderaiser/putout)
 repo instead, and where each one ended up is in
-[`docs/issues/putout-plugins.md`](../../docs/issues/putout-plugins.md).
+[`docs/rules.md`](../../docs/rules.md).
 
 ## Install
 
@@ -16,7 +16,7 @@ it. It is not published to npm.
 A `*-file` rule is a filesystem rule: `off` by default, and enabled by the `.filesystem.json`
 match that `redlint` reads. Every other rule is a code rule and runs under `putout .`.
 
-Writing one is in [`docs/plugins.md`](../../docs/plugins.md).
+Writing one is in [`docs/rules.md`](../../docs/rules.md).
 
 ## Rules
 
@@ -145,10 +145,10 @@ A browser reports Ctrl+V as `v`, so a `press('Control+V')` is a chord no keyboar
 matches no binding and fails silently — the browser just fires a paste.
 
 The rule is off for markdown, because this section is a fence it would otherwise correct:
-[`docs/memory/fence-gate.md`](../../docs/memory/fence-gate.md).
+[`docs/tooling.md`](../../docs/tooling.md#markdown-fences).
 
 Found: six `ControlOrMeta+V` in the e2e specs, passing while meaning nothing —
-[the finding](../../docs/issues/putout-plugins.md).
+[`docs/rules.md`](../../docs/rules.md).
 
 ### ❌ Example of incorrect code
 
@@ -177,19 +177,19 @@ block count, so the prose "any script madrun does not own" is not read as a comm
 `does`, and `madrun --init` is a flag rather than a script name.
 
 It found three: `check`, `test:one` and `coverage:json` were all documented and all missing.
-That is [`docs/issues/scripts.md`](../../docs/issues/scripts.md).
+That is [`docs/testing.md`](../../docs/testing.md#runner).
 
 It is a `scan` and not a `matchFiles` rule, because the verdict needs a second file: the answer
 lives in `package.json` and the question is asked of a `.md`. `matchFiles` hands its inner plugin
 one file at a time with no root and no siblings, so the port reports nothing and stays green. The
-measurement is in [`docs/plugins.md`](../../docs/plugins.md#matchfiles-cannot-be-made-to-work-for-check-documented-scripts).
+measurement is in [`docs/rules.md`](../../docs/rules.md).
 
 **It only worked once, and did not.** The rule reported nothing on the real repository while
 every unit test passed, for two reasons that the tests could not see: `getFilename` returns an
 **absolute** path under `redlint`, so `isDoc` was false for every file, and `package.json` matched
 all five packages, so the root docs were compared against `packages/client`'s scripts. Both are
 fixed — `basename` and the nearest `package.json` — and the two regression tests that pin them are
-in `index.spec.js`. The story is in [`docs/issues/putout-plugins.md`](../../docs/issues/putout-plugins.md#-check-documented-scripts-never-matched-a-file-redlint-builds-absolute-paths).
+in `index.spec.js`. The story is in [`docs/rules.md`](../../docs/rules.md).
 
 ## ❌ Example of incorrect code
 
@@ -225,7 +225,7 @@ that cost the time.
 
 Report-only: the fix is a judgement call about what to do with the value, so there is no automatic
 one. The shape to prefer is in
-[`docs/memory/putout-rules.md`](../../docs/memory/putout-rules.md#trycatch-returns-a-shorter-array-when-it-catches).
+[`docs/rules.md`](../../docs/rules.md).
 
 **Worth landing upstream.** The gap is in `@putout/plugin-try-catch` itself — a sibling rule
 complimenting it, not a repo-specific concern.
@@ -270,7 +270,7 @@ lived. A spec asserting `find(({type}) => …)` reads better inline, and hoistin
 Report-only. The fix needs a **name** for the hoisted callback, and a parameter called `file`
 produces `file` — which shadows the parameter it came from, and a callback whose name is taken in an
 outer scope is a rename decision, not a mechanical one. That belongs in
-[`docs/ideas.md`](../../docs/ideas.md).
+[`docs/backlog.md`](../../docs/backlog.md).
 
 The one shape 🐊**Putout** already fixes is `(x) => f(x)` — a callback that only forwards its
 parameter, for `filter`, `find`, `findIndex`, `some` and `every`. `remove-useless-functions`
@@ -301,7 +301,7 @@ are in [`packages/client/css/README.md`](../client/css/README.md).
 Report-only — which file a rule belongs in is a judgement call.
 
 Found: a rule in `main.css` —
-[the finding](../../docs/issues/putout-plugins.md).
+[`docs/rules.md`](../../docs/rules.md).
 
 ### ❌ Example of incorrect code
 
@@ -328,7 +328,7 @@ A rule in this directory says what the code already says. The name and this sect
 the *why* belongs; the code keeps the what.
 
 Found: the `scripts/check-comments.js` gate, as a rule —
-[the finding](../../docs/issues/putout-plugins.md#-a-fixer-can-simplify-a-rule-into-a-different-rule-and-every-test-still-passes).
+[`docs/rules.md`](../../docs/rules.md).
 
 ### ❌ Example of incorrect code
 
@@ -359,7 +359,7 @@ a theme.
 Report-only — which token a colour becomes is a human decision.
 
 Found: the one hardcoded colour outside `css/tokens.css` —
-[the finding](../../docs/issues/putout-plugins.md).
+[`docs/rules.md`](../../docs/rules.md).
 
 ### ❌ Example of incorrect code
 
@@ -390,7 +390,7 @@ The other half of the two rules above — those say a value belongs in `tokens.c
 thought you put it there and did not. Report-only, because a missing token needs a value.
 
 Found: `var(--color-selection-bg)` in `codemirror.css`, next to a `--color-selection-focused`
-that did exist — [the finding](../../docs/issues/putout-plugins.md).
+that did exist — [`docs/rules.md`](../../docs/rules.md).
 
 ### ❌ Example of incorrect code
 
@@ -416,7 +416,7 @@ The same rule for the stacking order. Report-only — which `--z-*` name a numbe
 human decision.
 
 Found: seven raw `z-index` numbers across three stylesheets, now a `--z-*` scale —
-[the finding](../../docs/issues/putout-plugins.md).
+[`docs/rules.md`](../../docs/rules.md).
 
 ### ❌ Example of incorrect code
 
@@ -464,7 +464,7 @@ reason about writing modes to be correct is a rule nobody enables.
 
 Found on `packages/chat`: three selectors, of which the bug report named two. The composer was
 40px wider than an iPhone 12 and 20px of the send button sat off-screen —
-[the finding](../../docs/memory/chat-layout.md).
+[`docs/frontend.md`](../../docs/frontend.md#css-layout).
 
 `matchFiles` reports **one place per file** while the fix reaches **every** matching selector,
 including at `fixCount: 1`.
@@ -493,6 +493,6 @@ including at `fixCount: 1`.
 ## Findings
 
 Each rule links its own finding above. What is not a rule here is in
-[`docs/issues/putout-plugins.md`](../../docs/issues/putout-plugins.md) too:
+[`docs/rules.md`](../../docs/rules.md) too:
 `apply-type-check` fires on domain types that share a name with a node type, and a fixer that
 exits clean on a change it cannot see is a gap rather than a preference.

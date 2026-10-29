@@ -97,7 +97,7 @@ const plugins = [
     
     // `packages/chat/rspack.config.js` carries the same list, and the reasoning is
     
-    // written out in full in docs/memory/browser-bundle.md.
+    // written out in full in docs/frontend.md.
     ...NODE_ONLY.map(ignore),
     
     // `@putout/processor-css` is reached by a *dynamic* `require`, so ignoring it
@@ -126,7 +126,7 @@ const plugins = [
     
     // expected. A green build is not a working page; that is the whole lesson of
     
-    // docs/memory/browser-bundle.md.
+    // docs/frontend.md.
     ...REPLACED_WITH_NOTHING.map(replaceWithNothing),
     // mini-css-extract-plugin is not compatible with rspack, use the native equivalent
     new rspack.CssExtractRspackPlugin({
@@ -351,7 +351,7 @@ export default {
             
             // These two were the whole of the build failure: 45 errors, 43 of
             
-            // them one of these two resolvers. See docs/issues/chat.md.
+            // them one of these two resolvers. See docs/frontend.md.
             'inspector': false,
             'v8': false,
             'process/browser': resolve('process/browser'),

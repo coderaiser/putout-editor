@@ -107,7 +107,7 @@ const VIEWPORT = 390;
  * where `scrollWidth` is the viewport width and the assertion passes on a build
  * that is 40px too wide. Measured: `scrollWidth` 390 with `hasInput: false`, then
  * 430 on the very next `evaluate`, with no navigation in between. See
- * `docs/issues/chat.md`.
+ * `docs/testing.md`.
  */
 test('the composer fits the viewport width', async ({page}) => {
     await expect(page.getByTestId('input')).toBeVisible();
@@ -318,7 +318,7 @@ test('the autocomplete dropdown is on screen', async ({page}) => {
  * `plan-v3.md` §1 calls this a blank-page bug. It is not: `.chat` measures 611px
  * and the composer's bottom edge is the viewport's bottom edge. These specs are
  * here because *that was never asserted*, not because it is currently broken —
- * see `docs/issues/chat.md`.
+ * see `docs/testing.md`.
  *
  * The numbers are `getBoundingClientRect()` values in CSS pixels, which is the
  * same unit `page.viewportSize()` reports, so the two are directly comparable.

@@ -84,7 +84,7 @@ test('local validate: returns ok for a traverse plugin', (t) => {
  * execution: `report` plus one of `find`, `scan`, `traverse`, `replace`,
  * `include`, `exclude`, `rules`, `declare`. Anything else never reaches a user's
  * AST, and an invariant with no safe automatic fix stays a message (see
- * `docs/issues/putout-plugins.md`).
+ * `docs/rules.md`).
  */
 test('local validate: a rule with no fix and no find is not ok', (t) => {
     const result = handler({

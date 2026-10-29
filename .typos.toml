@@ -17,9 +17,14 @@
 # full` — green, and testing nothing.
 #
 # This is one word, not the whole file: excluding `Input.spec.tsx` silences the
-# gate for every other line in it, and `docs/memory/coverage.md`'s rule is the
+# gate for every other line in it, and `AGENTS.md`'s rule is the
 # reason — a gate satisfied by excluding what it does not cover is not a gate.
 hel = "hel"
+# `sourc` is the same kind of word: `Input: a partial command name does not`
+# needs a prefix of `/source` that is one key short of the command. Corrected to
+# `/source` it becomes a full body command, `wantsLineNumbers` answers `true`,
+# and the spec fails — the lint job did exactly that twice.
+sourc = "sourc"
 
 [files]
 extend-exclude = ["ChangeLog", "*.woff*", "*.ttf", "*.svg", "*.eot", "*.css"]
