@@ -19,6 +19,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
     id: '0',
     pid: null,
     depth: 0,
+    key: '',
     type: 'Program',
     detail: '',
     line: 1,
@@ -28,7 +29,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
     ...over,
 });
 
-const row = (over: Partial<FlatNode> = {}) => render(
+const row = (over: Partial<FlatNode> = {}, mobile?: boolean) => render(
     <AstRow
         ancestorLastFlags={[]}
         hasChildren={false}
@@ -36,6 +37,7 @@ const row = (over: Partial<FlatNode> = {}) => render(
         dimmed={false}
         matched={false}
         last={false}
+        mobile={mobile}
         node={node(over)}
         onSelect={noop}
         onToggle={noop}
@@ -90,10 +92,8 @@ test('AstRow: a last child gets the elbow', (t) => {
  * not — and the prefix is `[0, 1)`, so one pipe and then this row's elbow.
  */
 test('AstRow: a non-last ancestor draws a pipe', (t) => {
-    const result = connectorsOf(2, true, [
-        true,
-        false,
-    ]);
+    const result = connectorsOf(2, true, [true, false]);
+    
     const expected = '│  └─ ';
     
     t.equal(result, expected);
@@ -109,10 +109,8 @@ test('AstRow: a non-last ancestor draws a pipe', (t) => {
  * where a branch ended.
  */
 test('AstRow: a last ancestor draws blanks', (t) => {
-    const result = connectorsOf(2, false, [
-        true,
-        true,
-    ]);
+    const result = connectorsOf(2, false, [true, true]);
+    
     const expected = '   ├─ ';
     
     t.equal(result, expected);
@@ -128,11 +126,8 @@ test('AstRow: a last ancestor draws blanks', (t) => {
  * that pins the slice.
  */
 test('AstRow: mixed ancestors alternate pipe and blank', (t) => {
-    const result = connectorsOf(3, false, [
-        true,
-        false,
-        true,
-    ]);
+    const result = connectorsOf(3, false, [true, false, true]);
+    
     const expected = '│     ├─ ';
     
     t.equal(result, expected);
@@ -396,6 +391,114 @@ test('AstRow: clicking a node with children also folds it', (t) => {
 });
 
 /**
+ * The coarse-pointer case, and the whole of bug 1.
+ *
+ * A coarse pointer fires `click` on `pointerup`, so a row that both selects and
+ * toggles on one handler does both on the first tap — and toggles *closed*
+ * again on the second. The user taps twice and sees nothing happen, because the
+ * two effects cancel. A mouse has a separate `mousedown`/`click` pair and a
+ * double-click, so the same handler is right there and wrong here.
+ *
+ * So the row is told which it is, and the fold is only bound to the fine case:
+ * a touchscreen tap selects, and folding is the keyboard's job (`h`/`l`, and
+ * space/enter) plus the caret, which is where a phone user expects it.
+ *
+ * The plan named this as "split into two handlers"; the split is by *effect*
+ * rather than by DOM event, because there is only one event to split — a
+ * `pointerdown` with `event.pointerType` would work, and would need a second
+ * listener to carry the same answer `useIsMobile` already holds.
+ */
+test('AstRow: a coarse pointer selects AND toggles', (t) => {
+    const toggled: string[] = [];
+    const picked: string[] = [];
+    
+    const onToggle = (id: string) => {
+        toggled.push(id);
+    };
+    
+    const onSelect = (id: string) => {
+        picked.push(id);
+    };
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            hasChildren={true}
+            collapsed={false}
+            dimmed={false}
+            matched={false}
+            last={false}
+            mobile={true}
+            node={node({
+                id: '4',
+            })}
+            onSelect={onSelect}
+            onToggle={onToggle}
+            selected={false}
+        />,
+    );
+    
+    fireEvent.click(document.querySelector('[data-testid="ast-row"]') as Element);
+    
+    cleanup();
+    
+    const result = {
+        picked,
+        toggled,
+    };
+    
+    const expected = {
+        picked: ['4'],
+        toggled: ['4'],
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * And the fine pointer keeps the fold, which is the half that stops this being
+ * a "tap never folds" change. A regression that dropped the toggle altogether
+ * would pass the spec above and break every desktop user, so both arms are
+ * pinned.
+ */
+test('AstRow: a fine pointer still folds on click', (t) => {
+    const toggled: string[] = [];
+    
+    const onToggle = (id: string) => {
+        toggled.push(id);
+    };
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            hasChildren={true}
+            collapsed={false}
+            dimmed={false}
+            matched={false}
+            last={false}
+            mobile={false}
+            node={node({
+                id: '9',
+            })}
+            onSelect={noop}
+            onToggle={onToggle}
+            selected={false}
+        />,
+    );
+    
+    fireEvent.click(document.querySelector('[data-testid="ast-row"]') as Element);
+    
+    cleanup();
+    
+    const expected = ['9'];
+    const result = toggled;
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
  * The row carries **no** `paddingLeft`, and that is the point.
  *
  * It used to be `depth * 12` on top of the connector characters, which double
@@ -520,6 +623,7 @@ test('AstRow: connectors are rendered before the caret', (t) => {
     const row = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
     const children = [...row.children];
     const at = (name: string) => children.findIndex(({classList}) => classList.contains(name));
+    
     const result = {
         connectorsBeforeCaret: at('ast-row__connectors') < at('ast-row__caret'),
         caretAfterConnectors: at('ast-row__caret') > 0,
@@ -551,6 +655,7 @@ test('AstRow: the type span carries data-category', (t) => {
     
     const type = document.querySelector('.ast-row__type') as HTMLElement;
     const rowElement = document.querySelector('[data-testid="ast-row"]') as HTMLElement;
+    
     const result = {
         onType: type.getAttribute('data-category'),
         onRow: rowElement.getAttribute('data-category'),
@@ -564,5 +669,252 @@ test('AstRow: the type span carries data-category', (t) => {
     cleanup();
     
     t.deepEqual(result, expected);
+    t.end();
+});
+
+test('AstRow: tapping the caret toggles on a coarse pointer', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
+    
+    fireEvent.click(caret as Element);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row selects on mobile', (t) => {
+    const picked: string[] = [];
+    const push = picked.push.bind(picked);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={push}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(picked, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row toggles on mobile', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row selects on desktop too', (t) => {
+    const picked: string[] = [];
+    const push = picked.push.bind(picked);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile={false}
+            node={node({
+                id: '0',
+            })}
+            onSelect={push}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(picked, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping anywhere on the row toggles on desktop too', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile={false}
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const row = document.querySelector('[data-testid="ast-row"]') as Element;
+    fireEvent.click(row);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping the caret selects — it bubbles to the row', (t) => {
+    const selected: string[] = [];
+    const push = selected.push.bind(selected);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={push}
+            onToggle={noop}
+            selected={false}
+        />,
+    );
+    
+    const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
+    
+    fireEvent.click(caret as Element);
+    
+    cleanup();
+    
+    t.deepEqual(selected, ['0']);
+    t.end();
+});
+
+test('AstRow: tapping the caret toggles — it bubbles to the row', (t) => {
+    const toggled: string[] = [];
+    const push = toggled.push.bind(toggled);
+    
+    render(
+        <AstRow
+            ancestorLastFlags={[]}
+            collapsed
+            dimmed={false}
+            hasChildren
+            last={false}
+            matched={false}
+            mobile
+            node={node({
+                id: '0',
+            })}
+            onSelect={noop}
+            onToggle={push}
+            selected={false}
+        />,
+    );
+    
+    const caret = document.querySelector('[data-testid="ast-row"] .ast-row__caret');
+    
+    fireEvent.click(caret as Element);
+    
+    cleanup();
+    
+    t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: the key is drawn before the type', (t) => {
+    row({
+        key: 'init',
+        type: 'NumericLiteral',
+    });
+    
+    const key = document.querySelector('[data-testid="ast-row"] .ast-row__key');
+    const result = key && key.textContent;
+    const expected = 'init:';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('AstRow: the root draws no key', (t) => {
+    row();
+    
+    const result = document.querySelector('[data-testid="ast-row"] .ast-row__key');
+    
+    cleanup();
+    
+    t.equal(result, null);
     t.end();
 });

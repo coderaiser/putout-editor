@@ -486,6 +486,7 @@ test('local flatlint_rule: the contract names the fixture convention', async (t)
         // named after the FIXTURE, not the rule — the thing you get wrong first
         fixtureNotRule: text.includes('named after the FIXTURE'),
         // `match` is documented as real and optional, not absent — the claim it
+        
         // replaces cost 14 of the 33 shipped plugins their guard
         documentsMatch: text.includes('`match` is OPTIONAL'),
         documentsDeadKey: text.includes('absent from `replace` is DEAD'),

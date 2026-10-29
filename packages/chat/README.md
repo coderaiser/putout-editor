@@ -109,9 +109,9 @@ and the console panel cannot fight over a keypress.
 is typed. In a browser the three answer that they need the server. `ast`,
 `source`, `console` and `help` work with no server at all.
 
-See [`docs/memory/browser-bundle.md`](../../docs/memory/browser-bundle.md) for
+See [`docs/frontend.md`](../../docs/frontend.md) for
 what `rspack.config.js` ignores and why, and
-[`docs/issues/chat.md`](../../docs/issues/chat.md) for the client's own build
+[`docs/backlog.md`](../../docs/backlog.md) for the client's own build
 failure.
 
 ## `out/` is shared
@@ -147,7 +147,7 @@ numbers are the result. **The exit code is not**, and there is a setup on this
 machine where every package in the repository reports **no TAP output at all**
 and exits `0`: a `tape` from the sibling 🐊**Putout** checkout is earlier on
 `PATH`, it resolves its own `supertape` from there, and it matches no spec files
-under this tree. Written up in [`docs/issues/scripts.md`](../../docs/issues/scripts.md).
+under this tree. Written up in [`docs/testing.md`](../../docs/testing.md#runner).
 
 To run a suite with a known binary:
 

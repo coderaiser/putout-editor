@@ -1,8 +1,5 @@
 import {curriculum} from './curriculum.ts';
-import type {
-    Command,
-    CommandResult,
-} from '../state.types.ts';
+import type {Command, CommandResult} from '../state.types.ts';
 
 /**
  * `/learn` — the whole curriculum, every time.

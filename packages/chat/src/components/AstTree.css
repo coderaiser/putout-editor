@@ -220,7 +220,7 @@
     .ast__body {
         grid-template-columns: 1fr;
     }
-
+    
     .ast-code {
         display: none;
     }
@@ -264,6 +264,12 @@
     color: var(--ast-dim);
 }
 
+/* The property that holds the node in its parent (`id`, `init`, `body[0]`).
+   Dim, so the type stays the first thing a reader sees. */
+.ast-row__key {
+    color: var(--ast-dim);
+}
+
 /*
  * The fallback, and deliberately still here: it is what an `other` row gets,
  * and it is what every row would get if the seven category selectors above were
@@ -274,7 +280,17 @@
     color: var(--ast-accent);
 }
 
+/* Only the detail may shrink: a long key or detail cuts the detail with an
+   ellipsis, and the type and the `line:col` stay on screen. */
+.ast-row > * {
+    flex-shrink: 0;
+}
+
 .ast-row__detail {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     color: var(--ast-fg);
 }
 

@@ -1,8 +1,6 @@
 import {montag} from 'montag';
 
 export default montag`
-    // convert-ternary-to-if
-    
     export const report = () => \`Use 'if' instead of ternary 🧹\`;
     
     export const replace = () => ({

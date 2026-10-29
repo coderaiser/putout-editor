@@ -1,7 +1,6 @@
-import type {AppDispatch} from '#store/types';
 import {useDispatch} from 'react-redux';
-import type {LearnNode} from '@putout/editor-commands';
-import {flattenLearn} from '@putout/editor-commands';
+import {type LearnNode, flattenLearn} from '@putout/editor-commands';
+import type {AppDispatch} from '#store/types';
 import {learnOpen} from '#store';
 import {useIsMobile} from '../hooks/useIsMobile.ts';
 import LearnTree from '../components/LearnTree.tsx';

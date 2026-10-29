@@ -12,7 +12,9 @@ import {
  * `.cm-content` is the focusable `contenteditable` CodeMirror owns; pressing
  * keys or typing against the container div would land nowhere.
  */
-const box = (page: Page) => page.getByTestId('input').locator('.cm-content');
+const box = (page: Page) => page
+    .getByTestId('input')
+    .locator('.cm-content');
 
 /**
  * Click, insert the whole text, then `Ctrl+Enter` — not `fill`, which only
@@ -47,6 +49,19 @@ const search = (page: Page) => page
     .getByTestId('ast-search');
 
 const userMessages = (page: Page) => page.locator('.message--user');
+
+/**
+
+/**
+ * The `/learn` tree in the thread, as opposed to the AST tree.
+ *
+ * Same reason `tree(page)` exists: `/ast` puts a second `ast-row` set on the
+ * page once the console panel is open, and `learn`'s rows are a different
+ * testid — so the scope is the thread and the rows are `learn-row`.
+ */
+const learnRows = (page: Page) => page
+    .getByTestId('chat')
+    .getByTestId('learn-row');
 
 /**
  * How many `.message--user` the seed puts on the page before anything is typed.
@@ -192,10 +207,7 @@ test('the textarea left padding matches the thread gutter, not the button lane',
         .locator('.input__box')
         .first()
         .evaluate((element) => {
-            const {
-                paddingLeft,
-                paddingRight,
-            } = getComputedStyle(element);
+            const {paddingLeft, paddingRight} = getComputedStyle(element);
             
             return {
                 left: parseInt(paddingLeft, 10),
@@ -602,9 +614,7 @@ test('ast row type colour differs by category', async ({page}) => {
     await send(page, '/ast');
     
     const colourOf = (category: string) => page
-        .getByTestId('chat')
-        // On the type span: the attribute moved there so the CSS selector is
-        // `.ast-row__type[data-category="x"]` with no ancestor hop.
+        .getByTestId('chat') // On the type span: the attribute moved there so the CSS selector is    // `.ast-row__type[data-category="x"]` with no ancestor hop.
         .locator(`.ast-row__type[data-category="${category}"]`)
         .first()
         .evaluate((element) => getComputedStyle(element).color);
@@ -641,12 +651,19 @@ test('each drawn category renders a distinct colour', async ({page}) => {
         .focus();
     
     // `l` expands where it stands, then walks in. Five presses reach Program,
+    
     // VariableDeclaration and VariableDeclarator.
     
     // That is what brings `Identifier` and `ArrowFunctionExpression` out from
-    // under the default fold.
     
-    for (const key of ['l', 'l', 'l', 'l', 'l'])
+    // under the default fold.
+    for (const key of [
+        'l',
+        'l',
+        'l',
+        'l',
+        'l',
+    ])
         await page.keyboard.press(key);
     
     const measured = await page.evaluate(() => {
@@ -669,9 +686,7 @@ test('each drawn category renders a distinct colour', async ({page}) => {
         const colours = [];
         
         for (const category of categories) {
-            const type = document.querySelector(
-                `.ast-row__type[data-category="${category}"]`,
-            ) as HTMLElement;
+            const type = document.querySelector(`.ast-row__type[data-category="${category}"]`) as HTMLElement;
             
             colours.push(getComputedStyle(type).color);
         }
@@ -710,13 +725,9 @@ test('a matched row keeps its category colour', async ({page}) => {
     await search(page).fill('VariableDeclaration');
     
     const result = await page.evaluate(() => {
-        const matched = document.querySelector(
-            '.ast-row--match .ast-row__type[data-category="declaration"]',
-        ) as HTMLElement;
+        const matched = document.querySelector('.ast-row--match .ast-row__type[data-category="declaration"]') as HTMLElement;
         
-        const dimmed = document.querySelector(
-            '.ast-row--dimmed .ast-row__type[data-category="statement"]',
-        ) as HTMLElement;
+        const dimmed = document.querySelector('.ast-row--dimmed .ast-row__type[data-category="statement"]') as HTMLElement;
         
         return {
             dimmed: dimmed && getComputedStyle(dimmed).color,
@@ -805,8 +816,11 @@ test('Shift+Enter builds a multi-line /source body', async ({page}) => {
     await page.keyboard.insertText('const b = 2;');
     
     // One assertion per line: `.cm-content` holds a `.cm-line` div per line
+    
     // with no text between them, so `toHaveText` on the whole box joins the
+    
     // three lines into one flat string. The line divs are the editor's own
+    
     // structure, and counting them is the honest shape of "multi-line".
     const rows = box(page).locator('.cm-line');
     
@@ -823,12 +837,15 @@ test('Shift+Enter builds a multi-line /source body', async ({page}) => {
     await expect(userMessages(page)).toHaveCount(SEEDED_USER_MESSAGES + 1);
     
     // The **last** source block, not the first: the seed's own `source` example
+    
     // is one too, so `toHaveCount(2)` would be counting the seed plus half of
+    
     // this spec. Scoping to the end says "the block this line produced".
     const lines = page
         .locator('.source-block')
         .last()
         .locator('.source-block__line');
+    
     await expect(lines).toHaveCount(2);
 });
 
@@ -862,6 +879,7 @@ test('up arrow recalls the last sent line', async ({page}) => {
     await box(page).press('ArrowUp');
     
     // The sigil comes back with it: `↑` recalls the line that was sent, and a
+    
     // recalled `help` would be answered "Not a command" when sent again.
     await expect(box(page)).toHaveText('/help');
 });
@@ -1045,7 +1063,9 @@ test('the theme toggle sits at the right of the header', async ({page}) => {
  * to some arbitrary offset would pass a weaker check and still hide the answer.
  */
 test('sending scrolls the answer into view', async ({page}) => {
-    const content = page.getByTestId('input').locator('.cm-content');
+    const content = page
+        .getByTestId('input')
+        .locator('.cm-content');
     
     await content.click();
     await page.keyboard.type('/ast');
@@ -1101,25 +1121,30 @@ test('AST connectors are drawn before the caret, keeping the tree line continuou
     await send(page, '/source\nconst a = 1;');
     await send(page, '/ast');
     
-    const rows = page.getByTestId('chat').getByTestId('ast-row');
+    const rows = page
+        .getByTestId('chat')
+        .getByTestId('ast-row');
+    
     await expect(rows.first()).toBeVisible();
     
     // depth 1: a non-root row must begin with a branch marker, not with a caret
-    const result = await rows.nth(1).evaluate((row) => {
-        const box = row.getBoundingClientRect();
-        // the row's own padding is `1px 8px`, so its content edge is not its
-        // border edge - measuring against the border asserts the padding instead
-        const content = box.left + parseInt(getComputedStyle(row).paddingLeft, 10);
-        const at = (name: string) => (row.querySelector(`.${name}`) as HTMLElement)
-            .getBoundingClientRect()
-            .left;
-        
-        return {
-            connectorsFromContentEdge: at('ast-row__connectors') - content,
-            caretAfterConnectors: at('ast-row__caret') > at('ast-row__connectors'),
-            connectorsIsFirstChild: row.children[0].classList.contains('ast-row__connectors'),
-        };
-    });
+    const result = await rows
+        .nth(1)
+        .evaluate((row) => {
+            const box = row.getBoundingClientRect();
+            
+            // the row's own padding is `1px 8px`, so its content edge is not its
+            // border edge - measuring against the border asserts the padding instead
+            const content = box.left + parseInt(getComputedStyle(row).paddingLeft, 10);
+            
+            const at = (name: string) => (row.querySelector(`.${name}`) as HTMLElement).getBoundingClientRect().left;
+            
+            return {
+                connectorsFromContentEdge: at('ast-row__connectors') - content,
+                caretAfterConnectors: at('ast-row__caret') > at('ast-row__connectors'),
+                connectorsIsFirstChild: row.children[0].classList.contains('ast-row__connectors'),
+            };
+        });
     
     const expected = {
         connectorsFromContentEdge: 0,
@@ -1142,12 +1167,20 @@ test('the /source user bubble shows a highlighted body, not plain text', async (
     await send(page, '/source\nconst x = 1;');
     
     // The user bubble renders its `/source` body through `SourceBlock`, so the
+    
     // pill the user typed into is highlighted the same way the answer is.
+    
     // Scope to the user message so the answer's own source-block does not win.
-    const bubble = page.locator('.message--user').last();
+    const bubble = page
+        .locator('.message--user')
+        .last();
+    
     await expect(bubble).toBeVisible();
     
-    const keyword = bubble.locator('.tok-keyword').first();
+    const keyword = bubble
+        .locator('.tok-keyword')
+        .first();
+    
     await expect(keyword).toBeVisible();
     await expect(keyword).toContainText('const');
 });
@@ -1156,17 +1189,27 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     await send(page, '/source\nconst add = (a, b) => a + b;');
     
     // `highlight()` wraps `const` in `tok-keyword`. Scope to the source block so
+    
     // the seed's own `export const report` doesn't win the `.first()`.
-    const keywordSpan = page.locator('.source-block .tok-keyword').nth(1);
+    const keywordSpan = page
+        .locator('.source-block .tok-keyword')
+        .nth(1);
+    
     await expect(keywordSpan).toBeVisible();
     await expect(keywordSpan).toContainText('const');
     
     // …and the span is actually **coloured**, which is the other half and the
+    
     // reason this test exists. A `.tok-keyword` that renders in the inherited
+    
     // text colour passes the two checks above on a build where the highlighting
+    
     // is invisible — that was the bug: `highlight.css` maps `tok-keyword` to
+    
     // `var(--ast-c-control)`, which resolved to the empty string outside `.ast`.
+    
     // Measured against `body`, not a literal, so a palette change keeps the
+    
     // assertion meaning "the keyword is not the surrounding text".
     const color = await keywordSpan.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
@@ -1175,24 +1218,158 @@ test('SourceBlock shows syntax-highlighted output', async ({page}) => {
     expect(color).not.toBe(bodyColor);
 });
 
-/**
- * `/help` renders as a styled grid, not a wrapped table.
- *
- * The row was a `<table>` `<tr>` with two `<td>`, and a table cell takes the
- * full width of its row — so the command name and its description collapsed
- * onto each other and `help` read as prose. `chat.css` now lays each row out as
- * `grid-template-columns: minmax(140px, max-content) 1fr`, which is only a grid
- * if the element is a `div`. This asserts the structure and that the name is
- * actually coloured with the accent rather than the body text.
+/** Regression: the composer highlights a `/source` body — `mode` was passed
+ * to `createEditor` but `CodeMirrorBox` never called `setOption`, so the
+ * language extension was never applied and `const a = 1` rendered uncoloured.
  */
+test('the composer applies syntax highlighting while typing a body command', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/source\nconst a = 1;');
+    
+    // do NOT press Ctrl+Enter — check the live composer
+    const keyword = page
+        .getByTestId('input')
+        .locator('.cm-content .hl-keyword')
+        .first();
+    
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+    
+    const color = await keyword.evaluate((el) => getComputedStyle(el).color);
+    const nameColor = await page
+        .getByTestId('input')
+        .locator('.cm-content .hl-name')
+        .first()
+        .evaluate((el) => getComputedStyle(el).color);
+    
+    expect(color).not.toBe(nameColor);
+});
+
+/** Regression: highlighting survives the editor rebuild that happens when
+ * `wantsLineNumbers` flips. Typing `/source` then `e` destroys the old editor
+ * and mounts a new one — the `useEffect([], [])` that calls `setOption` must
+ * run again on the new instance or the language extension is lost.
+ */
+test('the composer keeps syntax highlighting after the lineNumbers rebuild', async ({page}) => {
+    await box(page).click();
+    
+    // Type character by character so `wantsLineNumbers` flips mid-word,
+    
+    // triggering the destroy-and-recreate path in CodeMirrorBox.
+    await page.keyboard.type('/source');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('const a = 1;');
+    
+    const keyword = page
+        .getByTestId('input')
+        .locator('.cm-content .hl-keyword')
+        .first();
+    
+    await expect(keyword).toBeVisible();
+    await expect(keyword).toContainText('const');
+    
+    const color = await keyword.evaluate((el) => getComputedStyle(el).color);
+    const nameColor = await page
+        .getByTestId('input')
+        .locator('.cm-content .hl-name')
+        .first()
+        .evaluate((el) => getComputedStyle(el).color);
+    
+    expect(color).not.toBe(nameColor);
+});
+
+/** The command line is not JavaScript: `/source` must read as a command, not as
+ * a regular expression. It takes the accent colour, like the send button. */
+test('the composer colours the command line with the accent', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/source\nconst a = 1;');
+    
+    const command = page
+        .getByTestId('input')
+        .locator('.cm-content .input__command');
+    
+    await expect(command).toHaveText('/source');
+    
+    const result = await command.evaluate((el) => getComputedStyle(el).color);
+    
+    const expected = await page.evaluate(() => {
+        const probe = document.createElement('span');
+        
+        probe.style.color = 'var(--color-accent)';
+        document.body.append(probe);
+        
+        const {color} = getComputedStyle(probe);
+        
+        probe.remove();
+        
+        return color;
+    });
+    
+    expect(result).toBe(expected);
+});
+
+/** A row names the property that holds the node: `init` on the literal. */
+test('/ast shows the key before the type', async ({page}) => {
+    await send(page, '/source\nconst a = 3');
+    await send(page, '/ast');
+    
+    // the tree is folded below depth 1: open the declarator first
+    await page
+        .getByTestId('chat')
+        .locator('[data-testid="ast-row"][data-type="VariableDeclarator"]')
+        .last()
+        .click();
+    
+    const key = page
+        .getByTestId('chat')
+        .locator('[data-testid="ast-row"][data-type="NumericLiteral"] .ast-row__key')
+        .last();
+    
+    await expect(key).toHaveText('init:');
+});
+
+/**
+ * A key makes a row longer. When the row does not fit, the detail gives way
+ * first (it is cut with an ellipsis) and the type keeps its full width.
+ */
+test('/ast cuts the detail, not the type, when a row is too long', async ({page}) => {
+    await send(page, '/source\nconst value = someFunction(firstArgument, secondArgument);');
+    await send(page, '/ast');
+    
+    const row = page
+        .getByTestId('chat')
+        .locator('[data-testid="ast-row"][data-type="VariableDeclarator"]')
+        .last();
+    
+    const result = await row.evaluate((element) => {
+        const widthOf = (selector: string) => {
+            const part = element.querySelector(selector) as HTMLElement;
+            
+            return part.scrollWidth > part.clientWidth;
+        };
+        
+        return {
+            detailCut: widthOf('.ast-row__detail'),
+            typeCut: widthOf('.ast-row__type'),
+        };
+    });
+    
+    const expected = {
+        detailCut: true,
+        typeCut: false,
+    };
+    
+    expect(result).toEqual(expected);
+});
+
 test('/help renders a styled grid, not plain text', async ({page}) => {
     await send(page, '/help');
     
-    // The seed thread already answers one `/help`, so the page carries two
-    // blocks and a bare locator is a strict-mode violation. The sent command's
-    // answer is the last one, the same scoping the mobile "air between" spec
     // uses for the reply.
-    const block = page.locator('[data-testid="help-block"]').last();
+    const block = page
+        .locator('[data-testid="help-block"]')
+        .last();
+    
     await expect(block).toBeVisible();
     
     // Each row must be a grid div, not a table row
@@ -1200,7 +1377,10 @@ test('/help renders a styled grid, not plain text', async ({page}) => {
     await expect(rows.first()).toBeVisible();
     
     // Name must have the accent colour — not the default text colour
-    const name = rows.first().locator('.help-block__name');
+    const name = rows
+        .first()
+        .locator('.help-block__name');
+    
     const color = await name.evaluate((el) => getComputedStyle(el).color);
     const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
     
@@ -1220,6 +1400,7 @@ test('AstCodePreview shows highlighted source lines', async ({page}) => {
     await send(page, '/ast');
     
     // The preview highlights only the selected line, so select
+    
     // VariableDeclarator (line 1, col 6) before asserting.
     await page
         .locator('[data-testid="ast-output"]')
@@ -1233,6 +1414,7 @@ test('AstCodePreview shows highlighted source lines', async ({page}) => {
     const code = page
         .locator('.ast-code')
         .first();
+    
     await expect(code).toBeVisible();
     await expect(
         code
@@ -1253,8 +1435,14 @@ test('AST rows keep their caret separate from the branch marker', async ({page})
         .getByTestId('chat')
         .getByTestId('ast-row')
         .nth(1);
-    const connectors = await row.locator('.ast-row__connectors').textContent();
-    const caret = await row.locator('.ast-row__caret').textContent();
+    
+    const connectors = await row
+        .locator('.ast-row__connectors')
+        .textContent();
+    
+    const caret = await row
+        .locator('.ast-row__caret')
+        .textContent();
     
     const result = {
         connector: connectors,
@@ -1270,4 +1458,361 @@ test('AST rows keep their caret separate from the branch marker', async ({page})
     };
     
     expect(result).toEqual(expected);
+});
+
+/**
+ * The line-number gutter appears once a **body** command is typed.
+ *
+ * `wantsLineNumbers` has its own unit specs, and they stub CodeMirror — so the
+ * wiring could be broken and every one of them would still pass. What this
+ * asserts is the gutter actually rendering in a browser, on `.cm-lineNumbers`,
+ * which is what `lineNumbers()` produces.
+ *
+ * Typed rather than sent: the gutter is a property of the *composer*, and
+ * sending would clear the box and take the evidence with it.
+ */
+test('typing a body command shows the line-number gutter', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/source');
+    
+    await expect(
+        page
+            .getByTestId('input')
+            .locator('.cm-lineNumbers'),
+    ).toBeVisible();
+});
+
+/**
+ * …and a one-line command keeps it off, which is the same assertion from the
+ * other side.
+ *
+ * `/help` is the natural subject: it is the command most often typed, so a rule
+ * that gave *every* command a gutter would be caught here rather than in review.
+ * A gutter on one line costs a column and says nothing.
+ */
+test('a one-line command keeps the gutter off', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/help');
+    
+    await expect(
+        page
+            .getByTestId('input')
+            .locator('.cm-lineNumbers'),
+    ).toHaveCount(0);
+});
+
+/**
+ * `/learn` answers with a tree, and a click on a section opens it — the whole
+ * of bug 2 on the device where the bug was invisible.
+ *
+ * `LearnTree`'s row was inline markup calling `onSelect` and nothing else, so a
+ * click could *select* a concept and never *open* one: the only route to a
+ * child was the keyboard, and the caret — the one thing on screen that says a
+ * row has children — did nothing at all. `LearnRow` now carries `AstRow`'s
+ * handler, so a click folds and unfolds.
+ *
+ * Desktop only, and deliberately: a coarse pointer must *not* fold on a click,
+ * which is the mobile spec. One project cannot check a binding chosen by pointer
+ * type, which is the same reason `Enter` has a spec in each.
+ */
+test('a click on a learn section opens it', async ({page}) => {
+    await send(page, '/learn');
+    
+    const rows = learnRows(page);
+    
+    // `collapsedDepth: 0` — the root is open and its sections are drawn closed,
+    // so the curriculum's top level is on screen and nothing under it.
+    await expect(rows).toHaveCount(5);
+    
+    // `nodes` is the first section, and it has children
+    await rows
+        .nth(1)
+        .click();
+    
+    // more rows now — the section opened, and the caret meant what it said
+    const opened = await rows.count();
+    
+    expect(opened).toBeGreaterThan(5);
+    
+    // and clicking it again folds it back
+    await rows
+        .nth(1)
+        .click();
+    
+    await expect(rows).toHaveCount(5);
+});
+
+/**
+ * `/flow` graphs the source into control-flow blocks and renders FlowBlock.
+ *
+ * A body with unreachable code (a statement after `return`) draws both panels,
+ * the `flow-output` wrapper, and a source panel plus a graph panel whose
+ * rectangles are each laid out within the viewport.
+ */
+test('/flow renders source panel and graph panel', async ({page}) => {
+    await send(page, '/flow\nfunction f() { return a; b(); c(); }');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    
+    // both panels laid out within the viewport — geometry asserted, not assumed
+    const source = await rectOf(page, '.flow-output__source');
+    const graph = await rectOf(page, '.flow-output__graph');
+    
+    expect(graph.right).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(source.bottom).toBeLessThanOrEqual(page.viewportSize()!.height);
+});
+
+/**
+ * A long function: every block stays inside the graph, the graph does not
+ * scroll sideways, and a node takes its fill from the theme (an unknown token in
+ * an SVG `fill` draws black).
+ */
+test('/flow draws every block inside the graph, in theme colours', async ({page}) => {
+    await send(page, '/flow\nfunction f(x) { if (x) return 1; if (x > 2) return 3; a(); b(); return 2; }');
+    
+    const graph = page
+        .getByTestId('chat')
+        .getByTestId('flow-output__graph')
+        .last();
+    
+    await expect(graph).toBeVisible();
+    
+    const result = await graph.evaluate((svg) => {
+        const box = svg.getBoundingClientRect();
+        const rects = [...svg.querySelectorAll('.flow-output__node')];
+        let outside = 0;
+        
+        for (const rect of rects)
+            if (rect.getBoundingClientRect().right > box.right + 1)
+                ++outside;
+        
+        const probe = document.createElement('span');
+        
+        probe.style.color = 'var(--color-bg-raised)';
+        document.body.append(probe);
+        
+        const {color} = getComputedStyle(probe);
+        
+        probe.remove();
+        
+        return {
+            outside,
+            scrolls: svg.parentElement!.scrollWidth > svg.parentElement!.clientWidth,
+            fill: getComputedStyle(rects[0]).fill === color,
+        };
+    });
+    
+    const expected = {
+        outside: 0,
+        scrolls: false,
+        fill: true,
+    };
+    
+    expect(result).toEqual(expected);
+});
+
+/**
+ * Clicking an unreachable block highlights the correct source line — the block
+ * click routes to `onNavigate` and the source panel marks its line.
+ */
+test('/flow clicking unreachable block highlights its source line', async ({page}) => {
+    // Multi-line body: source.split('\\n') matches stmts line-by-line;
+    // a single-line body never produces a match and no DOM node gets
+    // data-unreachable.
+    await send(page, '/flow\nfunction f() {\n  return a;\n  console.log(b);\n}');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    
+    const graph = page
+        .getByTestId('chat')
+        .getByTestId('flow-output__graph');
+    
+    await expect(graph).toBeVisible();
+    
+    // The second line (`console.log(b)`) is unreachable — its graph node is dimmed.
+    const unreachableLine = page
+        .locator('[data-unreachable="true"]')
+        .first();
+    
+    await expect(unreachableLine).toBeVisible();
+});
+
+/**
+ * Regression: `setValue` replaced the whole document and CodeMirror reset the
+ * cursor to position 0. The user could not type normally — every Backspace or
+ * autocomplete completion moved the caret to the start of the line.
+ */
+test('cursor stays at end after autocomplete completion', async ({page}) => {
+    // Type enough to open autocomplete
+    await box(page).type('/sou');
+    
+    // Autocomplete completes to '/source '
+    await page.keyboard.press('Tab');
+    
+    // The cursor must now be at the END of '/source ', not position 0.
+    
+    // Typing more text appends to the right place.
+    await box(page).type('extra');
+    
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    expect(content).toContain('/source extra');
+    
+    // If the cursor had jumped to 0, this would be 'extra/source ' instead.
+    expect(content).not.toMatch(/^extra/);
+});
+
+test('cursor stays in place after Backspace', async ({page}) => {
+    await box(page).type('/source');
+    
+    // Backspace removes the last character
+    await page.keyboard.press('Backspace');
+    
+    // Type something — it should append, not land at position 0
+    await box(page).type('x');
+    
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    // '/source' - 'e' + 'x' = '/sourcx'
+    expect(content).toBe('/sourcx');
+    
+    // If cursor had jumped to 0: 'x/sourc'
+    expect(content).not.toMatch(/^x/);
+});
+
+test('cursor clamps to end after Escape clears the box', async ({page}) => {
+    await box(page).type('/help');
+    await page.keyboard.press('Escape');
+    
+    // Box is empty, cursor is at 0 — that is correct after a clear.
+    
+    // Type something and it should appear at position 0.
+    await page.keyboard.insertText('/ast');
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    expect(content).toBe('/ast');
+});
+
+test('cursor stays at end after history recall', async ({page}) => {
+    await send(page, '/hel');
+    
+    // Recall with ArrowUp — box fills with '/hel'. The box is a lazy
+    
+    // suspense boundary and remounts between the send and the recall, so the
+    
+    // editor may not be present yet; wait for it before typing.
+    await page.keyboard.press('ArrowUp');
+    await expect(page.locator('.cm-content')).toContainText('/hel');
+    
+    // Type more — should append at the END of the recalled line, not at 0.
+    await box(page).type('px');
+    const content = await page
+        .locator('.cm-content')
+        .textContent();
+    
+    expect(content).toContain('/helpx');
+    expect(content).not.toMatch(/^x/);
+});
+
+/**
+ * Regression: `/flow` returned an error when no body was given, even though
+ * `/source` had already set `state.source`. The user workflow is `/source`
+ * first, then `/flow` on the whole source — and the fallback to `source`
+ * means it now works.
+ */
+test('/flow uses current source when no body is given', async ({page}) => {
+    await send(page, '/source\nfunction f() { return a; }');
+    await send(page, '/flow');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__source'),
+    ).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__graph'),
+    ).toBeVisible();
+});
+
+/**
+ * Regression: `/flow` on a source that is not a function body — e.g.
+ * `const a = 1` — crashed in `printer.ts`'s `bodyOf()`, which unwrapped
+ * `program.body[0].body.body` on a `VariableDeclaration` that has no `.body`.
+ *
+ * `bodyOf` now falls back to the whole `program.body` for any source that is
+ * not a `FunctionDeclaration`, so `/source` first, then `/flow`, graphs it.
+ */
+test('/flow on a non-function source renders a flow block', async ({page}) => {
+    await send(page, '/source\nconst a = 1;');
+    await send(page, '/flow');
+    
+    const output = page
+        .getByTestId('chat')
+        .getByTestId('flow-output');
+    
+    await expect(output).toBeVisible();
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__source'),
+    ).toBeVisible();
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output__graph'),
+    ).toBeVisible();
+    
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('error-block'),
+    ).not.toBeVisible();
+});
+
+/**
+ * …and it still errors when there is no source at all — the fallback only
+ * kicks in after `/source` has set something.
+ */
+test('/flow with no source errors', async ({page}) => {
+    // the seed already ran `/source`, and `/reset` restores that seed, so a
+    // bare `/source` is what empties it
+    await send(page, '/source');
+    await send(page, '/flow');
+    
+    // No source is set, so /flow errors — the error block is visible and
+    
+    // no graph panels render.
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('error-block'),
+    ).toBeVisible();
+    await expect(
+        page
+            .getByTestId('chat')
+            .getByTestId('flow-output'),
+    ).not.toBeVisible();
 });

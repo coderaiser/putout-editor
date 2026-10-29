@@ -552,11 +552,11 @@ test('MobileMenu: picking Replacer dispatches reset with template', (t) => {
     unmount();
     cleanup();
     
-    const payload = action && action.payload as {
+    const payload = (action && action.payload || {}) as {
         template?: string;
     };
     
-    t.ok(payload && payload.template && payload.template.includes('convert-ternary-to-if'));
+    t.match(payload.template || '', `Use 'if' instead of ternary`);
     t.end();
 });
 

@@ -34,17 +34,21 @@ export interface AstRowProps {
     dimmed: boolean;
     
     /**
-     * The row's *own* text is the query — shown, and marked.
-     *
-     * The other half of `dimmed`, and the half that was missing: the filter
-     * computed this set from the first version and the component never read it,
-     * so a match and the ancestors on the way to it looked alike.
+     * Whether this row is on a mobile device.
      */
+    mobile?: boolean;
     matched: boolean;
     selected: boolean;
     onSelect: (id: string) => void;
     
-    /** Clicking a node with children also folds it — the tree's only pointer affordance. */
+    /**
+     * Clicking a node with children also folds it — the tree's only pointer
+     * affordance, on any device.
+     *
+     * The whole row toggles, not just the caret: on a phone the caret is
+     * ~14px and too small to tap reliably, so the tap target is the entire
+     * row. The caret span keeps its glyph only; its own handler is gone.
+     */
     onToggle: (id: string) => void;
 }
 
@@ -154,6 +158,11 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
              * specificity as the descendant form it replaces, so the cascade
              * order is unchanged and no rule had to move.
              */}
+            {node.key && (
+                <span className="ast-row__key">
+                    {`${node.key}:`}
+                </span>
+            )}
             <span
                 className="ast-row__type"
                 data-category={categoryOf(node.type)}

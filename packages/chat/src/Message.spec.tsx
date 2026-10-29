@@ -20,10 +20,9 @@ const wrap = (store: Store) => ({children}: {children: ReactNode;}) => (
     </Provider>
 );
 
-const renderWithStore = (message: MessageModel) => render(
-    <Message message={message}/>,
-    {wrapper: wrap(makeStore() as Store<RootState>)},
-);
+const renderWithStore = (message: MessageModel) => render(<Message message={message}/>, {
+    wrapper: wrap(makeStore() as Store<RootState>),
+});
 
 /**
  * A line still running: no `result` yet, so `Message` renders nothing.
@@ -42,7 +41,9 @@ test('Message: a message with no result yet renders nothing', (t) => {
         result: null,
     };
     
-    render(<Message message={message}/>);
+    render(
+        <Message message={message}/>,
+    );
     
     const node = document.querySelector('.message');
     const result = node && node.textContent;
@@ -73,7 +74,9 @@ test('Message: a text result that is not help is not the table', (t) => {
         },
     };
     
-    render(<Message message={message}/>);
+    render(
+        <Message message={message}/>,
+    );
     
     const block = document.querySelector('.text-block');
     const result = block && block.textContent;
@@ -139,11 +142,42 @@ test('Message: a tryit result renders the try it button', (t) => {
     
     renderWithStore(message);
     
-    const result = document.querySelector('[data-testid="try-it"]')?.textContent;
+    const element = document.querySelector('[data-testid="try-it"]');
+    const result = element && element.textContent;
     const expected = 'try it →';
     
     cleanup();
     
     t.equal(result, expected);
+    t.end();
+});
+
+/** A `flow` result renders FlowBlock with source and graph panels. */
+test('Message: flow result renders FlowBlock', (t) => {
+    const message: MessageModel = {
+        id: 5,
+        text: '/flow',
+        result: {
+            type: 'flow',
+            text: 'block 0\n  return a;\n  -> exit',
+            blocks: [{
+                id: 0,
+                stmts: ['return a;'],
+                succs: [{
+                    id: 'exit',
+                }],
+                terminal: true,
+            }],
+            source: 'function f() { return a; }',
+        },
+    };
+    
+    renderWithStore(message);
+    
+    const result = document.querySelector('[data-testid="flow-output"]') !== null;
+    
+    cleanup();
+    
+    t.equal(result, true);
     t.end();
 });

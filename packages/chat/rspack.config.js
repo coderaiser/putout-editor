@@ -88,7 +88,7 @@ const plugins = [
     //
     // `NEVER_MATCH^` matches no request, so the context module is cut without the
     // package becoming unresolvable — which is what an `IgnorePlugin` here would
-    // do, and what `docs/memory/browser-bundle.md` records as the three attempts
+    // do, and what `docs/frontend.md` records as the three attempts
     // that each compiled and then broke the page. The client has carried this
     // since long before chat existed.
     new rspack.ContextReplacementPlugin(/@putout\/engine-loader/, /NEVER_MATCH^/),

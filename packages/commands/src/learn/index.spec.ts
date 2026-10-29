@@ -9,10 +9,7 @@ import type {CommandResult} from '../state.types.ts';
  * whose `run` answers with the tree. A handler that returned the wrong arm would
  * still compile and would render nothing at all in the thread.
  */
-
-const result = runLearn() as Extract<CommandResult, {
-    type: 'learn';
-}>;
+const result = runLearn() as Extract<CommandResult, {type: 'learn'}>;
 
 test('runLearn: answers with the learn arm', (t) => {
     const answer = result.type;
@@ -24,18 +21,16 @@ test('runLearn: answers with the learn arm', (t) => {
 
 test('runLearn: the tree is a non-empty array', (t) => {
     const answer = Array.isArray(result.tree) && result.tree.length > 0;
-    const expected = true;
     
-    t.equal(answer, expected);
+    t.ok(answer);
     t.end();
 });
 
 test('runLearn: each top-level node has an id and a label', (t) => {
-    const missing = result.tree
+    const answer = result.tree
         .filter(({id, label}) => !id || !label)
         .map(({id}) => id);
     
-    const answer = missing;
     const expected: string[] = [];
     
     t.deepEqual(answer, expected);
@@ -52,9 +47,8 @@ test('runLearn: each top-level node has an id and a label', (t) => {
  */
 test('runLearn: answers with the curriculum itself', (t) => {
     const answer = result.tree === curriculum;
-    const expected = true;
     
-    t.equal(answer, expected);
+    t.ok(answer);
     t.end();
 });
 
@@ -66,9 +60,8 @@ test('runLearn: answers with the curriculum itself', (t) => {
  */
 test('runLearn: top-level nodes carry their children', (t) => {
     const answer = result.tree.every(({children}) => Boolean(children && children.length));
-    const expected = true;
     
-    t.equal(answer, expected);
+    t.ok(answer);
     t.end();
 });
 
@@ -85,14 +78,11 @@ test('learnCommand: run ignores the args and state it is handed', (t) => {
     const withArgs = learnCommand.run('anything', {
         source: 'const a = 1;',
         plugin: '',
-    }) as Extract<CommandResult, {
-        type: 'learn';
-    }>;
+    }) as Extract<CommandResult, {type: 'learn'}>;
     
     const answer = withArgs.tree === result.tree;
-    const expected = true;
     
-    t.equal(answer, expected);
+    t.ok(answer);
     t.end();
 });
 
@@ -124,6 +114,7 @@ test('learnCommand: has a description and no flags', (t) => {
         described: Boolean(learnCommand.description),
         flags: learnCommand.flags,
     };
+    
     const expected = {
         described: true,
         flags: [],
@@ -142,16 +133,13 @@ test('learnCommand: has a description and no flags', (t) => {
  */
 test('learnCommand: runs runLearn', (t) => {
     const answer = learnCommand.run === runLearn;
-    const expected = true;
     
-    t.equal(answer, expected);
+    t.ok(answer);
     t.end();
 });
 
 test('learnCommand: answers with every curriculum node reachable', (t) => {
-    const listed = runLearn() as Extract<CommandResult, {
-        type: 'learn';
-    }>;
+    const listed = runLearn() as Extract<CommandResult, {type: 'learn'}>;
     
     const answer = learnNodes(listed.tree).length;
     const expected = learnNodes(curriculum).length;

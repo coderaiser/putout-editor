@@ -1,0 +1,48 @@
+{
+  "name": "@putout/flow",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Control flow graph for JavaScript: source in, blocks and edges out",
+  "private": true,
+  "tag": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderaiser/putout-editor.git"
+  },
+  "author": "coderaiser",
+  "scripts": {
+    "check": "madrun check",
+    "test": "madrun test",
+    "test:one": "madrun test:one",
+    "coverage": "madrun coverage",
+    "coverage:json": "madrun coverage:json",
+    "lint": "madrun lint",
+    "fix:lint": "madrun fix:lint",
+    "test:dts": "madrun test:dts"
+  },
+  "dependencies": {
+    "@babel/parser": "^8.0.1",
+    "@babel/types": "^8.0.6"
+  },
+  "devDependencies": {
+    "@putout/eslint-flat": "^4.0.1",
+    "@supertape/loader-jsx": "^1.0.3",
+    "@supertape/loader-ts": "^1.0.0",
+    "@types/node": "^26.0.0",
+    "escover": "^6.5.2",
+    "eslint": "^10.7.0",
+    "eslint-plugin-putout": "^31.2.0",
+    "jiti": "^2.7.0",
+    "madrun": "^13.0.2",
+    "superc8": "^12.7.0",
+    "supertape": "^13.6.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./lib/index.ts",
+    "./*": "./lib/*.ts"
+  }
+}

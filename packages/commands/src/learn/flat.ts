@@ -1,7 +1,4 @@
-import type {
-    FlatLearnNode,
-    LearnNode,
-} from '../state.types.ts';
+import type {FlatLearnNode, LearnNode} from '../state.types.ts';
 
 /**
  * The curriculum as rows, the shape `LearnTree` draws.

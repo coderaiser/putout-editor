@@ -1,10 +1,7 @@
 import {test} from 'supertape';
 import {render, cleanup} from '@testing-library/react';
 import {Provider} from 'react-redux';
-import {
-    createAppStore,
-    initialState,
-} from '#store';
+import {createAppStore, initialState} from '#store';
 import App from './App.tsx';
 
 /**

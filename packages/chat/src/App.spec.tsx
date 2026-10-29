@@ -11,6 +11,7 @@ import {Provider} from 'react-redux';
 import type {ReactNode} from 'react';
 import type {Store} from '@reduxjs/toolkit';
 import {makeStore} from '#test/store';
+import {warm} from '#test/warm';
 import type {RootState} from '#store/types';
 import App from './App.tsx';
 
@@ -18,6 +19,10 @@ const wrap = (store: Store<RootState>) => ({children}: {children: ReactNode;}) =
     <Provider store={store}>
         {children}
     </Provider>
+);
+
+await warm(
+    <Provider store={makeStore()}><App/></Provider>,
 );
 
 const mount = () => {

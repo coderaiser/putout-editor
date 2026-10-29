@@ -7,10 +7,7 @@
  */
 import {test} from 'supertape';
 import '../../../test/msw/env.ts';
-import {
-    listen,
-    server,
-} from '../../../test/msw/server.ts';
+import {listen, server} from '../../../test/msw/server.ts';
 import {handlers} from '../../../test/msw/handlers/index.ts';
 import {
     gistURL,

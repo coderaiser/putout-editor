@@ -4,7 +4,12 @@ import {
     createSlice,
     type PayloadAction,
 } from '@reduxjs/toolkit';
-import type {FlatLearnNode} from '@putout/editor-commands';
+import {
+    type FlatLearnNode,
+    commands,
+    runHelp,
+    type FlatNode,
+} from '@putout/editor-commands';
 
 /**
  * Opening a concept is one dispatch, not two click handlers chained with
@@ -27,16 +32,9 @@ import type {FlatLearnNode} from '@putout/editor-commands';
  * with no example, and `Enter` on one expands rather than dispatching, so this
  * thunk only ever sees a leaf.
  */
-const learnOpen = createAsyncThunk(
-    'chat/learnOpen',
-    async (node: FlatLearnNode) => node,
-);
-import {
-    commands,
-    runHelp,
-    type FlatNode,
-} from '@putout/editor-commands';
 import type {Message} from './state.ts';
+
+export const learnOpen = createAsyncThunk('chat/learnOpen', async (node: FlatLearnNode) => node);
 
 export interface ChatAppState {
     messages: Message[];
@@ -78,8 +76,6 @@ export interface ChatAppState {
  * `export const`, so the seed reads as the shape the docs show.
  */
 export const INITIAL_SOURCE = montag`
-    // convert-ternary-to-if
-    
     export const report = () => \`Use 'if' instead of ternary 🧹\`;
     
     export const replace = () => ({
@@ -137,8 +133,15 @@ const without = (messages: Message[], message: Message): Message[] => [
  * A message id is a counter rather than `Date.now()` or a random string: a spec
  * that asserts on the transcript needs a value it can predict, and a clock or a
  * counter source is one more thing to stub.
+ *
+ * It starts at the highest id the page opens with, not at 0: the seeded messages
+ * already hold 0 and 1, so a counter that began at 0 would hand the first thing
+ * the user sends the id of the seeded `help` and put two children with the same
+ * `key` in the thread.
  */
-let seq = 0;
+export const highestId = (messages: Message[]): number => Math.max(...messages.map(({id}) => id));
+
+let seq = highestId(initialState.messages);
 
 export const nextId = (): number => ++seq;
 
@@ -214,7 +217,6 @@ export const {reducer, actions} = createSlice({
         
         reset: () => initialState,
     },
-    
     /**
      * The one `extraReducer` in the slice, and what makes `learnOpen` a thunk
      * rather than two dispatches in a component.
@@ -237,14 +239,16 @@ export const {reducer, actions} = createSlice({
                         data: payload.body,
                     },
                 }),
-                ...(payload.example ? [{
-                    id: nextId(),
-                    text: `/learn ${payload.id}`,
-                    result: {
-                        type: 'tryit' as const,
-                        source: payload.example,
-                    },
-                }] : []),
+                ...payload.example
+                    ? [{
+                        id: nextId(),
+                        text: `/learn ${payload.id}`,
+                        result: {
+                            type: 'tryit' as const,
+                            source: payload.example,
+                        },
+                    }]
+                    : [],
             ],
         }));
     },
@@ -261,13 +265,11 @@ export const {
     openConsole,
     clearThread,
     reset,
-} = actions;
-
-/**
+} = actions;/**
  * The thunk itself, for `LearnBlock` to dispatch.
  *
  * Declared `const` above the slice and exported here, so it reads beside the
  * reducer that consumes it: the slice owns what two messages to append, the
  * component only says which leaf was opened.
  */
-export {learnOpen};
+

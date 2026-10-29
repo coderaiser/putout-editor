@@ -105,7 +105,6 @@ test('categoryOf: the order of the sets decides BlockStatement', (t) => {
         // `BlockStatement` is only in `STATEMENT`, and it wins because
         // `STATEMENT` is asked first
         block: categoryOf('BlockStatement'),
-        
         // and nothing shadows it: no later set contains it
         shadowed: categoryOf('BlockStatement') !== 'other',
     };

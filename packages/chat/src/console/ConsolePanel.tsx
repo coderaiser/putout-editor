@@ -1,5 +1,6 @@
 import {useDispatch} from 'react-redux';
 import {toggleConsole} from '#store';
+import {useIsMobile} from '../hooks/useIsMobile.ts';
 import AstTree from '../components/AstTree.tsx';
 import type {ConsoleAst} from '../hooks/useConsole.ts';
 
@@ -20,9 +21,16 @@ export interface ConsolePanelProps {
  * panel covering half the thread with no way out of it is a trap rather than a
  * control. It dispatches `toggleConsole`, the same action `console` does, so
  * the two cannot leave the panel in different states.
+ *
+ * `useIsMobile()` here rather than in `AstTree`, for the reason `AstBlock`
+ * gives: the answer is a property of the page, not of a tree. Omitting it is
+ * what bug 1 was — the panel mounted `AstTree` with no `mobile`, so its rows
+ * folded on tap and its status bar taught the desktop keys on a phone, while
+ * the thread's copy of the same tree did neither.
  */
 export default function ConsolePanel({ast}: ConsolePanelProps) {
     const dispatch = useDispatch();
+    const mobile = useIsMobile();
     
     const header = (
         <div className="console-panel__header">
@@ -64,6 +72,7 @@ export default function ConsolePanel({ast}: ConsolePanelProps) {
         >
             {header}
             <AstTree
+                mobile={mobile}
                 nodes={ast.nodes}
                 source={ast.source}
             />

@@ -13,7 +13,6 @@ test('templates: Replacer: transforms ternary into if statement', (t) => {
     });
     
     const expected = montag`
-        // convert-ternary-to-if
         /**
          * Paste or drop some JavaScript here and explore
          * the syntax tree created by chosen parser 🎁.

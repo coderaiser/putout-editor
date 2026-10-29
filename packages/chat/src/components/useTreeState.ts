@@ -308,7 +308,21 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
      * search looks broken. Folding and searching are two different intentions,
      * so the query wins — and clearing it restores the folds.
      */
-    const rows = useCallback(() => filterNodes(rowsOf(nodes, state.collapsed, state.query, textOf), state.query, textOf), [nodes, state.collapsed, state.query, textOf]);
+    const rows = useCallback(() => filterNodes(
+        rowsOf(
+            nodes,
+            state.collapsed,
+            state.query,
+            textOf,
+        ),
+        state.query,
+        textOf,
+    ), [
+        nodes,
+        state.collapsed,
+        state.query,
+        textOf,
+    ]);
     
     const toggle = useCallback((id: string) => setState((previous) => {
         const collapsed = new Set(previous.collapsed);
@@ -404,8 +418,11 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
         setFocus('tree');
         
         // Bound to a local, which is the only form that both narrows and stops
+        
         // reading `.current` twice: it is mutable, so two reads are two values as
+        
         // far as the compiler is concerned. Optional chaining is off in this repo
+        
         // for the same reason.
         const {current} = element;
         

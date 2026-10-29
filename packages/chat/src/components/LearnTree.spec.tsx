@@ -5,11 +5,11 @@ import {
     act,
     fireEvent,
 } from '@testing-library/react';
-import type {
-    FlatLearnNode,
-    LearnNode,
+import {
+    type FlatLearnNode,
+    type LearnNode,
+    flattenLearn,
 } from '@putout/editor-commands';
-import {flattenLearn} from '@putout/editor-commands';
 import LearnTree from './LearnTree.tsx';
 
 /**
@@ -160,8 +160,16 @@ test('LearnTree: a section has a caret and a leaf has none', (t) => {
     
     press('ArrowRight');
     
-    const result = rows().map((row) => row.querySelector('.ast-row__caret')?.textContent);
-    const expected = ['▾', '▸', '  '];
+    const result = rows().map((row) => {
+        const caret = row.querySelector('.ast-row__caret');
+        return caret && caret.textContent;
+    });
+    
+    const expected = [
+        '▾',
+        '▸',
+        '  ',
+    ];
     
     cleanup();
     
@@ -201,20 +209,29 @@ test('LearnTree: enter on a leaf calls onOpen with it', (t) => {
  * keyboard use working when `LearnBlock`'s `learnOpen` is the only thing being
  * tested: a section that opened rather than expanding would trap the user above
  * it.
+ *
+ * Selected with `ArrowDown` rather than with a click, and that is not
+ * incidental: `LearnRow` now folds on a fine click as well as selecting, so a
+ * click here would fold the root and the `Enter` would unfold it again — two
+ * toggles, three rows, and a spec that no longer says anything about `Enter`.
+ * Driving the selection from the keyboard keeps the subject the keyboard.
  */
 test('LearnTree: enter on a section toggles it instead of opening', (t) => {
     const opened: string[] = [];
     
     mount((node) => opened.push(node.id));
     
+    // `ArrowDown` on an empty selection takes the first row, which is the root.
+    press('ArrowDown');
+    
     // The root is open, so toggling it folds everything below it away.
-    fireEvent.click(rows()[0]);
     press('Enter');
     
     const result = {
         opened,
         rows: rows().length,
     };
+    
     const expected = {
         opened: [],
         rows: 1,
@@ -255,6 +272,7 @@ test('LearnTree: filters by summary as well as by label', (t) => {
     });
     
     const result = rows().map((row) => row.textContent);
+    
     const expected = [
         '▾rootthe top',
         '└─   aloneon its own',
@@ -354,7 +372,7 @@ test('LearnTree: clicking a row shows it in the status bar', (t) => {
  * keyboard specs touches: no keypress blurs the filter. So this focuses and
  * blurs the way a pointer user does.
  */
-test('LearnTree: focus moves to the filter and back', async (t) => {
+test('LearnTree: focus moves to the filter and back', (t) => {
     mount();
     
     const search = document.querySelector('[data-testid="ast-search"]') as HTMLElement;
@@ -373,9 +391,78 @@ test('LearnTree: focus moves to the filter and back', async (t) => {
         focused,
         blurred: true,
     };
+    
     const expected = {
         focused: true,
         blurred: true,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * A click folds a section — the whole of bug 2, at the tree's own level.
+ *
+ * The row was inline markup calling `onSelect` and nothing else, so no learn
+ * tree could be folded by pointer on **any** device: the caret was decoration
+ * and the only route to a child was the keyboard. `branch` starts closed
+ * (`collapsedDepth: 0` draws the sections but folds their children), so
+ * clicking it is what reveals `leaf`.
+ *
+ * Asserted as a row count because that is what the user sees, and paired with
+ * the coarse case below so the fold is not simply "always on".
+ */
+test('LearnTree: a click folds and unfolds a section', (t) => {
+    mount();
+    
+    const before = rows().length;
+    
+    fireEvent.click(rows()[1]);
+    
+    const opened = rows().length;
+    
+    fireEvent.click(rows()[1]);
+    
+    const result = {
+        before,
+        opened,
+        closed: rows().length,
+    };
+    
+    const expected = {
+        before: 3,
+        opened: 4,
+        closed: 3,
+    };
+    
+    cleanup();
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+/**
+ * …and on a coarse pointer the same tap folds a section too — `mobile` no
+ * longer guards `onToggle`, so a tap folds and unfolds exactly like a fine
+ * pointer. The tree's own `mobile` prop still sets the status bar hint, but
+ * the row handler matches `AstRow`'s: always toggle when `hasChildren`.
+ */
+test('LearnTree: a coarse tap folds a section too', (t) => {
+    mount(noop, true);
+    
+    fireEvent.click(rows()[1]);
+    
+    const result = {
+        rows: rows().length,
+        selected: read('.ast-status__type'),
+    };
+    
+    const expected = {
+        rows: 4,
+        selected: 'branch',
     };
     
     cleanup();

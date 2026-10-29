@@ -1,8 +1,5 @@
 import {test} from 'supertape';
-import type {
-    FlatLearnNode,
-    LearnNode,
-} from '../state.types.ts';
+import type {FlatLearnNode, LearnNode} from '../state.types.ts';
 import {flattenLearn} from './flat.ts';
 import {curriculum} from './curriculum.ts';
 
@@ -52,6 +49,7 @@ test('flattenLearn: the root has depth 0 and pid null', (t) => {
         depth: root.depth,
         pid: root.pid,
     };
+    
     const expected = {
         depth: 0,
         pid: null,
@@ -67,6 +65,7 @@ test('flattenLearn: a child has depth 1 and pid matching its parent', (t) => {
         depth: branch.depth,
         pid: branch.pid,
     };
+    
     const expected = {
         depth: 1,
         pid: 'root',
@@ -97,6 +96,7 @@ test('flattenLearn: a grandchild has depth 2 and its parent as pid', (t) => {
         depth: leaf.depth,
         pid: leaf.pid,
     };
+    
     const expected = {
         depth: 2,
         pid: 'root/branch',
@@ -112,7 +112,12 @@ test('flattenLearn: a grandchild has depth 2 and its parent as pid', (t) => {
  * child by `pid`, and the render maps in document order.
  */
 test('flattenLearn: emits parents before their children', (t) => {
-    const result = rows.map(({id}) => id);
+    const result = [];
+    
+    for (const {id} of rows) {
+        result.push(id);
+    }
+    
     const expected = [
         'root',
         'root/branch',
@@ -126,17 +131,15 @@ test('flattenLearn: emits parents before their children', (t) => {
 
 test('flattenLearn: a leaf has hasChildren=false', (t) => {
     const result = byId('root/branch/leaf').hasChildren;
-    const expected = false;
     
-    t.equal(result, expected);
+    t.notOk(result);
     t.end();
 });
 
 test('flattenLearn: a container has hasChildren=true', (t) => {
     const result = byId('root/branch').hasChildren;
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
@@ -152,17 +155,15 @@ test('flattenLearn: hasChildren is true for a container with one child', (t) => 
     const [branch] = root.children as LearnNode[];
     
     const result = flattenLearn([branch])[0].hasChildren;
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
 test('flattenLearn: a leaf with an example has hasExample=true', (t) => {
     const result = byId('root/branch/leaf').hasExample;
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
@@ -175,9 +176,8 @@ test('flattenLearn: a leaf with an example has hasExample=true', (t) => {
  */
 test('flattenLearn: a container has hasExample=false', (t) => {
     const result = byId('root').hasExample;
-    const expected = false;
     
-    t.equal(result, expected);
+    t.notOk(result);
     t.end();
 });
 
@@ -195,6 +195,7 @@ test('flattenLearn: a row carries the body and the example', (t) => {
         body: leaf.body,
         example: leaf.example,
     };
+    
     const expected = {
         body: 'leaf body',
         example: 'const a = 1;\n',
@@ -210,6 +211,7 @@ test('flattenLearn: a container row carries its body and no example', (t) => {
         body: root.body,
         example: root.example,
     };
+    
     const expected = {
         body: 'top body',
         example: undefined,
@@ -239,11 +241,10 @@ test('flattenLearn: every row of the curriculum resolves its pid', (t) => {
     const flat = flattenLearn(curriculum);
     const ids = new Set(flat.map(({id}) => id));
     
-    const dangling = flat
+    const result = flat
         .filter(({pid}) => pid !== null && !ids.has(pid))
         .map(({id}) => id);
     
-    const result = dangling;
     const expected: string[] = [];
     
     t.deepEqual(result, expected);
@@ -251,9 +252,13 @@ test('flattenLearn: every row of the curriculum resolves its pid', (t) => {
 });
 
 test('flattenLearn: the curriculum has one root at depth 0', (t) => {
-    const roots = flattenLearn(curriculum).filter(({depth}) => depth === 0);
+    const roots = flattenLearn(curriculum).filter(({depth}) => !depth);
+    const result = [];
     
-    const result = roots.map(({id}) => id);
+    for (const {id} of roots) {
+        result.push(id);
+    }
+    
     const expected = ['putout'];
     
     t.deepEqual(result, expected);

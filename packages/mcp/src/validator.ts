@@ -63,8 +63,7 @@ export const missingShape = (plugin: Record<string, unknown>): string => {
         return '';
     
     return 'plugin_shape: this rule has no ' + SHAPES.join(', ') + '. ' +
-        'find_places and transform need one of them, and `report` alone is not a ' +
-        'rule — add e.g. `export const fix = () => {};` and call validate again.';
+    'find_places and transform need one of them, and `report` alone is not a ' + 'rule — add e.g. `export const fix = () => {};` and call validate again.';
 };
 
 export const description =

@@ -1,0 +1,63 @@
+import {tryCatch} from 'try-catch';
+import {buildCFG, type Block} from '@putout/flow';
+import type {ChatState, CommandResult} from '../state.types.ts';
+
+/**
+ * `flow` graphs the current source into control-flow blocks.
+ *
+ * A source must be set first — when no body is given, `state.source` is used
+ * as the function body, so `/source` first, then `/flow` on the whole source
+ * is the user workflow. A body without anything to graph is an error, not an
+ * empty graph, so a user never mistakes "nothing graphed" for "nothing parsed".
+ */
+export const runFlow = (args: string, state: ChatState): CommandResult => {
+    const {source} = state;
+    
+    if (!source)
+        return {
+            type: 'error',
+            message: 'No source. Use source first.',
+        };
+    
+    const body = args || source;
+    
+    const [error, blocks] = tryCatch(buildCFG, body);
+    
+    if (error)
+        return {
+            type: 'error',
+            message: (error as Error).message,
+        };
+    
+    const text = blocksToText(blocks);
+    
+    return {
+        type: 'flow',
+        text,
+        blocks,
+        source: body,
+    };
+};
+
+/**
+ * Graph → text, so an MCP tool or a snapshot test can read the flow without
+ * parsing it again. Prints every block with its statements and edges.
+ */
+const blocksToText = (blocks: Block[]): string => {
+    const lines: string[] = [];
+    
+    for (const block of blocks) {
+        lines.push(`block ${block.id}${block.unreachable ? ' [unreachable]' : ''}`);
+        
+        for (const stmt of block.stmts)
+            lines.push(`  ${stmt}`);
+        
+        for (const succ of block.succs) {
+            const label = succ.label ? ` [${succ.label}]` : '';
+            
+            lines.push(`  -> ${String(succ.id)}${label}`);
+        }
+    }
+    
+    return lines.join('\n');
+};

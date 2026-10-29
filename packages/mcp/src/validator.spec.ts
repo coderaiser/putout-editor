@@ -84,7 +84,7 @@ test('local validate: returns ok for a traverse plugin', (t) => {
  * execution: `report` plus one of `find`, `scan`, `traverse`, `replace`,
  * `include`, `exclude`, `rules`, `declare`. Anything else never reaches a user's
  * AST, and an invariant with no safe automatic fix stays a message (see
- * `docs/issues/putout-plugins.md`).
+ * `docs/rules.md`).
  */
 test('local validate: a rule with no fix and no find is not ok', (t) => {
     const result = handler({
@@ -114,6 +114,7 @@ test('local validate: names what is missing', (t) => {
     const {content} = handler({
         plugin: 'export const report = () => "x";',
     });
+    
     const [answer] = content;
     
     const missing = shapes.filter((shape) => !answer.text.includes(shape));
@@ -133,6 +134,7 @@ test('local validate: the error points at find_places', (t) => {
     const {content} = handler({
         plugin: 'export const report = () => "x";',
     });
+    
     const [answer] = content;
     
     // `t.match` with a **string** rather than `t.ok(...includes(...))`: this
@@ -162,7 +164,9 @@ test('local validate: every shape the loader accepts is still ok', (t) => {
         'export const declare = () => {};',
     ];
     
-    const wrong = shapes.filter((plugin) => handler({plugin}).content[0].text !== 'ok');
+    const wrong = shapes.filter((plugin) => handler({
+        plugin,
+    }).content[0].text !== 'ok');
     
     const expected: string[] = [];
     

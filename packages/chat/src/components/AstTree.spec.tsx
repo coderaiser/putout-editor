@@ -17,6 +17,7 @@ const node = (id: string, pid: string | null, depth: number, type = 'Node'): Fla
     id,
     pid,
     depth,
+    key: '',
     type,
     detail: '',
     line: depth + 1,
@@ -512,6 +513,7 @@ test('AstTree: a branch under a non-last parent draws pipes', (t) => {
     );
     
     // both sit under `declaration`, which is not the last child of `Program`,
+    
     // so the branch continues past both of them
     const result = {
         declarator: connectorsOf('VariableDeclarator'),
@@ -549,6 +551,7 @@ test('AstTree: a last branch draws blanks where the pipe stops', (t) => {
     );
     
     // `ExpressionStatement` is the last child of `Program`, so nothing continues
+    
     // below it and its child indents with blanks
     const result = connectorsOf('CallExpression');
     const expected = '   └─ ';
@@ -588,6 +591,7 @@ test('AstTree: folding does not redraw the pipes above it', (t) => {
     cleanup();
     
     // a pair, with both expecteds written out: `expected = result` is the shape
+    
     // where a rename quietly makes the two always equal
     t.deepEqual([result, folded], ['├─ ', '├─ ']);
     t.end();
@@ -606,6 +610,36 @@ test('AstTree: a dangling parent draws the row rather than throwing', (t) => {
     
     const result = connectorsOf('Orphan');
     const expected = '└─ ';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('AstTree: a query matches the key', (t) => {
+    tree([
+        program(),
+        declaration(),
+        declarator(),
+        identifier(), {
+            ...numeric(),
+            key: 'init',
+        },
+    ]);
+    
+    const search = document.querySelector('[data-testid="ast-search"]') as HTMLInputElement;
+    
+    fireEvent.change(search, {
+        target: {
+            value: 'init',
+        },
+    });
+    
+    const match = document.querySelector('.ast-row--match');
+    const result = match && match.getAttribute('data-type');
+    
+    const expected = 'NumericLiteral';
     
     cleanup();
     

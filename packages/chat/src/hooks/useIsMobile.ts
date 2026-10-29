@@ -1,7 +1,4 @@
-import {
-    useEffect,
-    useState,
-} from 'react';
+import {useEffect, useState} from 'react';
 
 /**
  * `(pointer: coarse)` — intent, not width.

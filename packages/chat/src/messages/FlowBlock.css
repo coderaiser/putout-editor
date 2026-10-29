@@ -1,0 +1,115 @@
+/* The `/flow` answer: the source on top, the graph below it. */
+.flow-output {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.flow-output__side {
+    min-width: 0;
+}
+
+.flow-output__title {
+    margin: 0 0 6px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+}
+
+.flow-output__source {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    overflow-x: auto;
+}
+
+.flow-output__line {
+    display: grid;
+    grid-template-columns: 3ch 1fr;
+    gap: 10px;
+    padding: 2px 0;
+    cursor: pointer;
+}
+
+.flow-output__line:hover {
+    background-color: var(--color-hover);
+}
+
+.flow-output__gutter {
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    user-select: none;
+}
+
+.flow-output__text {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.flow-output__line[data-unreachable='true'] .flow-output__text {
+    opacity: 0.5;
+}
+
+.flow-output__line[data-duplicate='true'] .flow-output__text {
+    background-color: var(--color-accent-soft);
+}
+
+/* The SVG has a `width` and a `viewBox`: it is never wider than its pane,
+   and it keeps its proportions when it shrinks. */
+.flow-output__graph {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-editor);
+}
+
+.flow-output__node {
+    fill: var(--color-bg-raised);
+    stroke: var(--color-border);
+    stroke-width: 1;
+}
+
+.flow-output__label {
+    fill: var(--color-text-strong);
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+[data-terminal='true'] .flow-output__node {
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+}
+
+[data-unreachable='true'] .flow-output__node {
+    fill: var(--color-bg-editor);
+    stroke-dasharray: 4 3;
+}
+
+[data-unreachable='true'] .flow-output__label {
+    fill: var(--color-text-dim);
+}
+
+.flow-output__edge {
+    fill: none;
+    stroke: var(--color-text-muted);
+    stroke-width: 1;
+}
+
+.flow-output__arrow {
+    fill: var(--color-text-muted);
+}
+
+.flow-output__edge-label {
+    fill: var(--color-text-muted);
+    font-family: var(--font-ui);
+    font-size: 11px;
+}

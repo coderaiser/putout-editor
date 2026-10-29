@@ -39,3 +39,32 @@
 .tok-scope .tok-atom           { color: var(--ast-c-call);        } /* this, super */
 .tok-scope .tok-self           { color: var(--ast-c-call);        }
 .tok-scope .tok-function.tok-variableName { color: var(--ast-c-call); }
+
+/*
+ * The composer. `qword` marks tokens with its own `hl-*` classes, not `tok-*`,
+ * so it needs its own rules. Same colours as the thread above, so a typed body
+ * and its answer look the same.
+ */
+.input__box .hl-keyword        { color: var(--ast-c-control);     }
+.input__box .hl-module-keyword { color: var(--ast-c-control);     }
+.input__box .hl-name           { color: var(--color-text-strong); }
+.input__box .hl-function       { color: var(--ast-c-call);        }
+.input__box .hl-class          { color: var(--ast-c-statement);   }
+.input__box .hl-type           { color: var(--ast-c-statement);   }
+.input__box .hl-string         { color: var(--ast-c-literal);     }
+.input__box .hl-number         { color: var(--ast-c-literal);     }
+.input__box .hl-constant       { color: var(--ast-c-literal);     }
+.input__box .hl-regexp         { color: var(--ast-c-literal);     }
+.input__box .hl-operator       { color: var(--color-text-strong); }
+.input__box .hl-punctuation    { color: var(--color-text-dim);    }
+.input__box .hl-comment {
+    color: var(--color-text-dim);
+    font-style: italic;
+}
+
+/* The command word (`/source`) is not JavaScript. `commandMark.ts` marks it. */
+.input__box .input__command,
+.input__box .input__command span {
+    color: var(--color-accent);
+    font-style: normal;
+}

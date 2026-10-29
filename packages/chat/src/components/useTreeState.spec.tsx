@@ -21,6 +21,7 @@ const node = (id: string, pid: string | null, depth: number, type = 'Node', deta
     id,
     pid,
     depth,
+    key: '',
     type,
     detail,
     line: 1,
@@ -604,9 +605,11 @@ test('useTreeState: ArrowRight with nothing drawn is a no-op', (t) => {
 
 test('useTreeState: ArrowLeft folds a root with nothing under it', (t) => {
     render(
-        <Harness nodes={[
-            program(),
-        ]}/>,
+        <Harness
+            nodes={[
+                program(),
+            ]}
+        />,
     );
     
     press('ArrowRight');
@@ -687,7 +690,9 @@ test('useTreeState: h folds what ArrowLeft folds', (t) => {
     );
     
     // `ArrowRight` selects row 0 and expands `Program`, so three rows are drawn
+    
     // and `ArrowDown` can walk to row 1 — the two drawn by default would not
+    
     // leave a row below the top to navigate to.
     press('ArrowRight');
     press('ArrowDown');
@@ -748,6 +753,7 @@ test('useTreeState: h and l do nothing while the filter has focus', (t) => {
     const result = {
         focus: read('focus'),
         // counted, not spelled out: the fixture's row count is its own detail,
+        
         // and "the letters changed nothing" is the claim
         unchanged: read('rows') === before,
     };
@@ -819,7 +825,7 @@ test('useTreeState: Tab in search mode returns focus to the tree', (t) => {
  * first row) → moves focus to filter input", and the filter bar renders above
  * the tree. The prose under the diagram names `j`/`ArrowDown`, which cannot
  * work — two rows are drawn by default, so `j` from the first can never reach
- * the second. See `docs/issues/chat.md`.
+ * the second. The plan prose was wrong; this spec is the reference.
  */
 test('useTreeState: k from the first row moves focus to the search', (t) => {
     render(
@@ -963,7 +969,10 @@ test('useTreeState: ArrowUp in search mode clears the query and returns focus', 
     press('/');
     act(() => {
         const button = document.querySelector('[data-testid="filter"]') as HTMLButtonElement;
-        button.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+        
+        button.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+        }));
     });
     
     press('ArrowUp');
@@ -1084,7 +1093,12 @@ test('useTreeState: two trees keep separate selections', (t) => {
  */
 test('useTreeState: collapsedDepth 0 folds the first level too', (t) => {
     const result = sorted(defaultCollapsed(tree, 0));
-    const expected = ['1', '2', '3', '4'];
+    const expected = [
+        '1',
+        '2',
+        '3',
+        '4',
+    ];
     
     t.deepEqual(result, expected);
     t.end();
@@ -1099,7 +1113,7 @@ test('useTreeState: collapsedDepth 0 folds the first level too', (t) => {
 test('useTreeState: collapsedDepth defaults to 1', (t) => {
     const result = sorted(defaultCollapsed(tree));
     const expected = ['2', '3', '4'];
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -1114,29 +1128,31 @@ test('useTreeState: collapsedDepth defaults to 1', (t) => {
  */
 test('useTreeState: onOpen fires for a selected leaf', (t) => {
     const opened: string[] = [];
-
+    
     render(
         <Harness
             nodes={tree}
             onOpen={(node) => opened.push(node.id)}
         />,
     );
-
+    
     // `4` is a NumericLiteral: a leaf, with nothing to fold.
     act(() => {
         const leaf = document.querySelector('[data-testid="select-leaf"]');
         
         if (leaf)
-            leaf.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+            leaf.dispatchEvent(new MouseEvent('click', {
+                bubbles: true,
+            }));
     });
-
+    
     press('Enter');
-
+    
     const result = opened;
     const expected = ['4'];
-
+    
     cleanup();
-
+    
     t.deepEqual(result, expected);
     t.end();
 });
@@ -1163,7 +1179,9 @@ test('useTreeState: onOpen does not fire for a container', (t) => {
         const one = document.querySelector('[data-testid="select-one"]');
         
         if (one)
-            one.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+            one.dispatchEvent(new MouseEvent('click', {
+                bubbles: true,
+            }));
     });
     
     const before = read('rows');
@@ -1173,6 +1191,7 @@ test('useTreeState: onOpen does not fire for a container', (t) => {
         opened,
         collapsed: before !== read('rows'),
     };
+    
     const expected = {
         opened: [],
         collapsed: true,
@@ -1193,7 +1212,9 @@ test('useTreeState: onOpen does not fire for a container', (t) => {
  * that hid every row, has `selected: null`, and the handler has to survive it.
  */
 test('useTreeState: enter with no selection does nothing', (t) => {
-    render(<Harness nodes={tree}/>);
+    render(
+        <Harness nodes={tree}/>,
+    );
     
     press('Enter');
     

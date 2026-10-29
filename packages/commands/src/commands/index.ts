@@ -1,6 +1,7 @@
 import {tryToCatch} from 'try-to-catch';
 import {runAst} from './ast.ts';
 import {runSource} from './source.ts';
+import {runFlow} from './flow.ts';
 import {runTestPattern} from './test-pattern.ts';
 import {runNamePattern} from './name-pattern.ts';
 import {runHelp} from './help.ts';
@@ -129,8 +130,13 @@ const listed: Command[] = [{
      * dynamic ones. It reads a constant, so it costs a data module and nothing
      * that calls `os.homedir()` — which is the whole reason the other three are
      * behind a chunk.
-     */
-    ...learnCommand,
+     */...learnCommand,
+}, {
+    name: 'flow',
+    usage: '[function]',
+    description: 'graph the source into control-flow blocks — uses the current source when no body is given',
+    flags: [],
+    run: runFlow,
 }, {
     name: 'help',
     usage: '[]',

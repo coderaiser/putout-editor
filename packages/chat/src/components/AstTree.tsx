@@ -22,6 +22,9 @@ export interface AstTreeProps {
      * hidden by `@media (pointer: coarse)` in `AstTree.css`, because a column
      * that is not rendered cannot be un-rendered by CSS and one that is
      * rendered-then-hidden still costs a `minmax(0, 1fr)` to size.
+     *
+     * Threaded on to `AstRow` as well, where it decides whether a tap folds.
+     * One answer, read once in `AstBlock`, rather than a `matchMedia` per row.
      */
     mobile?: boolean;
 }
@@ -29,14 +32,14 @@ export interface AstTreeProps {
 const siblingOf = (pid: string) => (node: FlatNode) => node.pid === pid;
 
 /**
- * What a query matches on an AST row: its type and its detail.
+ * What a query matches on an AST row: its key, its type and its detail.
  *
  * Passed in rather than read inside the hook, because the hook is shared with
  * `LearnTree` — which matches on a label and a summary and has no `type` at all.
  * A hard-coded `${type} ${detail}` here would either be dead for one of them or
  * would need a branch on which tree is asking.
  */
-const textOfAst = (node: FlatNode) => `${node.type} ${node.detail}`;
+const textOfAst = (node: FlatNode) => `${node.key} ${node.type} ${node.detail}`;
 
 /**
  * The last row of a parent, computed over **all** nodes rather than the drawn
@@ -99,13 +102,13 @@ const chainOf = (nodes: FlatNode[], node: FlatNode): FlatNode[] => {
     ];
 };
 
-const ancestorLastFlags = (nodes: FlatNode[], node: FlatNode): boolean[] => chainOf(nodes, node)
-    .map(lastOf(nodes));
+const ancestorLastFlags = (nodes: FlatNode[], node: FlatNode): boolean[] => chainOf(nodes, node).map(lastOf(nodes));
 
 export default function AstTree({nodes, source, mobile}: AstTreeProps) {
     const state = useTreeState(nodes, {
         textOf: textOfAst,
     });
+    
     const {
         rows,
         dimmed,

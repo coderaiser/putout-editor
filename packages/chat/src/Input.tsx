@@ -103,6 +103,40 @@ export const describeOf = (option: string): string => {
 };
 
 /**
+ * Whether the box should show a gutter, given what has been typed.
+ *
+ * A command **name** is one line, and a gutter costs it a column for nothing.
+ * The four commands that take a **body** are the ones it is for: `/source` with
+ * a pasted plugin is several lines, and without numbers there is no feedback on
+ * how many — which is the whole of bug 2. `mode: 'javascript'` was already on,
+ * so the highlighting half was never missing; only the line count was.
+ *
+ * A `Set` of names rather than a check on the argument, because the question is
+ * *which command*, and the registry is where a command's own shape is declared.
+ * A name that stops taking a body leaves the set and the gutter goes with it.
+ *
+ * The prefix is read with `prefixOf` — the same helper `matches` and `complete`
+ * use — so a recalled line with no sigil answers the same as a typed one. Only
+ * the **first word** is consulted, so `/source const a = 1` still answers `true`:
+ * that is a one-line body, and a gutter on one line is harmless where a missing
+ * one on five is not. `/source` answers `false`, because no such command exists.
+ */
+const BODY_COMMANDS = new Set([
+    'source',
+    'find',
+    'transform',
+    'validate',
+    'flow',
+]);
+
+export const wantsLineNumbers = (typed: string): boolean => {
+    const prefix = prefixOf(typed);
+    const [name] = prefix.split(/\s+/);
+    
+    return BODY_COMMANDS.has(name);
+};
+
+/**
  * Whether a plain `Enter` sends, given the pointer type.
  *
  * `(pointer: coarse)` is the *intent* test, not a width one: a narrow desktop
@@ -337,6 +371,7 @@ export default function Input({history, onSend}: InputProps) {
     // handler bumps the number and this turns it into text on the same render.
     const recalled = cursor >= 0 ? history.at(!cursor ? history.length - 1 : history.length - cursor - 1) : undefined;
     const value = text || recalled || '';
+    
     // No `growTo`, no box ref: CodeMirror sizes its own content and the
     // `.input__box` CSS `min-height`/`max-height` bounds it. The `growTo`
     // export and its specs stay (a tested helper), only the call site goes.
@@ -370,16 +405,15 @@ export default function Input({history, onSend}: InputProps) {
                 </div>
             )}
             <Suspense
-                fallback={
-                    <div
-                        className="input__box input__box--loading"
-                        data-testid="input"
-                    />
-                }
+                fallback={<div
+                    className="input__box input__box--loading"
+                    data-testid="input"
+                />}
             >
                 <CodeMirrorBox
                     className="input__box"
                     data-testid="input"
+                    lineNumbers={wantsLineNumbers(value)}
                     onChange={onChange}
                     onKeyDown={onKeyDown}
                     placeholder="/help — list every command"

@@ -19,6 +19,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
     id: '0',
     pid: null,
     depth: 0,
+    key: '',
     type: 'Program',
     detail: '',
     line: 1,
@@ -134,6 +135,7 @@ test('AstCodePreview: puts the column marker on the selected line', (t) => {
     }));
     
     // The selected line renders as HTML (highlight + marker span), so read the
+    
     // markup rather than the text.
     const element = document.querySelector('.ast-code__text');
     const result = element && element.innerHTML;

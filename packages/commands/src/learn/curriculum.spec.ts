@@ -16,7 +16,6 @@ import {
  * Nothing here asserts *what* a body says. That is a review judgement, and a
  * spec that pinned the wording would be a spec nobody dares update.
  */
-
 const isLeaf = (node: LearnNode) => !node.children || !node.children.length;
 
 const all = learnNodes(curriculum);
@@ -80,7 +79,12 @@ test('curriculum: no container carries an example', (t) => {
  * them and half the graph would point at the wrong concept.
  */
 test('curriculum: every id is unique', (t) => {
-    const ids = all.map(({id}) => id);
+    const ids = [];
+    
+    for (const {id} of all) {
+        ids.push(id);
+    }
+    
     const seen = new Set<string>();
     const duplicated: string[] = [];
     
@@ -154,8 +158,7 @@ test('curriculum: no node relates to itself', (t) => {
  * before any assertion could see it.
  */
 test('curriculum: no id is deeper than three segments', (t) => {
-    const deepest = Math.max(...all.map(({id}) => id.split('/').length));
-    const result = deepest;
+    const result = Math.max(...all.map(({id}) => id.split('/').length));
     const expected = 3;
     
     t.equal(result, expected);
@@ -163,7 +166,10 @@ test('curriculum: no id is deeper than three segments', (t) => {
 });
 
 test('learnNodes: walks parents before their children', (t) => {
-    const result = learnNodes(curriculum).map(({id}) => id).slice(0, 3);
+    const result = learnNodes(curriculum)
+        .map(({id}) => id)
+        .slice(0, 3);
+    
     const expected = [
         'putout',
         'ast',
@@ -195,9 +201,8 @@ test('learnNodes: walks an explicit subtree', (t) => {
     // test is "the subtree, and nothing outside it", not "every id is nested".
     const ids = learnNodes([ast]).map(({id}) => id);
     const result = ids.every((id) => id === 'ast' || id.startsWith('ast/'));
-    const expected = true;
     
-    t.equal(result, expected);
+    t.ok(result);
     t.end();
 });
 
@@ -221,9 +226,8 @@ test('findLearnNode: finds the root', (t) => {
 
 test('findLearnNode: returns null for an unknown id', (t) => {
     const result = findLearnNode('ast/nodes/Nope');
-    const expected = null;
     
-    t.equal(result, expected);
+    t.notOk(result);
     t.end();
 });
 
@@ -236,8 +240,7 @@ test('findLearnNode: returns null for an unknown id', (t) => {
  */
 test('findLearnNode: returns null when the tree is empty', (t) => {
     const result = findLearnNode('putout', []);
-    const expected = null;
     
-    t.equal(result, expected);
+    t.notOk(result);
     t.end();
 });
