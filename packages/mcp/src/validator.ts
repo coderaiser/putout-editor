@@ -66,36 +66,45 @@ export const missingShape = (plugin: Record<string, unknown>): string => {
     'find_places and transform need one of them, and `report` alone is not a ' + 'rule — add e.g. `export const fix = () => {};` and call validate again.';
 };
 
-export const description =
-    'Check a putout plugin string for syntax errors and for the shape the runner ' +
-    'needs, without needing source code. ' +
-    'Returns "ok" on success, `plugin_syntax (line N, col M): …` for a parse error, ' +
-    'or `plugin_shape: …` for a plugin that compiles but would throw when run. ' +
-    'Call this after writing or editing a plugin before calling find_places.';
+export const description = 'Check a plugin: "ok", "plugin_syntax (line N, col N): ..." or "plugin_shape: ..." (no runnable export). Run it before find_places.';
 
 export const schema = z.object({
     plugin: z
         .string()
-        .describe('Putout plugin as an ESM string to validate'),
+        .describe('Plugin source (ESM)'),
 });
 
-const answer = (text: string) => ({
+type Answer = {
+    content: {
+        type: 'text';
+        text: string;
+    }[];
+    isError?: true;
+};
+
+const answer = (text: string): Answer => ({
     content: [{
         type: 'text' as const,
         text,
     }],
 });
 
-export function handler({plugin}: z.infer<typeof schema>) {
+/** Not `ok`: the text stays as it is, and `isError` tells the client it failed. */
+const failure = (text: string): Answer => ({
+    ...answer(text),
+    isError: true,
+});
+
+export function handler({plugin}: z.infer<typeof schema>): Answer {
     const [error, compiled] = tryCatch(compilePlugin, plugin);
     
     if (error)
-        return answer((error as Error).message);
+        return failure((error as Error).message);
     
     const shape = missingShape(compiled as Record<string, unknown>);
     
     if (shape)
-        return answer(shape);
+        return failure(shape);
     
     return answer('ok');
 }

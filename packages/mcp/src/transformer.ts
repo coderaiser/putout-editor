@@ -3,24 +3,27 @@ import {tryToCatch} from 'try-to-catch';
 import {putoutAsync} from 'putout';
 import {text, errorText} from '@putout/editor-commands/content';
 import {compilePlugin} from '@putout/editor-commands/plugin';
+import {resolveTS} from './language.ts';
 
 export const name = 'transform';
 
-export const description =
-    'Apply a putout plugin to source code and return the transformed result. ' +
-    'Use find_places first to verify the plugin matches correctly, then call this to apply it.';
+export const description = 'Run a putout plugin on a fixture and return the code.';
 
 export const schema = z.object({
     fixture: z
         .string()
-        .describe('Source code to transform'),
+        .describe('Source code'),
     plugin: z
         .string()
-        .describe('Putout plugin as an ESM string'),
+        .describe('Plugin source (ESM)'),
+    isTS: z
+        .boolean()
+        .optional()
+        .describe('TypeScript fixture. Omit: found from the fixture'),
 });
 
-export async function handler({fixture, plugin}: z.infer<typeof schema>) {
-    const [error, result] = await tryToCatch(runTransform, fixture, plugin);
+export async function handler({fixture, plugin, isTS}: z.input<typeof schema>) {
+    const [error, result] = await tryToCatch(runTransform, fixture, plugin, isTS);
     
     if (error)
         return errorText(error);
@@ -28,9 +31,10 @@ export async function handler({fixture, plugin}: z.infer<typeof schema>) {
     return text(result as string);
 }
 
-async function runTransform(fixture: string, plugin: string) {
+async function runTransform(fixture: string, plugin: string, isTS?: boolean) {
     const compiledRule = compilePlugin(plugin);
     const result = await putoutAsync(fixture, {
+        isTS: resolveTS(fixture, isTS),
         fixCount: 1,
         plugins: [
             ['rule', compiledRule],

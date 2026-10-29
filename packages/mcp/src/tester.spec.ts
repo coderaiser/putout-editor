@@ -28,13 +28,14 @@ test('local test-pattern: description is a string', (t) => {
     t.end();
 });
 
-test('local test-pattern: schema has fixture, key and to', (t) => {
+test('local test-pattern: schema has fixture, isTS, key and to', (t) => {
     const result = Object
         .keys(schema.shape)
         .sort();
     
     const expected = [
         'fixture',
+        'isTS',
         'key',
         'to',
     ];
@@ -62,13 +63,13 @@ test('local test-pattern: reports what each placeholder bound to', async (t) => 
     });
     
     const result = [
-        bound.__a[0].trim(),
-        bound.__b[0].trim(),
+        bound.__a[0],
+        bound.__b[0],
     ];
     
     const expected = [
-        'x;',
-        '1;',
+        'x',
+        '1',
     ];
     
     t.deepEqual(result, expected);
@@ -190,5 +191,48 @@ test('local test-pattern: __args matches any argument count', async (t) => {
     const expected = 2;
     
     t.equal(result, expected);
+    t.end();
+});
+
+test('local test-pattern: a TypeScript fixture keeps its cast in the replacement', async (t) => {
+    const result = await handler({
+        fixture: 'const b = v as boolean;\nvar a = 1;',
+        key: 'var __a = __b',
+        to: 'let __a = __b',
+    });
+    
+    const {replacement} = JSON.parse(result.content[0].text);
+    const expected = 'const b = v as boolean;\nlet a = 1;\n';
+    
+    t.equal(replacement.code, expected);
+    t.end();
+});
+
+test('local test-pattern: a bound expression has no statement end', async (t) => {
+    const {bound} = await call({
+        fixture: 'var a = 1;',
+        key: 'var __a = __b',
+    });
+    
+    const expected = {
+        __a: ['a'],
+        __b: ['1'],
+    };
+    
+    t.deepEqual(bound, expected);
+    t.end();
+});
+
+test('local test-pattern: a bound statement keeps its end', async (t) => {
+    const {bound} = await call({
+        fixture: 'function f() {return 1;}',
+        key: 'function f() {__b}',
+    });
+    
+    const expected = {
+        __b: ['return 1;'],
+    };
+    
+    t.deepEqual(bound, expected);
     t.end();
 });

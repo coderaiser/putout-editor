@@ -5,17 +5,7 @@ import {montag} from 'montag';
 
 export const name = 'get_example';
 
-export const description =
-    'Return a working plugin template and its matching fixture for a given pattern. ' +
-    'Use this to get runnable code before writing your own plugin. ' +
-    'Pattern selection order: replacer first - replace() maps are unconditional; add match() ' +
-    'to decide per-match, that is still a replacer. If replace cannot express the rule, ' +
-    'use includer (report + include + filter + fix). If state across nodes is needed, ' +
-    'use traverser (report + traverse + fix). For filesystem rules use scanner (report + scan + fix). ' +
-    'For auto-inserting missing imports use declarator (declare only). ' +
-    'finder is an advanced pattern - do not suggest it unless the user names it explicitly. ' +
-    'The markdown pattern shows a rule for non-JavaScript source - call formats for other wrappers. ' +
-    'Available patterns: replacer, traverser, includer, finder, declarator, scanner, markdown.';
+export const description = 'A working plugin and fixture for a shape. Choose in this order: replacer (replace, plus match for a condition), includer, traverser (state across nodes), scanner (files), declarator (imports). finder is advanced: only when the user names it. markdown: a rule for a non-JavaScript file.';
 
 const PATTERNS = [
     'replacer',
@@ -32,7 +22,7 @@ type Pattern = typeof PATTERNS[number];
 export const schema = z.object({
     pattern: z
         .enum(PATTERNS)
-        .describe('Plugin pattern to fetch an example for'),
+        .describe('Plugin shape'),
 });
 
 type Example = {

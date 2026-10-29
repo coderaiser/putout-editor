@@ -1,0 +1,9 @@
+{
+    "mcpServers": {
+        "putout": {
+            "type": "stdio",
+            "command": "bun",
+            "args": ["packages/mcp/src/index.ts"]
+        }
+    }
+}

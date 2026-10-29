@@ -2,12 +2,7 @@ import {z} from 'zod';
 
 export const name = 'formats';
 
-export const description =
-    'List the file formats putout-editor can transform, with the wrapper call, the ' +
-    'operator and the node shapes a rule targets. Use this before writing a rule for ' +
-    'anything other than plain JavaScript, so the fixture and the matcher are in the ' +
-    'format putout-editor actually stores. The source of truth is the client: ' +
-    'packages/client/src/snippet/templates (one template + fixture per category).';
+export const description = 'Wrapper, operator and fixture shape for each non-JavaScript format (json, yaml, toml, markdown, css and more). Use it before a rule for such a file. Source: packages/client/src/snippet/templates.';
 
 export const schema = z.object({});
 

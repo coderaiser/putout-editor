@@ -21,6 +21,7 @@ export type ToolResult = {
             text: string;
         },
     ];
+    isError?: true;
 };
 
 export const text = (value: string): ToolResult => ({
@@ -30,4 +31,8 @@ export const text = (value: string): ToolResult => ({
     }],
 });
 
-export const errorText = (e: unknown): ToolResult => text(`Error: ${messageOf(e)}`);
+/** A failed call: the client sees `isError` and does not read the text as a result. */
+export const errorText = (e: unknown): ToolResult => ({
+    ...text(`Error: ${messageOf(e)}`),
+    isError: true,
+});

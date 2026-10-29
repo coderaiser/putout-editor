@@ -29,3 +29,17 @@ test('content: errorText: accepts a thrown non-Error', (t) => {
     t.equal(result.content[0].text, expected);
     t.end();
 });
+
+test('content: errorText: marks the result as an error', (t) => {
+    const {isError} = errorText(Error('boom'));
+    
+    t.ok(isError);
+    t.end();
+});
+
+test('content: text: is not an error', (t) => {
+    const result = 'isError' in text('hello');
+    
+    t.notOk(result);
+    t.end();
+});

@@ -27,10 +27,9 @@ test('local docs: schema has optional section field', (t) => {
     t.end();
 });
 
-test('local docs: schema restricts section to style, template, api and errors', (t) => {
+test('local docs: schema restricts section to style, template and errors', (t) => {
     const result = [...schema.shape.section.unwrap().options].sort();
     const expected = [
-        'api',
         'errors',
         'style',
         'template',
@@ -75,24 +74,6 @@ test('local docs: overview no longer inlines plugin patterns', (t) => {
     t.end();
 });
 
-test('local docs: returns api section', (t) => {
-    const result = handler({
-        section: 'api',
-    });
-    
-    t.match(result.content[0].text, '/api/v1/parse');
-    t.end();
-});
-
-test('local docs: api section lists the transform endpoint', (t) => {
-    const result = handler({
-        section: 'api',
-    });
-    
-    t.match(result.content[0].text, '/api/v1/transform');
-    t.end();
-});
-
 test('local docs: returns errors section', (t) => {
     const result = handler({
         section: 'errors',
@@ -108,15 +89,6 @@ test('local docs: errors section documents line and col', (t) => {
     });
     
     t.match(result.content[0].text, 'line N, col N');
-    t.end();
-});
-
-test('local docs: api section is not the overview', (t) => {
-    const result = handler({
-        section: 'api',
-    });
-    
-    t.notMatch(result.content[0].text, 'get_example');
     t.end();
 });
 
@@ -264,5 +236,32 @@ test('local docs: overview advertises the style section', (t) => {
     const result = handler();
     
     t.match(result.content[0].text, 'style');
+    t.end();
+});
+
+test('local docs: errors section documents plugin_shape', (t) => {
+    const result = handler({
+        section: 'errors',
+    });
+    
+    t.match(result.content[0].text, 'plugin_shape');
+    t.end();
+});
+
+test('local docs: errors section documents isError', (t) => {
+    const result = handler({
+        section: 'errors',
+    });
+    
+    t.match(result.content[0].text, 'isError');
+    t.end();
+});
+
+test('local docs: errors section has no HTTP status', (t) => {
+    const result = handler({
+        section: 'errors',
+    });
+    
+    t.notMatch(result.content[0].text, '500');
     t.end();
 });

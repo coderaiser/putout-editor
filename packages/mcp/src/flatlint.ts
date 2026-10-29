@@ -5,18 +5,7 @@ import {parse, type types} from 'putout';
 
 export const name = 'flatlint_rule';
 
-export const description =
-    'Write a flatlint rule — a token-level linter that fixes syntax errors, ' +
-    'shaped exactly like a putout plugin: `report` first, then a `replace` map of ' +
-    'PutoutScript keys, and an OPTIONAL `match` map keyed by the SAME replace keys. ' +
-    'A match fn is `(vars, path) => boolean`, and returning false skips that ' +
-    'occurrence entirely — no fix AND no report. flatlint has no AST, so a rule ' +
-    'works on a file that does not parse. ' +
-    'Call {action: "contract"} for the full shape including `path`, the test ' +
-    'harness and the fixture layout; pass `pattern` to get the rule, fixture and ' +
-    'spec generated; pass `rule` to have one checked — a missing `report`, and a ' +
-    '`match` key that is absent from `replace` (which flatlint silently ignores, ' +
-    'so the guard does nothing) are both reported.';
+export const description = 'Write or check a flatlint (token-level) rule: report, replace, and an optional match with the same keys. action "contract": the shape and the test harness. pattern (and to): generate the rule, fixture and spec. rule: check it (no report, or a match key that is not a replace key).';
 
 /**
  * What a flatlint plugin is, in one object.
@@ -97,7 +86,7 @@ export const schema = z.object({
     action: z
         .enum(['contract', 'build', 'check'])
         .optional()
-        .describe('"contract" for the shape, "build" (default with a pattern) to generate, "check" to validate'),
+        .describe('"contract", "build" or "check"'),
     pattern: z
         .string()
         .optional()
@@ -105,15 +94,15 @@ export const schema = z.object({
     to: z
         .string()
         .optional()
-        .describe('The replacement for that key. Omit to scaffold with a TODO'),
+        .describe('Replacement. Omit for a TODO'),
     rule: z
         .string()
         .optional()
-        .describe('The plugin source to check, instead of a pattern'),
+        .describe('Rule source to check'),
     name: z
         .string()
         .optional()
-        .describe('The rule name, used for the directory and the spec titles'),
+        .describe('Rule name for the directory and the spec'),
 });
 
 export type Schema = z.input<typeof schema>;

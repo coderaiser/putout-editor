@@ -60,3 +60,33 @@ test('local transform: returns error on invalid fixture', async (t) => {
     t.ok(result.content[0].text.startsWith('Error:'));
     t.end();
 });
+
+const NOOP = `export const report = () => 'Use let';
+export const replace = () => ({
+    'var __a = __b': 'let __a = __b',
+});`;
+
+test('local transform: a TypeScript cast survives', async (t) => {
+    const result = await handler({
+        fixture: 'const b = v as boolean;',
+        plugin: NOOP,
+    });
+    
+    const expected = 'const b = v as boolean;';
+    
+    t.equal(result.content[0].text, expected);
+    t.end();
+});
+
+test('local transform: isTS false keeps the old JavaScript parse', async (t) => {
+    const result = await handler({
+        fixture: 'var a = 1;',
+        plugin: NOOP,
+        isTS: false,
+    });
+    
+    const expected = 'let a = 1;';
+    
+    t.equal(result.content[0].text, expected);
+    t.end();
+});

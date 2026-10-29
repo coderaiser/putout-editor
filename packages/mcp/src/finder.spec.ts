@@ -72,3 +72,19 @@ test('local find-places: output is not pretty printed', async (t) => {
     t.notMatch(result.content[0].text, '\n  ');
     t.end();
 });
+
+test('local find-places: finds a place in a TypeScript fixture', async (t) => {
+    const result = await handler({
+        fixture: 'const b = v as boolean;\nvar a = 1;',
+        plugin: `export const report = () => 'Use let';
+export const replace = () => ({
+    'var __a = __b': 'let __a = __b',
+});`,
+    });
+    
+    const {places} = JSON.parse(result.content[0].text);
+    const expected = 1;
+    
+    t.equal(places.length, expected);
+    t.end();
+});

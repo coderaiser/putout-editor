@@ -4,14 +4,7 @@ import {parse, types} from 'putout';
 
 export const name = 'printer_visitor';
 
-export const description =
-    'Write a @putout/printer visitor, the way happy-mark, happy-style and happy-sql do. ' +
-    'A visitor is a function keyed by NODE TYPE that overrides the base printer for that ' +
-    'type: (path, api) => void. Non-JS languages parse into a JS-shaped AST of call ' +
-    'expressions, so path.node.callee.name IS the construct name. ' +
-    'Call {action: "contract"} for the API and the two traps; pass a visitor to have it ' +
-    'checked against the real printer — invented api keys, an export name that is not a ' +
-    'node type, and a visitor that writes nothing are all reported.';
+export const description = 'Write or check a @putout/printer visitor: (path, api) => void, named by node type. action "contract": the API and the traps. Pass visitor to check it: unknown api keys, a name that is not a node type, no write.';
 
 /**
  * The API as the printer actually builds it.
@@ -55,15 +48,15 @@ export const schema = z.object({
     action: z
         .enum(['contract', 'check'])
         .optional()
-        .describe('"contract" returns the API and the traps. "check" (the default) validates a visitor'),
+        .describe('"contract" or "check" (default)'),
     visitor: z
         .string()
         .optional()
-        .describe('The visitor source. Omit it for the contract'),
+        .describe('Visitor source'),
     type: z
         .string()
         .optional()
-        .describe('The node type this visitor handles, e.g. "CallExpression". Compared against the export name'),
+        .describe('Node type, e.g. "CallExpression"'),
 });
 
 export type Schema = z.input<typeof schema>;

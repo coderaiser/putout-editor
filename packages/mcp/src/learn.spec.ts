@@ -257,3 +257,31 @@ test('learn: a child id from learn_node resolves in learn_example', (t) => {
     t.ok(result);
     t.end();
 });
+
+test('learn_tree: the outline has no lesson text', (t) => {
+    const result = learnTree.handler().content[0].text.includes('"body"');
+    
+    t.notOk(result);
+    t.end();
+});
+
+test('learn_tree: the outline is at most 6000 bytes', (t) => {
+    const result = learnTree.handler().content[0].text.length <= 6000;
+    
+    t.ok(result);
+    t.end();
+});
+
+test('learn_tree: the outline keeps the ids of nested nodes', (t) => {
+    const result = learnTree.handler().content[0].text.includes('"ast/nodes/VariableDeclaration"');
+    
+    t.ok(result);
+    t.end();
+});
+
+test('learn_tree: the description does not ask to be called first', (t) => {
+    const result = learnTree.description.includes('Call this first');
+    
+    t.notOk(result);
+    t.end();
+});
