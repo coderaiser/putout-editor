@@ -1,3 +1,4 @@
+import './css/highlight.css';
 import {
     useEffect,
     useRef,
@@ -9,6 +10,7 @@ import {
     setOption,
     type QwordEditorView,
 } from 'qword/client';
+import {markCommand, noMark} from './commandMark.ts';
 
 export interface CodeMirrorBoxProps {
     'className'?: string;
@@ -62,6 +64,7 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     const editorRef = useRef<QwordEditorView | null>(null);
     const lastValueRef = useRef(value);
     const rebuildRef = useRef(false);
+    const markRef = useRef(noMark);
     
     const onChangeRef = useRef(onChange);
     
@@ -88,6 +91,12 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
             updateListener: (update) => {
                 if (!update.docChanged)
                     return;
+                
+                // a mark dispatches, and a dispatch inside an update throws
+                queueMicrotask(() => {
+                    if (editorRef.current === editor)
+                        markRef.current = markCommand(editor, markRef.current);
+                });
                 
                 const next = getValue(editor);
                 
@@ -129,6 +138,7 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
         container.addEventListener('keydown', onKey, true);
         
         editorRef.current = editor;
+        markRef.current = markCommand(editor, noMark);
         
         // Sync the echo so the `value` effect sees the editor already holds
         

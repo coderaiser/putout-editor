@@ -996,8 +996,11 @@ test('the composer applies syntax highlighting on a touchscreen', async ({page})
     await expect(keyword).toContainText('const');
     
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
-    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    const nameColor = await page
+        .getByTestId('input')
+        .locator('.cm-content .hl-name')
+        .first()
+        .evaluate((el) => getComputedStyle(el).color);
     
-    expect(color).not.toBe('');
-    expect(color).not.toBe(bodyColor);
+    expect(color).not.toBe(nameColor);
 });

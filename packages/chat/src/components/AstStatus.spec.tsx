@@ -13,6 +13,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
     id: '0',
     pid: null,
     depth: 0,
+    key: '',
     type: 'BinaryExpression',
     detail: '',
     line: 2,

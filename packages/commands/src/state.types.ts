@@ -9,6 +9,12 @@ export interface FlatNode {
     id: string;
     pid: string | null;
     depth: number;
+    
+    /**
+     * The name of the property that holds this node in its parent: `id`, `init`,
+     * or `body[0]` for an array element. `''` for the root.
+     */
+    key: string;
     type: string;
     detail: string;
     line: number;

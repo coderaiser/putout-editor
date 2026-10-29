@@ -158,6 +158,11 @@ export default function AstRow({node, ancestorLastFlags, hasChildren, collapsed,
              * specificity as the descendant form it replaces, so the cascade
              * order is unchanged and no rule had to move.
              */}
+            {node.key && (
+                <span className="ast-row__key">
+                    {`${node.key}:`}
+                </span>
+            )}
             <span
                 className="ast-row__type"
                 data-category={categoryOf(node.type)}

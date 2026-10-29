@@ -1236,10 +1236,13 @@ test('the composer applies syntax highlighting while typing a body command', asy
     await expect(keyword).toContainText('const');
     
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
-    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    const nameColor = await page
+        .getByTestId('input')
+        .locator('.cm-content .hl-name')
+        .first()
+        .evaluate((el) => getComputedStyle(el).color);
     
-    expect(color).not.toBe('');
-    expect(color).not.toBe(bodyColor);
+    expect(color).not.toBe(nameColor);
 });
 
 /** Regression: highlighting survives the editor rebuild that happens when
@@ -1266,10 +1269,97 @@ test('the composer keeps syntax highlighting after the lineNumbers rebuild', asy
     await expect(keyword).toContainText('const');
     
     const color = await keyword.evaluate((el) => getComputedStyle(el).color);
-    const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    const nameColor = await page
+        .getByTestId('input')
+        .locator('.cm-content .hl-name')
+        .first()
+        .evaluate((el) => getComputedStyle(el).color);
     
-    expect(color).not.toBe('');
-    expect(color).not.toBe(bodyColor);
+    expect(color).not.toBe(nameColor);
+});
+
+/** The command line is not JavaScript: `/source` must read as a command, not as
+ * a regular expression. It takes the accent colour, like the send button. */
+test('the composer colours the command line with the accent', async ({page}) => {
+    await box(page).click();
+    await page.keyboard.insertText('/source\nconst a = 1;');
+    
+    const command = page
+        .getByTestId('input')
+        .locator('.cm-content .input__command');
+    
+    await expect(command).toHaveText('/source');
+    
+    const result = await command.evaluate((el) => getComputedStyle(el).color);
+    
+    const expected = await page.evaluate(() => {
+        const probe = document.createElement('span');
+        
+        probe.style.color = 'var(--color-accent)';
+        document.body.append(probe);
+        
+        const {color} = getComputedStyle(probe);
+        
+        probe.remove();
+        
+        return color;
+    });
+    
+    expect(result).toBe(expected);
+});
+
+/** A row names the property that holds the node: `init` on the literal. */
+test('/ast shows the key before the type', async ({page}) => {
+    await send(page, '/source\nconst a = 3');
+    await send(page, '/ast');
+    
+    // the tree is folded below depth 1: open the declarator first
+    await page
+        .getByTestId('chat')
+        .locator('[data-testid="ast-row"][data-type="VariableDeclarator"]')
+        .last()
+        .click();
+    
+    const key = page
+        .getByTestId('chat')
+        .locator('[data-testid="ast-row"][data-type="NumericLiteral"] .ast-row__key')
+        .last();
+    
+    await expect(key).toHaveText('init:');
+});
+
+/**
+ * A key makes a row longer. When the row does not fit, the detail gives way
+ * first (it is cut with an ellipsis) and the type keeps its full width.
+ */
+test('/ast cuts the detail, not the type, when a row is too long', async ({page}) => {
+    await send(page, '/source\nconst value = someFunction(firstArgument, secondArgument);');
+    await send(page, '/ast');
+    
+    const row = page
+        .getByTestId('chat')
+        .locator('[data-testid="ast-row"][data-type="VariableDeclarator"]')
+        .last();
+    
+    const result = await row.evaluate((element) => {
+        const widthOf = (selector: string) => {
+            const part = element.querySelector(selector) as HTMLElement;
+            
+            return part.scrollWidth > part.clientWidth;
+        };
+        
+        return {
+            detailCut: widthOf('.ast-row__detail'),
+            typeCut: widthOf('.ast-row__type'),
+        };
+    });
+    
+    const expected = {
+        detailCut: true,
+        typeCut: false,
+    };
+    
+    expect(result).toEqual(expected);
 });
 
 test('/help renders a styled grid, not plain text', async ({page}) => {
@@ -1474,6 +1564,55 @@ test('/flow renders source panel and graph panel', async ({page}) => {
     
     expect(graph.right).toBeLessThanOrEqual(page.viewportSize()!.width);
     expect(source.bottom).toBeLessThanOrEqual(page.viewportSize()!.height);
+});
+
+/**
+ * A long function: every block stays inside the graph, the graph does not
+ * scroll sideways, and a node takes its fill from the theme (an unknown token in
+ * an SVG `fill` draws black).
+ */
+test('/flow draws every block inside the graph, in theme colours', async ({page}) => {
+    await send(page, '/flow\nfunction f(x) { if (x) return 1; if (x > 2) return 3; a(); b(); return 2; }');
+    
+    const graph = page
+        .getByTestId('chat')
+        .getByTestId('flow-output__graph')
+        .last();
+    
+    await expect(graph).toBeVisible();
+    
+    const result = await graph.evaluate((svg) => {
+        const box = svg.getBoundingClientRect();
+        const rects = [...svg.querySelectorAll('.flow-output__node')];
+        let outside = 0;
+        
+        for (const rect of rects)
+            if (rect.getBoundingClientRect().right > box.right + 1)
+                ++outside;
+        
+        const probe = document.createElement('span');
+        
+        probe.style.color = 'var(--color-bg-raised)';
+        document.body.append(probe);
+        
+        const {color} = getComputedStyle(probe);
+        
+        probe.remove();
+        
+        return {
+            outside,
+            scrolls: svg.parentElement!.scrollWidth > svg.parentElement!.clientWidth,
+            fill: getComputedStyle(rects[0]).fill === color,
+        };
+    });
+    
+    const expected = {
+        outside: 0,
+        scrolls: false,
+        fill: true,
+    };
+    
+    expect(result).toEqual(expected);
 });
 
 /**

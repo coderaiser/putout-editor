@@ -30,6 +30,7 @@ test('flat: the first node is Program at depth 0', (t) => {
         id: '0',
         pid: null,
         depth: 0,
+        key: '',
         type: 'Program',
         detail: '',
         line: 1,
@@ -50,6 +51,20 @@ test('flat: walks body in source order', (t) => {
         'VariableDeclarator',
         'Identifier',
         'NumericLiteral',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('flat: each node carries its key in the parent', (t) => {
+    const result = toFile('const a = 1;').map(({key}) => key);
+    const expected = [
+        '',
+        'body[0]',
+        'declarations[0]',
+        'id',
+        'init',
     ];
     
     t.deepEqual(result, expected);

@@ -14,6 +14,7 @@ const node = (id: string, over: Partial<FlatNode> = {}): FlatNode => ({
     id,
     pid: null,
     depth: 0,
+    key: '',
     type: 'Program',
     detail: '',
     line: 1,

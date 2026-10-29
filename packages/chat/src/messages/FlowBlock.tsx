@@ -5,7 +5,11 @@ import {
     type Block,
 } from '@putout/flow';
 import {highlight} from '../highlight.ts';
-import {useIsMobile} from '../hooks/useIsMobile.ts';
+import {
+    layoutOf,
+    NODE_HEIGHT,
+    NODE_WIDTH,
+} from './flowLayout.ts';
 
 export interface FlowBlockProps {
     blocks: Block[];
@@ -14,26 +18,23 @@ export interface FlowBlockProps {
 }
 
 /**
- * The `/flow` answer: source with line numbers beside its control-flow graph.
+ * The `/flow` answer: the source, and its control-flow graph below it.
  *
- * Left panel — source, line-numbered like `SourceBlock`, with `unreachable`
- * and `duplicate` CSS classes on the lines a block carries. `unreachable`
- * means no path reaches that block; `duplicate` means two blocks share the
- * same statement text. Clicking a line whose block has one calls `onNavigate`
- * with its line number, so the editor can scroll the user to it.
+ * Source panel: line-numbered like `SourceBlock`. A line gets `data-unreachable`
+ * when no path reaches its block, and `data-duplicate` when two blocks share its
+ * text. A click calls `onNavigate` with the line number.
  *
- * Right panel — an inline SVG graph: blocks as `<rect>`, edges as `<line>`
- * with a `<marker>` arrowhead, no library. Unreachable blocks draw dimmed.
+ * Graph panel: an inline SVG drawn from `layoutOf` (`flowLayout.ts`), one block
+ * per row, top to bottom. The SVG has a fixed-width `viewBox` and scales to the
+ * pane, so it never scrolls sideways. Colours come from `FlowBlock.css`, never
+ * from attributes: an unknown token in an SVG `fill` draws black.
  *
- * Layout copies `TransformDiff`'s `transform-diff__side` two-column grid, and
- * `useIsMobile()` is read exactly as `AstBlock` reads it — a property of the
- * page. `data-testid="flow-output"` lives on this wrapper only: a child that
- * drew its own `flow-output` would give the page two elements with the same
- * testid, which is the AstBlock lesson.
+ * `data-testid="flow-output"` is on this wrapper only, so the page never has
+ * two elements with that testid.
  */
 export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) {
-    const mobile = useIsMobile();
     const lines = source.split('\n');
+    const layout = layoutOf(blocks);
     const unreachableBlocks = findUnreachable(blocks);
     
     const unreachableIds = new Set(unreachableBlocks.map(({id}) => id));
@@ -96,53 +97,64 @@ export default function FlowBlock({blocks, source, onNavigate}: FlowBlockProps) 
                 <svg
                     className="flow-output__graph"
                     data-testid="flow-output__graph"
-                    width={mobile ? 300 : 480}
-                    height={mobile ? 200 : 300}
+                    width={layout.width}
+                    viewBox={`0 0 ${layout.width} ${layout.height}`}
                 >
-                    {blocks.map((block) => (
-                        <g key={block.id}>
-                            <rect
-                                className="flow-output__node"
-                                x={block.id * 120}
-                                y={mobile ? 40 : 80}
-                                width={80}
-                                height={24}
-                                fill={unreachableIds.has(block.id) ? 'var(--color-text-muted)' : 'var(--color-bg)'}
-                                stroke={block.terminal ? 'var(--color-accent)' : 'var(--color-border)'}
-                            />
-                            <text
-                                x={block.id * 120 + 10}
-                                y={mobile ? 57 : 97}
-                                fontSize={10}
-                                fill="var(--color-text)"
-                            >
-                                block {block.id}
-                            </text>
-                            {block.succs.map((succ) => (
-                                <line
-                                    key={String(succ.id)}
-                                    x1={block.id * 120 + 80}
-                                    y1={mobile ? 52 : 92}
-                                    x2={String(succ.id) === 'exit' ? block.id * 120 + 120 : (succ.id as number) * 120}
-                                    y2={mobile ? 52 : 92}
-                                    stroke="var(--color-border)"
-                                    markerEnd="url(#flow-arrow)"
-                                />
-                            ))}
-                        </g>
-                    ))}
                     <defs>
                         <marker
                             id="flow-arrow"
+                            className="flow-output__arrow"
                             markerWidth={6}
                             markerHeight={6}
-                            refX={4}
+                            refX={5}
                             refY={3}
                             orient="auto"
                         >
-                            <polygon points="0,0 6,3 0,6" fill="var(--color-text-muted)"/>
+                            <polygon points="0,0 6,3 0,6"/>
                         </marker>
                     </defs>
+                    {layout.edges.map((edge) => (
+                        <g key={`${edge.from}-${String(edge.to)}-${edge.label}`}>
+                            <path
+                                className="flow-output__edge"
+                                d={edge.path}
+                                markerEnd="url(#flow-arrow)"
+                            />
+                            {edge.label && (
+                                <text
+                                    className="flow-output__edge-label"
+                                    x={edge.labelX}
+                                    y={edge.labelY}
+                                >
+                                    {edge.label}
+                                </text>
+                            )}
+                        </g>
+                    ))}
+                    {layout.nodes.map((node) => (
+                        <g
+                            key={String(node.id)}
+                            data-testid="flow-node"
+                            data-terminal={node.terminal || undefined}
+                            data-unreachable={node.unreachable || undefined}
+                        >
+                            <rect
+                                className="flow-output__node"
+                                x={node.x}
+                                y={node.y}
+                                width={NODE_WIDTH}
+                                height={NODE_HEIGHT}
+                                rx={4}
+                            />
+                            <text
+                                className="flow-output__label"
+                                x={node.x + 10}
+                                y={node.y + NODE_HEIGHT / 2 + 4}
+                            >
+                                {node.label}
+                            </text>
+                        </g>
+                    ))}
                 </svg>
             </div>
         </div>

@@ -17,6 +17,7 @@ const node = (id: string, pid: string | null, depth: number, type = 'Node'): Fla
     id,
     pid,
     depth,
+    key: '',
     type,
     detail: '',
     line: depth + 1,
@@ -609,6 +610,36 @@ test('AstTree: a dangling parent draws the row rather than throwing', (t) => {
     
     const result = connectorsOf('Orphan');
     const expected = '└─ ';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('AstTree: a query matches the key', (t) => {
+    tree([
+        program(),
+        declaration(),
+        declarator(),
+        identifier(), {
+            ...numeric(),
+            key: 'init',
+        },
+    ]);
+    
+    const search = document.querySelector('[data-testid="ast-search"]') as HTMLInputElement;
+    
+    fireEvent.change(search, {
+        target: {
+            value: 'init',
+        },
+    });
+    
+    const match = document.querySelector('.ast-row--match');
+    const result = match && match.getAttribute('data-type');
+    
+    const expected = 'NumericLiteral';
     
     cleanup();
     

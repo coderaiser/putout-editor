@@ -21,6 +21,7 @@ const node = (id: string, pid: string | null, depth: number, type = 'Node', deta
     id,
     pid,
     depth,
+    key: '',
     type,
     detail,
     line: 1,

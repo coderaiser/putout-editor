@@ -121,7 +121,11 @@ function detailOf(node: AstNode & {
 export function flattenAst(ast: unknown, source: string): FlatNode[] {
     const result: FlatNode[] = [];
     
-    walk(rootOf(ast), null, 0, source, result);
+    walk(rootOf(ast), {
+        pid: null,
+        depth: 0,
+        key: '',
+    }, source, result);
     
     return result;
 }
@@ -138,7 +142,20 @@ function rootOf(ast: unknown): unknown {
     return ast.program;
 }
 
-function walk(node: unknown, pid: string | null, depth: number, source: string, result: FlatNode[]): void {
+interface Position {
+    pid: string | null;
+    depth: number;
+    key: string;
+}
+
+/** Where a child sits: its parent, its depth, and the key that holds it. */
+const childOf = (pid: string, depth: number, key: string): Position => ({
+    pid,
+    depth: depth + 1,
+    key,
+});
+
+function walk(node: unknown, {pid, depth, key}: Position, source: string, result: FlatNode[]): void {
     if (!isTyped(node))
         return;
     
@@ -153,6 +170,7 @@ function walk(node: unknown, pid: string | null, depth: number, source: string, 
         id,
         pid,
         depth,
+        key,
         type: node.type,
         detail: truncate(detailOf(node, source)),
         line: loc.start.line,
@@ -161,14 +179,17 @@ function walk(node: unknown, pid: string | null, depth: number, source: string, 
         endCol: loc.end.column,
     });
     
-    for (const value of Object.values(node)) {
+    for (const [name, value] of Object.entries(node)) {
         if (Array.isArray(value)) {
-            for (const child of value)
-                walk(child, id, depth + 1, source, result);
+            for (const [index, child] of value.entries()) {
+                const position = childOf(id, depth, `${name}[${index}]`);
+                
+                walk(child, position, source, result);
+            }
             
             continue;
         }
         
-        walk(value, id, depth + 1, source, result);
+        walk(value, childOf(id, depth, name), source, result);
     }
 }

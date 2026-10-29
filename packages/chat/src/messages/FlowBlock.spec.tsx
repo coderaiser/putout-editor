@@ -6,8 +6,7 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import FlowBlock from './FlowBlock.tsx';
-
-const noop = () => {};
+import {layoutOf} from './flowLayout.ts';
 
 const blocks: Block[] = [{
     id: 0,
@@ -190,59 +189,104 @@ test('FlowBlock: unique lines are not marked duplicate', (t) => {
     t.end();
 });
 
-/**
- * On a touchscreen the graph is smaller and its row sits higher.
- *
- * `(pointer: coarse)` is stubbed around the render and put back after, because
- * `useIsMobile` reads it at mount and a stub left behind would change every
- * spec that runs after this one.
- */
-test('FlowBlock: coarse pointer gives the graph the mobile geometry', (t) => {
-    const original = globalThis.matchMedia;
+test('FlowBlock: the graph scales to its pane with a viewBox', (t) => {
+    block();
     
-    globalThis.matchMedia = ((query: string) => ({
-        matches: query === '(pointer: coarse)',
-        media: query,
-        addEventListener: noop,
-        removeEventListener: noop,
-        addListener: noop,
-        removeListener: noop,
-        dispatchEvent: () => true,
-        onchange: null,
-    })) as unknown as typeof globalThis.matchMedia;
-    
-    render(
-        <FlowBlock
-            blocks={blocks}
-            source={`x > 0 ?\nreturn a;\nreturn b;\n`}
-        />,
-    );
-    
+    const {width, height} = layoutOf(blocks);
     const svg = document.querySelector('[data-testid="flow-output__graph"]');
-    const rect = document.querySelector('.flow-output__node');
-    const text = document.querySelector('svg text');
-    const line = document.querySelector('svg line');
-    
-    const result = {
-        width: svg && svg.getAttribute('width'),
-        height: svg && svg.getAttribute('height'),
-        rectY: rect && rect.getAttribute('y'),
-        textY: text && text.getAttribute('y'),
-        lineY1: line && line.getAttribute('y1'),
-        lineY2: line && line.getAttribute('y2'),
-    };
+    const result = svg && svg.getAttribute('viewBox');
+    const expected = `0 0 ${width} ${height}`;
     
     cleanup();
-    globalThis.matchMedia = original;
     
-    const expected = {
-        width: '300',
-        height: '200',
-        rectY: '40',
-        textY: '57',
-        lineY1: '52',
-        lineY2: '52',
-    };
+    t.equal(result, expected);
+    t.end();
+});
+
+test('FlowBlock: one node per block, and one for exit', (t) => {
+    block();
+    
+    const result = document.querySelectorAll('[data-testid="flow-node"]').length;
+    const expected = layoutOf(blocks).nodes.length;
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('FlowBlock: a node takes its colour from CSS, not from an attribute', (t) => {
+    block();
+    
+    const rect = document.querySelector('.flow-output__node');
+    const result = rect && rect.getAttribute('fill');
+    
+    cleanup();
+    
+    t.equal(result, null);
+    t.end();
+});
+
+test('FlowBlock: an unreachable block is marked on its node', (t) => {
+    block({
+        blocks: [{
+            id: 0,
+            stmts: ['b();'],
+            succs: [],
+            unreachable: true,
+        }],
+        source: 'b();',
+    });
+    
+    const node = document.querySelector('[data-testid="flow-node"]');
+    const result = node && node.getAttribute('data-unreachable');
+    const expected = 'true';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('FlowBlock: a terminal block is marked on its node', (t) => {
+    block({
+        blocks: [{
+            id: 0,
+            stmts: ['return a;'],
+            succs: [{
+                id: 'exit',
+            }],
+            terminal: true,
+        }],
+        source: 'return a;',
+    });
+    
+    const node = document.querySelector('[data-testid="flow-node"]');
+    const result = node && node.getAttribute('data-terminal');
+    const expected = 'true';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('FlowBlock: an edge label is drawn', (t) => {
+    block();
+    
+    const labels = [...document.querySelectorAll('.flow-output__edge-label')];
+    const result: (string | null)[] = [];
+    
+    for (const label of labels) {
+        result.push(label.textContent);
+    }
+    
+    const expected = layoutOf(blocks)
+        .edges
+        .map(({label}) => label)
+        .filter(Boolean);
+    
+    cleanup();
     
     t.deepEqual(result, expected);
     t.end();

@@ -21,6 +21,7 @@ const node = (id: string): FlatNode => ({
     id,
     pid: null,
     depth: 0,
+    key: '',
     type: 'Program',
     detail: '',
     line: 1,

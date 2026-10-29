@@ -19,6 +19,7 @@ const node = (over: Partial<FlatNode> = {}): FlatNode => ({
     id: '0',
     pid: null,
     depth: 0,
+    key: '',
     type: 'Program',
     detail: '',
     line: 1,
@@ -888,5 +889,32 @@ test('AstRow: tapping the caret toggles — it bubbles to the row', (t) => {
     cleanup();
     
     t.deepEqual(toggled, ['0']);
+    t.end();
+});
+
+test('AstRow: the key is drawn before the type', (t) => {
+    row({
+        key: 'init',
+        type: 'NumericLiteral',
+    });
+    
+    const key = document.querySelector('[data-testid="ast-row"] .ast-row__key');
+    const result = key && key.textContent;
+    const expected = 'init:';
+    
+    cleanup();
+    
+    t.equal(result, expected);
+    t.end();
+});
+
+test('AstRow: the root draws no key', (t) => {
+    row();
+    
+    const result = document.querySelector('[data-testid="ast-row"] .ast-row__key');
+    
+    cleanup();
+    
+    t.equal(result, null);
     t.end();
 });
