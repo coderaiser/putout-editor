@@ -1,0 +1,38 @@
+diff --git a/.typos.toml b/.typos.toml
+index 446cbf5e..18616ac0 100644
+--- a/.typos.toml
++++ b/.typos.toml
+@@ -20,6 +20,11 @@
+ # gate for every other line in it, and `docs/memory/coverage.md`'s rule is the
+ # reason — a gate satisfied by excluding what it does not cover is not a gate.
+ hel = "hel"
++# `sourc` is the same kind of word: `Input: a partial command name does not`
++# needs a prefix of `/source` that is one key short of the command. Corrected to
++# `/source` it becomes a full body command, `wantsLineNumbers` answers `true`,
++# and the spec fails — the lint job did exactly that twice.
++sourc = "sourc"
+ 
+ [files]
+ extend-exclude = ["ChangeLog", "*.woff*", "*.ttf", "*.svg", "*.eot", "*.css"]
+diff --git a/packages/chat/src/Input.spec.tsx b/packages/chat/src/Input.spec.tsx
+index bcbefa1d..5d02ec3f 100644
+--- a/packages/chat/src/Input.spec.tsx
++++ b/packages/chat/src/Input.spec.tsx
+@@ -351,7 +351,7 @@ test('Input: a one-line command does not', (t) => {
+ 
+ /**
+  * A partial name is not a command yet, so it gets no gutter — and this is the
+- * case that would otherwise thrash: `/source` → `false` then `e` → `true` is one
++ * case that would otherwise thrash: `/sourc` → `false` then `e` → `true` is one
+  * rebuild, which is fine, but a rule that answered on a *prefix match* would
+  * rebuild on every keystroke of a name that happens to start with one of the
+  * four. `setTimeout` and `console` both start with `co`, and nothing starts a
+@@ -359,7 +359,7 @@ test('Input: a one-line command does not', (t) => {
+  */
+ test('Input: a partial command name does not', (t) => {
+     const result = [
+-        wantsLineNumbers('/source'),
++        wantsLineNumbers('/sourc'),
+         wantsLineNumbers('/trans'),
+         wantsLineNumbers('/fin'),
+     ];
