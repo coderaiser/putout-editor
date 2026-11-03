@@ -3,28 +3,35 @@ import {type ParserPlugin} from '@babel/parser';
 import {tryCatch} from 'try-catch';
 import {normalizeRule} from './normalizeRule.ts';
 
-export const formatInput = async (source: string, ast: Node) => {
+export class Skip extends Error {}
+
+type FormatResult = [Error | null, string?];
+
+export const formatInput = async (source: string, ast: Node): Promise<FormatResult> => {
     if (!ast)
         return [
-            Error('No AST'),
+            new Skip('No AST'),
         ];
     
     const {print} = await import('@putout/printer');
     
-    const formatted = print(ast);
+    const [printError, formatted] = tryCatch(print, ast);
+    
+    if (printError)
+        return [printError];
     
     if (formatted === source)
         return [
-            Error('No changes'),
+            new Skip('No changes'),
         ];
     
     return [null, formatted];
 };
 
-export const formatRule = async (source: string) => {
+export const formatRule = async (source: string): Promise<FormatResult> => {
     if (!source)
         return [
-            Error('No source'),
+            new Skip('No source'),
         ];
     
     const {parse} = await import('@babel/parser');
@@ -36,10 +43,13 @@ export const formatRule = async (source: string) => {
     });
     
     if (error)
-        return [error];
+        return [new Skip(error.message)];
     
     const {print} = await import('@putout/printer');
-    const formatted = print(ast);
+    const [printError, formatted] = tryCatch(print, ast);
+    
+    if (printError)
+        return [printError];
     
     const normalized = normalizeRule(formatted);
     

@@ -7,6 +7,7 @@ import {
 import {Provider} from 'react-redux';
 import {getView} from '#editor';
 import {makeStore, type TestStore} from '#test/store';
+import {setFormatError} from '../store/reducers.ts';
 import EditorPlugin from './index.tsx';
 
 const renderWithStore = (overrides: Parameters<typeof makeStore>[0] = {}) => makeStore(overrides);
@@ -90,5 +91,30 @@ test('EditorPlugin: renders plugin editor without SplitPane', (t) => {
     cleanup();
     
     t.ok(editor);
+    t.end();
+});
+
+test('EditorPlugin: renders format error from store', (t) => {
+    const {store} = renderWithStore();
+    
+    store.dispatch(setFormatError('Node type is not supported yet'));
+    
+    const container = renderTransformer(store);
+    const {textContent} = container.querySelector('[data-testid="format-error"]')!;
+    
+    cleanup();
+    
+    t.equal(textContent, 'Node type is not supported yet');
+    t.end();
+});
+
+test('EditorPlugin: does not render format error when there is none', (t) => {
+    const {store} = renderWithStore();
+    const container = renderTransformer(store);
+    const error = container.querySelector('[data-testid="format-error"]');
+    
+    cleanup();
+    
+    t.notOk(error);
     t.end();
 });

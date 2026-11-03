@@ -139,3 +139,27 @@ test('switching AST view changes the output mode', async ({page}) => {
             .getByRole('textbox'),
     ).toBeVisible();
 });
+
+test('printer error on blur of editor-transform is shown in editor-transform', async ({page}) => {
+    await replaceTransform(page, 'struct S {}');
+    
+    await page
+        .getByTestId('editor-source')
+        .locator('.cm-content')
+        .click();
+    
+    await expect(page.getByTestId('editor-transform')).toContainText('not supported yet');
+});
+
+test('printer error in editor-transform is cleared when the code changes', async ({page}) => {
+    await replaceTransform(page, 'struct S {}');
+    
+    await page
+        .getByTestId('editor-source')
+        .locator('.cm-content')
+        .click();
+    
+    await replaceTransform(page, 'export const report = () => `x`;');
+    
+    await expect(page.getByTestId('editor-transform')).not.toContainText('not supported yet');
+});

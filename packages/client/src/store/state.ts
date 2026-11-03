@@ -74,6 +74,7 @@ export interface State {
     saving: boolean;
     cursor: number | null;
     error: Error | null;
+    formatError: string | null;
     highlightRange: Range | null;
     showTransformPanel: boolean;
     selectedRevision: null;
@@ -104,6 +105,7 @@ export const initialState: State = {
     saving: false,
     cursor: null,
     error: null,
+    formatError: null,
     highlightRange: null,
     showTransformPanel: true, // Snippet related state
     selectedRevision: null, // Workbench settings

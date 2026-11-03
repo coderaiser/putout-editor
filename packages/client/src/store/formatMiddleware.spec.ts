@@ -231,3 +231,69 @@ test('formatMiddleware: transformBlur does not duplicate blank line when already
     t.equal(code, expected);
     t.end();
 });
+
+test('formatMiddleware: transformBlur sets format error when printer throws', async (t) => {
+    const store = makeStore({
+        workbench: {
+            transform: {
+                code: 'struct S {}',
+                transformer: 'putout',
+            },
+        },
+    });
+    
+    store.dispatch(transformBlur());
+    await setImmediate();
+    
+    t.match(String(store.getState().formatError), 'not supported yet');
+    t.end();
+});
+
+test('formatMiddleware: transformBlur does not set format error when rule cannot be parsed', async (t) => {
+    const store = makeStore({
+        workbench: {
+            transform: {
+                code: 'const = ;',
+                transformer: 'putout',
+            },
+        },
+    });
+    
+    store.dispatch(transformBlur());
+    await setImmediate();
+    
+    const {formatError} = store.getState();
+    
+    t.notOk(formatError);
+    t.end();
+});
+
+test('formatMiddleware: editorBlur sets format error when printer throws', async (t) => {
+    const store = makeStore();
+    const ast = {
+        type: 'File',
+        program: {
+            type: 'Program',
+            sourceType: 'module',
+            body: [{
+                type: 'UnknownNode',
+            }],
+            directives: [],
+        },
+    };
+    
+    store.dispatch(setParseResult({
+        ast,
+        treeAdapter: null,
+        time: 0,
+        source: 'x',
+        error: null,
+    } as never));
+    store.dispatch(editorBlur());
+    await setImmediate();
+    
+    const {formatError} = store.getState();
+    
+    t.ok(formatError);
+    t.end();
+});

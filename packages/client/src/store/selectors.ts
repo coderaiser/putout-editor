@@ -9,6 +9,8 @@ export const getHighlightRange = (state: RootState) => state.highlightRange;
 
 export const getError = (state: RootState) => state.error;
 
+export const getFormatError = (state: RootState) => state.formatError;
+
 export const isLoadingSnippet = (state: RootState) => state.loadingSnippet;
 
 export const showSettingsDialog = (state: RootState) => state.showSettingsDialog;

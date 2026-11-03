@@ -19,6 +19,7 @@ const {
     clearSnippet,
     setError,
     clearError,
+    setFormatError,
     selectTransformer,
     hideTransformer,
     setParserSettings,
@@ -223,6 +224,23 @@ test('reducers: clear error', (t) => {
     const state = putoutEditor(errState, clearError());
     
     t.notOk(state.error);
+    t.end();
+});
+
+test('reducers: set format error', (t) => {
+    const state = putoutEditor(getInitState(), setFormatError('not supported yet'));
+    
+    t.equal(state.formatError, 'not supported yet');
+    t.end();
+});
+
+test('reducers: setTransformState clears format error', (t) => {
+    const errState = putoutEditor(getInitState(), setFormatError('not supported yet'));
+    const state = putoutEditor(errState, setTransformState({
+        code: 'const a = 1;',
+    }));
+    
+    t.notOk(state.formatError);
     t.end();
 });
 
@@ -660,6 +678,7 @@ test('reducers: exports every action and the reducer', (t) => {
         'setCode',
         'setCursor',
         'setError',
+        'setFormatError',
         'setHighlight',
         'setKeyMap',
         'setParseResult',

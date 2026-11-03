@@ -6,13 +6,18 @@ import {
     transformBlur,
     setCode,
     setTransformState,
+    setFormatError,
 } from './reducers.ts';
 import {
     getParseResult,
     getCode,
     getTransformCode,
 } from './selectors.ts';
-import {formatInput, formatRule} from '../editor/format.ts';
+import {
+    formatInput,
+    formatRule,
+    Skip,
+} from '../editor/format.ts';
 
 export const formatListener = createListenerMiddleware<RootState>();
 
@@ -28,8 +33,13 @@ startAppListening({
         
         const [error, formatted] = await formatInput(source, ast as Node);
         
-        if (error)
+        if (error instanceof Skip)
             return;
+        
+        if (error) {
+            api.dispatch(setFormatError(error.message));
+            return;
+        }
         
         api.dispatch(setCode({
             code: formatted,
@@ -47,8 +57,13 @@ startFormatListening({
         const source = getTransformCode(state);
         const [error, code] = await formatRule(source);
         
-        if (error)
+        if (error instanceof Skip)
             return;
+        
+        if (error) {
+            api.dispatch(setFormatError(error.message));
+            return;
+        }
         
         api.dispatch(setTransformState({
             code,

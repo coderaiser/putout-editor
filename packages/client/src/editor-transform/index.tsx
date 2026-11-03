@@ -5,11 +5,13 @@ import {
     transformBlur,
     getTransformCode,
     getKeyMap,
+    getFormatError,
 } from '#store';
 
 export default function EditorPlugin() {
     const transformCode = useSelector(getTransformCode);
     const keyMap = useSelector(getKeyMap);
+    const formatError = useSelector(getFormatError);
     const dispatch = useDispatch();
     
     return (
@@ -24,6 +26,12 @@ export default function EditorPlugin() {
                 onBlur={() => dispatch(transformBlur())}
                 keyMap={keyMap}
             />
+            {formatError && <pre
+                className="format-error"
+                data-testid="format-error"
+            >
+                {formatError}
+            </pre>}
         </div>
     );
 }

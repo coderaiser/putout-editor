@@ -53,6 +53,9 @@ const slice = createSlice({
         clearError: (state) => {
             state.error = null;
         },
+        setFormatError: (state, {payload}: PayloadAction<string | null>) => {
+            state.formatError = payload;
+        },
         setHighlight: (state, {payload: range}: PayloadAction<Range | null | undefined>) => {
             if (!range) {
                 state.highlightRange = null;
@@ -123,6 +126,7 @@ const slice = createSlice({
         },
         
         setTransformState: (state, {payload: {code}}) => {
+            state.formatError = null;
             state.workbench.transform.code = code;
         },
         
@@ -242,6 +246,7 @@ export const {
     closeShareDialog,
     setError,
     clearError,
+    setFormatError,
     setHighlight,
     clearHighlight,
     setKeyMap,
