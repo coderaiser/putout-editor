@@ -47,6 +47,9 @@ const availablePlugins = [
     'sourcePhaseImports',
     'deferredImportEvaluation',
     'optionalChainingAssign',
+    'structs',
+    'deferredReexports',
+    'importSync',
 ];
 
 const ID = 'babel';
