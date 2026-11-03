@@ -163,3 +163,46 @@ test('printer error in editor-transform is cleared when the code changes', async
     
     await expect(page.getByTestId('editor-transform')).not.toContainText('not supported yet');
 });
+
+test('printer error in editor-transform does not overlap the editor text', async ({page}) => {
+    await replaceTransform(page, 'struct S {}');
+    
+    await page
+        .getByTestId('editor-source')
+        .locator('.cm-content')
+        .click();
+    
+    const error = page.getByTestId('format-error');
+    
+    await expect(error).toBeVisible();
+    
+    const errorBox = await error.boundingBox();
+    const lastLineBox = await page
+        .getByTestId('editor-transform')
+        .locator('.cm-line')
+        .last()
+        .boundingBox();
+    
+    expect(errorBox!.y).toBeGreaterThanOrEqual(lastLineBox!.y + lastLineBox!.height);
+});
+
+test('editor-code result has no trailing empty line', async ({page}) => {
+    await replaceContent(page, 'const a = 1;');
+    
+    const lines = page
+        .getByTestId('editor-code')
+        .locator('.cm-line');
+    
+    await expect(lines).toHaveCount(1);
+});
+
+test('editor-code error has no trailing empty line', async ({page}) => {
+    await replaceTransform(page, 'export const replace = () => ({');
+    
+    const lastLine = page
+        .getByTestId('editor-code')
+        .locator('.cm-line')
+        .last();
+    
+    await expect(lastLine).not.toHaveText('');
+});

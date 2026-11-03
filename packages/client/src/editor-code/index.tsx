@@ -75,14 +75,14 @@ export default function EditorResult({transformer, transformCode, code, mode, is
                         lineNumbers={false}
                         mode="javascript"
                         readOnly={true}
-                        value={formatError(error, transformCode)}
+                        value={formatError(error, transformCode).trimEnd()}
                     />
                 </div>
                 : <Editor
                     mode={mode}
                     key="output"
                     readOnly={true}
-                    value={result}
+                    value={result.trimEnd()}
                 />}
         </div>
     );

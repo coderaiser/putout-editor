@@ -5,6 +5,7 @@ import {
     cleanup,
     act,
 } from '@testing-library/react';
+import {getView} from '#editor';
 import EditorResult, {
     type EditorTransformer,
 } from '#editor-code';
@@ -176,5 +177,37 @@ test('EditorResult: renders codeframe when transform throws SyntaxError with loc
     cleanup();
     
     t.ok(editor);
+    t.end();
+});
+
+test('EditorResult: result has no trailing empty line', async (t) => {
+    const transformer: EditorTransformer = {
+        _promise: null,
+        loadTransformer: (resolve: (value: unknown) => void) => resolve({}),
+        transform: () => 'const x = 1;\n',
+    };
+    
+    let container: HTMLElement | undefined;
+    
+    await act(async () => {
+        ({container} = render(
+            <EditorResult
+                transformer={transformer}
+                transformCode=""
+                code="const x = 1"
+                mode="javascript"
+                parser="babel"
+                isLoading={false}
+            />,
+        ));
+        await new Promise((resolve: (value: undefined) => void) => setTimeout(resolve, 50));
+    });
+    
+    const view = getView(container!)!;
+    const result = view.state.doc.toString();
+    
+    cleanup();
+    
+    t.equal(result, 'const x = 1;');
     t.end();
 });

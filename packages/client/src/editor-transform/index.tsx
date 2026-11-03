@@ -1,3 +1,4 @@
+import './EditorTransform.css';
 import {useSelector, useDispatch} from 'react-redux';
 import {Editor} from '#editor';
 import {
