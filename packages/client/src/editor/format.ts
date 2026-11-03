@@ -4,7 +4,6 @@ import {tryCatch} from 'try-catch';
 import {normalizeRule} from './normalizeRule.ts';
 
 export class Skip extends Error {}
-
 type FormatResult = [Error | null, string?];
 
 export const formatInput = async (source: string, ast: Node): Promise<FormatResult> => {
