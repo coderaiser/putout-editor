@@ -6,10 +6,6 @@ import fs from 'node:fs';
 import {rspack} from '@rspack/core';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import {
-    defineReactCompilerLoaderOption,
-    reactCompilerLoader,
-} from 'react-compiler-webpack';
-import {
     NODE_ONLY,
     createFallback,
     createIgnore,
@@ -172,11 +168,10 @@ export default {
                 join(__dirname, 'node_modules', '@putout'),
                 join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
-            use: [{
-                loader: reactCompilerLoader,
-                options: defineReactCompilerLoaderOption({}),
-            },
-            createSwcLoader(DEV)],
+            use: [
+                join(__dirname, 'config', 'oxc-react-compiler-loader.js'),
+                createSwcLoader(DEV),
+            ],
         }, {
             test: /\.css$/,
             use: [
