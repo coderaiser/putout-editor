@@ -687,13 +687,23 @@ test('MobileMenu: top-level trigger stays centered', (t) => {
     t.end();
 });
 
-test('mobile.css: editor keeps pinch zoom while panning vertically', (t) => {
+const touchActionRules = () => {
     const source = readFileSync(new URL('../../css/mobile.css', import.meta.url), 'utf8');
-    const touchActions = source
-        .split('\n')
-        .filter((line) => line.includes('touch-action: pan-y'));
     
-    const blocked = touchActions.filter((line) => !line.includes('pinch-zoom'));
+    return source
+        .split('\n')
+        .filter((line) => line.includes('touch-action: pan-'));
+};
+
+test('mobile.css: editor keeps pinch zoom while panning', (t) => {
+    const blocked = touchActionRules().filter((line) => !line.includes('pinch-zoom'));
+    
+    t.deepEqual(blocked, []);
+    t.end();
+});
+
+test('mobile.css: editor pans horizontally, a long line or error message scrolls', (t) => {
+    const blocked = touchActionRules().filter((line) => !line.includes('pan-x'));
     
     t.deepEqual(blocked, []);
     t.end();

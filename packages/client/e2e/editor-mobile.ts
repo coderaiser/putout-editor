@@ -1,3 +1,4 @@
+import {devices} from '@playwright/test';
 import {montag} from 'montag';
 import {
     createPutoutEditor,
@@ -174,4 +175,72 @@ test('mobile: editor keeps pinch zoom', async ({page}) => {
     const touchAction = await locator.evaluate((element) => getComputedStyle(element).touchAction);
     
     expect(touchAction).toContain('pinch-zoom');
+});
+
+test('mobile: saved parser settings without plugins still render the AST', async ({browser, baseURL}) => {
+    // the `page` fixture clears localStorage on every load, so use a context of our own
+    const context = await browser.newContext({
+        ...devices['iPhone 14'],
+        storageState: {
+            cookies: [],
+            origins: [{
+                origin: baseURL!,
+                localStorage: [{
+                    name: 'explorerSettingsV1',
+                    value: JSON.stringify({
+                        showTransformPanel: true,
+                        parserPerCategory: {},
+                        parserSettings: {
+                            babel: {
+                                sourceType: 'module',
+                            },
+                        },
+                        workbench: {
+                            parser: 'babel',
+                            code: 'const a = 1;',
+                            keyMap: 'default',
+                            transform: {
+                                code: '',
+                                transformer: 'putout',
+                            },
+                        },
+                    }),
+                }],
+            }],
+        },
+    });
+    
+    const page = await context.newPage();
+    
+    await page.goto('/');
+    
+    const menu = page.getByTestId('mobile-menu');
+    
+    await menu
+        .locator(':scope > .mobile-dropdown > .mobile-dropdown__trigger')
+        .nth(0)
+        .tap();
+    await menu
+        .getByTestId('new-trigger')
+        .tap();
+    await menu
+        .getByTestId('new-submenu')
+        .getByRole('menuitem', {
+            name: 'Replacer',
+        })
+        .tap();
+    await tapTab(page, /ast/i);
+    
+    await expect(page.getByText('Hide methods')).toBeVisible();
+    await expect(page.getByText('is not an object')).toHaveCount(0);
+    await context.close();
+});
+
+test('mobile: editor allows horizontal touch panning', async ({page}) => {
+    await tapTab(page, /source/i);
+    
+    const {locator} = await createPutoutEditor(page).get(EDITOR_SOURCE);
+    const touchAction = await locator.evaluate((element) => getComputedStyle(element).touchAction);
+    
+    expect(touchAction).toContain('pan-x');
 });

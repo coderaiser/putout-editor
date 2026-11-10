@@ -283,3 +283,14 @@ test('babel: renderSettings preserves plugin arrays in values and updates', (t) 
     t.deepEqual(result, expected);
     t.end();
 });
+
+test('babel: parse: settings without plugins fall back to the default plugins', (t) => {
+    const ast = babelParser.parse(babylon, code, {
+        sourceType: 'module',
+    });
+    
+    t.equal((ast as {
+        type: string;
+    }).type, 'File');
+    t.end();
+});

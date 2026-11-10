@@ -107,7 +107,8 @@ export default {
             ...options,
         };
         
-        opts.plugins = (opts.plugins as unknown[])
+        // saved settings may carry no `plugins`: `{sourceType: 'module'}` from the settings dialog
+        opts.plugins = ((opts.plugins || defaultOptions.plugins) as unknown[])
             .map((plugin: unknown) => {
                 if (plugin === 'decorators')
                     return ['decorators', {
