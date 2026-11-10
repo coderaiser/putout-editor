@@ -154,3 +154,24 @@ test('switching AST view changes the output mode', async ({page}) => {
             .getByRole('textbox'),
     ).toBeVisible();
 });
+
+test('mobile: editor is not in vim mode by default', async ({page}) => {
+    await tapTab(page, /source/i);
+    
+    const editor = await createPutoutEditor(page).get(EDITOR_SOURCE);
+    
+    await editor.locator.tap();
+    await page.keyboard.press('ControlOrMeta+End');
+    await page.keyboard.type('zzz');
+    
+    await expect(editor.locator).toContainText('zzz');
+});
+
+test('mobile: editor keeps pinch zoom', async ({page}) => {
+    await tapTab(page, /source/i);
+    
+    const {locator} = await createPutoutEditor(page).get(EDITOR_SOURCE);
+    const touchAction = await locator.evaluate((element) => getComputedStyle(element).touchAction);
+    
+    expect(touchAction).toContain('pinch-zoom');
+});

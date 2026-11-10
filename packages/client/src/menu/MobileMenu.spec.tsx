@@ -687,6 +687,18 @@ test('MobileMenu: top-level trigger stays centered', (t) => {
     t.end();
 });
 
+test('mobile.css: editor keeps pinch zoom while panning vertically', (t) => {
+    const source = readFileSync(new URL('../../css/mobile.css', import.meta.url), 'utf8');
+    const touchActions = source
+        .split('\n')
+        .filter((line) => line.includes('touch-action: pan-y'));
+    
+    const blocked = touchActions.filter((line) => !line.includes('pinch-zoom'));
+    
+    t.deepEqual(blocked, []);
+    t.end();
+});
+
 // ── Theme ──────────────────────────────────────────────────
 test('MobileMenu: theme button toggles data-theme attribute', (t) => {
     if (globalThis.localStorage)

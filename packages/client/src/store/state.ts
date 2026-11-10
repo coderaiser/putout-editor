@@ -5,6 +5,7 @@ import {
 } from '#parser';
 import type {TreeAdapterParseResult} from '../parser/TreeAdapter.ts';
 import type {ParserSettings} from '../types.ts';
+import {getDefaultKeyMap} from './default-key-map.ts';
 
 /**
  * The parse result of the current code. `null` before the first parse.
@@ -120,7 +121,7 @@ export const initialState: State = {
         parseError: null,
         parseResult: null,
         code: defaultParser.category!.codeExample,
-        keyMap: 'vim',
+        keyMap: getDefaultKeyMap(),
         initialCode: defaultParser.category!.codeExample,
         transform: {
             code: defaultTransformer.defaultTransform!,
