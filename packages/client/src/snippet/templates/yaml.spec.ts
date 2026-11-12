@@ -13,7 +13,6 @@ test('templates: YAML: removes empty needs', (t) => {
     });
     
     const expected = montag`
-        // remove-empty-needs (GitHub Actions YAML plugin)
         __putout_processor_yaml({
             "jobs": {
                 "build": {

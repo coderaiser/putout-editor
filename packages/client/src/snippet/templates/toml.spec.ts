@@ -13,7 +13,6 @@ test('templates: TOML: removes empty dependencies', (t) => {
     });
     
     const expected = montag`
-        // remove-empty-dependencies (TOML plugin)
         __putout_processor_toml({});
     `;
     

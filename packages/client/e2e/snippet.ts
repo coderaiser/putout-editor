@@ -153,7 +153,8 @@ test('snippet: New trigger is left-aligned like other dropdown items', async ({p
     
     const justifyContent = await trigger.evaluate((el) => getComputedStyle(el).justifyContent);
     
-    expect(justifyContent).toBe('flex-start');
+    // newer Chromium serializes `flex-start` as `flow-start`
+    expect(justifyContent).toMatch(/^(flex|flow)-start$/);
 });
 
 test('snippet: New submenu opens on click not hover', async ({page}) => {

@@ -22,6 +22,46 @@ async function replaceTransform(page: Page, text: string) {
     await page.waitForTimeout(600);
 }
 
+// @putout/printer is lazy loaded: make its chunk reject every node, the same
+// way it does with a node type it does not support (no such input is known
+// for the latest printer, so the test does not depend on its version)
+async function breakPrinter(page: Page) {
+    const marker = 'is not supported yet by @putout/printer';
+    const check = /maybeThrow\(![\w$]+,([\w$]+),"(☝️ Node type)/;
+    
+    await page.route('**/*.js', async (route) => {
+        const response = await route.fetch();
+        const body = await response.text();
+        
+        if (!body.includes(marker))
+            return route.fulfill({
+                response,
+                body,
+            });
+        
+        if (!check.test(body))
+            throw Error('printer check not found, update breakPrinter()');
+        
+        return route.fulfill({
+            response,
+            body: body.replace(check, 'maybeThrow(globalThis.__printerBroken === true,$1,"$2'),
+        });
+    });
+    
+    await page.addInitScript(() => {
+        Reflect.set(globalThis, '__printerBroken', true);
+    });
+    
+    // the chunk can be loaded already
+    await page.reload();
+}
+
+async function fixPrinter(page: Page) {
+    await page.evaluate(() => {
+        Reflect.set(globalThis, '__printerBroken', false);
+    });
+}
+
 async function showAst(page: Page) {
     await page.waitForTimeout(300);
 }
@@ -141,7 +181,8 @@ test('switching AST view changes the output mode', async ({page}) => {
 });
 
 test('printer error on blur of editor-transform is shown in editor-transform', async ({page}) => {
-    await replaceTransform(page, 'struct S {}');
+    await breakPrinter(page);
+    await replaceTransform(page, 'export const report = () => `x`;');
     
     await page
         .getByTestId('editor-source')
@@ -152,20 +193,23 @@ test('printer error on blur of editor-transform is shown in editor-transform', a
 });
 
 test('printer error in editor-transform is cleared when the code changes', async ({page}) => {
-    await replaceTransform(page, 'struct S {}');
+    await breakPrinter(page);
+    await replaceTransform(page, 'export const report = () => `x`;');
     
     await page
         .getByTestId('editor-source')
         .locator('.cm-content')
         .click();
     
-    await replaceTransform(page, 'export const report = () => `x`;');
+    await fixPrinter(page);
+    await replaceTransform(page, 'export const report = () => `y`;');
     
     await expect(page.getByTestId('editor-transform')).not.toContainText('not supported yet');
 });
 
 test('printer error in editor-transform does not overlap the editor text', async ({page}) => {
-    await replaceTransform(page, 'struct S {}');
+    await breakPrinter(page);
+    await replaceTransform(page, 'export const report = () => `x`;');
     
     await page
         .getByTestId('editor-source')

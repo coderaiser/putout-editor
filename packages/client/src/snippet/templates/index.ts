@@ -1,7 +1,7 @@
 /**
  * The New-menu templates, one per `categories` entry. The first line of each
- * (`// <name>`) and its `report()` must say what the rule does. The fixture
- * in `./fixtures` repeats the name.
+ * (`// <name>`) and its `report()` must say what the rule does. Fixtures in
+ * `./fixtures` are plain source, without comments.
  */
 import replacer from './replacer.ts';
 import includer from './includer.ts';

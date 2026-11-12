@@ -13,7 +13,6 @@ test('templates: Markdown: removes trailing spaces from heading', (t) => {
     });
     
     const expected = montag`
-        // remove-trailing-spaces-from-heading (Markdown plugin)
         __putout_processor_markdown([
             heading(2, 'Hello World'),
         ]);

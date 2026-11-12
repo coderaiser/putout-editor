@@ -1,8 +1,6 @@
 import {montag} from 'montag';
 
 export default montag`
-    // remove-empty-needs (GitHub Actions YAML plugin)
-    
     __putout_processor_yaml({
         "jobs": {
             "build": {

@@ -1,6 +1,7 @@
 import {setImmediate} from 'node:timers/promises';
 import {test} from 'supertape';
 import {montag} from 'montag';
+import plugins from '@putout/engine-parser/babel/plugins';
 import {
     makeStore as makeTestStore,
     type StoreOverrides,
@@ -236,14 +237,21 @@ test('formatMiddleware: transformBlur sets format error when printer throws', as
     const store = makeStore({
         workbench: {
             transform: {
-                code: 'struct S {}',
+                code: 'type A = number;',
                 transformer: 'putout',
             },
         },
     });
     
+    // @putout/printer does not support Flow: enable the Flow parser plugin
+    // so the parsed node makes the printer crash, whatever its version is
+    const list = plugins as string[];
+    const flow = list.push('flow') - 1;
+    
     store.dispatch(transformBlur());
     await setImmediate();
+    
+    list.splice(flow, 1);
     
     t.match(String(store.getState().formatError), 'not supported yet');
     t.end();

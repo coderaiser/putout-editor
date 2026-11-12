@@ -13,7 +13,6 @@ test('templates: Docker: converts MAINTAINER to LABEL', (t) => {
     });
     
     const expected = montag`
-        // convert-maintainer-to-label (Dockerfile plugin)
         __putout_processor_docker([
             [
                 "LABEL",

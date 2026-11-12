@@ -13,8 +13,6 @@ test('templates: Includer: removes empty method', (t) => {
     });
     
     const expected = montag`
-        // remove-empty-method
-        // The plugin removes methods with no params and no body.
         const obj = {
             greetWithName(name) {
                 return \`hello \${name}\`;

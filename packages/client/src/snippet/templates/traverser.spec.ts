@@ -13,8 +13,6 @@ test('templates: Traverser: merges duplicate imports', (t) => {
     });
     
     const expected = montag`
-        // merge-duplicate-imports
-        // The plugin merges two imports from the same source into one.
         import {a, b} from 'x';
     `;
     

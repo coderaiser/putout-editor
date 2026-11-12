@@ -13,8 +13,6 @@ test('templates: JSON: removes duplicate keyword', (t) => {
     });
     
     const expected = montag`
-        // remove-duplicate-keywords (package.json plugin)
-        // The JSON processor wraps package.json fields as a function call.
         __putout_processor_json({
             "keywords": ["putout", "codemod"]
         });

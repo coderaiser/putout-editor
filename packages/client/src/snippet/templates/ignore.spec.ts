@@ -13,7 +13,6 @@ test('templates: Ignore: fixes the lock file extension', (t) => {
     });
     
     const expected = montag`
-        // fix-lock-extension (.gitignore plugin)
         __putout_processor_ignore(["*.lock", "node_modules"]);
     `;
     
