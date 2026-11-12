@@ -1,3 +1,69 @@
+2026.11.13, v3.5.1
+
+fix:
+- 3b0c140 client: rm double slash from fixtures
+- 32bb732 client: scroll
+- 2ca29da client: mobile: default keymap, pinch zoom
+- e764555 editor-result: error
+- 7a10a2c client: editor-transform: printer crash
+- f7417f0 the two things the lint auto-commit got wrong
+- 5e19fea mcp: the coverage gate, and the 9 sites the arrow rule was hiding
+- 0cf42d3 hoist-arrow-callback: a jsx body is not hoistable, and the 9 sites
+- 9b6f446 plugin-putout-editor: check-documented-scripts matches what redlint builds
+- 4b5e27d mcp: close the coverage gap the new tools opened, and record two traps
+- e99684c mcp: type the two new tools, and the plugin gets a linked-pattern rule
+- d8c9249 plugin-putout-editor: the remove-comments example is an example again
+- a78574a plugin-putout-editor: check-main-imports-only reaches 100% again
+- ca07205 plugin-putout-editor: the md match gate accepts the plugin-level off
+- 821bf25 plugin-putout-editor: the md match, and a gate that keeps it honest
+- 8866253 plugin-putout-editor: the md match has to name every rule
+- 4af03eb plugin-putout-editor: the README examples, again
+- 8ce9289 plugin-putout-editor: the README examples, verified against the fixer
+- b3c3803 plugin-putout-editor: the fixer keeps undoing the README examples
+- 343906f plugin-putout-editor: the fixer corrected the README examples again
+- 1252c04 client: the parser shim shadowed the real types
+- 71589b3 plugin-putout-editor: the rule corrected the example that documents it
+- 80eed44 putout-editor: remove-comments is off repo-wide and on in this package
+- 2da766a plugin-putout-editor: the build script madfork was stopping on
+- 9536f5d client: css: the mobile toolbar shadow goes through a token
+- 613f6d9 client: editor: allow multiple selections, so vim visual block extends
+- a4926de gitignore, css: sort .gitignore, split the two-declaration css blocks
+- 006d829 parser: acorn jsx parser was never built, and cover the estree parsers
+- 88ec691 mcp: examples: finder plugin needs a fix to be runnable
+- d1ca3fa templates: scanner: explicit (file) signature, use removeFile
+- ba98863 mcp: examples: demote finder to advanced-only pattern
+- 829bbcc mcp: a replace() map is unconditional - add match() rather than switch pattern
+- c10b54a mcp: get_example returned plugins with exports from other patterns
+
+feature:
+- 9830d4a putout-editor: client: babel: structs
+- 99196a1 mcp: improve
+- d69335b /flow: add (#4)
+- 3405963 char: syntax highlighting
+- 3f023f4 chat: add
+- af79259 plugin-putout-editor: two rules, both report-only
+- ae2ad11 mcp: name_pattern, the inverse of test_pattern
+- 70ab90b mcp: test_pattern, and docs on the pattern grammar
+- a26ab00 plugin-putout-editor: check-documented-scripts
+- e155333 scripts: check, test:one and coverage:json
+- eb01533 plugin-putout-editor: css-architecture, main.css is @import only
+- 2ef5a54 docs: the client import graph is generated, and checked
+- 48a6adb plugin-putout-editor: the README fences are checked by running them
+- 2aaaa5d mcp: every get_example runs through transform
+- b322e80 plugin-putout-editor: remove-undefined-token, the var() that renders nothing
+- 53ddf73 mcp: docs style warns what the ?. fixer does not tell you
+- 335b81d plugin-putout-editor: remove-duplicated-receiver, the rule the fixer should have been
+- 0892be2 mcp: docs gets a style section, so the conventions are one call away
+- 7351370 plugin-putout-editor: remove-comments, and the script it replaces is gone
+- 3cdc343 plugin-putout: apply-type-check lands in @putout/plugin-putout, and the stale tests
+- 93cdfb9 plugin-putout-editor: apply-type-check moved to @putout/plugin-putout
+- 51cd2d1 plugin-putout-editor: remove-z-index-outside-tokens, and a check for comments
+- f8d0de7 plugin-putout-editor: apply-type-check, and the shape of a real plugin
+- 27098ae plugin-putout-editor: remove-rgb-outside-tokens
+- e7f8dd3 plugin-putout-editor: a putout plugin for this repo's own rules
+- f849769 mcp: get_example returns the shipped markdown rule, not a copy
+- 6767c0b mcp: formats tool, and a markdown example
+
 2026.09.26, v3.5.0
 
 fix:
