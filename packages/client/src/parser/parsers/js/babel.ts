@@ -106,35 +106,7 @@ export default {
         };
         
         opts.plugins = (opts.plugins as unknown[])
-            .map((plugin: unknown) => {
-                if (plugin === 'decorators')
-                    return ['decorators', {
-                        decoratorsBeforeExport: false,
-                    }];
-                
-                if (plugin === 'discardBinding')
-                    return ['discardBinding', {
-                        syntaxType: 'void',
-                    }];
-                
-                if (plugin === 'pipelineOperator')
-                    return ['pipelineOperator', {
-                        proposal: 'minimal',
-                    }];
-                
-                if (plugin === 'optionalChainingAssign')
-                    return ['optionalChainingAssign', {
-                        version: '2023-07',
-                    }];
-                
-                if (isString(plugin) && plugin.startsWith('recordAndTuple'))
-                    return '';
-                
-                if (isArray(plugin) && plugin[0].startsWith('recordAndTuple'))
-                    return '';
-                
-                return plugin;
-            })
+            .map(transformPluginName)
             .filter(Boolean);
         
         return (babylon as {
@@ -172,3 +144,32 @@ export default {
     },
 };
 
+function transformPluginName(plugin: unknown) {
+    if (plugin === 'decorators')
+        return ['decorators', {
+            decoratorsBeforeExport: false,
+        }];
+    
+    if (plugin === 'discardBinding')
+        return ['discardBinding', {
+            syntaxType: 'void',
+        }];
+    
+    if (plugin === 'pipelineOperator')
+        return ['pipelineOperator', {
+            proposal: 'minimal',
+        }];
+    
+    if (plugin === 'optionalChainingAssign')
+        return ['optionalChainingAssign', {
+            version: '2023-07',
+        }];
+    
+    if (isString(plugin) && plugin.startsWith('recordAndTuple'))
+        return '';
+    
+    if (isArray(plugin) && plugin[0].startsWith('recordAndTuple'))
+        return '';
+    
+    return plugin;
+}

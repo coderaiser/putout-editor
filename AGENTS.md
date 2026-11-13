@@ -92,5 +92,7 @@ bun run lint                               # putout . (fix:lint is putout . --fi
   expected result. When it is fixed, delete it there and keep only the lesson in the topic file.
 - Write in simple technical English (ASD-STE100 style): short sentences, active voice, one
   instruction per sentence. No history, no stories.
+- This rule applies to each new or changed comment, test name, test message, and doc. Do not
+  rewrite text that you do not change.
 - A `js` fence must be valid, lint-clean JavaScript. Use `ts` for TypeScript and `text` for
   output. See [`docs/tooling.md`](docs/tooling.md#markdown-fences).

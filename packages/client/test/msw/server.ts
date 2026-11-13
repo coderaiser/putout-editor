@@ -35,6 +35,23 @@ const preflight = http.options('*', () => new HttpResponse(null, {
     },
 }));
 
+/**
+ * happy-dom prints every failed `fetch()` to `console.error` as
+ * `GET http://… 404 (Not Found)`. The specs fail on purpose, so drop only
+ * these lines and keep every other error.
+ */
+const FAILED_REQUEST = /^[A-Z]+ https?:\/\/\S+ \d{3} \(.+\)$/;
+const {error} = console;
+
+console.error = (...args: unknown[]) => {
+    const [message] = args;
+    
+    if (args.length === 1 && typeof message === 'string' && FAILED_REQUEST.test(message))
+        return;
+    
+    error.apply(console, args);
+};
+
 export const server = setupServer(preflight, ...handlers);
 
 /**
