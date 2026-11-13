@@ -195,6 +195,7 @@ test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
             syntax: 'hash',
         }],
     ]);
+    
     const expected = ['jsx'];
     
     t.deepEqual(result, expected);
