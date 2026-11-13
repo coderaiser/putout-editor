@@ -181,9 +181,15 @@ test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
     t.end();
 });
 
-// The settings field reads the stored plugins, falling back to the defaults
+test('babel: drops recordAndTuple: array: which this babel cannot enable', (t) => {
+    const result = parseWithPlugins([['recordAndTuple'], 'jsx']);
+    
+    const expected = ['jsx'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
 
-// when there are none. Both fallbacks are reachable from the configuration.
 const pluginsField = () => {
     const config = babelParser._getSettingsConfiguration();
     const [field] = config.fields.filter((f) => typeof f === 'object' && 'key' in f && f.key === 'plugins');

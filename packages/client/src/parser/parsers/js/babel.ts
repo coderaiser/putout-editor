@@ -7,9 +7,10 @@ import defaultParserInterface from './estree/defaultESTreeParserInterface.ts';
 import type {SettingsConfig} from './estree/SettingsRenderer.tsx';
 import type {AstNode} from '../../../types.ts';
 
+const {isArray} = Array;
+
 const isString = (a: unknown): a is string => typeof a === 'string';
 const isNumber = (a: unknown): a is number => typeof a === 'number';
-const isNotRecordAndTuple = (name: unknown) => name !== 'recordAndTuple';
 const {keys} = Object;
 
 const availablePlugins = [
@@ -127,11 +128,14 @@ export default {
                     }];
                 
                 if (isString(plugin) && plugin.startsWith('recordAndTuple'))
-                    return 'recordAndTuple';
+                    return '';
+                
+                if (isArray(plugin) && plugin[0].startsWith('recordAndTuple'))
+                    return '';
                 
                 return plugin;
             })
-            .filter(isNotRecordAndTuple);
+            .filter(Boolean);
         
         return (babylon as {
             parse: (code: string, options: Record<string, unknown>) => unknown;
@@ -167,3 +171,4 @@ export default {
         return parserSettingsConfiguration;
     },
 };
+
