@@ -181,9 +181,26 @@ test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
     t.end();
 });
 
-// The settings field reads the stored plugins, falling back to the defaults
+test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
+    const result = parseWithPlugins(['recordAndTuple', 'jsx']);
+    const expected = ['jsx'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
 
-// when there are none. Both fallbacks are reachable from the configuration.
+test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
+    const result = parseWithPlugins([
+        ['recordAndTuple', {
+            syntax: 'hash',
+        }],
+    ]);
+    const expected = ['jsx'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
 const pluginsField = () => {
     const config = babelParser._getSettingsConfiguration();
     const [field] = config.fields.filter((f) => typeof f === 'object' && 'key' in f && f.key === 'plugins');
@@ -238,8 +255,7 @@ test('babel: getNodeName names a token by its label', (t) => {
     const result = babelParser.getNodeName(({
         type: {
             label: 'name',
-        }, // AstNode declares `type` as a string, but a token node carries a type
-        // object - which is the arm this covers, hence the cast.
+        },
     } as unknown) as AstNode);
     
     const expected = 'Token (name)';

@@ -16,7 +16,11 @@ export default function oxcReactCompilerLoader(source) {
     });
     
     if (fatal)
-        return this.callback(Error(errors.map(getMessage).join('\n')));
+        return this.callback(Error(
+            errors
+                .map(getMessage)
+                .join('\n'),
+        ));
     
     return this.callback(null, code, map);
 }

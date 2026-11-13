@@ -9,7 +9,6 @@ import type {AstNode} from '../../../types.ts';
 
 const isString = (a: unknown): a is string => typeof a === 'string';
 const isNumber = (a: unknown): a is number => typeof a === 'number';
-const isNotRecordAndTuple = (name: unknown) => name !== 'recordAndTuple';
 const {keys} = Object;
 
 const availablePlugins = [
@@ -78,7 +77,7 @@ export const parserSettingsConfiguration: SettingsConfig = {
             fields: availablePlugins,
             settings: (settings) => 'plugins' in settings && settings.plugins || defaultOptions.plugins,
             values: (plugins) => availablePlugins.reduce((obj: Record<string, boolean>, name: string) => {
-                obj[name] = Array.isArray(plugins) && plugins.includes(name);
+                obj[name] = isArray(plugins) && plugins.includes(name);
                 return obj;
             }, {}),
         },
@@ -109,33 +108,8 @@ export default {
         
         // saved settings may carry no `plugins`: `{sourceType: 'module'}` from the settings dialog
         opts.plugins = ((opts.plugins || defaultOptions.plugins) as unknown[])
-            .map((plugin: unknown) => {
-                if (plugin === 'decorators')
-                    return ['decorators', {
-                        decoratorsBeforeExport: false,
-                    }];
-                
-                if (plugin === 'discardBinding')
-                    return ['discardBinding', {
-                        syntaxType: 'void',
-                    }];
-                
-                if (plugin === 'pipelineOperator')
-                    return ['pipelineOperator', {
-                        proposal: 'minimal',
-                    }];
-                
-                if (plugin === 'optionalChainingAssign')
-                    return ['optionalChainingAssign', {
-                        version: '2023-07',
-                    }];
-                
-                if (isString(plugin) && plugin.startsWith('recordAndTuple'))
-                    return 'recordAndTuple';
-                
-                return plugin;
-            })
-            .filter(isNotRecordAndTuple);
+            .map(transformPluginName)
+            .filter(Boolean);
         
         return (babylon as {
             parse: (code: string, options: Record<string, unknown>) => unknown;
@@ -170,4 +144,34 @@ export default {
     _getSettingsConfiguration() {
         return parserSettingsConfiguration;
     },
+};
+
+const transformPluginName = (plugin: unknown) => {
+    if (plugin === 'decorators')
+        return ['decorators', {
+            decoratorsBeforeExport: false,
+        }];
+    
+    if (plugin === 'discardBinding')
+        return ['discardBinding', {
+            syntaxType: 'void',
+        }];
+    
+    if (plugin === 'pipelineOperator')
+        return ['pipelineOperator', {
+            proposal: 'minimal',
+        }];
+    
+    if (plugin === 'optionalChainingAssign')
+        return ['optionalChainingAssign', {
+            version: '2023-07',
+        }];
+    
+    if (isString(plugin) && plugin.startsWith('recordAndTuple'))
+        return '';
+    
+    if (isArray(plugin) && plugin[0].startsWith('recordAndTuple'))
+        return '';
+    
+    return plugin;
 };

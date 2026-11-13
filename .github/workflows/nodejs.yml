@@ -16,6 +16,7 @@ jobs:
           - 22.x
           - 24.x
           - 26.x
+          - ">= 27.0.0-alpha.0 <= 27.x"
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -43,9 +44,7 @@ jobs:
           kubeconform -summary -strict -ignore-missing-schemas deploy/k8s/
           kubectl kustomize ./deploy/k8s/base
       - name: Typos
-        uses: coderaiser/typos.ai@v1.1.8
-        with:
-          key: ${{ secrets.TYPOS_AI_KEY }}
+        uses: coderaiser/typos.ai@v2
       - name: Commit fixes
         uses: EndBug/add-and-commit@v10
         continue-on-error: true
