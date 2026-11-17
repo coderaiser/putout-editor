@@ -10,6 +10,7 @@ import type {AstNode} from '../../../types.ts';
 const isString = (a: unknown): a is string => typeof a === 'string';
 const isNumber = (a: unknown): a is number => typeof a === 'number';
 const {keys} = Object;
+const {isArray} = Array;
 
 const availablePlugins = [
     // From https://babeljs.io/docs/en/next/babel-parser.html

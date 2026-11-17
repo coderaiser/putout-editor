@@ -106,7 +106,7 @@ test('babel: nodeToRange returns number pairs for every node of a real AST', (t)
 // that the right shape reaches babel - an array [name, options] for the ones
 
 // that need options, a bare string for the one that is dropped.
-const parseWithPlugins = (plugins: string[]) => {
+const parseWithPlugins = (plugins: unknown[]) => {
     const parsed: Record<string, unknown>[] = [];
     const babylon = {
         parse: (_code: string, options: Record<string, unknown>) => {
@@ -174,29 +174,34 @@ test('babel: remaps optionalChainingAssign to the 2023-07 version', (t) => {
 
 test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
     const result = parseWithPlugins(['recordAndTuple', 'jsx']);
-    
     const expected = ['jsx'];
     
     t.deepEqual(result, expected);
     t.end();
 });
 
-test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
-    const result = parseWithPlugins(['recordAndTuple', 'jsx']);
-    const expected = ['jsx'];
-    
-    t.deepEqual(result, expected);
-    t.end();
-});
-
-test('babel: drops recordAndTuple, which this babel cannot enable', (t) => {
+test('babel: drops recordAndTuple with options, which this babel cannot enable', (t) => {
     const result = parseWithPlugins([
         ['recordAndTuple', {
-            syntax: 'hash',
+            syntaxType: 'hash',
         }],
+        'jsx',
     ]);
     
     const expected = ['jsx'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('babel: drops recordAndTuple when it is the only plugin', (t) => {
+    const result = parseWithPlugins([
+        ['recordAndTuple', {
+            syntaxType: 'hash',
+        }],
+    ]);
+    
+    const expected: unknown[] = [];
     
     t.deepEqual(result, expected);
     t.end();
