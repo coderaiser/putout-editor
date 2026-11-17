@@ -73,7 +73,7 @@ test('learnCommand: run ignores the args and state it is handed', (t) => {
     const withArgs = learnCommand.run('anything', {
         source: 'const a = 1;',
         plugin: '',
-    }) as Extract<CommandResult, {type: 'learn'}>;
+    }) as Extract<CommandResult, { type: 'learn'}>;
     
     const answer = withArgs.tree === result.tree;
     
@@ -134,7 +134,7 @@ test('learnCommand: runs runLearn', (t) => {
 });
 
 test('learnCommand: answers with every curriculum node reachable', (t) => {
-    const listed = runLearn() as Extract<CommandResult, {type: 'learn'}>;
+    const listed = runLearn() as Extract<CommandResult, { type: 'learn'}>;
     
     const answer = learnNodes(listed.tree).length;
     const expected = learnNodes(curriculum).length;

@@ -26,10 +26,8 @@ export function updateURI(data: Record<string, unknown>) {
         id,
         rev,
         ...params
-    } = Object.assign(
-        currentParams,
-        data,
-    );
+    } = Object.assign(currentParams,
+        data);
     
     let hash = '';
     

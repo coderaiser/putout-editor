@@ -68,7 +68,7 @@ type Range = SourceRange | null;
 
 export interface Parser { // Parser-specific ranges are validated by parseSourceRange before use.
     nodeToRange(node: AstNode): unknown;
-    forEachProperty(node: AstNode): Iterable<{value: unknown}>;
+    forEachProperty(node: AstNode): Iterable<{ value: unknown}>;
 }
 
 export interface AstNode {

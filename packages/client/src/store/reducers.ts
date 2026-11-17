@@ -100,7 +100,7 @@ const slice = createSlice({
         
         editorBlur: noop,
         transformBlur: noop,
-        setCode: (state, {payload: {code, cursor}}) => {
+        setCode: (state, {payload: {code, cursor} }) => {
             state.workbench.code = code;
             
             if (cursor != null && cursor)
@@ -125,7 +125,7 @@ const slice = createSlice({
             state.workbench.parserSettings = state.parserSettings[parser.id] || null;
         },
         
-        setTransformState: (state, {payload: {code}}) => {
+        setTransformState: (state, {payload: {code} }) => {
             state.formatError = null;
             state.workbench.transform.code = code;
         },
@@ -190,7 +190,7 @@ const slice = createSlice({
             selectParserFromCategory(state, category);
         },
         
-        dropText: (state, {payload: {text, categoryId}}) => {
+        dropText: (state, {payload: {text, categoryId} }) => {
             const category = getCategoryByID(categoryId)!;
             
             selectParserFromCategory(state, category);

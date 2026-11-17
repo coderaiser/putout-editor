@@ -62,7 +62,7 @@ test('installPersistence: does not write while a revision is open', async (t) =>
         ...initialState,
         
         // getRevision only has to be truthy here; the listener never calls it.
-        activeRevision: ({} as Revision),
+        activeRevision: {} as Revision,
     });
     
     installPersistence(store, (next: unknown) => {

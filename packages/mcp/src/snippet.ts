@@ -39,7 +39,7 @@ type Manifest = {
     parserID?: string;
     toolID?: string;
 };
-type Part = (typeof PARTS)[number];
+type Part = typeof PARTS[number];
 type Fetcher = (url: string) => Promise<{
     ok: boolean;
     status: number;

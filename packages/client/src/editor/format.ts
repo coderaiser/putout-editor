@@ -37,7 +37,7 @@ export const formatRule = async (source: string): Promise<FormatResult> => {
     
     const [error, ast] = tryCatch(parse, source, {
         sourceType: 'module',
-        plugins: (plugins as ParserPlugin[]),
+        plugins: plugins as ParserPlugin[],
     });
     
     if (error)
