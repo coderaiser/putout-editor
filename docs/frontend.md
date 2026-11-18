@@ -56,7 +56,13 @@ when it loads. After a bundle change:
 - The server answers an unknown path with the editor `index.html` and status 200. To check that
   an asset exists, request a path that cannot exist and read the content type.
 - `nanoid` comes from `@reduxjs/toolkit`, not a separate dependency.
-- The composer is CodeMirror (`src/CodeMirrorBox.tsx`), loaded with `React.lazy`.
+- The composer is CodeMirror (`src/CodeMirrorBox.tsx`), loaded with `React.lazy`. The editor is
+  `createControlledEditor` in `src/controlledEditor.ts`, with no React in it. The component only ties
+  it to a container, rebuilds it when `lineNumbers` changes, and pushes an outside `value` in.
+- A tree (`/ast`, `/learn`) is four files in `src/components/`: `treeModel.ts` (rows, folds,
+  filter, arrow moves: pure), `treeKeys.ts` (`keyToAction`: a key becomes an action: pure),
+  `treeReducer.ts` (state transitions: pure) and `useTreeState.ts` (React and the DOM). Specs share
+  the fixture in `test/tree.ts` (`#test/tree`).
 - `Enter` inserts a newline. `Ctrl+Enter` sends. A spec that sends must press the chord.
 - A command line starts with `/` (`src/sigil.ts`). When the command grammar changes, search for
   the old spelling in strings too: hint messages name commands.
