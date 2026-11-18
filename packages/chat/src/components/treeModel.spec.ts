@@ -12,6 +12,7 @@ import {
     foldMove,
     rowsOf,
     type TreeMove,
+    visibleOf,
     visibleRows,
     withAncestors,
 } from './treeModel.ts';
@@ -289,5 +290,84 @@ test('treeModel: visibleRows shows everything when nothing is collapsed', (t) =>
     const expected = 5;
     
     t.equal(result, expected);
+    t.end();
+});
+
+test('treeModel: visibleOf with no query returns the folded view', (t) => {
+    const {rows} = visibleOf(tree, new Set(['2']), '', textOf);
+    
+    const result = idsOf(rows);
+    const expected = [
+        '0',
+        '1',
+        '2',
+        '4',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: visibleOf with no query matches nothing', (t) => {
+    const {matched, dimmed} = visibleOf(tree, new Set(), '', textOf);
+    
+    const result = [matched.size, dimmed.size];
+    const expected = [0, 0];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: visibleOf takes a blank query for no query', (t) => {
+    const {rows} = visibleOf(tree, new Set(['2']), '  ', textOf);
+    
+    const result = idsOf(rows);
+    const expected = [
+        '0',
+        '1',
+        '2',
+        '4',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: visibleOf with a query ignores the folds', (t) => {
+    const {rows} = visibleOf(tree, defaultCollapsed(tree), 'Identifier', textOf);
+    
+    const result = idsOf(rows);
+    const expected = [
+        '0',
+        '1',
+        '2',
+        '3',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: visibleOf with a query names the rows that match', (t) => {
+    const {matched} = visibleOf(tree, new Set(), 'Identifier', textOf);
+    
+    const result = sorted(matched);
+    const expected = ['3'];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: visibleOf with a query dims the path to a match', (t) => {
+    const {dimmed} = visibleOf(tree, new Set(), 'Identifier', textOf);
+    
+    const result = sorted(dimmed);
+    const expected = [
+        '0',
+        '1',
+        '2',
+    ];
+    
+    t.deepEqual(result, expected);
     t.end();
 });

@@ -112,16 +112,23 @@ export const visibleRows = <T extends TreeNode>(nodes: T[], collapsed: Set<strin
 };
 
 /**
- * The rows a query sees, which is every node when there is one and the folded
- * view when there is not. Shared by the render and by keyboard navigation, so
- * `j` cannot walk to a row that is not drawn.
+ * What a query sees, which is every node when there is one and the folded
+ * view when there is not. A blank query is no query. Shared by the render and
+ * by keyboard navigation, so `j` cannot walk to a row that is not drawn.
  */
-export const rowsOf = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, query: string, textOf: (node: T) => string): T[] => {
+export const visibleOf = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, query: string, textOf: (node: T) => string): Visible<T> => {
     if (query.trim())
-        return filterNodes(nodes, query, textOf).rows;
+        return filterNodes(nodes, query, textOf);
     
-    return visibleRows(nodes, collapsed);
+    return {
+        rows: visibleRows(nodes, collapsed),
+        matched: new Set<string>(),
+        dimmed: new Set<string>(),
+    };
 };
+
+/** The rows `visibleOf` draws, without the highlight sets. */
+export const rowsOf = <T extends TreeNode>(nodes: T[], collapsed: Set<string>, query: string, textOf: (node: T) => string): T[] => visibleOf(nodes, collapsed, query, textOf).rows;
 
 /**
  * What `ArrowLeft` / `ArrowRight` do. `fold`: collapse or expand this node.
