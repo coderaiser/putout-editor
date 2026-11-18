@@ -1,21 +1,21 @@
 import {
     useCallback,
-    useEffect,
+    useMemo,
+    useReducer,
     useRef,
-    useState,
 } from 'react';
+import {keyToAction} from './treeKeys.ts';
 import {
-    defaultCollapsed,
-    expandMove,
-    filterNodes,
-    foldMove,
-    hasChildren,
-    rowsOf,
+    visibleOf,
     type Focus,
-    type TreeMove,
     type TreeNode,
     type TreeState,
 } from './treeModel.ts';
+import {
+    createTreeState,
+    treeReducer,
+    type TreeAction,
+} from './treeReducer.ts';
 
 export interface TreeOptions<T extends TreeNode> {
     /** What a query is matched against — an AST row's type and detail, a learn row's label and summary. */
@@ -36,6 +36,11 @@ export interface TreeOptions<T extends TreeNode> {
     onOpen?: (node: T) => void;
 }
 
+/**
+ * The state of one tree and the keys that drive it. The model is in
+ * `treeModel`, the key table in `treeKeys`, the transitions in `treeReducer`.
+ * This file only joins them to React and to the DOM.
+ */
 export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOptions<T>) => {
     const {
         textOf,
@@ -43,287 +48,98 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
         onOpen,
     } = options;
     
-    const [state, setState] = useState<TreeState>({
-        collapsed: defaultCollapsed(nodes, collapsedDepth),
-        selected: null,
-        query: '',
-        focus: 'tree',
-    });
+    const reduce = (previous: TreeState, action: TreeAction<T>) => treeReducer(previous, action);
+    const [state, dispatch] = useReducer(reduce, nodes, (initial) => createTreeState(initial, collapsedDepth));
     
-    /**
-     * The listener itself never changes identity, so the callback ref below
-     * attaches it exactly once. `latest` holds the current closure, which is
-     * rebuilt whenever the state it reads changes; `onKeyDown` is the stable
-     * face of it that the DOM knows about. A ref created with the first
-     * closure would attach a no-op, because the callback ref runs before the
-     * effect that would have filled it in.
-     */
-    const latest = useRef<((event: KeyboardEvent) => void) | null>(null);
-    
-    const onKeyDown = useRef((event: KeyboardEvent) => {
-        const {current} = latest;
-        
-        if (current)
-            current(event);
-    }).current;
-    
-    /**
-     * A query searches the whole tree, not the folded view. Filtering only what
-     * is drawn makes a match unreachable: the default fold hides everything
-     * below depth 1, so searching for a deep node type finds nothing and the
-     * search looks broken. Folding and searching are two different intentions,
-     * so the query wins — and clearing it restores the folds.
-     */
-    const rows = useCallback(() => filterNodes(
-        rowsOf(
+    const handle = (event: KeyboardEvent) => {
+        const {
+            action,
+            open,
+            prevent,
+            focusRoot,
+        } = keyToAction(event.key, {
+            ...state,
             nodes,
-            state.collapsed,
-            state.query,
             textOf,
-        ),
-        state.query,
-        textOf,
-    ), [
+            canOpen: Boolean(onOpen),
+        });
+        
+        if (prevent)
+            event.preventDefault();
+        
+        if (action)
+            dispatch(action);
+        
+        if (open)
+            onOpen!(open);
+        
+        // `currentTarget` is the root this listener is bound to: the focus goes
+        // to this tree, never to a second tree on the same page.
+        if (focusRoot)
+            (event.currentTarget as HTMLElement).focus();
+    };
+    
+    /**
+     * The listener never changes identity, so it is attached once and removed
+     * once. `latest` holds the closure of the last render, which is the one that
+     * sees the current state.
+     */
+    const latest = useRef(handle);
+    
+    latest.current = handle;
+    
+    const onKeyDown = useRef((event: KeyboardEvent) => latest.current(event)).current;
+    
+    /**
+     * A ref callback that returns a cleanup. The listener is on the root div, not
+     * on `document`, so two trees on one page — the chat message and the console
+     * panel — each answer only their own keys.
+     */
+    const root = useCallback((element: HTMLDivElement) => {
+        element.addEventListener('keydown', onKeyDown);
+        
+        return () => element.removeEventListener('keydown', onKeyDown);
+    }, [onKeyDown]);
+    
+    /**
+     * A query searches the whole tree, not the folded view: the default fold hides
+     * everything below depth 1, and a search that skipped it would find nothing.
+     * Clearing the query brings the folds back.
+     */
+    const visible = useMemo(() => visibleOf(nodes, state.collapsed, state.query, textOf), [
         nodes,
         state.collapsed,
         state.query,
         textOf,
     ]);
     
-    const toggle = useCallback((id: string) => setState((previous) => {
-        const collapsed = new Set(previous.collapsed);
-        
-        if (collapsed.has(id))
-            collapsed.delete(id);
-        else
-            collapsed.add(id);
-        
-        return {
-            ...previous,
-            collapsed,
-        };
+    const toggle = useCallback((id: string) => dispatch({
+        kind: 'toggle',
+        id,
     }), []);
     
-    const select = useCallback((id: string) => setState((previous) => ({
-        ...previous,
-        selected: id,
-    })), []);
+    const select = useCallback((id: string) => dispatch({
+        kind: 'select',
+        id,
+    }), []);
     
-    const setQuery = useCallback((query: string) => setState((previous) => ({
-        ...previous,
+    const setQuery = useCallback((query: string) => dispatch({
+        kind: 'query',
         query,
-    })), []);
+    }), []);
     
-    const setFocus = useCallback((focus: Focus) => setState((previous) => ({
-        ...previous,
+    const setFocus = useCallback((focus: Focus) => dispatch({
+        kind: 'focus',
         focus,
-    })), []);
-    
-    const move = useCallback((step: number) => setState((previous) => {
-        const shown = rowsOf(nodes, previous.collapsed, previous.query, textOf);
-        
-        if (!shown.length)
-            return previous;
-        
-        const at = shown.findIndex(({id}) => id === previous.selected);
-        
-        const next = at === -1 ? 0 : Math.min(Math.max(at + step, 0), shown.length - 1);
-        
-        return {
-            ...previous,
-            selected: shown[next].id,
-        };
-    }), [nodes]);
-    
-    /**
-     * Applying a `TreeMove` in one place, so `ArrowLeft` and `ArrowRight` are
-     * the only two keys that know the tree has folds at all. `fold` toggles
-     * because that is what a collapsed node wants and what an expanded one wants
-     * — the two arrows are the same verb pointed at opposite ends.
-     */
-    const applyMove = useCallback((move: TreeMove) => {
-        if (move.kind === 'noop')
-            return;
-        
-        if (move.kind === 'fold') {
-            toggle(move.id);
-            select(move.id);
-            
-            return;
-        }
-        
-        select(move.id);
-    }, [select, toggle]);
-    
-    /**
-     * The root div, kept on a ref because two things need it and neither can get
-     * it any other way: the `keydown` listener binds to *this* tree's own element
-     * — two trees on one page each keep their own selection — and `goToTree` has
-     * to put **real** focus back on it.
-     */
-    const element = useRef<HTMLDivElement | null>(null);
-    
-    /**
-     * Leave the filter and move real focus to the tree. Call it from the key
-     * handler, not from an effect on `state.focus`: `onBlur` also sets the
-     * focus, and an effect would take focus from the next click.
-     */
-    const goToTree = useCallback(() => {
-        setQuery('');
-        setFocus('tree');
-        
-        // Bound to a local, which is the only form that both narrows and stops
-        
-        // reading `.current` twice: it is mutable, so two reads are two values as
-        
-        // far as the compiler is concerned. Optional chaining is off in this repo
-        
-        // for the same reason.
-        const {current} = element;
-        
-        if (current)
-            current.focus();
-    }, [setFocus, setQuery]);
-    
-    useEffect(() => {
-        latest.current = (event: KeyboardEvent) => {
-            const {key} = event;
-            
-            if (state.focus === 'search') {
-                /*
-                 * `Escape`, `k` and `ArrowUp` leave the filter and clear it.
-                 * `preventDefault`: the target is the input, so `k` would stay in it.
-                 */
-                if (key === 'Escape' || key === 'k' || key === 'ArrowUp') {
-                    event.preventDefault();
-                    goToTree();
-                }
-                
-                // `Tab` is handled here rather than left to the browser so the
-                // cycle closes in the tree: the plan's order is tree -> filter ->
-                // tree, and letting the browser walk its own tab order instead
-                // would put whatever is between the two in between them.
-                if (key === 'Tab') {
-                    event.preventDefault();
-                    goToTree();
-                }
-                
-                return;
-            }
-            
-            // `Tab` out of the tree and into the filter. `preventDefault` is
-            // what keeps the handler's answer: without it the browser also moves
-            // focus, and the two race for the same element.
-            if (key === 'Tab') {
-                event.preventDefault();
-                setFocus('search');
-                
-                return;
-            }
-            
-            if (key === 'ArrowDown' || key === 'j') {
-                move(1);
-                
-                return;
-            }
-            
-            if (key === 'ArrowUp' || key === 'k') {
-                // `k` on the first row moves focus to the filter, which is above the tree.
-                const shown = rowsOf(nodes, state.collapsed, state.query, textOf);
-                const atTop = shown.length > 0 && state.selected === shown[0].id;
-                
-                if (atTop) {
-                    setFocus('search');
-                    
-                    return;
-                }
-                
-                move(-1);
-                
-                return;
-            }
-            
-            if (key === 'ArrowRight' || key === 'l') {
-                const shown = rowsOf(nodes, state.collapsed, state.query, textOf);
-                
-                applyMove(expandMove(nodes, state.collapsed, state.selected, shown));
-                
-                return;
-            }
-            
-            if (key === 'ArrowLeft' || key === 'h') {
-                applyMove(foldMove(nodes, state.collapsed, state.selected));
-                
-                return;
-            }
-            
-            /**
-             * Enter/space: a container toggles; a leaf opens when the caller
-             * gives `onOpen`, else toggles (a no-op). `hasChildren` asks over
-             * all nodes: a folded subtree hides its children.
-             */
-            if (key === 'Enter' || key === ' ') {
-                if (!state.selected)
-                    return;
-                
-                if (onOpen && !hasChildren(nodes, state.selected)) {
-                    const node = nodes.find(({id}) => id === state.selected) as T;
-                    
-                    onOpen(node);
-                    
-                    return;
-                }
-                
-                toggle(state.selected);
-                
-                return;
-            }
-            
-            if (key === '/')
-                setFocus('search');
-        };
-    }, [
-        applyMove,
-        goToTree,
-        move,
-        nodes,
-        onOpen,
-        setFocus,
-        setQuery,
-        state.collapsed,
-        state.focus,
-        state.query,
-        state.selected,
-        textOf,
-        toggle,
-    ]);
-    
-    /**
-     * A callback ref: it gets the root element of this tree, so the listener
-     * binds there. React calls it with `null` on unmount. `goToTree` uses the
-     * element to move focus.
-     */
-    const root = useCallback((node: HTMLDivElement | null) => {
-        const previous = element.current;
-        
-        if (previous !== null)
-            previous.removeEventListener('keydown', onKeyDown);
-        
-        if (node === null)
-            return;
-        
-        element.current = node;
-        node.addEventListener('keydown', onKeyDown);
-    }, [onKeyDown]);
+    }), []);
     
     return {
         ...state,
         root,
-        visible: rows(),
+        visible,
         toggle,
         select,
         setQuery,
         setFocus,
-        move,
     };
 };
