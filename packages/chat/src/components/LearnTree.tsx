@@ -4,6 +4,7 @@
 import './AstTree.css';
 import type {FlatLearnNode} from '@putout/editor-commands';
 import {useTreeState} from './useTreeState.ts';
+import {layoutOf, type Layout} from './treeModel.ts';
 import LearnRow from './LearnRow.tsx';
 import AstSearch from './AstSearch.tsx';
 
@@ -40,45 +41,6 @@ const textOfLearn = (node: FlatLearnNode) => `${node.label} ${node.summary}`;
 const HINT_FULL = '↑↓/jk navigate · space/enter open · / search · tab switch';
 const HINT_SHORT = '↑↓ · enter · /';
 
-const siblingOf = (pid: string) => (node: FlatLearnNode) => node.pid === pid;
-
-/**
- * The last row of a parent, over **all** rows.
- 
- * A folded subtree's last child is not on screen, so asking only the drawn rows
- * would call the second-to-last visible child "last" the moment the real last
- * one folded away — and the `└─` would move. Same rule `AstTree` states, and
- * worth restating rather than trusting a reader to go and look.
- */
-const isLast = (nodes: FlatLearnNode[], node: FlatLearnNode) => {
-    const {pid} = node;
-    
-    if (pid === null)
-        return true;
-    
-    const siblings = nodes.filter(siblingOf(pid));
-    const last = siblings.at(-1) as FlatLearnNode;
-    
-    return last.id === node.id;
-};
-
-/** Every ancestor of `node`, root first — one boolean per level for the pipes. */
-const chainOf = (nodes: FlatLearnNode[], node: FlatLearnNode): FlatLearnNode[] => {
-    const parent = node.pid === null ? null : nodes.find(({id}) => id === node.pid);
-    
-    if (!parent)
-        return [];
-    
-    return [
-        ...chainOf(nodes, parent),
-        parent,
-    ];
-};
-
-const lastFlagOf = (nodes: FlatLearnNode[]) => (ancestor: FlatLearnNode) => isLast(nodes, ancestor);
-
-const ancestorLastFlags = (nodes: FlatLearnNode[], node: FlatLearnNode): boolean[] => chainOf(nodes, node).map(lastFlagOf(nodes));
-
 /**
  * The `/learn` tree: `AstTree` with the same CSS, rows, `useTreeState` and
  * `AstSearch`. No code preview column: a concept has no source. `Enter` on
@@ -101,6 +63,7 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
         matched,
     } = state.visible;
     
+    const layout = layoutOf(nodes);
     const selected = nodes.find(({id}) => id === state.selected) || null;
     const hidden = nodes.length - rows.length;
     
@@ -121,12 +84,10 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
             <div className="ast__tree">
                 {rows.map((node) => (
                     <LearnRow
-                        ancestorLastFlags={ancestorLastFlags(nodes, node)}
+                        {...(layout.get(node.id) as Layout)}
                         collapsed={state.collapsed.has(node.id)}
                         dimmed={dimmed.has(node.id)}
-                        hasChildren={node.hasChildren}
                         key={node.id}
-                        last={isLast(nodes, node)}
                         matched={matched.has(node.id)}
                         node={node}
                         onSelect={state.select}
