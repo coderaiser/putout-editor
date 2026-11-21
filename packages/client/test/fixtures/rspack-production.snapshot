@@ -8,7 +8,7 @@
                 "parsermeta": {
                     "priority": 30,
                     "test": "/\\/package\\.json$/",
-                    "chunks": "chunks(chunk) {\n                        return chunk.name === 'app';\n                    }",
+                    "chunks": "chunks(chunk) { return chunk.name === 'app'; }",
                     "minChunks": 1,
                     "minSize": 1
                 },
@@ -48,7 +48,7 @@
                 "vendors": {
                     "priority": 5,
                     "test": "/\\/node_modules\\//",
-                    "chunks": "chunks(chunk) {\n                        return chunk.name === 'app';\n                    }"
+                    "chunks": "chunks(chunk) { return chunk.name === 'app'; }"
                 }
             }
         },
@@ -211,7 +211,7 @@
             "options": {
                 "template": "./index.ejs",
                 "templateContent": false,
-                "templateParameters": "function templateParametersGenerator(compilation, assets, assetTags, options) {\n  return {\n    compilation: compilation,\n    webpackConfig: compilation.options,\n    htmlWebpackPlugin: {\n      tags: assetTags,\n      files: assets,\n      options: options,\n    },\n  };\n}",
+                "templateParameters": "function templateParametersGenerator(compilation, assets, assetTags, options) { return { compilation: compilation, webpackConfig: compilation.options, htmlWebpackPlugin: { tags: assetTags, files: assets, options: options, }, }; }",
                 "filename": "index.html",
                 "publicPath": "auto",
                 "hash": false,
@@ -308,7 +308,7 @@
             "name": "NormalModuleReplacementPlugin",
             "_args": [
                 "/^node:/",
-                "(resource) => {\n\tresource.request = resource.request.replace(/^node:/, \"\");\n}"
+                "(resource) => { resource.request = resource.request.replace(/^node:/, \"\"); }"
             ]
         },
         {

@@ -1,5 +1,6 @@
 const isRegExp = (a) => a instanceof RegExp;
 const isFn = (a) => typeof a === 'function';
+const oneLine = (a) => String(a).replace(/\s+/g, ' ');
 const isPlain = ({constructor}) => !constructor || constructor === Object;
 
 const walkItem = (ancestors) => (item) => walk(item, ancestors);
@@ -7,7 +8,10 @@ const walkEntry = (ancestors) => ([key, item]) => [key, walk(item, ancestors)];
 const byText = (a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b));
 
 function walk(value, ancestors) {
-    if (isFn(value) || isRegExp(value))
+    if (isFn(value))
+        return oneLine(value);
+    
+    if (isRegExp(value))
         return String(value);
     
     if (!value || typeof value !== 'object')
@@ -39,6 +43,7 @@ function walk(value, ancestors) {
  * `createSnapshot` turns it into plain JSON, so that a spec can compare two configs.
  * It masks the parts that change without a reason: the root path, the folder of the installed
  * packages (hoisting moves it), the version, the cache breaker.
+ * It puts each function on one line, so that the indent of the file does not matter.
  * The order of `plugins` does not matter to rspack here, so the snapshot sorts them.
  */
 export const createSnapshot = (config, {root, version, cacheBreaker}) => {
