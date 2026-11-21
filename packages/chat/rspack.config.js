@@ -137,6 +137,14 @@ export default {
                 createSwcLoader(DEV),
             ],
         }, {
+            // Only the chat's own sources. The compiler runs first: a loader that
+            // comes later in `use` runs earlier, and SWC must see its output.
+            test: /\.(jsx?|tsx?)$/,
+            include: [new URL('src', import.meta.url).pathname],
+            use: [
+                '@putout/editor-builder/loader',
+            ],
+        }, {
             test: /\.css$/,
             use: [
                 DEV ? 'style-loader' : rspack.CssExtractRspackPlugin.loader, {
