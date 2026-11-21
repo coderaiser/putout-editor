@@ -40,6 +40,7 @@
     "node": ">=22"
   },
   "exports": {
-    "./loader": "./lib/loader.js"
+    "./loader": "./lib/loader.js",
+    "./diagnose": "./lib/diagnose.js"
   }
 }
