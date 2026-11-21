@@ -1,0 +1,391 @@
+{
+    "mode": "development",
+    "optimization": {
+        "moduleIds": "deterministic",
+        "runtimeChunk": "single",
+        "splitChunks": {
+            "cacheGroups": {
+                "parsermeta": {
+                    "priority": 30,
+                    "test": "/\\/package\\.json$/",
+                    "chunks": "chunks(chunk) {\n                        return chunk.name === 'app';\n                    }",
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "codemirror": {
+                    "priority": 25,
+                    "name": "codemirror",
+                    "test": "/\\/node_modules\\/(@codemirror|@lezer|@replit\\/codemirror|@uiw\\/codemirror|qword)\\//",
+                    "chunks": "async",
+                    "enforce": true,
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "putout": {
+                    "priority": 20,
+                    "name": "putout",
+                    "test": "/\\/node_modules\\/(putout|@putout)\\//",
+                    "chunks": "all",
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "babel": {
+                    "priority": 18,
+                    "name": "babel-parser",
+                    "test": "/\\/node_modules\\/@babel\\/(parser|traverse)\\//",
+                    "chunks": "all",
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "react": {
+                    "priority": 15,
+                    "name": "react",
+                    "test": "/\\/node_modules\\/(react|react-dom|react-redux|@reduxjs)\\//",
+                    "chunks": "all",
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "vendors": {
+                    "priority": 5,
+                    "test": "/\\/node_modules\\//",
+                    "chunks": "chunks(chunk) {\n                        return chunk.name === 'app';\n                    }"
+                }
+            }
+        },
+        "minimizer": [
+            {
+                "$class": "SwcJsMinimizerRspackPlugin",
+                "affectedHooks": "compilation",
+                "name": "SwcJsMinimizerRspackPlugin",
+                "_args": [
+                    {
+                        "minimizerOptions": {
+                            "compress": {
+                                "keep_fnames": true
+                            },
+                            "mangle": {
+                                "keep_fnames": true
+                            },
+                            "ecma": 2022,
+                            "format": {
+                                "ecma": 2022
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "module": {
+        "rules": [
+            {
+                "test": "/\\.(jsx?|mjs|tsx?)$/",
+                "type": "javascript/auto",
+                "resolve": {
+                    "fullySpecified": false
+                },
+                "exclude": [
+                    "<modules>/@putout/engine-loader"
+                ],
+                "include": [
+                    "/\\/acorn.es.js$/",
+                    "/\\/acorn.mjs$/",
+                    "/\\/acorn-loose.mjs$/",
+                    "<modules>/ast-types",
+                    "<modules>/jsesc",
+                    "<modules>/eslint-visitor-keys",
+                    "<modules>/json-parse-better-errors",
+                    "<modules>/react-redux/es",
+                    "<modules>/redux/es",
+                    "<modules>/regexp-tree",
+                    "<modules>/simple-html-tokenizer",
+                    "<modules>/symbol-observable/es",
+                    "<modules>/tslib",
+                    "<root>/packages/client/src",
+                    "<modules>/putout",
+                    "<modules>/@putout/plugin-nodejs",
+                    "<modules>/@putout",
+                    "<modules>/estree-to-babel"
+                ],
+                "use": [
+                    "@putout/editor-builder/loader",
+                    {
+                        "loader": "builtin:swc-loader",
+                        "options": {
+                            "jsc": {
+                                "parser": {
+                                    "syntax": "typescript",
+                                    "tsx": true
+                                },
+                                "transform": {
+                                    "react": {
+                                        "runtime": "automatic",
+                                        "development": true
+                                    }
+                                },
+                                "externalHelpers": true
+                            },
+                            "env": {
+                                "targets": "last 2 Chrome versions, last 2 Safari versions, Firefox ESR, not dead"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "test": "/\\.css$/",
+                "use": [
+                    "style-loader",
+                    {
+                        "loader": "css-loader",
+                        "options": {
+                            "importLoaders": 1
+                        }
+                    },
+                    "postcss-loader"
+                ]
+            },
+            {
+                "test": "/\\.woff2?(\\?v=\\d\\.\\d\\.\\d)?$/",
+                "type": "asset",
+                "parser": {
+                    "dataUrlCondition": {
+                        "maxSize": 10000
+                    }
+                }
+            },
+            {
+                "test": "/\\.(ttf|eot|svg)(\\?v=\\d\\.\\d\\.\\d)?$/",
+                "type": "asset/resource"
+            }
+        ],
+        "noParse": [
+            "/acorn\\/dist\\/acorn\\.js/",
+            "/esprima\\/dist\\/esprima\\.js/",
+            "/esprima-fb\\/esprima\\.js/"
+        ]
+    },
+    "plugins": [
+        {
+            "$class": "ContextReplacementPlugin",
+            "name": "ContextReplacementPlugin",
+            "_args": [
+                "/@putout\\/engine-loader/",
+                "/NEVER_MATCH^/"
+            ]
+        },
+        {
+            "$class": "CssExtractRspackPlugin",
+            "options": {
+                "filename": "[name].css"
+            }
+        },
+        {
+            "$class": "DefinePlugin",
+            "affectedHooks": "compilation",
+            "name": "DefinePlugin",
+            "_args": [
+                {
+                    "process.env.API_HOST": "\"\""
+                }
+            ]
+        },
+        {
+            "$class": "HtmlWebpackPlugin",
+            "userOptions": {
+                "favicon": "./favicon.png",
+                "inject": "body",
+                "filename": "index.html",
+                "template": "./index.ejs",
+                "version": "<version>"
+            },
+            "version": 5,
+            "options": {
+                "template": "./index.ejs",
+                "templateContent": false,
+                "templateParameters": "function templateParametersGenerator(compilation, assets, assetTags, options) {\n  return {\n    compilation: compilation,\n    webpackConfig: compilation.options,\n    htmlWebpackPlugin: {\n      tags: assetTags,\n      files: assets,\n      options: options,\n    },\n  };\n}",
+                "filename": "index.html",
+                "publicPath": "auto",
+                "hash": false,
+                "inject": "body",
+                "scriptLoading": "defer",
+                "compile": true,
+                "favicon": "./favicon.png",
+                "minify": "auto",
+                "cache": true,
+                "showErrors": true,
+                "chunks": "all",
+                "excludeChunks": [],
+                "chunksSortMode": "auto",
+                "meta": {},
+                "base": false,
+                "title": "Webpack App",
+                "xhtml": false,
+                "version": "<version>"
+            }
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/^eslint6?$/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/globby/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/hermes-parser/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/import-meta-resolve/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/stylelint/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/supports-hyperlinks/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/unicorn-magic/"
+                }
+            ]
+        },
+        {
+            "$class": "NormalModuleReplacementPlugin",
+            "name": "NormalModuleReplacementPlugin",
+            "_args": [
+                "/^@putout\\/processor-css$/",
+                "<root>/packages/client/src/shims/empty.js"
+            ]
+        },
+        {
+            "$class": "NormalModuleReplacementPlugin",
+            "name": "NormalModuleReplacementPlugin",
+            "_args": [
+                "/^node:/",
+                "(resource) => {\n\tresource.request = resource.request.replace(/^node:/, \"\");\n}"
+            ]
+        },
+        {
+            "$class": "NormalModuleReplacementPlugin",
+            "name": "NormalModuleReplacementPlugin",
+            "_args": [
+                "/jest-validate/",
+                "<root>/packages/client/src/shims/jest-validate.ts"
+            ]
+        },
+        {
+            "$class": "ProgressPlugin",
+            "name": "ProgressPlugin",
+            "_args": []
+        },
+        {
+            "$class": "ProvidePlugin",
+            "affectedHooks": "compilation",
+            "name": "ProvidePlugin",
+            "_args": [
+                {
+                    "Buffer": [
+                        "buffer",
+                        "Buffer"
+                    ]
+                }
+            ]
+        },
+        {
+            "$class": "ProvidePlugin",
+            "affectedHooks": "compilation",
+            "name": "ProvidePlugin",
+            "_args": [
+                {
+                    "process": "process/browser"
+                }
+            ]
+        }
+    ],
+    "resolve": {
+        "extensions": [
+            ".ts",
+            ".tsx",
+            ".js",
+            ".jsx"
+        ],
+        "fallback": {
+            "url": "<modules>/url/url.js",
+            "assert": "assert",
+            "buffer": "<modules>/buffer/index.js",
+            "events": "<modules>/events/events.js",
+            "path": "<modules>/path-browserify/index.js",
+            "tty": "<modules>/tty-browserify/index.js",
+            "process/browser": "<modules>/process/browser.js",
+            "process": "<modules>/process/browser.js",
+            "util": "util",
+            "async_hooks": false,
+            "child_process": false,
+            "constants": false,
+            "crypto": false,
+            "fs": false,
+            "inspector": false,
+            "jscodeshift": false,
+            "module": false,
+            "net": false,
+            "os": false,
+            "perf_hooks": false,
+            "readline": false,
+            "stream": false,
+            "v8": false,
+            "worker_threads": false,
+            "zlib": false
+        }
+    },
+    "entry": {
+        "app": "./src/app.tsx"
+    },
+    "output": {
+        "path": "<root>/out-build",
+        "filename": "[name].js",
+        "chunkFilename": "[name].js"
+    },
+    "devtool": "eval-source-map",
+    "performance": {
+        "maxEntrypointSize": 7340032,
+        "maxAssetSize": 3145728
+    }
+}

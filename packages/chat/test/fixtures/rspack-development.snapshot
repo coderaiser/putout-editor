@@ -1,0 +1,349 @@
+{
+    "mode": "development",
+    "optimization": {
+        "moduleIds": "deterministic",
+        "runtimeChunk": "single",
+        "splitChunks": {
+            "cacheGroups": {
+                "putout": {
+                    "priority": 20,
+                    "name": "putout",
+                    "test": "/\\/node_modules\\/(putout|@putout)\\//",
+                    "chunks": "async",
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "codemirror": {
+                    "priority": 25,
+                    "name": "codemirror",
+                    "test": "/\\/node_modules\\/(@codemirror|@lezer|@replit\\/codemirror|@uiw\\/codemirror|qword)\\//",
+                    "chunks": "async",
+                    "enforce": true,
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "react": {
+                    "priority": 15,
+                    "name": "react",
+                    "test": "/\\/node_modules\\/(react|react-dom|react-redux|@reduxjs)\\//",
+                    "chunks": "all",
+                    "minChunks": 1,
+                    "minSize": 1
+                },
+                "vendors": {
+                    "priority": 5,
+                    "test": "/\\/node_modules\\//",
+                    "chunks": "chunks(chunk) {\n                        return chunk.name === 'chat';\n                    }"
+                }
+            }
+        },
+        "minimizer": [
+            {
+                "$class": "SwcJsMinimizerRspackPlugin",
+                "affectedHooks": "compilation",
+                "name": "SwcJsMinimizerRspackPlugin",
+                "_args": [
+                    {
+                        "minimizerOptions": {
+                            "compress": {
+                                "keep_fnames": true
+                            },
+                            "mangle": {
+                                "keep_fnames": true
+                            },
+                            "ecma": 2022,
+                            "format": {
+                                "ecma": 2022
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "module": {
+        "rules": [
+            {
+                "test": "/\\.(jsx?|mjs|tsx?)$/",
+                "type": "javascript/auto",
+                "resolve": {
+                    "fullySpecified": false
+                },
+                "exclude": [
+                    "<modules>/@putout/engine-loader"
+                ],
+                "use": [
+                    {
+                        "loader": "builtin:swc-loader",
+                        "options": {
+                            "jsc": {
+                                "parser": {
+                                    "syntax": "typescript",
+                                    "tsx": true
+                                },
+                                "transform": {
+                                    "react": {
+                                        "runtime": "automatic",
+                                        "development": true
+                                    }
+                                },
+                                "externalHelpers": true
+                            },
+                            "env": {
+                                "targets": "last 2 Chrome versions, last 2 Safari versions, Firefox ESR, not dead"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "test": "/\\.(jsx?|tsx?)$/",
+                "include": [
+                    "<root>/packages/chat/src"
+                ],
+                "use": [
+                    "@putout/editor-builder/loader"
+                ]
+            },
+            {
+                "test": "/\\.css$/",
+                "use": [
+                    "style-loader",
+                    {
+                        "loader": "css-loader",
+                        "options": {
+                            "importLoaders": 1
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "plugins": [
+        {
+            "$class": "ContextReplacementPlugin",
+            "name": "ContextReplacementPlugin",
+            "_args": [
+                "/@putout\\/engine-loader/",
+                "/NEVER_MATCH^/"
+            ]
+        },
+        {
+            "$class": "CssExtractRspackPlugin",
+            "options": {
+                "filename": "chat/[name].css"
+            }
+        },
+        {
+            "$class": "DefinePlugin",
+            "affectedHooks": "compilation",
+            "name": "DefinePlugin",
+            "_args": [
+                {
+                    "process.env.API_HOST": "\"\""
+                }
+            ]
+        },
+        {
+            "$class": "HtmlWebpackPlugin",
+            "userOptions": {
+                "favicon": "./favicon.png",
+                "inject": "body",
+                "filename": "chat/index.html",
+                "template": "./index.ejs",
+                "version": "<version>"
+            },
+            "version": 5,
+            "options": {
+                "template": "./index.ejs",
+                "templateContent": false,
+                "templateParameters": "function templateParametersGenerator(compilation, assets, assetTags, options) {\n  return {\n    compilation: compilation,\n    webpackConfig: compilation.options,\n    htmlWebpackPlugin: {\n      tags: assetTags,\n      files: assets,\n      options: options,\n    },\n  };\n}",
+                "filename": "chat/index.html",
+                "publicPath": "auto",
+                "hash": false,
+                "inject": "body",
+                "scriptLoading": "defer",
+                "compile": true,
+                "favicon": "./favicon.png",
+                "minify": "auto",
+                "cache": true,
+                "showErrors": true,
+                "chunks": "all",
+                "excludeChunks": [],
+                "chunksSortMode": "auto",
+                "meta": {},
+                "base": false,
+                "title": "Webpack App",
+                "xhtml": false,
+                "version": "<version>"
+            }
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/@putout\\/bundler/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/cosmiconfig/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/env-paths/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/globby/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/hermes-parser/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/import-meta-resolve/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/stylelint/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/supports-hyperlinks/"
+                }
+            ]
+        },
+        {
+            "$class": "IgnorePlugin",
+            "name": "IgnorePlugin",
+            "_args": [
+                {
+                    "resourceRegExp": "/unicorn-magic/"
+                }
+            ]
+        },
+        {
+            "$class": "NormalModuleReplacementPlugin",
+            "name": "NormalModuleReplacementPlugin",
+            "_args": [
+                "/^@putout\\/operator-match-files$/",
+                "<root>/packages/chat/src/shims/empty.js"
+            ]
+        },
+        {
+            "$class": "NormalModuleReplacementPlugin",
+            "name": "NormalModuleReplacementPlugin",
+            "_args": [
+                "/^@putout\\/processor-css$/",
+                "<root>/packages/chat/src/shims/empty.js"
+            ]
+        },
+        {
+            "$class": "NormalModuleReplacementPlugin",
+            "name": "NormalModuleReplacementPlugin",
+            "_args": [
+                "/^node:/",
+                "(resource) => {\n\tresource.request = resource.request.replace(/^node:/, \"\");\n}"
+            ]
+        },
+        {
+            "$class": "ProvidePlugin",
+            "affectedHooks": "compilation",
+            "name": "ProvidePlugin",
+            "_args": [
+                {
+                    "process": "process/browser"
+                }
+            ]
+        }
+    ],
+    "resolve": {
+        "alias": {
+            "#store": "<root>/packages/chat/src/store/index.ts",
+            "#test/store": "<root>/packages/chat/test/store.ts"
+        },
+        "extensions": [
+            ".ts",
+            ".tsx",
+            ".js",
+            ".jsx"
+        ],
+        "fallback": {
+            "url": "<modules>/url/url.js",
+            "assert": "assert",
+            "buffer": "<modules>/buffer/index.js",
+            "events": "<modules>/events/events.js",
+            "path": "<modules>/path-browserify/index.js",
+            "tty": "<modules>/tty-browserify/index.js",
+            "process/browser": "<modules>/process/browser.js",
+            "process": "<modules>/process/browser.js",
+            "util": "util",
+            "async_hooks": false,
+            "child_process": false,
+            "constants": false,
+            "crypto": false,
+            "fs": false,
+            "inspector": false,
+            "jscodeshift": false,
+            "module": false,
+            "net": false,
+            "os": false,
+            "perf_hooks": false,
+            "readline": false,
+            "stream": false,
+            "v8": false,
+            "worker_threads": false,
+            "zlib": false
+        }
+    },
+    "entry": {
+        "chat": "./src/index.tsx"
+    },
+    "output": {
+        "path": "<root>/out",
+        "filename": "chat/[name].js",
+        "chunkFilename": "chat/[name].js"
+    },
+    "devtool": "eval-source-map",
+    "performance": {
+        "maxEntrypointSize": 7340032,
+        "maxAssetSize": 3145728
+    }
+}
