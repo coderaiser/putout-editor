@@ -238,3 +238,57 @@ export const foldMove = <T extends TreeNode>(nodes: T[], collapsed: Set<string>,
         id: selected,
     };
 };
+
+/** What a row needs to draw its branch lines. */
+export interface Layout {
+    /** The last child of its parent. A root is last. */
+    last: boolean;
+    
+    /** Some node names this one as its parent. */
+    hasChildren: boolean;
+    
+    /** One flag for each ancestor, root first: was that ancestor last? */
+    ancestorLastFlags: boolean[];
+}
+
+const entryOf = <T extends TreeNode>(node: T): [string, T] => [node.id, node];
+
+/**
+ * The branch layout of each node, found once for the whole list.
+ *
+ * It reads all nodes, not the drawn rows: a folded subtree hides its last
+ * child, and the `└─` must not move when it does. A node whose parent is not
+ * in the list starts its own chain. The order of `nodes` is free.
+ */
+export const layoutOf = <T extends TreeNode>(nodes: T[]): Map<string, Layout> => {
+    const byId = new Map(nodes.map(entryOf));
+    const lastChild = new Map<string | null, string>();
+    
+    for (const {id, pid} of nodes)
+        lastChild.set(pid, id);
+    
+    const lastOf = ({id, pid}: T) => pid === null || lastChild.get(pid) === id;
+    
+    const flagsOf = ({pid}: T): boolean[] => {
+        const parent = pid === null ? undefined : byId.get(pid);
+        
+        if (!parent)
+            return [];
+        
+        return [
+            ...flagsOf(parent),
+            lastOf(parent),
+        ];
+    };
+    
+    const layout = new Map<string, Layout>();
+    
+    for (const node of nodes)
+        layout.set(node.id, {
+            last: lastOf(node),
+            hasChildren: lastChild.has(node.id),
+            ancestorLastFlags: flagsOf(node),
+        });
+    
+    return layout;
+};

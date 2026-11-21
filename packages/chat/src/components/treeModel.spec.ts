@@ -1,6 +1,7 @@
 import {test} from 'supertape';
 import {
     idsOf,
+    node,
     sorted,
     textOf,
     tree,
@@ -10,6 +11,8 @@ import {
     expandMove,
     filterNodes,
     foldMove,
+    type Layout,
+    layoutOf,
     rowsOf,
     type TreeMove,
     visibleOf,
@@ -366,6 +369,129 @@ test('treeModel: visibleOf with a query dims the path to a match', (t) => {
         '0',
         '1',
         '2',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: layoutOf has one entry for each node', (t) => {
+    const result = sorted(new Set(layoutOf(tree).keys()));
+    const expected = [
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+    ];
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: layoutOf: a root is last', (t) => {
+    const {last} = layoutOf(tree).get('0') as Layout;
+    
+    t.ok(last);
+    t.end();
+});
+
+test('treeModel: layoutOf: a child with a later sibling is not last', (t) => {
+    const {last} = layoutOf(tree).get('2') as Layout;
+    
+    t.notOk(last);
+    t.end();
+});
+
+test('treeModel: layoutOf: the final child of a parent is last', (t) => {
+    const {last} = layoutOf(tree).get('4') as Layout;
+    
+    t.ok(last);
+    t.end();
+});
+
+test('treeModel: layoutOf: a node with a child has children', (t) => {
+    const {hasChildren} = layoutOf(tree).get('1') as Layout;
+    
+    t.ok(hasChildren);
+    t.end();
+});
+
+test('treeModel: layoutOf: a leaf has no children', (t) => {
+    const {hasChildren} = layoutOf(tree).get('3') as Layout;
+    
+    t.notOk(hasChildren);
+    t.end();
+});
+
+test('treeModel: layoutOf: a root has no ancestor flags', (t) => {
+    const {ancestorLastFlags} = layoutOf(tree).get('0') as Layout;
+    const expected: boolean[] = [];
+    
+    t.deepEqual(ancestorLastFlags, expected);
+    t.end();
+});
+
+test('treeModel: layoutOf: ancestor flags go from the root down', (t) => {
+    const {ancestorLastFlags} = layoutOf(tree).get('3') as Layout;
+    
+    const expected = [true, true, false];
+    
+    t.deepEqual(ancestorLastFlags, expected);
+    t.end();
+});
+
+test('treeModel: layoutOf: a missing parent ends the ancestor chain', (t) => {
+    const lost = node('9', 'missing', 1);
+    const {
+        ancestorLastFlags,
+        last,
+    } = layoutOf([lost]).get('9') as Layout;
+    
+    const result = {
+        ancestorLastFlags,
+        last,
+    };
+    
+    const expected = {
+        ancestorLastFlags: [],
+        last: true,
+    };
+    
+    t.deepEqual(result, expected);
+    t.end();
+});
+
+test('treeModel: layoutOf: a child may come before its parent', (t) => {
+    const child = node('2', '1', 1);
+    const parent = node('1', '0', 0);
+    const root = node('0', null, 0);
+    
+    const {ancestorLastFlags} = layoutOf([
+        child,
+        parent,
+        root,
+    ]).get('2') as Layout;
+    
+    const expected = [true, true];
+    
+    t.deepEqual(ancestorLastFlags, expected);
+    t.end();
+});
+
+test('treeModel: layoutOf: each root is last, also when there are two', (t) => {
+    const first = node('0', null, 0);
+    const second = node('1', null, 0);
+    const layout = layoutOf([first, second]);
+    
+    const result = [
+        (layout.get('0') as Layout).last,
+        (layout.get('1') as Layout).last,
+    ];
+    
+    const expected = [
+        true,
+        true,
     ];
     
     t.deepEqual(result, expected);
