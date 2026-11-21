@@ -19,7 +19,6 @@ import {prefixOf} from './sigil.ts';
 import Input, {
     matches,
     describeOf,
-    enterSends,
     wantsLineNumbers,
 } from './Input.tsx';
 
@@ -392,22 +391,6 @@ test('Input: a one-line command keeps the gutter off', async (t) => {
     const expected = null;
     
     cleanup();
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('Input: enterSends is true for a fine pointer', (t) => {
-    const result = enterSends(false);
-    const expected = true;
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('Input: enterSends is false for a coarse pointer', (t) => {
-    const result = enterSends(true);
-    const expected = false;
     
     t.equal(result, expected);
     t.end();

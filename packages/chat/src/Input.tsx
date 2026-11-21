@@ -10,6 +10,7 @@ import {setHistoryIndex} from '#store';
 import type {RootState} from '#store/types';
 import {prefixOf, SIGIL} from './sigil.ts';
 import {useIsMobile} from './hooks/useIsMobile.ts';
+import {composerKey, type ComposerAction} from './composerKeys.ts';
 
 /**
  * CodeMirror is ~3.4 MiB and the composer is the only thing that needs it,
@@ -75,13 +76,6 @@ export const wantsLineNumbers = (typed: string): boolean => {
     return BODY_COMMANDS.has(name);
 };
 
-/**
- * Does a plain `Enter` send? Touch (`pointer: coarse`): newline. Desktop:
- * send. `Shift+Enter` is a newline and `Ctrl`/`Cmd+Enter` sends on both.
- * A touch keyboard has only one return key, so there it makes a newline.
- */
-export const enterSends = (coarse: boolean): boolean => !coarse;
-
 export default function Input({history, onSend}: InputProps) {
     const dispatch = useDispatch();
     const cursor = useSelector((root: RootState) => root.chat.historyIndex);
@@ -135,88 +129,40 @@ export default function Input({history, onSend}: InputProps) {
     
     const coarse = useIsMobile();
     
-    const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-        const {
-            key,
-            shiftKey,
-            ctrlKey,
-            metaKey,
-        } = event;
-        
-        // Enter still completes a *partial* name while the dropdown is up, and
-        // takes precedence over both the newline and the send: it is a choice
-        // about the text, not about sending it. Also suppressed here — the
-        // browser's newline would land after the completed name.
-        //
-        // `!shiftKey` keeps `Shift+Enter` a newline in every state, which is
-        // what it was when it was the only way to get one, and on a touchscreen
-        // where `Enter` sends it is the *only* way to get one.
-        if (key === 'Enter' && !shiftKey && !ctrlKey && !metaKey && open && !exact) {
-            event.preventDefault();
+    const run = (action: ComposerAction) => {
+        if (action.kind === 'complete')
             complete(options[picked]);
-            
-            return;
-        }
         
-        /*
-         * `Enter` sends on a keyboard, `Ctrl`/`Cmd+Enter` sends everywhere.
-         * `Shift+Enter` is the newline. `preventDefault` stops a second newline.
-         */
-        if (key === 'Enter' && !shiftKey && (ctrlKey || metaKey || enterSends(coarse))) {
-            event.preventDefault();
+        if (action.kind === 'send')
             send();
-            
-            return;
-        }
         
-        // Plain `Enter` deliberately reaches no branch below on a keyboard: the
-        // editor inserts the newline itself and fires the change that
-        // `onChange` already turns into state. Re-implementing that here would
-        // be a second place that has to know where the caret is, for a result
-        // the editor hands over correctly.
-        if (key === 'Tab' && open) {
-            // Suppressed so CodeMirror does not also indent the line: the
-            // completion replaces the whole box content on the next render,
-            // and an indent inserted underneath would win the state race.
+        if (action.kind === 'clear')
+            onChange('');
+        
+        if (action.kind === 'pick')
+            setPicked(action.index);
+        
+        if (action.kind === 'history')
+            dispatch(setHistoryIndex(action.index));
+    };
+    
+    const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+        const {action, prevent} = composerKey(event, {
+            text,
+            open,
+            exact,
+            coarse,
+            picked,
+            count: options.length,
+            cursor,
+            historyLength: history.length,
+        });
+        
+        if (prevent)
             event.preventDefault();
-            complete(options[picked]);
-            
-            return;
-        }
         
-        if (key === 'Escape') {
-            setText('');
-            setPicked(0);
-            
-            return;
-        }
-        
-        if (key === 'ArrowDown' && open) {
-            setPicked((index) => (index + 1) % options.length);
-            
-            return;
-        }
-        
-        if (key === 'ArrowUp' && open) {
-            setPicked((index) => (index - 1 + options.length) % options.length);
-            
-            return;
-        }
-        
-        // `cursor` counts how far back the user has walked: 0 is the newest
-        // entry, 1 the one before it. Starting at 0 rather than 1 is what makes
-        // the first `↑` land on the most recent line instead of doing nothing.
-        if (key === 'ArrowUp' && !open && !text) {
-            dispatch(setHistoryIndex(Math.min(cursor + 1, history.length)));
-            
-            return;
-        }
-        
-        if (key === 'ArrowDown' && !open && !text) {
-            dispatch(setHistoryIndex(Math.max(cursor - 1, -1)));
-            
-            return;
-        }
+        if (action)
+            run(action);
     };
     
     // `cursor` is how far back in the history the user has walked, so 0 means
