@@ -66,6 +66,11 @@ when it loads. After a bundle change:
   branch lines, once for all nodes. `AstRow` and `LearnRow` draw the rest on top of `TreeRow.tsx`.
 - The keys of the composer are `composerKey` in `src/composerKeys.ts`: pure, no React. `Input.tsx`
   runs the action it returns.
+- The chat is built with the React Compiler (`@putout/editor-builder`, see
+  `rspack.config.js`). Do not write `useMemo` or `useCallback`: the compiler memoizes. Do not write
+  a ref in render (`ref.current = x`): the compiler skips the function. `test/compiler.spec.ts`
+  runs the compiler over `src/` and lists each function that it skips, with the reason. Unit tests
+  run the source without the compiler, so only e2e runs the compiled code.
 - `Enter` inserts a newline. `Ctrl+Enter` sends. A spec that sends must press the chord.
 - A command line starts with `/` (`src/sigil.ts`). When the command grammar changes, search for
   the old spelling in strings too: hint messages name commands.
