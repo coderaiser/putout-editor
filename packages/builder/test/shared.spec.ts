@@ -33,6 +33,7 @@ test('builder: shared: createIgnore', (t) => {
     const ignore = createIgnore(rspack);
     const {args} = ignore(/globby/) as Plugin;
     const result = args;
+    
     const expected = [{
         resourceRegExp: /globby/,
     }];
@@ -68,6 +69,7 @@ test('builder: shared: createRemoveNodePrefix: cuts the prefix', (t) => {
         request.test('node:fs'),
         resource.request,
     ];
+    
     const expected = [true, 'fs'];
     
     t.deepEqual(result, expected);
@@ -110,6 +112,7 @@ test('builder: shared: createFallback: resolves packages, cuts the rest', (t) =>
     const resolve = (name: string) => `/resolved/${name}`;
     const {path, fs} = createFallback(resolve);
     const result = [path, fs];
+    
     const expected = [
         '/resolved/path-browserify',
         false,

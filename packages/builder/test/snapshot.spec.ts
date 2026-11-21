@@ -29,6 +29,7 @@ test('builder: snapshot: function becomes its source', (t) => {
     const chunks = (chunk: {
         name: string;
     }) => chunk.name === 'app';
+    
     const result = createSnapshot({
         chunks,
     }, options);

@@ -6,7 +6,9 @@ const isPlain = ({constructor}) => !constructor || constructor === Object;
 const walkItem = (ancestors) => (item) => walk(item, ancestors);
 const walkEntry = (ancestors) => ([key, item]) => [key, walk(item, ancestors)];
 const byKey = ([a], [b]) => a.localeCompare(b);
-const byText = (a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b));
+const byText = (a, b) => JSON
+    .stringify(a)
+    .localeCompare(JSON.stringify(b));
 
 function walk(value, ancestors) {
     if (isFn(value))

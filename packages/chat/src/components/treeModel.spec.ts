@@ -489,10 +489,7 @@ test('treeModel: layoutOf: each root is last, also when there are two', (t) => {
         (layout.get('1') as Layout).last,
     ];
     
-    const expected = [
-        true,
-        true,
-    ];
+    const expected = [true, true];
     
     t.deepEqual(result, expected);
     t.end();

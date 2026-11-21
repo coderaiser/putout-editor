@@ -141,6 +141,7 @@ test('builder: config: createChunkNamed', (t) => {
             name: 'chat',
         }),
     ];
+    
     const expected = [true, false];
     
     t.deepEqual(result, expected);
@@ -181,6 +182,7 @@ test('builder: config: createCacheGroups: putout chunks and vendors chunk', (t) 
     }), vendors.chunks({
         name: 'app',
     })];
+    
     const expected = ['async', true, false];
     
     t.deepEqual(result, expected);
@@ -322,6 +324,7 @@ test('builder: config: createRules: css in production uses the extract loader', 
     const [, , {use}] = createRulesOf() as unknown as [unknown, unknown, {
         use: unknown[];
     }];
+    
     const [first] = use;
     
     t.equal(first, 'css-extract-loader');
@@ -337,6 +340,7 @@ test('builder: config: createRules: css in development uses style-loader and pos
     }];
     
     const result = [use[0], use.at(-1)];
+    
     const expected = [
         'style-loader',
         'postcss-loader',
@@ -386,6 +390,7 @@ test('builder: config: createConfig: development', (t) => {
     });
     
     const result = [mode, devtool];
+    
     const expected = [
         'development',
         'eval-source-map',
@@ -401,6 +406,7 @@ test('builder: config: createConfig: production', (t) => {
     });
     
     const result = [config.mode, 'devtool' in config, config.output.filename];
+    
     const expected = [
         'production',
         false,

@@ -28,7 +28,10 @@ export const diagnose = (path, source) => {
     });
     
     return errors.map(({message, labels}) => {
-        const [{message: detail, start}] = labels;
+        const [{
+            message: detail,
+            start,
+        }] = labels;
         
         const text = [message, detail]
             .filter(Boolean)

@@ -30,19 +30,24 @@ export interface ComposerKey {
     metaKey: boolean;
 }
 
-export type ComposerAction = {
-    kind: 'complete';
-} | {
-    kind: 'send';
-} | {
-    kind: 'clear';
-} | {
-    kind: 'pick';
-    index: number;
-} | {
-    kind: 'history';
-    index: number;
-};
+export type ComposerAction =
+    | {
+        kind: 'complete';
+    }
+    | {
+        kind: 'send';
+    }
+    | {
+        kind: 'clear';
+    }
+    | {
+        kind: 'pick';
+        index: number;
+    }
+    | {
+        kind: 'history';
+        index: number;
+    };
 
 /**
  * What a key does. `action` is for the caller to run. `prevent` is a
@@ -132,7 +137,10 @@ const onUp = ({open, text, picked, count, cursor, historyLength}: ComposerContex
     if (text)
         return NONE;
     
-    return history(Math.min(cursor + 1, historyLength));
+    return history(Math.min(
+        cursor + 1,
+        historyLength,
+    ));
 };
 
 /**
