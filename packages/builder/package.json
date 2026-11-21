@@ -43,6 +43,7 @@
     "./loader": "./lib/loader.js",
     "./diagnose": "./lib/diagnose.js",
     "./shared": "./lib/shared.js",
-    "./snapshot": "./lib/snapshot.js"
+    "./snapshot": "./lib/snapshot.js",
+    "./config": "./lib/config.js"
   }
 }
