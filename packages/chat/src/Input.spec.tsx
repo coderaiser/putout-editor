@@ -20,8 +20,6 @@ import Input, {
     matches,
     describeOf,
     enterSends,
-    growTo,
-    isCoarsePointer,
     wantsLineNumbers,
 } from './Input.tsx';
 
@@ -269,20 +267,6 @@ test('Input: the effect does nothing without matchMedia', async (t) => {
     globalThis.matchMedia = original;
     
     t.deepEqual(result, expected);
-    t.end();
-});
-
-test('Input: isCoarsePointer is false without matchMedia', (t) => {
-    const original = globalThis.matchMedia;
-    
-    Reflect.deleteProperty(globalThis, 'matchMedia');
-    
-    const result = isCoarsePointer();
-    const expected = false;
-    
-    globalThis.matchMedia = original;
-    
-    t.equal(result, expected);
     t.end();
 });
 
@@ -1013,126 +997,6 @@ test('Input: describeOf reads past the slash of a suggested name', (t) => {
 test('Input: describeOf returns nothing for a name that is not a command', (t) => {
     const result = describeOf('notacommand');
     const expected = '';
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-/**
- * jsdom lays nothing out, so `scrollHeight` is 0 for every element. The stub
- * is what makes this test say something: without it `growTo` would set every
- * height to `0px` and pass, which is the same green as a box that never grows.
- */
-const withScrollHeight = (height: number, run: (element: HTMLTextAreaElement) => void) => {
-    const element = document.createElement('textarea');
-    
-    Object.defineProperty(element, 'scrollHeight', {
-        configurable: true,
-        value: height,
-    });
-    
-    run(element);
-    
-    return element.style.height;
-};
-
-test('Input: growTo sizes the box to its content', (t) => {
-    const result = withScrollHeight(96, growTo);
-    const expected = '96px';
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('Input: growTo clears the height first, so shrinking works', (t) => {
-    const element = document.createElement('textarea');
-    const set: string[] = [];
-    
-    // `style.height` is the observation point: the point of writing `'auto'`
-    // before the measurement is that a box which has already grown would
-    // otherwise measure itself and never shrink back.
-    Object.defineProperty(element, 'style', {
-        configurable: true,
-        get() {
-            return {
-                set height(value: string) {
-                    set.push(value);
-                },
-            };
-        },
-    });
-    
-    Object.defineProperty(element, 'scrollHeight', {
-        configurable: true,
-        value: 24,
-    });
-    
-    growTo(element);
-    
-    const result = set;
-    const expected = [
-        'auto',
-        '24px',
-    ];
-    
-    t.deepEqual(result, expected);
-    t.end();
-});
-
-test('Input: growTo does nothing without a box', (t) => {
-    growTo(null);
-    
-    const result = ['survived'];
-    const expected = ['survived'];
-    
-    t.deepEqual(result, expected);
-    t.end();
-});
-
-/**
- * `growTo` reads the cap from the computed style, so the box has to be in the
- * document: jsdom resolves `max-height` to `''` on a detached element, which
- * would make the comparison a `NaN` one and leave the "taller than the cap" arm
- * unreachable. The cap is the real `200px` from `chat.css` — the point is not
- * the number but that the function asks the stylesheet rather than carrying a
- * copy of it.
- */
-const withOverflow = (height: number, maxHeight: string, run: (element: HTMLTextAreaElement) => void) => {
-    const element = document.createElement('textarea');
-    
-    Object.defineProperty(element, 'scrollHeight', {
-        configurable: true,
-        value: height,
-    });
-    
-    element.style.maxHeight = maxHeight;
-    document.body.append(element);
-    
-    run(element);
-    
-    const {overflowY} = element.style;
-    
-    element.remove();
-    
-    return overflowY;
-};
-
-test('Input: growTo shows no scrollbar while the box is under the cap', (t) => {
-    // The regression: `overflow-y: auto` in the stylesheet draws a scrollbar
-    // track on a one-row box, and it is there for the whole time the user is
-    // typing the first line.
-    const result = withOverflow(96, '200px', growTo);
-    const expected = 'hidden';
-    
-    t.equal(result, expected);
-    t.end();
-});
-
-test('Input: growTo brings the scrollbar back once the box hits the cap', (t) => {
-    // Hiding it and never bringing it back would be the other half of the same
-    // bug: a pasted file taller than the cap would be unreachable.
-    const result = withOverflow(240, '200px', growTo);
-    const expected = 'auto';
     
     t.equal(result, expected);
     t.end();

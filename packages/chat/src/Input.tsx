@@ -3,14 +3,13 @@ import {commands} from '@putout/editor-commands';
 import {
     lazy,
     Suspense,
-    useEffect,
     useState,
     type KeyboardEvent,
 } from 'react';
 import {setHistoryIndex} from '#store';
 import type {RootState} from '#store/types';
 import {prefixOf, SIGIL} from './sigil.ts';
-import {isCoarsePointer} from './hooks/useIsMobile.ts';
+import {useIsMobile} from './hooks/useIsMobile.ts';
 
 /**
  * CodeMirror is ~3.4 MiB and the composer is the only thing that needs it,
@@ -26,26 +25,6 @@ export interface InputProps {
     history: string[];
     onSend: (input: string) => void;
 }
-
-/**
- * Size the box to its content, up to `max-height`. Show the scrollbar only
- * at the cap: CSS cannot do that. jsdom reports 0 for both values, so this
- * has its own spec.
- */
-export const growTo = (box: HTMLTextAreaElement | null): void => {
-    if (!box)
-        return;
-    
-    box.style.height = 'auto';
-    box.style.height = `${box.scrollHeight}px`;
-    
-    // Read the cap from the computed style rather than repeating `200` here,
-    
-    // so the two cannot drift apart the way a hard-coded number would.
-    const cap = parseInt(getComputedStyle(box).maxHeight, 10);
-    
-    box.style.overflowY = box.scrollHeight > cap ? 'auto' : 'hidden';
-};
 
 /**
  * Commands whose name starts with the typed text, in registry order. The
@@ -103,12 +82,6 @@ export const wantsLineNumbers = (typed: string): boolean => {
  */
 export const enterSends = (coarse: boolean): boolean => !coarse;
 
-/**
- * The pointer type, read once on mount. `false` when `matchMedia` is
- * missing. `Input.spec.tsx` imports it from here.
- */
-export {isCoarsePointer} from './hooks/useIsMobile.ts';
-
 export default function Input({history, onSend}: InputProps) {
     const dispatch = useDispatch();
     const cursor = useSelector((root: RootState) => root.chat.historyIndex);
@@ -160,32 +133,7 @@ export default function Input({history, onSend}: InputProps) {
         setPicked(0);
     };
     
-    /**
- * Read once at mount and kept in state, so the key handler reads one boolean
- * rather than calling `matchMedia` per keystroke. The listener below is the
- * stated limitation: a page left open across a device change (a tablet undocked
- * into a keyboard) keeps the binding it mounted with, and re-mounting on the
- * query would throw away the composer mid-sentence. That is a better trade than
- * the alternative for a chat box.
- */
-    const [coarse, setCoarse] = useState(isCoarsePointer);
-    
-    useEffect(() => {
-        if (typeof globalThis.matchMedia !== 'function')
-            return;
-        
-        const query = globalThis.matchMedia('(pointer: coarse)');
-        
-        const onChange = () => {
-            setCoarse(query.matches);
-        };
-        
-        query.addEventListener('change', onChange);
-        
-        return () => {
-            query.removeEventListener('change', onChange);
-        };
-    }, []);
+    const coarse = useIsMobile();
     
     const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
         const {
@@ -203,7 +151,7 @@ export default function Input({history, onSend}: InputProps) {
         // `!shiftKey` keeps `Shift+Enter` a newline in every state, which is
         // what it was when it was the only way to get one, and on a touchscreen
         // where `Enter` sends it is the *only* way to get one.
-        if (key === 'Enter' && !shiftKey && !ctrlKey && !metaKey && open && options.length && !exact) {
+        if (key === 'Enter' && !shiftKey && !ctrlKey && !metaKey && open && !exact) {
             event.preventDefault();
             complete(options[picked]);
             
@@ -226,7 +174,7 @@ export default function Input({history, onSend}: InputProps) {
         // `onChange` already turns into state. Re-implementing that here would
         // be a second place that has to know where the caret is, for a result
         // the editor hands over correctly.
-        if (key === 'Tab' && open && options.length) {
+        if (key === 'Tab' && open) {
             // Suppressed so CodeMirror does not also indent the line: the
             // completion replaces the whole box content on the next render,
             // and an indent inserted underneath would win the state race.
@@ -243,13 +191,13 @@ export default function Input({history, onSend}: InputProps) {
             return;
         }
         
-        if (key === 'ArrowDown' && open && options.length) {
+        if (key === 'ArrowDown' && open) {
             setPicked((index) => (index + 1) % options.length);
             
             return;
         }
         
-        if (key === 'ArrowUp' && open && options.length) {
+        if (key === 'ArrowUp' && open) {
             setPicked((index) => (index - 1 + options.length) % options.length);
             
             return;
@@ -278,12 +226,9 @@ export default function Input({history, onSend}: InputProps) {
     const recalled = cursor >= 0 ? history.at(!cursor ? history.length - 1 : history.length - cursor - 1) : undefined;
     const value = text || recalled || '';
     
-    // No `growTo`, no box ref: CodeMirror sizes its own content and the
-    // `.input__box` CSS `min-height`/`max-height` bounds it. The `growTo`
-    // export and its specs stay (a tested helper), only the call site goes.
     return (
         <div className="input">
-            {open && options.length > 0 && (
+            {open && (
                 <div
                     className="autocomplete"
                     data-testid="autocomplete"
