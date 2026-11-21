@@ -5,7 +5,8 @@ import {
     fireEvent,
 } from '@testing-library/react';
 import type {FlatNode} from '@putout/editor-commands';
-import AstRow, {caretOf, connectorsOf} from './AstRow.tsx';
+import AstRow from './AstRow.tsx';
+import {caretOf, connectorsOf} from './TreeRow.tsx';
 
 const read = (selector: string) => {
     const element = document.querySelector(selector);
