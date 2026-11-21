@@ -20,9 +20,15 @@ when it loads. After a bundle change:
 | `Cannot resolve 'v8'`, `'inspector'` | `import-meta-resolve`, `typescript` | `fallback: false` |
 | `Cannot find module '@putout/operator-match-files'` | a dynamic `require` resolves at run time | `NormalModuleReplacementPlugin` to an empty module |
 
-- `packages/builder/lib/shared.js` holds the parts that both configs share: `NODE_ONLY`, the
-  fallbacks, the minimizer and the swc loader. It imports nothing: each config gives its own
-  `rspack` and `resolve`.
+- `packages/builder` builds both packages. `createConfig` (`lib/config.js`) makes the config from
+  a few options: the entry, the output folder, the lists of ignored packages, and the extra rules
+  and plugins of the package. `lib/shared.js` holds the small parts: `NODE_ONLY`, the fallbacks,
+  the minimizer and the swc loader. The builder imports nothing heavy: each config gives its own
+  `rspack`, `HtmlWebpackPlugin` and `resolve`.
+- `test/config.spec.ts` in each package compares the config with `test/fixtures/*.snapshot`
+  (development and production). A change of the config fails the spec. When the change is wanted,
+  run `UPDATE_SNAPSHOT=1 SPEC=test/config.spec.ts bun run test:one` and read the diff of the
+  fixtures in the commit.
 - `hermes-parser` is in `NODE_ONLY`. In the chat bundle it adds about 750 KB to the first load.
   `test/rspack.spec.ts` in each package checks the list.
 - Each `resolve.fallback` package is a declared dependency of the package. Hoisting differs in a
@@ -66,11 +72,12 @@ when it loads. After a bundle change:
   branch lines, once for all nodes. `AstRow` and `LearnRow` draw the rest on top of `TreeRow.tsx`.
 - The keys of the composer are `composerKey` in `src/composerKeys.ts`: pure, no React. `Input.tsx`
   runs the action it returns.
-- The chat is built with the React Compiler (`@putout/editor-builder`, see
-  `rspack.config.js`). Do not write `useMemo` or `useCallback`: the compiler memoizes. Do not write
+- The chat and the client are built with the React Compiler (`@putout/editor-builder/loader`).
+  The compiler reads `src` only: a second rule, after the SWC rule, so that it runs first. Do not write `useMemo` or `useCallback`: the compiler memoizes. Do not write
   a ref in render (`ref.current = x`): the compiler skips the function. `test/compiler.spec.ts`
-  runs the compiler over `src/` and lists each function that it skips, with the reason. Unit tests
-  run the source without the compiler, so only e2e runs the compiled code.
+  runs the compiler over `src/` and lists each function that it skips, with the reason. The client
+  has three known skips in its spec. Unit tests run the source without the compiler, so only e2e
+  runs the compiled code.
 - `Enter` inserts a newline. `Ctrl+Enter` sends. A spec that sends must press the chord.
 - A command line starts with `/` (`src/sigil.ts`). When the command grammar changes, search for
   the old spelling in strings too: hint messages name commands.
