@@ -1,6 +1,5 @@
 import {
-    useCallback,
-    useMemo,
+    useLayoutEffect,
     useReducer,
     useRef,
 } from 'react';
@@ -81,57 +80,55 @@ export const useTreeState = <T extends TreeNode>(nodes: T[], options: TreeOption
     
     /**
      * The listener never changes identity, so it is attached once and removed
-     * once. `latest` holds the closure of the last render, which is the one that
-     * sees the current state.
+     * once. `latest` holds the closure of the last commit, which is the one that
+     * sees the current state. A layout effect writes it: a ref is not written
+     * in render, and the effect runs before the browser can send the next key.
      */
     const latest = useRef(handle);
     
-    latest.current = handle;
+    useLayoutEffect(() => {
+        latest.current = handle;
+    });
     
-    const onKeyDown = useRef((event: KeyboardEvent) => latest.current(event)).current;
+    const onKeyDown = (event: KeyboardEvent) => latest.current(event);
     
     /**
      * A ref callback that returns a cleanup. The listener is on the root div, not
      * on `document`, so two trees on one page — the chat message and the console
      * panel — each answer only their own keys.
      */
-    const root = useCallback((element: HTMLDivElement) => {
+    const root = (element: HTMLDivElement) => {
         element.addEventListener('keydown', onKeyDown);
         
         return () => element.removeEventListener('keydown', onKeyDown);
-    }, [onKeyDown]);
+    };
     
     /**
      * A query searches the whole tree, not the folded view: the default fold hides
      * everything below depth 1, and a search that skipped it would find nothing.
      * Clearing the query brings the folds back.
      */
-    const visible = useMemo(() => visibleOf(nodes, state.collapsed, state.query, textOf), [
-        nodes,
-        state.collapsed,
-        state.query,
-        textOf,
-    ]);
+    const visible = visibleOf(nodes, state.collapsed, state.query, textOf);
     
-    const toggle = useCallback((id: string) => dispatch({
+    const toggle = (id: string) => dispatch({
         kind: 'toggle',
         id,
-    }), []);
+    });
     
-    const select = useCallback((id: string) => dispatch({
+    const select = (id: string) => dispatch({
         kind: 'select',
         id,
-    }), []);
+    });
     
-    const setQuery = useCallback((query: string) => dispatch({
+    const setQuery = (query: string) => dispatch({
         kind: 'query',
         query,
-    }), []);
+    });
     
-    const setFocus = useCallback((focus: Focus) => dispatch({
+    const setFocus = (focus: Focus) => dispatch({
         kind: 'focus',
         focus,
-    }), []);
+    });
     
     return {
         ...state,

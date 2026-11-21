@@ -3,7 +3,6 @@ import {commands} from '@putout/editor-commands';
 import {
     lazy,
     Suspense,
-    useCallback,
     useEffect,
     useState,
     type KeyboardEvent,
@@ -133,7 +132,7 @@ export default function Input({history, onSend}: InputProps) {
      */
     const exact = options.includes(text);
     
-    const send = useCallback(() => {
+    const send = () => {
         if (!text.trim())
             return;
         
@@ -141,7 +140,7 @@ export default function Input({history, onSend}: InputProps) {
         setText('');
         dispatch(setHistoryIndex(-1));
         setPicked(0);
-    }, [dispatch, onSend, text]);
+    };
     
     const onChange = (next: string) => {
         setText(next);
@@ -156,10 +155,10 @@ export default function Input({history, onSend}: InputProps) {
      * `/tra`+Tab both give `/transform `, a line the page runs, and never
      * `//transform `.
      */
-    const complete = useCallback((value: string) => {
+    const complete = (value: string) => {
         setText(`${SIGIL}${prefixOf(value)} `);
         setPicked(0);
-    }, []);
+    };
     
     /**
  * Read once at mount and kept in state, so the key handler reads one boolean
@@ -188,7 +187,7 @@ export default function Input({history, onSend}: InputProps) {
         };
     }, []);
     
-    const onKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
+    const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
         const {
             key,
             shiftKey,
@@ -270,17 +269,7 @@ export default function Input({history, onSend}: InputProps) {
             
             return;
         }
-    }, [
-        coarse,
-        complete,
-        exact,
-        history.length,
-        open,
-        options,
-        picked,
-        send,
-        text,
-    ]);
+    };
     
     // `cursor` is how far back in the history the user has walked, so 0 means
     // "showing the box as it is" and 1 is the most recent line. Reading it here

@@ -1,6 +1,7 @@
 import './css/highlight.css';
 import {
     useEffect,
+    useLayoutEffect,
     useRef,
     type KeyboardEvent,
 } from 'react';
@@ -36,12 +37,14 @@ export default function CodeMirrorBox({className, 'data-testid': testId, lineNum
     const rebuildRef = useRef(false);
     
     const onChangeRef = useRef(onChange);
-    
-    onChangeRef.current = onChange;
-    
     const onKeyDownRef = useRef(onKeyDown);
     
-    onKeyDownRef.current = onKeyDown;
+    // Not in render: a ref is not written there. A layout effect runs before
+    // the effect that builds the editor, so the editor always finds the latest.
+    useLayoutEffect(() => {
+        onChangeRef.current = onChange;
+        onKeyDownRef.current = onKeyDown;
+    });
     
     /*
      * CodeMirror has no setter for `lineNumbers`, so a change builds a new

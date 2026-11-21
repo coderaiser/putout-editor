@@ -92,6 +92,9 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
         textOf: textOfLearn,
     });
     
+    // `ref={root}` would make the compiler treat all of `state` as a ref.
+    const {root} = state;
+    
     const {
         rows,
         dimmed,
@@ -105,7 +108,7 @@ export default function LearnTree({nodes, onOpen, mobile}: LearnTreeProps) {
         <div
             className="ast"
             data-testid="learn-output"
-            ref={state.root}
+            ref={root}
             tabIndex={0}
         >
             <AstSearch

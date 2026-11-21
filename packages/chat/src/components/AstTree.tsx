@@ -85,6 +85,9 @@ export default function AstTree({nodes, source, mobile}: AstTreeProps) {
         textOf: textOfAst,
     });
     
+    // `ref={root}` would make the compiler treat all of `state` as a ref.
+    const {root} = state;
+    
     const {
         rows,
         dimmed,
@@ -101,7 +104,7 @@ export default function AstTree({nodes, source, mobile}: AstTreeProps) {
         <div
             className="ast"
             data-testid="ast-output"
-            ref={state.root}
+            ref={root}
             tabIndex={0}
         >
             <AstSearch

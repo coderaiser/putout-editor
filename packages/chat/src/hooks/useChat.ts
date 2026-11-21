@@ -1,4 +1,3 @@
-import {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
     commands,
@@ -38,6 +37,13 @@ const parseError = (error: string): CommandResult => ({
     message: error,
 });
 
+/** One line to run: what the parser reads, what the thread shows, and the source it reads. */
+interface Step {
+    line: string;
+    echo: string;
+    source: string;
+}
+
 /**
  * What a sent line does, in one place: source, console tree, panel, thread.
  * `console` returns text; the panel toggle is dispatched here, so command
@@ -47,14 +53,17 @@ export const useChat = () => {
     const dispatch = useDispatch();
     const state = useSelector((root: RootState) => root.chat);
     
+    // A default parameter that reads `state.source` is a form the compiler skips.
+    const {source: currentSource} = state;
+    
     /**
-     * Run a line that is addressed to the registry. `source` is a parameter:
-     * `source` then `ast` in one input runs in one tick, and the selector
-     * still holds the old source. The sigil is checked once, on the user line:
-     * `/source\n…\nast` recurses into `ast`. `line` has no sigil (for the
-     * parser); `echo` has it (for the thread).
+     * Run one line that is addressed to the registry. `source` is a field of the
+     * step: `source` then `ast` in one input runs in one tick, and the selector
+     * still holds the old source. `line` has no sigil (for the parser); `echo`
+     * has it (for the thread). The answer is the next step, or `null`. A loop
+     * runs the steps: the compiler does not take a function that calls itself.
      */
-    const run = useCallback(async (line: string, echo: string, source: string): Promise<void> => {
+    const runOne = async ({line, echo, source}: Step): Promise<Step | null> => {
         // The registry's own keys, so "a body ends at the next command" is
         // measured against the same list the dispatch below uses. Without them
         // a `source` body would swallow every following line.
@@ -70,7 +79,7 @@ export const useChat = () => {
                 result: parseError(parsed.error),
             }));
             
-            return;
+            return null;
         }
         
         const {
@@ -90,7 +99,7 @@ export const useChat = () => {
                 result: unknown(command),
             }));
             
-            return;
+            return null;
         }
         
         const chat: ChatState = {
@@ -117,13 +126,13 @@ export const useChat = () => {
             // emptied. A user who clears the thread sees an empty thread.
             dispatch(clearThread());
             
-            return;
+            return null;
         }
         
         if (command === 'reset') {
             dispatch(reset());
             
-            return;
+            return null;
         }
         
         if (result.type === 'ast') {
@@ -156,17 +165,30 @@ export const useChat = () => {
         
         //
         
-        // sent. Recursing earlier would append `ast` above `source`.
-        if (rest)
-            await run(rest, rest, result.type === 'source' ? result.data : source);
-    }, [dispatch, state.plugin]);
+        // sent. Running it earlier would append `ast` above `source`.
+        if (!rest)
+            return null;
+        
+        return {
+            line: rest,
+            echo: rest,
+            source: result.type === 'source' ? result.data : source,
+        };
+    };
+    
+    const run = async (first: Step) => {
+        let step: Step | null = first;
+        
+        while (step)
+            step = await runOne(step);
+    };
     
     /**
      * The sigil gate. `trimmed &&`: an empty line goes to `parseCommand`, which
      * answers `Empty command`. `slice(1)` gives the registry the name, so a
      * misspelling reports `hello`, not `/hello`.
      */
-    const send = useCallback(async (input: string, source = state.source) => {
+    const send = async (input: string, source = currentSource) => {
         const trimmed = input.trimStart();
         
         if (trimmed && !addressed(trimmed)) {
@@ -179,8 +201,12 @@ export const useChat = () => {
             return;
         }
         
-        await run(trimmed.slice(1), trimmed, source);
-    }, [dispatch, run, state.source]);
+        await run({
+            line: trimmed.slice(1),
+            echo: trimmed,
+            source,
+        });
+    };
     
     return {
         send,

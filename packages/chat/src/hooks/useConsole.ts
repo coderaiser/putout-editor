@@ -1,4 +1,3 @@
-import {useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import type {Message} from '#store';
 import type {RootState} from '#store/types';
@@ -31,7 +30,7 @@ export const useConsole = (): ConsoleAst | null => {
     const consoleAst = useSelector((root: RootState) => root.chat.consoleAst);
     const open = useSelector((root: RootState) => root.chat.consoleOpen);
     
-    return useMemo(() => open && consoleAst ? consoleAst : null, [open, consoleAst]);
+    return open && consoleAst ? consoleAst : null;
 };
 
 /**
