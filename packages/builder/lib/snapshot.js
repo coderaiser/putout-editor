@@ -5,6 +5,7 @@ const isPlain = ({constructor}) => !constructor || constructor === Object;
 
 const walkItem = (ancestors) => (item) => walk(item, ancestors);
 const walkEntry = (ancestors) => ([key, item]) => [key, walk(item, ancestors)];
+const byKey = ([a], [b]) => a.localeCompare(b);
 const byText = (a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b));
 
 function walk(value, ancestors) {
@@ -27,6 +28,7 @@ function walk(value, ancestors) {
     
     const entries = Object
         .entries(value)
+        .sort(byKey)
         .map(walkEntry(next));
     
     if (isPlain(value))
@@ -41,10 +43,9 @@ function walk(value, ancestors) {
 /**
  * A rspack config holds regular expressions, functions, and plugin objects.
  * `createSnapshot` turns it into plain JSON, so that a spec can compare two configs.
- * It masks the parts that change without a reason: the root path, the folder of the installed
- * packages (hoisting moves it), the version, the cache breaker.
- * It puts each function on one line, so that the indent of the file does not matter.
- * The order of `plugins` does not matter to rspack here, so the snapshot sorts them.
+ * It masks the root path, the folder of the installed packages, the version, and the cache breaker.
+ * It puts each function on one line and sorts the keys of each object.
+ * It sorts `plugins`: the order does not matter to rspack here.
  */
 export const createSnapshot = (config, {root, version, cacheBreaker}) => {
     const plain = walk(config, []);

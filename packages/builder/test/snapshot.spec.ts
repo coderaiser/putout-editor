@@ -192,3 +192,16 @@ test('builder: snapshot: null and an array keep their shape', (t) => {
     t.deepEqual(result, expected);
     t.end();
 });
+
+test('builder: snapshot: the order of keys does not matter', (t) => {
+    const result = createSnapshot({
+        b: 1,
+        a: 2,
+    }, options);
+    
+    const keys = Object.keys(result);
+    const expected = ['a', 'b'];
+    
+    t.deepEqual(keys, expected);
+    t.end();
+});
