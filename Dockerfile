@@ -9,6 +9,7 @@ COPY packages/commands/package.json packages/commands/package.json
 COPY packages/flow/package.json packages/flow/package.json
 COPY packages/mcp/package.json packages/mcp/package.json
 COPY packages/plugin-putout-editor/package.json packages/plugin-putout-editor/package.json
+COPY packages/builder/package.json packages/builder/package.json
 COPY packages/server/package.json packages/server/package.json
 
 RUN bun install
@@ -35,6 +36,7 @@ COPY packages/commands/package.json packages/commands/package.json
 COPY packages/flow/package.json packages/flow/package.json
 COPY packages/mcp/package.json packages/mcp/package.json
 COPY packages/plugin-putout-editor/package.json packages/plugin-putout-editor/package.json
+COPY packages/builder/package.json packages/builder/package.json
 COPY packages/server/package.json packages/server/package.json
 
 RUN bun install --production --no-lockfile

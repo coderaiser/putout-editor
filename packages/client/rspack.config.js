@@ -169,7 +169,7 @@ export default {
                 join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
             use: [
-                join(__dirname, 'config', 'oxc-react-compiler-loader.js'),
+                '@putout/editor-builder/loader',
                 createSwcLoader(DEV),
             ],
         }, {

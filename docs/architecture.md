@@ -11,6 +11,7 @@ seam owns what.
 | `packages/chat` | The chat page: a message thread over the commands, and an AST tree. Builds to `out/chat/index.html`, served at `/chat`. |
 | `packages/commands` | `@putout/editor-commands`: the command registry, `parseCommand`, `compactAST`/`queryAST`. A Node library: no React, no DOM. |
 | `packages/flow` | `@putout/flow`: control flow graph. Source in, blocks and edges out. |
+| `packages/builder` | `@putout/editor-builder`: the rspack loader of the React Compiler, `diagnose`, and the factories of the rspack config. Used by `client` and `chat`. |
 | `packages/server` | NestJS HTTP API behind `putout.cloudcmd.io` (`/api/v1/*`). |
 | `packages/mcp` | MCP server for agents. See its `README.md`. |
 | `packages/plugin-putout-editor` | 🐊**Putout** rules for this repository. Lint only: no code imports it. |
