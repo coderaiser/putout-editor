@@ -169,8 +169,15 @@ export default {
                 join(__dirname, 'node_modules', 'estree-to-babel'),
             ],
             use: [
-                '@putout/editor-builder/loader',
                 createSwcLoader(DEV),
+            ],
+        }, {
+            // Only the client's own sources. The compiler runs first: a loader that
+            // comes later in `use` runs earlier, and SWC must see its output.
+            test: /\.(jsx?|tsx?)$/,
+            include: [new URL('src', import.meta.url).pathname],
+            use: [
+                '@putout/editor-builder/loader',
             ],
         }, {
             test: /\.css$/,

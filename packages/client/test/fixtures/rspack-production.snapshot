@@ -108,7 +108,6 @@
                     "<modules>/estree-to-babel"
                 ],
                 "use": [
-                    "@putout/editor-builder/loader",
                     {
                         "loader": "builtin:swc-loader",
                         "options": {
@@ -130,6 +129,15 @@
                             }
                         }
                     }
+                ]
+            },
+            {
+                "test": "/\\.(jsx?|tsx?)$/",
+                "include": [
+                    "<root>/packages/client/src"
+                ],
+                "use": [
+                    "@putout/editor-builder/loader"
                 ]
             },
             {
