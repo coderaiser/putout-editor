@@ -115,7 +115,7 @@
                     "test": "/\\/node_modules\\/(react|react-dom|react-redux|@reduxjs)\\//"
                 },
                 "vendors": {
-                    "chunks": "chunks(chunk) { return chunk.name === 'chat'; }",
+                    "chunks": "(chunk) => chunk.name === name",
                     "priority": 5,
                     "test": "/\\/node_modules\\//"
                 }
