@@ -62,7 +62,10 @@ when it loads. After a bundle change:
 - A tree (`/ast`, `/learn`) is four files in `src/components/`: `treeModel.ts` (rows, folds,
   filter, arrow moves: pure), `treeKeys.ts` (`keyToAction`: a key becomes an action: pure),
   `treeReducer.ts` (state transitions: pure) and `useTreeState.ts` (React and the DOM). Specs share
-  the fixture in `test/tree.ts` (`#test/tree`).
+  the fixture in `test/tree.ts` (`#test/tree`). `layoutOf` in `treeModel.ts` gives each row its
+  branch lines, once for all nodes. `AstRow` and `LearnRow` draw the rest on top of `TreeRow.tsx`.
+- The keys of the composer are `composerKey` in `src/composerKeys.ts`: pure, no React. `Input.tsx`
+  runs the action it returns.
 - `Enter` inserts a newline. `Ctrl+Enter` sends. A spec that sends must press the chord.
 - A command line starts with `/` (`src/sigil.ts`). When the command grammar changes, search for
   the old spelling in strings too: hint messages name commands.

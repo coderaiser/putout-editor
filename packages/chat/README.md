@@ -53,7 +53,8 @@ keybinding, so it carries the chord in its tooltip.
 | `src/index.tsx` | The entry: `<Provider><App/></Provider>`. |
 | `src/App.tsx` | Header, chat panel, and the console panel when it is open. |
 | `src/Chat.tsx` | The message thread and the input area. |
-| `src/Input.tsx` | Textarea, name autocomplete, `↑` history recall, and `growTo`. |
+| `src/Input.tsx` | The composer: name autocomplete and `↑` history recall. |
+| `src/composerKeys.ts` | `composerKey`: what each key does in the composer. Pure. |
 | `src/Message.tsx` | Switches on `result.type` and renders the block. |
 | `src/messages/` | One component per result type. |
 | `src/components/` | The AST tree — six components, self-contained, no Redux. |
