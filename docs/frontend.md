@@ -20,7 +20,7 @@ when it loads. After a bundle change:
 | `Cannot resolve 'v8'`, `'inspector'` | `import-meta-resolve`, `typescript` | `fallback: false` |
 | `Cannot find module '@putout/operator-match-files'` | a dynamic `require` resolves at run time | `NormalModuleReplacementPlugin` to an empty module |
 
-- The root `rspack.shared.js` holds the parts that both configs share: `NODE_ONLY`, the
+- `packages/builder/lib/shared.js` holds the parts that both configs share: `NODE_ONLY`, the
   fallbacks, the minimizer and the swc loader. It imports nothing: each config gives its own
   `rspack` and `resolve`.
 - `hermes-parser` is in `NODE_ONLY`. In the chat bundle it adds about 750 KB to the first load.

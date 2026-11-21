@@ -59,7 +59,7 @@ graph TD
 - **`find`, `transform` and `validate` load 🐊**Putout** with a dynamic `import()`.**
   🐊**Putout** cannot run in a browser: it calls `os.homedir()` at module scope. In a browser
   these three commands answer that they need the server. The other commands work with no
-  server. `rspack.shared.js` and `packages/chat/rspack.config.js` list what the bundle ignores.
+  server. `packages/builder/lib/shared.js` and `packages/chat/rspack.config.js` list what the bundle ignores.
 - **A command line starts with the sigil `/`.** `packages/chat/src/sigil.ts` holds the sigil
   and `prefixOf`. The autocomplete, the `Enter` check and `Message` all use `prefixOf`.
 - **The server does not use 🐊**Putout**.** It parses with `@babel/parser`, takes `compactAST`

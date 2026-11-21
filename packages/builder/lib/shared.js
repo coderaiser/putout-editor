@@ -1,5 +1,5 @@
 /**
- * Parts of the rspack config that `packages/client` and `packages/chat` share.
+ * Small parts of the rspack config that `packages/client` and `packages/chat` share.
  * This file imports nothing: each config gives its own `rspack` and `resolve`.
  */
 export const NODE_ONLY = [

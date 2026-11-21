@@ -13,7 +13,7 @@ import {
     createRemoveNodePrefix,
     createReplaceWithNothing,
     createSwcLoader,
-} from '../../rspack.shared.js';
+} from '@putout/editor-builder/shared';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
